@@ -1,7 +1,9 @@
-# `packageManager` in package.json is still held at pnpm 10, but the reason is gone:
-# it was pinned because Vercel did not support pnpm 11, and deploying with it made
-# every request fail at runtime. Vercel is no longer a deployment target, so the pin
-# is now only inertia — bumping to 11 needs a lockfile regeneration and a CI run.
+# `packageManager` in package.json is still held at pnpm 10, but the constraint is gone.
+# It was pinned because Vercel's build step did not support pnpm 11, and building with
+# it made every request fail at runtime. The server now ships as a container image, so
+# the image installs its own dependencies and no host platform picks the package
+# manager — that holds wherever the container runs, Vercel included.
+# Bumping to 11 needs a lockfile regeneration and a CI run, so it is a change of its own.
 packages:
   - apps/*
   - packages/*
