@@ -92,40 +92,27 @@ Selecting the right scopes for your token is important in case you want to displ
 
 ### On Vercel
 
-Click on the deploy button to get started!
+The server is deployed as a container image. CI builds it from the repository's
+`Dockerfile` and publishes it to GHCR as `ghcr.io/stats-forge/github-stats-forge`;
+`Dockerfile.vercel` pulls that image in so Vercel can serve it from a
+[Vercel Function](https://vercel.com/docs/functions/container-images). One
+container answers both `/api` and the docs and wizard under `/frontend`, so a
+deployment is a single origin.
 
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/stats-forge/github-stats-forge&root-directory=apps/backend)
+1. Fork this repo, then push once (or run the `Docker image` workflow by hand) so
+   the image exists, and make the `github-stats-forge` package **public** —
+   Vercel's builder pulls it anonymously.
+2. Point `IMAGE` in `Dockerfile.vercel` at your own package,
+   `ghcr.io/<your-user>/github-stats-forge:main`, or at a release tag to pin a
+   deployment to one build.
+3. Import the fork on [Vercel](https://vercel.com/dashboard), leaving
+   `Root directory` at the repository root, where `Dockerfile.vercel` lives.
+4. Set `PAT_1` to a [Personal Access Token](#first-step-get-your-personal-access-token-pat),
+   then deploy.
 
-<b>Recommended: Step-by-step guide on setting up your own Vercel instance</b>
-
-1. Go to [vercel.com](https://vercel.com/).
-2. Click on `Log in`.
-   ![](https://files.catbox.moe/pcxk33.png)
-3. Sign in with GitHub by pressing `Continue with GitHub`.
-   ![](https://files.catbox.moe/b9oxey.png)
-4. Sign in to GitHub and allow access to all repositories if prompted.
-5. Fork this repo. Disable "Copy the `main` branch only".
-6. Go back to your [Vercel dashboard](https://vercel.com/dashboard).
-7. To import a project, click the `Add New...` button and select the `Project` option.
-   ![](https://files.catbox.moe/3n76fh.png)
-8. Search for the forked Git Repository and import it by clicking the `Import` button.
-9. Create a Personal Access Token (PAT) as described in the [previous section](#first-step-get-your-personal-access-token-pat).
-10. Add the PAT as an environment variable named `PAT_1` (as shown).
-    ![](https://files.catbox.moe/0yclio.png)
-    Note: For enhanced security, you can add a variable as a sensitive variable. To do this:
-    1. Go to `Environment Variables` in `Project Settings`, then choose `Add Environment Variable`.
-       ![](https://files.catbox.moe/heprjw.jpg)
-    2. Uncheck `Deployment` from `Environments`
-       ![](https://files.catbox.moe/tiqgd0.jpg)
-    3. Now you can make the variable `Sensitive` by checking the checkbox.
-       ![](https://files.catbox.moe/mla5no.jpg)
-11. As `Root directory` select the `apps/backend` folder.
-12. Click deploy.
-13. Point your Vercel project at the `release` branch instead of `main`.  
-    `main` contains unreleased, potentially unstable code, while `release` contains the latest stable release.
-    1. In your Vercel project settings, go to `Environments → Production` and change the tracked branch from `main` to `release`.
-    2. Go to `Deployments → ... → Create Deployment`, select `release` and click `Deploy to production`.
-14. See your domains to use the API!
+Vercel routes to port `80` unless the project sets `PORT`, and the image listens on
+whichever it is given. Running it anywhere else is the same command:
+`docker run -p 8080:80 -e PAT_1=… ghcr.io/stats-forge/github-stats-forge:main`.
 
 ### Optional steps
 
