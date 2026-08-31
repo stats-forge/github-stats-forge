@@ -18,7 +18,7 @@ import {
 import type { RepositoryData } from "../fetchers/types.js";
 import { repoCardLocales } from "../translations.js";
 
-import type { CommonCardOptions } from "./options.js";
+import type { CardOptions, CommonCardOptions } from "./options.js";
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = 400;
@@ -86,7 +86,7 @@ const getBadgeSVG = (label: string, xOffset = 0): string => {
  */
 const renderRepoCard = (
   repo: RepositoryData,
-  options: Partial<RepoCardOptions> = {},
+  options: CardOptions<RepoCardOptions> = {},
 ): string => {
   const {
     name,

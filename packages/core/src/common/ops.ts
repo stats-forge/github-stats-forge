@@ -31,10 +31,10 @@ const parseBoolean = (
 /**
  * Parse string to array of strings.
  *
- * @param str The string to parse.
+ * @param str The string to parse; `undefined` when the param was not sent.
  * @returns The array of strings.
  */
-const parseArray = (str: string): Array<string> => {
+const parseArray = (str: string | undefined): Array<string> => {
   if (!str) {
     return [];
   }

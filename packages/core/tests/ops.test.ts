@@ -31,7 +31,6 @@ describe("Test ops.js", () => {
     expect(parseArray("a,b,c")).toEqual(["a", "b", "c"]);
     expect(parseArray("a, b, c")).toEqual(["a", " b", " c"]); // preserves spaces
     expect(parseArray("")).toEqual([]);
-    // @ts-expect-error testing invalid input
     expect(parseArray(undefined)).toEqual([]);
   });
 

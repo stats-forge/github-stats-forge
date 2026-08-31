@@ -7,6 +7,8 @@ import { renderRepoCard } from "../src/cards/repo.js";
 import type { RepositoryData } from "../src/fetchers/types.js";
 import { themes } from "../src/themes/index.js";
 
+import { testConfig } from "./_config.js";
+
 const data_repo: { repository: RepositoryData } = {
   repository: {
     nameWithOwner: "anuraghazra/convoychat",
@@ -411,12 +413,12 @@ describe("Test renderRepoCard", () => {
 describe("test pin API", () => {
   it("should return a permanent error for an invalid color parameter", async () => {
     const result = await pinApi(
-      // api handler accepts a partial options object at runtime
       {
         username: "user",
         repo: "repo",
         title_color: "not-a-color",
-      } as Parameters<typeof pinApi>[0],
+      },
+      testConfig,
     );
 
     expect(result.status).toBe("error - permanent");

@@ -26,8 +26,8 @@ const urlExample = "/api/pin?username=USERNAME&repo=REPO_NAME";
  */
 const fetchRepo = async (
   config: CardConfig,
-  username: string,
-  reponame: string,
+  username: string | undefined,
+  reponame: string | undefined,
   include_prs_authored = false,
   include_prs_commented = false,
   include_prs_reviewed = false,
@@ -57,7 +57,14 @@ const fetchRepo = async (
     throw new MissingParamError(["repo"], urlExample);
   }
 
-  const res = await retryer(fetcher, { login: owner, repo: reponame }, config);
+  // the guards above leave `username` set, and `owner` mirrors it when `repo` carried none
+  const repoOwner = owner ?? username;
+
+  const res = await retryer(
+    fetcher,
+    { login: repoOwner, repo: reponame },
+    config,
+  );
 
   const data = res.data.data;
 
@@ -72,7 +79,7 @@ const fetchRepo = async (
     }
     const repoUserStats = await fetchRepoUserStats(
       username,
-      [owner + "/" + reponame],
+      [`${repoOwner}/${reponame}`],
       [],
       include_prs_authored,
       include_prs_commented,
@@ -94,7 +101,7 @@ const fetchRepo = async (
     }
     const repoUserStats = await fetchRepoUserStats(
       username,
-      [owner + "/" + reponame],
+      [`${repoOwner}/${reponame}`],
       [],
       include_prs_authored,
       include_prs_commented,
