@@ -19,8 +19,13 @@ const HIDDEN_PROGRESSBAR_PADDING = 170;
 const COMPACT_LAYOUT_PROGRESSBAR_PADDING = 25;
 const TOTAL_TEXT_WIDTH = 275;
 
-type WakaTimeLayout = "compact" | "normal";
-type DisplayFormat = "time" | "percent";
+/** Layouts the card can draw; the api validates `layout` against this. */
+const WAKATIME_LAYOUTS = ["compact", "normal"] as const;
+type WakaTimeLayout = (typeof WAKATIME_LAYOUTS)[number];
+
+/** How a language's time is written; the api validates `display_format` against this. */
+const DISPLAY_FORMATS = ["time", "percent"] as const;
+type DisplayFormat = (typeof DISPLAY_FORMATS)[number];
 
 interface WakaTimeOptions extends CommonCardOptions {
   locale: string;
@@ -495,5 +500,4 @@ const renderWakatimeCard = (
   `);
 };
 
-export { renderWakatimeCard };
-export type { DisplayFormat, WakaTimeLayout };
+export { DISPLAY_FORMATS, WAKATIME_LAYOUTS, renderWakatimeCard };

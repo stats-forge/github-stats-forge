@@ -27,9 +27,19 @@ const DONUT_LAYOUT_DEFAULT_LANGS_COUNT = 5;
 const PIE_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 const DONUT_VERTICAL_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 
-type TopLangLayout = "compact" | "normal" | "donut" | "donut-vertical" | "pie";
-/** How a language's value is shown. */
-type TopLangStatsFormat = "percentages" | "bytes";
+/** Layouts the card can draw; the api validates `layout` against this. */
+const TOP_LANG_LAYOUTS = [
+  "compact",
+  "normal",
+  "donut",
+  "donut-vertical",
+  "pie",
+] as const;
+type TopLangLayout = (typeof TOP_LANG_LAYOUTS)[number];
+
+/** How a language's value is shown; the api validates `stats_format` against this. */
+const TOP_LANG_STATS_FORMATS = ["percentages", "bytes"] as const;
+type TopLangStatsFormat = (typeof TOP_LANG_STATS_FORMATS)[number];
 
 interface TopLangOptions extends CommonCardOptions {
   locale: string;
@@ -1101,5 +1111,6 @@ export {
   renderTopLanguages,
   MIN_CARD_WIDTH,
   getDefaultLanguagesCountByLayout,
+  TOP_LANG_LAYOUTS,
+  TOP_LANG_STATS_FORMATS,
 };
-export type { TopLangLayout, TopLangStatsFormat };

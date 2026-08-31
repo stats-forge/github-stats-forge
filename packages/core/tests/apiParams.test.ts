@@ -1,0 +1,121 @@
+import axios from "axios";
+import MockAdapter from "axios-mock-adapter";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+import gistApi from "../src/api/gist.js";
+import pinApi from "../src/api/pin.js";
+import statsApi from "../src/api/stats.js";
+import topLangsApi from "../src/api/top-langs.js";
+import wakatimeApi from "../src/api/wakatime.js";
+
+import { testConfig } from "./_config.js";
+
+/** Every endpoint, called the way its own signature allows. */
+const endpoints = {
+  stats: (query: Record<string, string>) => statsApi(query, testConfig),
+  pin: (query: Record<string, string>) => pinApi(query, testConfig),
+  "top-langs": (query: Record<string, string>) =>
+    topLangsApi(query, testConfig),
+  gist: (query: Record<string, string>) => gistApi(query, testConfig),
+  // The WakaTime API needs no GitHub token, so this one takes no config.
+  wakatime: (query: Record<string, string>) => wakatimeApi(query),
+};
+
+const withUser = (endpoint: string): Record<string, string> =>
+  endpoint === "gist" ? { id: "abc123" } : { username: "anuraghazra" };
+
+// Nothing here is about fetching:
+// every request fails immediately, so a query that got past validation is a temporary error.
+const mock = new MockAdapter(axios);
+
+beforeAll(() => {
+  mock.onAny().networkError();
+});
+
+afterAll(() => {
+  mock.restore();
+});
+
+describe("api query schemas", () => {
+  it.each(Object.entries(endpoints))(
+    "%s rejects an unavailable locale with the same wording",
+    async (name, call) => {
+      const result = await call({ ...withUser(name), locale: "xx" });
+
+      // the gist card has no translated text, so it takes no locale at all
+      if (name === "gist") {
+        expect(result.content).not.toContain("Locale not found");
+        return;
+      }
+      expect(result.status).toBe("error - permanent");
+      expect(result.content).toContain("Locale not found");
+    },
+  );
+
+  it.each(Object.entries(endpoints))(
+    "%s ignores params it does not declare",
+    async (name, call) => {
+      const result = await call({
+        ...withUser(name),
+        cache_seconds: "86400",
+        client: "wizard",
+        // a param another endpoint owns
+        langs_count: "4",
+      });
+
+      // the stubbed fetch fails, so anything that got past validation is temporary
+      expect(result.status).toBe("error - temporary");
+    },
+  );
+
+  it.each(Object.entries(endpoints))(
+    "%s reports the first invalid color by name",
+    async (name, call) => {
+      const result = await call({
+        ...withUser(name),
+        title_color: "not-a-color",
+        bg_color: "also-not-a-color",
+      });
+
+      expect(result.status).toBe("error - permanent");
+      expect(result.content).toContain(
+        "Invalid color input for parameter &#34;title_color&#34;",
+      );
+    },
+  );
+
+  it("rejects a malformed number by naming the param", async () => {
+    const result = await endpoints.stats({
+      username: "anuraghazra",
+      border_radius: "abc",
+    });
+
+    expect(result.status).toBe("error - permanent");
+    expect(result.content).toContain(
+      "Invalid number input for parameter &#34;border_radius&#34;",
+    );
+  });
+
+  it("keeps the coercion the card performs, so 10px is 10", async () => {
+    const result = await endpoints.stats({
+      username: "anuraghazra",
+      border_radius: "10px",
+    });
+
+    // the stubbed fetch fails, but the param got past validation
+    expect(result.status).toBe("error - temporary");
+  });
+
+  it.each([
+    ["layout", "sideways", "Incorrect layout input"],
+    ["stats_format", "kilobytes", "Incorrect stats_format input"],
+  ])("rejects an unrenderable %s", async (param, value, message) => {
+    const result = await endpoints["top-langs"]({
+      username: "anuraghazra",
+      [param]: value,
+    });
+
+    expect(result.status).toBe("error - permanent");
+    expect(result.content).toContain(message);
+  });
+});

@@ -65,23 +65,6 @@ const isValidColorInput = (color: string | null | undefined): boolean => {
 };
 
 /**
- * Iterates over a collection of colors inputs and verifies that each is a valid color or gradient.
- *
- * @param colors Object whose values are checked as valid color inputs.
- * @return The first key where the associated input value is not valid. null if all inputs are valid.
- */
-const findInvalidColor = (
-  colors: Record<string, string | null | undefined>,
-): string | null => {
-  for (const [key, value] of Object.entries(colors)) {
-    if (!isValidColorInput(value)) {
-      return key;
-    }
-  }
-  return null;
-};
-
-/**
  * Retrieves a gradient if color has more than one valid hex codes else a single color.
  *
  * @param color The color to parse.
@@ -308,51 +291,19 @@ const COLOR_PARAM_KEYS: ReadonlyArray<keyof ColorParams> = [
   ),
 ];
 
-/**
- * Picks all color-related parameters from a query object.
- *
- * @param query Raw query parameters.
- * @returns All color-related parameters.
- */
-const pickColorParams = (
-  query: Record<string, string | undefined>,
-): ColorParams =>
-  Object.fromEntries(
-    COLOR_PARAM_KEYS.filter((k) => k in query).map((k) => [k, query[k]]),
-  );
-
 /** Params naming a theme rather than holding a color value. */
 const THEME_PARAM_KEYS: ReadonlyArray<keyof ColorParams> = [
   "theme",
   ...THEME_VARIANTS.map((variant) => `theme_${variant}` as const),
 ];
 
-/**
- * Finds the first color param holding an invalid color.
- *
- * Theme params are skipped: they name a theme, and an unknown name falls back
- * to the default rather than being an error.
- *
- * @param params Color params, as returned by {@link pickColorParams}.
- * @returns The first invalid param name, or null if all are valid.
- */
-const findInvalidColorParam = (params: ColorParams): string | null =>
-  findInvalidColor(
-    Object.fromEntries(
-      Object.entries(params).filter(
-        ([key]) => !THEME_PARAM_KEYS.includes(key as keyof ColorParams),
-      ),
-    ),
-  );
-
 export type { CardColors, ColorParams };
 
 export {
+  isValidColorInput,
+  THEME_PARAM_KEYS,
   getCardColors,
   getLightDarkColors,
-  findInvalidColor,
-  findInvalidColorParam,
-  pickColorParams,
   isValidGradient,
   isBareHexColor,
   isPrefixedHexColor,

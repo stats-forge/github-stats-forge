@@ -1,17 +1,15 @@
 import { describe, expect, it } from "vitest";
 
+import { parseColorParams } from "../src/api/params.js";
 import {
   BASE_COLOR_KEYS,
   COLOR_PARAM_KEYS,
   THEME_VARIANTS,
-  findInvalidColor,
-  findInvalidColorParam,
   getCardColors,
   getLightDarkColors,
   isBareHexColor,
   isPrefixedHexColor,
   isValidGradient,
-  pickColorParams,
 } from "../src/common/color.js";
 
 describe("getCardColors", () => {
@@ -276,53 +274,68 @@ describe("getLightDarkColors", () => {
   });
 });
 
-describe("findInvalidColor", () => {
-  it("should return null for valid colors", () => {
+describe("parseColorParams", () => {
+  /**
+   * @param query Raw query params.
+   * @returns The param the schema rejected, or null when it accepted them all.
+   */
+  const invalidParam = (query: Record<string, string>): string | null => {
+    const result = parseColorParams(query);
+    if (result.ok) {
+      return null;
+    }
+    const [, param] = /parameter "(.*)"/.exec(result.secondaryMessage) ?? [];
+    return param ?? result.secondaryMessage;
+  };
+
+  it("should accept valid colors", () => {
     expect(
-      findInvalidColor({
-        title_color: "f00",
-        text_color: "0f0",
-        bg_color: "fff",
-      }),
+      invalidParam({ title_color: "f00", text_color: "0f0", bg_color: "fff" }),
     ).toBeNull();
   });
 
-  it("should return null for null/undefined values", () => {
-    expect(
-      findInvalidColor({
-        title_color: null,
-        text_color: undefined,
-        bg_color: "fff",
-      }),
-    ).toBeNull();
+  it("should accept a param that was not sent", () => {
+    expect(invalidParam({ bg_color: "fff" })).toBeNull();
   });
 
-  it("should return the key of first invalid color", () => {
+  it("should name the first invalid color", () => {
     expect(
-      findInvalidColor({
-        title_color: "0f0",
-        text_color: "red",
-        bg_color: "fff",
-      }),
+      invalidParam({ title_color: "0f0", text_color: "red", bg_color: "fff" }),
     ).toBe("text_color");
   });
 
-  it("should validate gradients in color inputs", () => {
+  it("should accept gradients", () => {
     expect(
-      findInvalidColor({
-        title_color: "90,f00,0f0",
-        bg_color: "fff",
-      }),
+      invalidParam({ title_color: "90,f00,0f0", bg_color: "fff" }),
     ).toBeNull();
   });
 
-  it("should reject invalid gradients in color inputs", () => {
+  it("should reject an invalid gradient", () => {
+    expect(invalidParam({ title_color: "invalid,f00,0f0" })).toBe(
+      "title_color",
+    );
+  });
+
+  it("should validate colors but skip theme params", () => {
+    expect(invalidParam({ theme: "not-a-color", bg_color: "fff" })).toBeNull();
     expect(
-      findInvalidColor({
-        title_color: "invalid,f00,0f0",
-        bg_color: "fff",
-      }),
-    ).toBe("title_color");
+      invalidParam({ theme_dark: "not-a-color", bg_color: "fff" }),
+    ).toBeNull();
+    expect(invalidParam({ bg_color_dark: "not-a-color" })).toBe(
+      "bg_color_dark",
+    );
+  });
+
+  it("should pick every accepted param off a query, and nothing else", () => {
+    const query = Object.fromEntries(
+      COLOR_PARAM_KEYS.map((key) => [key, "fff"]),
+    );
+    const result = parseColorParams({ ...query, username: "x" });
+
+    expect(result.ok).toBe(true);
+    expect(result.ok && Object.keys(result.params)).toStrictEqual([
+      ...COLOR_PARAM_KEYS,
+    ]);
   });
 });
 
@@ -367,27 +380,6 @@ describe("color param surface", () => {
     }
     expect(COLOR_PARAM_KEYS).toHaveLength(
       BASE_COLOR_KEYS.length * (THEME_VARIANTS.length + 1),
-    );
-  });
-
-  it("picks every accepted param off a query, and nothing else", () => {
-    const query = Object.fromEntries(
-      COLOR_PARAM_KEYS.map((key) => [key, "fff"]),
-    );
-    expect(
-      Object.keys(pickColorParams({ ...query, username: "x" })),
-    ).toStrictEqual([...COLOR_PARAM_KEYS]);
-  });
-
-  it("validates colors but skips theme params", () => {
-    expect(
-      findInvalidColorParam({ theme: "not-a-color", bg_color: "fff" }),
-    ).toBeNull();
-    expect(
-      findInvalidColorParam({ theme_dark: "not-a-color", bg_color: "fff" }),
-    ).toBeNull();
-    expect(findInvalidColorParam({ bg_color_dark: "not-a-color" })).toBe(
-      "bg_color_dark",
     );
   });
 });

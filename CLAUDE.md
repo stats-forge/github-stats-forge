@@ -89,6 +89,11 @@ and a CI run, so it is a change of its own.
   quoted above a short reply. Say so when a review asks for wording that was already
   there. Untracked scratch; if the repo owner edited it, build on their text.
 - Keep code comments short — one line, and only for what the code cannot show itself.
+- **Break a comment line after its punctuation.**
+  A comment that runs past one line wraps at the sentence, not at the column:
+  start the next line after the full stop, colon or dash that ends the thought,
+  rather than filling to the print width.
+  One thought per line, so a later edit touches one line in the diff.
 - `.claude/scratch/CORE_TYPESCRIPT_MIGRATION.md` is the running handoff for the
   ongoing `packages/core` JS→TS migration. Read it before touching `packages/core`, keep
   it current, and don't commit it with a PR.
@@ -152,10 +157,31 @@ CommonCardOptions {…}` (an interface, not `type &`) in its own file, **not exp
 ### The api layer is the trust boundary
 
 `api/*` turns a query string into card options, so **parse and validate there once** and
-hand the render functions typed values — defaults stay with the renderer. A handler
-declares `interface XApiQuery extends ColorParams { … }` with every field a `string`,
-because that is what a query string yields, and returns the shared `ApiResult` from
-`api/types.js`.
+hand the render functions typed values — defaults stay with the renderer.
+
+**Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
+params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam(name)`,
+`looseIntParam`, `safeParam(error)`, `safeListParam(error)`, `localeParam`,
+`enumParam(values, error)`, `yearParam(name)`).
+A handler is then three steps:
+`parseColorParams(query)`, `parseParams(xQuery, query)`, render — and it returns the
+shared `ApiResult` from `api/api-result.js`, with `permanentError` / `temporaryError`
+building the two failure shapes.
+
+- **Colors parse first, separately.**
+  A rejected color cannot be used to draw its own error card, which is why
+  `parseColorParams` is its own pass and its error renders with no `renderOptions`.
+- **The query type comes from the schema**: `export type XApiQuery = ApiQuery<typeof xQuery>`.
+  Consumers import it and get their query object checked — an unknown param or a
+  non-string value is a compile error, and every param stays optional.
+- **`enumParam` takes the card's own list.**
+  `RANK_ICONS`, `TOP_LANG_LAYOUTS`, `WAKATIME_LAYOUTS`, `DISPLAY_FORMATS` and
+  `TOP_LANG_STATS_FORMATS` are exported by the card that renders them, and the card's
+  union type is derived from the same const, so the schema cannot drift from what renders.
+- **One wording per kind of rejection.**
+  `Invalid number input for parameter "x"`, `Invalid color input for parameter "x"`,
+  `Locale not found`, `Incorrect <param> input`, `… contains unsafe characters`.
+  Only the first rejection is reported: the error card has one line.
 
 - **The api parses; the card defaults.** A handler turns strings into typed values
   (`parseBoolean`, `parseFloat`, `toLowerCase`) and stops there — it never supplies a
@@ -173,8 +199,8 @@ because that is what a query string yields, and returns the shared `ApiResult` f
   `Invalid border radius: "NaN"` as a temporary error; it is now a permanent
   `Invalid number input for parameter "border_radius"`, matching the colour wording. Name
   the parameter, never echo the value.
-- **Match the coercion the callee already performed.** `border_radius` is `parseFloat`d in
-  `api/gist.ts` because `Card` did `parseFloat(String(border_radius))` internally, so
+- **Match the coercion the callee already performed.** `border_radius` is `parseFloat`d by
+  `numberParam` because `Card` did `parseFloat(String(border_radius))` internally, so
   `?border_radius=10px` still renders `rx="10"`; `Number()` would also have made
   `?border_radius=` a silent `0` instead of an error.
 - **`CardOptions<T>`** (`cards/options.ts`) is `Partial<T>` that also accepts an

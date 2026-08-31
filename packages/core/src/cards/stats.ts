@@ -18,7 +18,9 @@ const RANK_CARD_DEFAULT_WIDTH = 450;
 const RANK_ONLY_CARD_MIN_WIDTH = 290;
 const RANK_ONLY_CARD_DEFAULT_WIDTH = 290;
 
-type RankIcon = "default" | "github" | "percentile";
+/** Rank indicators the card can draw; the api validates `rank_icon` against this. */
+const RANK_ICONS = ["default", "github", "percentile"] as const;
+type RankIcon = (typeof RANK_ICONS)[number];
 
 interface StatCardOptions extends CommonCardOptions {
   locale: string;
@@ -622,5 +624,4 @@ const renderStatsCard = (
   `);
 };
 
-export { renderStatsCard };
-export type { RankIcon };
+export { RANK_ICONS, renderStatsCard };
