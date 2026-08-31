@@ -28,7 +28,7 @@ const fetcher = createGraphQLFetcher(TopLanguagesDocument, "token");
  */
 const fetchTopLanguages = async (
   config: CardConfig,
-  username: string,
+  username: string | undefined,
   exclude_repo: Array<string> = [],
   size_weight = 1,
   count_weight = 0,

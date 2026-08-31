@@ -24,6 +24,7 @@ import {
 import type { TopLangData } from "../src/fetchers/types.js";
 import { themes } from "../src/themes/index.js";
 
+import { testConfig } from "./_config.js";
 import { approxNumber } from "./utils.js";
 
 const langs = {
@@ -876,10 +877,8 @@ describe("Test renderTopLanguages", () => {
 describe("test top-langs API", () => {
   it("should return a permanent error for an invalid color parameter", async () => {
     const result = await topLangsApi(
-      // api handler accepts a partial options object at runtime
-      { username: "user", title_color: "not-a-color" } as Parameters<
-        typeof topLangsApi
-      >[0],
+      { username: "user", title_color: "not-a-color" },
+      testConfig,
     );
 
     expect(result.status).toBe("error - permanent");

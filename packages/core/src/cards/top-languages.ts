@@ -13,7 +13,7 @@ import {
 import type { Lang, TopLangData } from "../fetchers/types.js";
 import { langCardLocales } from "../translations.js";
 
-import type { CommonCardOptions } from "./options.js";
+import type { CardOptions, CommonCardOptions } from "./options.js";
 
 const DEFAULT_CARD_WIDTH = 300;
 const MIN_CARD_WIDTH = 280;
@@ -28,6 +28,8 @@ const PIE_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 const DONUT_VERTICAL_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 
 type TopLangLayout = "compact" | "normal" | "donut" | "donut-vertical" | "pie";
+/** How a language's value is shown. */
+type TopLangStatsFormat = "percentages" | "bytes";
 
 interface TopLangOptions extends CommonCardOptions {
   locale: string;
@@ -41,7 +43,7 @@ interface TopLangOptions extends CommonCardOptions {
   hide_progress: boolean;
   hide_values: boolean;
   prog_bar_bg_color: string;
-  stats_format: "percentages" | "bytes";
+  stats_format: TopLangStatsFormat;
 }
 
 /**
@@ -912,7 +914,7 @@ const getDefaultLanguagesCountByLayout = ({
  */
 const renderTopLanguages = (
   topLangs: TopLangData,
-  options: Partial<TopLangOptions> = {},
+  options: CardOptions<TopLangOptions> = {},
 ): string => {
   const {
     hide_title = false,
@@ -1100,3 +1102,4 @@ export {
   MIN_CARD_WIDTH,
   getDefaultLanguagesCountByLayout,
 };
+export type { TopLangLayout, TopLangStatsFormat };
