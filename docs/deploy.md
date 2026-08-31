@@ -92,26 +92,26 @@ Selecting the right scopes for your token is important in case you want to displ
 
 ### On Vercel
 
-The server is deployed as a container image. CI builds it from the repository's
-`Dockerfile` and publishes it to GHCR as `ghcr.io/stats-forge/github-stats-forge`;
-`Dockerfile.vercel` pulls that image in so Vercel can serve it from a
+The server runs as a container image, and you deploy the published one — no image
+build of your own. CI here builds `ghcr.io/stats-forge/github-stats-forge` from
+the repository's `Dockerfile` and publishes it to GHCR; `Dockerfile.vercel` pulls
+that image in so Vercel serves it from a
 [Vercel Function](https://vercel.com/docs/functions/container-images). One
 container answers both `/api` and the docs and wizard under `/frontend`, so a
 deployment is a single origin.
 
-1. Fork this repo, then push once (or run the `Docker image` workflow by hand) so
-   the image exists, and make the `github-stats-forge` package **public** —
-   Vercel's builder pulls it anonymously.
-2. Point `IMAGE` in `Dockerfile.vercel` at your own package,
-   `ghcr.io/<your-user>/github-stats-forge:main`, or at a release tag to pin a
-   deployment to one build.
-3. Import the fork on [Vercel](https://vercel.com/dashboard), leaving
+1. Fork this repo. `Dockerfile.vercel` already points at the published image, so
+   there is nothing to build or edit.
+2. Import the fork on [Vercel](https://vercel.com/dashboard), leaving
    `Root directory` at the repository root, where `Dockerfile.vercel` lives.
-4. Set `PAT_1` to a [Personal Access Token](#first-step-get-your-personal-access-token-pat),
+3. Set `PAT_1` to a [Personal Access Token](#first-step-get-your-personal-access-token-pat),
    then deploy.
 
+`Dockerfile.vercel` pulls `:main`, so a redeploy picks up the latest build; change
+its `IMAGE` tag to a release such as `:v2.1.5` to hold a deployment on one image.
+
 Vercel routes to port `80` unless the project sets `PORT`, and the image listens on
-whichever it is given. Running it anywhere else is the same command:
+whichever it is given. Running it anywhere else is the same image:
 `docker run -p 8080:80 -e PAT_1=… ghcr.io/stats-forge/github-stats-forge:main`.
 
 ### Optional steps

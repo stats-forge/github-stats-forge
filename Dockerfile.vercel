@@ -9,7 +9,7 @@
 # already-built image instead of building the app a second time. Everything the
 # image needs — `CMD`, `PORT`, `FRONTEND_DIR` — comes with it.
 #
-# The GHCR package has to be public, or Vercel's builder cannot pull it.
-# Point `IMAGE` at a release tag to pin a deployment to one build.
+# The published package is public, so a fork deploys it as-is — no image build of
+# its own. Point `IMAGE` at a release tag to hold a deployment on one build.
 ARG IMAGE=ghcr.io/stats-forge/github-stats-forge:main
 FROM ${IMAGE}
