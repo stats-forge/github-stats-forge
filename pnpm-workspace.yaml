@@ -1,0 +1,38 @@
+# `packageManager` in package.json is still held at pnpm 10, but the reason is gone:
+# it was pinned because Vercel did not support pnpm 11, and deploying with it made
+# every request fail at runtime. Vercel is no longer a deployment target, so the pin
+# is now only inertia — bumping to 11 needs a lockfile regeneration and a CI run.
+packages:
+  - apps/*
+  - packages/*
+
+onlyBuiltDependencies:
+  - "@swc/core"
+  - esbuild
+  - unrs-resolver
+
+catalog:
+  "@vitest/coverage-v8": 4.1.10
+  axios: ^1.18.1
+  jsdom: 29.1.1
+  vitest: 4.1.10
+
+overrides:
+  # @tailwindcss/node pins lightningcss exactly while vite floats on ^1.32.0, so a cold re-resolve installs both.
+  # Updates against the existing lockfile keep 1.32.0 either way, so this only guards re-resolution.
+  # Enforced by scripts/assert-deduped.ts; drop it there too once @tailwindcss/node pins a version vite also resolves to.
+  "vite>lightningcss": 1.32.0
+  # @astrojs/react still asks for @vitejs/plugin-react ^5, which compiles through Babel and so
+  # pulls in semver@6.3.1 — rejected by `trustPolicy: no-downgrade`. Version 6 dropped Babel for
+  # oxc and is what the rest of the repo already resolves to. Drop this once @astrojs/react moves to ^6.
+  "@astrojs/react>@vitejs/plugin-react": 6.0.3
+
+# Deliberately stricter than pnpm 11's 1440 default (7 days vs 1)
+minimumReleaseAge: 10080
+
+# Reject a version with weaker publish trust evidence than an earlier one.
+trustPolicy: no-downgrade
+
+# Fail on unmet peers and on a Node version outside `engines`, instead of warning
+strictPeerDependencies: true
+engineStrict: true

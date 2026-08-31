@@ -1,0 +1,101 @@
+{
+  "name": "@stats-organization/github-readme-stats-core",
+  "version": "2.1.5",
+  "type": "module",
+  "homepage": "https://github.com/stats-forge/github-stats-forge",
+  "bugs": {
+    "url": "https://github.com/stats-forge/github-stats-forge/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stats-forge/github-stats-forge.git",
+    "directory": "packages/core"
+  },
+  "author": {
+    "name": "Anurag Hazra",
+    "url": "https://github.com/anuraghazra/"
+  },
+  "contributors": [
+    {
+      "name": "Rick Staa",
+      "url": "https://github.com/rickstaa"
+    },
+    {
+      "name": "Alexandr Garbuzov",
+      "url": "https://github.com/qwerty541"
+    },
+    {
+      "name": "Abhijit Gupta",
+      "url": "https://github.com/avgupta456"
+    },
+    {
+      "name": "Marco Pasqualetti",
+      "url": "https://github.com/marcalexiei"
+    },
+    {
+      "name": "martin-mfg",
+      "url": "https://github.com/martin-mfg"
+    }
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": "24.x"
+  },
+  "description": "Dynamically generate stats for your GitHub readme",
+  "keywords": [
+    "github-readme-stats",
+    "readme-stats",
+    "cards",
+    "card-generator",
+    "github-stats",
+    "github-stats-extended",
+    "github-readme-stats-extended"
+  ],
+  "main": "./build/index.js",
+  "exports": {
+    ".": {
+      "@stats/source": "./src/index.ts",
+      "default": "./build/index.js"
+    }
+  },
+  "files": [
+    "build",
+    "src",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm run build",
+    "test": "vitest",
+    "test:update:snapshot": "vitest -u",
+    "test:e2e": "vitest --config vitest.config.e2e.ts",
+    "bench": "vitest bench --run --config vitest.config.bench.ts",
+    "lint": "eslint",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "generate-graphql-types": "node scripts/generate-graphql-types",
+    "check-graphql-types": "node scripts/generate-graphql-types --check",
+    "generate-language-colors": "node scripts/generate-language-colors"
+  },
+  "devDependencies": {
+    "@graphql-codegen/core": "6.2.0",
+    "@graphql-codegen/typescript": "6.1.0",
+    "@graphql-codegen/typescript-operations": "6.1.2",
+    "@octokit/graphql-schema": "15.26.1",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@uppercod/css-to-object": "1.1.1",
+    "axios-mock-adapter": "2.1.0",
+    "graphql": "16.11.0",
+    "js-yaml": "5.2.1",
+    "jsdom": "catalog:default",
+    "vitest": "catalog:default"
+  },
+  "dependencies": {
+    "axios": "catalog:default",
+    "emoji-name-map": "^2.0.3",
+    "github-username-regex": "^1.0.0"
+  }
+}
