@@ -101,13 +101,10 @@ describe("Test Render WakaTime Card", () => {
 
 describe("test wakatime API", () => {
   it("should return a permanent error for an invalid color parameter", async () => {
-    const result = await wakatimeApi(
-      // api handler accepts a partial options object at runtime
-      {
-        username: "user",
-        title_color: "not-a-color",
-      } as Parameters<typeof wakatimeApi>[0],
-    );
+    const result = await wakatimeApi({
+      username: "user",
+      title_color: "not-a-color",
+    });
 
     expect(result.status).toBe("error - permanent");
     expect(result.content).toContain(

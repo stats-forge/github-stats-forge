@@ -8,7 +8,7 @@ import { createProgressNode, flexLayout } from "../common/render.js";
 import type { WakaTimeData, WakaTimeLang } from "../fetchers/types.js";
 import { wakatimeCardLocales } from "../translations.js";
 
-import type { CommonCardOptions } from "./options.js";
+import type { CardOptions, CommonCardOptions } from "./options.js";
 
 const DEFAULT_CARD_WIDTH = 495;
 const MIN_CARD_WIDTH = 250;
@@ -287,7 +287,7 @@ const normalizeCardWidth = ({
  */
 const renderWakatimeCard = (
   stats: Partial<WakaTimeData> = {},
-  options: Partial<WakaTimeOptions> = { hide: [] },
+  options: CardOptions<WakaTimeOptions> = { hide: [] },
 ): string => {
   let { languages = [] } = stats;
   const {
@@ -496,3 +496,4 @@ const renderWakatimeCard = (
 };
 
 export { renderWakatimeCard };
+export type { DisplayFormat, WakaTimeLayout };

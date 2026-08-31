@@ -16,8 +16,8 @@ const fetchWakatimeStats = async ({
   username,
   api_domain,
 }: {
-  username: string;
-  api_domain?: string;
+  username: string | undefined;
+  api_domain?: string | undefined;
 }): Promise<WakaTimeData> => {
   if (!username) {
     throw new MissingParamError(["username"]);
