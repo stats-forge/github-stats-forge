@@ -69,7 +69,7 @@ The [card wizard](https://github-stats-extended.vercel.app/frontend) offers some
 
 ## Acknowledgements
 
-This project is based on [github-readme-stats](https://github.com/anuraghazra/github-readme-stats). The card wizard is based on [GitHub Trends](https://github.com/avgupta456/github-trends). Big thanks to [@anuraghazra](https://github.com/anuraghazra), [@avgupta456](https://github.com/avgupta456), [@rickstaa](https://github.com/rickstaa), [@qwerty541](https://github.com/qwerty541) and everyone else who worked on these projects! ❤️
+This repository continues the work of [github-stats-extended](https://github.com/stats-organization/github-stats-extended), which is itself based on [github-readme-stats](https://github.com/anuraghazra/github-readme-stats). The card wizard is based on [GitHub Trends](https://github.com/avgupta456/github-trends). Big thanks to [@anuraghazra](https://github.com/anuraghazra), [@avgupta456](https://github.com/avgupta456), [@rickstaa](https://github.com/rickstaa), [@qwerty541](https://github.com/qwerty541), [@martin-mfg](https://github.com/martin-mfg) and everyone else who worked on these projects! ❤️
 
 ## Contributing
 
