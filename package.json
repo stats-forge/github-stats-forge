@@ -34,8 +34,7 @@
     "lint:eslint:fix": "eslint --fix",
     "lint:knip": "knip",
     "lint:deps": "node scripts/assert-deduped.ts",
-    "typecheck": "turbo run typecheck && tsc -p tsconfig.scripts.json",
-    "generate-theme-readme": "node scripts/generate-theme-readme"
+    "typecheck": "turbo run typecheck && tsc -p tsconfig.scripts.json"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,json,jsonc,yaml,yml}": "prettier --write"

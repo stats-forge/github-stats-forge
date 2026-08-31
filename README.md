@@ -68,8 +68,9 @@ title, border, theme, locale — plus its own.
 
 ## Themes
 
-See [Available Themes](packages/core/src/themes/README.md) for every built-in theme,
-or pass explicit colors to override one.
+Every built-in theme is defined in
+[`packages/core/src/themes/index.ts`](packages/core/src/themes/index.ts) — pass one by
+name as `theme`, or pass explicit colors to override it.
 
 ## Development
 
@@ -80,7 +81,6 @@ pnpm test                   # vitest
 pnpm typecheck              # turbo typecheck + the repo scripts
 pnpm lint                   # eslint per package
 pnpm build:packages         # build packages/*
-pnpm generate-theme-readme  # rewrite the Available Themes page
 ```
 
 ## Acknowledgements

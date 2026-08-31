@@ -44,7 +44,6 @@ pnpm lint:knip            # unused files/exports/deps
 pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
 pnpm format               # prettier --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
-pnpm generate-theme-readme  # rewrite packages/core/src/themes/README.md
 ```
 
 Per-package (from `packages/core`): `pnpm exec tsc -p tsconfig.typecheck.json` and
