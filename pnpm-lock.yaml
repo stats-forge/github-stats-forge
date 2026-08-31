@@ -87,7 +87,7 @@ importers:
 
   apps/backend:
     dependencies:
-      '@stats-organization/github-readme-stats-core':
+      '@stats-forge/github-stats-forge-core':
         specifier: workspace:^
         version: link:../../packages/core
       axios:
@@ -121,12 +121,12 @@ importers:
       '@reduxjs/toolkit':
         specifier: ^2.12.0
         version: 2.12.0(react-redux@9.3.0(@types/react@19.2.17)(react@19.2.8)(redux@5.0.1))(react@19.2.8)
+      '@stats-forge/github-stats-forge-core':
+        specifier: workspace:^
+        version: link:../../packages/core
       '@stats-organization/github-readme-stats-backend':
         specifier: workspace:^
         version: link:../backend
-      '@stats-organization/github-readme-stats-core':
-        specifier: workspace:^
-        version: link:../../packages/core
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.2)(yaml@2.9.0))

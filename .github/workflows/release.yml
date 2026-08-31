@@ -21,10 +21,10 @@ jobs:
 
       - name: Verify core package
         run: |
-          pnpm --filter @stats-organization/github-readme-stats-core run typecheck
+          pnpm --filter @stats-forge/github-stats-forge-core run typecheck
           pnpm test
           pnpm build:packages
-          pnpm --filter @stats-organization/github-readme-stats-core pack --dry-run
+          pnpm --filter @stats-forge/github-stats-forge-core pack --dry-run
 
       - name: Publish core package to npm
-        run: pnpm --filter @stats-organization/github-readme-stats-core publish --provenance --access public --no-git-checks
+        run: pnpm --filter @stats-forge/github-stats-forge-core publish --provenance --access public --no-git-checks
