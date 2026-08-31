@@ -52,5 +52,5 @@ jobs:
             workflow detected changes in
             [`packages/core/src/themes/index.ts`](https://github.com/stats-forge/github-stats-forge/blob/main/packages/core/src/themes/index.ts)
             and regenerated the Available Themes page,
-            [`apps/frontend/src/content/docs/docs/customization/themes.md`](https://github.com/stats-forge/github-stats-forge/blob/main/apps/frontend/src/content/docs/docs/customization/themes.md).
+            [`packages/core/src/themes/README.md`](https://github.com/stats-forge/github-stats-forge/blob/main/packages/core/src/themes/README.md).
           labels: "ci"

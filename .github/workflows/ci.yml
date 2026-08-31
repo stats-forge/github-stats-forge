@@ -41,66 +41,8 @@ jobs:
       - name: Build packages
         run: pnpm run build:packages
 
-      - name: Build frontend
-        run: pnpm run build:frontend
-
       - name: Run tests
         run: pnpm run test
-
-  frontend-test-e2e:
-    name: Frontend E2E test
-
-    permissions:
-      contents: read
-
-    timeout-minutes: 60
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build packages
-        run: pnpm run build:packages
-
-      # Only install chromium since it is the only browser enabled in
-      # apps/frontend/playwright.config.ts. Update this if more projects are added.
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Run Playwright tests
-        run: pnpm --filter ./apps/frontend/ run test:e2e
-
-  backend-test-e2e:
-    name: Backend E2E test
-
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    # Compares the cards we render here against the preview deployment,
-    # which is still on the last commit merged on main.
-    # So any PR that changes card output turns this red until the preview catches up.
-    # Worth a look, just not always a bug.
-    continue-on-error: true
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build packages
-        run: pnpm run build:packages
-
-      - name: Run backend end-to-end tests
-        run: pnpm --filter ./apps/backend/ run test:e2e
 
   code-checks:
     name: Code checks

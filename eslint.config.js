@@ -2,7 +2,6 @@ import { fileURLToPath } from "node:url";
 
 import { includeIgnoreFile } from "@eslint/compat";
 import js from "@eslint/js";
-import eslintReact from "@eslint-react/eslint-plugin";
 import { defineConfig } from "eslint/config";
 import {
   createTypeScriptImportResolver,
@@ -26,8 +25,6 @@ export default defineConfig(
   {
     extends: [importX.flatConfigs.recommended, importX.flatConfigs.typescript],
     settings: {
-      // Astro's virtual modules exist only inside its build, so no resolver can see them.
-      "import-x/core-modules": ["astro:content"],
       "import-x/resolver-next": [
         createTypeScriptImportResolver({
           conditionNames: [
@@ -128,7 +125,6 @@ export default defineConfig(
   },
   {
     files: ["**/*.{d.ts,ts,tsx}"],
-    ignores: ["apps/backend/**"],
     extends: [tseslint.configs.strictTypeChecked, tseslint.configs.stylistic],
     rules: {
       "@typescript-eslint/array-type": ["error", { default: "generic" }],
@@ -184,15 +180,12 @@ export default defineConfig(
     },
   },
   {
-    files: ["apps/backend/**/*.{js}"],
+    // `scripts/` and the package's own generators run under Node.
+    files: ["scripts/**/*.{js,ts}", "packages/*/scripts/**/*.js"],
     languageOptions: {
       globals: {
         ...globals.node,
       },
     },
-  },
-  {
-    files: ["apps/frontend/**/*.{js,jsx,ts,tsx}"],
-    ...eslintReact.configs["recommended-typescript"],
   },
 );

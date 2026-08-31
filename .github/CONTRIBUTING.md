@@ -1,31 +1,16 @@
-# Contributing to GitHub Stats Extended
+# Contributing to GitHub Stats Forge
 
 ## Local Development
-
-To set up the project GitHub-Stats-Extended locally, run the following commands:
 
 ```bash
 pnpm install
 pnpm run build:packages
-pnpm run dev:frontend
 ```
 
-### Backend server
-
-The wizard renders its previews in the browser, but the docs reference cards by
-root-relative path (`/api?username=...`), so those images only load with the backend running:
-
-```bash
-pnpm run dev:backend # card endpoints on :9000, proxied by the frontend dev server
-```
-
-It needs a [Personal Access Token](https://github-stats-extended.vercel.app/frontend/docs/deploy/#first-step-get-your-personal-access-token-pat) in `apps/backend/.env` (the SQL database is optional):
-
-```
-PAT_1=your_token_here
-```
-
-You can also run the Docker image and test against it, as described in the [deployment guide](https://github-stats-extended.vercel.app/frontend/docs/deploy/).
+The library talks to the GitHub API through the tokens its caller passes in, so
+anything that actually fetches needs a
+[Personal Access Token](https://github.com/settings/personal-access-tokens) of your
+own — the tests do not, they run against recorded responses.
 
 ## Tests
 
@@ -35,15 +20,12 @@ pnpm run lint       # eslint
 pnpm run typecheck  # tsc
 ```
 
-The **Backend E2E test** in CI compares the cards your branch renders against the ones served by the preview deployment, which is still on the last commit merged to main.
-So if your PR changes card output at all, that job goes red until the preview catches up.
-It's marked `continue-on-error`, so it won't block your PR, but do open it and check the diff is only what you expected.
-
-If the change to card markup was intentional, update the snapshots:
+Card tests assert on the rendered DOM rather than on snapshots, with one snapshot
+suite for the WakaTime card. If a change to that card's markup was intentional,
+update it:
 
 ```bash
 pnpm --filter ./packages/core/ run test:update:snapshot
-pnpm --filter ./apps/backend/ run test:update:snapshot
 ```
 
 ## GraphQL Queries
@@ -61,11 +43,11 @@ Never edit the generated files by hand — change the `.graphql` file and regene
 
 ## Themes Contribution
 
-We have stopped the addition of new themes to decrease maintenance efforts. If you are considering contributing your theme just because you are using it personally, then instead of adding it to our theme collection, you can use card [customization options](https://github-stats-extended.vercel.app/frontend/docs/customization/common-options/).
+We have stopped the addition of new themes to decrease maintenance efforts. If you are considering contributing your theme just because you are using it personally, then instead of adding it to our theme collection, you can use the card [customization options](../packages/core/src/cards/options.ts).
 
 ## Translations Contribution
 
-GitHub-Stats-Extended supports multiple languages. If we are missing your language, you can contribute it! You can check the currently supported languages [here](https://github-stats-extended.vercel.app/frontend/docs/customization/locales/).
+GitHub Stats Forge supports multiple languages. If we are missing your language, you can contribute it! The currently supported languages are listed in [packages/core/src/translations.ts](../packages/core/src/translations.ts).
 
 To contribute your language you need to edit the [packages/core/src/translations.ts](../packages/core/src/translations.ts) file and add a new property to each object where the key is the language code in [ISO 639-1 standard](https://www.andiamo.co.uk/resources/iso-language-codes/) and the value is the translated string.
 

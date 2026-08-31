@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="88 86 336 336" role="img" aria-labelledby="logo-title">
+  <title id="logo-title">GitHub Stats Forge</title>
+  <!--
+    The viewBox is the plate's bounding box, so the mark fills whatever square it
+    is given instead of floating in padding.
+
+    The plate is what makes the mark legible anywhere: a white disc, with a pale
+    tint inside it so the edge still reads on a white page. Everything above it
+    is therefore tuned against that plate, not against the page.
+  -->
+  <defs>
+    <!-- Lit from above, as in the source artwork. -->
+    <linearGradient id="ring" x1="256" y1="112" x2="256" y2="396" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8593aa" />
+      <stop offset="0.55" stop-color="#6b7a92" />
+      <stop offset="1" stop-color="#515f76" />
+    </linearGradient>
+    <linearGradient id="steel" x1="256" y1="253" x2="256" y2="375" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8e9cb2" />
+      <stop offset="0.45" stop-color="#6f7d95" />
+      <stop offset="1" stop-color="#525f76" />
+    </linearGradient>
+    <!-- The struck face catches the light. -->
+    <linearGradient id="face" x1="256" y1="253" x2="256" y2="261" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a9b5c8" />
+      <stop offset="1" stop-color="#8593aa" />
+    </linearGradient>
+    <!-- One diagonal ramp across the group: deep blue low-left to bright blue high-right. -->
+    <linearGradient id="bars" x1="192" y1="254" x2="314" y2="153" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1747c9" />
+      <stop offset="0.5" stop-color="#2a6fe0" />
+      <stop offset="1" stop-color="#3f93ea" />
+    </linearGradient>
+  </defs>
+
+  <!-- The plate: white rim, tinted field, as the previous logo had. -->
+  <circle cx="256" cy="254" r="168" fill="#ffffff" />
+  <circle cx="256" cy="254" r="159" fill="#e9eff7" />
+
+  <!-- Drawn whole; the anvil covers the arc that crosses it, as in the artwork. -->
+  <circle cx="256" cy="254" r="139" fill="none" stroke="url(#ring)" stroke-width="10" />
+
+  <!-- Bars, shortest to tallest, standing on the anvil face. -->
+  <g fill="url(#bars)">
+    <rect x="192" y="220" width="24" height="34" rx="2" />
+    <rect x="224" y="197" width="24" height="57" rx="2" />
+    <rect x="256" y="174" width="25" height="80" rx="2" />
+    <rect x="289" y="153" width="25" height="101" rx="2" />
+  </g>
+
+  <!--
+    One outline for the whole anvil, so the steel gradient runs unbroken:
+    horns, the face they hang off, the pinched waist and the arched base.
+  -->
+  <path
+    fill="url(#steel)"
+    d="M114 257h68v-4h148v4h68l-71 40
+       c-17 2-40 6-45 16
+       c-4 12 8 24 17 31
+       c8 6 21 8 21 13v14h-41v-6
+       c0-9-50-9-50 0v6h-41v-14
+       c0-5 13-7 21-13
+       c9-7 21-19 17-31
+       c-5-10-28-14-45-16z"
+  />
+
+  <!-- Facets: the struck face, the seams the horns hang from, the base's top edge. -->
+  <path d="M182 253h148v7H182z" fill="url(#face)" />
+  <path d="M182 260v37M330 260v37" stroke="#4a5872" stroke-width="2.5" opacity="0.5" />
+  <path d="M188 361h136v5H188z" fill="#a9b5c8" opacity="0.9" />
+</svg>

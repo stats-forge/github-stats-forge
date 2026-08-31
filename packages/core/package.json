@@ -43,13 +43,12 @@
   },
   "description": "Dynamically generate stats for your GitHub readme",
   "keywords": [
-    "github-readme-stats",
+    "github-stats-forge",
+    "stats-forge",
+    "github-stats",
     "readme-stats",
     "cards",
-    "card-generator",
-    "github-stats",
-    "github-stats-extended",
-    "github-readme-stats-extended"
+    "card-generator"
   ],
   "main": "./build/index.js",
   "exports": {

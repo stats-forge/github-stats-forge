@@ -13,6 +13,7 @@ export { clampValue } from "./common/ops.js";
 
 export { logger } from "./common/log.js";
 
+export type { ApiResult } from "./api/api-result.js";
 export { default as gist } from "./api/gist.js";
 export { default as stats } from "./api/stats.js";
 /** @deprecated Use `stats`; kept so `/api` consumers keep working until the next major. */

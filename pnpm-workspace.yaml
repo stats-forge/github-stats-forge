@@ -1,11 +1,6 @@
-# `packageManager` in package.json is still held at pnpm 10, but the constraint is gone.
-# It was pinned because Vercel's build step did not support pnpm 11, and building with
-# it made every request fail at runtime. The server now ships as a container image, so
-# the image installs its own dependencies and no host platform picks the package
-# manager — that holds wherever the container runs, Vercel included.
-# Bumping to 11 needs a lockfile regeneration and a CI run, so it is a change of its own.
+# `packageManager` in package.json is held at pnpm 10 out of inertia, not need:
+# bumping to 11 wants a lockfile regeneration and a CI run, so it is a change of its own.
 packages:
-  - apps/*
   - packages/*
 
 onlyBuiltDependencies:
@@ -18,16 +13,6 @@ catalog:
   axios: ^1.18.1
   jsdom: 29.1.1
   vitest: 4.1.10
-
-overrides:
-  # @tailwindcss/node pins lightningcss exactly while vite floats on ^1.32.0, so a cold re-resolve installs both.
-  # Updates against the existing lockfile keep 1.32.0 either way, so this only guards re-resolution.
-  # Enforced by scripts/assert-deduped.ts; drop it there too once @tailwindcss/node pins a version vite also resolves to.
-  "vite>lightningcss": 1.32.0
-  # @astrojs/react still asks for @vitejs/plugin-react ^5, which compiles through Babel and so
-  # pulls in semver@6.3.1 — rejected by `trustPolicy: no-downgrade`. Version 6 dropped Babel for
-  # oxc and is what the rest of the repo already resolves to. Drop this once @astrojs/react moves to ^6.
-  "@astrojs/react>@vitejs/plugin-react": 6.0.3
 
 # Deliberately stricter than pnpm 11's 1440 default (7 days vs 1)
 minimumReleaseAge: 10080

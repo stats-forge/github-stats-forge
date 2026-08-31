@@ -17,13 +17,13 @@ did, what's deferred. Rules go here, progress goes there; don't duplicate across
 
 ## What this is
 
-`github-stats-extended` — a pnpm + turbo monorepo that renders GitHub stats as SVG cards.
+`github-stats-forge` — a pnpm + turbo monorepo holding the library that renders
+GitHub stats as SVG cards. The server and the docs site that used to live here are
+gone: consumers (the GitHub Action, any self-hosted endpoint) import the package.
 
 | Path            | What it is                                                            |
 | --------------- | --------------------------------------------------------------------- |
 | `packages/core` | The library: fetchers, card renderers, themes, api handlers           |
-| `apps/backend`  | Vercel serverless endpoints wrapping core (sources still `.js`)       |
-| `apps/frontend` | One Astro app: the Starlight docs and the React/daisyUI card wizard   |
 | `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json` |
 
 `packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
@@ -44,14 +44,8 @@ pnpm lint:knip            # unused files/exports/deps
 pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
 pnpm format               # prettier --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
-pnpm build:frontend       # build apps/frontend
-pnpm dev:frontend         # frontend dev server (proxies /api to :9000)
-pnpm dev:backend          # card endpoints on :9000, reads apps/backend/.env
-pnpm generate-theme-readme  # rewrite the generated Available Themes page
+pnpm generate-theme-readme  # rewrite packages/core/src/themes/README.md
 ```
-
-The frontend e2e suite is Playwright, not vitest:
-`pnpm --filter ./apps/frontend run test:e2e`.
 
 Per-package (from `packages/core`): `pnpm exec tsc -p tsconfig.typecheck.json` and
 `pnpm exec eslint`.
@@ -64,13 +58,12 @@ pnpm --filter ./packages/core/ run generate-graphql-types   # rewrite src/graphq
 pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fails on drift
 ```
 
-The root `vitest.config.ts` is a `projects` workspace over `packages/core`,
-`apps/backend` and `apps/frontend`, so `pnpm test` from the root covers all three.
-Running `pnpm exec vitest` inside a single package also works and is the quick way to
-iterate on one suite.
+The root `vitest.config.ts` is a `projects` workspace over `packages/core`. Running
+`pnpm exec vitest` inside the package also works and is the quick way to iterate on
+one suite.
 
-pnpm is deliberately pinned to **10.x**: Vercel does not support pnpm 11, and deploying
-with it makes every request fail at runtime (see upstream PR #459).
+pnpm is held at **10.x** out of inertia: bumping to 11 wants a lockfile regeneration
+and a CI run, so it is a change of its own.
 
 ## Working agreements
 
@@ -104,12 +97,10 @@ with it makes every request fail at runtime (see upstream PR #459).
 ## TypeScript conventions
 
 The codebase is mid-migration from JSDoc-annotated `.js` to real `.ts`, one module per
-small PR. `packages/core/tsconfig.json` sets `allowJs: true` and leaves `checkJs` at its
-default of `false`, so `.js` files are unchecked and `.ts` files are fully checked;
-`allowJs` gets dropped once the last `.js` is gone. `fetchers/` and `cards/` are fully
-converted and `api/` is being converted one handler at a time, so what is left in
-`packages/core/src` is the rest of `api/*.js`; `apps/backend` sources are still `.js`
-throughout and its eslint block excludes them from the typed rules.
+small PR. `packages/core/src` is fully converted — `fetchers/`, `cards/` and `api/`
+are all `.ts`. `packages/core/tsconfig.json` still sets `allowJs: true` for the two
+remaining `.js` test files (`tests/apiInputValidation.test.js`, `tests/xss.test.js`);
+it gets dropped once those convert.
 
 `tsconfig.base.json` is strict and then some — `strict`, `noUncheckedIndexedAccess`,
 `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals`,
@@ -178,8 +169,8 @@ because that is what a query string yields, and returns the shared `ApiResult` f
   `exactOptionalPropertyTypes`.
 - **A malformed param is `error - permanent`, decided at the boundary.** Reject it next to
   the colour and id checks rather than letting a render-time guard throw into the generic
-  `catch`, which labels everything `error - temporary` — a status `apps/backend/router.js`
-  reads as "retry may help". `?border_radius=abc` used to surface `Card`'s internal
+  `catch`, which labels everything `error - temporary` — a status a host reads as
+  "retry may help". `?border_radius=abc` used to surface `Card`'s internal
   `Invalid border radius: "NaN"` as a temporary error; it is now a permanent
   `Invalid number input for parameter "border_radius"`, matching the colour wording. Name
   the parameter, never echo the value.
@@ -201,8 +192,7 @@ because that is what a query string yields, and returns the shared `ApiResult` f
 **Emit is opt-in.** `tsconfig.base.json` sets `noEmit: true`, and
 `packages/core/tsconfig.build.json` is the _only_ config in the repo that opts back in
 (`noEmit: false` + `rootDir: "./src"` + `outDir: "./build"`, plus `declaration` and
-`declarationMap`). Nothing else compiles with tsc: `apps/backend` runs its sources on
-Vercel and `apps/frontend` builds with `vite build`. Don't add `noEmit` to a config that
+`declarationMap`). Nothing else in the repo emits. Don't add `noEmit` to a config that
 already inherits it, and don't put an `outDir` on a config that can't emit.
 
 The build config also sets **`noCheck: true`** — `pnpm build` emits without typechecking,
@@ -291,9 +281,7 @@ That is specific to the package: the repo-root `scripts/` **is** covered, by
 ## Testing
 
 - Vitest. In `packages/core` the card tests assert on the rendered DOM, not on snapshots —
-  the one exception is `tests/__snapshots__/renderWakatimeCard.test.ts.snap`. The SVG
-  snapshots live in `apps/backend/tests/public-instance`, which the default backend
-  project does run.
+  the one exception is `tests/__snapshots__/renderWakatimeCard.test.ts.snap`.
 - **Snapshots are byte-exact.** Template-literal contents in card renderers include
   their whitespace verbatim, and prettier will reflow a multi-line `${cond ? a : b}`
   interpolation onto its own line, injecting a newline and indent into the SVG. Hoist
@@ -328,58 +316,3 @@ That is specific to the package: the repo-root `scripts/` **is** covered, by
   that you also access by dot, annotating it would trip
   `noPropertyAccessFromIndexSignature` — use `… satisfies TopLangData` instead, which
   validates against the type while keeping the concrete keys.
-
-## Docs site and card wizard (`apps/frontend`)
-
-One Astro app: Starlight renders the docs from `src/content/docs/docs/**` under
-`/frontend/docs`, the React wizard is a page of the same site at `/frontend`.
-`astro.config.ts` holds the wiring — `base`, sidebar, redirects, link validator, dev
-proxy — so start there.
-
-- **`base` is prefixed onto a redirect's source but not its destination**, so spell it out
-  (`` `${base}/docs/cards/stats/` ``). The link validator ignores redirect targets, so a
-  missing base 404s silently.
-- **The Available Themes page is generated** by `pnpm generate-theme-readme` — don't
-  hand-edit `customization/themes.md`.
-- Astro renders the markdown, not GitHub: `{/* … */}` prints verbatim, and GitHub-only
-  tricks (`align` on an image, theme-context image tags) do nothing.
-- **Open a `<dialog>` from a ref callback, guarded by `!node.open`.** React 19 needs no
-  `useRef`/`useEffect` pair for this, but it re-attaches an inline ref on every render
-  and `showModal()` throws on an already-open dialog. Use `showModal()`, never the
-  `open` attribute — only the former gives the top layer, focus trap and Esc that
-  `LoginAccountDeleteModal` used to hand-roll. daisyUI's `.modal-backdrop` button sits
-  behind `.modal-box`, so a test dismisses it by clicking a backdrop coordinate, not by
-  role.
-
-### Card images
-
-Live images use root-relative `/api?username=…&theme=…` with no trailing slash, so they
-follow whichever deployment serves the page. Absolute URLs pinned them to the last
-release, so no docs change could be reviewed before a deploy (PR #489). Code-fence
-snippets stay absolute — those get pasted into a README.
-
-- `pnpm dev:backend` serves `/api` on `:9000` from `apps/backend/.env` (`PAT_1` only;
-  Postgres is optional). `pnpm dev:frontend` proxies to it, `BACKEND_ORIGIN` overrides.
-- **`astro preview` ignores `vite.preview.proxy`** — only `astro dev` proxies, so check
-  images there.
-- `express.js` strips a trailing slash ahead of the router: Vercel resolves `/api/pin/`
-  like `/api/pin`, `router.js` matches `pathname` exactly.
-- `starlight-links-validator` reads `/api?…` as internal, hence
-  `exclude: ["/api/**", "/frontend"]`. Keep it narrow — confirm a broken doc link still
-  fails the build.
-
-### Theming
-
-Starlight server-renders `data-theme` on `<html>`, so
-`<picture media="(prefers-color-scheme: dark)">` follows the _browser_ theme, not the site
-toggle. Ship both images as `card-preview-light` / `card-preview-dark` and hide one per
-theme in `styles/starlight-theme.css`.
-
-- **Unlayered CSS outranks every `@layer`**: `.wizard { background-color }` beat the
-  Tailwind utilities and leaked an opaque background into a portalled modal. Put the
-  colour on the container as a utility. `layer-order.css` sets the order for both entry
-  sheets — only the first `@layer` wins, and dev loads them in build's reverse order.
-- Contrast fixes go in the per-theme daisyUI tokens in `index.css`, not a one-off class,
-  and **check both themes** — fixing dark broke light here.
-- Computed colours are `oklch()`; convert via canvas before computing contrast. Reading
-  the components as RGB gives plausible, wrong numbers (1.02 for a real 1.89).
