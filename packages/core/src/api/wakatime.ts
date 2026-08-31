@@ -50,7 +50,22 @@ type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
  *
  * The WakaTime API needs no GitHub token, so this handler takes no config.
  *
- * @param query Raw query params.
+ * @param query Raw query params, plus any of the shared color params.
+ * @param query.username WakaTime username.
+ * @param query.hide_border Whether to hide the card border.
+ * @param query.card_width Card width.
+ * @param query.line_height Line height between the languages.
+ * @param query.hide_title Whether to hide the card title.
+ * @param query.hide_progress Whether to hide the progress bars.
+ * @param query.custom_title Card title.
+ * @param query.locale Language the card is rendered in.
+ * @param query.layout How the languages are laid out.
+ * @param query.langs_count Number of languages to show.
+ * @param query.hide Comma-separated languages to hide.
+ * @param query.api_domain WakaTime instance the stats are read from.
+ * @param query.border_radius Card border radius.
+ * @param query.display_format Whether values are shown as time or percentages.
+ * @param query.disable_animations Whether to disable the card animations.
  * @returns The rendered card, or a rendered error.
  */
 export default async (query: WakatimeApiQuery): Promise<ApiResult> => {
