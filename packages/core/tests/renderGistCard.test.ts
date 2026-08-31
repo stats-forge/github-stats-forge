@@ -279,7 +279,7 @@ describe("test gist API", () => {
       testConfig,
     );
 
-    expect(result.status).toBe("error - permanent");
+    expect(result.status).toBe("error");
     expect(result.content).toContain(
       `Invalid color input for parameter &#34;title_color&#34;`,
     );
@@ -290,7 +290,7 @@ describe("test gist API", () => {
     async (border_radius) => {
       const result = await gistApi({ id: "abc123", border_radius }, testConfig);
 
-      expect(result.status).toBe("error - permanent");
+      expect(result.status).toBe("error");
       expect(result.content).toContain(
         `Invalid number input for parameter &#34;border_radius&#34;`,
       );

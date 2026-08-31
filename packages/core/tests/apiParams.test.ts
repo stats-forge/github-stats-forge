@@ -47,7 +47,7 @@ describe("api query schemas", () => {
         expect(result.content).not.toContain("Locale not found");
         return;
       }
-      expect(result.status).toBe("error - permanent");
+      expect(result.status).toBe("error");
       expect(result.content).toContain("Locale not found");
     },
   );
@@ -64,7 +64,7 @@ describe("api query schemas", () => {
       });
 
       // the stubbed fetch fails, so anything that got past validation is temporary
-      expect(result.status).toBe("error - temporary");
+      expect(result.status).toBe("error");
     },
   );
 
@@ -77,7 +77,7 @@ describe("api query schemas", () => {
         bg_color: "also-not-a-color",
       });
 
-      expect(result.status).toBe("error - permanent");
+      expect(result.status).toBe("error");
       expect(result.content).toContain(
         "Invalid color input for parameter &#34;title_color&#34;",
       );
@@ -90,7 +90,7 @@ describe("api query schemas", () => {
       border_radius: "abc",
     });
 
-    expect(result.status).toBe("error - permanent");
+    expect(result.status).toBe("error");
     expect(result.content).toContain(
       "Invalid number input for parameter &#34;border_radius&#34;",
     );
@@ -103,7 +103,7 @@ describe("api query schemas", () => {
     });
 
     // the stubbed fetch fails, but the param got past validation
-    expect(result.status).toBe("error - temporary");
+    expect(result.status).toBe("error");
   });
 
   it.each([
@@ -115,7 +115,7 @@ describe("api query schemas", () => {
       [param]: value,
     });
 
-    expect(result.status).toBe("error - permanent");
+    expect(result.status).toBe("error");
     expect(result.content).toContain(message);
   });
 });

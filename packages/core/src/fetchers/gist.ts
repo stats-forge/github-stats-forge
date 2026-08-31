@@ -1,5 +1,5 @@
 import type { CardConfig } from "../common/config.js";
-import { MissingParamError } from "../common/error.js";
+import { CardError } from "../common/error.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import { retryer } from "../common/retryer.js";
 import { GistInfoDocument } from "../graphql/generated/gist.js";
@@ -51,7 +51,7 @@ const fetchGist = async (
   id: string | undefined,
 ): Promise<GistData> => {
   if (!id) {
-    throw new MissingParamError(["id"], "/api/gist?id=GIST_ID");
+    throw CardError.missingParam(["id"], "/api/gist?id=GIST_ID");
   }
   const res = await retryer(fetcher, { gistName: id }, config);
   if (res.data.errors) {

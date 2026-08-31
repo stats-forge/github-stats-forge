@@ -2,7 +2,7 @@ import { Card } from "../common/Card.js";
 import { I18n } from "../common/I18n.js";
 import { getLightDarkColors } from "../common/color.js";
 import type { CardColors } from "../common/color.js";
-import { CustomError } from "../common/error.js";
+import { CardError } from "../common/error.js";
 import { icons, rankIcon } from "../common/icons.js";
 import { buildSearchFilter, clampValue } from "../common/ops.js";
 import { createTextNode, flexLayout, measureText } from "../common/render.js";
@@ -474,10 +474,10 @@ const renderStatsCard = (
     );
 
   if (statItems.length === 0 && hide_rank) {
-    throw new CustomError(
-      "Could not render stats card.",
-      "Either stats or rank are required.",
-    );
+    throw new CardError("Could not render stats card.", {
+      code: "invalid_param",
+      secondaryMessage: "Either stats or rank are required.",
+    });
   }
 
   // Calculate the card height depending on how many items there are

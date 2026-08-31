@@ -1,7 +1,7 @@
 import type { AxiosResponse } from "axios";
 
 import type { CardConfig } from "./config.js";
-import { CustomError } from "./error.js";
+import { CardError } from "./error.js";
 import { logger } from "./log.js";
 
 /**
@@ -60,7 +60,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
   const PATs = config.pats;
 
   if (!PATs.length) {
-    throw new CustomError("No GitHub API tokens found", CustomError.NO_TOKENS);
+    throw new CardError("No GitHub API tokens found", { code: "no_tokens" });
   }
   const startPAT = getRandomInt(PATs.length);
 
@@ -115,10 +115,9 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
     }
   }
 
-  throw new CustomError(
-    "Downtime due to GitHub API rate limiting",
-    CustomError.MAX_RETRY,
-  );
+  throw new CardError("Downtime due to GitHub API rate limiting", {
+    code: "rate_limited",
+  });
 };
 
 export { retryer };

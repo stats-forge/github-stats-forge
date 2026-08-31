@@ -106,7 +106,7 @@ describe("test wakatime API", () => {
       title_color: "not-a-color",
     });
 
-    expect(result.status).toBe("error - permanent");
+    expect(result.status).toBe("error");
     expect(result.content).toContain(
       `Invalid color input for parameter &#34;title_color&#34;`,
     );

@@ -5,7 +5,7 @@ import type { CardConfig } from "../common/config.js";
 import { fetchRepo } from "../fetchers/repo.js";
 
 import type { ApiResult } from "./api-result.js";
-import { permanentError, temporaryError } from "./api-result.js";
+import { errorResult } from "./api-result.js";
 import type { ApiQuery } from "./params.js";
 import {
   booleanParam,
@@ -19,12 +19,10 @@ import {
   safeParam,
 } from "./params.js";
 
-const UNSAFE_NAME = "Username or repository contains unsafe characters";
-
 /** What the pin endpoint accepts, on top of the shared color params. */
 const pinQuery = z.object({
-  username: safeParam(UNSAFE_NAME),
-  repo: safeParam(UNSAFE_NAME),
+  username: safeParam,
+  repo: safeParam,
   hide_border: booleanParam,
   card_width: looseIntParam,
   show_owner: booleanParam,
@@ -35,7 +33,7 @@ const pinQuery = z.object({
   text_bold: booleanParam,
   line_height: rawParam,
   locale: localeParam,
-  border_radius: numberParam("border_radius"),
+  border_radius: numberParam,
   description_lines_count: looseIntParam,
 });
 
@@ -67,33 +65,32 @@ export default async (
   query: PinApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {
-  const colors = parseColorParams(query);
-  if (!colors.ok) {
-    return permanentError(colors.secondaryMessage);
+  let colors;
+  try {
+    colors = parseColorParams(query);
+  } catch (err) {
+    // A rejected color cannot be used to draw its own error card.
+    return errorResult(err);
   }
-
-  const parsed = parseParams(pinQuery, query);
-  if (!parsed.ok) {
-    return permanentError(parsed.secondaryMessage, colors.params);
-  }
-  const {
-    username,
-    repo,
-    hide_border,
-    card_width,
-    show_owner,
-    browser_rendering,
-    show,
-    show_icons,
-    number_format,
-    text_bold,
-    line_height,
-    locale,
-    border_radius,
-    description_lines_count,
-  } = parsed.params;
 
   try {
+    const {
+      username,
+      repo,
+      hide_border,
+      card_width,
+      show_owner,
+      browser_rendering,
+      show,
+      show_icons,
+      number_format,
+      text_bold,
+      line_height,
+      locale,
+      border_radius,
+      description_lines_count,
+    } = parseParams(pinQuery, query);
+
     const repoData = await fetchRepo(
       config,
       username,
@@ -108,7 +105,7 @@ export default async (
     return {
       status: "success",
       content: renderRepoCard(repoData, {
-        ...colors.params,
+        ...colors,
         hide_border,
         border_radius,
         card_width_input: card_width,
@@ -125,6 +122,6 @@ export default async (
       }),
     };
   } catch (err) {
-    return temporaryError(err, colors.params);
+    return errorResult(err, colors);
   }
 };

@@ -6,6 +6,7 @@ import {
   THEME_PARAM_KEYS,
   isValidColorInput,
 } from "../common/color.js";
+import { CardError } from "../common/error.js";
 import { parseArray, parseBoolean } from "../common/ops.js";
 import { isLocaleAvailable } from "../translations.js";
 
@@ -25,12 +26,36 @@ const rawParam = z.optional(z.string());
 /** Characters a username, repository, owner or gist id may contain. */
 const SAFE_PATTERN = /^[-\w/.,]+$/;
 
+/** What a check rejected a param for. */
+type Rejection = "number" | "year" | "unsafe" | "locale" | "enum" | "color";
+
 /**
- * @param name Param the message should name.
- * @returns The wording every malformed-number rejection uses.
+ * Every rejection the api can put on an error card, in one place.
+ * The param comes from the issue's own path, so no schema repeats its own name.
  */
-const invalidNumber = (name: string): string =>
-  `Invalid number input for parameter "${name}"`;
+const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
+  number: (param) => `Invalid number input for parameter "${param}"`,
+  year: (param) => `Invalid number input for parameter "${param}"`,
+  unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
+  locale: () => "Locale not found",
+  enum: (param) => `Incorrect ${param} input`,
+  color: (param) => `Invalid color input for parameter "${param}"`,
+};
+
+/**
+ * A check that reports itself:
+ * the kind rides on the issue so a rejection can be turned back into a code,
+ * and the message is built from the kind and the path rather than passed in.
+ *
+ * @param kind What the check rejects the param for.
+ * @param passes Whether a value is acceptable.
+ * @returns The check, ready for `.check()`.
+ */
+const rejects = (kind: Rejection, passes: (value: string) => boolean) =>
+  z.refine((value: unknown) => typeof value !== "string" || passes(value), {
+    params: { kind },
+    error: (issue) => REJECTION_MESSAGES[kind](String(issue.path?.[0] ?? "")),
+  });
 
 /**
  * `?x=true` / `?x=false`.
@@ -54,17 +79,10 @@ const listParam = z.pipe(rawParam, z.transform(parseArray));
  * @param name Param being parsed, for the rejection message.
  * @returns Schema yielding the parsed number, or `undefined` when absent.
  */
-const numberParam = (
-  name: string,
-): z.ZodMiniType<number | undefined, string | undefined> =>
+const numberParam: z.ZodMiniType<number | undefined, string | undefined> =
   z.pipe(
     rawParam.check(
-      z.refine(
-        (value) => value === undefined || Number.isFinite(parseFloat(value)),
-        {
-          error: invalidNumber(name),
-        },
-      ),
+      rejects("number", (value) => Number.isFinite(parseFloat(value))),
     ),
     z.transform((value) =>
       value === undefined ? undefined : parseFloat(value),
@@ -89,17 +107,10 @@ const looseIntParam = z.pipe(
  * @param name Param being parsed, for the rejection message.
  * @returns Schema yielding the year, or `undefined` when absent.
  */
-const yearParam = (
-  name: string,
-): z.ZodMiniType<number | undefined, string | undefined> =>
-  z.pipe(
-    rawParam.check(
-      z.refine((value) => value === undefined || /^\d{4}$/.test(value), {
-        error: invalidNumber(name),
-      }),
-    ),
-    z.transform((value) => (value === undefined ? undefined : Number(value))),
-  );
+const yearParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
+  rawParam.check(rejects("year", (value) => /^\d{4}$/.test(value))),
+  z.transform((value) => (value === undefined ? undefined : Number(value))),
+);
 
 /**
  * An id the fetchers put in a URL.
@@ -108,11 +119,9 @@ const yearParam = (
  * @param error Message naming what the value is, e.g. "Gist ID".
  * @returns Schema yielding the value unchanged.
  */
-const safeParam = (
-  error: string,
-): z.ZodMiniType<string | undefined, string | undefined> =>
+const safeParam: z.ZodMiniType<string | undefined, string | undefined> =
   rawParam.check(
-    z.refine((value) => !value || SAFE_PATTERN.test(value), { error }),
+    rejects("unsafe", (value) => !value || SAFE_PATTERN.test(value)),
   );
 
 /**
@@ -122,10 +131,10 @@ const safeParam = (
  * @param error Message naming what the values are.
  * @returns Schema yielding the split values, empty when the param is absent.
  */
-const safeListParam = (
-  error: string,
-): z.ZodMiniType<Array<string>, string | undefined> =>
-  z.pipe(safeParam(error), z.transform(parseArray));
+const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = z.pipe(
+  safeParam,
+  z.transform(parseArray),
+);
 
 /**
  * A locale the cards have translations for.
@@ -134,9 +143,7 @@ const safeListParam = (
  */
 const localeParam = z.pipe(
   rawParam.check(
-    z.refine((value) => !value || isLocaleAvailable(value), {
-      error: "Locale not found",
-    }),
+    rejects("locale", (value) => !value || isLocaleAvailable(value)),
   ),
   z.transform((value) => value?.toLowerCase()),
 );
@@ -144,15 +151,17 @@ const localeParam = z.pipe(
 /**
  * A param the card only renders as one of a fixed set of values.
  *
- * @param values The accepted values.
- * @param error Message for anything else.
+ * @param values The accepted values, as the card that renders them declares them.
  * @returns Schema yielding one of `values`, or `undefined` when absent.
  */
 const enumParam = <const T extends ReadonlyArray<string>>(
   values: T,
-  error: string,
 ): z.ZodMiniType<T[number] | undefined, string | undefined> =>
-  z.optional(z.enum(values as unknown as Array<T[number]>, { error }));
+  rawParam.check(
+    rejects("enum", (value) =>
+      (values as ReadonlyArray<string>).includes(value),
+    ),
+  );
 
 /**
  * Every color param an endpoint accepts, validated and picked in one pass.
@@ -166,11 +175,7 @@ const colorParamsSchema = z.object(
       key,
       THEME_PARAM_KEYS.includes(key)
         ? rawParam
-        : rawParam.check(
-            z.refine(isValidColorInput, {
-              error: `Invalid color input for parameter "${key}"`,
-            }),
-          ),
+        : rawParam.check(rejects("color", isValidColorInput)),
     ]),
   ),
 );
@@ -183,32 +188,41 @@ const colorParamsSchema = z.object(
 type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> &
   ColorParams;
 
-/** What a schema answers with: the parsed params, or why they were rejected. */
-type ParseResult<T> =
-  { ok: true; params: T } | { ok: false; secondaryMessage: string };
+/**
+ * Turns a rejection back into the error the api answers with.
+ * The kind rode along on the issue, so nothing is recovered from prose.
+ *
+ * @param error What the schema rejected.
+ * @returns The failure, ready to render.
+ */
+const toCardError = (error: z.core.$ZodError): CardError => {
+  const issue = error.issues[0];
+  return CardError.invalidParam(
+    String(issue?.path[0] ?? ""),
+    issue?.message ?? "Invalid input",
+  );
+};
 
 /**
  * Runs a query through an endpoint's schema.
  *
  * Only the first rejection is reported:
- * the error card has room for one line, and naming the first bad param is what the hand-rolled checks did too.
+ * the error card has room for one line.
  *
  * @param schema The endpoint's schema.
  * @param query Raw query params.
- * @returns The parsed params, or the message naming the first rejected one.
+ * @returns The parsed params.
+ * @throws {CardError} When the schema rejects a param.
  */
 const parseParams = <TSchema extends z.ZodMiniType>(
   schema: TSchema,
   query: unknown,
-): ParseResult<z.output<TSchema>> => {
+): z.output<TSchema> => {
   const result = z.safeParse(schema, query);
-  if (result.success) {
-    return { ok: true, params: result.data };
+  if (!result.success) {
+    throw toCardError(result.error);
   }
-  return {
-    ok: false,
-    secondaryMessage: result.error.issues[0]?.message ?? "Invalid input",
-  };
+  return result.data;
 };
 
 /**
@@ -216,9 +230,10 @@ const parseParams = <TSchema extends z.ZodMiniType>(
  * Split from the endpoint's own schema because a rejected color cannot then be used to render its own error card.
  *
  * @param query Raw query params.
- * @returns The color params, or the message naming the first invalid one.
+ * @returns The color params.
+ * @throws {CardError} When a param does not hold a color or a gradient.
  */
-const parseColorParams = (query: unknown): ParseResult<ColorParams> =>
+const parseColorParams = (query: unknown): ColorParams =>
   parseParams(colorParamsSchema, query);
 
 export type { ApiQuery };

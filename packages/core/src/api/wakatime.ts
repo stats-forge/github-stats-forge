@@ -8,7 +8,7 @@ import {
 import { fetchWakatimeStats } from "../fetchers/wakatime.js";
 
 import type { ApiResult } from "./api-result.js";
-import { permanentError, temporaryError } from "./api-result.js";
+import { errorResult } from "./api-result.js";
 import type { ApiQuery } from "./params.js";
 import {
   booleanParam,
@@ -25,7 +25,7 @@ import {
 
 /** What the wakatime endpoint accepts, on top of the shared color params. */
 const wakatimeQuery = z.object({
-  username: safeParam("Username contains unsafe characters"),
+  username: safeParam,
   hide_border: booleanParam,
   card_width: looseIntParam,
   line_height: rawParam,
@@ -33,12 +33,12 @@ const wakatimeQuery = z.object({
   hide_progress: booleanParam,
   custom_title: rawParam,
   locale: localeParam,
-  layout: enumParam(WAKATIME_LAYOUTS, "Incorrect layout input"),
+  layout: enumParam(WAKATIME_LAYOUTS),
   langs_count: looseIntParam,
   hide: listParam,
   api_domain: rawParam,
-  border_radius: numberParam("border_radius"),
-  display_format: enumParam(DISPLAY_FORMATS, "Incorrect display_format input"),
+  border_radius: numberParam,
+  display_format: enumParam(DISPLAY_FORMATS),
   disable_animations: booleanParam,
 });
 
@@ -69,40 +69,39 @@ type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
  * @returns The rendered card, or a rendered error.
  */
 export default async (query: WakatimeApiQuery): Promise<ApiResult> => {
-  const colors = parseColorParams(query);
-  if (!colors.ok) {
-    return permanentError(colors.secondaryMessage);
+  let colors;
+  try {
+    colors = parseColorParams(query);
+  } catch (err) {
+    // A rejected color cannot be used to draw its own error card.
+    return errorResult(err);
   }
-
-  const parsed = parseParams(wakatimeQuery, query);
-  if (!parsed.ok) {
-    return permanentError(parsed.secondaryMessage, colors.params);
-  }
-  const {
-    username,
-    hide_border,
-    card_width,
-    line_height,
-    hide_title,
-    hide_progress,
-    custom_title,
-    locale,
-    layout,
-    langs_count,
-    hide,
-    api_domain,
-    border_radius,
-    display_format,
-    disable_animations,
-  } = parsed.params;
 
   try {
+    const {
+      username,
+      hide_border,
+      card_width,
+      line_height,
+      hide_title,
+      hide_progress,
+      custom_title,
+      locale,
+      layout,
+      langs_count,
+      hide,
+      api_domain,
+      border_radius,
+      display_format,
+      disable_animations,
+    } = parseParams(wakatimeQuery, query);
+
     const stats = await fetchWakatimeStats({ username, api_domain });
 
     return {
       status: "success",
       content: renderWakatimeCard(stats, {
-        ...colors.params,
+        ...colors,
         custom_title,
         hide_title,
         hide_border,
@@ -119,6 +118,6 @@ export default async (query: WakatimeApiQuery): Promise<ApiResult> => {
       }),
     };
   } catch (err) {
-    return temporaryError(err, colors.params);
+    return errorResult(err, colors);
   }
 };

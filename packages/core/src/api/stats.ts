@@ -5,7 +5,7 @@ import type { CardConfig } from "../common/config.js";
 import { fetchStats } from "../fetchers/stats.js";
 
 import type { ApiResult } from "./api-result.js";
-import { permanentError, temporaryError } from "./api-result.js";
+import { errorResult } from "./api-result.js";
 import type { ApiQuery } from "./params.js";
 import {
   booleanParam,
@@ -22,13 +22,11 @@ import {
   yearParam,
 } from "./params.js";
 
-const UNSAFE_NAME = "Username, repository or owner contains unsafe characters";
-
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z.object({
-  username: safeParam(UNSAFE_NAME),
-  repo: safeListParam(UNSAFE_NAME),
-  owner: safeListParam(UNSAFE_NAME),
+  username: safeParam,
+  repo: safeListParam,
+  owner: safeListParam,
   hide: listParam,
   hide_title: booleanParam,
   hide_border: booleanParam,
@@ -36,18 +34,18 @@ const statsQuery = z.object({
   hide_rank: booleanParam,
   show_icons: booleanParam,
   include_all_commits: booleanParam,
-  commits_year: yearParam("commits_year"),
+  commits_year: yearParam,
   line_height: rawParam,
   text_bold: booleanParam,
   exclude_repo: listParam,
   custom_title: rawParam,
   locale: localeParam,
   disable_animations: booleanParam,
-  border_radius: numberParam("border_radius"),
+  border_radius: numberParam,
   number_format: rawParam,
   role: listParam,
   number_precision: looseIntParam,
-  rank_icon: enumParam(RANK_ICONS, "Incorrect rank_icon input"),
+  rank_icon: enumParam(RANK_ICONS),
   show: listParam,
   contribs_include_own_repos: booleanParam,
 });
@@ -90,43 +88,42 @@ export default async (
   query: StatsApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {
-  const colors = parseColorParams(query);
-  if (!colors.ok) {
-    return permanentError(colors.secondaryMessage);
+  let colors;
+  try {
+    colors = parseColorParams(query);
+  } catch (err) {
+    // A rejected color cannot be used to draw its own error card.
+    return errorResult(err);
   }
-
-  const parsed = parseParams(statsQuery, query);
-  if (!parsed.ok) {
-    return permanentError(parsed.secondaryMessage, colors.params);
-  }
-  const {
-    username,
-    repo,
-    owner,
-    hide,
-    hide_title,
-    hide_border,
-    card_width,
-    hide_rank,
-    show_icons,
-    include_all_commits,
-    commits_year,
-    line_height,
-    text_bold,
-    exclude_repo,
-    custom_title,
-    locale,
-    disable_animations,
-    border_radius,
-    number_format,
-    role,
-    number_precision,
-    rank_icon,
-    show,
-    contribs_include_own_repos,
-  } = parsed.params;
 
   try {
+    const {
+      username,
+      repo,
+      owner,
+      hide,
+      hide_title,
+      hide_border,
+      card_width,
+      hide_rank,
+      show_icons,
+      include_all_commits,
+      commits_year,
+      line_height,
+      text_bold,
+      exclude_repo,
+      custom_title,
+      locale,
+      disable_animations,
+      border_radius,
+      number_format,
+      role,
+      number_precision,
+      rank_icon,
+      show,
+      contribs_include_own_repos,
+    } = parseParams(statsQuery, query);
+
     // A bare repo name is scoped to the user whose card this is.
     const repository = repo.map((name) =>
       name.includes("/") ? name : `${username ?? ""}/${name}`,
@@ -159,7 +156,7 @@ export default async (
       content: renderStatsCard(
         stats,
         {
-          ...colors.params,
+          ...colors,
           hide,
           show_icons,
           hide_title,
@@ -185,6 +182,6 @@ export default async (
       ),
     };
   } catch (err) {
-    return temporaryError(err, colors.params);
+    return errorResult(err, colors);
   }
 };

@@ -1,5 +1,5 @@
 import type { CardConfig } from "../common/config.js";
-import { MissingParamError } from "../common/error.js";
+import { CardError } from "../common/error.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import { retryer } from "../common/retryer.js";
 import { GetRepoDocument } from "../graphql/generated/repo.js";
@@ -48,13 +48,13 @@ const fetchRepo = async (
     owner = username;
   }
   if (!username && !reponame) {
-    throw new MissingParamError(["username", "repo"], urlExample);
+    throw CardError.missingParam(["username", "repo"], urlExample);
   }
   if (!username) {
-    throw new MissingParamError(["username"], urlExample);
+    throw CardError.missingParam(["username"], urlExample);
   }
   if (!reponame) {
-    throw new MissingParamError(["repo"], urlExample);
+    throw CardError.missingParam(["repo"], urlExample);
   }
 
   // the guards above leave `username` set, and `owner` mirrors it when `repo` carried none

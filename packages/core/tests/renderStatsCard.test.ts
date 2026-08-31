@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import statsApi from "../src/api/stats.js";
 import { renderStatsCard } from "../src/cards/stats.js";
-import { CustomError } from "../src/common/error.js";
+import { CardError } from "../src/common/error.js";
 import type { StatsData } from "../src/fetchers/types.js";
 import { themes } from "../src/themes/index.js";
 
@@ -482,10 +482,10 @@ describe("Test renderStatsCard", () => {
         hide_rank: true,
       }),
     ).toThrow(
-      new CustomError(
-        "Could not render stats card.",
-        "Either stats or rank are required.",
-      ),
+      new CardError("Could not render stats card.", {
+        code: "invalid_param",
+        secondaryMessage: "Either stats or rank are required.",
+      }),
     );
   });
 });
@@ -497,7 +497,7 @@ describe("test stats API", () => {
       testConfig,
     );
 
-    expect(result.status).toBe("error - permanent");
+    expect(result.status).toBe("error");
     expect(result.content).toContain(
       `Invalid color input for parameter &#34;title_color&#34;`,
     );

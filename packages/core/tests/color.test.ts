@@ -11,6 +11,7 @@ import {
   isPrefixedHexColor,
   isValidGradient,
 } from "../src/common/color.js";
+import { CardError } from "../src/common/error.js";
 
 describe("getCardColors", () => {
   it("should return expected values", () => {
@@ -280,12 +281,12 @@ describe("parseColorParams", () => {
    * @returns The param the schema rejected, or null when it accepted them all.
    */
   const invalidParam = (query: Record<string, string>): string | null => {
-    const result = parseColorParams(query);
-    if (result.ok) {
+    try {
+      parseColorParams(query);
       return null;
+    } catch (err) {
+      return err instanceof CardError ? (err.param ?? null) : null;
     }
-    const [, param] = /parameter "(.*)"/.exec(result.secondaryMessage) ?? [];
-    return param ?? result.secondaryMessage;
   };
 
   it("should accept valid colors", () => {
@@ -330,12 +331,9 @@ describe("parseColorParams", () => {
     const query = Object.fromEntries(
       COLOR_PARAM_KEYS.map((key) => [key, "fff"]),
     );
-    const result = parseColorParams({ ...query, username: "x" });
-
-    expect(result.ok).toBe(true);
-    expect(result.ok && Object.keys(result.params)).toStrictEqual([
-      ...COLOR_PARAM_KEYS,
-    ]);
+    expect(
+      Object.keys(parseColorParams({ ...query, username: "x" })),
+    ).toStrictEqual([...COLOR_PARAM_KEYS]);
   });
 });
 

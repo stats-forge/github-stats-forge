@@ -9,7 +9,7 @@ import type { CardConfig } from "../common/config.js";
 import { fetchTopLanguages } from "../fetchers/top-languages.js";
 
 import type { ApiResult } from "./api-result.js";
-import { permanentError, temporaryError } from "./api-result.js";
+import { errorResult } from "./api-result.js";
 import type { ApiQuery } from "./params.js";
 import {
   booleanParam,
@@ -26,27 +26,24 @@ import {
 
 /** What the top-languages endpoint accepts, on top of the shared color params. */
 const topLangsQuery = z.object({
-  username: safeParam("Username contains unsafe characters"),
+  username: safeParam,
   hide: listParam,
   hide_title: booleanParam,
   hide_border: booleanParam,
   card_width: looseIntParam,
-  layout: enumParam(TOP_LANG_LAYOUTS, "Incorrect layout input"),
+  layout: enumParam(TOP_LANG_LAYOUTS),
   langs_count: looseIntParam,
   exclude_repo: listParam,
-  size_weight: numberParam("size_weight"),
-  count_weight: numberParam("count_weight"),
+  size_weight: numberParam,
+  count_weight: numberParam,
   custom_title: rawParam,
   locale: localeParam,
-  border_radius: numberParam("border_radius"),
+  border_radius: numberParam,
   role: listParam,
   disable_animations: booleanParam,
   hide_progress: booleanParam,
   hide_values: booleanParam,
-  stats_format: enumParam(
-    TOP_LANG_STATS_FORMATS,
-    "Incorrect stats_format input",
-  ),
+  stats_format: enumParam(TOP_LANG_STATS_FORMATS),
 });
 
 /** The query this endpoint accepts, checked against the schema above. */
@@ -81,37 +78,36 @@ export default async (
   query: TopLangsApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {
-  const colors = parseColorParams(query);
-  if (!colors.ok) {
-    return permanentError(colors.secondaryMessage);
+  let colors;
+  try {
+    colors = parseColorParams(query);
+  } catch (err) {
+    // A rejected color cannot be used to draw its own error card.
+    return errorResult(err);
   }
-
-  const parsed = parseParams(topLangsQuery, query);
-  if (!parsed.ok) {
-    return permanentError(parsed.secondaryMessage, colors.params);
-  }
-  const {
-    username,
-    hide,
-    hide_title,
-    hide_border,
-    card_width,
-    layout,
-    langs_count,
-    exclude_repo,
-    size_weight,
-    count_weight,
-    custom_title,
-    locale,
-    border_radius,
-    role,
-    disable_animations,
-    hide_progress,
-    hide_values,
-    stats_format,
-  } = parsed.params;
 
   try {
+    const {
+      username,
+      hide,
+      hide_title,
+      hide_border,
+      card_width,
+      layout,
+      langs_count,
+      exclude_repo,
+      size_weight,
+      count_weight,
+      custom_title,
+      locale,
+      border_radius,
+      role,
+      disable_animations,
+      hide_progress,
+      hide_values,
+      stats_format,
+    } = parseParams(topLangsQuery, query);
+
     const topLangs = await fetchTopLanguages(
       config,
       username,
@@ -124,7 +120,7 @@ export default async (
     return {
       status: "success",
       content: renderTopLanguages(topLangs, {
-        ...colors.params,
+        ...colors,
         custom_title,
         hide_title,
         hide_border,
@@ -141,6 +137,6 @@ export default async (
       }),
     };
   } catch (err) {
-    return temporaryError(err, colors.params);
+    return errorResult(err, colors);
   }
 };

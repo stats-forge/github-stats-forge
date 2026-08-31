@@ -7,7 +7,7 @@ export { clampValue } from "./common/ops.js";
 
 export { logger } from "./common/log.js";
 
-export type { ApiResult } from "./api/api-result.js";
+export type { ApiError, ApiResult } from "./api/api-result.js";
 export { default as gist } from "./api/gist.js";
 export { default as stats } from "./api/stats.js";
 export { default as pin } from "./api/pin.js";

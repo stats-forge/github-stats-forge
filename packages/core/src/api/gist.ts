@@ -5,7 +5,7 @@ import type { CardConfig } from "../common/config.js";
 import { fetchGist } from "../fetchers/gist.js";
 
 import type { ApiResult } from "./api-result.js";
-import { permanentError, temporaryError } from "./api-result.js";
+import { errorResult } from "./api-result.js";
 import type { ApiQuery } from "./params.js";
 import {
   booleanParam,
@@ -17,8 +17,8 @@ import {
 
 /** What the gist endpoint accepts, on top of the shared color params. */
 const gistQuery = z.object({
-  id: safeParam("Gist ID contains unsafe characters"),
-  border_radius: numberParam("border_radius"),
+  id: safeParam,
+  border_radius: numberParam,
   show_owner: booleanParam,
   browser_rendering: booleanParam,
   hide_border: booleanParam,
@@ -43,25 +43,24 @@ export default async (
   query: GistApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {
-  const colors = parseColorParams(query);
-  if (!colors.ok) {
-    return permanentError(colors.secondaryMessage);
+  let colors;
+  try {
+    colors = parseColorParams(query);
+  } catch (err) {
+    // A rejected color cannot be used to draw its own error card.
+    return errorResult(err);
   }
-
-  const parsed = parseParams(gistQuery, query);
-  if (!parsed.ok) {
-    return permanentError(parsed.secondaryMessage, colors.params);
-  }
-  const { id, border_radius, show_owner, browser_rendering, hide_border } =
-    parsed.params;
 
   try {
+    const { id, border_radius, show_owner, browser_rendering, hide_border } =
+      parseParams(gistQuery, query);
+
     const gistData = await fetchGist(config, id);
 
     return {
       status: "success",
       content: renderGistCard(gistData, {
-        ...colors.params,
+        ...colors,
         border_radius,
         show_owner,
         browser_rendering,
@@ -69,6 +68,6 @@ export default async (
       }),
     };
   } catch (err) {
-    return temporaryError(err, colors.params);
+    return errorResult(err, colors);
   }
 };

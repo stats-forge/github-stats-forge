@@ -23,7 +23,7 @@ describe("API input validation", () => {
   ])("%s: %s", (_endpoint, param, api) => {
     it.each(unsafeValues)(`rejects unsafe ${param} %j`, async (value) => {
       const result = await api({ [param]: value });
-      expect(result.status).toBe("error - permanent");
+      expect(result.status).toBe("error");
       expect(result.content).toContain("unsafe characters");
     });
   });
@@ -38,7 +38,7 @@ describe("API input validation", () => {
           username: "user",
           commits_year: value,
         });
-        expect(result.status).toBe("error - permanent");
+        expect(result.status).toBe("error");
         // the error card html-escapes the quotes around the parameter name
         expect(result.content).toContain(
           "Invalid number input for parameter &#34;commits_year&#34;",

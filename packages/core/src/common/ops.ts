@@ -3,7 +3,7 @@ import toEmoji from "emoji-name-map";
 import type { RepositoryAffiliation } from "../graphql/generated/common.js";
 
 import { OWNER_AFFILIATIONS } from "./constants.js";
-import { CustomError } from "./error.js";
+import { CardError, INVALID_AFFILIATION } from "./error.js";
 
 /**
  * Returns boolean if value is either "true" or "false" else the value as it is.
@@ -110,7 +110,7 @@ const isOwnerAffiliation = (value: string): value is RepositoryAffiliation =>
  * @param affiliations input affiliations to be parsed.
  * @returns Parsed affiliations.
  *
- * @throws {CustomError} If affiliations contains invalid values.
+ * @throws {CardError} If affiliations contains invalid values.
  */
 const parseOwnerAffiliations = (
   affiliations: Array<string>,
@@ -125,10 +125,7 @@ const parseOwnerAffiliations = (
 
   // Check if ownerAffiliations contains valid values.
   if (!normalized.every(isOwnerAffiliation)) {
-    throw new CustomError(
-      "Invalid query parameter",
-      CustomError.INVALID_AFFILIATION,
-    );
+    throw CardError.invalidParam("role", INVALID_AFFILIATION);
   }
   return normalized;
 };

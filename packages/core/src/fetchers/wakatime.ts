@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { CustomError, MissingParamError } from "../common/error.js";
+import { CardError, WAKATIME_USER_NOT_FOUND } from "../common/error.js";
 
 import type { WakaTimeData } from "./types.js";
 
@@ -20,7 +20,7 @@ const fetchWakatimeStats = async ({
   api_domain?: string | undefined;
 }): Promise<WakaTimeData> => {
   if (!username) {
-    throw new MissingParamError(["username"]);
+    throw CardError.missingParam(["username"]);
   }
 
   try {
@@ -37,9 +37,9 @@ const fetchWakatimeStats = async ({
       err.response &&
       (err.response.status < 200 || err.response.status > 299)
     ) {
-      throw new CustomError(
+      throw new CardError(
         `Could not resolve to a User with the login of '${username}'`,
-        "WAKATIME_USER_NOT_FOUND",
+        { code: "not_found", secondaryMessage: WAKATIME_USER_NOT_FOUND },
       );
     }
     throw err;

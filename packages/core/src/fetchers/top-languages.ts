@@ -1,5 +1,5 @@
 import type { CardConfig } from "../common/config.js";
-import { CustomError, MissingParamError } from "../common/error.js";
+import { CardError, USER_NOT_FOUND } from "../common/error.js";
 import { wrapTextMultiline } from "../common/fmt.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import { logger } from "../common/log.js";
@@ -35,7 +35,7 @@ const fetchTopLanguages = async (
   ownerAffiliations: Array<string> = [],
 ): Promise<TopLangData> => {
   if (!username) {
-    throw new MissingParamError(["username"]);
+    throw CardError.missingParam(["username"]);
   }
   const affiliations = parseOwnerAffiliations(ownerAffiliations);
 
@@ -52,20 +52,23 @@ const fetchTopLanguages = async (
     logger.error(res.data.errors);
     const firstError = res.data.errors[0];
     if (firstError?.type === "NOT_FOUND") {
-      throw new CustomError(
-        firstError.message || "Could not fetch user.",
-        CustomError.USER_NOT_FOUND,
-      );
+      throw new CardError(firstError.message || "Could not fetch user.", {
+        code: "not_found",
+        secondaryMessage: USER_NOT_FOUND,
+      });
     }
     if (firstError?.message) {
-      throw new CustomError(
+      throw new CardError(
         wrapTextMultiline(firstError.message, 525, 12)[0] ?? "",
-        res.statusText,
+        {
+          code: "upstream",
+          secondaryMessage: res.statusText,
+        },
       );
     }
-    throw new CustomError(
+    throw new CardError(
       "Something went wrong while trying to retrieve the language data using the GraphQL API.",
-      CustomError.GRAPHQL_ERROR,
+      { code: "upstream" },
     );
   }
 

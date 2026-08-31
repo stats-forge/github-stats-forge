@@ -160,13 +160,12 @@ CommonCardOptions {…}` (an interface, not `type &`) in its own file, **not exp
 hand the render functions typed values — defaults stay with the renderer.
 
 **Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
-params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam(name)`,
-`looseIntParam`, `safeParam(error)`, `safeListParam(error)`, `localeParam`,
-`enumParam(values, error)`, `yearParam(name)`).
-A handler is then three steps:
-`parseColorParams(query)`, `parseParams(xQuery, query)`, render — and it returns the
-shared `ApiResult` from `api/api-result.js`, with `permanentError` / `temporaryError`
-building the two failure shapes.
+params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `looseIntParam`,
+`safeParam`, `safeListParam`, `localeParam`, `enumParam(values)`, `yearParam`) — none of
+which takes a message, because the wording is derived from the kind and the param name.
+A handler is then three steps — `parseColorParams(query)`, `parseParams(xQuery, query)`,
+render — wrapped in one `try`/`catch` whose `catch` is `errorResult(err, colors)`.
+Parsing throws, fetching throws, and one place turns whatever was thrown into the answer.
 
 - **Colors parse first, separately.**
   A rejected color cannot be used to draw its own error card, which is why
@@ -178,10 +177,19 @@ building the two failure shapes.
   `RANK_ICONS`, `TOP_LANG_LAYOUTS`, `WAKATIME_LAYOUTS`, `DISPLAY_FORMATS` and
   `TOP_LANG_STATS_FORMATS` are exported by the card that renders them, and the card's
   union type is derived from the same const, so the schema cannot drift from what renders.
-- **One wording per kind of rejection.**
-  `Invalid number input for parameter "x"`, `Invalid color input for parameter "x"`,
-  `Locale not found`, `Incorrect <param> input`, `… contains unsafe characters`.
-  Only the first rejection is reported: the error card has one line.
+- **One wording per kind of rejection, in one table.**
+  `REJECTION_MESSAGES` in `api/params.ts` maps a `Rejection` kind to its message, and the
+  param name comes from the issue's own `path` — no schema spells its own name or prose.
+  A check declares its kind through `rejects(kind, passes)`, which puts it on the issue as
+  `params.kind`. Only the first rejection is reported: the error card has one line.
+- **Everything throws `CardError`** (`common/error.ts`), which carries a `code`, the two
+  lines the card draws, and the param at fault. `retryable` is derived from the code by one
+  table, so "can a retry help" is answered once rather than at each throw site.
+  `CardError.from(err)` wraps anything else as `upstream`.
+- **`ApiResult` is a union, not a status string.** Success is `{ status: "success", content }`;
+  failure is `{ status: "error", retryable, error: { code, message, secondaryMessage, param }, content }`.
+  A host branches on `code` / `retryable` instead of matching `"error - temporary"`, and
+  never has to read the SVG to find out what happened.
 
 - **The api parses; the card defaults.** A handler turns strings into typed values
   (`parseBoolean`, `parseFloat`, `toLowerCase`) and stops there — it never supplies a

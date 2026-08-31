@@ -6,7 +6,7 @@ import { calculateRank } from "../calculateRank.js";
 import type { CardConfig } from "../common/config.js";
 import type { GitHubDateRange } from "../common/date.js";
 import { getGitHubYearRange, toGitHubDateTime } from "../common/date.js";
-import { CustomError, MissingParamError } from "../common/error.js";
+import { CardError, USER_NOT_FOUND } from "../common/error.js";
 import { wrapTextMultiline } from "../common/fmt.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import type { GraphQLResponse } from "../common/http.js";
@@ -216,10 +216,9 @@ const totalItemsFetcher = async (
   const totalCount = res.data.total_count;
   if (totalCount === undefined || isNaN(totalCount)) {
     logger.error("GitHub error: " + JSON.stringify(res.data));
-    throw new CustomError(
-      "Could not fetch data from GitHub REST API.",
-      CustomError.GITHUB_REST_API_ERROR,
-    );
+    throw new CardError("Could not fetch data from GitHub REST API.", {
+      code: "upstream",
+    });
   }
   return totalCount;
 };
@@ -300,12 +299,15 @@ const graphqlError = (
   errors: NonNullable<GraphQLResponse<unknown>["data"]["errors"]>,
   statusText: string,
   fallback: string,
-): CustomError => {
+): CardError => {
   logger.error(errors);
   const message = errors[0]?.message;
   return message
-    ? new CustomError(wrapTextMultiline(message, 525, 12)[0] ?? "", statusText)
-    : new CustomError(fallback, CustomError.GRAPHQL_ERROR);
+    ? new CardError(wrapTextMultiline(message, 525, 12)[0] ?? "", {
+        code: "upstream",
+        secondaryMessage: statusText,
+      })
+    : new CardError(fallback, { code: "upstream" });
 };
 
 /**
@@ -419,19 +421,15 @@ const fetchAllTimeReposContributedTo = async (
       }
       const user = res.data.data.user;
       if (!user) {
-        throw new CustomError(
-          REPOS_CONTRIBUTED_TO_ERROR,
-          CustomError.GRAPHQL_ERROR,
-        );
+        throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: "upstream" });
       }
 
       for (const [index, range] of chunk.entries()) {
         const rangeResponse = user[`range_${index}`];
         if (!rangeResponse) {
-          throw new CustomError(
-            REPOS_CONTRIBUTED_TO_ERROR,
-            CustomError.GRAPHQL_ERROR,
-          );
+          throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, {
+            code: "upstream",
+          });
         }
 
         const lists = [
@@ -537,7 +535,7 @@ const fetchStats = async (
   contribs_include_own_repos = false,
 ): Promise<StatsData> => {
   if (!username) {
-    throw new MissingParamError(["username"]);
+    throw CardError.missingParam(["username"]);
   }
 
   const stats: StatsData = {
@@ -582,26 +580,29 @@ const fetchStats = async (
     logger.error(res.data.errors);
     const firstError = res.data.errors[0];
     if (firstError?.type === "NOT_FOUND") {
-      throw new CustomError(
-        firstError.message || "Could not fetch user.",
-        CustomError.USER_NOT_FOUND,
-      );
+      throw new CardError(firstError.message || "Could not fetch user.", {
+        code: "not_found",
+        secondaryMessage: USER_NOT_FOUND,
+      });
     }
     if (firstError?.message) {
-      throw new CustomError(
+      throw new CardError(
         wrapTextMultiline(firstError.message, 525, 12)[0] ?? "",
-        res.statusText,
+        { code: "upstream", secondaryMessage: res.statusText },
       );
     }
-    throw new CustomError(
+    throw new CardError(
       "Something went wrong while trying to retrieve the stats data using the GraphQL API.",
-      CustomError.GRAPHQL_ERROR,
+      { code: "upstream" },
     );
   }
 
   const user = res.data.data.user;
   if (!user) {
-    throw new CustomError("Could not fetch user.", CustomError.USER_NOT_FOUND);
+    throw new CardError("Could not fetch user.", {
+      code: "not_found",
+      secondaryMessage: USER_NOT_FOUND,
+    });
   }
 
   stats.name = user.name || user.login;
