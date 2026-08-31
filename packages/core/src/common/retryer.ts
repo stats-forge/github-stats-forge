@@ -1,6 +1,6 @@
 import type { AxiosResponse } from "axios";
 
-import { getConfig } from "./config.js";
+import type { CardConfig } from "./config.js";
 import { CustomError } from "./error.js";
 import { logger } from "./log.js";
 
@@ -49,17 +49,15 @@ type FetcherFunction<TData = unknown, TVariables = Record<string, unknown>> = (
  * @template TVariables Variables the fetcher accepts.
  * @param fetcher The fetcher function.
  * @param variables Object with arguments to pass to the fetcher function.
- * @param pat Optional PAT override.
+ * @param config Deployment config supplying the PAT pool.
  * @returns The response from the fetcher function.
  */
 const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
   fetcher: FetcherFunction<TData, TVariables>,
   variables: TVariables,
-  pat: string | null = null,
+  config: CardConfig,
 ): Promise<FetcherResponse<TData>> => {
-  const PATs = pat
-    ? [{ name: "user PAT from database", value: pat }]
-    : getConfig().pats;
+  const PATs = config.pats;
 
   if (!PATs.length) {
     throw new CustomError("No GitHub API tokens found", CustomError.NO_TOKENS);

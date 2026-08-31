@@ -20,7 +20,8 @@ export { default as pin } from "./api/pin.js";
 export { default as topLangs } from "./api/top-langs.js";
 export { default as wakatime } from "./api/wakatime.js";
 
-export { getConfig, loadConfigFromEnv } from "./common/config.js";
+export { CardConfig } from "./common/config.js";
+export type { PersonalAccessToken } from "./common/config.js";
 
 export { themes } from "./themes/index.js";
 export type { ThemeName } from "./themes/index.js";

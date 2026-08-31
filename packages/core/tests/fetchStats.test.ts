@@ -3,8 +3,10 @@ import MockAdapter from "axios-mock-adapter";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { calculateRank } from "../src/calculateRank.js";
-import { loadConfigFromEnv } from "../src/common/config.js";
+import type { CardConfig } from "../src/common/config.js";
 import { fetchStats } from "../src/fetchers/stats.js";
+
+import { testConfig } from "./_config.js";
 
 vi.mock(import("../src/common/log.js"), async () => {
   const { createLoggerMock } = await import("./utils.js");
@@ -129,9 +131,10 @@ const error = {
 
 const mock = new MockAdapter(axios);
 
+let config: CardConfig;
+
 beforeEach(() => {
-  vi.stubEnv("FETCH_MULTI_PAGE_STARS", "false"); // Set to `false` to fetch only one page of stars.
-  loadConfigFromEnv();
+  config = testConfig; // The default fetches only one page of stars.
   mock.onPost("https://api.github.com/graphql").reply((cfg) => {
     const req = JSON.parse(cfg.data as string) as {
       variables?: { startTime?: string };
@@ -158,7 +161,7 @@ afterEach(() => {
 
 describe("Test fetchStats", () => {
   it("should fetch correct stats", async () => {
-    const stats = await fetchStats("anuraghazra");
+    const stats = await fetchStats(config, "anuraghazra");
     const rank = calculateRank({
       all_commits: false,
       commits: 100,
@@ -200,7 +203,7 @@ describe("Test fetchStats", () => {
       .onPost("https://api.github.com/graphql")
       .replyOnce(200, data_repo_zero_stars);
 
-    const stats = await fetchStats("anuraghazra");
+    const stats = await fetchStats(config, "anuraghazra");
     const rank = calculateRank({
       all_commits: false,
       commits: 100,
@@ -238,7 +241,7 @@ describe("Test fetchStats", () => {
     mock.reset();
     mock.onPost("https://api.github.com/graphql").reply(200, error);
 
-    await expect(fetchStats("anuraghazra")).rejects.toThrow(
+    await expect(fetchStats(config, "anuraghazra")).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
     );
   });
@@ -250,7 +253,7 @@ describe("Test fetchStats", () => {
       )
       .reply(200, { total_count: 1000 });
 
-    const stats = await fetchStats("anuraghazra", true);
+    const stats = await fetchStats(config, "anuraghazra", true);
     const rank = calculateRank({
       all_commits: true,
       commits: 1000,
@@ -285,7 +288,7 @@ describe("Test fetchStats", () => {
   });
 
   it("should throw specific error when include_all_commits true and invalid username", async () => {
-    await expect(fetchStats("asdf///---", true)).rejects.toThrow(
+    await expect(fetchStats(config, "asdf///---", true)).rejects.toThrow(
       "Invalid username provided.",
     );
   });
@@ -297,7 +300,7 @@ describe("Test fetchStats", () => {
       )
       .reply(200, { error: "Some test error message" });
 
-    await expect(fetchStats("anuraghazra", true)).rejects.toThrow(
+    await expect(fetchStats(config, "anuraghazra", true)).rejects.toThrow(
       "Could not fetch data from GitHub REST API.",
     );
   });
@@ -309,7 +312,9 @@ describe("Test fetchStats", () => {
       )
       .reply(200, { total_count: 1000 });
 
-    const stats = await fetchStats("anuraghazra", true, ["test-repo-1"]);
+    const stats = await fetchStats(config, "anuraghazra", true, [
+      "test-repo-1",
+    ]);
     const rank = calculateRank({
       all_commits: true,
       commits: 1000,
@@ -344,10 +349,9 @@ describe("Test fetchStats", () => {
   });
 
   it("should fetch two pages of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `true`", async () => {
-    vi.stubEnv("FETCH_MULTI_PAGE_STARS", "true");
-    loadConfigFromEnv();
+    config = testConfig.with({ fetchMultiPageStars: Infinity });
 
-    const stats = await fetchStats("anuraghazra");
+    const stats = await fetchStats(config, "anuraghazra");
     const rank = calculateRank({
       all_commits: false,
       commits: 100,
@@ -382,10 +386,9 @@ describe("Test fetchStats", () => {
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `false`", async () => {
-    vi.stubEnv("FETCH_MULTI_PAGE_STARS", "false");
-    loadConfigFromEnv();
+    config = testConfig.with({ fetchMultiPageStars: 1 });
 
-    const stats = await fetchStats("anuraghazra");
+    const stats = await fetchStats(config, "anuraghazra");
     const rank = calculateRank({
       all_commits: false,
       commits: 100,
@@ -420,10 +423,9 @@ describe("Test fetchStats", () => {
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is not set", async () => {
-    vi.stubEnv("FETCH_MULTI_PAGE_STARS", undefined);
-    loadConfigFromEnv();
+    config = testConfig.with({ fetchMultiPageStars: 1 });
 
-    const stats = await fetchStats("anuraghazra");
+    const stats = await fetchStats(config, "anuraghazra");
     const rank = calculateRank({
       all_commits: false,
       commits: 100,
@@ -458,8 +460,7 @@ describe("Test fetchStats", () => {
   });
 
   it("should fetch at most 'FETCH_MULTI_PAGE_STARS' pages when it is a number", async () => {
-    vi.stubEnv("FETCH_MULTI_PAGE_STARS", "3");
-    loadConfigFromEnv();
+    config = testConfig.with({ fetchMultiPageStars: 3 });
     mock.reset();
     mock
       .onPost("https://api.github.com/graphql")
@@ -472,7 +473,7 @@ describe("Test fetchStats", () => {
       .onPost("https://api.github.com/graphql")
       .replyOnce(200, data_repo);
 
-    const stats = await fetchStats("anuraghazra");
+    const stats = await fetchStats(config, "anuraghazra");
 
     // the stats page plus two repo pages, even though every page has a next one
     expect(mock.history.post).toHaveLength(3);
@@ -487,8 +488,7 @@ describe("Test fetchStats", () => {
   });
 
   it("should throw when a page after the first returns an error", async () => {
-    vi.stubEnv("FETCH_MULTI_PAGE_STARS", "true");
-    loadConfigFromEnv();
+    config = testConfig.with({ fetchMultiPageStars: Infinity });
     mock.reset();
     mock
       .onPost("https://api.github.com/graphql")
@@ -496,14 +496,14 @@ describe("Test fetchStats", () => {
       .onPost("https://api.github.com/graphql")
       .replyOnce(200, error);
 
-    await expect(fetchStats("anuraghazra")).rejects.toThrow(
+    await expect(fetchStats(config, "anuraghazra")).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
     );
     expect(mock.history.post).toHaveLength(2);
   });
 
   it("should not fetch additional stats data when it not requested", async () => {
-    const stats = await fetchStats("anuraghazra");
+    const stats = await fetchStats(config, "anuraghazra");
     const rank = calculateRank({
       all_commits: false,
       commits: 100,
@@ -538,7 +538,15 @@ describe("Test fetchStats", () => {
   });
 
   it("should fetch additional stats when it requested", async () => {
-    const stats = await fetchStats("anuraghazra", false, [], true, true, true);
+    const stats = await fetchStats(
+      config,
+      "anuraghazra",
+      false,
+      [],
+      true,
+      true,
+      true,
+    );
     const rank = calculateRank({
       all_commits: false,
       commits: 100,
@@ -574,6 +582,7 @@ describe("Test fetchStats", () => {
 
   it("should get commits of provided year", async () => {
     const stats = await fetchStats(
+      config,
       "anuraghazra",
       false,
       [],
@@ -618,6 +627,7 @@ describe("Test fetchStats", () => {
 
   it("should fetch total contributions when include_contributions is true", async () => {
     const stats = await fetchStats(
+      config,
       "anuraghazra",
       false,
       [],
@@ -659,6 +669,7 @@ describe("Test fetchStats", () => {
 
     await expect(
       fetchStats(
+        config,
         "anuraghazra",
         false,
         [],
@@ -693,6 +704,7 @@ describe("Test fetchStats", () => {
 
     await expect(
       fetchStats(
+        config,
         "anuraghazra",
         false,
         [],
@@ -719,7 +731,7 @@ describe("Test fetchStats", () => {
     mock
       .onPost("https://api.github.com/graphql")
       .reply(200, data_without_pull_requests);
-    const stats = await fetchStats("anuraghazra", false, [], true);
+    const stats = await fetchStats(config, "anuraghazra", false, [], true);
     const rank = calculateRank({
       all_commits: false,
       commits: 100,

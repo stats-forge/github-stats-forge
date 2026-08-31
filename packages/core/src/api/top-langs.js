@@ -32,7 +32,7 @@ export default async (
     stats_format,
     ...remainingParams
   },
-  pat = null,
+  config,
 ) => {
   const colorParams = pickColorParams(remainingParams);
 
@@ -101,12 +101,12 @@ export default async (
 
   try {
     const topLangs = await fetchTopLanguages(
+      config,
       username,
       parseArray(exclude_repo),
       size_weight,
       count_weight,
       parseArray(role),
-      pat,
     );
 
     return {

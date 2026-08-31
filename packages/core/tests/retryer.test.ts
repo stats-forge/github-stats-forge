@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { retryer } from "../src/common/retryer.js";
 
+import { testConfig } from "./_config.js";
+
 type Fetcher = Parameters<typeof retryer>[0];
 
 vi.mock(import("../src/common/log.js"), async () => {
@@ -46,28 +48,32 @@ const customFetcher = vi.fn((_variables: unknown, token: string) => {
 
 describe("Test Retryer", () => {
   it("retryer should return value and have zero retries on first try", async () => {
-    const res = await retryer(fetcher, {});
+    const res = await retryer(fetcher, {}, testConfig);
 
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(res).toStrictEqual({ data: "ok" });
   });
 
   it("retryer should return value and have 2 retries", async () => {
-    const res = await retryer(fetcherFailOnSecondTry, {});
+    const res = await retryer(fetcherFailOnSecondTry, {}, testConfig);
 
     expect(fetcherFailOnSecondTry).toHaveBeenCalledTimes(2);
     expect(res).toStrictEqual({ data: "ok" });
   });
 
   it("retryer should return value and have 2 retries with message based rate limit error", async () => {
-    const res = await retryer(fetcherFailWithMessageBasedRateLimitErr, {});
+    const res = await retryer(
+      fetcherFailWithMessageBasedRateLimitErr,
+      {},
+      testConfig,
+    );
 
     expect(fetcherFailWithMessageBasedRateLimitErr).toHaveBeenCalledTimes(2);
     expect(res).toStrictEqual({ data: "ok" });
   });
 
   it("retryer should throw specific error if maximum retries reached", async () => {
-    await expect(retryer(fetcherFail, {})).rejects.toThrow(
+    await expect(retryer(fetcherFail, {}, testConfig)).rejects.toThrow(
       "Downtime due to GitHub API rate limiting",
     );
 
@@ -75,7 +81,10 @@ describe("Test Retryer", () => {
   });
 
   it("retryer should use injected PATs when provided", async () => {
-    const res = await retryer(customFetcher, {}, "user-pat-token");
+    const userConfig = testConfig.with({
+      pats: [{ name: "user PAT from database", value: "user-pat-token" }],
+    });
+    const res = await retryer(customFetcher, {}, userConfig);
 
     expect(customFetcher).toHaveBeenCalledExactlyOnceWith(
       {},

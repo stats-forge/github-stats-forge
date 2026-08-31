@@ -37,7 +37,7 @@ export default async (
     show,
     ...remainingParams
   },
-  pat = null,
+  config,
 ) => {
   const colorParams = pickColorParams(remainingParams);
 
@@ -89,6 +89,7 @@ export default async (
     );
 
     const stats = await fetchStats(
+      config,
       username,
       parseBoolean(include_all_commits),
       parseArray(exclude_repo),
@@ -106,7 +107,6 @@ export default async (
       showStats.includes("issues_commented"),
       parseArray(role),
       showStats.includes("contributions"),
-      pat,
     );
 
     return {

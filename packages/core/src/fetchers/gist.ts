@@ -1,3 +1,4 @@
+import type { CardConfig } from "../common/config.js";
 import { MissingParamError } from "../common/error.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import { retryer } from "../common/retryer.js";
@@ -41,18 +42,15 @@ const calculatePrimaryLanguage = (
 /**
  * Fetch GitHub gist information by given username and ID.
  *
+ * @param config Deployment config supplying the PAT pool.
  * @param id GitHub gist ID.
- * @param pat Optional PAT override.
  * @returns Gist data.
  */
-const fetchGist = async (
-  id: string,
-  pat: string | null = null,
-): Promise<GistData> => {
+const fetchGist = async (config: CardConfig, id: string): Promise<GistData> => {
   if (!id) {
     throw new MissingParamError(["id"], "/api/gist?id=GIST_ID");
   }
-  const res = await retryer(fetcher, { gistName: id }, pat);
+  const res = await retryer(fetcher, { gistName: id }, config);
   if (res.data.errors) {
     throw new Error(res.data.errors[0]?.message);
   }

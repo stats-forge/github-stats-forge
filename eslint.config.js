@@ -168,6 +168,22 @@ export default defineConfig(
     },
   },
   {
+    // The library must behave identically under Node, in the browser and under
+    // vitest, so it configures nothing from ambient globals — the host passes a
+    // `CardConfig` in. Tests are excluded: they legitimately use jsdom.
+    files: ["packages/core/src/**/*.ts"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        "process",
+        "window",
+        "document",
+        "globalThis",
+        "navigator",
+      ],
+    },
+  },
+  {
     files: ["apps/backend/**/*.{js}"],
     languageOptions: {
       globals: {

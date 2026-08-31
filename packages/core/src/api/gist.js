@@ -20,7 +20,7 @@ export default async (
     hide_border,
     ...remainingParams
   },
-  pat = null,
+  config,
 ) => {
   const colorParams = pickColorParams(remainingParams);
 
@@ -59,7 +59,7 @@ export default async (
   }
 
   try {
-    const gistData = await fetchGist(id, pat);
+    const gistData = await fetchGist(config, id);
 
     return {
       status: "success",

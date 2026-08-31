@@ -1,3 +1,4 @@
+import type { CardConfig } from "../common/config.js";
 import { MissingParamError } from "../common/error.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import { retryer } from "../common/retryer.js";
@@ -13,6 +14,7 @@ const urlExample = "/api/pin?username=USERNAME&repo=REPO_NAME";
 /**
  * Fetch repository data.
  *
+ * @param config Deployment config supplying the PAT pool.
  * @param username GitHub username.
  * @param reponame GitHub repository name.
  * @param include_prs_authored Include count of PRs authored.
@@ -20,10 +22,10 @@ const urlExample = "/api/pin?username=USERNAME&repo=REPO_NAME";
  * @param include_prs_reviewed Include count of PRs reviewed.
  * @param include_issues_authored Include count of issues authored.
  * @param include_issues_commented Include count of issues commented.
- * @param pat Optional PAT override.
  * @returns Repository data.
  */
 const fetchRepo = async (
+  config: CardConfig,
   username: string,
   reponame: string,
   include_prs_authored = false,
@@ -31,7 +33,6 @@ const fetchRepo = async (
   include_prs_reviewed = false,
   include_issues_authored = false,
   include_issues_commented = false,
-  pat: string | null = null,
 ): Promise<RepositoryData> => {
   let owner = username;
   if (reponame && reponame.includes("/")) {
@@ -56,7 +57,7 @@ const fetchRepo = async (
     throw new MissingParamError(["repo"], urlExample);
   }
 
-  const res = await retryer(fetcher, { login: owner, repo: reponame }, pat);
+  const res = await retryer(fetcher, { login: owner, repo: reponame }, config);
 
   const data = res.data.data;
 
@@ -78,7 +79,7 @@ const fetchRepo = async (
       include_prs_reviewed,
       include_issues_authored,
       include_issues_commented,
-      pat,
+      config,
     );
     return {
       ...repoUserStats,
@@ -100,7 +101,7 @@ const fetchRepo = async (
       include_prs_reviewed,
       include_issues_authored,
       include_issues_commented,
-      pat,
+      config,
     );
     return {
       ...repoUserStats,

@@ -1,4 +1,4 @@
-import { getConfig } from "../common/config.js";
+import type { CardConfig } from "../common/config.js";
 import { CustomError, MissingParamError } from "../common/error.js";
 import { wrapTextMultiline } from "../common/fmt.js";
 import { createGraphQLFetcher } from "../common/http.js";
@@ -18,21 +18,21 @@ const fetcher = createGraphQLFetcher(TopLanguagesDocument, "token");
 /**
  * Fetch top languages for a given username.
  *
+ * @param config Deployment config supplying the PAT pool.
  * @param username GitHub username.
  * @param exclude_repo List of repositories to exclude. Default: [].
  * @param size_weight Weightage to be given to size.
  * @param count_weight Weightage to be given to count.
  * @param ownerAffiliations The owner affiliations to filter by. Default: OWNER.
- * @param pat Optional PAT override.
  * @returns Top languages data.
  */
 const fetchTopLanguages = async (
+  config: CardConfig,
   username: string,
   exclude_repo: Array<string> = [],
   size_weight = 1,
   count_weight = 0,
   ownerAffiliations: Array<string> = [],
-  pat: string | null = null,
 ): Promise<TopLangData> => {
   if (!username) {
     throw new MissingParamError(["username"]);
@@ -45,7 +45,7 @@ const fetchTopLanguages = async (
       login: username,
       ownerAffiliations: affiliations,
     },
-    pat,
+    config,
   );
 
   if (res.data.errors) {
@@ -70,10 +70,7 @@ const fetchTopLanguages = async (
   }
 
   const repoToHide: Record<string, boolean> = {};
-  const allExcludedRepos = [
-    ...exclude_repo,
-    ...getConfig().excludeRepositories,
-  ];
+  const allExcludedRepos = [...exclude_repo, ...config.excludeRepositories];
 
   // populate repoToHide map for quick lookup while filtering out
   allExcludedRepos.forEach((repoName) => {

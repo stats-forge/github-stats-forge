@@ -3,7 +3,7 @@ import type { AxiosResponse } from "axios";
 import githubUsernameRegex from "github-username-regex";
 
 import { calculateRank } from "../calculateRank.js";
-import { getConfig } from "../common/config.js";
+import type { CardConfig } from "../common/config.js";
 import { CustomError, MissingParamError } from "../common/error.js";
 import { wrapTextMultiline } from "../common/fmt.js";
 import { createGraphQLFetcher } from "../common/http.js";
@@ -44,7 +44,7 @@ const reposFetcher = createGraphQLFetcher(UserReposDocument, "bearer");
  * @param variables.includeDiscussionsAnswers Include discussions answers.
  * @param variables.startTime Time to start the count of total commits.
  * @param variables.ownerAffiliations The owner affiliations to filter by. Default: OWNER.
- * @param variables.pat PAT override or null.
+ * @param variables.config Deployment config supplying the PAT pool.
  * @returns The stats response, with every fetched page's repos merged in.
  *
  * @description Supports multi-page fetching when the `FETCH_MULTI_PAGE_STARS`
@@ -57,7 +57,7 @@ const statsFetcher = async ({
   includeDiscussionsAnswers,
   startTime,
   ownerAffiliations,
-  pat,
+  config,
 }: {
   username: string;
   includeMergedPullRequests: boolean;
@@ -65,7 +65,7 @@ const statsFetcher = async ({
   includeDiscussionsAnswers: boolean;
   startTime: string | undefined;
   ownerAffiliations: UserInfoQueryVariables["ownerAffiliations"];
-  pat: string | null;
+  config: CardConfig;
 }): Promise<StatsFetcherResponse> => {
   // only the first request carries the stats themselves
   let stats: StatsFetcherResponse = await retryer(
@@ -79,13 +79,13 @@ const statsFetcher = async ({
       startTime,
       ownerAffiliations,
     },
-    pat,
+    config,
   );
   if (stats.data.errors) {
     return stats;
   }
 
-  const pageLimit = getConfig().fetchMultiPageStars;
+  const pageLimit = config.fetchMultiPageStars;
 
   const extraRepoNodes: Array<RepoNodeFragment | null> = [];
   let pageRepositories = stats.data.data.user?.repositories;
@@ -107,7 +107,7 @@ const statsFetcher = async ({
     const page = await retryer(
       reposFetcher,
       { login: username, after, ownerAffiliations },
-      pat,
+      config,
     );
     if (page.data.errors) {
       return {
@@ -180,7 +180,7 @@ const totalItemsFetcher = async (
   owner: Array<string>,
   type: string,
   filter: string,
-  pat: string | null,
+  config: CardConfig,
 ): Promise<number> => {
   if (!githubUsernameRegex.test(username)) {
     logger.log("Invalid username provided.");
@@ -192,7 +192,7 @@ const totalItemsFetcher = async (
     res = await retryer<{ total_count?: number }>(
       fetchTotalItems,
       { login: username, repo, owner, type, filter },
-      pat,
+      config,
     );
   } catch (err) {
     logger.log(err);
@@ -219,7 +219,7 @@ const fetchRepoUserStats = async (
   include_prs_reviewed: boolean,
   include_issues_authored: boolean,
   include_issues_commented: boolean,
-  pat: string | null,
+  config: CardConfig,
 ): Promise<RepoUserStats> => {
   const stats: RepoUserStats = {};
   if (include_prs_authored) {
@@ -229,7 +229,7 @@ const fetchRepoUserStats = async (
       owner,
       "issues",
       `author:${username}+type:pr`,
-      pat,
+      config,
     );
   }
   if (include_prs_commented) {
@@ -239,7 +239,7 @@ const fetchRepoUserStats = async (
       owner,
       "issues",
       `commenter:${username}+-author:${username}+type:pr`,
-      pat,
+      config,
     );
   }
   if (include_prs_reviewed) {
@@ -249,7 +249,7 @@ const fetchRepoUserStats = async (
       owner,
       "issues",
       `reviewed-by:${username}+-author:${username}+type:pr`,
-      pat,
+      config,
     );
   }
   if (include_issues_authored) {
@@ -259,7 +259,7 @@ const fetchRepoUserStats = async (
       owner,
       "issues",
       `author:${username}+type:issue`,
-      pat,
+      config,
     );
   }
   if (include_issues_commented) {
@@ -269,7 +269,7 @@ const fetchRepoUserStats = async (
       owner,
       "issues",
       `commenter:${username}+-author:${username}+type:issue`,
-      pat,
+      config,
     );
   }
   return stats;
@@ -285,7 +285,7 @@ const fetchRepoUserStats = async (
 const fetchTotalContributions = async (
   username: string,
   years: Array<number>,
-  pat: string | null = null,
+  config: CardConfig,
 ): Promise<number> => {
   if (years.length === 0) {
     return 0;
@@ -299,7 +299,7 @@ const fetchTotalContributions = async (
   const contribRes = await retryer(
     contributionsFetcher,
     { login: username },
-    pat,
+    config,
   );
 
   if (contribRes.data.errors) {
@@ -335,6 +335,7 @@ const fetchTotalContributions = async (
 /**
  * Fetch stats for a given username.
  *
+ * @param config Deployment config supplying the PAT pool.
  * @param username GitHub username.
  * @param include_all_commits Include all commits.
  * @param exclude_repo Repositories to exclude.
@@ -351,10 +352,10 @@ const fetchTotalContributions = async (
  * @param include_issues_commented Include count of issues commented.
  * @param ownerAffiliations Owner affiliations. Default: OWNER.
  * @param include_contributions Include all-time contributions.
- * @param pat Optional PAT override.
  * @returns Stats data.
  */
 const fetchStats = async (
+  config: CardConfig,
   username: string,
   include_all_commits = false,
   exclude_repo: Array<string> = [],
@@ -371,7 +372,6 @@ const fetchStats = async (
   include_issues_commented = false,
   ownerAffiliations: Array<string> = [],
   include_contributions = false,
-  pat: string | null = null,
 ): Promise<StatsData> => {
   if (!username) {
     throw new MissingParamError(["username"]);
@@ -406,7 +406,7 @@ const fetchStats = async (
     includeDiscussionsAnswers: include_discussions_answers,
     startTime: commits_year ? `${commits_year}-01-01T00:00:00Z` : undefined,
     ownerAffiliations: affiliations,
-    pat,
+    config,
   });
 
   // Catch GraphQL errors.
@@ -446,7 +446,7 @@ const fetchStats = async (
       owner,
       "commits",
       `author:${username}`,
-      pat,
+      config,
     );
   } else {
     stats.totalCommits = user.commits.totalCommitContributions;
@@ -460,7 +460,7 @@ const fetchStats = async (
     include_prs_reviewed,
     include_issues_authored,
     include_issues_commented,
-    pat,
+    config,
   );
   Object.assign(stats, repoUserStats);
 
@@ -486,15 +486,12 @@ const fetchStats = async (
     stats.totalContributions = await fetchTotalContributions(
       username,
       user.contributionsCollection.contributionYears,
-      pat,
+      config,
     );
   }
 
   // Retrieve stars while filtering out repositories to be hidden.
-  const allExcludedRepos = [
-    ...exclude_repo,
-    ...getConfig().excludeRepositories,
-  ];
+  const allExcludedRepos = [...exclude_repo, ...config.excludeRepositories];
   const repoToHide = new Set(allExcludedRepos);
 
   stats.totalStars = (user.repositories.nodes ?? [])

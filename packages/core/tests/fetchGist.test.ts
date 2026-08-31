@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { fetchGist } from "../src/fetchers/gist.js";
 
+import { testConfig } from "./_config.js";
+
 const gist_data = {
   data: {
     viewer: {
@@ -78,7 +80,10 @@ describe("Test fetchGist", () => {
   it("should fetch gist correctly", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, gist_data);
 
-    const gist = await fetchGist("bbfce31e0217a3689c8d961a356cb10d");
+    const gist = await fetchGist(
+      testConfig,
+      "bbfce31e0217a3689c8d961a356cb10d",
+    );
 
     expect(gist).toStrictEqual({
       name: "countries.json",
@@ -96,22 +101,22 @@ describe("Test fetchGist", () => {
       .onPost("https://api.github.com/graphql")
       .reply(200, gist_not_found_data);
 
-    await expect(fetchGist("bbfce31e0217a3689c8d961a356cb10d")).rejects.toThrow(
-      "Gist not found",
-    );
+    await expect(
+      fetchGist(testConfig, "bbfce31e0217a3689c8d961a356cb10d"),
+    ).rejects.toThrow("Gist not found");
   });
 
   it("should throw error if response contains them", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, gist_errors_data);
 
-    await expect(fetchGist("bbfce31e0217a3689c8d961a356cb10d")).rejects.toThrow(
-      "Some test GraphQL error",
-    );
+    await expect(
+      fetchGist(testConfig, "bbfce31e0217a3689c8d961a356cb10d"),
+    ).rejects.toThrow("Some test GraphQL error");
   });
 
   it("should throw error if id is not provided", async () => {
     // @ts-expect-error testing missing argument
-    await expect(fetchGist()).rejects.toThrow(
+    await expect(fetchGist(testConfig)).rejects.toThrow(
       'Missing params "id" make sure you pass the parameters in URL',
     );
   });

@@ -28,7 +28,7 @@ export default async (
     description_lines_count,
     ...remainingParams
   },
-  pat = null,
+  config,
 ) => {
   const colorParams = pickColorParams(remainingParams);
 
@@ -72,6 +72,7 @@ export default async (
   try {
     const showStats = parseArray(show);
     const repoData = await fetchRepo(
+      config,
       username,
       repo,
       showStats.includes("prs_authored"),
@@ -79,7 +80,6 @@ export default async (
       showStats.includes("prs_reviewed"),
       showStats.includes("issues_authored"),
       showStats.includes("issues_commented"),
-      pat,
     );
 
     return {
