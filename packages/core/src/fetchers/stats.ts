@@ -517,7 +517,7 @@ const fetchAllTimeReposContributedTo = async (
  */
 const fetchStats = async (
   config: CardConfig,
-  username: string,
+  username: string | undefined,
   include_all_commits = false,
   exclude_repo: Array<string> = [],
   include_merged_pull_requests = false,
