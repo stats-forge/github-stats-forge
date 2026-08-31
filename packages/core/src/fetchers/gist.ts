@@ -46,7 +46,10 @@ const calculatePrimaryLanguage = (
  * @param id GitHub gist ID.
  * @returns Gist data.
  */
-const fetchGist = async (config: CardConfig, id: string): Promise<GistData> => {
+const fetchGist = async (
+  config: CardConfig,
+  id: string | undefined,
+): Promise<GistData> => {
   if (!id) {
     throw new MissingParamError(["id"], "/api/gist?id=GIST_ID");
   }

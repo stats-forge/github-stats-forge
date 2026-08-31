@@ -7,6 +7,8 @@ import { renderGistCard } from "../src/cards/gist.js";
 import type { GistData } from "../src/fetchers/types.js";
 import { themes } from "../src/themes/index.js";
 
+import { testConfig } from "./_config.js";
+
 const data: GistData = {
   name: "test",
   nameWithOwner: "anuraghazra/test",
@@ -138,7 +140,7 @@ describe("test renderGistCard", () => {
   it("should render with all the themes", () => {
     Object.entries(themes).forEach(([name, themeData]) => {
       document.body.innerHTML = renderGistCard(data, {
-        theme: name as keyof typeof themes,
+        theme: name,
       });
 
       const styleTag = document.querySelector("style");
@@ -270,10 +272,11 @@ describe("test renderGistCard", () => {
 describe("test gist API", () => {
   it("should return permanent error for invalid color input", async () => {
     const result = await gistApi(
-      // api handler accepts a partial options object at runtime
-      { id: "abc123", title_color: "not-a-color" } as Parameters<
-        typeof gistApi
-      >[0],
+      {
+        id: "abc123",
+        title_color: "not-a-color",
+      },
+      testConfig,
     );
 
     expect(result.status).toBe("error - permanent");
@@ -281,4 +284,16 @@ describe("test gist API", () => {
       `Invalid color input for parameter &#34;title_color&#34;`,
     );
   });
+
+  it.each(["abc", ""])(
+    "should return permanent error for border_radius %j",
+    async (border_radius) => {
+      const result = await gistApi({ id: "abc123", border_radius }, testConfig);
+
+      expect(result.status).toBe("error - permanent");
+      expect(result.content).toContain(
+        `Invalid number input for parameter &#34;border_radius&#34;`,
+      );
+    },
+  );
 });
