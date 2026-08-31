@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 
 import type { GraphQLDocument } from "../graphql/graphqlDocument.js";
 
@@ -33,39 +33,5 @@ const createGraphQLFetcher = <TResult, TVariables>(
   };
 };
 
-/** Body of a GraphQL request sent to the GitHub API. */
-interface GraphQLRequest {
-  /** The GraphQL query. */
-  query: string;
-  /** Variables referenced by the query. */
-  variables: Record<string, unknown>;
-}
-
-/**
- * Send an untyped GraphQL request to the GitHub API.
- *
- * @param data Request data.
- * @param headers Request headers.
- * @returns Request response.
- *
- * @description Superseded by {@link createGraphQLFetcher}.
- * Still used by the backend status endpoints for their own `rateLimit` query,
- * and part of this package's published API.
- *
- * @todo consider dropping this once those endpoints post through axios directly,
- * which they already depend on.
- */
-const request = (
-  data: GraphQLRequest,
-  headers: NonNullable<AxiosRequestConfig["headers"]>,
-): Promise<AxiosResponse> => {
-  return axios({
-    url: GITHUB_GRAPHQL_API,
-    method: "post",
-    headers,
-    data,
-  });
-};
-
-export { createGraphQLFetcher, request };
+export { createGraphQLFetcher };
 export type { GraphQLResponse };
