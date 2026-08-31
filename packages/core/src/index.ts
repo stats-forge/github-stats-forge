@@ -14,7 +14,9 @@ export { clampValue } from "./common/ops.js";
 export { logger } from "./common/log.js";
 
 export { default as gist } from "./api/gist.js";
-export { default as api } from "./api/index.js";
+export { default as stats } from "./api/stats.js";
+/** @deprecated Use `stats`; kept so `/api` consumers keep working until the next major. */
+export { default as api } from "./api/stats.js";
 export { default as pin } from "./api/pin.js";
 export { default as topLangs } from "./api/top-langs.js";
 export { default as wakatime } from "./api/wakatime.js";

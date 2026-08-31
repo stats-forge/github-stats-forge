@@ -2,7 +2,7 @@
   <img src="docs/appIcon.svg" width="100px" alt="GitHub Stats Extended Logo" />
   <h1>GitHub Stats Extended</h1>
   <p>Dynamically generate GitHub stats for your READMEs.</p>
-<a href="https://github-stats-extended.vercel.app/api?username=anuraghazra"><img src="https://github-stats-extended.vercel.app/api?username=anuraghazra"></a>
+<a href="https://github-stats-extended.vercel.app/api/stats?username=anuraghazra"><img src="https://github-stats-extended.vercel.app/api/stats?username=anuraghazra"></a>
 </div>
 
 GitHub-Stats-Extended is the [extended, actively maintained successor](docs/fork.md) of [github-readme-stats](https://github.com/anuraghazra/github-readme-stats). It generates [various stats cards](#card-types) about your GitHub contributions, your top languages and more. You can [customize](#documentation) the cards via multiple parameters.
@@ -21,7 +21,7 @@ GitHub-Stats-Extended is the [extended, actively maintained successor](docs/fork
 Copy and paste this into your markdown, then change the `?username=` value to your GitHub username:
 
 ```md
-[![Anurag's GitHub stats](https://github-stats-extended.vercel.app/api?username=anuraghazra)](https://github.com/stats-forge/github-stats-forge)
+[![Anurag's GitHub stats](https://github-stats-extended.vercel.app/api/stats?username=anuraghazra)](https://github.com/stats-forge/github-stats-forge)
 ```
 
 As a more comfortable alternative, use the [card wizard](https://github-stats-extended.vercel.app/frontend) to configure your card visually. Then copy the generated markdown into your [GitHub profile README](https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme#adding-a-profile-readme).
@@ -31,8 +31,8 @@ As a more comfortable alternative, use the [card wizard](https://github-stats-ex
 To migrate from [github-readme-stats](https://github.com/anuraghazra/github-readme-stats) you only need to change the domain from `github-readme-stats.vercel.app` to `github-stats-extended.vercel.app`:
 
 ```diff
-- https://github-readme-stats.vercel.app/api?username=octocat&theme=radical
-+ https://github-stats-extended.vercel.app/api?username=octocat&theme=radical
+- https://github-readme-stats.vercel.app/api/stats?username=octocat&theme=radical
++ https://github-stats-extended.vercel.app/api/stats?username=octocat&theme=radical
 ```
 
 GitHub-Stats-Extended aims to be fully compatible with github-readme-stats. For details see [Compatibility Notes](docs/fork.md#compatibility-notes).
@@ -41,7 +41,7 @@ GitHub-Stats-Extended aims to be fully compatible with github-readme-stats. For 
 
 - Show your GitHub statistics:
 
-  ![Anurag's GitHub stats](https://github-stats-extended.vercel.app/api?username=anuraghazra)
+  ![Anurag's GitHub stats](https://github-stats-extended.vercel.app/api/stats?username=anuraghazra)
 
 - ...your top languages...:
 

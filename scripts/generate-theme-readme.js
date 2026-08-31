@@ -30,7 +30,7 @@ With inbuilt themes, you can customize the look of the card without doing any ma
 Use \`?theme=THEME_NAME\` parameter like so:
 
 \`\`\`md
-![Anurag's GitHub stats](${INSTANCE_URL}/api?username=anuraghazra&theme=dark&show_icons=true)
+![Anurag's GitHub stats](${INSTANCE_URL}/api/stats?username=anuraghazra&theme=dark&show_icons=true)
 \`\`\`
 
 ## Stats
@@ -58,7 +58,7 @@ const createRepoMdLink = (theme) => {
   return `\n[${theme}_repo]: /api/pin?username=anuraghazra&repo=github-readme-stats&cache_seconds=86400&theme=${theme}`;
 };
 const createStatMdLink = (theme) => {
-  return `\n[${theme}]: /api?username=anuraghazra&show_icons=true&hide=contribs,prs&cache_seconds=86400&theme=${theme}`;
+  return `\n[${theme}]: /api/stats?username=anuraghazra&show_icons=true&hide=contribs,prs&cache_seconds=86400&theme=${theme}`;
 };
 
 const generateLinks = (fn) => {

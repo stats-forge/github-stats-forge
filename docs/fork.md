@@ -60,7 +60,7 @@ Add `&show=prs_authored,prs_commented,prs_reviewed,issues_authored,issues_commen
 
 anurag's contributions to razorpay:
 
-![anurag's contributions to razorpay](https://github-stats-extended.vercel.app/api?username=anuraghazra&owner=razorpay&hide=prs,issues,stars,commits,contribs&show=prs_authored,prs_commented,prs_reviewed,issues_authored,issues_commented&hide_rank=true&custom_title=anurag%27s%20contributions%20to%20razorpay&card_width=333)
+![anurag's contributions to razorpay](https://github-stats-extended.vercel.app/api/stats?username=anuraghazra&owner=razorpay&hide=prs,issues,stars,commits,contribs&show=prs_authored,prs_commented,prs_reviewed,issues_authored,issues_commented&hide_rank=true&custom_title=anurag%27s%20contributions%20to%20razorpay&card_width=333)
 
 Add `&repo=userA/repoA,orgB/repoB` or `&owner=userC,orgD` to your profile stats url to filter your contributions by repo or organization. (The screenshot above uses further customization options.)
 
