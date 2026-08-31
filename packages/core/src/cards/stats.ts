@@ -244,6 +244,7 @@ const renderStatsCard = (
     totalDiscussionsStarted,
     totalDiscussionsAnswered,
     contributedTo,
+    allTimeContributedTo,
     totalPRsAuthored,
     totalPRsCommented,
     totalPRsReviewed,
@@ -432,6 +433,15 @@ const renderStatsCard = (
     value: contributedTo,
     id: "contribs",
   };
+
+  if (show.includes("all_time_contribs")) {
+    STATS["all_time_contribs"] = {
+      icon: icons.contribs,
+      label: i18n.t("statcard.all-time-contribs"),
+      value: allTimeContributedTo,
+      id: "all_time_contribs",
+    };
+  }
 
   const isLongLocale = locale ? LONG_LOCALES.includes(locale) : false;
 
