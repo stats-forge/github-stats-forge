@@ -36,9 +36,6 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    // Language and Environment
-    "jsx": "react-jsx",
-
     // Completeness
     "skipLibCheck": true
   }
