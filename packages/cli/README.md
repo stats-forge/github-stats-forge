@@ -20,6 +20,9 @@ menu comes back with the answer beside it. `Generate the card` writes the SVG.
   Theme                                  tokyonight
 ```
 
+While it fetches, a spinner runs on stderr — so `stats-forge > card.svg` still
+pipes only the card, and a CI log gets one line instead of an animation.
+
 ## The token
 
 Every card except WakaTime reads the GitHub API, so it needs a personal access token

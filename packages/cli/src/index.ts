@@ -8,6 +8,7 @@ import { CardConfig } from "@stats-forge/github-stats-forge-core";
 import { cards, findCard } from "./cards.js";
 import { askRequired, askToken, navigateOptions, pickCard } from "./prompts.js";
 import { defaultFileName, toQuery } from "./query.js";
+import { withSpinner } from "./spinner.js";
 import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from "./tokens.js";
 
 const HELP = `stats-forge — render a GitHub stats card to a local SVG
@@ -93,7 +94,9 @@ const main = async (): Promise<void> => {
   await navigateOptions(card, answers);
   const query = toQuery(answers);
 
-  const result = await card.render(query, new CardConfig({ pats: tokens }));
+  const result = await withSpinner(`Rendering the ${card.id} card`, () =>
+    card.render(query, new CardConfig({ pats: tokens })),
+  );
 
   if (result.status === "error") {
     const { code, message, secondaryMessage, param } = result.error;
