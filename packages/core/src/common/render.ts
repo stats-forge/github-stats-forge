@@ -418,7 +418,9 @@ const renderError = ({
   });
 
   return `
-    <svg width="${ERROR_CARD_LENGTH}"  height="120" viewBox="0 0 ${ERROR_CARD_LENGTH} 120" fill="${String(bgColor)}" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${ERROR_CARD_LENGTH}"  height="120" viewBox="0 0 ${ERROR_CARD_LENGTH} 120" fill="${String(bgColor)}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
+    <title id="titleId">${encodeHTML(message)}</title>
+    <desc id="descId">${encodeHTML(secondaryMessage)}</desc>
     <style>
     .text { font: 600 16px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${titleColor} }
     .small { font: 600 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor} }

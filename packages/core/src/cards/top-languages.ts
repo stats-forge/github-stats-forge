@@ -1035,6 +1035,15 @@ const renderTopLanguages = (
     `,
   });
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated here.
+  card.setAccessibilityLabel({
+    title: card.title,
+    desc: langs
+      .map((lang) => `${lang.name} ${((lang.size / totalLanguageSize) * 100).toFixed(2)}%`)
+      .join(', '),
+  });
+
   if (layout === 'pie' || layout === 'donut-vertical') {
     return card.render(finalLayout);
   }

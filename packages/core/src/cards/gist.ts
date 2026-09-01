@@ -150,6 +150,13 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   card.setHideBorder(hide_border);
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated here.
+  card.setAccessibilityLabel({
+    title: card.title,
+    desc: `${desc}. Language: ${languageName}, Stars: ${totalStars}, Forks: ${totalForks}`,
+  });
+
   return card.render(`
     ${descriptionSvg}
 

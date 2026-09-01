@@ -303,7 +303,7 @@ class Card {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-labelledby="descId"
+        aria-labelledby="titleId descId"
       >
         <title id="titleId">${encodeHTML(this.a11yTitle)}</title>
         <desc id="descId">${encodeHTML(this.a11yDesc)}</desc>

@@ -341,6 +341,20 @@ const renderRepoCard = (
     `,
   });
 
+  const extraStatLabels = Object.values(STATS)
+    .map((stat) => `${stat.label}: ${stat.value ?? 0}`)
+    .join(', ');
+
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated here.
+  // Only translated or language-neutral text: the card honours `locale`, and there is no
+  // translated vocabulary for "stars" or "forks", so those counts stay out rather than
+  // announce themselves in English over a card rendered in another language.
+  card.setAccessibilityLabel({
+    title: card.title,
+    desc: [`${desc}.`, primaryLanguage ? langName : '', extraStatLabels].filter(Boolean).join(', '),
+  });
+
   return card.render(`
     ${
       isTemplate

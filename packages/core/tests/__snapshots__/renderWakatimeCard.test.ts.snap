@@ -9,10 +9,10 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-labelledby="descId"
+        aria-labelledby="titleId descId"
       >
-        <title id="titleId"></title>
-        <desc id="descId"></desc>
+        <title id="titleId">WakaTime Stats (last 7 days)</title>
+        <desc id="descId">Other: 19 mins, TypeScript: 1 min</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -194,10 +194,10 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-labelledby="descId"
+        aria-labelledby="titleId descId"
       >
-        <title id="titleId"></title>
-        <desc id="descId"></desc>
+        <title id="titleId">WakaTime Stats (last 7 days)</title>
+        <desc id="descId">Other: 19 mins, TypeScript: 1 min</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -373,10 +373,10 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-labelledby="descId"
+        aria-labelledby="titleId descId"
       >
-        <title id="titleId"></title>
-        <desc id="descId"></desc>
+        <title id="titleId">WakaTime Stats (last 7 days)</title>
+        <desc id="descId">Other: 19 mins, TypeScript: 1 min</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -552,10 +552,10 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-labelledby="descId"
+        aria-labelledby="titleId descId"
       >
-        <title id="titleId"></title>
-        <desc id="descId"></desc>
+        <title id="titleId">WakaTime Stats (last 7 days)</title>
+        <desc id="descId">Other: 19 mins, TypeScript: 1 min</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -744,10 +744,10 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-labelledby="descId"
+        aria-labelledby="titleId descId"
       >
-        <title id="titleId"></title>
-        <desc id="descId"></desc>
+        <title id="titleId">WakaTime Stats (last 7 days)</title>
+        <desc id="descId">Other: 47.39 %, TypeScript: 50.48 %</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;

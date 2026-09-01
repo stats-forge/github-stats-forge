@@ -480,6 +480,17 @@ const renderWakatimeCard = (
     `,
   });
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated here.
+  card.setAccessibilityLabel({
+    title: card.title,
+    desc: filteredLanguages.length
+      ? filteredLanguages
+          .map((lang) => `${lang.name}: ${formatLanguageValue({ display_format, lang })}`)
+          .join(', ')
+      : i18n.t('wakatimecard.nocodingactivity'),
+  });
+
   return card.render(`
     <svg x="0" y="0" width="100%">
       ${finalLayout}
