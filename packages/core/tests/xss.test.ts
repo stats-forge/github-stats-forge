@@ -413,14 +413,14 @@ describe("XSS prevention - wakatime API", () => {
         username: "user",
         [param]: payload,
       };
-      expectNoScript(await wakatime(query));
+      expectNoScript(await wakatime(query, config));
     },
   );
 
   it.each(xssPayloads)(
     "should prevent XSS via username (%s)",
     async (payload) => {
-      expectNoScript(await wakatime({ username: payload }));
+      expectNoScript(await wakatime({ username: payload }, config));
     },
   );
 });

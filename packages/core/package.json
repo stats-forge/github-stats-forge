@@ -55,6 +55,22 @@
     ".": {
       "@stats/source": "./src/index.ts",
       "default": "./build/index.js"
+    },
+    "./api": {
+      "@stats/source": "./src/api/index.ts",
+      "default": "./build/api/index.js"
+    },
+    "./cards": {
+      "@stats/source": "./src/cards/index.ts",
+      "default": "./build/cards/index.js"
+    },
+    "./fetchers": {
+      "@stats/source": "./src/fetchers/index.ts",
+      "default": "./build/fetchers/index.js"
+    },
+    "./themes": {
+      "@stats/source": "./src/themes/index.ts",
+      "default": "./build/themes/index.js"
     }
   },
   "files": [
@@ -86,14 +102,12 @@
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "6.9.1",
     "@uppercod/css-to-object": "1.1.1",
-    "axios-mock-adapter": "2.1.0",
     "graphql": "16.11.0",
     "js-yaml": "5.2.1",
     "jsdom": "catalog:default",
     "vitest": "catalog:default"
   },
   "dependencies": {
-    "axios": "catalog:default",
     "emoji-name-map": "^2.0.3",
     "github-username-regex": "^1.0.0",
     "zod": "^4.4.3"

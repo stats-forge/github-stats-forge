@@ -1,5 +1,3 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { gist as gistApi } from "../src/api/gist.js";
@@ -9,31 +7,31 @@ import { topLangs as topLangsApi } from "../src/api/top-langs.js";
 import { wakatime as wakatimeApi } from "../src/api/wakatime.js";
 
 import { testConfig } from "./_config.js";
+import { FetchMock } from "./_fetch-mock.js";
+
+// Nothing here is about fetching:
+// every request fails immediately, so a query that got past validation is a temporary error.
+const mock = new FetchMock();
+const config = testConfig.with({ fetch: mock.fetch });
 
 /** Every endpoint, called the way its own signature allows. */
 const endpoints = {
-  stats: (query: Record<string, string>) => statsApi(query, testConfig),
-  pin: (query: Record<string, string>) => pinApi(query, testConfig),
-  "top-langs": (query: Record<string, string>) =>
-    topLangsApi(query, testConfig),
-  gist: (query: Record<string, string>) => gistApi(query, testConfig),
-  // The WakaTime API needs no GitHub token, so this one takes no config.
-  wakatime: (query: Record<string, string>) => wakatimeApi(query),
+  stats: (query: Record<string, string>) => statsApi(query, config),
+  pin: (query: Record<string, string>) => pinApi(query, config),
+  "top-langs": (query: Record<string, string>) => topLangsApi(query, config),
+  gist: (query: Record<string, string>) => gistApi(query, config),
+  wakatime: (query: Record<string, string>) => wakatimeApi(query, config),
 };
 
 const withUser = (endpoint: string): Record<string, string> =>
   endpoint === "gist" ? { id: "abc123" } : { username: "anuraghazra" };
-
-// Nothing here is about fetching:
-// every request fails immediately, so a query that got past validation is a temporary error.
-const mock = new MockAdapter(axios);
 
 beforeAll(() => {
   mock.onAny().networkError();
 });
 
 afterAll(() => {
-  mock.restore();
+  mock.reset();
 });
 
 describe("api query schemas", () => {

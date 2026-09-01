@@ -1,3 +1,6 @@
+import { defaultFetch } from "./http.js";
+import type { FetchLike } from "./http.js";
+
 type Env = Record<string, string | undefined>;
 
 interface PersonalAccessToken {
@@ -13,6 +16,7 @@ interface CardConfigInit {
   gistAllowlist?: ReadonlyArray<string> | undefined;
   excludeRepositories?: ReadonlyArray<string>;
   fetchMultiPageStars?: number;
+  fetch?: FetchLike;
 }
 
 /**
@@ -58,6 +62,8 @@ export class CardConfig {
   readonly excludeRepositories: ReadonlyArray<string>;
   /** Max pages of starred repos; `Infinity` means every page, `1` only the first. */
   readonly fetchMultiPageStars: number;
+  /** Transport every fetcher sends through; defaults to `globalThis.fetch`. */
+  readonly fetch: FetchLike;
 
   constructor(init: CardConfigInit = {}) {
     this.pats = init.pats ?? [];
@@ -65,6 +71,7 @@ export class CardConfig {
     this.gistAllowlist = init.gistAllowlist;
     this.excludeRepositories = init.excludeRepositories ?? [];
     this.fetchMultiPageStars = init.fetchMultiPageStars ?? 1;
+    this.fetch = init.fetch ?? defaultFetch;
   }
 
   /**
@@ -104,6 +111,7 @@ export class CardConfig {
       gistAllowlist: this.gistAllowlist,
       excludeRepositories: this.excludeRepositories,
       fetchMultiPageStars: this.fetchMultiPageStars,
+      fetch: this.fetch,
       ...overrides,
     });
   }

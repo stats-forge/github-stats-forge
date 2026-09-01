@@ -1,5 +1,3 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { calculateRank } from "../src/calculateRank.js";
@@ -17,6 +15,7 @@ import type {
 import type { ReposContributedToQuery } from "../src/graphql/reposContributedToDocument.js";
 
 import { testConfig } from "./_config.js";
+import { FetchMock } from "./_fetch-mock.js";
 
 vi.mock(import("../src/common/log.js"), async () => {
   const { createLoggerMock } = await import("./utils.js");
@@ -205,7 +204,8 @@ const error: GraphQLBody<UserInfoQuery> = {
   ],
 };
 
-const mock = new MockAdapter(axios);
+const mock = new FetchMock();
+const baseConfig = testConfig.with({ fetch: mock.fetch });
 
 let config: CardConfig;
 
@@ -293,7 +293,7 @@ const expectedStats = (
 });
 
 beforeEach(() => {
-  config = testConfig; // The default fetches only one page of stars.
+  config = baseConfig; // The default fetches only one page of stars.
   mock.onPost("https://api.github.com/graphql").reply((cfg) => {
     const req = JSON.parse(cfg.data as string) as {
       variables?: { startTime?: string; includeUserRepositories?: boolean };
@@ -406,7 +406,7 @@ describe("Test fetchStats", () => {
   });
 
   it("should fetch two pages of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `true`", async () => {
-    config = testConfig.with({ fetchMultiPageStars: Infinity });
+    config = baseConfig.with({ fetchMultiPageStars: Infinity });
 
     const stats = await fetchStats(config, "anuraghazra");
     expect(stats).toStrictEqual(
@@ -415,21 +415,21 @@ describe("Test fetchStats", () => {
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `false`", async () => {
-    config = testConfig.with({ fetchMultiPageStars: 1 });
+    config = baseConfig.with({ fetchMultiPageStars: 1 });
 
     const stats = await fetchStats(config, "anuraghazra");
     expect(stats).toStrictEqual(expectedStats());
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is not set", async () => {
-    config = testConfig.with({ fetchMultiPageStars: 1 });
+    config = baseConfig.with({ fetchMultiPageStars: 1 });
 
     const stats = await fetchStats(config, "anuraghazra");
     expect(stats).toStrictEqual(expectedStats());
   });
 
   it("should fetch at most 'FETCH_MULTI_PAGE_STARS' pages when it is a number", async () => {
-    config = testConfig.with({ fetchMultiPageStars: 3 });
+    config = baseConfig.with({ fetchMultiPageStars: 3 });
     mock.reset();
     mock
       .onPost("https://api.github.com/graphql")
@@ -457,7 +457,7 @@ describe("Test fetchStats", () => {
   });
 
   it("should throw when a page after the first returns an error", async () => {
-    config = testConfig.with({ fetchMultiPageStars: Infinity });
+    config = baseConfig.with({ fetchMultiPageStars: Infinity });
     mock.reset();
     mock
       .onPost("https://api.github.com/graphql")

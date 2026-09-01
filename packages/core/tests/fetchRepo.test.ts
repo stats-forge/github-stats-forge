@@ -1,10 +1,9 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { fetchRepo } from "../src/fetchers/repo.js";
 
 import { testConfig } from "./_config.js";
+import { FetchMock } from "./_fetch-mock.js";
 
 const data_repo = {
   repository: {
@@ -34,7 +33,8 @@ const data_org = {
   },
 };
 
-const mock = new MockAdapter(axios);
+const mock = new FetchMock();
+const config = testConfig.with({ fetch: mock.fetch });
 
 afterEach(() => {
   mock.reset();
@@ -44,7 +44,7 @@ describe("Test fetchRepo", () => {
   it("should fetch correct user repo", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_user);
 
-    const repo = await fetchRepo(testConfig, "anuraghazra", "convoychat");
+    const repo = await fetchRepo(config, "anuraghazra", "convoychat");
 
     expect(repo).toStrictEqual(data_repo.repository);
   });
@@ -52,7 +52,7 @@ describe("Test fetchRepo", () => {
   it("should fetch correct org repo", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_org);
 
-    const repo = await fetchRepo(testConfig, "anuraghazra", "convoychat");
+    const repo = await fetchRepo(config, "anuraghazra", "convoychat");
     expect(repo).toStrictEqual(data_repo.repository);
   });
 
@@ -62,7 +62,7 @@ describe("Test fetchRepo", () => {
       .reply(200, { data: { user: { repository: null }, organization: null } });
 
     await expect(
-      fetchRepo(testConfig, "anuraghazra", "convoychat"),
+      fetchRepo(config, "anuraghazra", "convoychat"),
     ).rejects.toThrow("User Repository Not found");
   });
 
@@ -72,7 +72,7 @@ describe("Test fetchRepo", () => {
       .reply(200, { data: { user: null, organization: { repository: null } } });
 
     await expect(
-      fetchRepo(testConfig, "anuraghazra", "convoychat"),
+      fetchRepo(config, "anuraghazra", "convoychat"),
     ).rejects.toThrow("Organization Repository Not found");
   });
 
@@ -82,7 +82,7 @@ describe("Test fetchRepo", () => {
       .reply(200, { data: { user: null, organization: null } });
 
     await expect(
-      fetchRepo(testConfig, "anuraghazra", "convoychat"),
+      fetchRepo(config, "anuraghazra", "convoychat"),
     ).rejects.toThrow("Not found");
   });
 
@@ -95,7 +95,7 @@ describe("Test fetchRepo", () => {
     });
 
     await expect(
-      fetchRepo(testConfig, "anuraghazra", "convoychat"),
+      fetchRepo(config, "anuraghazra", "convoychat"),
     ).rejects.toThrow("User Repository Not found");
   });
 });

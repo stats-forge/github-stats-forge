@@ -1,10 +1,12 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { fetchWakatimeStats } from "../src/fetchers/wakatime.js";
 
-const mock = new MockAdapter(axios);
+import { testConfig } from "./_config.js";
+import { FetchMock } from "./_fetch-mock.js";
+
+const mock = new FetchMock();
+const config = testConfig.with({ fetch: mock.fetch });
 
 afterEach(() => {
   mock.reset();
@@ -111,25 +113,25 @@ describe("WakaTime fetcher", () => {
       )
       .reply(200, wakaTimeData);
 
-    const repo = await fetchWakatimeStats({ username });
+    const repo = await fetchWakatimeStats({ username }, config);
     expect(repo).toStrictEqual(wakaTimeData.data);
   });
 
   it("should throw error if username param missing", async () => {
-    mock.onGet(/\/https:\/\/wakatime\.com\/api/).reply(404, wakaTimeData);
+    mock.onGet(/wakatime\.com\/api/).reply(404, wakaTimeData);
 
     // @ts-expect-error testing invalid input
-    await expect(fetchWakatimeStats("noone")).rejects.toThrow(
+    await expect(fetchWakatimeStats("noone", config)).rejects.toThrow(
       'Missing params "username" make sure you pass the parameters in URL',
     );
   });
 
   it("should throw error if username is not found", async () => {
-    mock.onGet(/\/https:\/\/wakatime\.com\/api/).reply(404, wakaTimeData);
+    mock.onGet(/wakatime\.com\/api/).reply(404, wakaTimeData);
 
-    await expect(fetchWakatimeStats({ username: "noone" })).rejects.toThrow(
-      "Could not resolve to a User with the login of 'noone'",
-    );
+    await expect(
+      fetchWakatimeStats({ username: "noone" }, config),
+    ).rejects.toThrow("Could not resolve to a User with the login of 'noone'");
   });
 });
 

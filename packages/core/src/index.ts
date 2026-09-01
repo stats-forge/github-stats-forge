@@ -16,6 +16,7 @@ export { wakatime } from "./api/wakatime.js";
 
 export { CardConfig } from "./common/config.js";
 export type { PersonalAccessToken } from "./common/config.js";
+export type { FetchLike } from "./common/http.js";
 
 export { themes } from "./themes/index.js";
 export type { ThemeName } from "./themes/index.js";

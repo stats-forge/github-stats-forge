@@ -1,10 +1,9 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { fetchTopLanguages } from "../src/fetchers/top-languages.js";
 
 import { testConfig } from "./_config.js";
+import { FetchMock } from "./_fetch-mock.js";
 import { approxNumber } from "./utils.js";
 
 vi.mock(import("../src/common/log.js"), async () => {
@@ -16,7 +15,8 @@ const { logger } = await import("../src/index.js");
 
 const loggerErrorSpy = vi.mocked(logger.error);
 
-const mock = new MockAdapter(axios);
+const mock = new FetchMock();
+const config = testConfig.with({ fetch: mock.fetch });
 
 afterEach(() => {
   mock.reset();
@@ -77,13 +77,7 @@ describe("FetchTopLanguages", () => {
   it("should fetch correct language data while using the new calculation", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_langs);
 
-    const repo = await fetchTopLanguages(
-      testConfig,
-      "anuraghazra",
-      [],
-      0.5,
-      0.5,
-    );
+    const repo = await fetchTopLanguages(config, "anuraghazra", [], 0.5, 0.5);
     expect(repo).toStrictEqual({
       HTML: {
         color: "#0f0",
@@ -103,7 +97,7 @@ describe("FetchTopLanguages", () => {
   it("should fetch correct language data while excluding the 'test-repo-1' repository", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_langs);
 
-    const repo = await fetchTopLanguages(testConfig, "anuraghazra", [
+    const repo = await fetchTopLanguages(config, "anuraghazra", [
       "test-repo-1",
     ]);
     expect(repo).toStrictEqual({
@@ -125,7 +119,7 @@ describe("FetchTopLanguages", () => {
   it("should fetch correct language data while using the old calculation", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_langs);
 
-    const repo = await fetchTopLanguages(testConfig, "anuraghazra", [], 1, 0);
+    const repo = await fetchTopLanguages(config, "anuraghazra", [], 1, 0);
     expect(repo).toStrictEqual({
       HTML: {
         color: "#0f0",
@@ -145,7 +139,7 @@ describe("FetchTopLanguages", () => {
   it("should rank languages by the number of repositories they appear in", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_langs);
 
-    const repo = await fetchTopLanguages(testConfig, "anuraghazra", [], 0, 1);
+    const repo = await fetchTopLanguages(config, "anuraghazra", [], 0, 1);
     expect(repo).toStrictEqual({
       HTML: {
         color: "#0f0",
@@ -165,7 +159,7 @@ describe("FetchTopLanguages", () => {
   it("should throw specific error when user not found", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, error);
 
-    await expect(fetchTopLanguages(testConfig, "anuraghazra")).rejects.toThrow(
+    await expect(fetchTopLanguages(config, "anuraghazra")).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
     );
 
@@ -177,7 +171,7 @@ describe("FetchTopLanguages", () => {
       errors: [{ message: "Some test GraphQL error" }],
     });
 
-    await expect(fetchTopLanguages(testConfig, "anuraghazra")).rejects.toThrow(
+    await expect(fetchTopLanguages(config, "anuraghazra")).rejects.toThrow(
       "Some test GraphQL error",
     );
 
@@ -189,7 +183,7 @@ describe("FetchTopLanguages", () => {
       errors: [{ type: "TEST" }],
     });
 
-    await expect(fetchTopLanguages(testConfig, "anuraghazra")).rejects.toThrow(
+    await expect(fetchTopLanguages(config, "anuraghazra")).rejects.toThrow(
       "Something went wrong while trying to retrieve the language data using the GraphQL API.",
     );
 

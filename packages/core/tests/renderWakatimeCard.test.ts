@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { wakatime as wakatimeApi } from "../src/api/wakatime.js";
 import { renderWakatimeCard } from "../src/cards/wakatime.js";
 
+import { testConfig } from "./_config.js";
 import { wakaTimeData } from "./fetchWakatime.test.js";
 
 describe("Test Render WakaTime Card", () => {
@@ -101,10 +102,10 @@ describe("Test Render WakaTime Card", () => {
 
 describe("test wakatime API", () => {
   it("should return a permanent error for an invalid color parameter", async () => {
-    const result = await wakatimeApi({
-      username: "user",
-      title_color: "not-a-color",
-    });
+    const result = await wakatimeApi(
+      { username: "user", title_color: "not-a-color" },
+      testConfig,
+    );
 
     expect(result.status).toBe("error");
     expect(result.content).toContain(

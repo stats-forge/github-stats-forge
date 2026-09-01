@@ -1,18 +1,17 @@
 import fs from "fs";
 
-import axios from "axios";
 import * as jsYaml from "js-yaml";
 import * as prettier from "prettier";
 
 const LANGS_FILEPATH = "./src/common/languageColors.json";
 
 // Retrieve languages from github linguist repository yaml file
-const response = await axios.get(
+const response = await fetch(
   "https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml",
 );
 
 // and convert them to a JS Object
-const languages = jsYaml.load(response.data);
+const languages = jsYaml.load(await response.text());
 
 const languageColors = {};
 

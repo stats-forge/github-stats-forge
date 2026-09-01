@@ -5,6 +5,7 @@ import {
   WAKATIME_LAYOUTS,
   renderWakatimeCard,
 } from "../cards/wakatime.js";
+import type { CardConfig } from "../common/config.js";
 import { fetchWakatimeStats } from "../fetchers/wakatime.js";
 
 import type { ApiResult } from "./api-result.js";
@@ -48,7 +49,7 @@ type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
 /**
  * Render the WakaTime card for a set of query params.
  *
- * The WakaTime API needs no GitHub token, so this handler takes no config.
+ * WakaTime needs no GitHub token, so the config is read only for the transport it carries.
  *
  * @param query Raw query params, plus any of the shared color params.
  * @param query.username WakaTime username.
@@ -66,9 +67,13 @@ type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
  * @param query.border_radius Card border radius.
  * @param query.display_format Whether values are shown as time or percentages.
  * @param query.disable_animations Whether to disable the card animations.
+ * @param config Deployment config supplying the transport.
  * @returns The rendered card, or a rendered error.
  */
-const renderWakatime = async (query: WakatimeApiQuery): Promise<ApiResult> => {
+const renderWakatime = async (
+  query: WakatimeApiQuery,
+  config: CardConfig,
+): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -96,7 +101,7 @@ const renderWakatime = async (query: WakatimeApiQuery): Promise<ApiResult> => {
       disable_animations,
     } = parseParams(wakatimeQuery, query);
 
-    const stats = await fetchWakatimeStats({ username, api_domain });
+    const stats = await fetchWakatimeStats({ username, api_domain }, config);
 
     return {
       status: "success",

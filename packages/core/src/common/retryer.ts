@@ -1,7 +1,6 @@
-import type { AxiosResponse } from "axios";
-
 import type { CardConfig } from "./config.js";
 import { CardError } from "./error.js";
+import type { FetcherContext, HttpResponse } from "./http.js";
 import { logger } from "./log.js";
 
 /**
@@ -29,17 +28,17 @@ function getRandomInt(max: number): number {
 }
 
 /**
- * A fetcher's Axios response. `TData` is the shape of `response.data`,
+ * A fetcher's response. `TData` is the shape of `response.data`,
  * which is intersected with {@link ResponseErrors} so the retryer can inspect
  * `errors`/`message`.
  * Defaults to `unknown` (error fields only) for callers that don't care about the payload.
  */
-type FetcherResponse<TData = unknown> = AxiosResponse<TData & ResponseErrors>;
+type FetcherResponse<TData = unknown> = HttpResponse<TData & ResponseErrors>;
 
 type FetcherFunction<TData = unknown, TVariables = Record<string, unknown>> = (
   variables: TVariables,
   token: string,
-  retriesForTests?: number,
+  context: FetcherContext,
 ) => Promise<FetcherResponse<TData>>;
 
 /**
@@ -49,7 +48,7 @@ type FetcherFunction<TData = unknown, TVariables = Record<string, unknown>> = (
  * @template TVariables Variables the fetcher accepts.
  * @param fetcher The fetcher function.
  * @param variables Object with arguments to pass to the fetcher function.
- * @param config Deployment config supplying the PAT pool.
+ * @param config Deployment config supplying the PAT pool and the transport.
  * @returns The response from the fetcher function.
  */
 const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
@@ -70,49 +69,38 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
       continue;
     }
 
-    try {
-      const response = await fetcher(
-        variables,
-        currentPAT.value,
-        // used in tests for faking rate limit
-        retries,
-      );
+    // a non-2xx comes back as a response, so only a transport failure throws — and that is fatal
+    const response = await fetcher(variables, currentPAT.value, {
+      fetch: config.fetch,
+      retries,
+    });
 
-      // react on both type and message-based rate-limit signals.
-      // https://github.com/anuraghazra/github-readme-stats/issues/4425
-      const errors = response.data.errors;
-      const errorType = errors?.[0]?.type;
-      const errorMsg = errors?.[0]?.message ?? "";
-      const isRateLimited =
-        (!!errors && errorType === "RATE_LIMITED") ||
-        /rate limit/i.test(errorMsg);
+    // react on both type and message-based rate-limit signals.
+    // https://github.com/anuraghazra/github-readme-stats/issues/4425
+    const errors = response.data.errors;
+    const errorType = errors?.[0]?.type;
+    const errorMsg = errors?.[0]?.message ?? "";
+    const isRateLimited =
+      (!!errors && errorType === "RATE_LIMITED") ||
+      /rate limit/i.test(errorMsg);
 
-      if (isRateLimited) {
-        logger.log(`${currentPAT.name} Failed due to rate limiting`);
-      } else {
-        return response;
-      }
-    } catch (err) {
-      const e = err as { response?: FetcherResponse<TData> };
-
-      // network/unexpected error → let caller treat as failure
-      if (!e.response) {
-        throw err;
-      }
-
-      // also checking for bad credentials if any tokens gets invalidated
-      const message = e.response.data.message;
-      const isBadCredential = message === "Bad credentials";
-      const isAccountSuspended =
-        message === "Sorry. Your account was suspended.";
-
-      if (isBadCredential || isAccountSuspended) {
-        logger.log(`${currentPAT.name} Failed due to bad credentials`);
-      } else {
-        // HTTP error with a response → return it for caller-side handling
-        return e.response;
-      }
+    if (isRateLimited) {
+      logger.log(`${currentPAT.name} Failed due to rate limiting`);
+      continue;
     }
+
+    // also checking for bad credentials if any tokens gets invalidated
+    const message = response.data.message;
+    const isBadCredential = message === "Bad credentials";
+    const isAccountSuspended = message === "Sorry. Your account was suspended.";
+
+    if (isBadCredential || isAccountSuspended) {
+      logger.log(`${currentPAT.name} Failed due to bad credentials`);
+      continue;
+    }
+
+    // anything else — including an HTTP error — is the caller's to interpret
+    return response;
   }
 
   throw new CardError("Downtime due to GitHub API rate limiting", {
@@ -121,3 +109,4 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 };
 
 export { retryer };
+export type { FetcherResponse };

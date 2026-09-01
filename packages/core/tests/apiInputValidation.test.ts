@@ -23,7 +23,7 @@ const endpoints: Array<
   [string, string, (value: string) => Promise<ApiResult>]
 > = [
   ["top-langs", "username", (username) => topLangs({ username }, config)],
-  ["wakatime", "username", (username) => wakatime({ username })],
+  ["wakatime", "username", (username) => wakatime({ username }, config)],
   ["gist", "id", (id) => gist({ id }, config)],
   ["stats", "username", (username) => stats({ username }, config)],
   ["stats", "repo", (repo) => stats({ repo }, config)],

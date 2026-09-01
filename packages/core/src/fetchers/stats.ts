@@ -1,5 +1,3 @@
-import axios from "axios";
-import type { AxiosResponse } from "axios";
 import githubUsernameRegex from "github-username-regex";
 
 import { calculateRank } from "../calculateRank.js";
@@ -8,8 +6,8 @@ import type { GitHubDateRange } from "../common/date.js";
 import { getGitHubYearRange, toGitHubDateTime } from "../common/date.js";
 import { CardError, USER_NOT_FOUND } from "../common/error.js";
 import { wrapTextMultiline } from "../common/fmt.js";
-import { createGraphQLFetcher } from "../common/http.js";
-import type { GraphQLResponse } from "../common/http.js";
+import { createGraphQLFetcher, httpRequest } from "../common/http.js";
+import type { FetcherContext, GraphQLResponse } from "../common/http.js";
 import { logger } from "../common/log.js";
 import {
   buildSearchFilter,
@@ -17,6 +15,7 @@ import {
   parseOwnerAffiliations,
 } from "../common/ops.js";
 import { retryer } from "../common/retryer.js";
+import type { FetcherResponse } from "../common/retryer.js";
 import { buildContributionsDocument } from "../graphql/contributionsDocument.js";
 import {
   UserInfoDocument,
@@ -55,31 +54,32 @@ const reposFetcher = createGraphQLFetcher(UserReposDocument, "bearer");
  * @param variables.startTime Time to start the count of total commits.
  * @param variables.ownerAffiliations The owner affiliations to filter by. Default: OWNER.
  * @param variables.includeUserRepositories Whether to include the user's own repositories in the repos contributed to.
- * @param variables.config Deployment config supplying the PAT pool.
+ * @param config Deployment config supplying the PAT pool.
  * @returns The stats response, with every fetched page's repos merged in.
  *
  * @description Supports multi-page fetching when the `FETCH_MULTI_PAGE_STARS`
  * env variable is `true` or a fetch limit.
  */
-const statsFetcher = async ({
-  username,
-  includeMergedPullRequests,
-  includeDiscussions,
-  includeDiscussionsAnswers,
-  startTime,
-  ownerAffiliations,
-  includeUserRepositories,
-  config,
-}: {
-  username: string;
-  includeMergedPullRequests: boolean;
-  includeDiscussions: boolean;
-  includeDiscussionsAnswers: boolean;
-  startTime: string | undefined;
-  ownerAffiliations: UserInfoQueryVariables["ownerAffiliations"];
-  includeUserRepositories: boolean;
-  config: CardConfig;
-}): Promise<StatsFetcherResponse> => {
+const statsFetcher = async (
+  {
+    username,
+    includeMergedPullRequests,
+    includeDiscussions,
+    includeDiscussionsAnswers,
+    startTime,
+    ownerAffiliations,
+    includeUserRepositories,
+  }: {
+    username: string;
+    includeMergedPullRequests: boolean;
+    includeDiscussions: boolean;
+    includeDiscussionsAnswers: boolean;
+    startTime: string | undefined;
+    ownerAffiliations: UserInfoQueryVariables["ownerAffiliations"];
+    includeUserRepositories: boolean;
+  },
+  config: CardConfig,
+): Promise<StatsFetcherResponse> => {
   // only the first request carries the stats themselves
   let stats: StatsFetcherResponse = await retryer(
     fetcher,
@@ -152,30 +152,35 @@ const statsFetcher = async ({
  *
  * @param variables Fetcher variables.
  * @param token GitHub token.
- * @returns Axios response.
+ * @param context What the retryer supplies each attempt.
+ * @param context.fetch Transport to send the request with.
+ * @returns The search response, carrying `total_count`.
  *
  * @see https://developer.github.com/v3/search/#search-commits
  */
 const fetchTotalItems = (
   variables: Record<string, unknown>,
   token: string,
-): Promise<AxiosResponse> => {
+  { fetch }: FetcherContext,
+): Promise<FetcherResponse<{ total_count?: number }>> => {
   const type = String(variables["type"]);
   const filter = String(variables["filter"]);
   const repo = variables["repo"] as Array<string> | string;
   const owner = variables["owner"] as Array<string> | string;
-  return axios({
-    method: "get",
-    url:
-      `https://api.github.com/search/${type}?per_page=1&q=` +
+  return httpRequest(
+    fetch,
+    `https://api.github.com/search/${type}?per_page=1&q=` +
       buildSearchFilter(repo, owner).replaceAll(" ", "+") +
       filter,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/vnd.github.cloak-preview",
-      Authorization: `token ${token}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.cloak-preview",
+        Authorization: `token ${token}`,
+      },
     },
-  });
+  );
 };
 
 /**
@@ -204,7 +209,7 @@ const totalItemsFetcher = async (
     });
   }
 
-  let res: AxiosResponse<{ total_count?: number }>;
+  let res: FetcherResponse<{ total_count?: number }>;
   try {
     res = await retryer<{ total_count?: number }>(
       fetchTotalItems,
@@ -564,19 +569,21 @@ const fetchStats = async (
   };
   const affiliations = parseOwnerAffiliations(ownerAffiliations);
 
-  const res = await statsFetcher({
-    username,
-    includeMergedPullRequests: include_merged_pull_requests,
-    includeDiscussions: include_discussions,
-    includeDiscussionsAnswers: include_discussions_answers,
-    startTime:
-      commits_year === undefined
-        ? undefined
-        : toGitHubDateTime(getGitHubYearRange(commits_year).from),
-    ownerAffiliations: affiliations,
-    includeUserRepositories: contribs_include_own_repos,
+  const res = await statsFetcher(
+    {
+      username,
+      includeMergedPullRequests: include_merged_pull_requests,
+      includeDiscussions: include_discussions,
+      includeDiscussionsAnswers: include_discussions_answers,
+      startTime:
+        commits_year === undefined
+          ? undefined
+          : toGitHubDateTime(getGitHubYearRange(commits_year).from),
+      ownerAffiliations: affiliations,
+      includeUserRepositories: contribs_include_own_repos,
+    },
     config,
-  });
+  );
 
   // Catch GraphQL errors.
   if (res.data.errors) {

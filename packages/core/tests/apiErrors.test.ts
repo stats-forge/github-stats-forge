@@ -1,5 +1,3 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { gist as gistApi } from "../src/api/gist.js";
@@ -8,13 +6,15 @@ import { stats as statsApi } from "../src/api/stats.js";
 import { wakatime as wakatimeApi } from "../src/api/wakatime.js";
 
 import { testConfig } from "./_config.js";
+import { FetchMock } from "./_fetch-mock.js";
 
 vi.mock(import("../src/common/log.js"), async () => {
   const { createLoggerMock } = await import("./utils.js");
   return createLoggerMock();
 });
 
-const mock = new MockAdapter(axios);
+const mock = new FetchMock();
+const config = testConfig.with({ fetch: mock.fetch });
 
 afterEach(() => {
   mock.reset();
@@ -24,7 +24,7 @@ describe("api errors", () => {
   it("names the param a malformed value came from", async () => {
     const result = await statsApi(
       { username: "anuraghazra", border_radius: "abc" },
-      testConfig,
+      config,
     );
 
     expect(result).toMatchObject({
@@ -35,7 +35,7 @@ describe("api errors", () => {
   });
 
   it("reports a param the endpoint cannot render without", async () => {
-    const result = await gistApi({}, testConfig);
+    const result = await gistApi({}, config);
 
     expect(result).toMatchObject({
       status: "error",
@@ -47,7 +47,7 @@ describe("api errors", () => {
   it("marks an upstream failure retryable", async () => {
     mock.onPost("https://api.github.com/graphql").networkError();
 
-    const result = await statsApi({ username: "anuraghazra" }, testConfig);
+    const result = await statsApi({ username: "anuraghazra" }, config);
 
     expect(result).toMatchObject({
       status: "error",
@@ -61,7 +61,7 @@ describe("api errors", () => {
       errors: [{ type: "NOT_FOUND", message: "Could not resolve to a User." }],
     });
 
-    const result = await statsApi({ username: "not-a-user" }, testConfig);
+    const result = await statsApi({ username: "not-a-user" }, config);
 
     expect(result).toMatchObject({
       status: "error",
@@ -77,7 +77,7 @@ describe("api errors", () => {
 
     const result = await pinApi(
       { username: "anuraghazra", repo: "not-a-repo" },
-      testConfig,
+      config,
     );
 
     expect(result).toMatchObject({
@@ -92,7 +92,7 @@ describe("api errors", () => {
       .onPost("https://api.github.com/graphql")
       .reply(200, { data: { viewer: { gist: null } } });
 
-    const result = await gistApi({ id: "not-a-gist" }, testConfig);
+    const result = await gistApi({ id: "not-a-gist" }, config);
 
     expect(result).toMatchObject({
       status: "error",
@@ -104,7 +104,7 @@ describe("api errors", () => {
   it("does not mark a missing WakaTime profile retryable", async () => {
     mock.onGet(/wakatime\.com/).reply(404);
 
-    const result = await wakatimeApi({ username: "not-a-user" });
+    const result = await wakatimeApi({ username: "not-a-user" }, config);
 
     expect(result).toMatchObject({
       status: "error",
@@ -116,7 +116,7 @@ describe("api errors", () => {
   it("marks a WakaTime outage retryable rather than a missing profile", async () => {
     mock.onGet(/wakatime\.com/).reply(500);
 
-    const result = await wakatimeApi({ username: "anuraghazra" });
+    const result = await wakatimeApi({ username: "anuraghazra" }, config);
 
     expect(result).toMatchObject({
       status: "error",
@@ -128,7 +128,7 @@ describe("api errors", () => {
   it("draws the same failure onto the card", async () => {
     const result = await statsApi(
       { username: "anuraghazra", commits_year: "12" },
-      testConfig,
+      config,
     );
 
     expect(result.status).toBe("error");

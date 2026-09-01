@@ -17,7 +17,7 @@ const fetcherFail = vi.fn().mockResolvedValue({
   data: { errors: [{ type: "RATE_LIMITED" }] },
 }) as unknown as Fetcher;
 
-const fetcherFailOnSecondTry = vi.fn((_vars, _token, retries) => {
+const fetcherFailOnSecondTry = vi.fn((_vars, _token, { retries }) => {
   if (retries < 1) {
     return Promise.resolve({ data: { errors: [{ type: "RATE_LIMITED" }] } });
   }
@@ -25,7 +25,7 @@ const fetcherFailOnSecondTry = vi.fn((_vars, _token, retries) => {
 }) as unknown as Fetcher;
 
 const fetcherFailWithMessageBasedRateLimitErr = vi.fn(
-  (_vars, _token, retries) => {
+  (_vars, _token, { retries }) => {
     if (retries < 1) {
       return Promise.resolve({
         data: {
@@ -89,7 +89,7 @@ describe("Test Retryer", () => {
     expect(customFetcher).toHaveBeenCalledExactlyOnceWith(
       {},
       "user-pat-token",
-      0,
+      { fetch: userConfig.fetch, retries: 0 },
     );
     expect(res).toStrictEqual({ data: { token: "user-pat-token" } });
   });

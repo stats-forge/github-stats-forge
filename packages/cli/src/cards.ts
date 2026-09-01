@@ -339,7 +339,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       LOCALE_OPTION,
     ],
-    render: (query) => wakatime(query),
+    render: (query, config) => wakatime(query, config),
   },
 ];
 

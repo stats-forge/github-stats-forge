@@ -10,7 +10,6 @@ onlyBuiltDependencies:
 
 catalog:
   "@vitest/coverage-v8": 4.1.10
-  axios: ^1.18.1
   jsdom: 29.1.1
   vitest: 4.1.10
 
