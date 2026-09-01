@@ -37,7 +37,7 @@ Each api handler takes the query params its endpoint accepts and a `CardConfig`
 carrying the GitHub tokens, and answers with the rendered card:
 
 ```js
-import { CardConfig, stats } from '@stats-forge/github-stats-forge-core';
+import { CardConfig, stats } from '@stats-forge/github-stats-forge-core/api';
 
 const config = new CardConfig({
   pats: [{ name: 'PAT_1', value: process.env.PAT_1 }],

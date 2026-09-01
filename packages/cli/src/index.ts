@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { CardConfig } from '@stats-forge/github-stats-forge-core';
+import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
 import type { CardKind } from './cards.js';
 import { cards, findCard } from './cards.js';

@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import type { PersonalAccessToken } from '@stats-forge/github-stats-forge-core';
+import type { PersonalAccessToken } from '@stats-forge/github-stats-forge-core/api';
 
 /**
  * @file Where the GitHub token comes from.

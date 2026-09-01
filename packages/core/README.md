@@ -100,16 +100,6 @@ const config = new CardConfig({
 });
 ```
 
-## Rendering from data you already hold
-
-If you cache stats yourself, skip the fetchers and render directly:
-
-```ts
-import { renderStatsCard } from '@stats-forge/github-stats-forge-core/cards';
-
-const svg = renderStatsCard(myStats, { theme: 'dracula', hide_rank: true });
-```
-
 Every card is labelled for screen readers: the SVG carries `role="img"` with a `<title>`
 and `<desc>` describing what it shows, since assistive technology cannot reach the text
 inside an image role.
