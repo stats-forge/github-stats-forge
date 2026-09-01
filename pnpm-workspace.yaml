@@ -9,9 +9,9 @@ allowBuilds:
   unrs-resolver: true
 
 catalog:
-  '@vitest/coverage-v8': 4.1.10
+  '@vitest/coverage-v8': 4.1.11
   jsdom: 29.1.1
-  vitest: 4.1.10
+  vitest: 4.1.11
 
 # Deliberately stricter than pnpm's 1440 default (3 days vs 1)
 minimumReleaseAge: 4320
