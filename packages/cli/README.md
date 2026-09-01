@@ -25,6 +25,31 @@ again. `Quit` (or Ctrl-C) ends the session.
   Theme                                  tokyonight
 ```
 
+## Saving a card
+
+`Save these options` in the menu writes the card and its params to a JSON file, and
+`--config` loads one back:
+
+```sh
+stats-forge --config my-stats.json      # picks up where the file left off
+```
+
+```json
+{
+  "card": "stats",
+  "params": {
+    "username": "anuraghazra",
+    "theme": "tokyonight",
+    "show_icons": "true"
+  }
+}
+```
+
+The file holds what a query string holds, so it reads like the URL it stands for and
+can be edited by hand. Loading one skips both the card prompt and the required
+params, landing you straight on the menu — and `--config` doubles as the save target,
+so the next `Save these options` writes back to it without asking.
+
 While it fetches, a spinner runs on stderr — so `stats-forge > card.svg` still
 pipes only the card, and a CI log gets one line instead of an animation.
 

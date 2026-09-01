@@ -56,7 +56,7 @@ const askOption = async (
 };
 
 /** How a trip through the option menu ended. */
-export type MenuChoice = "generate" | "quit";
+export type MenuChoice = "generate" | "save" | "quit";
 
 /** What the menu carries between trips through it. */
 export interface Menu {
@@ -99,6 +99,7 @@ export const navigateOptions = async (
       default: menu.cursor,
       choices: [
         { name: "Generate the card", value: "generate" as const },
+        { name: "Save these options", value: "save" as const },
         { name: "Quit", value: "quit" as const },
         ...card.options.map((option) => ({
           name: `${option.label.padEnd(38)} ${describeAnswer(option, menu.answers.get(option.name))}`,
@@ -109,7 +110,7 @@ export const navigateOptions = async (
 
     menu.cursor = choice;
 
-    if (choice === "generate" || choice === "quit") {
+    if (choice === "generate" || choice === "save" || choice === "quit") {
       return choice;
     }
 
@@ -142,6 +143,22 @@ export const askRequired = async (
     );
   }
   return answers;
+};
+
+/**
+ * Asks where to write the options, when no `--config` said.
+ *
+ * @param suggestion The path offered by default.
+ * @returns The path, or `undefined` when the run changed its mind.
+ */
+export const askSavePath = async (
+  suggestion: string,
+): Promise<string | undefined> => {
+  const answer = await input({
+    message: "Save the options to",
+    default: suggestion,
+  });
+  return answer.trim() === "" ? undefined : answer.trim();
 };
 
 /**

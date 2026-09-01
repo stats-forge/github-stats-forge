@@ -7,8 +7,20 @@ import { CardConfig } from "@stats-forge/github-stats-forge-core";
 
 import { cards, findCard } from "./cards.js";
 import type { Menu } from "./prompts.js";
-import { askRequired, askToken, navigateOptions, pickCard } from "./prompts.js";
+import {
+  askRequired,
+  askSavePath,
+  askToken,
+  navigateOptions,
+  pickCard,
+} from "./prompts.js";
 import { defaultFileName, toQuery } from "./query.js";
+import {
+  readSavedCard,
+  savedCardExists,
+  toAnswers,
+  writeSavedCard,
+} from "./saved-card.js";
 import { withSpinner } from "./spinner.js";
 import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from "./tokens.js";
 
@@ -20,6 +32,7 @@ Usage
 Options
   -c, --card <id>       Skip the card prompt: ${cards.map((card) => card.id).join(", ")}
   -o, --out <file>      Where to write the card (default: named after the card)
+      --config <file>   Options to load, and where "Save these options" writes
       --pat <token>     GitHub token; repeat for several
       --env-file <file> Env file to read PAT_1, PAT_2, … from (default: ${DEFAULT_ENV_FILE})
   -h, --help            Show this
@@ -36,6 +49,7 @@ const readFlags = () =>
     options: {
       card: { type: "string", short: "c" },
       out: { type: "string", short: "o" },
+      config: { type: "string" },
       pat: { type: "string", multiple: true, default: [] },
       "env-file": { type: "string" },
       help: { type: "boolean", short: "h", default: false },
@@ -70,8 +84,21 @@ const main = async (): Promise<void> => {
   const envFile = flags["env-file"];
   loadEnvFile(envFile ?? DEFAULT_ENV_FILE, envFile !== undefined);
 
+  // A saved file names its own card and carries its answers, so it skips both prompts.
+  const saved =
+    flags.config !== undefined && savedCardExists(flags.config)
+      ? await readSavedCard(flags.config)
+      : undefined;
+
+  if (saved && flags.card !== undefined && flags.card !== saved.card.id) {
+    throw new Error(
+      `${flags.config ?? ""} holds a ${saved.card.id} card, but --card asked for ${flags.card}.`,
+    );
+  }
+
   const card =
-    flags.card === undefined ? await pickCard() : findCard(flags.card);
+    saved?.card ??
+    (flags.card === undefined ? await pickCard() : findCard(flags.card));
   if (!card) {
     throw new Error(
       `No card called "${flags.card ?? ""}". Try one of: ${cards
@@ -92,7 +119,10 @@ const main = async (): Promise<void> => {
   }
 
   const config = new CardConfig({ pats: tokens });
-  const menu: Menu = { answers: await askRequired(card) };
+  const menu: Menu = {
+    answers: saved ? toAnswers(card, saved.params) : await askRequired(card),
+  };
+  let savePath = flags.config;
 
   /*
    * The menu stays open after a render:
@@ -103,11 +133,27 @@ const main = async (): Promise<void> => {
   let lastFailed = false;
 
   for (;;) {
-    if ((await navigateOptions(card, menu, status)) === "quit") {
+    const action = await navigateOptions(card, menu, status);
+    if (action === "quit") {
       break;
     }
 
     const query = toQuery(menu.answers);
+
+    if (action === "save") {
+      const path =
+        savePath ??
+        (await askSavePath(
+          defaultFileName(card, query).replace(/\.svg$/, ".json"),
+        ));
+      if (path) {
+        savePath = path;
+        const written = await writeSavedCard(path, card, query);
+        status = `saved ${relative(process.cwd(), written)} — load it again with --config`;
+      }
+      continue;
+    }
+
     const result = await withSpinner(`Rendering the ${card.id} card`, () =>
       card.render(query, config),
     );
