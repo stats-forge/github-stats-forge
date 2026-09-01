@@ -51,7 +51,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
 
       # `pnpm release` builds, then `changeset publish` publishes every package whose
       # version is not yet on npm, in dependency order.
