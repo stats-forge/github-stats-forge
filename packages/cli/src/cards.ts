@@ -1,5 +1,12 @@
-import { gist, pin, stats, themes, topLangs, wakatime } from '@stats-forge/github-stats-forge-core';
-import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core';
+import {
+  gist,
+  pin,
+  stats,
+  themes,
+  topLangs,
+  wakatime,
+} from '@stats-forge/github-stats-forge-core/api';
+import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
 /**
  * @file What each card accepts, in the order the prompts walk it.

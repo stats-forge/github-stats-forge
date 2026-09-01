@@ -74,6 +74,20 @@ are skipped until it is listed again.
 
 - **Don't commit or open PRs** — the repo owner does that. Leave changes in the working
   tree.
+- **A change to `packages/*` carries a changeset, written without being asked.**
+  Add it to `.changeset/` as part of the same change, not as a follow-up:
+  the published `CHANGELOG.md` is generated from these files,
+  so a package change shipped without one is invisible to consumers.
+  - **The summary's first line is a conventional commit** — `refactor(core)!: …`,
+    `feat(cli): …`, `ci: …` — because it lands verbatim in the changelog
+    (see the 0.0.2 entry in `packages/core/CHANGELOG.md`).
+    Blank line, then the prose.
+  - **The packages are pre-1.0, so a breaking change is `minor`**, not `major`:
+    changesets would read `major` as 0.0.2 → 1.0.0.
+  - **A dependent package needs no entry of its own.**
+    `updateInternalDependencies: patch` bumps it, so removing core's root entry
+    patched the CLI without the changeset naming it.
+    Confirm with `pnpm exec changeset status` before committing.
 - **Don't edit this file unless explicitly asked.** Auditing it, reporting stale rules,
   or proposing wording is fine unprompted; writing the change is not. A rule lands here
   only when the repo owner says so.

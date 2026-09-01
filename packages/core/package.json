@@ -52,19 +52,10 @@
     "README.md"
   ],
   "type": "module",
-  "main": "./build/index.js",
   "exports": {
-    ".": {
-      "@stats/source": "./src/index.ts",
-      "default": "./build/index.js"
-    },
     "./api": {
       "@stats/source": "./src/api/index.ts",
       "default": "./build/api/index.js"
-    },
-    "./cards": {
-      "@stats/source": "./src/cards/index.ts",
-      "default": "./build/cards/index.js"
     },
     "./fetchers": {
       "@stats/source": "./src/fetchers/index.ts",
