@@ -14,25 +14,36 @@ const urlExample = "/api/pin?username=USERNAME&repo=REPO_NAME";
 /**
  * Fetch repository data.
  *
+ * @param props Fetcher props.
+ * @param props.username GitHub username.
+ * @param props.reponame GitHub repository name.
+ * @param props.include_prs_authored Include count of PRs authored.
+ * @param props.include_prs_commented Include count of PRs commented.
+ * @param props.include_prs_reviewed Include count of PRs reviewed.
+ * @param props.include_issues_authored Include count of issues authored.
+ * @param props.include_issues_commented Include count of issues commented.
  * @param config Deployment config supplying the PAT pool.
- * @param username GitHub username.
- * @param reponame GitHub repository name.
- * @param include_prs_authored Include count of PRs authored.
- * @param include_prs_commented Include count of PRs commented.
- * @param include_prs_reviewed Include count of PRs reviewed.
- * @param include_issues_authored Include count of issues authored.
- * @param include_issues_commented Include count of issues commented.
  * @returns Repository data.
  */
 const fetchRepo = async (
+  {
+    username,
+    reponame,
+    include_prs_authored = false,
+    include_prs_commented = false,
+    include_prs_reviewed = false,
+    include_issues_authored = false,
+    include_issues_commented = false,
+  }: {
+    username: string | undefined;
+    reponame: string | undefined;
+    include_prs_authored?: boolean | undefined;
+    include_prs_commented?: boolean | undefined;
+    include_prs_reviewed?: boolean | undefined;
+    include_issues_authored?: boolean | undefined;
+    include_issues_commented?: boolean | undefined;
+  },
   config: CardConfig,
-  username: string | undefined,
-  reponame: string | undefined,
-  include_prs_authored = false,
-  include_prs_commented = false,
-  include_prs_reviewed = false,
-  include_issues_authored = false,
-  include_issues_commented = false,
 ): Promise<RepositoryData> => {
   let owner = username;
   if (reponame && reponame.includes("/")) {
@@ -84,14 +95,15 @@ const fetchRepo = async (
       });
     }
     const repoUserStats = await fetchRepoUserStats(
-      username,
-      [`${repoOwner}/${reponame}`],
-      [],
-      include_prs_authored,
-      include_prs_commented,
-      include_prs_reviewed,
-      include_issues_authored,
-      include_issues_commented,
+      {
+        username,
+        repo: [`${repoOwner}/${reponame}`],
+        include_prs_authored,
+        include_prs_commented,
+        include_prs_reviewed,
+        include_issues_authored,
+        include_issues_commented,
+      },
       config,
     );
     return {
@@ -109,14 +121,15 @@ const fetchRepo = async (
       });
     }
     const repoUserStats = await fetchRepoUserStats(
-      username,
-      [`${repoOwner}/${reponame}`],
-      [],
-      include_prs_authored,
-      include_prs_commented,
-      include_prs_reviewed,
-      include_issues_authored,
-      include_issues_commented,
+      {
+        username,
+        repo: [`${repoOwner}/${reponame}`],
+        include_prs_authored,
+        include_prs_commented,
+        include_prs_reviewed,
+        include_issues_authored,
+        include_issues_commented,
+      },
       config,
     );
     return {

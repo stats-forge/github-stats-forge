@@ -55,7 +55,7 @@ export const gist = async (
     const { id, border_radius, show_owner, browser_rendering, hide_border } =
       parseParams(gistQuery, query);
 
-    const gistData = await fetchGist(config, id);
+    const gistData = await fetchGist({ id }, config);
 
     return {
       status: "success",

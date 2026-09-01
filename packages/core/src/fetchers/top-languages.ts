@@ -18,21 +18,30 @@ const fetcher = createGraphQLFetcher(TopLanguagesDocument, "token");
 /**
  * Fetch top languages for a given username.
  *
+ * @param props Fetcher props.
+ * @param props.username GitHub username.
+ * @param props.exclude_repo List of repositories to exclude. Default: [].
+ * @param props.size_weight Weightage to be given to size.
+ * @param props.count_weight Weightage to be given to count.
+ * @param props.ownerAffiliations The owner affiliations to filter by. Default: OWNER.
  * @param config Deployment config supplying the PAT pool.
- * @param username GitHub username.
- * @param exclude_repo List of repositories to exclude. Default: [].
- * @param size_weight Weightage to be given to size.
- * @param count_weight Weightage to be given to count.
- * @param ownerAffiliations The owner affiliations to filter by. Default: OWNER.
  * @returns Top languages data.
  */
 const fetchTopLanguages = async (
+  {
+    username,
+    exclude_repo = [],
+    size_weight = 1,
+    count_weight = 0,
+    ownerAffiliations = [],
+  }: {
+    username: string | undefined;
+    exclude_repo?: Array<string>;
+    size_weight?: number | undefined;
+    count_weight?: number | undefined;
+    ownerAffiliations?: Array<string>;
+  },
   config: CardConfig,
-  username: string | undefined,
-  exclude_repo: Array<string> = [],
-  size_weight = 1,
-  count_weight = 0,
-  ownerAffiliations: Array<string> = [],
 ): Promise<TopLangData> => {
   if (!username) {
     throw CardError.missingParam(["username"]);

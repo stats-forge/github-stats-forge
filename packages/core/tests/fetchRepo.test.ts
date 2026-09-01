@@ -44,7 +44,10 @@ describe("Test fetchRepo", () => {
   it("should fetch correct user repo", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_user);
 
-    const repo = await fetchRepo(config, "anuraghazra", "convoychat");
+    const repo = await fetchRepo(
+      { username: "anuraghazra", reponame: "convoychat" },
+      config,
+    );
 
     expect(repo).toStrictEqual(data_repo.repository);
   });
@@ -52,7 +55,10 @@ describe("Test fetchRepo", () => {
   it("should fetch correct org repo", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, data_org);
 
-    const repo = await fetchRepo(config, "anuraghazra", "convoychat");
+    const repo = await fetchRepo(
+      { username: "anuraghazra", reponame: "convoychat" },
+      config,
+    );
     expect(repo).toStrictEqual(data_repo.repository);
   });
 
@@ -62,7 +68,7 @@ describe("Test fetchRepo", () => {
       .reply(200, { data: { user: { repository: null }, organization: null } });
 
     await expect(
-      fetchRepo(config, "anuraghazra", "convoychat"),
+      fetchRepo({ username: "anuraghazra", reponame: "convoychat" }, config),
     ).rejects.toThrow("User Repository Not found");
   });
 
@@ -72,7 +78,7 @@ describe("Test fetchRepo", () => {
       .reply(200, { data: { user: null, organization: { repository: null } } });
 
     await expect(
-      fetchRepo(config, "anuraghazra", "convoychat"),
+      fetchRepo({ username: "anuraghazra", reponame: "convoychat" }, config),
     ).rejects.toThrow("Organization Repository Not found");
   });
 
@@ -82,7 +88,7 @@ describe("Test fetchRepo", () => {
       .reply(200, { data: { user: null, organization: null } });
 
     await expect(
-      fetchRepo(config, "anuraghazra", "convoychat"),
+      fetchRepo({ username: "anuraghazra", reponame: "convoychat" }, config),
     ).rejects.toThrow("Not found");
   });
 
@@ -95,7 +101,7 @@ describe("Test fetchRepo", () => {
     });
 
     await expect(
-      fetchRepo(config, "anuraghazra", "convoychat"),
+      fetchRepo({ username: "anuraghazra", reponame: "convoychat" }, config),
     ).rejects.toThrow("User Repository Not found");
   });
 });

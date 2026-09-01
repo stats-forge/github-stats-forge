@@ -130,25 +130,28 @@ const renderStats = async (
     );
 
     const stats = await fetchStats(
+      {
+        username,
+        include_all_commits,
+        exclude_repo,
+        include_merged_pull_requests:
+          show.includes("prs_merged") || show.includes("prs_merged_percentage"),
+        include_discussions: show.includes("discussions_started"),
+        include_discussions_answers: show.includes("discussions_answered"),
+        commits_year,
+        repo: repository,
+        owner,
+        include_prs_authored: show.includes("prs_authored"),
+        include_prs_commented: show.includes("prs_commented"),
+        include_prs_reviewed: show.includes("prs_reviewed"),
+        include_issues_authored: show.includes("issues_authored"),
+        include_issues_commented: show.includes("issues_commented"),
+        ownerAffiliations: role,
+        include_contributions: show.includes("contributions"),
+        include_all_time_contribs: show.includes("all_time_contribs"),
+        contribs_include_own_repos,
+      },
       config,
-      username,
-      include_all_commits,
-      exclude_repo,
-      show.includes("prs_merged") || show.includes("prs_merged_percentage"),
-      show.includes("discussions_started"),
-      show.includes("discussions_answered"),
-      commits_year,
-      repository,
-      owner,
-      show.includes("prs_authored"),
-      show.includes("prs_commented"),
-      show.includes("prs_reviewed"),
-      show.includes("issues_authored"),
-      show.includes("issues_commented"),
-      role,
-      show.includes("contributions"),
-      show.includes("all_time_contribs"),
-      contribs_include_own_repos,
     );
 
     return {

@@ -92,14 +92,16 @@ export const pin = async (
     } = parseParams(pinQuery, query);
 
     const repoData = await fetchRepo(
+      {
+        username,
+        reponame: repo,
+        include_prs_authored: show.includes("prs_authored"),
+        include_prs_commented: show.includes("prs_commented"),
+        include_prs_reviewed: show.includes("prs_reviewed"),
+        include_issues_authored: show.includes("issues_authored"),
+        include_issues_commented: show.includes("issues_commented"),
+      },
       config,
-      username,
-      repo,
-      show.includes("prs_authored"),
-      show.includes("prs_commented"),
-      show.includes("prs_reviewed"),
-      show.includes("issues_authored"),
-      show.includes("issues_commented"),
     );
 
     return {

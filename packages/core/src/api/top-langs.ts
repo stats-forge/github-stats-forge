@@ -109,12 +109,14 @@ const renderTopLangs = async (
     } = parseParams(topLangsQuery, query);
 
     const topLangs = await fetchTopLanguages(
+      {
+        username,
+        exclude_repo,
+        size_weight,
+        count_weight,
+        ownerAffiliations: role,
+      },
       config,
-      username,
-      exclude_repo,
-      size_weight,
-      count_weight,
-      role,
     );
 
     return {

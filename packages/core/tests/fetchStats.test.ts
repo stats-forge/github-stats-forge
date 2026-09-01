@@ -210,48 +210,9 @@ const baseConfig = testConfig.with({ fetch: mock.fetch });
 let config: CardConfig;
 
 /** `fetchStats` for the mocked user, with only the options a test changes spelled out. */
-const fetchStatsWith = ({
-  include_all_commits = false,
-  exclude_repo = [],
-  include_merged_pull_requests = false,
-  include_discussions = false,
-  include_discussions_answers = false,
-  commits_year,
-  include_contributions = false,
-  include_all_time_contribs = false,
-  contribs_include_own_repos = false,
-}: {
-  include_all_commits?: boolean;
-  exclude_repo?: Array<string>;
-  include_merged_pull_requests?: boolean;
-  include_discussions?: boolean;
-  include_discussions_answers?: boolean;
-  commits_year?: number;
-  include_contributions?: boolean;
-  include_all_time_contribs?: boolean;
-  contribs_include_own_repos?: boolean;
-}) =>
-  fetchStats(
-    config,
-    "anuraghazra",
-    include_all_commits,
-    exclude_repo,
-    include_merged_pull_requests,
-    include_discussions,
-    include_discussions_answers,
-    commits_year,
-    [],
-    [],
-    false,
-    false,
-    false,
-    false,
-    false,
-    [],
-    include_contributions,
-    include_all_time_contribs,
-    contribs_include_own_repos,
-  );
+const fetchStatsWith = (
+  options: Omit<Parameters<typeof fetchStats>[0], "username">,
+) => fetchStats({ username: "anuraghazra", ...options }, config);
 
 type RankInput = Parameters<typeof calculateRank>[0];
 
@@ -327,7 +288,7 @@ afterEach(() => {
 
 describe("Test fetchStats", () => {
   it("should fetch correct stats", async () => {
-    const stats = await fetchStats(config, "anuraghazra");
+    const stats = await fetchStats({ username: "anuraghazra" }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
@@ -339,7 +300,7 @@ describe("Test fetchStats", () => {
       .onPost("https://api.github.com/graphql")
       .replyOnce(200, data_repo_zero_stars);
 
-    const stats = await fetchStats(config, "anuraghazra");
+    const stats = await fetchStats({ username: "anuraghazra" }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
@@ -347,7 +308,9 @@ describe("Test fetchStats", () => {
     mock.reset();
     mock.onPost("https://api.github.com/graphql").reply(200, error);
 
-    await expect(fetchStats(config, "anuraghazra")).rejects.toThrow(
+    await expect(
+      fetchStats({ username: "anuraghazra" }, config),
+    ).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
     );
   });
@@ -369,9 +332,9 @@ describe("Test fetchStats", () => {
   });
 
   it("should throw specific error when include_all_commits true and invalid username", async () => {
-    await expect(fetchStats(config, "asdf///---", true)).rejects.toThrow(
-      "Invalid username provided.",
-    );
+    await expect(
+      fetchStats({ username: "asdf///---", include_all_commits: true }, config),
+    ).rejects.toThrow("Invalid username provided.");
   });
 
   it("should throw specific error when include_all_commits true and API returns error", async () => {
@@ -408,7 +371,7 @@ describe("Test fetchStats", () => {
   it("should fetch two pages of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `true`", async () => {
     config = baseConfig.with({ fetchMultiPageStars: Infinity });
 
-    const stats = await fetchStats(config, "anuraghazra");
+    const stats = await fetchStats({ username: "anuraghazra" }, config);
     expect(stats).toStrictEqual(
       expectedStats({ totalStars: 400 }, { stars: 400 }),
     );
@@ -417,14 +380,14 @@ describe("Test fetchStats", () => {
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `false`", async () => {
     config = baseConfig.with({ fetchMultiPageStars: 1 });
 
-    const stats = await fetchStats(config, "anuraghazra");
+    const stats = await fetchStats({ username: "anuraghazra" }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is not set", async () => {
     config = baseConfig.with({ fetchMultiPageStars: 1 });
 
-    const stats = await fetchStats(config, "anuraghazra");
+    const stats = await fetchStats({ username: "anuraghazra" }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
@@ -442,7 +405,7 @@ describe("Test fetchStats", () => {
       .onPost("https://api.github.com/graphql")
       .replyOnce(200, data_repo);
 
-    const stats = await fetchStats(config, "anuraghazra");
+    const stats = await fetchStats({ username: "anuraghazra" }, config);
 
     // the stats page plus two repo pages, even though every page has a next one
     expect(mock.history.post).toHaveLength(3);
@@ -465,14 +428,16 @@ describe("Test fetchStats", () => {
       .onPost("https://api.github.com/graphql")
       .replyOnce(200, error);
 
-    await expect(fetchStats(config, "anuraghazra")).rejects.toThrow(
+    await expect(
+      fetchStats({ username: "anuraghazra" }, config),
+    ).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
     );
     expect(mock.history.post).toHaveLength(2);
   });
 
   it("should not fetch additional stats data when it not requested", async () => {
-    const stats = await fetchStats(config, "anuraghazra");
+    const stats = await fetchStats({ username: "anuraghazra" }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
@@ -557,7 +522,7 @@ describe("Test fetchStats", () => {
   });
 
   it("should include own repos in contributed-to count when contribs_include_own_repos is true", async () => {
-    const statsWithout = await fetchStats(config, "anuraghazra");
+    const statsWithout = await fetchStats({ username: "anuraghazra" }, config);
     expect(statsWithout.contributedTo).toBe(61);
 
     const statsWith = await fetchStatsWith({

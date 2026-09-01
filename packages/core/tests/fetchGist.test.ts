@@ -80,7 +80,10 @@ describe("Test fetchGist", () => {
   it("should fetch gist correctly", async () => {
     mock.onPost("https://api.github.com/graphql").reply(200, gist_data);
 
-    const gist = await fetchGist(config, "bbfce31e0217a3689c8d961a356cb10d");
+    const gist = await fetchGist(
+      { id: "bbfce31e0217a3689c8d961a356cb10d" },
+      config,
+    );
 
     expect(gist).toStrictEqual({
       name: "countries.json",
@@ -99,7 +102,7 @@ describe("Test fetchGist", () => {
       .reply(200, gist_not_found_data);
 
     await expect(
-      fetchGist(config, "bbfce31e0217a3689c8d961a356cb10d"),
+      fetchGist({ id: "bbfce31e0217a3689c8d961a356cb10d" }, config),
     ).rejects.toThrow("Gist not found");
   });
 
@@ -107,13 +110,13 @@ describe("Test fetchGist", () => {
     mock.onPost("https://api.github.com/graphql").reply(200, gist_errors_data);
 
     await expect(
-      fetchGist(config, "bbfce31e0217a3689c8d961a356cb10d"),
+      fetchGist({ id: "bbfce31e0217a3689c8d961a356cb10d" }, config),
     ).rejects.toThrow("Some test GraphQL error");
   });
 
   it("should throw error if id is not provided", async () => {
     // @ts-expect-error testing missing argument
-    await expect(fetchGist(config)).rejects.toThrow(
+    await expect(fetchGist({}, config)).rejects.toThrow(
       'Missing params "id" make sure you pass the parameters in URL',
     );
   });

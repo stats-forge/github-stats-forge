@@ -186,7 +186,13 @@ const fetchTotalItems = (
 /**
  * Fetch a total count for a given username via the REST search API.
  *
- * @param username GitHub username.
+ * @param props Fetcher props.
+ * @param props.username GitHub username.
+ * @param props.repo Repositories the search is scoped to.
+ * @param props.owner Owners the search is scoped to.
+ * @param props.type Search endpoint to hit, `issues` or `commits`.
+ * @param props.filter Query fragment appended to the scope filter.
+ * @param config Deployment config supplying the PAT pool.
  * @returns Total count.
  *
  * The GraphQL API can't return this.
@@ -194,11 +200,19 @@ const fetchTotalItems = (
  * @see https://github.com/anuraghazra/github-readme-stats/pull/211
  */
 const totalItemsFetcher = async (
-  username: string,
-  repo: Array<string>,
-  owner: Array<string>,
-  type: string,
-  filter: string,
+  {
+    username,
+    repo,
+    owner,
+    type,
+    filter,
+  }: {
+    username: string;
+    repo: Array<string>;
+    owner: Array<string>;
+    type: string;
+    filter: string;
+  },
   config: CardConfig,
 ): Promise<number> => {
   if (!githubUsernameRegex.test(username)) {
@@ -231,65 +245,101 @@ const totalItemsFetcher = async (
   return totalCount;
 };
 
+/**
+ * Fetch the per-repository counts the REST search API answers, one request each.
+ *
+ * @param props Fetcher props.
+ * @param props.username GitHub username.
+ * @param props.repo Repositories the search is scoped to.
+ * @param props.owner Owners the search is scoped to.
+ * @param props.include_prs_authored Include count of PRs authored.
+ * @param props.include_prs_commented Include count of PRs commented.
+ * @param props.include_prs_reviewed Include count of PRs reviewed.
+ * @param props.include_issues_authored Include count of issues authored.
+ * @param props.include_issues_commented Include count of issues commented.
+ * @param config Deployment config supplying the PAT pool.
+ * @returns Only the counts that were asked for.
+ */
 const fetchRepoUserStats = async (
-  username: string,
-  repo: Array<string>,
-  owner: Array<string>,
-  include_prs_authored: boolean,
-  include_prs_commented: boolean,
-  include_prs_reviewed: boolean,
-  include_issues_authored: boolean,
-  include_issues_commented: boolean,
+  {
+    username,
+    repo = [],
+    owner = [],
+    include_prs_authored = false,
+    include_prs_commented = false,
+    include_prs_reviewed = false,
+    include_issues_authored = false,
+    include_issues_commented = false,
+  }: {
+    username: string;
+    repo?: Array<string>;
+    owner?: Array<string>;
+    include_prs_authored?: boolean | undefined;
+    include_prs_commented?: boolean | undefined;
+    include_prs_reviewed?: boolean | undefined;
+    include_issues_authored?: boolean | undefined;
+    include_issues_commented?: boolean | undefined;
+  },
   config: CardConfig,
 ): Promise<RepoUserStats> => {
   const stats: RepoUserStats = {};
   if (include_prs_authored) {
     stats.totalPRsAuthored = await totalItemsFetcher(
-      username,
-      repo,
-      owner,
-      "issues",
-      `author:${username}+type:pr`,
+      {
+        username,
+        repo,
+        owner,
+        type: "issues",
+        filter: `author:${username}+type:pr`,
+      },
       config,
     );
   }
   if (include_prs_commented) {
     stats.totalPRsCommented = await totalItemsFetcher(
-      username,
-      repo,
-      owner,
-      "issues",
-      `commenter:${username}+-author:${username}+type:pr`,
+      {
+        username,
+        repo,
+        owner,
+        type: "issues",
+        filter: `commenter:${username}+-author:${username}+type:pr`,
+      },
       config,
     );
   }
   if (include_prs_reviewed) {
     stats.totalPRsReviewed = await totalItemsFetcher(
-      username,
-      repo,
-      owner,
-      "issues",
-      `reviewed-by:${username}+-author:${username}+type:pr`,
+      {
+        username,
+        repo,
+        owner,
+        type: "issues",
+        filter: `reviewed-by:${username}+-author:${username}+type:pr`,
+      },
       config,
     );
   }
   if (include_issues_authored) {
     stats.totalIssuesAuthored = await totalItemsFetcher(
-      username,
-      repo,
-      owner,
-      "issues",
-      `author:${username}+type:issue`,
+      {
+        username,
+        repo,
+        owner,
+        type: "issues",
+        filter: `author:${username}+type:issue`,
+      },
       config,
     );
   }
   if (include_issues_commented) {
     stats.totalIssuesCommented = await totalItemsFetcher(
-      username,
-      repo,
-      owner,
-      "issues",
-      `commenter:${username}+-author:${username}+type:issue`,
+      {
+        username,
+        repo,
+        owner,
+        type: "issues",
+        filter: `commenter:${username}+-author:${username}+type:issue`,
+      },
       config,
     );
   }
@@ -500,47 +550,69 @@ const fetchAllTimeReposContributedTo = async (
 /**
  * Fetch stats for a given username.
  *
+ * @param props Fetcher props.
+ * @param props.username GitHub username.
+ * @param props.include_all_commits Include all commits.
+ * @param props.exclude_repo Repositories to exclude.
+ * @param props.include_merged_pull_requests Include merged pull requests.
+ * @param props.include_discussions Include discussions.
+ * @param props.include_discussions_answers Include discussions answers.
+ * @param props.commits_year Year to count total commits.
+ * @param props.repo Repositories to scope the REST search to.
+ * @param props.owner Owners to scope the REST search to.
+ * @param props.include_prs_authored Include count of PRs authored.
+ * @param props.include_prs_commented Include count of PRs commented.
+ * @param props.include_prs_reviewed Include count of PRs reviewed.
+ * @param props.include_issues_authored Include count of issues authored.
+ * @param props.include_issues_commented Include count of issues commented.
+ * @param props.ownerAffiliations Owner affiliations. Default: OWNER.
+ * @param props.include_contributions Include all-time contributions.
+ * @param props.include_all_time_contribs Include all-time count of repos contributed to.
+ * @param props.contribs_include_own_repos Include user-owned repos in contributed-to counts.
  * @param config Deployment config supplying the PAT pool.
- * @param username GitHub username.
- * @param include_all_commits Include all commits.
- * @param exclude_repo Repositories to exclude.
- * @param include_merged_pull_requests Include merged pull requests.
- * @param include_discussions Include discussions.
- * @param include_discussions_answers Include discussions answers.
- * @param commits_year Year to count total commits.
- * @param repo Repositories to scope the REST search to.
- * @param owner Owners to scope the REST search to.
- * @param include_prs_authored Include count of PRs authored.
- * @param include_prs_commented Include count of PRs commented.
- * @param include_prs_reviewed Include count of PRs reviewed.
- * @param include_issues_authored Include count of issues authored.
- * @param include_issues_commented Include count of issues commented.
- * @param ownerAffiliations Owner affiliations. Default: OWNER.
- * @param include_contributions Include all-time contributions.
- * @param include_all_time_contribs Include all-time count of repos contributed to.
- * @param contribs_include_own_repos Include user-owned repos in contributed-to counts.
  * @returns Stats data.
  */
 const fetchStats = async (
+  {
+    username,
+    include_all_commits = false,
+    exclude_repo = [],
+    include_merged_pull_requests = false,
+    include_discussions = false,
+    include_discussions_answers = false,
+    commits_year,
+    repo = [],
+    owner = [],
+    include_prs_authored = false,
+    include_prs_commented = false,
+    include_prs_reviewed = false,
+    include_issues_authored = false,
+    include_issues_commented = false,
+    ownerAffiliations = [],
+    include_contributions = false,
+    include_all_time_contribs = false,
+    contribs_include_own_repos = false,
+  }: {
+    username: string | undefined;
+    include_all_commits?: boolean | undefined;
+    exclude_repo?: Array<string>;
+    include_merged_pull_requests?: boolean;
+    include_discussions?: boolean;
+    include_discussions_answers?: boolean;
+    commits_year?: number | undefined;
+    repo?: Array<string>;
+    owner?: Array<string>;
+    include_prs_authored?: boolean;
+    include_prs_commented?: boolean;
+    include_prs_reviewed?: boolean;
+    include_issues_authored?: boolean;
+    include_issues_commented?: boolean;
+    ownerAffiliations?: Array<string>;
+    include_contributions?: boolean;
+    include_all_time_contribs?: boolean;
+    contribs_include_own_repos?: boolean | undefined;
+  },
   config: CardConfig,
-  username: string | undefined,
-  include_all_commits = false,
-  exclude_repo: Array<string> = [],
-  include_merged_pull_requests = false,
-  include_discussions = false,
-  include_discussions_answers = false,
-  commits_year?: number,
-  repo: Array<string> = [],
-  owner: Array<string> = [],
-  include_prs_authored = false,
-  include_prs_commented = false,
-  include_prs_reviewed = false,
-  include_issues_authored = false,
-  include_issues_commented = false,
-  ownerAffiliations: Array<string> = [],
-  include_contributions = false,
-  include_all_time_contribs = false,
-  contribs_include_own_repos = false,
 ): Promise<StatsData> => {
   if (!username) {
     throw CardError.missingParam(["username"]);
@@ -620,25 +692,29 @@ const fetchStats = async (
   // if include_all_commits, fetch all commits using the REST API.
   if (include_all_commits) {
     stats.totalCommits = await totalItemsFetcher(
-      username,
-      repo,
-      owner,
-      "commits",
-      `author:${username}`,
+      {
+        username,
+        repo,
+        owner,
+        type: "commits",
+        filter: `author:${username}`,
+      },
       config,
     );
   } else {
     stats.totalCommits = user.commits.totalCommitContributions;
   }
   const repoUserStats = await fetchRepoUserStats(
-    username,
-    repo,
-    owner,
-    include_prs_authored,
-    include_prs_commented,
-    include_prs_reviewed,
-    include_issues_authored,
-    include_issues_commented,
+    {
+      username,
+      repo,
+      owner,
+      include_prs_authored,
+      include_prs_commented,
+      include_prs_reviewed,
+      include_issues_authored,
+      include_issues_commented,
+    },
     config,
   );
   Object.assign(stats, repoUserStats);
