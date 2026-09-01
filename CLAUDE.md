@@ -10,10 +10,12 @@ applies automatically, so each unit of work makes the next one easier rather tha
 pushes back, a rule lands here — not in a chat message that evaporates. Each rule below
 cites the incident that produced it, because the incident is what makes it stick.
 
-Scope split: **this file holds the durable rules**.
-`.claude/scratch/CORE_TYPESCRIPT_MIGRATION.md` (untracked scratch) holds the _state_ of
-the in-flight `packages/core` JS→TS migration — which module is converted, what each PR
-did, what's deferred. Rules go here, progress goes there; don't duplicate across the two.
+Scope split: **this file holds the durable rules**; work not yet done lives in
+`.claude/scratch/` (untracked). Rules go here, pending work goes there; don't duplicate
+across the two. Open at the moment: `CORE_DEFERRED_IMPROVEMENTS.md` (follow-ups in
+`packages/core`, each verified as still applicable), `CORE_PACKAGE_SPLIT.md` (whether
+`packages/core` becomes several packages) and `CORE_HTTP_TRANSPORT.md` (whether axios
+gives way to an injected `fetch`).
 
 ## What this is
 
@@ -21,11 +23,11 @@ did, what's deferred. Rules go here, progress goes there; don't duplicate across
 GitHub stats as SVG cards. The server and the docs site that used to live here are
 gone: consumers (the GitHub Action, any self-hosted endpoint) import the package.
 
-| Path            | What it is                                                            |
-| --------------- | --------------------------------------------------------------------- |
-| `packages/core` | The library: fetchers, card renderers, themes, api handlers           |
-| `packages/cli`  | `stats-forge`: prompts through a card's options and writes the SVG    |
-| `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json` |
+| Path            | What it is                                                                                         |
+| --------------- | -------------------------------------------------------------------------------------------------- |
+| `packages/core` | The library: fetchers, card renderers, themes, api handlers                                        |
+| `packages/cli`  | `stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config |
+| `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json`                              |
 
 `packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
 `api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
@@ -47,7 +49,7 @@ pnpm format               # prettier --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
 ```
 
-Per-package (from `packages/core`): `pnpm exec tsc -p tsconfig.typecheck.json` and
+Per-package (from either package): `pnpm exec tsc -p tsconfig.typecheck.json` and
 `pnpm exec eslint`.
 
 GraphQL types are generated, so run these from the repo root after touching any
@@ -74,40 +76,26 @@ and a CI run, so it is a change of its own.
 - **Don't edit this file unless explicitly asked.** Auditing it, reporting stale rules,
   or proposing wording is fine unprompted; writing the change is not. A rule lands here
   only when the repo owner says so.
-- **Every untracked working file lives in `.claude/scratch/`** — PR summaries, review
-  replies, design plans and the migration handoff, all in one ignored folder instead of
-  scattered across the repo root. This file is the exception: `CLAUDE.md` stays at the
-  root, the only project path Claude Code loads on its own.
-- **Always write/update a PR summary** for the change in flight, unasked. Keep it
-  genuinely short: 3–5 bullets, no tables. Spell out "TypeScript", never "TS", in the
-  title.
-- **Name the summary after the change, not `PR_SUMMARY.md`.** Use
-  `<SUBJECT>_PR_SUMMARY.md`, all uppercase, snake_case subject — e.g.
-  `CORE_TYPESCRIPT_MIGRATION_PR_SUMMARY.md`. One file per line of work, so a second PR
-  opened alongside the first doesn't clobber its summary and the filename says which
-  change it belongs to at a glance. Update the matching file if one already exists;
-  create a new one when the change is genuinely separate. These are untracked scratch —
-  don't commit them with the PR.
-- **Answer a PR review in `PR_<NUMBER>_REVIEW_REPLY.md`**, not in chat — each point
-  quoted above a short reply. Say so when a review asks for wording that was already
-  there. Untracked scratch; if the repo owner edited it, build on their text.
+- **Every untracked working file lives in `.claude/scratch/`** — review replies, design
+  plans and pending-work lists, all in one ignored folder instead of scattered across the
+  repo root. This file is the exception: `CLAUDE.md` stays at the root, the only project
+  path Claude Code loads on its own.
 - Keep code comments short — one line, and only for what the code cannot show itself.
 - **Break a comment line after its punctuation.**
   A comment that runs past one line wraps at the sentence, not at the column:
   start the next line after the full stop, colon or dash that ends the thought,
   rather than filling to the print width.
   One thought per line, so a later edit touches one line in the diff.
-- `.claude/scratch/CORE_TYPESCRIPT_MIGRATION.md` is the running handoff for the
-  ongoing `packages/core` JS→TS migration. Read it before touching `packages/core`, keep
-  it current, and don't commit it with a PR.
+- `.claude/scratch/CORE_DEFERRED_IMPROVEMENTS.md` lists the follow-ups `packages/core`
+  still owes. Check it before starting work there — several items are unblocked now that
+  the api layer is typed — and keep it current as they land.
 
 ## TypeScript conventions
 
-The codebase is mid-migration from JSDoc-annotated `.js` to real `.ts`, one module per
-small PR. `packages/core/src` is fully converted — `fetchers/`, `cards/` and `api/`
-are all `.ts`. `packages/core/tsconfig.json` still sets `allowJs: true` for the two
-remaining `.js` test files (`tests/apiInputValidation.test.js`, `tests/xss.test.js`);
-it gets dropped once those convert.
+The JSDoc-annotated `.js` → `.ts` migration is **done**: `packages/core` is `.ts`
+throughout, source and tests alike, and `allowJs` is gone from its `tsconfig.json`. The
+only `.js` left in the package is `scripts/generate-graphql-types.js`, which no config
+includes. The rules below came out of that migration and still hold for new code.
 
 `tsconfig.base.json` is strict and then some — `strict`, `noUncheckedIndexedAccess`,
 `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals`,
@@ -164,8 +152,9 @@ hand the render functions typed values — defaults stay with the renderer.
 
 **Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
 params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `looseIntParam`,
-`safeParam`, `safeListParam`, `localeParam`, `enumParam(values)`, `yearParam`) — none of
-which takes a message, because the wording is derived from the kind and the param name.
+`rawParam`, `safeParam`, `safeListParam`, `localeParam`, `enumParam(values)`,
+`yearParam`) — none of which takes a message, because the wording is derived from the
+kind and the param name.
 A handler is then three steps — `parseColorParams(query)`, `parseParams(xQuery, query)`,
 render — wrapped in one `try`/`catch` whose `catch` is `errorResult(err, colors)`.
 Parsing throws, fetching throws, and one place turns whatever was thrown into the answer.
@@ -173,9 +162,12 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
 - **Colors parse first, separately.**
   A rejected color cannot be used to draw its own error card, which is why
   `parseColorParams` is its own pass and its error renders with no `renderOptions`.
-- **The query type comes from the schema**: `export type XApiQuery = ApiQuery<typeof xQuery>`.
-  Consumers import it and get their query object checked — an unknown param or a
-  non-string value is a compile error, and every param stays optional.
+- **The query type comes from the schema.** Each handler declares
+  `type XApiQuery = ApiQuery<typeof xQuery>` and takes it as its parameter — the alias
+  stays module-local, since only that handler names it and knip flags an unused export.
+  `ApiQuery` itself is what `params.ts` exports. A consumer is checked at the call site
+  rather than by importing the alias: an unknown param or a non-string value is a
+  compile error, and every param stays optional.
 - **`enumParam` takes the card's own list.**
   `RANK_ICONS`, `TOP_LANG_LAYOUTS`, `WAKATIME_LAYOUTS`, `DISPLAY_FORMATS` and
   `TOP_LANG_STATS_FORMATS` are exported by the card that renders them, and the card's
@@ -185,12 +177,15 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
 - **One wording per kind of rejection, in one table.**
   `REJECTION_MESSAGES` in `api/params.ts` maps a `Rejection` kind to its message, and the
   param name comes from the issue's own `path` — no schema spells its own name or prose.
-  A check declares its kind through `rejects(kind, passes)`, which puts it on the issue as
-  `params.kind`. Only the first rejection is reported: the error card has one line.
+  A check declares its kind through `rejects(kind, passes)`, which closes over the kind and
+  hands zod the message function. Nothing reads a kind back off an issue, so no metadata
+  rides along on it. Only the first rejection is reported: the error card has one line.
 - **Everything throws `CardError`** (`common/error.ts`), which carries a `code`, the two
-  lines the card draws, and the param at fault. `retryable` is derived from the code by one
-  table, so "can a retry help" is answered once rather than at each throw site.
-  `CardError.from(err)` wraps anything else as `upstream`.
+  lines the card draws, and the param at fault. The codes are `invalid_param`,
+  `missing_param`, `not_found`, `no_tokens`, `rate_limited` and `upstream`; `retryable` is
+  derived from the code by one table, so "can a retry help" is answered once rather than at
+  each throw site. `CardError.from(err)` wraps anything else as `upstream`, **which is
+  retryable** — so a permanent failure has to throw a `CardError` to be reported as one.
 - **`ApiResult` is a union, not a status string.** Success is `{ status: "success", content }`;
   failure is `{ status: "error", retryable, error: { code, message, secondaryMessage, param }, content }`.
   A host branches on `code` / `retryable` instead of matching `"error - temporary"`, and
@@ -227,11 +222,12 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
 
 ### tsconfig layout and emit
 
-**Emit is opt-in.** `tsconfig.base.json` sets `noEmit: true`, and
-`packages/core/tsconfig.build.json` is the _only_ config in the repo that opts back in
-(`noEmit: false` + `rootDir: "./src"` + `outDir: "./build"`, plus `declaration` and
-`declarationMap`). Nothing else in the repo emits. Don't add `noEmit` to a config that
-already inherits it, and don't put an `outDir` on a config that can't emit.
+**Emit is opt-in.** `tsconfig.base.json` sets `noEmit: true`, and the only configs that
+opt back in are the two `tsconfig.build.json` — one per package, byte-identical
+(`noEmit: false` + `rootDir: "./src"` + `outDir: "./build"`, plus `declaration`,
+`declarationMap` and an emptied `customConditions`). Nothing else in the repo emits.
+Don't add `noEmit` to a config that already inherits it, and don't put an `outDir` on a
+config that can't emit.
 
 The build config also sets **`noCheck: true`** — `pnpm build` emits without typechecking,
 because the `typecheck` task does that separately against `tsconfig.typecheck.json`. A
@@ -250,7 +246,7 @@ with `pnpm exec turbo run build "--filter=./packages/*" --force`, and clear a po
 entry by removing `packages/core/.turbo`, `node_modules/.cache/turbo` and `.turbo/cache`.
 
 There are no TypeScript project references anywhere, so don't reach for `composite: true`
-— it was removed from both apps, where its only live effect was forcing declaration emit.
+— where it used to sit, its only live effect was forcing declaration emit.
 
 ### Generated GraphQL types
 
@@ -316,6 +312,27 @@ That is specific to the package: the repo-root `scripts/` **is** covered, by
   possibly-undefined value, or `NonNullable<…>` when the value is always present — but
   re-read the widening rule above first.
 
+## The CLI
+
+`packages/cli` is `@stats-forge/github-stats-forge-cli`, whose `bin` (`stats-forge`)
+points at `./build/index.js`. Node 24 runs TypeScript directly but does **not** rewrite a
+`./x.js` specifier to `.ts`, so `node src/index.ts` dies on its first relative import —
+which is why `pnpm dev` is `pnpm run build && node build/index.js`.
+
+- **Choices come from core's exports, never a copy.** `src/cards.ts` reads
+  `stats.RANK_ICONS`, `topLangs.LAYOUTS`, `wakatime.DISPLAY_FORMATS` and
+  `Object.keys(themes)`, so a prompt cannot offer a value the schema would reject. This is
+  the reason the api handlers carry their lists as properties.
+- **A saved card file is a query string in JSON**: `{ card, params }` with every param a
+  string, so it reads like the URL it stands for and survives hand-editing. A param that
+  is not a string is dropped on read, because it could not have come off a query string.
+- **stdout carries the result; everything else goes to stderr** — the spinner, the error
+  report, the status line. The spinner degrades to a single printed line when stderr is
+  not a TTY.
+- **The menu stays open after a render** and keeps the cursor where it was, because a card
+  is rarely right the first time and the point of the option list is to change one thing
+  and look again.
+
 ## Testing
 
 - Vitest. In `packages/core` the card tests assert on the rendered DOM, not on snapshots —
@@ -337,7 +354,7 @@ That is specific to the package: the repo-root `scripts/` **is** covered, by
   `toHaveLength(n)` on the `queryAllBy*` result instead — `toBeInTheDocument()` rejects
   `undefined` even under `.not`.
 - Use the `@testing-library/dom` **`screen` API** (`screen.getByTestId("x")`), not
-  `getByTestId(document.body, "x")` — https://testing-library.com/docs/queries/about/#screen.
+  `getByTestId(document.body, "x")` — <https://testing-library.com/docs/queries/about/#screen>.
   Cache a repeated same-id query in a local variable. Plain
   `document.querySelector` is still fine.
 - Mock with the typesafe form `vi.mock(import("…"), factory)`, not
@@ -345,7 +362,7 @@ That is specific to the package: the repo-root `scripts/` **is** covered, by
 - jest-dom matchers are typed in `packages/core/tests/_setup.ts`, which augments vitest's
   `Matchers` interface inside `declare module "vitest"` (vitest 4 re-exports
   `Assertion`/`Matchers` from `@vitest/expect`, so augmenting `vitest` is the path that
-  works — https://vitest.dev/guide/extending-matchers).
+  works — <https://vitest.dev/guide/extending-matchers>).
 - Reach for `querySelector`/`querySelectorAll` over `getElementsByClassName`, and
   `document.querySelector<HTMLElement>(…)` when you need `.style`. Under the strict
   flags, `cssToObject(styleTag?.innerHTML ?? "")` and
