@@ -94,22 +94,22 @@
   "dependencies": {
     "emoji-name-map": "^2.0.3",
     "github-username-regex": "^1.0.0",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@graphql-codegen/core": "6.2.0",
     "@graphql-codegen/typescript": "6.1.0",
-    "@graphql-codegen/typescript-operations": "6.1.2",
+    "@graphql-codegen/typescript-operations": "6.1.6",
     "@octokit/graphql-schema": "15.26.1",
     "@testing-library/dom": "10.4.1",
-    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/jest-dom": "7.0.1",
     "@uppercod/css-to-object": "1.1.1",
-    "graphql": "16.11.0",
-    "js-yaml": "5.2.1",
+    "graphql": "16.14.2",
+    "js-yaml": "5.4.1",
     "jsdom": "catalog:default",
     "vitest": "catalog:default"
   },
   "engines": {
-    "node": ">=24"
+    "node": "^24 || >=26"
   }
 }
