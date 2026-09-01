@@ -26,6 +26,7 @@ what any self-hosted endpoint calls.
 | Package                          | What it is                                                                      |
 | -------------------------------- | ------------------------------------------------------------------------------- |
 | [`packages/core`](packages/core) | The library: fetchers, card renderers, themes and the query-string api handlers |
+| [`packages/cli`](packages/cli)   | `stats-forge`: renders a card to a local SVG, one prompt at a time              |
 
 ## Usage
 
@@ -43,15 +44,26 @@ const config = new CardConfig({
   pats: [{ name: "PAT_1", value: process.env.PAT_1 }],
 });
 
-const { status, content } = await stats({ username: "anuraghazra" }, config);
-// status: "success" | "error - permanent" | "error - temporary"
-// content: the card, as SVG
+const result = await stats({ username: "anuraghazra" }, config);
+// result.status === "success" → result.content is the card, as SVG
+// result.status === "error"   → result.error carries the code and the param at
+//                              fault, result.retryable whether to try again, and
+//                              result.content the error drawn as a card
 ```
 
 The handlers are `stats`, `pin`, `topLangs`, `gist` and `wakatime` — the last of
 which reads the WakaTime API and so takes no config. Nothing in the library reads
 `process.env`: the host builds the config and passes it in, which is what lets the
 same code run in an action, on a server and in a browser.
+
+To render one from the terminal instead, without writing any code:
+
+```sh
+npx @stats-forge/github-stats-forge-cli
+```
+
+It walks you through the cards and their options, and writes the SVG next to you —
+see [`packages/cli`](packages/cli).
 
 ## Cards
 
@@ -64,7 +76,8 @@ same code run in an action, on a server and in a browser.
 | WakaTime       | `wakatime` | Coding time per language                                  |
 
 Every card takes the [common options](packages/core/src/cards/options.ts) — colors,
-title, border, theme, locale — plus its own.
+title, border, theme, locale — plus its own. A card that only renders a fixed set of
+values carries them on its handler, e.g. `topLangs.LAYOUTS` and `stats.RANK_ICONS`.
 
 ## Themes
 

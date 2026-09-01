@@ -5,6 +5,9 @@ export default defineConfig({
     coverage: {
       enabled: true,
     },
-    projects: ["packages/core/vitest.config.ts"],
+    projects: [
+      "packages/core/vitest.config.ts",
+      "packages/cli/vitest.config.ts",
+    ],
   },
 });

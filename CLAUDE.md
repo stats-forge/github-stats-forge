@@ -24,6 +24,7 @@ gone: consumers (the GitHub Action, any self-hosted endpoint) import the package
 | Path            | What it is                                                            |
 | --------------- | --------------------------------------------------------------------- |
 | `packages/core` | The library: fetchers, card renderers, themes, api handlers           |
+| `packages/cli`  | `stats-forge`: prompts through a card's options and writes the SVG    |
 | `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json` |
 
 `packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
@@ -57,9 +58,11 @@ pnpm --filter ./packages/core/ run generate-graphql-types   # rewrite src/graphq
 pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fails on drift
 ```
 
-The root `vitest.config.ts` is a `projects` workspace over `packages/core`. Running
-`pnpm exec vitest` inside the package also works and is the quick way to iterate on
-one suite.
+The root `vitest.config.ts` is a `projects` workspace over `packages/*`. Running
+`pnpm exec vitest` inside a package also works and is the quick way to iterate on one
+suite. A package that imports another resolves it through the `@stats/source`
+condition, which vitest only applies when it is set under **`ssr.resolve.conditions`**
+as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
 
 pnpm is held at **10.x** out of inertia: bumping to 11 wants a lockfile regeneration
 and a CI run, so it is a change of its own.
@@ -177,6 +180,8 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
   `RANK_ICONS`, `TOP_LANG_LAYOUTS`, `WAKATIME_LAYOUTS`, `DISPLAY_FORMATS` and
   `TOP_LANG_STATS_FORMATS` are exported by the card that renders them, and the card's
   union type is derived from the same const, so the schema cannot drift from what renders.
+  Each handler is a **named** export carrying its own lists, so a UI reads the accepted
+  values off the function it calls: `topLangs.LAYOUTS`, `stats.RANK_ICONS`.
 - **One wording per kind of rejection, in one table.**
   `REJECTION_MESSAGES` in `api/params.ts` maps a `Rejection` kind to its message, and the
   param name comes from the issue's own `path` — no schema spells its own name or prose.
