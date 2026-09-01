@@ -1,6 +1,6 @@
 {
   "name": "@stats-forge/github-stats-forge-core",
-  "version": "2.1.5",
+  "version": "0.0.1",
   "type": "module",
   "homepage": "https://github.com/stats-forge/github-stats-forge",
   "bugs": {
