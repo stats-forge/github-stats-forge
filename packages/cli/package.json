@@ -30,7 +30,8 @@
     "stats-forge": "./build/index.js"
   },
   "files": [
-    "build"
+    "build",
+    "src"
   ],
   "publishConfig": {
     "access": "public"
