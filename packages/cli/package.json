@@ -32,6 +32,9 @@
   "files": [
     "build"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepack": "pnpm run build",
