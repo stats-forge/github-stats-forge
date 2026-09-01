@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { logger } from "../src/common/log.js";
 import { fetchTopLanguages } from "../src/fetchers/top-languages.js";
 
 import { testConfig } from "./_config.js";
@@ -10,8 +11,6 @@ vi.mock(import("../src/common/log.js"), async () => {
   const { createLoggerMock } = await import("./utils.js");
   return createLoggerMock();
 });
-
-const { logger } = await import("../src/index.js");
 
 const loggerErrorSpy = vi.mocked(logger.error);
 

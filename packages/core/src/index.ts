@@ -3,10 +3,6 @@ export { retryer } from "./common/retryer.js";
 
 export { renderError } from "./common/render.js";
 
-export { clampValue } from "./common/ops.js";
-
-export { logger } from "./common/log.js";
-
 export type { ApiError, ApiResult } from "./api/api-result.js";
 export { gist } from "./api/gist.js";
 export { stats } from "./api/stats.js";
