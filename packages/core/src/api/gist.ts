@@ -39,7 +39,7 @@ type GistApiQuery = ApiQuery<typeof gistQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-export default async (
+export const gist = async (
   query: GistApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {

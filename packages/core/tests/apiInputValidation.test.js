@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import gistApi from "../src/api/gist.js";
-import pinApi from "../src/api/pin.js";
-import statsApi from "../src/api/stats.js";
-import topLangsApi from "../src/api/top-langs.js";
-import wakatimeApi from "../src/api/wakatime.js";
+import { gist as gistApi } from "../src/api/gist.js";
+import { pin as pinApi } from "../src/api/pin.js";
+import { stats as statsApi } from "../src/api/stats.js";
+import { topLangs as topLangsApi } from "../src/api/top-langs.js";
+import { wakatime as wakatimeApi } from "../src/api/wakatime.js";
 
 // Values containing characters outside the safe set /^[-\w/.,]+$/. These must be
 // rejected before any network request is made.

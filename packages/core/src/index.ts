@@ -8,11 +8,11 @@ export { clampValue } from "./common/ops.js";
 export { logger } from "./common/log.js";
 
 export type { ApiError, ApiResult } from "./api/api-result.js";
-export { default as gist } from "./api/gist.js";
-export { default as stats } from "./api/stats.js";
-export { default as pin } from "./api/pin.js";
-export { default as topLangs } from "./api/top-langs.js";
-export { default as wakatime } from "./api/wakatime.js";
+export { gist } from "./api/gist.js";
+export { stats } from "./api/stats.js";
+export { pin } from "./api/pin.js";
+export { topLangs } from "./api/top-langs.js";
+export { wakatime } from "./api/wakatime.js";
 
 export { CardConfig } from "./common/config.js";
 export type { PersonalAccessToken } from "./common/config.js";

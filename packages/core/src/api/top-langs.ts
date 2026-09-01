@@ -74,7 +74,7 @@ type TopLangsApiQuery = ApiQuery<typeof topLangsQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-export default async (
+const renderTopLangs = async (
   query: TopLangsApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {
@@ -140,3 +140,12 @@ export default async (
     return errorResult(err, colors);
   }
 };
+
+/**
+ * The card, with the values its enum params accept.
+ * A UI reads them off the function it calls, e.g. `topLangs.LAYOUTS`.
+ */
+export const topLangs = Object.assign(renderTopLangs, {
+  LAYOUTS: TOP_LANG_LAYOUTS,
+  STATS_FORMATS: TOP_LANG_STATS_FORMATS,
+});

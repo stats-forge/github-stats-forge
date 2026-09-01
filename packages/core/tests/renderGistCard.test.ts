@@ -2,7 +2,7 @@ import { screen } from "@testing-library/dom";
 import { cssToObject } from "@uppercod/css-to-object";
 import { describe, expect, it } from "vitest";
 
-import gistApi from "../src/api/gist.js";
+import { gist as gistApi } from "../src/api/gist.js";
 import { renderGistCard } from "../src/cards/gist.js";
 import type { GistData } from "../src/fetchers/types.js";
 import { themes } from "../src/themes/index.js";

@@ -68,7 +68,7 @@ type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
  * @param query.disable_animations Whether to disable the card animations.
  * @returns The rendered card, or a rendered error.
  */
-export default async (query: WakatimeApiQuery): Promise<ApiResult> => {
+const renderWakatime = async (query: WakatimeApiQuery): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -121,3 +121,12 @@ export default async (query: WakatimeApiQuery): Promise<ApiResult> => {
     return errorResult(err, colors);
   }
 };
+
+/**
+ * The card, with the values its enum params accept.
+ * A UI reads them off the function it calls, e.g. `wakatime.LAYOUTS`.
+ */
+export const wakatime = Object.assign(renderWakatime, {
+  LAYOUTS: WAKATIME_LAYOUTS,
+  DISPLAY_FORMATS,
+});

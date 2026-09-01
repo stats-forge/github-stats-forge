@@ -2,7 +2,7 @@ import { screen } from "@testing-library/dom";
 import { cssToObject } from "@uppercod/css-to-object";
 import { describe, expect, it } from "vitest";
 
-import topLangsApi from "../src/api/top-langs.js";
+import { topLangs as topLangsApi } from "../src/api/top-langs.js";
 import {
   MIN_CARD_WIDTH,
   calculateCompactLayoutHeight,

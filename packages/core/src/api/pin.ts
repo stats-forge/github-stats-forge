@@ -61,7 +61,7 @@ type PinApiQuery = ApiQuery<typeof pinQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-export default async (
+export const pin = async (
   query: PinApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {

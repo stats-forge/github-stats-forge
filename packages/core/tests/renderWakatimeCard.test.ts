@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/dom";
 import { describe, expect, it } from "vitest";
 
-import wakatimeApi from "../src/api/wakatime.js";
+import { wakatime as wakatimeApi } from "../src/api/wakatime.js";
 import { renderWakatimeCard } from "../src/cards/wakatime.js";
 
 import { wakaTimeData } from "./fetchWakatime.test.js";

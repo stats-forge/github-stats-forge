@@ -84,7 +84,7 @@ type StatsApiQuery = ApiQuery<typeof statsQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-export default async (
+const renderStats = async (
   query: StatsApiQuery,
   config: CardConfig,
 ): Promise<ApiResult> => {
@@ -185,3 +185,11 @@ export default async (
     return errorResult(err, colors);
   }
 };
+
+/**
+ * The card, with the values its enum params accept.
+ * A UI reads them off the function it calls, e.g. `stats.LAYOUTS`.
+ */
+export const stats = Object.assign(renderStats, {
+  RANK_ICONS,
+});

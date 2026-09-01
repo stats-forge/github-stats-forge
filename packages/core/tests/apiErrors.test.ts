@@ -2,8 +2,8 @@ import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import gistApi from "../src/api/gist.js";
-import statsApi from "../src/api/stats.js";
+import { gist as gistApi } from "../src/api/gist.js";
+import { stats as statsApi } from "../src/api/stats.js";
 
 import { testConfig } from "./_config.js";
 

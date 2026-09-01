@@ -2,7 +2,7 @@ import { screen } from "@testing-library/dom";
 import { cssToObject } from "@uppercod/css-to-object";
 import { describe, expect, it } from "vitest";
 
-import pinApi from "../src/api/pin.js";
+import { pin as pinApi } from "../src/api/pin.js";
 import { renderRepoCard } from "../src/cards/repo.js";
 import type { RepositoryData } from "../src/fetchers/types.js";
 import { themes } from "../src/themes/index.js";

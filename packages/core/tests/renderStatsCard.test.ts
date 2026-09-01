@@ -2,7 +2,7 @@ import { screen } from "@testing-library/dom";
 import { cssToObject } from "@uppercod/css-to-object";
 import { describe, expect, it } from "vitest";
 
-import statsApi from "../src/api/stats.js";
+import { stats as statsApi } from "../src/api/stats.js";
 import { renderStatsCard } from "../src/cards/stats.js";
 import { CardError } from "../src/common/error.js";
 import type { StatsData } from "../src/fetchers/types.js";
