@@ -1,6 +1,6 @@
 import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
 
-// oxfmt only auto-discovers `.oxfmtrc.json`, so every invocation has to pass `-c`.
+// Auto-discovered by name. `.oxfmtrc.ts` is not — only `.oxfmtrc.{json,jsonc}` and this one.
 export default {
   ...oxfmtConfig,
   // oxfmt already skips lock files, but the rule is spelled out so it survives that default changing.
