@@ -1,7 +1,7 @@
-import { getGitHubYearRange, toGitHubDateTime } from "../common/date.js";
+import { getGitHubYearRange, toGitHubDateTime } from '../common/date.js';
 
-import type { YearContributionsFragment } from "./generated/stats.js";
-import { graphqlDocument } from "./graphqlDocument.js";
+import type { YearContributionsFragment } from './generated/stats.js';
+import { graphqlDocument } from './graphqlDocument.js';
 
 interface ContributionsQueryVariables {
   login: string;
@@ -24,7 +24,7 @@ const buildContributionsDocument = (years: Array<number>) => {
       const { from, to } = getGitHubYearRange(year);
       return `year_${year}: contributionsCollection(from: "${toGitHubDateTime(from)}", to: "${toGitHubDateTime(to)}") { ...YearContributions }`;
     })
-    .join("\n");
+    .join('\n');
 
   // fragment must match queries/stats.graphql, which generates its type
   return graphqlDocument<ContributionsQuery, ContributionsQueryVariables>(`

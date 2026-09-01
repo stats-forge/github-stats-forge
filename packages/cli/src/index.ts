@@ -1,29 +1,18 @@
 #!/usr/bin/env node
-import { readFile, writeFile } from "node:fs/promises";
-import { relative, resolve } from "node:path";
-import { parseArgs } from "node:util";
+import { readFile, writeFile } from 'node:fs/promises';
+import { relative, resolve } from 'node:path';
+import { parseArgs } from 'node:util';
 
-import { CardConfig } from "@stats-forge/github-stats-forge-core";
+import { CardConfig } from '@stats-forge/github-stats-forge-core';
 
-import type { CardKind } from "./cards.js";
-import { cards, findCard } from "./cards.js";
-import type { Menu } from "./prompts.js";
-import {
-  askRequired,
-  askSavePath,
-  askToken,
-  navigateOptions,
-  pickCard,
-} from "./prompts.js";
-import { defaultFileName, toQuery } from "./query.js";
-import {
-  readSavedCard,
-  savedCardExists,
-  toAnswers,
-  writeSavedCard,
-} from "./saved-card.js";
-import { withSpinner } from "./spinner.js";
-import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from "./tokens.js";
+import type { CardKind } from './cards.js';
+import { cards, findCard } from './cards.js';
+import type { Menu } from './prompts.js';
+import { askRequired, askSavePath, askToken, navigateOptions, pickCard } from './prompts.js';
+import { defaultFileName, toQuery } from './query.js';
+import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from './saved-card.js';
+import { withSpinner } from './spinner.js';
+import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.js';
 
 const HELP = `stats-forge — render a GitHub stats card to a local SVG
 
@@ -31,7 +20,7 @@ Usage
   stats-forge [options]
 
 Options
-  -c, --card <id>       Skip the card prompt: ${cards.map((card) => card.id).join(", ")}
+  -c, --card <id>       Skip the card prompt: ${cards.map((card) => card.id).join(', ')}
   -o, --out <file>      Where to write the card (default: named after the card)
       --config <file>   Options to load, and where "Save these options" writes
   -g, --generate        Render what --config holds and exit, without the menu
@@ -49,14 +38,14 @@ The token can also come from PAT_1 in the environment, or be typed when asked.
 const readFlags = () =>
   parseArgs({
     options: {
-      card: { type: "string", short: "c" },
-      out: { type: "string", short: "o" },
-      config: { type: "string" },
-      generate: { type: "boolean", short: "g", default: false },
-      pat: { type: "string", multiple: true, default: [] },
-      "env-file": { type: "string" },
-      help: { type: "boolean", short: "h", default: false },
-      version: { type: "boolean", short: "v", default: false },
+      card: { type: 'string', short: 'c' },
+      out: { type: 'string', short: 'o' },
+      config: { type: 'string' },
+      generate: { type: 'boolean', short: 'g', default: false },
+      pat: { type: 'string', multiple: true, default: [] },
+      'env-file': { type: 'string' },
+      help: { type: 'boolean', short: 'h', default: false },
+      version: { type: 'boolean', short: 'v', default: false },
     },
     allowPositionals: false,
   }).values;
@@ -80,23 +69,23 @@ const renderAndWrite = async (
     card.render(query, config),
   );
 
-  if (result.status === "error") {
+  if (result.status === 'error') {
     const { code, message, secondaryMessage, param } = result.error;
     process.stderr.write(
       [
         `Could not render the ${card.id} card.`,
-        `  ${message}${secondaryMessage ? `: ${secondaryMessage}` : ""}`,
-        `  code: ${code}${param ? `, param: ${param}` : ""}`,
-        result.retryable ? "  This one may work on a retry." : "",
+        `  ${message}${secondaryMessage ? `: ${secondaryMessage}` : ''}`,
+        `  code: ${code}${param ? `, param: ${param}` : ''}`,
+        result.retryable ? '  This one may work on a retry.' : '',
       ]
         .filter(Boolean)
-        .join("\n") + "\n",
+        .join('\n') + '\n',
     );
     return { failed: code };
   }
 
   const file = resolve(process.cwd(), out ?? defaultFileName(card, query));
-  await writeFile(file, result.content, "utf8");
+  await writeFile(file, result.content, 'utf8');
   const written = relative(process.cwd(), file);
   process.stdout.write(`Wrote ${written}\n`);
   return { written };
@@ -116,8 +105,8 @@ const main = async (): Promise<void> => {
   }
   if (flags.version) {
     // Same relative position from `src/` and from `build/`.
-    const manifest = new URL("../package.json", import.meta.url);
-    const { version } = JSON.parse(await readFile(manifest, "utf8")) as {
+    const manifest = new URL('../package.json', import.meta.url);
+    const { version } = JSON.parse(await readFile(manifest, 'utf8')) as {
       version: string;
     };
     process.stdout.write(`${version}\n`);
@@ -125,7 +114,7 @@ const main = async (): Promise<void> => {
   }
 
   // An explicit `--env-file` must exist; the default one is a convenience.
-  const envFile = flags["env-file"];
+  const envFile = flags['env-file'];
   loadEnvFile(envFile ?? DEFAULT_ENV_FILE, envFile !== undefined);
 
   // A saved file names its own card and carries its answers, so it skips both prompts.
@@ -135,9 +124,7 @@ const main = async (): Promise<void> => {
       : undefined;
 
   if (flags.generate && !saved) {
-    throw new Error(
-      "--generate renders a saved card, so it needs --config pointing at one.",
-    );
+    throw new Error('--generate renders a saved card, so it needs --config pointing at one.');
   }
 
   /*
@@ -147,24 +134,22 @@ const main = async (): Promise<void> => {
    */
   if (!flags.generate && !process.stdin.isTTY) {
     throw new Error(
-      "stats-forge asks questions, so it needs a terminal. Render a saved card instead: --config <file> --generate",
+      'stats-forge asks questions, so it needs a terminal. Render a saved card instead: --config <file> --generate',
     );
   }
 
   if (saved && flags.card !== undefined && flags.card !== saved.card.id) {
     throw new Error(
-      `${flags.config ?? ""} holds a ${saved.card.id} card, but --card asked for ${flags.card}.`,
+      `${flags.config ?? ''} holds a ${saved.card.id} card, but --card asked for ${flags.card}.`,
     );
   }
 
-  const card =
-    saved?.card ??
-    (flags.card === undefined ? await pickCard() : findCard(flags.card));
+  const card = saved?.card ?? (flags.card === undefined ? await pickCard() : findCard(flags.card));
   if (!card) {
     throw new Error(
-      `No card called "${flags.card ?? ""}". Try one of: ${cards
+      `No card called "${flags.card ?? ''}". Try one of: ${cards
         .map((known) => known.id)
-        .join(", ")}`,
+        .join(', ')}`,
     );
   }
 
@@ -181,7 +166,7 @@ const main = async (): Promise<void> => {
         `The ${card.id} card reads the GitHub API, so it needs a token. Pass --pat, or put PAT_1 in ${DEFAULT_ENV_FILE}.`,
       );
     }
-    tokens = [{ name: "prompt", value: typed }];
+    tokens = [{ name: 'prompt', value: typed }];
   }
 
   const config = new CardConfig({ pats: tokens });
@@ -189,7 +174,7 @@ const main = async (): Promise<void> => {
   // `--generate` renders what the file holds and stops: no menu, nothing to answer.
   if (saved && flags.generate) {
     const outcome = await renderAndWrite(card, saved.params, config, flags.out);
-    if ("failed" in outcome) {
+    if ('failed' in outcome) {
       process.exitCode = 1;
     }
     return;
@@ -210,18 +195,15 @@ const main = async (): Promise<void> => {
 
   for (;;) {
     const action = await navigateOptions(card, menu, status);
-    if (action === "quit") {
+    if (action === 'quit') {
       break;
     }
 
     const query = toQuery(menu.answers);
 
-    if (action === "save") {
+    if (action === 'save') {
       const path =
-        savePath ??
-        (await askSavePath(
-          defaultFileName(card, query).replace(/\.svg$/, ".json"),
-        ));
+        savePath ?? (await askSavePath(defaultFileName(card, query).replace(/\.svg$/, '.json')));
       if (path) {
         savePath = path;
         const written = await writeSavedCard(path, card, query);
@@ -231,7 +213,7 @@ const main = async (): Promise<void> => {
     }
 
     const outcome = await renderAndWrite(card, query, config, flags.out);
-    if ("failed" in outcome) {
+    if ('failed' in outcome) {
       // Left on the menu, since a rejected param is one edit away from working.
       status = `${outcome.failed} — fix it and generate again`;
       lastFailed = true;
@@ -252,12 +234,10 @@ try {
   await main();
 } catch (err) {
   // A cancelled prompt is a normal way to leave, not a crash.
-  if (err instanceof Error && err.name === "ExitPromptError") {
+  if (err instanceof Error && err.name === 'ExitPromptError') {
     process.exitCode = 130;
   } else {
-    process.stderr.write(
-      `${err instanceof Error ? err.message : String(err)}\n`,
-    );
+    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
     process.exitCode = 1;
   }
 }

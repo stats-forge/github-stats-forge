@@ -38,13 +38,13 @@ Each api handler takes the query params its endpoint accepts and a `CardConfig`
 carrying the GitHub tokens, and answers with the rendered card:
 
 ```js
-import { CardConfig, stats } from "@stats-forge/github-stats-forge-core";
+import { CardConfig, stats } from '@stats-forge/github-stats-forge-core';
 
 const config = new CardConfig({
-  pats: [{ name: "PAT_1", value: process.env.PAT_1 }],
+  pats: [{ name: 'PAT_1', value: process.env.PAT_1 }],
 });
 
-const result = await stats({ username: "anuraghazra" }, config);
+const result = await stats({ username: 'anuraghazra' }, config);
 // result.status === "success" → result.content is the card, as SVG
 // result.status === "error"   → result.error carries the code and the param at
 //                              fault, result.retryable whether to try again, and

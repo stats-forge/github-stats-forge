@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["scripts"],
+  "include": ["scripts", "oxfmt.config.ts"],
   "compilerOptions": {
     "customConditions": [],
     // Base config sets `types: []`; these scripts run on node

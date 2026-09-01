@@ -1,30 +1,26 @@
 {
   "name": "@stats-forge/github-stats-forge-cli",
   "version": "0.0.1",
-  "type": "module",
   "description": "Render a GitHub stats card to a local SVG file, one prompt at a time",
+  "keywords": [
+    "cli",
+    "github-stats",
+    "github-stats-forge",
+    "stats-forge"
+  ],
   "homepage": "https://github.com/stats-forge/github-stats-forge",
   "bugs": {
     "url": "https://github.com/stats-forge/github-stats-forge/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/stats-forge/github-stats-forge.git",
-    "directory": "packages/cli"
   },
   "license": "MIT",
   "author": {
     "name": "Marco Pasqualetti",
     "url": "https://github.com/marcalexiei"
   },
-  "keywords": [
-    "github-stats-forge",
-    "stats-forge",
-    "github-stats",
-    "cli"
-  ],
-  "engines": {
-    "node": "24.x"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stats-forge/github-stats-forge.git",
+    "directory": "packages/cli"
   },
   "bin": {
     "stats-forge": "./build/index.js"
@@ -33,6 +29,13 @@
     "build",
     "src"
   ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "@stats/source": "./src/index.ts",
+      "default": "./build/index.js"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -44,17 +47,14 @@
     "lint": "eslint",
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
-  "exports": {
-    ".": {
-      "@stats/source": "./src/index.ts",
-      "default": "./build/index.js"
-    }
-  },
   "dependencies": {
     "@inquirer/prompts": "8.6.0",
     "@stats-forge/github-stats-forge-core": "workspace:^"
   },
   "devDependencies": {
     "vitest": "catalog:default"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

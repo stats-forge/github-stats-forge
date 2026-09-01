@@ -1,7 +1,7 @@
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-import type { PersonalAccessToken } from "@stats-forge/github-stats-forge-core";
+import type { PersonalAccessToken } from '@stats-forge/github-stats-forge-core';
 
 /**
  * @file Where the GitHub token comes from.
@@ -12,7 +12,7 @@ import type { PersonalAccessToken } from "@stats-forge/github-stats-forge-core";
  */
 
 /** The file loaded when `--env-file` is not given. */
-export const DEFAULT_ENV_FILE = ".env";
+export const DEFAULT_ENV_FILE = '.env';
 
 /**
  * Loads an env file into `process.env`, the way `node --env-file` would.

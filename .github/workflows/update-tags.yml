@@ -2,9 +2,9 @@ name: Update version tags
 on:
   push:
     branches-ignore:
-      - "**"
+      - '**'
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 permissions: {}
 

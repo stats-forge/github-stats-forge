@@ -1,5 +1,5 @@
-import { defaultFetch } from "./http.js";
-import type { FetchLike } from "./http.js";
+import { defaultFetch } from './http.js';
+import type { FetchLike } from './http.js';
 
 type Env = Record<string, string | undefined>;
 
@@ -24,14 +24,14 @@ interface CardConfigInit {
  * @returns Parsed string values.
  */
 const parseCsv = (value: string | undefined): Array<string> | undefined =>
-  value ? value.split(",") : undefined;
+  value ? value.split(',') : undefined;
 
 /**
  * @param value Raw `FETCH_MULTI_PAGE_STARS` value.
  * @returns Page limit: `"true"` means every page, a positive number caps the pages, anything else means one.
  */
 const parseFetchMultiPageStars = (value: string | undefined): number => {
-  if (value === "true") {
+  if (value === 'true') {
     return Infinity;
   }
   const limit = Number(value);
@@ -45,7 +45,7 @@ const parseFetchMultiPageStars = (value: string | undefined): number => {
 const parsePATsFromEnv = (env: Env): Array<PersonalAccessToken> =>
   Object.keys(env)
     .filter((key) => /PAT_\d*$/.exec(key))
-    .map((name) => ({ name, value: env[name] ?? "" }));
+    .map((name) => ({ name, value: env[name] ?? '' }));
 
 /**
  * Deployment-wide configuration for the card renderers.
@@ -81,12 +81,10 @@ export class CardConfig {
   static fromEnv(env: Env): CardConfig {
     return new CardConfig({
       pats: parsePATsFromEnv(env),
-      usernameAllowlist: parseCsv(env["WHITELIST"]),
-      gistAllowlist: parseCsv(env["GIST_WHITELIST"]),
-      excludeRepositories: parseCsv(env["EXCLUDE_REPO"]) ?? [],
-      fetchMultiPageStars: parseFetchMultiPageStars(
-        env["FETCH_MULTI_PAGE_STARS"],
-      ),
+      usernameAllowlist: parseCsv(env['WHITELIST']),
+      gistAllowlist: parseCsv(env['GIST_WHITELIST']),
+      excludeRepositories: parseCsv(env['EXCLUDE_REPO']) ?? [],
+      fetchMultiPageStars: parseFetchMultiPageStars(env['FETCH_MULTI_PAGE_STARS']),
     });
   }
 
@@ -95,8 +93,8 @@ export class CardConfig {
    * @param kind Which allowlist applies.
    * @returns Whether this deployment serves the id.
    */
-  isAllowed(id: string, kind: "username" | "gist"): boolean {
-    const list = kind === "gist" ? this.gistAllowlist : this.usernameAllowlist;
+  isAllowed(id: string, kind: 'username' | 'gist'): boolean {
+    const list = kind === 'gist' ? this.gistAllowlist : this.usernameAllowlist;
     return list === undefined || list.includes(id);
   }
 

@@ -13,8 +13,7 @@ interface GitHubDateRange {
  * @param date Date to format.
  * @returns e.g. `2024-01-01T00:00:00Z`.
  */
-const toGitHubDateTime = (date: Date): string =>
-  `${date.toISOString().slice(0, 19)}Z`;
+const toGitHubDateTime = (date: Date): string => `${date.toISOString().slice(0, 19)}Z`;
 
 /**
  * The full UTC span of a calendar year, both ends inclusive.

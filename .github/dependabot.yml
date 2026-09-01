@@ -2,94 +2,94 @@ version: 2
 updates:
   # Maintain dependencies for npm
   - package-ecosystem: npm
-    directory: "/"
+    directory: '/'
     schedule:
       interval: cron
-      cronjob: "45 0 * * 3,6"
+      cronjob: '45 0 * * 3,6'
     open-pull-requests-limit: 20
     commit-message:
-      prefix: "build(deps)"
-      prefix-development: "build(deps-dev)"
+      prefix: 'build(deps)'
+      prefix-development: 'build(deps-dev)'
     cooldown:
       default-days: 7
     ignore:
-      - dependency-name: "@types/node"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
       react:
         patterns:
-          - "react"
-          - "react-dom"
-          - "react-*"
-          - "@types/react"
-          - "@types/react-dom"
+          - 'react'
+          - 'react-dom'
+          - 'react-*'
+          - '@types/react'
+          - '@types/react-dom'
       redux:
         patterns:
-          - "redux"
-          - "@reduxjs/*"
-          - "react-redux"
+          - 'redux'
+          - '@reduxjs/*'
+          - 'react-redux'
       vite:
         patterns:
-          - "vite"
-          - "@vitejs/*"
+          - 'vite'
+          - '@vitejs/*'
       astro:
         patterns:
-          - "astro"
-          - "astro-*"
-          - "@astrojs/*"
-          - "starlight-*"
+          - 'astro'
+          - 'astro-*'
+          - '@astrojs/*'
+          - 'starlight-*'
       tailwind:
         patterns:
-          - "tailwindcss"
-          - "@tailwindcss/*"
-          - "daisyui"
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'daisyui'
       vitest:
         patterns:
-          - "vitest"
-          - "@vitest/*"
+          - 'vitest'
+          - '@vitest/*'
       eslint:
         patterns:
-          - "eslint"
-          - "@eslint/*"
-          - "eslint-*"
-          - "typescript-eslint"
+          - 'eslint'
+          - '@eslint/*'
+          - 'eslint-*'
+          - 'typescript-eslint'
       typescript:
         patterns:
-          - "typescript"
-          - "@types/*"
+          - 'typescript'
+          - '@types/*'
       playwright:
         patterns:
-          - "@playwright/*"
+          - '@playwright/*'
       axios:
         patterns:
-          - "axios"
-          - "axios-*"
+          - 'axios'
+          - 'axios-*'
       graphql:
         patterns:
-          - "graphql"
-          - "@graphql-codegen/*"
-          - "@octokit/graphql-schema"
+          - 'graphql'
+          - '@graphql-codegen/*'
+          - '@octokit/graphql-schema'
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: github-actions
-    directory: "/"
+    directory: '/'
     schedule:
       interval: daily
     open-pull-requests-limit: 20
     commit-message:
-      prefix: "ci(deps)"
-      prefix-development: "ci(deps-dev)"
+      prefix: 'ci(deps)'
+      prefix-development: 'ci(deps-dev)'
     cooldown:
       default-days: 7
 
   # Maintain dependencies for Devcontainers
   - package-ecosystem: devcontainers
-    directory: "/"
+    directory: '/'
     schedule:
       interval: daily
     open-pull-requests-limit: 20
     commit-message:
-      prefix: "build(deps)"
-      prefix-development: "build(deps-dev)"
+      prefix: 'build(deps)'
+      prefix-development: 'build(deps-dev)'
     cooldown:
       default-days: 7

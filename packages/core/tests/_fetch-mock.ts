@@ -1,4 +1,4 @@
-import type { FetchLike } from "../src/common/http.js";
+import type { FetchLike } from '../src/common/http.js';
 
 /** A request the mock was asked to send, as the assertions read it back. */
 interface MockRequest {
@@ -30,7 +30,7 @@ const matches = (handler: Handler, request: MockRequest): boolean => {
   if (handler.matcher === undefined) {
     return true;
   }
-  return typeof handler.matcher === "string"
+  return typeof handler.matcher === 'string'
     ? handler.matcher === request.url
     : handler.matcher.test(request.url);
 };
@@ -64,16 +64,16 @@ class FetchMock {
    * Bound to the instance so it can be passed on its own.
    */
   readonly fetch: FetchLike = async (url, init) => {
-    const method = (init?.method ?? "GET").toUpperCase();
+    const method = (init?.method ?? 'GET').toUpperCase();
     const request: MockRequest = {
       url,
       method,
-      data: typeof init?.body === "string" ? init.body : undefined,
+      data: typeof init?.body === 'string' ? init.body : undefined,
     };
 
-    if (method === "GET") {
+    if (method === 'GET') {
       this.history.get.push(request);
-    } else if (method === "POST") {
+    } else if (method === 'POST') {
       this.history.post.push(request);
     }
 
@@ -87,7 +87,7 @@ class FetchMock {
     }
 
     const [status, body] = await handler.reply(request);
-    return new Response(body === undefined ? "" : JSON.stringify(body), {
+    return new Response(body === undefined ? '' : JSON.stringify(body), {
       status,
     });
   };
@@ -104,9 +104,7 @@ class FetchMock {
       // so a test can re-answer a matcher its `beforeEach` already registered.
       const existing = once
         ? -1
-        : this.handlers.findIndex(
-            (h) => !h.once && h.method === method && h.matcher === matcher,
-          );
+        : this.handlers.findIndex((h) => !h.once && h.method === method && h.matcher === matcher);
       if (existing > -1) {
         this.handlers.splice(existing, 1, handler);
       } else {
@@ -118,9 +116,7 @@ class FetchMock {
     const asReplyFn =
       (statusOrFn: number | ReplyFn, body: unknown): ReplyFn =>
       (request) =>
-        typeof statusOrFn === "function"
-          ? statusOrFn(request)
-          : [statusOrFn, body];
+        typeof statusOrFn === 'function' ? statusOrFn(request) : [statusOrFn, body];
 
     return {
       reply: (statusOrFn: number | ReplyFn, body?: unknown) =>
@@ -129,17 +125,17 @@ class FetchMock {
         add(asReplyFn(statusOrFn, body), true),
       networkError: () =>
         add(() => {
-          throw new TypeError("Network Error");
+          throw new TypeError('Network Error');
         }, false),
     };
   }
 
   onGet(matcher?: Matcher): Registrar {
-    return this.on("GET", matcher);
+    return this.on('GET', matcher);
   }
 
   onPost(matcher?: Matcher): Registrar {
-    return this.on("POST", matcher);
+    return this.on('POST', matcher);
   }
 
   onAny(matcher?: Matcher): Registrar {

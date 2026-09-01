@@ -65,15 +65,10 @@ function calculateRank({
     FOLLOWERS_WEIGHT = 1;
 
   const TOTAL_WEIGHT =
-    COMMITS_WEIGHT +
-    PRS_WEIGHT +
-    ISSUES_WEIGHT +
-    REVIEWS_WEIGHT +
-    STARS_WEIGHT +
-    FOLLOWERS_WEIGHT;
+    COMMITS_WEIGHT + PRS_WEIGHT + ISSUES_WEIGHT + REVIEWS_WEIGHT + STARS_WEIGHT + FOLLOWERS_WEIGHT;
 
   const THRESHOLDS = [1, 12.5, 25, 37.5, 50, 62.5, 75, 87.5, 100];
-  const LEVELS = ["S", "A+", "A", "A-", "B+", "B", "B-", "C+", "C"];
+  const LEVELS = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'];
 
   const rank =
     1 -
@@ -87,7 +82,7 @@ function calculateRank({
 
   const level = LEVELS[THRESHOLDS.findIndex((t) => rank * 100 <= t)];
   if (level === undefined) {
-    throw new Error("Unable to determine rank level");
+    throw new Error('Unable to determine rank level');
   }
 
   return { level, percentile: rank * 100 };

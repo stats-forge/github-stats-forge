@@ -1,19 +1,13 @@
-import * as z from "zod/mini";
+import * as z from 'zod/mini';
 
-import { renderGistCard } from "../cards/gist.js";
-import type { CardConfig } from "../common/config.js";
-import { fetchGist } from "../fetchers/gist.js";
+import { renderGistCard } from '../cards/gist.js';
+import type { CardConfig } from '../common/config.js';
+import { fetchGist } from '../fetchers/gist.js';
 
-import type { ApiResult } from "./api-result.js";
-import { errorResult } from "./api-result.js";
-import type { ApiQuery } from "./params.js";
-import {
-  booleanParam,
-  numberParam,
-  parseColorParams,
-  parseParams,
-  safeParam,
-} from "./params.js";
+import type { ApiResult } from './api-result.js';
+import { errorResult } from './api-result.js';
+import type { ApiQuery } from './params.js';
+import { booleanParam, numberParam, parseColorParams, parseParams, safeParam } from './params.js';
 
 /** What the gist endpoint accepts, on top of the shared color params. */
 const gistQuery = z.object({
@@ -39,10 +33,7 @@ type GistApiQuery = ApiQuery<typeof gistQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-export const gist = async (
-  query: GistApiQuery,
-  config: CardConfig,
-): Promise<ApiResult> => {
+export const gist = async (query: GistApiQuery, config: CardConfig): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -52,13 +43,15 @@ export const gist = async (
   }
 
   try {
-    const { id, border_radius, show_owner, browser_rendering, hide_border } =
-      parseParams(gistQuery, query);
+    const { id, border_radius, show_owner, browser_rendering, hide_border } = parseParams(
+      gistQuery,
+      query,
+    );
 
     const gistData = await fetchGist({ id }, config);
 
     return {
-      status: "success",
+      status: 'success',
       content: renderGistCard(gistData, {
         ...colors,
         border_radius,

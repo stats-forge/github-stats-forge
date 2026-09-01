@@ -2,21 +2,15 @@
 
 /** Internal type. DO NOT USE DIRECTLY. */
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-import type * as Types from "./common.js";
+import { graphqlDocument } from '../graphqlDocument.js';
 
-import { graphqlDocument } from "../graphqlDocument.js";
-export type TopLanguageFragment = {
-  size: number;
-  node: { color: string | null; name: string };
-};
+import type * as Types from './common.js';
+export type TopLanguageFragment = { size: number; node: { color: string | null; name: string } };
 
 export type TopLanguagesRepositoryFragment = {
   name: string;
   languages: {
-    edges: Array<{
-      size: number;
-      node: { color: string | null; name: string };
-    } | null> | null;
+    edges: Array<{ size: number; node: { color: string | null; name: string } } | null> | null;
   } | null;
 };
 
@@ -45,10 +39,7 @@ export type TopLanguagesQuery = {
   } | null;
 };
 
-export const TopLanguagesDocument = graphqlDocument<
-  TopLanguagesQuery,
-  TopLanguagesQueryVariables
->(`
+export const TopLanguagesDocument = graphqlDocument<TopLanguagesQuery, TopLanguagesQueryVariables>(`
 query topLanguages($login: String!, $ownerAffiliations: [RepositoryAffiliation]) {
   user(login: $login) {
     repositories(ownerAffiliations: $ownerAffiliations, isFork: false, first: 100) {

@@ -2,7 +2,7 @@
 
 /** Internal type. DO NOT USE DIRECTLY. */
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-import { graphqlDocument } from "../graphqlDocument.js";
+import { graphqlDocument } from '../graphqlDocument.js';
 export type RepoInfoFragment = {
   name: string;
   nameWithOwner: string;
@@ -31,11 +31,7 @@ export type GetRepoQuery = {
       stargazerCount: number;
       description: string | null;
       forkCount: number;
-      primaryLanguage: {
-        color: string | null;
-        id: string;
-        name: string;
-      } | null;
+      primaryLanguage: { color: string | null; id: string; name: string } | null;
     } | null;
   } | null;
   organization: {
@@ -48,19 +44,12 @@ export type GetRepoQuery = {
       stargazerCount: number;
       description: string | null;
       forkCount: number;
-      primaryLanguage: {
-        color: string | null;
-        id: string;
-        name: string;
-      } | null;
+      primaryLanguage: { color: string | null; id: string; name: string } | null;
     } | null;
   } | null;
 };
 
-export const GetRepoDocument = graphqlDocument<
-  GetRepoQuery,
-  GetRepoQueryVariables
->(`
+export const GetRepoDocument = graphqlDocument<GetRepoQuery, GetRepoQueryVariables>(`
 query getRepo($login: String!, $repo: String!) {
   user(login: $login) {
     repository(name: $repo) {

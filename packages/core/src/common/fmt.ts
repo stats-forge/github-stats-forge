@@ -1,5 +1,5 @@
-import { encodeHTML } from "./html.js";
-import { splitWrappedText } from "./render.js";
+import { encodeHTML } from './html.js';
+import { splitWrappedText } from './render.js';
 
 /**
  * Retrieves num with suffix k(thousands) precise to given decimal places.
@@ -12,8 +12,8 @@ const kFormatter = (num: number, precision?: number): string | number => {
   const abs = Math.abs(num);
   const sign = Math.sign(num);
 
-  if (typeof precision === "number" && !isNaN(precision)) {
-    return (sign * (abs / 1000)).toFixed(precision) + "k";
+  if (typeof precision === 'number' && !isNaN(precision)) {
+    return (sign * (abs / 1000)).toFixed(precision) + 'k';
   }
 
   if (abs < 1000) {
@@ -32,20 +32,20 @@ const kFormatter = (num: number, precision?: number): string | number => {
  */
 const formatBytes = (bytes: number): string => {
   if (bytes < 0) {
-    throw new Error("Bytes must be a non-negative number");
+    throw new Error('Bytes must be a non-negative number');
   }
 
   if (bytes === 0) {
-    return "0 B";
+    return '0 B';
   }
 
-  const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'];
   const base = 1024;
   const i = Math.floor(Math.log(bytes) / Math.log(base));
 
   const unit = sizes[i];
   if (unit === undefined) {
-    throw new Error("Bytes is too large to convert to a human-readable string");
+    throw new Error('Bytes is too large to convert to a human-readable string');
   }
 
   return `${(bytes / Math.pow(base, i)).toFixed(1)} ${unit}`;
@@ -67,9 +67,7 @@ const wrapTextMultiline = (
   maxLines = 3,
 ): Array<string> => {
   const wrapped = splitWrappedText(text, fontSize, width);
-  const lines = wrapped
-    .map((line) => encodeHTML(line.trim()))
-    .slice(0, maxLines); // Only consider maxLines lines
+  const lines = wrapped.map((line) => encodeHTML(line.trim())).slice(0, maxLines); // Only consider maxLines lines
 
   // Add "..." to the last line if the text exceeds maxLines
   if (wrapped.length > maxLines) {

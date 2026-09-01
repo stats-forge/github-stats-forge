@@ -1,19 +1,19 @@
-import type { CardConfig } from "../common/config.js";
-import { CardError, USER_NOT_FOUND } from "../common/error.js";
-import { wrapTextMultiline } from "../common/fmt.js";
-import { createGraphQLFetcher } from "../common/http.js";
-import { logger } from "../common/log.js";
-import { parseOwnerAffiliations } from "../common/ops.js";
-import { retryer } from "../common/retryer.js";
-import { TopLanguagesDocument } from "../graphql/generated/top-languages.js";
+import type { CardConfig } from '../common/config.js';
+import { CardError, USER_NOT_FOUND } from '../common/error.js';
+import { wrapTextMultiline } from '../common/fmt.js';
+import { createGraphQLFetcher } from '../common/http.js';
+import { logger } from '../common/log.js';
+import { parseOwnerAffiliations } from '../common/ops.js';
+import { retryer } from '../common/retryer.js';
+import { TopLanguagesDocument } from '../graphql/generated/top-languages.js';
 import type {
   TopLanguageFragment,
   TopLanguagesRepositoryFragment,
-} from "../graphql/generated/top-languages.js";
+} from '../graphql/generated/top-languages.js';
 
-import type { Lang, TopLangData } from "./types.js";
+import type { Lang, TopLangData } from './types.js';
 
-const fetcher = createGraphQLFetcher(TopLanguagesDocument, "token");
+const fetcher = createGraphQLFetcher(TopLanguagesDocument, 'token');
 
 /**
  * Fetch top languages for a given username.
@@ -44,7 +44,7 @@ const fetchTopLanguages = async (
   config: CardConfig,
 ): Promise<TopLangData> => {
   if (!username) {
-    throw CardError.missingParam(["username"]);
+    throw CardError.missingParam(['username']);
   }
   const affiliations = parseOwnerAffiliations(ownerAffiliations);
 
@@ -60,24 +60,21 @@ const fetchTopLanguages = async (
   if (res.data.errors) {
     logger.error(res.data.errors);
     const firstError = res.data.errors[0];
-    if (firstError?.type === "NOT_FOUND") {
-      throw new CardError(firstError.message || "Could not fetch user.", {
-        code: "not_found",
+    if (firstError?.type === 'NOT_FOUND') {
+      throw new CardError(firstError.message || 'Could not fetch user.', {
+        code: 'not_found',
         secondaryMessage: USER_NOT_FOUND,
       });
     }
     if (firstError?.message) {
-      throw new CardError(
-        wrapTextMultiline(firstError.message, 525, 12)[0] ?? "",
-        {
-          code: "upstream",
-          secondaryMessage: res.statusText,
-        },
-      );
+      throw new CardError(wrapTextMultiline(firstError.message, 525, 12)[0] ?? '', {
+        code: 'upstream',
+        secondaryMessage: res.statusText,
+      });
     }
     throw new CardError(
-      "Something went wrong while trying to retrieve the language data using the GraphQL API.",
-      { code: "upstream" },
+      'Something went wrong while trying to retrieve the language data using the GraphQL API.',
+      { code: 'upstream' },
     );
   }
 
@@ -91,21 +88,17 @@ const fetchTopLanguages = async (
 
   // filter out repositories to be hidden
   const repoNodes = (res.data.data.user?.repositories.nodes ?? []).filter(
-    (node): node is TopLanguagesRepositoryFragment =>
-      !!node && !repoToHide[node.name],
+    (node): node is TopLanguagesRepositoryFragment => !!node && !repoToHide[node.name],
   );
 
   // flatten edges across repos. Order matters: `concat(acc)` prepends, and the
   // shared repoCount below depends on visitation order.
-  const languageEdges = repoNodes.reduce<Array<TopLanguageFragment>>(
-    (acc, repo) => {
-      const edges = (repo.languages?.edges ?? []).filter(
-        (edge): edge is TopLanguageFragment => !!edge,
-      );
-      return edges.length > 0 ? edges.concat(acc) : acc;
-    },
-    [],
-  );
+  const languageEdges = repoNodes.reduce<Array<TopLanguageFragment>>((acc, repo) => {
+    const edges = (repo.languages?.edges ?? []).filter(
+      (edge): edge is TopLanguageFragment => !!edge,
+    );
+    return edges.length > 0 ? edges.concat(acc) : acc;
+  }, []);
 
   // accumulate size and repo count per language
   const languageMap: Record<string, Lang> = {};
@@ -131,14 +124,11 @@ const fetchTopLanguages = async (
 
   // comparison index calculation
   for (const lang of Object.values(languageMap)) {
-    lang.size =
-      Math.pow(lang.size, size_weight) * Math.pow(lang.count, count_weight);
+    lang.size = Math.pow(lang.size, size_weight) * Math.pow(lang.count, count_weight);
   }
 
   // return languages sorted by (weighted) size, descending
-  return Object.fromEntries(
-    Object.entries(languageMap).sort(([, a], [, b]) => b.size - a.size),
-  );
+  return Object.fromEntries(Object.entries(languageMap).sort(([, a], [, b]) => b.size - a.size));
 };
 
 export { fetchTopLanguages };

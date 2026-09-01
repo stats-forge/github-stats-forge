@@ -1,7 +1,7 @@
-import languageColorsJson from "./languageColors.json" with { type: "json" };
+import languageColorsJson from './languageColors.json' with { type: 'json' };
 
 /** Shown for languages missing from the generated table, and for a null API color. */
-const DEFAULT_LANG_COLOR = "#858585";
+const DEFAULT_LANG_COLOR = '#858585';
 
 // The generated JSON types has literal keys; index it as a plain lookup table.
 const languageColors: Record<string, string> = languageColorsJson;

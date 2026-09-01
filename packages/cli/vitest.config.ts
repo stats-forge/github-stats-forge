@@ -1,8 +1,8 @@
-import { defineProject } from "vitest/config";
+import { defineProject } from 'vitest/config';
 
 export default defineProject({
   test: {
-    include: ["./tests/*.test.ts"],
+    include: ['./tests/*.test.ts'],
   },
   /*
    * Read core's TypeScript rather than its build, so a stale `build/` cannot
@@ -10,11 +10,11 @@ export default defineProject({
    * Keep the condition in sync with `tsconfig.base.json#customConditions`.
    */
   resolve: {
-    conditions: ["@stats/source"],
+    conditions: ['@stats/source'],
   },
   ssr: {
     resolve: {
-      conditions: ["@stats/source"],
+      conditions: ['@stats/source'],
     },
   },
 });

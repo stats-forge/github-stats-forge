@@ -1,36 +1,36 @@
-import { screen } from "@testing-library/dom";
-import { describe, expect, it } from "vitest";
+import { screen } from '@testing-library/dom';
+import { describe, expect, it } from 'vitest';
 
-import { wakatime as wakatimeApi } from "../src/api/wakatime.js";
-import { renderWakatimeCard } from "../src/cards/wakatime.js";
+import { wakatime as wakatimeApi } from '../src/api/wakatime.js';
+import { renderWakatimeCard } from '../src/cards/wakatime.js';
 
-import { testConfig } from "./_config.js";
-import { wakaTimeData } from "./fetchWakatime.test.js";
+import { testConfig } from './_config.js';
+import { wakaTimeData } from './fetchWakatime.test.js';
 
-describe("Test Render WakaTime Card", () => {
-  it("should render correctly", () => {
+describe('Test Render WakaTime Card', () => {
+  it('should render correctly', () => {
     const card = renderWakatimeCard(wakaTimeData.data);
     expect(card).toMatchSnapshot();
   });
 
-  it("should render correctly with compact layout", () => {
-    const card = renderWakatimeCard(wakaTimeData.data, { layout: "compact" });
+  it('should render correctly with compact layout', () => {
+    const card = renderWakatimeCard(wakaTimeData.data, { layout: 'compact' });
 
     expect(card).toMatchSnapshot();
   });
 
-  it("should render correctly with compact layout when langs_count is set", () => {
+  it('should render correctly with compact layout when langs_count is set', () => {
     const card = renderWakatimeCard(wakaTimeData.data, {
-      layout: "compact",
+      layout: 'compact',
       langs_count: 2,
     });
 
     expect(card).toMatchSnapshot();
   });
 
-  it("should hide languages when hide is passed", () => {
+  it('should hide languages when hide is passed', () => {
     document.body.innerHTML = renderWakatimeCard(wakaTimeData.data, {
-      hide: ["YAML", "Other"],
+      hide: ['YAML', 'Other'],
     });
 
     expect(screen.queryByTestId(/YAML/i)).not.toBeInTheDocument();
@@ -38,23 +38,21 @@ describe("Test Render WakaTime Card", () => {
     expect(screen.queryByTestId(/TypeScript/i)).toBeInTheDocument();
   });
 
-  it("should render translations", () => {
-    document.body.innerHTML = renderWakatimeCard({}, { locale: "cn" });
-    expect(document.querySelector(".header")).toHaveTextContent(
-      "WakaTime 周统计",
-    );
+  it('should render translations', () => {
+    document.body.innerHTML = renderWakatimeCard({}, { locale: 'cn' });
+    expect(document.querySelector('.header')).toHaveTextContent('WakaTime 周统计');
     expect(
       document.querySelector('g[transform="translate(0, 0)"]>text.stat.bold'),
-    ).toHaveTextContent("WakaTime 用户个人资料未公开");
+    ).toHaveTextContent('WakaTime 用户个人资料未公开');
   });
 
-  it("should render without rounding", () => {
+  it('should render without rounding', () => {
     document.body.innerHTML = renderWakatimeCard(wakaTimeData.data, {
       border_radius: 0,
     });
-    expect(document.querySelector("rect")).toHaveAttribute("rx", "0");
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     document.body.innerHTML = renderWakatimeCard(wakaTimeData.data, {});
-    expect(document.querySelector("rect")).toHaveAttribute("rx", "4.5");
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '4.5');
   });
 
   it('should show "no coding activity this week" message when there has not been activity', () => {
@@ -65,9 +63,7 @@ describe("Test Render WakaTime Card", () => {
       },
       {},
     );
-    expect(document.querySelector(".stat")).toHaveTextContent(
-      "No coding activity this week",
-    );
+    expect(document.querySelector('.stat')).toHaveTextContent('No coding activity this week');
   });
 
   it('should show "no coding activity this week" message when using compact layout and there has not been activity', () => {
@@ -77,39 +73,32 @@ describe("Test Render WakaTime Card", () => {
         languages: [],
       },
       {
-        layout: "compact",
+        layout: 'compact',
       },
     );
-    expect(document.querySelector(".stat")).toHaveTextContent(
-      "No coding activity this week",
-    );
+    expect(document.querySelector('.stat')).toHaveTextContent('No coding activity this week');
   });
 
-  it("should render correctly with percent display format", () => {
+  it('should render correctly with percent display format', () => {
     const card = renderWakatimeCard(wakaTimeData.data, {
-      display_format: "percent",
+      display_format: 'percent',
     });
     expect(card).toMatchSnapshot();
   });
 
-  it("should render correctly with gradient background", () => {
+  it('should render correctly with gradient background', () => {
     const card = renderWakatimeCard(wakaTimeData.data, {
-      theme: "ambient_gradient",
+      theme: 'ambient_gradient',
     });
     expect(card).toMatchSnapshot();
   });
 });
 
-describe("test wakatime API", () => {
-  it("should return a permanent error for an invalid color parameter", async () => {
-    const result = await wakatimeApi(
-      { username: "user", title_color: "not-a-color" },
-      testConfig,
-    );
+describe('test wakatime API', () => {
+  it('should return a permanent error for an invalid color parameter', async () => {
+    const result = await wakatimeApi({ username: 'user', title_color: 'not-a-color' }, testConfig);
 
-    expect(result.status).toBe("error");
-    expect(result.content).toContain(
-      `Invalid color input for parameter &#34;title_color&#34;`,
-    );
+    expect(result.status).toBe('error');
+    expect(result.content).toContain(`Invalid color input for parameter &#34;title_color&#34;`);
   });
 });

@@ -1,14 +1,14 @@
-import { Card } from "../common/Card.js";
-import { I18n } from "../common/I18n.js";
-import { getLightDarkColors, isPrefixedHexColor } from "../common/color.js";
-import { encodeHTML } from "../common/html.js";
-import { getLanguageColor } from "../common/languageColors.js";
-import { clampValue, lowercaseTrim } from "../common/ops.js";
-import { createProgressNode, flexLayout } from "../common/render.js";
-import type { WakaTimeData, WakaTimeLang } from "../fetchers/types.js";
-import { wakatimeCardLocales } from "../translations.js";
+import { Card } from '../common/Card.js';
+import { getLightDarkColors, isPrefixedHexColor } from '../common/color.js';
+import { encodeHTML } from '../common/html.js';
+import { I18n } from '../common/I18n.js';
+import { getLanguageColor } from '../common/languageColors.js';
+import { clampValue, lowercaseTrim } from '../common/ops.js';
+import { createProgressNode, flexLayout } from '../common/render.js';
+import type { WakaTimeData, WakaTimeLang } from '../fetchers/types.js';
+import { wakatimeCardLocales } from '../translations.js';
 
-import type { CardOptions, CommonCardOptions } from "./options.js";
+import type { CardOptions, CommonCardOptions } from './options.js';
 
 const DEFAULT_CARD_WIDTH = 495;
 const MIN_CARD_WIDTH = 250;
@@ -20,11 +20,11 @@ const COMPACT_LAYOUT_PROGRESSBAR_PADDING = 25;
 const TOTAL_TEXT_WIDTH = 275;
 
 /** Layouts the card can draw; the api validates `layout` against this. */
-const WAKATIME_LAYOUTS = ["compact", "normal"] as const;
+const WAKATIME_LAYOUTS = ['compact', 'normal'] as const;
 type WakaTimeLayout = (typeof WAKATIME_LAYOUTS)[number];
 
 /** How a language's time is written; the api validates `display_format` against this. */
-const DISPLAY_FORMATS = ["time", "percent"] as const;
+const DISPLAY_FORMATS = ['time', 'percent'] as const;
 type DisplayFormat = (typeof DISPLAY_FORMATS)[number];
 
 interface WakaTimeOptions extends CommonCardOptions {
@@ -69,9 +69,7 @@ const formatLanguageValue = ({
   display_format: DisplayFormat;
   lang: WakaTimeLang;
 }): string => {
-  return display_format === "percent"
-    ? `${lang.percent.toFixed(2)} %`
-    : lang.text;
+  return display_format === 'percent' ? `${lang.percent.toFixed(2)} %` : lang.text;
 };
 
 /**
@@ -220,10 +218,7 @@ const createTextNode = ({
  * @param languages The languages array.
  */
 const recalculatePercentages = (languages: Array<WakaTimeLang>): void => {
-  const totalSum = languages.reduce(
-    (totalSum, language) => totalSum + language.percent,
-    0,
-  );
+  const totalSum = languages.reduce((totalSum, language) => totalSum + language.percent, 0);
   const weight = +(100 / totalSum).toFixed(2);
   languages.forEach((language) => {
     language.percent = +(language.percent * weight).toFixed(2);
@@ -277,10 +272,7 @@ const normalizeCardWidth = ({
   if (value === undefined || isNaN(value)) {
     return DEFAULT_CARD_WIDTH;
   }
-  return Math.max(
-    layout === "compact" ? COMPACT_LAYOUT_MIN_WIDTH : MIN_CARD_WIDTH,
-    value,
-  );
+  return Math.max(layout === 'compact' ? COMPACT_LAYOUT_MIN_WIDTH : MIN_CARD_WIDTH, value);
 };
 
 /**
@@ -307,7 +299,7 @@ const renderWakatimeCard = (
     layout,
     langs_count = languages.length,
     border_radius,
-    display_format = "time",
+    display_format = 'time',
     disable_animations,
   } = options;
 
@@ -316,9 +308,7 @@ const renderWakatimeCard = (
   const shouldHideLangs = Array.isArray(hide) && hide.length > 0;
   if (shouldHideLangs) {
     const languagesToHide = new Set(hide.map((lang) => lowercaseTrim(lang)));
-    languages = languages.filter(
-      (lang) => !languagesToHide.has(lowercaseTrim(lang.name)),
-    );
+    languages = languages.filter((lang) => !languagesToHide.has(lowercaseTrim(lang.name)));
   }
 
   // Since the percentages are sorted in descending order, we can just
@@ -348,19 +338,16 @@ const renderWakatimeCard = (
   let finalLayout: string;
 
   // RENDER COMPACT LAYOUT
-  if (layout === "compact") {
+  if (layout === 'compact') {
     const width = normalizedWidth - 5;
-    height =
-      90 + Math.round(filteredLanguages.length / 2) * DEFAULT_LINE_HEIGHT;
+    height = 90 + Math.round(filteredLanguages.length / 2) * DEFAULT_LINE_HEIGHT;
 
     // progressOffset holds the previous language's width and used to offset the next language
     // so that we can stack them one after another, like this: [--][----][---]
     let progressOffset = 0;
     const compactProgressBar = filteredLanguages
       .map((language) => {
-        const progress =
-          ((width - COMPACT_LAYOUT_PROGRESSBAR_PADDING) * language.percent) /
-          100;
+        const progress = ((width - COMPACT_LAYOUT_PROGRESSBAR_PADDING) * language.percent) / 100;
 
         const languageColor = getLanguageColor(language.name);
 
@@ -378,7 +365,7 @@ const renderWakatimeCard = (
         progressOffset += progress;
         return output;
       })
-      .join("");
+      .join('');
 
     finalLayout = `
       <mask id="rect-mask">
@@ -392,13 +379,13 @@ const renderWakatimeCard = (
               langs: filteredLanguages,
               display_format,
               card_width: normalizedWidth,
-            }).join("")
+            }).join('')
           : noCodingActivityNode({
               text: stats.is_coding_activity_visible
                 ? stats.is_other_usage_visible
-                  ? i18n.t("wakatimecard.nocodingactivity")
-                  : i18n.t("wakatimecard.nocodedetails")
-                : i18n.t("wakatimecard.notpublic"),
+                  ? i18n.t('wakatimecard.nocodingactivity')
+                  : i18n.t('wakatimecard.nocodedetails')
+                : i18n.t('wakatimecard.notpublic'),
             })
       }
     `;
@@ -420,24 +407,24 @@ const renderWakatimeCard = (
             noCodingActivityNode({
               text: stats.is_coding_activity_visible
                 ? stats.is_other_usage_visible
-                  ? i18n.t("wakatimecard.nocodingactivity")
-                  : i18n.t("wakatimecard.nocodedetails")
-                : i18n.t("wakatimecard.notpublic"),
+                  ? i18n.t('wakatimecard.nocodingactivity')
+                  : i18n.t('wakatimecard.nocodedetails')
+                : i18n.t('wakatimecard.notpublic'),
             }),
           ],
       gap: lheight,
-      direction: "column",
-    }).join("");
+      direction: 'column',
+    }).join('');
   }
 
   // Get title range text
-  let titleText = i18n.t("wakatimecard.title");
+  let titleText = i18n.t('wakatimecard.title');
   switch (stats.range) {
-    case "last_7_days":
-      titleText += ` (${i18n.t("wakatimecard.last7days")})`;
+    case 'last_7_days':
+      titleText += ` (${i18n.t('wakatimecard.last7days')})`;
       break;
-    case "last_year":
-      titleText += ` (${i18n.t("wakatimecard.lastyear")})`;
+    case 'last_year':
+      titleText += ` (${i18n.t('wakatimecard.lastyear')})`;
       break;
   }
 
@@ -483,13 +470,13 @@ const renderWakatimeCard = (
       animation: growWidthAnimation 0.6s ease-in-out forwards;
       fill: ${titleColor};
     }
-    .progress-background { fill: ${textColor === titleColor ? "#fff0" /* transparent */ : textColor}; }
+    .progress-background { fill: ${textColor === titleColor ? '#fff0' /* transparent */ : textColor}; }
     `,
     dark: ({ titleColor, textColor }) => `
       ${getStyles({ textColor })}
       .lang-name { fill: ${textColor} }
       .lang-progress { fill: ${titleColor}; }
-      .progress-background { fill: ${textColor === titleColor ? "#fff0" /* transparent */ : textColor}; }
+      .progress-background { fill: ${textColor === titleColor ? '#fff0' /* transparent */ : textColor}; }
     `,
   });
 

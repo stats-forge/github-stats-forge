@@ -1,11 +1,11 @@
-import fs from "fs";
+import fs from 'fs';
 
 // Packages held at a single version by an override in pnpm-workspace.yaml.
 // Keep in sync with that block:
 // fails if a duplicate returns, or if the package is gone and the entry is stale.
-const SINGLE_VERSION: Array<string> = ["lightningcss"];
+const SINGLE_VERSION: Array<string> = ['lightningcss'];
 
-const lockfile = fs.readFileSync("pnpm-lock.yaml", "utf8").split("\n");
+const lockfile = fs.readFileSync('pnpm-lock.yaml', 'utf8').split('\n');
 
 /**
  * Collects every version a package is locked at, read from the lockfile's
@@ -15,14 +15,10 @@ const lockfile = fs.readFileSync("pnpm-lock.yaml", "utf8").split("\n");
  * @returns the distinct locked versions
  */
 function lockedVersions(name: string): Set<string> {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const entry = new RegExp(`^ {2}'?${escaped}@(\\d[^':]*)'?:`);
 
-  return new Set(
-    lockfile
-      .map((line) => entry.exec(line)?.[1])
-      .filter((v) => v !== undefined),
-  );
+  return new Set(lockfile.map((line) => entry.exec(line)?.[1]).filter((v) => v !== undefined));
 }
 
 let failed = false;
@@ -38,7 +34,7 @@ for (const name of SINGLE_VERSION) {
   } else if (versions.size > 1) {
     failed = true;
     console.error(
-      `${name} resolved to ${versions.size} versions: ${[...versions].join(", ")}. Update its override in pnpm-workspace.yaml, or drop the override if upstream no longer needs it.`,
+      `${name} resolved to ${versions.size} versions: ${[...versions].join(', ')}. Update its override in pnpm-workspace.yaml, or drop the override if upstream no longer needs it.`,
     );
   }
 }

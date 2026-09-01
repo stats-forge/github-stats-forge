@@ -3,10 +3,7 @@
  * through its package.json `exports` map, so they cannot be resolved under
  * `nodenext`. Declare the minimal surface used in tests here.
  */
-declare module "@uppercod/css-to-object" {
-  export type CssObject = Record<
-    string,
-    Record<string, Record<string, string>>
-  >;
+declare module '@uppercod/css-to-object' {
+  export type CssObject = Record<string, Record<string, Record<string, string>>>;
   export function cssToObject(css: string): CssObject;
 }

@@ -1,7 +1,7 @@
-import { getCardColors, isPrefixedHexColor, isValidGradient } from "./color.js";
-import type { CardColors } from "./color.js";
-import { encodeHTML } from "./html.js";
-import { flexLayout } from "./render.js";
+import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.js';
+import type { CardColors } from './color.js';
+import { encodeHTML } from './html.js';
+import { flexLayout } from './render.js';
 
 /**
  * Builds the card CSS for one color scheme from that scheme's resolved colors.
@@ -47,7 +47,7 @@ class Card {
     border_radius = 4.5,
     colors = { light: getCardColors({}), dark: null },
     customTitle,
-    defaultTitle = "",
+    defaultTitle = '',
     titlePrefixIcon,
   }: {
     width?: number;
@@ -70,15 +70,15 @@ class Card {
     this.colors = colors;
     this.title = customTitle === undefined ? defaultTitle : customTitle;
 
-    this.css = "";
-    this.darkCss = "";
+    this.css = '';
+    this.darkCss = '';
 
     this.paddingX = 25;
     this.paddingY = 35;
     this.titlePrefixIcon = titlePrefixIcon;
     this.animations = true;
-    this.a11yTitle = "";
-    this.a11yDesc = "";
+    this.a11yTitle = '';
+    this.a11yDesc = '';
   }
 
   disableAnimations(): void {
@@ -90,13 +90,7 @@ class Card {
    * @param props.title Accessibility title.
    * @param props.desc Accessibility description.
    */
-  setAccessibilityLabel({
-    title,
-    desc,
-  }: {
-    title: string;
-    desc: string;
-  }): void {
+  setAccessibilityLabel({ title, desc }: { title: string; desc: string }): void {
     this.a11yTitle = title;
     this.a11yDesc = desc;
   }
@@ -114,15 +108,9 @@ class Card {
    * @param props.light Builds the CSS applied unconditionally (light/default mode).
    * @param props.dark Builds the CSS placed inside a `@media (prefers-color-scheme: dark)` block.
    */
-  setCSS({
-    light,
-    dark,
-  }: {
-    light: CardCSSBuilder;
-    dark: CardCSSBuilder;
-  }): void {
+  setCSS({ light, dark }: { light: CardCSSBuilder; dark: CardCSSBuilder }): void {
     this.css = light(this.colors.light);
-    this.darkCss = this.colors.dark ? dark(this.colors.dark) : "";
+    this.darkCss = this.colors.dark ? dark(this.colors.dark) : '';
   }
 
   /**
@@ -184,9 +172,9 @@ class Card {
         transform="translate(${this.paddingX}, ${this.paddingY})"
       >
         ${flexLayout({
-          items: [this.titlePrefixIcon ? prefixIcon : "", titleText],
+          items: [this.titlePrefixIcon ? prefixIcon : '', titleText],
           gap: 25,
-        }).join("")}
+        }).join('')}
       </g>
     `;
   }
@@ -208,32 +196,28 @@ class Card {
                 const offset = (index * 100) / (gradients.length - 1);
                 return `<stop offset="${offset}%" stop-color="#${grad}" />`;
               })
-              .join(",")}
+              .join(',')}
           </linearGradient>`;
     };
 
     if (
-      typeof this.colors.light.bgColor === "object" &&
+      typeof this.colors.light.bgColor === 'object' &&
       !isValidGradient(this.colors.light.bgColor)
     ) {
-      throw new Error(
-        `Invalid gradient: ${this.colors.light.bgColor.join(",")}`,
-      );
+      throw new Error(`Invalid gradient: ${this.colors.light.bgColor.join(',')}`);
     }
     if (
       this.colors.dark &&
-      typeof this.colors.dark.bgColor === "object" &&
+      typeof this.colors.dark.bgColor === 'object' &&
       !isValidGradient(this.colors.dark.bgColor)
     ) {
-      throw new Error(
-        `Invalid dark gradient: ${this.colors.dark.bgColor.join(",")}`,
-      );
+      throw new Error(`Invalid dark gradient: ${this.colors.dark.bgColor.join(',')}`);
     }
 
     return `
         <defs>
-          ${typeof this.colors.light.bgColor === "object" ? buildGradientDef("gradient", this.colors.light.bgColor) : ""}
-          ${this.colors.dark && typeof this.colors.dark.bgColor === "object" ? buildGradientDef("gradient-dark", this.colors.dark.bgColor) : ""}
+          ${typeof this.colors.light.bgColor === 'object' ? buildGradientDef('gradient', this.colors.light.bgColor) : ''}
+          ${this.colors.dark && typeof this.colors.dark.bgColor === 'object' ? buildGradientDef('gradient-dark', this.colors.dark.bgColor) : ''}
         </defs>
         `;
   }
@@ -271,12 +255,12 @@ class Card {
    */
   private renderDarkMediaBlock(): string {
     if (!this.colors.dark) {
-      return "";
+      return '';
     }
 
     const bgFill =
-      typeof this.colors.dark.bgColor === "object"
-        ? "url(#gradient-dark)"
+      typeof this.colors.dark.bgColor === 'object'
+        ? 'url(#gradient-dark)'
         : this.colors.dark.bgColor;
 
     return `
@@ -301,18 +285,14 @@ class Card {
       throw new Error(`Invalid title color: "${this.colors.light.titleColor}"`);
     }
     if (!isPrefixedHexColor(this.colors.light.borderColor)) {
-      throw new Error(
-        `Invalid border color: "${this.colors.light.borderColor}"`,
-      );
+      throw new Error(`Invalid border color: "${this.colors.light.borderColor}"`);
     }
     if (
-      !(typeof this.colors.light.bgColor === "object"
+      !(typeof this.colors.light.bgColor === 'object'
         ? isValidGradient(this.colors.light.bgColor)
         : isPrefixedHexColor(this.colors.light.bgColor))
     ) {
-      throw new Error(
-        `Invalid background color: ${String(this.colors.light.bgColor)}`,
-      );
+      throw new Error(`Invalid background color: ${String(this.colors.light.bgColor)}`);
     }
 
     return `
@@ -343,7 +323,7 @@ class Card {
           ${this.getAnimations()}
           ${
             this.animations
-              ? ""
+              ? ''
               : `* { animation-duration: 0s !important; animation-delay: 0s !important; }`
           }
         </style>
@@ -360,20 +340,18 @@ class Card {
           stroke="${this.colors.light.borderColor}"
           width="${this.width - 1}"
           fill="${
-            typeof this.colors.light.bgColor === "object"
-              ? "url(#gradient)"
+            typeof this.colors.light.bgColor === 'object'
+              ? 'url(#gradient)'
               : this.colors.light.bgColor
           }"
           stroke-opacity="${this.hideBorder ? 0 : 1}"
         />
 
-        ${this.hideTitle ? "" : this.renderTitle()}
+        ${this.hideTitle ? '' : this.renderTitle()}
 
         <g
           data-testid="main-card-body"
-          transform="translate(0, ${
-            this.hideTitle ? this.paddingX : this.paddingY + 20
-          })"
+          transform="translate(0, ${this.hideTitle ? this.paddingX : this.paddingY + 20})"
         >
           ${body}
         </g>

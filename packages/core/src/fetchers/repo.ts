@@ -1,15 +1,15 @@
-import type { CardConfig } from "../common/config.js";
-import { CardError, REPO_NOT_FOUND } from "../common/error.js";
-import { createGraphQLFetcher } from "../common/http.js";
-import { retryer } from "../common/retryer.js";
-import { GetRepoDocument } from "../graphql/generated/repo.js";
+import type { CardConfig } from '../common/config.js';
+import { CardError, REPO_NOT_FOUND } from '../common/error.js';
+import { createGraphQLFetcher } from '../common/http.js';
+import { retryer } from '../common/retryer.js';
+import { GetRepoDocument } from '../graphql/generated/repo.js';
 
-import { fetchRepoUserStats } from "./stats.js";
-import type { RepositoryData } from "./types.js";
+import { fetchRepoUserStats } from './stats.js';
+import type { RepositoryData } from './types.js';
 
-const fetcher = createGraphQLFetcher(GetRepoDocument, "token");
+const fetcher = createGraphQLFetcher(GetRepoDocument, 'token');
 
-const urlExample = "/api/pin?username=USERNAME&repo=REPO_NAME";
+const urlExample = '/api/pin?username=USERNAME&repo=REPO_NAME';
 
 /**
  * Fetch repository data.
@@ -46,10 +46,10 @@ const fetchRepo = async (
   config: CardConfig,
 ): Promise<RepositoryData> => {
   let owner = username;
-  if (reponame && reponame.includes("/")) {
-    const [parsedOwner, parsedRepo] = reponame.split("/");
-    owner = parsedOwner ?? "";
-    reponame = parsedRepo ?? "";
+  if (reponame && reponame.includes('/')) {
+    const [parsedOwner, parsedRepo] = reponame.split('/');
+    owner = parsedOwner ?? '';
+    reponame = parsedRepo ?? '';
   }
 
   if (owner && !username) {
@@ -59,29 +59,25 @@ const fetchRepo = async (
     owner = username;
   }
   if (!username && !reponame) {
-    throw CardError.missingParam(["username", "repo"], urlExample);
+    throw CardError.missingParam(['username', 'repo'], urlExample);
   }
   if (!username) {
-    throw CardError.missingParam(["username"], urlExample);
+    throw CardError.missingParam(['username'], urlExample);
   }
   if (!reponame) {
-    throw CardError.missingParam(["repo"], urlExample);
+    throw CardError.missingParam(['repo'], urlExample);
   }
 
   // the guards above leave `username` set, and `owner` mirrors it when `repo` carried none
   const repoOwner = owner ?? username;
 
-  const res = await retryer(
-    fetcher,
-    { login: repoOwner, repo: reponame },
-    config,
-  );
+  const res = await retryer(fetcher, { login: repoOwner, repo: reponame }, config);
 
   const data = res.data.data;
 
   if (!data.user && !data.organization) {
-    throw new CardError("Not found", {
-      code: "not_found",
+    throw new CardError('Not found', {
+      code: 'not_found',
       secondaryMessage: REPO_NOT_FOUND,
     });
   }
@@ -89,8 +85,8 @@ const fetchRepo = async (
   if (data.organization === null && data.user) {
     const repository = data.user.repository;
     if (!repository || repository.isPrivate) {
-      throw new CardError("User Repository Not found", {
-        code: "not_found",
+      throw new CardError('User Repository Not found', {
+        code: 'not_found',
         secondaryMessage: REPO_NOT_FOUND,
       });
     }
@@ -115,8 +111,8 @@ const fetchRepo = async (
   if (data.user === null && data.organization) {
     const repository = data.organization.repository;
     if (!repository || repository.isPrivate) {
-      throw new CardError("Organization Repository Not found", {
-        code: "not_found",
+      throw new CardError('Organization Repository Not found', {
+        code: 'not_found',
         secondaryMessage: REPO_NOT_FOUND,
       });
     }
@@ -138,7 +134,7 @@ const fetchRepo = async (
     };
   }
 
-  throw new CardError("Unexpected behavior", { code: "upstream" });
+  throw new CardError('Unexpected behavior', { code: 'upstream' });
 };
 
 export { fetchRepo };

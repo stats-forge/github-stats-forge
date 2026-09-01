@@ -1,12 +1,12 @@
-import * as z from "zod/mini";
+import * as z from 'zod/mini';
 
-import { renderRepoCard } from "../cards/repo.js";
-import type { CardConfig } from "../common/config.js";
-import { fetchRepo } from "../fetchers/repo.js";
+import { renderRepoCard } from '../cards/repo.js';
+import type { CardConfig } from '../common/config.js';
+import { fetchRepo } from '../fetchers/repo.js';
 
-import type { ApiResult } from "./api-result.js";
-import { errorResult } from "./api-result.js";
-import type { ApiQuery } from "./params.js";
+import type { ApiResult } from './api-result.js';
+import { errorResult } from './api-result.js';
+import type { ApiQuery } from './params.js';
 import {
   booleanParam,
   listParam,
@@ -17,7 +17,7 @@ import {
   parseParams,
   rawParam,
   safeParam,
-} from "./params.js";
+} from './params.js';
 
 /** What the pin endpoint accepts, on top of the shared color params. */
 const pinQuery = z.object({
@@ -61,10 +61,7 @@ type PinApiQuery = ApiQuery<typeof pinQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-export const pin = async (
-  query: PinApiQuery,
-  config: CardConfig,
-): Promise<ApiResult> => {
+export const pin = async (query: PinApiQuery, config: CardConfig): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -95,17 +92,17 @@ export const pin = async (
       {
         username,
         reponame: repo,
-        include_prs_authored: show.includes("prs_authored"),
-        include_prs_commented: show.includes("prs_commented"),
-        include_prs_reviewed: show.includes("prs_reviewed"),
-        include_issues_authored: show.includes("issues_authored"),
-        include_issues_commented: show.includes("issues_commented"),
+        include_prs_authored: show.includes('prs_authored'),
+        include_prs_commented: show.includes('prs_commented'),
+        include_prs_reviewed: show.includes('prs_reviewed'),
+        include_issues_authored: show.includes('issues_authored'),
+        include_issues_commented: show.includes('issues_commented'),
       },
       config,
     );
 
     return {
-      status: "success",
+      status: 'success',
       content: renderRepoCard(repoData, {
         ...colors,
         hide_border,

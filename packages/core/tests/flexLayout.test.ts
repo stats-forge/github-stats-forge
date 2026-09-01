@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { flexLayout } from "../src/common/render.js";
+import { flexLayout } from '../src/common/render.js';
 
-describe("flexLayout", () => {
-  it("should work with row & col layouts", () => {
+describe('flexLayout', () => {
+  it('should work with row & col layouts', () => {
     const layout = flexLayout({
-      items: ["<text>1</text>", "<text>2</text>"],
+      items: ['<text>1</text>', '<text>2</text>'],
       gap: 60,
     });
 
@@ -15,9 +15,9 @@ describe("flexLayout", () => {
     ]);
 
     const columns = flexLayout({
-      items: ["<text>1</text>", "<text>2</text>"],
+      items: ['<text>1</text>', '<text>2</text>'],
       gap: 60,
-      direction: "column",
+      direction: 'column',
     });
 
     expect(columns).toStrictEqual([
@@ -26,14 +26,9 @@ describe("flexLayout", () => {
     ]);
   });
 
-  it("should work with sizes", () => {
+  it('should work with sizes', () => {
     const layout = flexLayout({
-      items: [
-        "<text>1</text>",
-        "<text>2</text>",
-        "<text>3</text>",
-        "<text>4</text>",
-      ],
+      items: ['<text>1</text>', '<text>2</text>', '<text>3</text>', '<text>4</text>'],
       gap: 20,
       sizes: [200, 100, 55, 25],
     });

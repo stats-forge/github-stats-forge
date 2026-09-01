@@ -1,18 +1,18 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from 'vitest';
 
-import { fetchGist } from "../src/fetchers/gist.js";
+import { fetchGist } from '../src/fetchers/gist.js';
 
-import { testConfig } from "./_config.js";
-import { FetchMock } from "./_fetch-mock.js";
+import { testConfig } from './_config.js';
+import { FetchMock } from './_fetch-mock.js';
 
 const gist_data = {
   data: {
     viewer: {
       gist: {
         description:
-          "List of countries and territories in English and Spanish: name, continent, capital, dial code, country codes, TLD, and area in sq km. Lista de países y territorios en Inglés y Español: nombre, continente, capital, código de teléfono, códigos de país, dominio y área en km cuadrados. Updated 2023",
+          'List of countries and territories in English and Spanish: name, continent, capital, dial code, country codes, TLD, and area in sq km. Lista de países y territorios en Inglés y Español: nombre, continente, capital, código de teléfono, códigos de país, dominio y área en km cuadrados. Updated 2023',
         owner: {
-          login: "Yizack",
+          login: 'Yizack',
         },
         stargazerCount: 33,
         forks: {
@@ -20,30 +20,30 @@ const gist_data = {
         },
         files: [
           {
-            name: "countries.json",
+            name: 'countries.json',
             language: {
-              name: "JSON",
+              name: 'JSON',
             },
             size: 85858,
           },
           {
-            name: "territories.txt",
+            name: 'territories.txt',
             language: {
-              name: "Text",
+              name: 'Text',
             },
             size: 87858,
           },
           {
-            name: "countries_spanish.json",
+            name: 'countries_spanish.json',
             language: {
-              name: "JSON",
+              name: 'JSON',
             },
             size: 85858,
           },
           {
-            name: "territories_spanish.txt",
+            name: 'territories_spanish.txt',
             language: {
-              name: "Text",
+              name: 'Text',
             },
             size: 87858,
           },
@@ -64,7 +64,7 @@ const gist_not_found_data = {
 const gist_errors_data = {
   errors: [
     {
-      message: "Some test GraphQL error",
+      message: 'Some test GraphQL error',
     },
   ],
 };
@@ -76,45 +76,40 @@ afterEach(() => {
   mock.reset();
 });
 
-describe("Test fetchGist", () => {
-  it("should fetch gist correctly", async () => {
-    mock.onPost("https://api.github.com/graphql").reply(200, gist_data);
+describe('Test fetchGist', () => {
+  it('should fetch gist correctly', async () => {
+    mock.onPost('https://api.github.com/graphql').reply(200, gist_data);
 
-    const gist = await fetchGist(
-      { id: "bbfce31e0217a3689c8d961a356cb10d" },
-      config,
-    );
+    const gist = await fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config);
 
     expect(gist).toStrictEqual({
-      name: "countries.json",
-      nameWithOwner: "Yizack/countries.json",
+      name: 'countries.json',
+      nameWithOwner: 'Yizack/countries.json',
       description:
-        "List of countries and territories in English and Spanish: name, continent, capital, dial code, country codes, TLD, and area in sq km. Lista de países y territorios en Inglés y Español: nombre, continente, capital, código de teléfono, códigos de país, dominio y área en km cuadrados. Updated 2023",
-      language: "Text",
+        'List of countries and territories in English and Spanish: name, continent, capital, dial code, country codes, TLD, and area in sq km. Lista de países y territorios en Inglés y Español: nombre, continente, capital, código de teléfono, códigos de país, dominio y área en km cuadrados. Updated 2023',
+      language: 'Text',
       starsCount: 33,
       forksCount: 11,
     });
   });
 
-  it("should throw correct error if gist not found", async () => {
-    mock
-      .onPost("https://api.github.com/graphql")
-      .reply(200, gist_not_found_data);
+  it('should throw correct error if gist not found', async () => {
+    mock.onPost('https://api.github.com/graphql').reply(200, gist_not_found_data);
 
-    await expect(
-      fetchGist({ id: "bbfce31e0217a3689c8d961a356cb10d" }, config),
-    ).rejects.toThrow("Gist not found");
+    await expect(fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config)).rejects.toThrow(
+      'Gist not found',
+    );
   });
 
-  it("should throw error if response contains them", async () => {
-    mock.onPost("https://api.github.com/graphql").reply(200, gist_errors_data);
+  it('should throw error if response contains them', async () => {
+    mock.onPost('https://api.github.com/graphql').reply(200, gist_errors_data);
 
-    await expect(
-      fetchGist({ id: "bbfce31e0217a3689c8d961a356cb10d" }, config),
-    ).rejects.toThrow("Some test GraphQL error");
+    await expect(fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config)).rejects.toThrow(
+      'Some test GraphQL error',
+    );
   });
 
-  it("should throw error if id is not provided", async () => {
+  it('should throw error if id is not provided', async () => {
     // @ts-expect-error testing missing argument
     await expect(fetchGist({}, config)).rejects.toThrow(
       'Missing params "id" make sure you pass the parameters in URL',

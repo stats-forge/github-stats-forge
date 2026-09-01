@@ -1,16 +1,16 @@
-import * as z from "zod/mini";
+import * as z from 'zod/mini';
 
 import {
   TOP_LANG_LAYOUTS,
   TOP_LANG_STATS_FORMATS,
   renderTopLanguages,
-} from "../cards/top-languages.js";
-import type { CardConfig } from "../common/config.js";
-import { fetchTopLanguages } from "../fetchers/top-languages.js";
+} from '../cards/top-languages.js';
+import type { CardConfig } from '../common/config.js';
+import { fetchTopLanguages } from '../fetchers/top-languages.js';
 
-import type { ApiResult } from "./api-result.js";
-import { errorResult } from "./api-result.js";
-import type { ApiQuery } from "./params.js";
+import type { ApiResult } from './api-result.js';
+import { errorResult } from './api-result.js';
+import type { ApiQuery } from './params.js';
 import {
   booleanParam,
   enumParam,
@@ -22,7 +22,7 @@ import {
   parseParams,
   rawParam,
   safeParam,
-} from "./params.js";
+} from './params.js';
 
 /** What the top-languages endpoint accepts, on top of the shared color params. */
 const topLangsQuery = z.object({
@@ -74,10 +74,7 @@ type TopLangsApiQuery = ApiQuery<typeof topLangsQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-const renderTopLangs = async (
-  query: TopLangsApiQuery,
-  config: CardConfig,
-): Promise<ApiResult> => {
+const renderTopLangs = async (query: TopLangsApiQuery, config: CardConfig): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -120,7 +117,7 @@ const renderTopLangs = async (
     );
 
     return {
-      status: "success",
+      status: 'success',
       content: renderTopLanguages(topLangs, {
         ...colors,
         custom_title,

@@ -1,4 +1,4 @@
-import { OWNER_AFFILIATIONS } from "./constants.js";
+import { OWNER_AFFILIATIONS } from './constants.js';
 
 /**
  * @file One error type for everything a card render can fail on.
@@ -11,22 +11,22 @@ import { OWNER_AFFILIATIONS } from "./constants.js";
  */
 
 /** A general message to ask user to try again later. */
-const TRY_AGAIN_LATER = "Please try again later";
+const TRY_AGAIN_LATER = 'Please try again later';
 
 /** Why a request failed. */
 type ErrorCode =
   /** The query is wrong: a param is malformed, unsafe, or not renderable. */
-  | "invalid_param"
+  | 'invalid_param'
   /** The query is missing a param the endpoint cannot render without. */
-  | "missing_param"
+  | 'missing_param'
   /** The user, repository or gist does not exist. */
-  | "not_found"
+  | 'not_found'
   /** The deployment has no usable GitHub token. */
-  | "no_tokens"
+  | 'no_tokens'
   /** Every token is rate limited. */
-  | "rate_limited"
+  | 'rate_limited'
   /** GitHub or WakaTime answered with something unusable. */
-  | "upstream";
+  | 'upstream';
 
 /**
  * Whether repeating the request could produce a different answer.
@@ -43,10 +43,9 @@ const RETRYABLE: Record<ErrorCode, boolean> = {
 
 /** The second line the error card draws, per code. */
 const SECONDARY_ERROR_MESSAGES: Partial<Record<ErrorCode, string>> = {
-  rate_limited:
-    "You can deploy own instance or wait until public will be no longer limited",
+  rate_limited: 'You can deploy own instance or wait until public will be no longer limited',
   no_tokens:
-    "Please add an env variable called PAT_1 with your GitHub API token in your deployment environment",
+    'Please add an env variable called PAT_1 with your GitHub API token in your deployment environment',
   upstream: TRY_AGAIN_LATER,
 };
 
@@ -72,11 +71,10 @@ class CardError extends Error {
    */
   constructor(message: string, init: CardErrorInit) {
     super(message);
-    this.name = "CardError";
+    this.name = 'CardError';
     this.code = init.code;
     this.param = init.param;
-    this.secondaryMessage =
-      init.secondaryMessage ?? SECONDARY_ERROR_MESSAGES[init.code];
+    this.secondaryMessage = init.secondaryMessage ?? SECONDARY_ERROR_MESSAGES[init.code];
   }
 
   /** Whether repeating the request could produce a different answer. */
@@ -92,8 +90,8 @@ class CardError extends Error {
    * @returns The error.
    */
   static invalidParam(param: string, secondaryMessage: string): CardError {
-    return new CardError("Something went wrong", {
-      code: "invalid_param",
+    return new CardError('Something went wrong', {
+      code: 'invalid_param',
       secondaryMessage,
       param,
     });
@@ -107,19 +105,13 @@ class CardError extends Error {
    * @param secondaryMessage Where to pass them, when the endpoint can say.
    * @returns The error.
    */
-  static missingParam(
-    params: Array<string>,
-    secondaryMessage?: string,
-  ): CardError {
-    const named = params.map((param) => `"${param}"`).join(", ");
-    return new CardError(
-      `Missing params ${named} make sure you pass the parameters in URL`,
-      {
-        code: "missing_param",
-        secondaryMessage,
-        param: params[0],
-      },
-    );
+  static missingParam(params: Array<string>, secondaryMessage?: string): CardError {
+    const named = params.map((param) => `"${param}"`).join(', ');
+    return new CardError(`Missing params ${named} make sure you pass the parameters in URL`, {
+      code: 'missing_param',
+      secondaryMessage,
+      param: params[0],
+    });
   }
 
   /**
@@ -134,29 +126,28 @@ class CardError extends Error {
       return err;
     }
     if (err instanceof Error) {
-      return new CardError(err.message, { code: "upstream" });
+      return new CardError(err.message, { code: 'upstream' });
     }
-    return new CardError("An unknown error occurred", { code: "upstream" });
+    return new CardError('An unknown error occurred', { code: 'upstream' });
   }
 }
 
 /** The affiliation values `role` accepts, named in the rejection. */
 const INVALID_AFFILIATION = `Invalid owner affiliations. Valid values are: ${OWNER_AFFILIATIONS.join(
-  ", ",
+  ', ',
 )}`;
 
 /** The user exists but has no public WakaTime profile. */
-const WAKATIME_USER_NOT_FOUND = "Make sure you have a public WakaTime profile";
+const WAKATIME_USER_NOT_FOUND = 'Make sure you have a public WakaTime profile';
 
 /** A GitHub username that resolves to nothing, or to an organization. */
-const USER_NOT_FOUND = "Make sure the provided username is not an organization";
+const USER_NOT_FOUND = 'Make sure the provided username is not an organization';
 
 /** A repository the token cannot see, because it is missing or private. */
-const REPO_NOT_FOUND =
-  "Make sure the provided username and repository are correct";
+const REPO_NOT_FOUND = 'Make sure the provided username and repository are correct';
 
 /** A gist id that resolves to nothing. */
-const GIST_NOT_FOUND = "Make sure the provided gist ID is correct";
+const GIST_NOT_FOUND = 'Make sure the provided gist ID is correct';
 
 export type { ErrorCode };
 

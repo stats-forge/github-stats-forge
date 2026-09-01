@@ -1,47 +1,37 @@
-import githubUsernameRegex from "github-username-regex";
+import githubUsernameRegex from 'github-username-regex';
 
-import { calculateRank } from "../calculateRank.js";
-import type { CardConfig } from "../common/config.js";
-import type { GitHubDateRange } from "../common/date.js";
-import { getGitHubYearRange, toGitHubDateTime } from "../common/date.js";
-import { CardError, USER_NOT_FOUND } from "../common/error.js";
-import { wrapTextMultiline } from "../common/fmt.js";
-import { createGraphQLFetcher, httpRequest } from "../common/http.js";
-import type { FetcherContext, GraphQLResponse } from "../common/http.js";
-import { logger } from "../common/log.js";
-import {
-  buildSearchFilter,
-  chunkArray,
-  parseOwnerAffiliations,
-} from "../common/ops.js";
-import { retryer } from "../common/retryer.js";
-import type { FetcherResponse } from "../common/retryer.js";
-import { buildContributionsDocument } from "../graphql/contributionsDocument.js";
-import {
-  UserInfoDocument,
-  UserReposDocument,
-} from "../graphql/generated/stats.js";
+import { calculateRank } from '../calculateRank.js';
+import type { CardConfig } from '../common/config.js';
+import type { GitHubDateRange } from '../common/date.js';
+import { getGitHubYearRange, toGitHubDateTime } from '../common/date.js';
+import { CardError, USER_NOT_FOUND } from '../common/error.js';
+import { wrapTextMultiline } from '../common/fmt.js';
+import { createGraphQLFetcher, httpRequest } from '../common/http.js';
+import type { FetcherContext, GraphQLResponse } from '../common/http.js';
+import { logger } from '../common/log.js';
+import { buildSearchFilter, chunkArray, parseOwnerAffiliations } from '../common/ops.js';
+import { retryer } from '../common/retryer.js';
+import type { FetcherResponse } from '../common/retryer.js';
+import { buildContributionsDocument } from '../graphql/contributionsDocument.js';
+import { UserInfoDocument, UserReposDocument } from '../graphql/generated/stats.js';
 import type {
   RepoNodeFragment,
   UserInfoQuery,
   UserInfoQueryVariables,
-} from "../graphql/generated/stats.js";
+} from '../graphql/generated/stats.js';
 import {
   MAX_REPOSITORIES_LIMIT,
   buildReposContributedToDocument,
-} from "../graphql/reposContributedToDocument.js";
+} from '../graphql/reposContributedToDocument.js';
 
-import type { RepoUserStats, StatsData } from "./types.js";
+import type { RepoUserStats, StatsData } from './types.js';
 
 /** The subset of the stats response `statsFetcher` returns and threads on. */
-type StatsFetcherResponse = Pick<
-  GraphQLResponse<UserInfoQuery>,
-  "data" | "statusText"
->;
+type StatsFetcherResponse = Pick<GraphQLResponse<UserInfoQuery>, 'data' | 'statusText'>;
 
-const fetcher = createGraphQLFetcher(UserInfoDocument, "bearer");
+const fetcher = createGraphQLFetcher(UserInfoDocument, 'bearer');
 /** Fetcher for the pages after the first, which only need `repositories`. */
-const reposFetcher = createGraphQLFetcher(UserReposDocument, "bearer");
+const reposFetcher = createGraphQLFetcher(UserReposDocument, 'bearer');
 
 /**
  * Fetch stats information for a given username.
@@ -75,7 +65,7 @@ const statsFetcher = async (
     includeDiscussions: boolean;
     includeDiscussionsAnswers: boolean;
     startTime: string | undefined;
-    ownerAffiliations: UserInfoQueryVariables["ownerAffiliations"];
+    ownerAffiliations: UserInfoQueryVariables['ownerAffiliations'];
     includeUserRepositories: boolean;
   },
   config: CardConfig,
@@ -118,11 +108,7 @@ const statsFetcher = async (
     }
     previousCursor = after;
 
-    const page = await retryer(
-      reposFetcher,
-      { login: username, after, ownerAffiliations },
-      config,
-    );
+    const page = await retryer(reposFetcher, { login: username, after, ownerAffiliations }, config);
     if (page.data.errors) {
       return {
         data: { ...stats.data, errors: page.data.errors },
@@ -163,20 +149,20 @@ const fetchTotalItems = (
   token: string,
   { fetch }: FetcherContext,
 ): Promise<FetcherResponse<{ total_count?: number }>> => {
-  const type = String(variables["type"]);
-  const filter = String(variables["filter"]);
-  const repo = variables["repo"] as Array<string> | string;
-  const owner = variables["owner"] as Array<string> | string;
+  const type = String(variables['type']);
+  const filter = String(variables['filter']);
+  const repo = variables['repo'] as Array<string> | string;
+  const owner = variables['owner'] as Array<string> | string;
   return httpRequest(
     fetch,
     `https://api.github.com/search/${type}?per_page=1&q=` +
-      buildSearchFilter(repo, owner).replaceAll(" ", "+") +
+      buildSearchFilter(repo, owner).replaceAll(' ', '+') +
       filter,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/vnd.github.cloak-preview",
+        'Content-Type': 'application/json',
+        Accept: 'application/vnd.github.cloak-preview',
         Authorization: `token ${token}`,
       },
     },
@@ -216,10 +202,10 @@ const totalItemsFetcher = async (
   config: CardConfig,
 ): Promise<number> => {
   if (!githubUsernameRegex.test(username)) {
-    logger.log("Invalid username provided.");
-    throw new CardError("Invalid username provided.", {
-      code: "invalid_param",
-      param: "username",
+    logger.log('Invalid username provided.');
+    throw new CardError('Invalid username provided.', {
+      code: 'invalid_param',
+      param: 'username',
     });
   }
 
@@ -237,9 +223,9 @@ const totalItemsFetcher = async (
 
   const totalCount = res.data.total_count;
   if (totalCount === undefined || isNaN(totalCount)) {
-    logger.error("GitHub error: " + JSON.stringify(res.data));
-    throw new CardError("Could not fetch data from GitHub REST API.", {
-      code: "upstream",
+    logger.error('GitHub error: ' + JSON.stringify(res.data));
+    throw new CardError('Could not fetch data from GitHub REST API.', {
+      code: 'upstream',
     });
   }
   return totalCount;
@@ -289,7 +275,7 @@ const fetchRepoUserStats = async (
         username,
         repo,
         owner,
-        type: "issues",
+        type: 'issues',
         filter: `author:${username}+type:pr`,
       },
       config,
@@ -301,7 +287,7 @@ const fetchRepoUserStats = async (
         username,
         repo,
         owner,
-        type: "issues",
+        type: 'issues',
         filter: `commenter:${username}+-author:${username}+type:pr`,
       },
       config,
@@ -313,7 +299,7 @@ const fetchRepoUserStats = async (
         username,
         repo,
         owner,
-        type: "issues",
+        type: 'issues',
         filter: `reviewed-by:${username}+-author:${username}+type:pr`,
       },
       config,
@@ -325,7 +311,7 @@ const fetchRepoUserStats = async (
         username,
         repo,
         owner,
-        type: "issues",
+        type: 'issues',
         filter: `author:${username}+type:issue`,
       },
       config,
@@ -337,7 +323,7 @@ const fetchRepoUserStats = async (
         username,
         repo,
         owner,
-        type: "issues",
+        type: 'issues',
         filter: `commenter:${username}+-author:${username}+type:issue`,
       },
       config,
@@ -354,18 +340,18 @@ const fetchRepoUserStats = async (
  * @param fallback Message when GitHub gave none.
  */
 const graphqlError = (
-  errors: NonNullable<GraphQLResponse<unknown>["data"]["errors"]>,
+  errors: NonNullable<GraphQLResponse<unknown>['data']['errors']>,
   statusText: string,
   fallback: string,
 ): CardError => {
   logger.error(errors);
   const message = errors[0]?.message;
   return message
-    ? new CardError(wrapTextMultiline(message, 525, 12)[0] ?? "", {
-        code: "upstream",
+    ? new CardError(wrapTextMultiline(message, 525, 12)[0] ?? '', {
+        code: 'upstream',
         secondaryMessage: statusText,
       })
-    : new CardError(fallback, { code: "upstream" });
+    : new CardError(fallback, { code: 'upstream' });
 };
 
 /**
@@ -384,22 +370,15 @@ const fetchTotalContributions = async (
     return 0;
   }
 
-  const contributionsFetcher = createGraphQLFetcher(
-    buildContributionsDocument(years),
-    "bearer",
-  );
+  const contributionsFetcher = createGraphQLFetcher(buildContributionsDocument(years), 'bearer');
 
-  const contribRes = await retryer(
-    contributionsFetcher,
-    { login: username },
-    config,
-  );
+  const contribRes = await retryer(contributionsFetcher, { login: username }, config);
 
   if (contribRes.data.errors) {
     throw graphqlError(
       contribRes.data.errors,
       contribRes.statusText,
-      "Something went wrong while trying to retrieve the contributions data using the GraphQL API.",
+      'Something went wrong while trying to retrieve the contributions data using the GraphQL API.',
     );
   }
 
@@ -429,7 +408,7 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MAX_RANGES_PER_REQUEST = 100;
 
 const REPOS_CONTRIBUTED_TO_ERROR =
-  "Something went wrong while trying to retrieve the repository contributions data using the GraphQL API.";
+  'Something went wrong while trying to retrieve the repository contributions data using the GraphQL API.';
 
 /**
  * Count the repositories a user contributed to across every contribution year.
@@ -463,7 +442,7 @@ const fetchAllTimeReposContributedTo = async (
     for (const chunk of chunkArray(pending, MAX_RANGES_PER_REQUEST)) {
       const fetcher = createGraphQLFetcher(
         buildReposContributedToDocument(chunk, includeOwnRepos),
-        "bearer",
+        'bearer',
       );
       const res = await retryer(
         fetcher,
@@ -471,22 +450,18 @@ const fetchAllTimeReposContributedTo = async (
         config,
       );
       if (res.data.errors) {
-        throw graphqlError(
-          res.data.errors,
-          res.statusText,
-          REPOS_CONTRIBUTED_TO_ERROR,
-        );
+        throw graphqlError(res.data.errors, res.statusText, REPOS_CONTRIBUTED_TO_ERROR);
       }
       const user = res.data.data.user;
       if (!user) {
-        throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: "upstream" });
+        throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: 'upstream' });
       }
 
       for (const [index, range] of chunk.entries()) {
         const rangeResponse = user[`range_${index}`];
         if (!rangeResponse) {
           throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, {
-            code: "upstream",
+            code: 'upstream',
           });
         }
 
@@ -494,23 +469,15 @@ const fetchAllTimeReposContributedTo = async (
           rangeResponse.commitContributionsByRepository,
           rangeResponse.issueContributionsByRepository,
           rangeResponse.pullRequestContributionsByRepository,
-          (rangeResponse.repositoryContributions?.nodes ?? []).filter(
-            (node) => node !== null,
-          ),
+          (rangeResponse.repositoryContributions?.nodes ?? []).filter((node) => node !== null),
         ];
-        const isSaturated = lists.some(
-          (list) => list.length >= MAX_REPOSITORIES_LIMIT,
-        );
+        const isSaturated = lists.some((list) => list.length >= MAX_REPOSITORIES_LIMIT);
 
-        const rangeDays = Math.round(
-          (range.to.getTime() - range.from.getTime()) / MS_PER_DAY,
-        );
+        const rangeDays = Math.round((range.to.getTime() - range.from.getTime()) / MS_PER_DAY);
         // a range of 1 day or less can't be split any further
         if (isSaturated && rangeDays >= 2) {
           // every `from` sits on UTC midnight, so the split lands on a day boundary too
-          const mid = new Date(
-            range.from.getTime() + Math.floor(rangeDays / 2) * MS_PER_DAY,
-          );
+          const mid = new Date(range.from.getTime() + Math.floor(rangeDays / 2) * MS_PER_DAY);
           // GitHub only reads the date portion,
           // so the first half ends 1 second before `mid` to keep the halves from sharing a day
           nextPending.push(
@@ -537,9 +504,7 @@ const fetchAllTimeReposContributedTo = async (
     // each saturated range pushes both of its halves
     const saturatedCount = nextPending.length / 2;
     if (saturatedCount > 0) {
-      logger.log(
-        `found ${saturatedCount} saturated ranges, splitting and retrying...`,
-      );
+      logger.log(`found ${saturatedCount} saturated ranges, splitting and retrying...`);
     }
     pending = nextPending;
   }
@@ -615,11 +580,11 @@ const fetchStats = async (
   config: CardConfig,
 ): Promise<StatsData> => {
   if (!username) {
-    throw CardError.missingParam(["username"]);
+    throw CardError.missingParam(['username']);
   }
 
   const stats: StatsData = {
-    name: "",
+    name: '',
     totalPRs: 0,
     totalPRsMerged: 0,
     mergedPRsPercentage: 0,
@@ -637,7 +602,7 @@ const fetchStats = async (
     totalIssuesAuthored: 0,
     totalIssuesCommented: 0,
     totalContributions: 0,
-    rank: { level: "C", percentile: 100 },
+    rank: { level: 'C', percentile: 100 },
   };
   const affiliations = parseOwnerAffiliations(ownerAffiliations);
 
@@ -661,28 +626,28 @@ const fetchStats = async (
   if (res.data.errors) {
     logger.error(res.data.errors);
     const firstError = res.data.errors[0];
-    if (firstError?.type === "NOT_FOUND") {
-      throw new CardError(firstError.message || "Could not fetch user.", {
-        code: "not_found",
+    if (firstError?.type === 'NOT_FOUND') {
+      throw new CardError(firstError.message || 'Could not fetch user.', {
+        code: 'not_found',
         secondaryMessage: USER_NOT_FOUND,
       });
     }
     if (firstError?.message) {
-      throw new CardError(
-        wrapTextMultiline(firstError.message, 525, 12)[0] ?? "",
-        { code: "upstream", secondaryMessage: res.statusText },
-      );
+      throw new CardError(wrapTextMultiline(firstError.message, 525, 12)[0] ?? '', {
+        code: 'upstream',
+        secondaryMessage: res.statusText,
+      });
     }
     throw new CardError(
-      "Something went wrong while trying to retrieve the stats data using the GraphQL API.",
-      { code: "upstream" },
+      'Something went wrong while trying to retrieve the stats data using the GraphQL API.',
+      { code: 'upstream' },
     );
   }
 
   const user = res.data.data.user;
   if (!user) {
-    throw new CardError("Could not fetch user.", {
-      code: "not_found",
+    throw new CardError('Could not fetch user.', {
+      code: 'not_found',
       secondaryMessage: USER_NOT_FOUND,
     });
   }
@@ -696,7 +661,7 @@ const fetchStats = async (
         username,
         repo,
         owner,
-        type: "commits",
+        type: 'commits',
         filter: `author:${username}`,
       },
       config,
@@ -723,8 +688,7 @@ const fetchStats = async (
   if (include_merged_pull_requests) {
     const mergedCount = user.mergedPullRequests?.totalCount ?? 0;
     stats.totalPRsMerged = mergedCount;
-    stats.mergedPRsPercentage =
-      (mergedCount / user.pullRequests.totalCount) * 100 || 0;
+    stats.mergedPRsPercentage = (mergedCount / user.pullRequests.totalCount) * 100 || 0;
   }
   stats.totalReviews = user.reviews.totalPullRequestReviewContributions;
   stats.totalIssues = user.openIssues.totalCount + user.closedIssues.totalCount;
@@ -732,8 +696,7 @@ const fetchStats = async (
     stats.totalDiscussionsStarted = user.repositoryDiscussions?.totalCount ?? 0;
   }
   if (include_discussions_answers) {
-    stats.totalDiscussionsAnswered =
-      user.repositoryDiscussionComments?.totalCount ?? 0;
+    stats.totalDiscussionsAnswered = user.repositoryDiscussionComments?.totalCount ?? 0;
   }
   stats.contributedTo = user.repositoriesContributedTo.totalCount;
 

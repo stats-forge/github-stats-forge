@@ -1,4 +1,4 @@
-declare module "github-username-regex" {
+declare module 'github-username-regex' {
   const githubUsernameRegex: RegExp;
   export default githubUsernameRegex;
 }

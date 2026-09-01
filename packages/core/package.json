@@ -1,16 +1,20 @@
 {
   "name": "@stats-forge/github-stats-forge-core",
   "version": "0.0.1",
-  "type": "module",
+  "description": "Dynamically generate stats for your GitHub readme",
+  "keywords": [
+    "card-generator",
+    "cards",
+    "github-stats",
+    "github-stats-forge",
+    "readme-stats",
+    "stats-forge"
+  ],
   "homepage": "https://github.com/stats-forge/github-stats-forge",
   "bugs": {
     "url": "https://github.com/stats-forge/github-stats-forge/issues"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/stats-forge/github-stats-forge.git",
-    "directory": "packages/core"
-  },
+  "license": "MIT",
   "author": {
     "name": "Anurag Hazra",
     "url": "https://github.com/anuraghazra/"
@@ -37,19 +41,17 @@
       "url": "https://github.com/martin-mfg"
     }
   ],
-  "license": "MIT",
-  "engines": {
-    "node": "24.x"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stats-forge/github-stats-forge.git",
+    "directory": "packages/core"
   },
-  "description": "Dynamically generate stats for your GitHub readme",
-  "keywords": [
-    "github-stats-forge",
-    "stats-forge",
-    "github-stats",
-    "readme-stats",
-    "cards",
-    "card-generator"
+  "files": [
+    "build",
+    "src",
+    "README.md"
   ],
+  "type": "module",
   "main": "./build/index.js",
   "exports": {
     ".": {
@@ -73,11 +75,6 @@
       "default": "./build/themes/index.js"
     }
   },
-  "files": [
-    "build",
-    "src",
-    "README.md"
-  ],
   "publishConfig": {
     "access": "public"
   },
@@ -94,6 +91,11 @@
     "check-graphql-types": "node scripts/generate-graphql-types --check",
     "generate-language-colors": "node scripts/generate-language-colors"
   },
+  "dependencies": {
+    "emoji-name-map": "^2.0.3",
+    "github-username-regex": "^1.0.0",
+    "zod": "^4.4.3"
+  },
   "devDependencies": {
     "@graphql-codegen/core": "6.2.0",
     "@graphql-codegen/typescript": "6.1.0",
@@ -107,9 +109,7 @@
     "jsdom": "catalog:default",
     "vitest": "catalog:default"
   },
-  "dependencies": {
-    "emoji-name-map": "^2.0.3",
-    "github-username-regex": "^1.0.0",
-    "zod": "^4.4.3"
+  "engines": {
+    "node": "24.x"
   }
 }

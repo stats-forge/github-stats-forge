@@ -1,8 +1,7 @@
-import { isThemeName, themes } from "../themes/index.js";
+import { isThemeName, themes } from '../themes/index.js';
 
 /** Matches a 3-, 4-, 6-, or 8-digit hex color with no leading `#`. */
-const HEX_COLOR =
-  /^([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/;
+const HEX_COLOR = /^([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/;
 
 /**
  * Checks if a value is a bare hex color, i.e. hex digits with no `#` prefix
@@ -13,7 +12,7 @@ const HEX_COLOR =
  * @returns True if the value is a bare hex color.
  */
 const isBareHexColor = (value: unknown): boolean => {
-  return typeof value === "string" && HEX_COLOR.test(value);
+  return typeof value === 'string' && HEX_COLOR.test(value);
 };
 
 /**
@@ -25,11 +24,7 @@ const isBareHexColor = (value: unknown): boolean => {
  * @returns True if the value is a `#`-prefixed hex color.
  */
 const isPrefixedHexColor = (value: unknown): boolean => {
-  return (
-    typeof value === "string" &&
-    value.startsWith("#") &&
-    HEX_COLOR.test(value.slice(1))
-  );
+  return typeof value === 'string' && value.startsWith('#') && HEX_COLOR.test(value.slice(1));
 };
 
 /**
@@ -45,7 +40,7 @@ const isValidGradient = (parts: Array<string>): boolean => {
   return (
     stops.length >= 2 &&
     angle !== undefined &&
-    angle.trim() !== "" &&
+    angle.trim() !== '' &&
     Number.isFinite(Number(angle)) &&
     stops.every(isBareHexColor)
   );
@@ -61,7 +56,7 @@ const isValidColorInput = (color: string | null | undefined): boolean => {
   if (color === null || color === undefined) {
     return true;
   }
-  return isValidGradient(color.split(",")) || isBareHexColor(color);
+  return isValidGradient(color.split(',')) || isBareHexColor(color);
 };
 
 /**
@@ -75,7 +70,7 @@ const fallbackColor = (
   color: string | undefined,
   fallbackColor: string | Array<string>,
 ): string | Array<string> => {
-  const colors = color ? color.split(",") : [];
+  const colors = color ? color.split(',') : [];
   if (colors.length > 1 && isValidGradient(colors)) {
     return colors;
   }
@@ -114,17 +109,17 @@ interface CardColors {
  * derived from this, so adding a param here is enough.
  */
 const BASE_COLOR_KEYS = [
-  "title_color",
-  "icon_color",
-  "text_color",
-  "bg_color",
-  "border_color",
-  "ring_color",
-  "prog_bar_bg_color",
-  "theme",
+  'title_color',
+  'icon_color',
+  'text_color',
+  'bg_color',
+  'border_color',
+  'ring_color',
+  'prog_bar_bg_color',
+  'theme',
 ] as const;
 
-const THEME_VARIANTS = ["light", "dark"] as const;
+const THEME_VARIANTS = ['light', 'dark'] as const;
 
 type BaseColorKey = (typeof BASE_COLOR_KEYS)[number];
 type ThemeVariant = (typeof THEME_VARIANTS)[number];
@@ -164,52 +159,42 @@ const getCardColors = ({
   const selectedTheme = isThemeName(theme) ? themes[theme] : defaultTheme;
 
   const defaultBorderColor =
-    "border_color" in selectedTheme
-      ? selectedTheme.border_color
-      : defaultTheme.border_color;
+    'border_color' in selectedTheme ? selectedTheme.border_color : defaultTheme.border_color;
 
   // get the color provided by the user else the theme color
   // finally if both colors are invalid fallback to default theme
   const titleColor = fallbackColor(
     title_color || selectedTheme.title_color,
-    "#" + defaultTheme.title_color,
+    '#' + defaultTheme.title_color,
   );
 
   // get the color provided by the user else the theme color
   // finally if both colors are invalid we use the titleColor
   const iconColor = fallbackColor(
     icon_color || selectedTheme.icon_color,
-    "#" + defaultTheme.icon_color,
+    '#' + defaultTheme.icon_color,
   );
   const textColor = fallbackColor(
     text_color || selectedTheme.text_color,
-    "#" + defaultTheme.text_color,
+    '#' + defaultTheme.text_color,
   );
-  const bgColor = fallbackColor(
-    bg_color || selectedTheme.bg_color,
-    "#" + defaultTheme.bg_color,
-  );
+  const bgColor = fallbackColor(bg_color || selectedTheme.bg_color, '#' + defaultTheme.bg_color);
 
-  const borderColor = fallbackColor(
-    border_color || defaultBorderColor,
-    "#" + defaultBorderColor,
-  );
+  const borderColor = fallbackColor(border_color || defaultBorderColor, '#' + defaultBorderColor);
   // No theme defines `ring_color`, so it falls back to the title color.
   const ringColor = fallbackColor(ring_color, titleColor);
   // No theme defines `prog_bar_bg_color`, so it falls back to "#ddd".
-  const progBarBgColor = fallbackColor(prog_bar_bg_color, "#ddd");
+  const progBarBgColor = fallbackColor(prog_bar_bg_color, '#ddd');
 
   if (
-    typeof titleColor !== "string" ||
-    typeof textColor !== "string" ||
-    typeof ringColor !== "string" ||
-    typeof progBarBgColor !== "string" ||
-    typeof iconColor !== "string" ||
-    typeof borderColor !== "string"
+    typeof titleColor !== 'string' ||
+    typeof textColor !== 'string' ||
+    typeof ringColor !== 'string' ||
+    typeof progBarBgColor !== 'string' ||
+    typeof iconColor !== 'string' ||
+    typeof borderColor !== 'string'
   ) {
-    throw new Error(
-      "Unexpected behavior, all colors except background should be string.",
-    );
+    throw new Error('Unexpected behavior, all colors except background should be string.');
   }
 
   return {
@@ -223,9 +208,7 @@ const getCardColors = ({
   };
 };
 
-type LightDarkColorParams = Partial<
-  Record<`${BaseColorKey}_${ThemeVariant}`, string | undefined>
->;
+type LightDarkColorParams = Partial<Record<`${BaseColorKey}_${ThemeVariant}`, string | undefined>>;
 
 /**
  * Returns the light- or dark-mode-specific color params, given a set of
@@ -238,10 +221,7 @@ type LightDarkColorParams = Partial<
 const extractLightDarkColors = (
   params: LightDarkColorParams,
   suffix: `_${ThemeVariant}`,
-): ColorInput =>
-  Object.fromEntries(
-    BASE_COLOR_KEYS.map((key) => [key, params[`${key}${suffix}`]]),
-  );
+): ColorInput => Object.fromEntries(BASE_COLOR_KEYS.map((key) => [key, params[`${key}${suffix}`]]));
 
 /**
  * Returns resolved colors for both light and dark mode given all input params.
@@ -262,8 +242,8 @@ const extractLightDarkColors = (
 const getLightDarkColors = (
   params: ColorInput & LightDarkColorParams,
 ): { lightColors: CardColors; darkColors: CardColors | null } => {
-  const lightOverrides = extractLightDarkColors(params, "_light");
-  const darkOverrides = extractLightDarkColors(params, "_dark");
+  const lightOverrides = extractLightDarkColors(params, '_light');
+  const darkOverrides = extractLightDarkColors(params, '_dark');
 
   const hasModeOverrides =
     Object.values(lightOverrides).some((v) => v !== undefined) ||
@@ -293,7 +273,7 @@ const COLOR_PARAM_KEYS: ReadonlyArray<keyof ColorParams> = [
 
 /** Params naming a theme rather than holding a color value. */
 const THEME_PARAM_KEYS: ReadonlyArray<keyof ColorParams> = [
-  "theme",
+  'theme',
   ...THEME_VARIANTS.map((variant) => `theme_${variant}` as const),
 ];
 

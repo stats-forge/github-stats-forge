@@ -1,6 +1,6 @@
-import type { GraphQLDocument } from "../graphql/graphqlDocument.js";
+import type { GraphQLDocument } from '../graphql/graphqlDocument.js';
 
-const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
+const GITHUB_GRAPHQL_API = 'https://api.github.com/graphql';
 
 /**
  * The slice of `fetch` this library calls.
@@ -76,7 +76,7 @@ type GraphQLResponse<TResult> = HttpResponse<{
  */
 const createGraphQLFetcher = <TResult, TVariables>(
   document: GraphQLDocument<TResult, TVariables>,
-  scheme: "bearer" | "token",
+  scheme: 'bearer' | 'token',
 ) => {
   return (
     variables: TVariables,
@@ -84,10 +84,10 @@ const createGraphQLFetcher = <TResult, TVariables>(
     { fetch }: FetcherContext,
   ): Promise<GraphQLResponse<TResult>> => {
     return httpRequest(fetch, GITHUB_GRAPHQL_API, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `${scheme} ${token}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ query: document.text, variables }),
     });

@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { existsSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
-import type { CardKind } from "./cards.js";
-import { findCard } from "./cards.js";
-import type { Answer } from "./query.js";
+import type { CardKind } from './cards.js';
+import { findCard } from './cards.js';
+import type { Answer } from './query.js';
 
 /**
  * @file A card, written down.
@@ -25,8 +25,7 @@ interface SavedCard {
  * @param path File to look for, relative to the working directory.
  * @returns Whether there is something there to load.
  */
-export const savedCardExists = (path: string): boolean =>
-  existsSync(resolve(process.cwd(), path));
+export const savedCardExists = (path: string): boolean => existsSync(resolve(process.cwd(), path));
 
 /**
  * Reads a card back off disk.
@@ -41,26 +40,24 @@ export const readSavedCard = async (
   const file = resolve(process.cwd(), path);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(await readFile(file, "utf8"));
+    parsed = JSON.parse(await readFile(file, 'utf8'));
   } catch (err) {
     throw new Error(`${file} is not readable as JSON`, { cause: err });
   }
 
-  if (typeof parsed !== "object" || parsed === null) {
+  if (typeof parsed !== 'object' || parsed === null) {
     throw new Error(`${file} does not hold a saved card`);
   }
 
   const { card: id, params } = parsed as Partial<SavedCard>;
-  const card = typeof id === "string" ? findCard(id) : undefined;
+  const card = typeof id === 'string' ? findCard(id) : undefined;
   if (!card) {
-    throw new Error(
-      `${file} names no card this version renders: ${id ?? "(nothing)"}`,
-    );
+    throw new Error(`${file} names no card this version renders: ${id ?? '(nothing)'}`);
   }
 
   // A param that is not a string could not have come off a query string.
   const entries = Object.entries(params ?? {}).filter(
-    (entry): entry is [string, string] => typeof entry[1] === "string",
+    (entry): entry is [string, string] => typeof entry[1] === 'string',
   );
 
   return { card, params: Object.fromEntries(entries) };
@@ -81,7 +78,7 @@ export const writeSavedCard = async (
 ): Promise<string> => {
   const file = resolve(process.cwd(), path);
   const saved: SavedCard = { card: card.id, params };
-  await writeFile(file, `${JSON.stringify(saved, null, 2)}\n`, "utf8");
+  await writeFile(file, `${JSON.stringify(saved, null, 2)}\n`, 'utf8');
   return file;
 };
 
@@ -95,21 +92,15 @@ export const writeSavedCard = async (
  * @param params The saved params.
  * @returns The answers, ready for the menu.
  */
-export const toAnswers = (
-  card: CardKind,
-  params: Record<string, string>,
-): Map<string, Answer> => {
+export const toAnswers = (card: CardKind, params: Record<string, string>): Map<string, Answer> => {
   const kinds = new Map(
-    [...card.required, ...card.options].map((option) => [
-      option.name,
-      option.kind,
-    ]),
+    [...card.required, ...card.options].map((option) => [option.name, option.kind]),
   );
 
   return new Map(
     Object.entries(params).map(([name, value]) => [
       name,
-      kinds.get(name) === "boolean" ? value === "true" : value,
+      kinds.get(name) === 'boolean' ? value === 'true' : value,
     ]),
   );
 };

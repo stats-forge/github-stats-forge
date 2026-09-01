@@ -1,14 +1,10 @@
-import * as z from "zod/mini";
+import * as z from 'zod/mini';
 
-import type { ColorParams } from "../common/color.js";
-import {
-  COLOR_PARAM_KEYS,
-  THEME_PARAM_KEYS,
-  isValidColorInput,
-} from "../common/color.js";
-import { CardError } from "../common/error.js";
-import { parseArray, parseBoolean } from "../common/ops.js";
-import { isLocaleAvailable } from "../translations.js";
+import type { ColorParams } from '../common/color.js';
+import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.js';
+import { CardError } from '../common/error.js';
+import { parseArray, parseBoolean } from '../common/ops.js';
+import { isLocaleAvailable } from '../translations.js';
 
 /**
  * @file The api layer is the trust boundary:
@@ -27,7 +23,7 @@ const rawParam = z.optional(z.string());
 const SAFE_PATTERN = /^[-\w/.,]+$/;
 
 /** What a check rejected a param for. */
-type Rejection = "number" | "year" | "unsafe" | "locale" | "enum" | "color";
+type Rejection = 'number' | 'year' | 'unsafe' | 'locale' | 'enum' | 'color';
 
 /**
  * Every rejection the api can put on an error card, in one place.
@@ -37,7 +33,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   number: (param) => `Invalid number input for parameter "${param}"`,
   year: (param) => `Invalid number input for parameter "${param}"`,
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
-  locale: () => "Locale not found",
+  locale: () => 'Locale not found',
   enum: (param) => `Incorrect ${param} input`,
   color: (param) => `Invalid color input for parameter "${param}"`,
 };
@@ -51,8 +47,8 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
  * @returns The check, ready for `.check()`.
  */
 const rejects = (kind: Rejection, passes: (value: string) => boolean) =>
-  z.refine((value: unknown) => typeof value !== "string" || passes(value), {
-    error: (issue) => REJECTION_MESSAGES[kind](String(issue.path?.[0] ?? "")),
+  z.refine((value: unknown) => typeof value !== 'string' || passes(value), {
+    error: (issue) => REJECTION_MESSAGES[kind](String(issue.path?.[0] ?? '')),
   });
 
 /**
@@ -75,15 +71,10 @@ const listParam = z.pipe(rawParam, z.transform(parseArray));
  * `parseFloat`, matching the coercion `Card` performs internally, so `?border_radius=10px` still renders `rx="10"`.
  * Yields the parsed number, or `undefined` when the param is absent.
  */
-const numberParam: z.ZodMiniType<number | undefined, string | undefined> =
-  z.pipe(
-    rawParam.check(
-      rejects("number", (value) => Number.isFinite(parseFloat(value))),
-    ),
-    z.transform((value) =>
-      value === undefined ? undefined : parseFloat(value),
-    ),
-  );
+const numberParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
+  rawParam.check(rejects('number', (value) => Number.isFinite(parseFloat(value)))),
+  z.transform((value) => (value === undefined ? undefined : parseFloat(value))),
+);
 
 /**
  * A number the card already falls back from — widths, counts, line heights:
@@ -91,9 +82,7 @@ const numberParam: z.ZodMiniType<number | undefined, string | undefined> =
  */
 const looseIntParam = z.pipe(
   rawParam,
-  z.transform((value) =>
-    value === undefined ? undefined : parseInt(value, 10),
-  ),
+  z.transform((value) => (value === undefined ? undefined : parseInt(value, 10))),
 );
 
 /**
@@ -102,7 +91,7 @@ const looseIntParam = z.pipe(
  * Yields the year, or `undefined` when the param is absent.
  */
 const yearParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
-  rawParam.check(rejects("year", (value) => /^\d{4}$/.test(value))),
+  rawParam.check(rejects('year', (value) => /^\d{4}$/.test(value))),
   z.transform((value) => (value === undefined ? undefined : Number(value))),
 );
 
@@ -110,10 +99,9 @@ const yearParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
  * An id the fetchers put in a URL.
  * Rejected before any request is made, and yielded unchanged otherwise.
  */
-const safeParam: z.ZodMiniType<string | undefined, string | undefined> =
-  rawParam.check(
-    rejects("unsafe", (value) => !value || SAFE_PATTERN.test(value)),
-  );
+const safeParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
+  rejects('unsafe', (value) => !value || SAFE_PATTERN.test(value)),
+);
 
 /**
  * A comma-separated list of ids, checked before it is split.
@@ -131,9 +119,7 @@ const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = z.pipe(
  * the message names the param, as the number and color rejections do.
  */
 const localeParam = z.pipe(
-  rawParam.check(
-    rejects("locale", (value) => !value || isLocaleAvailable(value)),
-  ),
+  rawParam.check(rejects('locale', (value) => !value || isLocaleAvailable(value))),
   z.transform((value) => value?.toLowerCase()),
 );
 
@@ -146,11 +132,7 @@ const localeParam = z.pipe(
 const enumParam = <const T extends ReadonlyArray<string>>(
   values: T,
 ): z.ZodMiniType<T[number] | undefined, string | undefined> =>
-  rawParam.check(
-    rejects("enum", (value) =>
-      (values as ReadonlyArray<string>).includes(value),
-    ),
-  );
+  rawParam.check(rejects('enum', (value) => (values as ReadonlyArray<string>).includes(value)));
 
 /**
  * Every color param an endpoint accepts, validated and picked in one pass.
@@ -164,7 +146,7 @@ const colorParamsSchema = z.object(
       key,
       THEME_PARAM_KEYS.includes(key)
         ? rawParam
-        : rawParam.check(rejects("color", isValidColorInput)),
+        : rawParam.check(rejects('color', isValidColorInput)),
     ]),
   ),
 );
@@ -174,8 +156,7 @@ const colorParamsSchema = z.object(
  * Every param is optional and every value a string, which is all a query string can carry;
  * naming it lets a consumer typecheck the object it builds.
  */
-type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> &
-  ColorParams;
+type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> & ColorParams;
 
 /**
  * Turns a rejection back into the error the api answers with.
@@ -187,10 +168,7 @@ type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> &
  */
 const toCardError = (error: z.core.$ZodError): CardError => {
   const issue = error.issues[0];
-  return CardError.invalidParam(
-    String(issue?.path[0] ?? ""),
-    issue?.message ?? "Invalid input",
-  );
+  return CardError.invalidParam(String(issue?.path[0] ?? ''), issue?.message ?? 'Invalid input');
 };
 
 /**
@@ -223,8 +201,7 @@ const parseParams = <TSchema extends z.ZodMiniType>(
  * @returns The color params.
  * @throws {CardError} When a param does not hold a color or a gradient.
  */
-const parseColorParams = (query: unknown): ColorParams =>
-  parseParams(colorParamsSchema, query);
+const parseColorParams = (query: unknown): ColorParams => parseParams(colorParamsSchema, query);
 
 export type { ApiQuery };
 

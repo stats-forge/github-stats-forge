@@ -4,13 +4,14 @@
  *
  * Pass `--check` to fail on drift instead of writing.
  */
-import fs from "node:fs/promises";
-import path from "node:path";
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
-import { codegen } from "@graphql-codegen/core";
-import * as typescriptPlugin from "@graphql-codegen/typescript";
-import * as typescriptOperationsPlugin from "@graphql-codegen/typescript-operations";
-import { schema as githubSchema } from "@octokit/graphql-schema";
+import { codegen } from '@graphql-codegen/core';
+import * as typescriptPlugin from '@graphql-codegen/typescript';
+import * as typescriptOperationsPlugin from '@graphql-codegen/typescript-operations';
+import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
+import { schema as githubSchema } from '@octokit/graphql-schema';
 import {
   GraphQLSchema,
   Kind,
@@ -22,8 +23,8 @@ import {
   printSchema,
   typeFromAST,
   visit,
-} from "graphql";
-import { format, resolveConfig } from "prettier";
+} from 'graphql';
+import { format } from 'oxfmt';
 
 /**
  * @typedef {Parameters<typeof codegen>[0]} CodegenOptions
@@ -37,15 +38,12 @@ import { format, resolveConfig } from "prettier";
  * @typedef {Map<string, FragmentDefinitionNode>} FragmentMap Fragment definitions by name.
  */
 
-const PACKAGE_ROOT = path.join(import.meta.dirname, "..");
-const QUERIES_DIR = path.join(PACKAGE_ROOT, "src/graphql/queries");
-const OUT_DIR = path.join(PACKAGE_ROOT, "src/graphql/generated");
-const COMMON_FILE = path.join(OUT_DIR, "common.ts");
+const PACKAGE_ROOT = path.join(import.meta.dirname, '..');
+const QUERIES_DIR = path.join(PACKAGE_ROOT, 'src/graphql/queries');
+const OUT_DIR = path.join(PACKAGE_ROOT, 'src/graphql/generated');
+const COMMON_FILE = path.join(OUT_DIR, 'common.ts');
 // `typescript-operations` resolves this against the working directory
-const COMMON_IMPORT_PATH = path.relative(
-  process.cwd(),
-  COMMON_FILE.replace(/\.ts$/, ".js"),
-);
+const COMMON_IMPORT_PATH = path.relative(process.cwd(), COMMON_FILE.replace(/\.ts$/, '.js'));
 
 /**
  * @param {string} file Absolute path.
@@ -54,7 +52,7 @@ const COMMON_IMPORT_PATH = path.relative(
 const pathRelativeFromRoot = (file) => path.relative(PACKAGE_ROOT, file);
 
 // CI mode: regenerate in memory, fail on any difference
-const checkOnly = process.argv.includes("--check");
+const checkOnly = process.argv.includes('--check');
 
 /** @type {TypeScriptPluginConfig & TypeScriptDocumentsPluginConfig} */
 const config = {
@@ -64,7 +62,7 @@ const config = {
   useTypeImports: true,
   // enums and input types come from the common file, imported only where used
   importSchemaTypesFrom: COMMON_IMPORT_PATH,
-  scalars: { DateTime: "string" },
+  scalars: { DateTime: 'string' },
 };
 
 // GitHub's SDL declares a few fields twice, which trips SDL validation
@@ -78,13 +76,13 @@ const queryDir = await fs.readdir(QUERIES_DIR).catch(() => {
   console.error(`No queries in ${pathRelativeFromRoot(QUERIES_DIR)}`);
   process.exit(1);
 });
-const queryFiles = queryDir.filter((file) => file.endsWith(".graphql")).sort();
+const queryFiles = queryDir.filter((file) => file.endsWith('.graphql')).sort();
 
 const documents = await Promise.all(
   queryFiles.map(async (file) => {
     const location = path.join(QUERIES_DIR, file);
-    const output = path.join(OUT_DIR, `${path.basename(file, ".graphql")}.ts`);
-    const document = parse(await fs.readFile(location, "utf8"));
+    const output = path.join(OUT_DIR, `${path.basename(file, '.graphql')}.ts`);
+    const document = parse(await fs.readFile(location, 'utf8'));
     return { location, output, document };
   }),
 );
@@ -129,7 +127,7 @@ const pascalCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
  */
 const operationNames = (operation) => {
   if (!operation.name) {
-    throw new Error("Every query needs a name to generate types from");
+    throw new Error('Every query needs a name to generate types from');
   }
   const name = pascalCase(operation.name.value);
   // `typescript-operations` appends the operation type unconditionally
@@ -160,18 +158,17 @@ const documentsPlugin = (_schema, files) => {
   const operations = definitions
     .filter((definition) => definition.kind === OPERATION_DEFINITION)
     .map((operation) => {
-      const { documentName, resultType, variablesType } =
-        operationNames(operation);
+      const { documentName, resultType, variablesType } = operationNames(operation);
       const text = [
         print(operation),
         ...[...spreadFragments(operation, fragments).values()].map(print),
-      ].join("\n");
+      ].join('\n');
       return `export const ${documentName} = graphqlDocument<${resultType}, ${variablesType}>(\`\n${text}\`);`;
     });
 
   return {
     prepend: [`import { graphqlDocument } from "../graphqlDocument.js";`],
-    content: operations.join("\n\n"),
+    content: operations.join('\n\n'),
   };
 };
 
@@ -203,9 +200,9 @@ const outputs = documents.map((file) => ({
   schema: schemaDocument,
   schemaAst,
   documents: [file],
-  plugins: [{ "typescript-operations": {} }, { documents: {} }],
+  plugins: [{ 'typescript-operations': {} }, { documents: {} }],
   pluginMap: {
-    "typescript-operations": typescriptOperationsPlugin,
+    'typescript-operations': typescriptOperationsPlugin,
     documents: { plugin: documentsPlugin },
   },
 }));
@@ -223,40 +220,37 @@ if (commonTypes.size) {
   });
 }
 
-const prettierConfig = await resolveConfig(COMMON_FILE);
 const generated = await Promise.all(
   outputs.map(async ({ filename, ...options }) => {
     const content = await codegen({ filename, config, ...options });
     return {
       filename,
-      content: await format(BANNER + content.replace(INCREMENTAL_TYPE, ""), {
-        ...prettierConfig,
-        parser: "typescript",
-      }),
+      content: (await format(filename, BANNER + content.replace(INCREMENTAL_TYPE, ''), oxfmtConfig))
+        .code,
     };
   }),
 );
 
-const queryCount = `${documents.length} ${documents.length === 1 ? "query" : "queries"}`;
+const queryCount = `${documents.length} ${documents.length === 1 ? 'query' : 'queries'}`;
 
 // a deleted query leaves its generated file behind; anything else in the folder is not ours
 const expected = new Set(generated.map(({ filename }) => filename));
 const stale = (await fs.readdir(OUT_DIR).catch(() => []))
-  .filter((file) => file.endsWith(".ts"))
+  .filter((file) => file.endsWith('.ts'))
   .map((file) => path.join(OUT_DIR, file))
   .filter((file) => !expected.has(file));
 
 if (checkOnly) {
   const outdated = stale.map(pathRelativeFromRoot);
   for (const { filename, content } of generated) {
-    const current = await fs.readFile(filename, "utf8").catch(() => null);
+    const current = await fs.readFile(filename, 'utf8').catch(() => null);
     if (current !== content) {
       outdated.push(pathRelativeFromRoot(filename));
     }
   }
 
   if (outdated.length > 0) {
-    const files = outdated.map((file) => `  ${file}`).join("\n");
+    const files = outdated.map((file) => `  ${file}`).join('\n');
     const message = `GraphQL types are out of date:\n${files}\n\nRun \`pnpm --filter ./packages/core/ run generate-graphql-types\`.`;
     console.error(message);
     process.exit(1);

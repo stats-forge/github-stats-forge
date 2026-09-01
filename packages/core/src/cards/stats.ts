@@ -1,15 +1,15 @@
-import { Card } from "../common/Card.js";
-import { I18n } from "../common/I18n.js";
-import { getLightDarkColors } from "../common/color.js";
-import type { CardColors } from "../common/color.js";
-import { CardError } from "../common/error.js";
-import { icons, rankIcon } from "../common/icons.js";
-import { buildSearchFilter, clampValue } from "../common/ops.js";
-import { createTextNode, flexLayout, measureText } from "../common/render.js";
-import type { StatsData } from "../fetchers/types.js";
-import { statCardLocales, wakatimeCardLocales } from "../translations.js";
+import { Card } from '../common/Card.js';
+import { getLightDarkColors } from '../common/color.js';
+import type { CardColors } from '../common/color.js';
+import { CardError } from '../common/error.js';
+import { I18n } from '../common/I18n.js';
+import { icons, rankIcon } from '../common/icons.js';
+import { buildSearchFilter, clampValue } from '../common/ops.js';
+import { createTextNode, flexLayout, measureText } from '../common/render.js';
+import type { StatsData } from '../fetchers/types.js';
+import { statCardLocales, wakatimeCardLocales } from '../translations.js';
 
-import type { CardOptions, CommonCardOptions } from "./options.js";
+import type { CardOptions, CommonCardOptions } from './options.js';
 
 const CARD_MIN_WIDTH = 287;
 const CARD_DEFAULT_WIDTH = 287;
@@ -19,7 +19,7 @@ const RANK_ONLY_CARD_MIN_WIDTH = 290;
 const RANK_ONLY_CARD_DEFAULT_WIDTH = 290;
 
 /** Rank indicators the card can draw; the api validates `rank_icon` against this. */
-const RANK_ICONS = ["default", "github", "percentile"] as const;
+const RANK_ICONS = ['default', 'github', 'percentile'] as const;
 type RankIcon = (typeof RANK_ICONS)[number];
 
 interface StatCardOptions extends CommonCardOptions {
@@ -54,32 +54,32 @@ interface StatItem {
 
 /** Long locales that need more space for text. Keep sorted alphabetically. */
 const LONG_LOCALES: Array<string> = [
-  "az",
-  "bg",
-  "cs",
-  "de",
-  "el",
-  "es",
-  "fil",
-  "fi",
-  "fr",
-  "hu",
-  "id",
-  "ja",
-  "ml",
-  "my",
-  "nl",
-  "pl",
-  "pt-br",
-  "pt-pt",
-  "ru",
-  "sr",
-  "sr-latn",
-  "sw",
-  "ta",
-  "uk-ua",
-  "uz",
-  "zh-tw",
+  'az',
+  'bg',
+  'cs',
+  'de',
+  'el',
+  'es',
+  'fil',
+  'fi',
+  'fr',
+  'hu',
+  'id',
+  'ja',
+  'ml',
+  'my',
+  'nl',
+  'pl',
+  'pt-br',
+  'pt-pt',
+  'ru',
+  'sr',
+  'sr-latn',
+  'sw',
+  'ta',
+  'uk-ua',
+  'uz',
+  'zh-tw',
 ];
 
 /**
@@ -174,7 +174,7 @@ const getStyles = ({
     .bold { font-weight: 700 }
     .icon {
       fill: ${iconColor};
-      display: ${show_icons ? "block" : "none"};
+      display: ${show_icons ? 'block' : 'none'};
     }
 
     .rank-circle-rim {
@@ -212,10 +212,10 @@ const getTotalCommitsYearLabel = (
   i18n: I18n,
 ): string =>
   include_all_commits
-    ? ""
+    ? ''
     : commits_year
       ? ` (${commits_year})`
-      : ` (${i18n.t("wakatimecard.lastyear")})`;
+      : ` (${i18n.t('wakatimecard.lastyear')})`;
 
 /**
  * Renders the stats card.
@@ -268,11 +268,11 @@ const renderStatsCard = (
     text_bold = true,
     custom_title,
     border_radius,
-    number_format = "short",
+    number_format = 'short',
     number_precision,
     locale,
     disable_animations = false,
-    rank_icon = "default",
+    rank_icon = 'default',
     show = [],
   } = options;
 
@@ -280,7 +280,7 @@ const renderStatsCard = (
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
-  const apostrophe = /s$/i.test(name.trim()) ? "" : "s";
+  const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const i18n = new I18n({
     locale,
     translations: {
@@ -292,156 +292,156 @@ const renderStatsCard = (
   // Meta data for creating text nodes with createTextNode function
   const STATS: Record<string, StatItem> = {};
 
-  STATS["stars"] = {
+  STATS['stars'] = {
     icon: icons.star,
-    label: i18n.t("statcard.totalstars"),
+    label: i18n.t('statcard.totalstars'),
     value: totalStars,
-    id: "stars",
+    id: 'stars',
   };
 
-  if (show.includes("contributions")) {
-    STATS["contributions"] = {
+  if (show.includes('contributions')) {
+    STATS['contributions'] = {
       icon: icons.contributions,
-      label: i18n.t("statcard.contributions"),
+      label: i18n.t('statcard.contributions'),
       value: totalContributions,
-      id: "contributions",
+      id: 'contributions',
     };
   }
 
-  STATS["commits"] = {
+  STATS['commits'] = {
     icon: icons.commits,
-    label: `${i18n.t("statcard.commits")}${getTotalCommitsYearLabel(
+    label: `${i18n.t('statcard.commits')}${getTotalCommitsYearLabel(
       include_all_commits,
       commits_year,
       i18n,
     )}`,
     value: totalCommits,
-    id: "commits",
+    id: 'commits',
   };
-  STATS["prs"] = {
+  STATS['prs'] = {
     icon: icons.prs,
-    label: i18n.t("statcard.prs"),
+    label: i18n.t('statcard.prs'),
     value: totalPRs,
-    id: "prs",
+    id: 'prs',
   };
 
-  if (show.includes("prs_merged")) {
-    STATS["prs_merged"] = {
+  if (show.includes('prs_merged')) {
+    STATS['prs_merged'] = {
       icon: icons.prs_merged,
-      label: i18n.t("statcard.prs-merged"),
+      label: i18n.t('statcard.prs-merged'),
       value: totalPRsMerged,
-      id: "prs_merged",
+      id: 'prs_merged',
     };
   }
 
-  if (show.includes("prs_merged_percentage")) {
-    STATS["prs_merged_percentage"] = {
+  if (show.includes('prs_merged_percentage')) {
+    STATS['prs_merged_percentage'] = {
       icon: icons.prs_merged_percentage,
-      label: i18n.t("statcard.prs-merged-percentage"),
+      label: i18n.t('statcard.prs-merged-percentage'),
       value: mergedPRsPercentage.toFixed(
         number_precision !== undefined && Number.isFinite(number_precision)
           ? clampValue(number_precision, 0, 2)
           : 2,
       ),
-      id: "prs_merged_percentage",
-      unitSymbol: "%",
+      id: 'prs_merged_percentage',
+      unitSymbol: '%',
     };
   }
 
-  if (show.includes("reviews")) {
-    STATS["reviews"] = {
+  if (show.includes('reviews')) {
+    STATS['reviews'] = {
       icon: icons.reviews,
-      label: i18n.t("statcard.reviews"),
+      label: i18n.t('statcard.reviews'),
       value: totalReviews,
-      id: "reviews",
+      id: 'reviews',
     };
   }
 
-  STATS["issues"] = {
+  STATS['issues'] = {
     icon: icons.issues,
-    label: i18n.t("statcard.issues"),
+    label: i18n.t('statcard.issues'),
     value: totalIssues,
-    id: "issues",
+    id: 'issues',
   };
 
-  if (show.includes("discussions_started")) {
-    STATS["discussions_started"] = {
+  if (show.includes('discussions_started')) {
+    STATS['discussions_started'] = {
       icon: icons.discussions_started,
-      label: i18n.t("statcard.discussions-started"),
+      label: i18n.t('statcard.discussions-started'),
       value: totalDiscussionsStarted,
-      id: "discussions_started",
+      id: 'discussions_started',
     };
   }
-  if (show.includes("discussions_answered")) {
-    STATS["discussions_answered"] = {
+  if (show.includes('discussions_answered')) {
+    STATS['discussions_answered'] = {
       icon: icons.discussions_answered,
-      label: i18n.t("statcard.discussions-answered"),
+      label: i18n.t('statcard.discussions-answered'),
       value: totalDiscussionsAnswered,
-      id: "discussions_answered",
+      id: 'discussions_answered',
     };
   }
 
   const repoFilter = encodeURIComponent(buildSearchFilter(repo, owner));
-  const encodedUsername = encodeURIComponent(username ?? "");
-  if (show.includes("prs_authored")) {
-    STATS["prs_authored"] = {
+  const encodedUsername = encodeURIComponent(username ?? '');
+  if (show.includes('prs_authored')) {
+    STATS['prs_authored'] = {
       icon: icons.prs,
-      label: i18n.t("statcard.prs-authored"),
+      label: i18n.t('statcard.prs-authored'),
       value: totalPRsAuthored,
-      id: "prs_authored",
+      id: 'prs_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes("prs_commented")) {
-    STATS["prs_commented"] = {
+  if (show.includes('prs_commented')) {
+    STATS['prs_commented'] = {
       icon: icons.comments,
-      label: i18n.t("statcard.prs-commented"),
+      label: i18n.t('statcard.prs-commented'),
       value: totalPRsCommented,
-      id: "prs_commented",
+      id: 'prs_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes("prs_reviewed")) {
-    STATS["prs_reviewed"] = {
+  if (show.includes('prs_reviewed')) {
+    STATS['prs_reviewed'] = {
       icon: icons.reviews,
-      label: i18n.t("statcard.prs-reviewed"),
+      label: i18n.t('statcard.prs-reviewed'),
       value: totalPRsReviewed,
-      id: "prs_reviewed",
+      id: 'prs_reviewed',
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes("issues_authored")) {
-    STATS["issues_authored"] = {
+  if (show.includes('issues_authored')) {
+    STATS['issues_authored'] = {
       icon: icons.issues,
-      label: i18n.t("statcard.issues-authored"),
+      label: i18n.t('statcard.issues-authored'),
       value: totalIssuesAuthored,
-      id: "issues_authored",
+      id: 'issues_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
     };
   }
-  if (show.includes("issues_commented")) {
-    STATS["issues_commented"] = {
+  if (show.includes('issues_commented')) {
+    STATS['issues_commented'] = {
       icon: icons.discussions_started,
-      label: i18n.t("statcard.issues-commented"),
+      label: i18n.t('statcard.issues-commented'),
       value: totalIssuesCommented,
-      id: "issues_commented",
+      id: 'issues_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,
     };
   }
 
-  STATS["contribs"] = {
+  STATS['contribs'] = {
     icon: icons.contribs,
-    label: i18n.t("statcard.contribs"),
+    label: i18n.t('statcard.contribs'),
     value: contributedTo,
-    id: "contribs",
+    id: 'contribs',
   };
 
-  if (show.includes("all_time_contribs")) {
-    STATS["all_time_contribs"] = {
+  if (show.includes('all_time_contribs')) {
+    STATS['all_time_contribs'] = {
       icon: icons.contribs,
-      label: i18n.t("statcard.all-time-contribs"),
+      label: i18n.t('statcard.all-time-contribs'),
       value: allTimeContributedTo,
-      id: "all_time_contribs",
+      id: 'all_time_contribs',
     };
   }
 
@@ -474,9 +474,9 @@ const renderStatsCard = (
     );
 
   if (statItems.length === 0 && hide_rank) {
-    throw new CardError("Could not render stats card.", {
-      code: "invalid_param",
-      secondaryMessage: "Either stats or rank are required.",
+    throw new CardError('Could not render stats card.', {
+      code: 'invalid_param',
+      secondaryMessage: 'Either stats or rank are required.',
     });
   }
 
@@ -495,8 +495,8 @@ const renderStatsCard = (
       custom_title
         ? custom_title
         : statItems.length
-          ? i18n.t("statcard.title")
-          : i18n.t("statcard.ranktitle"),
+          ? i18n.t('statcard.title')
+          : i18n.t('statcard.ranktitle'),
     );
   };
 
@@ -508,11 +508,7 @@ const renderStatsCard = (
   const iconWidth = show_icons && statItems.length ? 16 + /* padding */ 1 : 0;
   const minCardWidth =
     (hide_rank
-      ? clampValue(
-          50 /* padding */ + calculateTextWidth() * 2,
-          CARD_MIN_WIDTH,
-          Infinity,
-        )
+      ? clampValue(50 /* padding */ + calculateTextWidth() * 2, CARD_MIN_WIDTH, Infinity)
       : statItems.length
         ? RANK_CARD_MIN_WIDTH
         : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
@@ -530,9 +526,7 @@ const renderStatsCard = (
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: statItems.length
-      ? i18n.t("statcard.title")
-      : i18n.t("statcard.ranktitle"),
+    defaultTitle: statItems.length ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle'),
     width,
     height,
     border_radius,
@@ -541,11 +535,7 @@ const renderStatsCard = (
 
   card.setHideBorder(hide_border);
   card.setHideTitle(hide_title);
-  const cardStyles = ({
-    ringColor,
-    textColor,
-    iconColor,
-  }: CardColors): string =>
+  const cardStyles = ({ ringColor, textColor, iconColor }: CardColors): string =>
     getStyles({ ringColor, textColor, iconColor, show_icons, progress });
 
   card.setCSS({ light: cardStyles, dark: cardStyles });
@@ -580,11 +570,9 @@ const renderStatsCard = (
 
   // Conditionally rendered elements
   const rankCircle = hide_rank
-    ? ""
+    ? ''
     : `<g data-testid="rank-circle"
-          transform="translate(${calculateRankXTranslation()}, ${
-            height / 2 - 50
-          })">
+          transform="translate(${calculateRankXTranslation()}, ${height / 2 - 50})">
         <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
         <circle class="rank-circle" cx="-10" cy="8" r="40" />
         <g class="rank-text">
@@ -596,8 +584,8 @@ const renderStatsCard = (
   const labels = Object.entries(STATS)
     .filter(([key]) => !hide.includes(key))
     .map(([key, stat]) => {
-      if (key === "commits") {
-        return `${i18n.t("statcard.commits")} ${getTotalCommitsYearLabel(
+      if (key === 'commits') {
+        return `${i18n.t('statcard.commits')} ${getTotalCommitsYearLabel(
           include_all_commits,
           commits_year,
           i18n,
@@ -605,7 +593,7 @@ const renderStatsCard = (
       }
       return `${stat.label}: ${stat.value}`;
     })
-    .join(", ");
+    .join(', ');
 
   card.setAccessibilityLabel({
     title: `${card.title}, Rank: ${rank.level}`,
@@ -618,8 +606,8 @@ const renderStatsCard = (
       ${flexLayout({
         items: statItems,
         gap: lheight,
-        direction: "column",
-      }).join("")}
+        direction: 'column',
+      }).join('')}
     </svg>
   `);
 };

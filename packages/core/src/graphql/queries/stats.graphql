@@ -21,11 +21,7 @@ fragment RepoStars on User {
   }
 }
 
-query userRepos(
-  $login: String!
-  $after: String
-  $ownerAffiliations: [RepositoryAffiliation]
-) {
+query userRepos($login: String!, $after: String, $ownerAffiliations: [RepositoryAffiliation]) {
   user(login: $login) {
     ...RepoStars
   }
@@ -60,8 +56,7 @@ query userInfo(
     pullRequests(first: 1) {
       totalCount
     }
-    mergedPullRequests: pullRequests(states: MERGED)
-      @include(if: $includeMergedPullRequests) {
+    mergedPullRequests: pullRequests(states: MERGED) @include(if: $includeMergedPullRequests) {
       totalCount
     }
     openIssues: issues(states: OPEN) {
@@ -76,8 +71,7 @@ query userInfo(
     repositoryDiscussions @include(if: $includeDiscussions) {
       totalCount
     }
-    repositoryDiscussionComments(onlyAnswers: true)
-      @include(if: $includeDiscussionsAnswers) {
+    repositoryDiscussionComments(onlyAnswers: true) @include(if: $includeDiscussionsAnswers) {
       totalCount
     }
     contributionsCollection {
@@ -109,8 +103,7 @@ fragment RangeContributionsByRepo on ContributionsCollection {
       nameWithOwner
     }
   }
-  repositoryContributions(first: $maxRepositories)
-    @include(if: $includeOwnRepos) {
+  repositoryContributions(first: $maxRepositories) @include(if: $includeOwnRepos) {
     nodes {
       repository {
         nameWithOwner

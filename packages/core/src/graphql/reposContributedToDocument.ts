@@ -1,8 +1,8 @@
-import type { GitHubDateRange } from "../common/date.js";
-import { toGitHubDateTime } from "../common/date.js";
+import type { GitHubDateRange } from '../common/date.js';
+import { toGitHubDateTime } from '../common/date.js';
 
-import type { RangeContributionsByRepoFragment } from "./generated/stats.js";
-import { graphqlDocument } from "./graphqlDocument.js";
+import type { RangeContributionsByRepoFragment } from './generated/stats.js';
+import { graphqlDocument } from './graphqlDocument.js';
 
 /** max value GitHub allows for `first/maxRepositories` */
 const MAX_REPOSITORIES_LIMIT = 100;
@@ -37,7 +37,7 @@ const buildReposContributedToDocument = (
       ({ from, to }, index) =>
         `range_${index}: contributionsCollection(from: "${toGitHubDateTime(from)}", to: "${toGitHubDateTime(to)}") { ...RangeContributionsByRepo }`,
     )
-    .join("\n");
+    .join('\n');
 
   // `repositoryContributions` only ever returns repos the user owns,
   // so it is left out rather than gated with @include: an excluded field still counts toward the query's node cost.
@@ -50,13 +50,10 @@ const buildReposContributedToDocument = (
       }
     }
   }`
-    : "";
+    : '';
 
   // fragment must match queries/stats.graphql, which generates its type
-  return graphqlDocument<
-    ReposContributedToQuery,
-    ReposContributedToQueryVariables
-  >(`
+  return graphqlDocument<ReposContributedToQuery, ReposContributedToQueryVariables>(`
 query userReposContributedTo($login: String!, $maxRepositories: Int!) {
   user(login: $login) {
     ${rangeFields}

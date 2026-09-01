@@ -1,12 +1,12 @@
-import * as z from "zod/mini";
+import * as z from 'zod/mini';
 
-import { RANK_ICONS, renderStatsCard } from "../cards/stats.js";
-import type { CardConfig } from "../common/config.js";
-import { fetchStats } from "../fetchers/stats.js";
+import { RANK_ICONS, renderStatsCard } from '../cards/stats.js';
+import type { CardConfig } from '../common/config.js';
+import { fetchStats } from '../fetchers/stats.js';
 
-import type { ApiResult } from "./api-result.js";
-import { errorResult } from "./api-result.js";
-import type { ApiQuery } from "./params.js";
+import type { ApiResult } from './api-result.js';
+import { errorResult } from './api-result.js';
+import type { ApiQuery } from './params.js';
 import {
   booleanParam,
   enumParam,
@@ -20,7 +20,7 @@ import {
   safeListParam,
   safeParam,
   yearParam,
-} from "./params.js";
+} from './params.js';
 
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z.object({
@@ -84,10 +84,7 @@ type StatsApiQuery = ApiQuery<typeof statsQuery>;
  * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
-const renderStats = async (
-  query: StatsApiQuery,
-  config: CardConfig,
-): Promise<ApiResult> => {
+const renderStats = async (query: StatsApiQuery, config: CardConfig): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -126,7 +123,7 @@ const renderStats = async (
 
     // A bare repo name is scoped to the user whose card this is.
     const repository = repo.map((name) =>
-      name.includes("/") ? name : `${username ?? ""}/${name}`,
+      name.includes('/') ? name : `${username ?? ''}/${name}`,
     );
 
     const stats = await fetchStats(
@@ -135,27 +132,27 @@ const renderStats = async (
         include_all_commits,
         exclude_repo,
         include_merged_pull_requests:
-          show.includes("prs_merged") || show.includes("prs_merged_percentage"),
-        include_discussions: show.includes("discussions_started"),
-        include_discussions_answers: show.includes("discussions_answered"),
+          show.includes('prs_merged') || show.includes('prs_merged_percentage'),
+        include_discussions: show.includes('discussions_started'),
+        include_discussions_answers: show.includes('discussions_answered'),
         commits_year,
         repo: repository,
         owner,
-        include_prs_authored: show.includes("prs_authored"),
-        include_prs_commented: show.includes("prs_commented"),
-        include_prs_reviewed: show.includes("prs_reviewed"),
-        include_issues_authored: show.includes("issues_authored"),
-        include_issues_commented: show.includes("issues_commented"),
+        include_prs_authored: show.includes('prs_authored'),
+        include_prs_commented: show.includes('prs_commented'),
+        include_prs_reviewed: show.includes('prs_reviewed'),
+        include_issues_authored: show.includes('issues_authored'),
+        include_issues_commented: show.includes('issues_commented'),
         ownerAffiliations: role,
-        include_contributions: show.includes("contributions"),
-        include_all_time_contribs: show.includes("all_time_contribs"),
+        include_contributions: show.includes('contributions'),
+        include_all_time_contribs: show.includes('all_time_contribs'),
         contribs_include_own_repos,
       },
       config,
     );
 
     return {
-      status: "success",
+      status: 'success',
       content: renderStatsCard(
         stats,
         {

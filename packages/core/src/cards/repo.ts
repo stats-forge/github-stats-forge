@@ -1,10 +1,10 @@
-import { Card } from "../common/Card.js";
-import { I18n } from "../common/I18n.js";
-import { getLightDarkColors } from "../common/color.js";
-import { kFormatter, wrapTextMultiline } from "../common/fmt.js";
-import { encodeHTML } from "../common/html.js";
-import { icons } from "../common/icons.js";
-import { buildSearchFilter, clampValue, parseEmojis } from "../common/ops.js";
+import { Card } from '../common/Card.js';
+import { getLightDarkColors } from '../common/color.js';
+import { kFormatter, wrapTextMultiline } from '../common/fmt.js';
+import { encodeHTML } from '../common/html.js';
+import { I18n } from '../common/I18n.js';
+import { icons } from '../common/icons.js';
+import { buildSearchFilter, clampValue, parseEmojis } from '../common/ops.js';
 import {
   countWrappedLines,
   createLanguageNode,
@@ -14,11 +14,11 @@ import {
   measureText,
   wrappedTextNode,
   wrappedTextStyles,
-} from "../common/render.js";
-import type { RepositoryData } from "../fetchers/types.js";
-import { repoCardLocales } from "../translations.js";
+} from '../common/render.js';
+import type { RepositoryData } from '../fetchers/types.js';
+import { repoCardLocales } from '../translations.js';
 
-import type { CardOptions, CommonCardOptions } from "./options.js";
+import type { CardOptions, CommonCardOptions } from './options.js';
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = 400;
@@ -110,11 +110,11 @@ const renderRepoCard = (
     browser_rendering = false,
     show = [],
     show_icons = true,
-    number_format = "short",
+    number_format = 'short',
     text_bold = false,
     line_height = 22,
     username,
-    theme = "default_repocard",
+    theme = 'default_repocard',
     border_radius,
     locale,
     description_lines_count,
@@ -133,50 +133,50 @@ const renderRepoCard = (
   });
 
   const repoFilter = encodeURIComponent(buildSearchFilter([nameWithOwner], []));
-  const encodedUsername = encodeURIComponent(username ?? "");
+  const encodedUsername = encodeURIComponent(username ?? '');
   const STATS: Record<string, RepoStatItem> = {};
-  if (show.includes("prs_authored")) {
-    STATS["prs_authored"] = {
+  if (show.includes('prs_authored')) {
+    STATS['prs_authored'] = {
       icon: icons.prs,
-      label: i18n.t("repocard.prs-authored"),
+      label: i18n.t('repocard.prs-authored'),
       value: totalPRsAuthored,
-      id: "prs_authored",
+      id: 'prs_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes("prs_commented")) {
-    STATS["prs_commented"] = {
+  if (show.includes('prs_commented')) {
+    STATS['prs_commented'] = {
       icon: icons.comments,
-      label: i18n.t("repocard.prs-commented"),
+      label: i18n.t('repocard.prs-commented'),
       value: totalPRsCommented,
-      id: "prs_commented",
+      id: 'prs_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes("prs_reviewed")) {
-    STATS["prs_reviewed"] = {
+  if (show.includes('prs_reviewed')) {
+    STATS['prs_reviewed'] = {
       icon: icons.reviews,
-      label: i18n.t("repocard.prs-reviewed"),
+      label: i18n.t('repocard.prs-reviewed'),
       value: totalPRsReviewed,
-      id: "prs_reviewed",
+      id: 'prs_reviewed',
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes("issues_authored")) {
-    STATS["issues_authored"] = {
+  if (show.includes('issues_authored')) {
+    STATS['issues_authored'] = {
       icon: icons.issues,
-      label: i18n.t("repocard.issues-authored"),
+      label: i18n.t('repocard.issues-authored'),
       value: totalIssuesAuthored,
-      id: "issues_authored",
+      id: 'issues_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
     };
   }
-  if (show.includes("issues_commented")) {
-    STATS["issues_commented"] = {
+  if (show.includes('issues_commented')) {
+    STATS['issues_commented'] = {
       icon: icons.discussions_started,
-      label: i18n.t("repocard.issues-commented"),
+      label: i18n.t('repocard.issues-commented'),
       value: totalIssuesCommented,
-      id: "issues_commented",
+      id: 'issues_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,
     };
   }
@@ -202,9 +202,9 @@ const renderRepoCard = (
   const extraLHeight = parseInt(String(line_height), 10);
   const lineHeight = 10;
   const header = show_owner ? nameWithOwner : name;
-  const langName = (primaryLanguage && primaryLanguage.name) || "Unspecified";
-  const langColor = (primaryLanguage && primaryLanguage.color) || "#333";
-  const desc = parseEmojis(description || "No description provided");
+  const langName = (primaryLanguage && primaryLanguage.name) || 'Unspecified';
+  const langColor = (primaryLanguage && primaryLanguage.color) || '#333';
+  const desc = parseEmojis(description || 'No description provided');
   const descriptionBoxWidth = card_width - 2 * X_OFFSET;
 
   let descriptionLinesCount: number;
@@ -216,12 +216,7 @@ const renderRepoCard = (
     // fixed character count.
     descriptionLinesCount = description_lines_count
       ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
-      : countWrappedLines(
-          desc,
-          DESCRIPTION_FONT_SIZE,
-          descriptionBoxWidth,
-          DESCRIPTION_MAX_LINES,
-        );
+      : countWrappedLines(desc, DESCRIPTION_FONT_SIZE, descriptionBoxWidth, DESCRIPTION_MAX_LINES);
     descriptionSvg = wrappedTextNode({
       text: desc,
       x: X_OFFSET,
@@ -229,8 +224,8 @@ const renderRepoCard = (
       width: descriptionBoxWidth,
       height: descriptionLinesCount * DESCRIPTION_LINE_HEIGHT_PX + 10, // 10px extra for "descenders" like g, j, q, p, y
       lineCount: descriptionLinesCount,
-      className: "description",
-      testId: "description-text",
+      className: 'description',
+      testId: 'description-text',
     });
   } else {
     const descriptionMaxLines = description_lines_count
@@ -246,11 +241,8 @@ const renderRepoCard = (
       ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
       : multiLineDescription.length;
     descriptionSvg = multiLineDescription
-      .map(
-        (line) =>
-          `<tspan dy="1.2em" x="${X_OFFSET}">${encodeHTML(line)}</tspan>`,
-      )
-      .join("");
+      .map((line) => `<tspan dy="1.2em" x="${X_OFFSET}">${encodeHTML(line)}</tspan>`)
+      .join('');
     descriptionSvg = `<text class="description" x="${X_OFFSET}" y="-5"> 
       ${descriptionSvg}
     </text>`;
@@ -260,30 +252,16 @@ const renderRepoCard = (
     ? -7 + (Math.ceil(statItems.length / 2) + 1) * extraLHeight
     : 0;
   const height =
-    (descriptionLinesCount > 1 ? 120 : 110) +
-    descriptionLinesCount * lineHeight +
-    extraHeight;
+    (descriptionLinesCount > 1 ? 120 : 110) + descriptionLinesCount * lineHeight + extraHeight;
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
-  const svgLanguage = primaryLanguage
-    ? createLanguageNode(langName, langColor)
-    : "";
+  const svgLanguage = primaryLanguage ? createLanguageNode(langName, langColor) : '';
 
   const totalStars = kFormatter(stargazerCount);
   const totalForks = kFormatter(forkCount);
-  const svgStars = iconWithLabel(
-    icons.star,
-    totalStars,
-    "stargazers",
-    ICON_SIZE,
-  );
-  const svgForks = iconWithLabel(
-    icons.fork,
-    totalForks,
-    "forkcount",
-    ICON_SIZE,
-  );
+  const svgStars = iconWithLabel(icons.star, totalStars, 'stargazers', ICON_SIZE);
+  const svgForks = iconWithLabel(icons.fork, totalForks, 'forkcount', ICON_SIZE);
 
   const starAndForkCount = flexLayout({
     items: [svgLanguage, svgStars, svgForks],
@@ -293,7 +271,7 @@ const renderRepoCard = (
       ICON_SIZE + measureText(`${totalForks}`, 12),
     ],
     gap: 25,
-  }).join("");
+  }).join('');
 
   const extraRows: Array<string> = [];
   for (let i = 0; i < statItems.length; i += 2) {
@@ -301,8 +279,8 @@ const renderRepoCard = (
       flexLayout({
         items: statItems.slice(i, i + 2),
         gap: 210,
-        direction: "row",
-      }).join(""),
+        direction: 'row',
+      }).join(''),
     );
   }
   const extraItems = `
@@ -310,8 +288,8 @@ const renderRepoCard = (
       ${flexLayout({
         items: extraRows,
         gap: extraLHeight,
-        direction: "column",
-      }).join("")}
+        direction: 'column',
+      }).join('')}
     </g></svg>
     `;
 
@@ -331,7 +309,7 @@ const renderRepoCard = (
     light: ({ textColor, iconColor }) => `
     .description {
       font: 400 ${DESCRIPTION_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif;fill: ${textColor};
-      ${browser_rendering ? wrappedTextStyles(textColor) : ""}
+      ${browser_rendering ? wrappedTextStyles(textColor) : ''}
     }
     .gray { font: 400 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor} }
     .badge { font: 600 11px 'Segoe UI', Ubuntu, Sans-Serif; }
@@ -353,7 +331,7 @@ const renderRepoCard = (
     dark: ({ textColor, iconColor }) => `
       .description {
         fill: ${textColor};
-        ${browser_rendering ? wrappedTextStyles(textColor) : ""}
+        ${browser_rendering ? wrappedTextStyles(textColor) : ''}
       }
       .gray { fill: ${textColor} }
       .badge rect { stroke: ${textColor} }
@@ -366,16 +344,10 @@ const renderRepoCard = (
   return card.render(`
     ${
       isTemplate
-        ? getBadgeSVG(
-            i18n.t("repocard.template"),
-            card_width - CARD_DEFAULT_WIDTH,
-          )
+        ? getBadgeSVG(i18n.t('repocard.template'), card_width - CARD_DEFAULT_WIDTH)
         : isArchived
-          ? getBadgeSVG(
-              i18n.t("repocard.archived"),
-              card_width - CARD_DEFAULT_WIDTH,
-            )
-          : ""
+          ? getBadgeSVG(i18n.t('repocard.archived'), card_width - CARD_DEFAULT_WIDTH)
+          : ''
     }
 
     ${descriptionSvg}

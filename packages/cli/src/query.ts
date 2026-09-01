@@ -1,4 +1,4 @@
-import type { CardKind, CardOption } from "./cards.js";
+import type { CardKind, CardOption } from './cards.js';
 
 /**
  * @file Answers in, query params out.
@@ -15,11 +15,11 @@ export type Answer = string | number | boolean | Array<string> | undefined;
  * @returns The query string form, or `undefined` when there is nothing to send.
  */
 export const toParam = (value: Answer): string | undefined => {
-  if (value === undefined || value === "") {
+  if (value === undefined || value === '') {
     return undefined;
   }
   if (Array.isArray(value)) {
-    return value.length > 0 ? value.join(",") : undefined;
+    return value.length > 0 ? value.join(',') : undefined;
   }
   return String(value);
 };
@@ -28,9 +28,7 @@ export const toParam = (value: Answer): string | undefined => {
  * @param answers What each option was answered with.
  * @returns The query the card handler is called with.
  */
-export const toQuery = (
-  answers: ReadonlyMap<string, Answer>,
-): Record<string, string> => {
+export const toQuery = (answers: ReadonlyMap<string, Answer>): Record<string, string> => {
   const query: Record<string, string> = {};
   for (const [name, value] of answers) {
     const param = toParam(value);
@@ -51,9 +49,9 @@ export const toQuery = (
 export const describeAnswer = (option: CardOption, value: Answer): string => {
   const param = toParam(value);
   if (param === undefined) {
-    return "—";
+    return '—';
   }
-  return option.kind === "boolean" ? (value === true ? "yes" : "no") : param;
+  return option.kind === 'boolean' ? (value === true ? 'yes' : 'no') : param;
 };
 
 /**
@@ -64,12 +62,9 @@ export const describeAnswer = (option: CardOption, value: Answer): string => {
  * @param query The answers it was rendered from.
  * @returns A file name, ending in `.svg`.
  */
-export const defaultFileName = (
-  card: CardKind,
-  query: Record<string, string>,
-): string => {
-  const subject = query["username"] ?? query["id"] ?? "card";
-  const repo = query["repo"];
-  const parts = [card.id, subject, repo].filter(Boolean).join("-");
-  return `${parts.replace(/[^\w.-]/g, "-")}.svg`;
+export const defaultFileName = (card: CardKind, query: Record<string, string>): string => {
+  const subject = query['username'] ?? query['id'] ?? 'card';
+  const repo = query['repo'];
+  const parts = [card.id, subject, repo].filter(Boolean).join('-');
+  return `${parts.replace(/[^\w.-]/g, '-')}.svg`;
 };

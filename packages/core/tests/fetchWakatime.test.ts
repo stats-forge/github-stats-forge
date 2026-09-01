@@ -1,9 +1,9 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from 'vitest';
 
-import { fetchWakatimeStats } from "../src/fetchers/wakatime.js";
+import { fetchWakatimeStats } from '../src/fetchers/wakatime.js';
 
-import { testConfig } from "./_config.js";
-import { FetchMock } from "./_fetch-mock.js";
+import { testConfig } from './_config.js';
+import { FetchMock } from './_fetch-mock.js';
 
 const mock = new FetchMock();
 const config = testConfig.with({ fetch: mock.fetch });
@@ -16,12 +16,12 @@ const wakaTimeData = {
   data: {
     categories: [
       {
-        digital: "22:40",
+        digital: '22:40',
         hours: 22,
         minutes: 40,
-        name: "Coding",
+        name: 'Coding',
         percent: 100,
-        text: "22 hrs 40 mins",
+        text: '22 hrs 40 mins',
         total_seconds: 81643.570077,
       },
     ],
@@ -31,21 +31,21 @@ const wakaTimeData = {
     days_minus_holidays: 5,
     editors: [
       {
-        digital: "22:40",
+        digital: '22:40',
         hours: 22,
         minutes: 40,
-        name: "VS Code",
+        name: 'VS Code',
         percent: 100,
-        text: "22 hrs 40 mins",
+        text: '22 hrs 40 mins',
         total_seconds: 81643.570077,
       },
     ],
     holidays: 2,
-    human_readable_daily_average: "4 hrs 28 mins",
-    human_readable_daily_average_including_other_language: "4 hrs 32 mins",
-    human_readable_total: "22 hrs 21 mins",
-    human_readable_total_including_other_language: "22 hrs 40 mins",
-    id: "random hash",
+    human_readable_daily_average: '4 hrs 28 mins',
+    human_readable_daily_average_including_other_language: '4 hrs 32 mins',
+    human_readable_total: '22 hrs 21 mins',
+    human_readable_total_including_other_language: '22 hrs 40 mins',
+    id: 'random hash',
     is_already_updating: false,
     is_coding_activity_visible: true,
     is_including_today: false,
@@ -54,84 +54,82 @@ const wakaTimeData = {
     is_up_to_date: true,
     languages: [
       {
-        digital: "0:19",
+        digital: '0:19',
         hours: 0,
         minutes: 19,
-        name: "Other",
+        name: 'Other',
         percent: 1.43,
-        text: "19 mins",
+        text: '19 mins',
         total_seconds: 1170.434361,
       },
       {
-        digital: "0:01",
+        digital: '0:01',
         hours: 0,
         minutes: 1,
-        name: "TypeScript",
+        name: 'TypeScript',
         percent: 0.1,
-        text: "1 min",
+        text: '1 min',
         total_seconds: 83.293809,
       },
       {
-        digital: "0:00",
+        digital: '0:00',
         hours: 0,
         minutes: 0,
-        name: "YAML",
+        name: 'YAML',
         percent: 0.07,
-        text: "0 secs",
+        text: '0 secs',
         total_seconds: 54.975151,
       },
     ],
     operating_systems: [
       {
-        digital: "22:40",
+        digital: '22:40',
         hours: 22,
         minutes: 40,
-        name: "Mac",
+        name: 'Mac',
         percent: 100,
-        text: "22 hrs 40 mins",
+        text: '22 hrs 40 mins',
         total_seconds: 81643.570077,
       },
     ],
     percent_calculated: 100,
-    range: "last_7_days",
-    status: "ok",
+    range: 'last_7_days',
+    status: 'ok',
     timeout: 15,
     total_seconds: 80473.135716,
     total_seconds_including_other_language: 81643.570077,
-    user_id: "random hash",
-    username: "anuraghazra",
+    user_id: 'random hash',
+    username: 'anuraghazra',
     writes_only: false,
   },
 };
 
-describe("WakaTime fetcher", () => {
-  it("should fetch correct WakaTime data", async () => {
-    const username = "anuraghazra";
+describe('WakaTime fetcher', () => {
+  it('should fetch correct WakaTime data', async () => {
+    const username = 'anuraghazra';
     mock
-      .onGet(
-        `https://wakatime.com/api/v1/users/${username}/stats?is_including_today=true`,
-      )
+      .onGet(`https://wakatime.com/api/v1/users/${username}/stats?is_including_today=true`)
       .reply(200, wakaTimeData);
 
     const repo = await fetchWakatimeStats({ username }, config);
     expect(repo).toStrictEqual(wakaTimeData.data);
   });
 
-  it("should throw error if username param missing", async () => {
+  it('should throw error if username param missing', async () => {
     mock.onGet(/wakatime\.com\/api/).reply(404, wakaTimeData);
 
     // @ts-expect-error testing invalid input
-    await expect(fetchWakatimeStats("noone", config)).rejects.toThrow(
+    await expect(fetchWakatimeStats('noone', config)).rejects.toThrow(
       'Missing params "username" make sure you pass the parameters in URL',
     );
   });
 
-  it("should throw error if username is not found", async () => {
+  it('should throw error if username is not found', async () => {
     mock.onGet(/wakatime\.com\/api/).reply(404, wakaTimeData);
 
-    await expect(
-      fetchWakatimeStats({ username: "noone" }, config),
-    ).rejects.toThrow("Could not resolve to a User with the login of 'noone'");
+    await expect(fetchWakatimeStats({ username: 'noone' }, config)).rejects.toThrow(
+      "Could not resolve to a User with the login of 'noone'",
+    );
   });
 });
 

@@ -1,38 +1,36 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { calculateRank } from "../src/calculateRank.js";
-import type { CardConfig } from "../src/common/config.js";
-import type { GraphQLResponse } from "../src/common/http.js";
-import { fetchStats } from "../src/fetchers/stats.js";
-import type { StatsData } from "../src/fetchers/types.js";
-import type { ContributionsQuery } from "../src/graphql/contributionsDocument.js";
+import { calculateRank } from '../src/calculateRank.js';
+import type { CardConfig } from '../src/common/config.js';
+import type { GraphQLResponse } from '../src/common/http.js';
+import { fetchStats } from '../src/fetchers/stats.js';
+import type { StatsData } from '../src/fetchers/types.js';
+import type { ContributionsQuery } from '../src/graphql/contributionsDocument.js';
 import type {
   RangeContributionsByRepoFragment,
   RepoStarsFragment,
   UserInfoQuery,
   UserReposQuery,
-} from "../src/graphql/generated/stats.js";
-import type { ReposContributedToQuery } from "../src/graphql/reposContributedToDocument.js";
+} from '../src/graphql/generated/stats.js';
+import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.js';
 
-import { testConfig } from "./_config.js";
-import { FetchMock } from "./_fetch-mock.js";
+import { testConfig } from './_config.js';
+import { FetchMock } from './_fetch-mock.js';
 
-vi.mock(import("../src/common/log.js"), async () => {
-  const { createLoggerMock } = await import("./utils.js");
+vi.mock(import('../src/common/log.js'), async () => {
+  const { createLoggerMock } = await import('./utils.js');
   return createLoggerMock();
 });
 
 /** Body of a GraphQL response, as the mocked endpoint returns it. */
-type GraphQLBody<TResult> = GraphQLResponse<TResult>["data"];
+type GraphQLBody<TResult> = GraphQLResponse<TResult>['data'];
 /** A query's `user`, when the lookup succeeded. */
-type QueryUser<TResult extends { user: unknown }> = NonNullable<
-  TResult["user"]
->;
+type QueryUser<TResult extends { user: unknown }> = NonNullable<TResult['user']>;
 
 // Test parameters.
 const user_stats: QueryUser<UserInfoQuery> = {
-  name: "Anurag Hazra",
-  login: "anuraghazra",
+  name: 'Anurag Hazra',
+  login: 'anuraghazra',
   repositoriesContributedTo: { totalCount: 61 },
   contributionsCollection: {
     contributionYears: [2022, 2024],
@@ -53,13 +51,13 @@ const user_stats: QueryUser<UserInfoQuery> = {
   repositories: {
     totalCount: 3,
     nodes: [
-      { name: "test-repo-1", stargazerCount: 100 },
-      { name: "test-repo-2", stargazerCount: 100 },
-      { name: "test-repo-3", stargazerCount: 100 },
+      { name: 'test-repo-1', stargazerCount: 100 },
+      { name: 'test-repo-2', stargazerCount: 100 },
+      { name: 'test-repo-3', stargazerCount: 100 },
     ],
     pageInfo: {
       hasNextPage: true,
-      endCursor: "cursor",
+      endCursor: 'cursor',
     },
   },
 };
@@ -88,15 +86,15 @@ const data_without_pull_requests: GraphQLBody<UserInfoQuery> = {
   },
 };
 
-const repo_page: RepoStarsFragment["repositories"] = {
+const repo_page: RepoStarsFragment['repositories'] = {
   totalCount: 2,
   nodes: [
-    { name: "test-repo-4", stargazerCount: 50 },
-    { name: "test-repo-5", stargazerCount: 50 },
+    { name: 'test-repo-4', stargazerCount: 50 },
+    { name: 'test-repo-5', stargazerCount: 50 },
   ],
   pageInfo: {
     hasNextPage: false,
-    endCursor: "cursor",
+    endCursor: 'cursor',
   },
 };
 
@@ -110,7 +108,7 @@ const data_repo_page2: GraphQLBody<UserReposQuery> = {
     user: {
       repositories: {
         ...repo_page,
-        pageInfo: { hasNextPage: true, endCursor: "cursor-2" },
+        pageInfo: { hasNextPage: true, endCursor: 'cursor-2' },
       },
     },
   },
@@ -120,7 +118,7 @@ const data_repo_page3: GraphQLBody<UserReposQuery> = {
     user: {
       repositories: {
         ...repo_page,
-        pageInfo: { hasNextPage: true, endCursor: "cursor-3" },
+        pageInfo: { hasNextPage: true, endCursor: 'cursor-3' },
       },
     },
   },
@@ -132,15 +130,15 @@ const data_repo_zero_stars: GraphQLBody<UserReposQuery> = {
       repositories: {
         totalCount: 5,
         nodes: [
-          { name: "test-repo-1", stargazerCount: 100 },
-          { name: "test-repo-2", stargazerCount: 100 },
-          { name: "test-repo-3", stargazerCount: 100 },
-          { name: "test-repo-4", stargazerCount: 0 },
-          { name: "test-repo-5", stargazerCount: 0 },
+          { name: 'test-repo-1', stargazerCount: 100 },
+          { name: 'test-repo-2', stargazerCount: 100 },
+          { name: 'test-repo-3', stargazerCount: 100 },
+          { name: 'test-repo-4', stargazerCount: 0 },
+          { name: 'test-repo-5', stargazerCount: 0 },
         ],
         pageInfo: {
           hasNextPage: true,
-          endCursor: "cursor",
+          endCursor: 'cursor',
         },
       },
     },
@@ -163,31 +161,21 @@ const data_repos_contributed_to: GraphQLBody<ReposContributedToQuery> = {
   data: {
     user: {
       range_0: {
-        commitContributionsByRepository: [
-          { repository: { nameWithOwner: "org/repo1" } },
-        ],
-        issueContributionsByRepository: [
-          { repository: { nameWithOwner: "org/repo2" } },
-        ],
+        commitContributionsByRepository: [{ repository: { nameWithOwner: 'org/repo1' } }],
+        issueContributionsByRepository: [{ repository: { nameWithOwner: 'org/repo2' } }],
         pullRequestContributionsByRepository: [],
         repositoryContributions: {
-          nodes: [
-            { repository: { nameWithOwner: "anuraghazra/created-repo" } },
-          ],
+          nodes: [{ repository: { nameWithOwner: 'anuraghazra/created-repo' } }],
         },
       },
       range_1: {
         commitContributionsByRepository: [
-          { repository: { nameWithOwner: "anuraghazra/own-repo" } },
+          { repository: { nameWithOwner: 'anuraghazra/own-repo' } },
         ],
         issueContributionsByRepository: [],
-        pullRequestContributionsByRepository: [
-          { repository: { nameWithOwner: "org/repo4" } },
-        ],
+        pullRequestContributionsByRepository: [{ repository: { nameWithOwner: 'org/repo4' } }],
         repositoryContributions: {
-          nodes: [
-            { repository: { nameWithOwner: "anuraghazra/created-repo" } },
-          ],
+          nodes: [{ repository: { nameWithOwner: 'anuraghazra/created-repo' } }],
         },
       },
     },
@@ -198,7 +186,7 @@ const error: GraphQLBody<UserInfoQuery> = {
   data: { user: null },
   errors: [
     {
-      type: "NOT_FOUND",
+      type: 'NOT_FOUND',
       message: "Could not resolve to a User with the login of 'noname'.",
     },
   ],
@@ -210,9 +198,8 @@ const baseConfig = testConfig.with({ fetch: mock.fetch });
 let config: CardConfig;
 
 /** `fetchStats` for the mocked user, with only the options a test changes spelled out. */
-const fetchStatsWith = (
-  options: Omit<Parameters<typeof fetchStats>[0], "username">,
-) => fetchStats({ username: "anuraghazra", ...options }, config);
+const fetchStatsWith = (options: Omit<Parameters<typeof fetchStats>[0], 'username'>) =>
+  fetchStats({ username: 'anuraghazra', ...options }, config);
 
 type RankInput = Parameters<typeof calculateRank>[0];
 
@@ -223,7 +210,7 @@ const expectedStats = (
 ): StatsData => ({
   contributedTo: 61,
   allTimeContributedTo: 0,
-  name: "Anurag Hazra",
+  name: 'Anurag Hazra',
   totalCommits: 100,
   totalIssues: 200,
   totalPRs: 300,
@@ -255,28 +242,23 @@ const expectedStats = (
 
 beforeEach(() => {
   config = baseConfig; // The default fetches only one page of stars.
-  mock.onPost("https://api.github.com/graphql").reply((cfg) => {
+  mock.onPost('https://api.github.com/graphql').reply((cfg) => {
     const req = JSON.parse(cfg.data as string) as {
       variables?: { startTime?: string; includeUserRepositories?: boolean };
       query: string;
     };
 
-    if (req.variables?.startTime?.startsWith("2003")) {
+    if (req.variables?.startTime?.startsWith('2003')) {
       return [200, data_year2003];
     }
-    if (req.query.includes("userReposContributedTo")) {
+    if (req.query.includes('userReposContributedTo')) {
       return [200, data_repos_contributed_to];
     }
-    if (req.query.includes("contributionCalendar")) {
+    if (req.query.includes('contributionCalendar')) {
       return [200, data_contributions];
     }
-    if (req.query.includes("totalCommitContributions")) {
-      return [
-        200,
-        req.variables?.includeUserRepositories
-          ? data_stats_with_own_repos
-          : data_stats,
-      ];
+    if (req.query.includes('totalCommitContributions')) {
+      return [200, req.variables?.includeUserRepositories ? data_stats_with_own_repos : data_stats];
     }
     return [200, data_repo];
   });
@@ -286,79 +268,68 @@ afterEach(() => {
   mock.reset();
 });
 
-describe("Test fetchStats", () => {
-  it("should fetch correct stats", async () => {
-    const stats = await fetchStats({ username: "anuraghazra" }, config);
+describe('Test fetchStats', () => {
+  it('should fetch correct stats', async () => {
+    const stats = await fetchStats({ username: 'anuraghazra' }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
-  it("should stop fetching when there are repos with zero stars", async () => {
+  it('should stop fetching when there are repos with zero stars', async () => {
     mock.reset();
     mock
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, data_stats)
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, data_repo_zero_stars);
 
-    const stats = await fetchStats({ username: "anuraghazra" }, config);
+    const stats = await fetchStats({ username: 'anuraghazra' }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
-  it("should throw error", async () => {
+  it('should throw error', async () => {
     mock.reset();
-    mock.onPost("https://api.github.com/graphql").reply(200, error);
+    mock.onPost('https://api.github.com/graphql').reply(200, error);
 
-    await expect(
-      fetchStats({ username: "anuraghazra" }, config),
-    ).rejects.toThrow(
+    await expect(fetchStats({ username: 'anuraghazra' }, config)).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
     );
   });
 
-  it("should fetch total commits", async () => {
+  it('should fetch total commits', async () => {
     mock
-      .onGet(
-        "https://api.github.com/search/commits?per_page=1&q=author:anuraghazra",
-      )
+      .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
       .reply(200, { total_count: 1000 });
 
     const stats = await fetchStatsWith({ include_all_commits: true });
     expect(stats).toStrictEqual(
-      expectedStats(
-        { totalCommits: 1000 },
-        { all_commits: true, commits: 1000 },
-      ),
+      expectedStats({ totalCommits: 1000 }, { all_commits: true, commits: 1000 }),
     );
   });
 
-  it("should throw specific error when include_all_commits true and invalid username", async () => {
+  it('should throw specific error when include_all_commits true and invalid username', async () => {
     await expect(
-      fetchStats({ username: "asdf///---", include_all_commits: true }, config),
-    ).rejects.toThrow("Invalid username provided.");
+      fetchStats({ username: 'asdf///---', include_all_commits: true }, config),
+    ).rejects.toThrow('Invalid username provided.');
   });
 
-  it("should throw specific error when include_all_commits true and API returns error", async () => {
+  it('should throw specific error when include_all_commits true and API returns error', async () => {
     mock
-      .onGet(
-        "https://api.github.com/search/commits?per_page=1&q=author:anuraghazra",
-      )
-      .reply(200, { error: "Some test error message" });
+      .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
+      .reply(200, { error: 'Some test error message' });
 
     await expect(fetchStatsWith({ include_all_commits: true })).rejects.toThrow(
-      "Could not fetch data from GitHub REST API.",
+      'Could not fetch data from GitHub REST API.',
     );
   });
 
-  it("should exclude stars of the `test-repo-1` repository", async () => {
+  it('should exclude stars of the `test-repo-1` repository', async () => {
     mock
-      .onGet(
-        "https://api.github.com/search/commits?per_page=1&q=author:anuraghazra",
-      )
+      .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
       .reply(200, { total_count: 1000 });
 
     const stats = await fetchStatsWith({
       include_all_commits: true,
-      exclude_repo: ["test-repo-1"],
+      exclude_repo: ['test-repo-1'],
     });
     expect(stats).toStrictEqual(
       expectedStats(
@@ -371,23 +342,21 @@ describe("Test fetchStats", () => {
   it("should fetch two pages of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `true`", async () => {
     config = baseConfig.with({ fetchMultiPageStars: Infinity });
 
-    const stats = await fetchStats({ username: "anuraghazra" }, config);
-    expect(stats).toStrictEqual(
-      expectedStats({ totalStars: 400 }, { stars: 400 }),
-    );
+    const stats = await fetchStats({ username: 'anuraghazra' }, config);
+    expect(stats).toStrictEqual(expectedStats({ totalStars: 400 }, { stars: 400 }));
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `false`", async () => {
     config = baseConfig.with({ fetchMultiPageStars: 1 });
 
-    const stats = await fetchStats({ username: "anuraghazra" }, config);
+    const stats = await fetchStats({ username: 'anuraghazra' }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is not set", async () => {
     config = baseConfig.with({ fetchMultiPageStars: 1 });
 
-    const stats = await fetchStats({ username: "anuraghazra" }, config);
+    const stats = await fetchStats({ username: 'anuraghazra' }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
@@ -395,17 +364,17 @@ describe("Test fetchStats", () => {
     config = baseConfig.with({ fetchMultiPageStars: 3 });
     mock.reset();
     mock
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, data_stats)
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, data_repo_page2)
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, data_repo_page3)
       // a fourth page is available but must not be requested
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, data_repo);
 
-    const stats = await fetchStats({ username: "anuraghazra" }, config);
+    const stats = await fetchStats({ username: 'anuraghazra' }, config);
 
     // the stats page plus two repo pages, even though every page has a next one
     expect(mock.history.post).toHaveLength(3);
@@ -413,35 +382,32 @@ describe("Test fetchStats", () => {
     // each page is requested with the cursor the previous one returned
     const cursors = mock.history.post.map(
       (req) =>
-        (JSON.parse(req.data as string) as { variables: { after: unknown } })
-          .variables.after,
+        (JSON.parse(req.data as string) as { variables: { after: unknown } }).variables.after,
     );
-    expect(cursors).toStrictEqual([null, "cursor", "cursor-2"]);
+    expect(cursors).toStrictEqual([null, 'cursor', 'cursor-2']);
   });
 
-  it("should throw when a page after the first returns an error", async () => {
+  it('should throw when a page after the first returns an error', async () => {
     config = baseConfig.with({ fetchMultiPageStars: Infinity });
     mock.reset();
     mock
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, data_stats)
-      .onPost("https://api.github.com/graphql")
+      .onPost('https://api.github.com/graphql')
       .replyOnce(200, error);
 
-    await expect(
-      fetchStats({ username: "anuraghazra" }, config),
-    ).rejects.toThrow(
+    await expect(fetchStats({ username: 'anuraghazra' }, config)).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
     );
     expect(mock.history.post).toHaveLength(2);
   });
 
-  it("should not fetch additional stats data when it not requested", async () => {
-    const stats = await fetchStats({ username: "anuraghazra" }, config);
+  it('should not fetch additional stats data when it not requested', async () => {
+    const stats = await fetchStats({ username: 'anuraghazra' }, config);
     expect(stats).toStrictEqual(expectedStats());
   });
 
-  it("should fetch additional stats when it requested", async () => {
+  it('should fetch additional stats when it requested', async () => {
     const stats = await fetchStatsWith({
       include_merged_pull_requests: true,
       include_discussions: true,
@@ -457,72 +423,60 @@ describe("Test fetchStats", () => {
     );
   });
 
-  it("should get commits of provided year", async () => {
+  it('should get commits of provided year', async () => {
     const stats = await fetchStatsWith({ commits_year: 2003 });
 
-    expect(stats).toStrictEqual(
-      expectedStats({ totalCommits: 428 }, { commits: 428 }),
-    );
+    expect(stats).toStrictEqual(expectedStats({ totalCommits: 428 }, { commits: 428 }));
   });
 
-  it("should fetch total contributions when include_contributions is true", async () => {
+  it('should fetch total contributions when include_contributions is true', async () => {
     const stats = await fetchStatsWith({ include_contributions: true });
 
     expect(stats.totalContributions).toBe(350);
   });
 
-  it("should throw when the contributions query returns an error", async () => {
-    mock.onPost("https://api.github.com/graphql").reply((cfg) => {
+  it('should throw when the contributions query returns an error', async () => {
+    mock.onPost('https://api.github.com/graphql').reply((cfg) => {
       const req = JSON.parse(cfg.data as string) as { query: string };
-      if (req.query.includes("contributionCalendar")) {
+      if (req.query.includes('contributionCalendar')) {
         return [
           200,
           {
             data: null,
-            errors: [{ message: "Some test GraphQL error" }],
+            errors: [{ message: 'Some test GraphQL error' }],
           },
         ];
       }
-      return [
-        200,
-        req.query.includes("totalCommitContributions") ? data_stats : data_repo,
-      ];
+      return [200, req.query.includes('totalCommitContributions') ? data_stats : data_repo];
     });
 
-    await expect(
-      fetchStatsWith({ include_contributions: true }),
-    ).rejects.toThrow("Some test GraphQL error");
+    await expect(fetchStatsWith({ include_contributions: true })).rejects.toThrow(
+      'Some test GraphQL error',
+    );
   });
 
-  it("should throw a generic error when the contributions query returns an error without a message", async () => {
-    mock.onPost("https://api.github.com/graphql").reply((cfg) => {
+  it('should throw a generic error when the contributions query returns an error without a message', async () => {
+    mock.onPost('https://api.github.com/graphql').reply((cfg) => {
       const req = JSON.parse(cfg.data as string) as { query: string };
-      if (req.query.includes("contributionCalendar")) {
-        return [200, { data: null, errors: [{ type: "SOME_ERROR" }] }];
+      if (req.query.includes('contributionCalendar')) {
+        return [200, { data: null, errors: [{ type: 'SOME_ERROR' }] }];
       }
-      return [
-        200,
-        req.query.includes("totalCommitContributions") ? data_stats : data_repo,
-      ];
+      return [200, req.query.includes('totalCommitContributions') ? data_stats : data_repo];
     });
 
-    await expect(
-      fetchStatsWith({ include_contributions: true }),
-    ).rejects.toThrow(
-      "Something went wrong while trying to retrieve the contributions data using the GraphQL API.",
+    await expect(fetchStatsWith({ include_contributions: true })).rejects.toThrow(
+      'Something went wrong while trying to retrieve the contributions data using the GraphQL API.',
     );
   });
 
   it("should return correct data when user don't have any pull requests", async () => {
-    mock
-      .onPost("https://api.github.com/graphql")
-      .reply(200, data_without_pull_requests);
+    mock.onPost('https://api.github.com/graphql').reply(200, data_without_pull_requests);
     const stats = await fetchStatsWith({ include_merged_pull_requests: true });
     expect(stats).toStrictEqual(expectedStats({ totalPRs: 0 }, { prs: 0 }));
   });
 
-  it("should include own repos in contributed-to count when contribs_include_own_repos is true", async () => {
-    const statsWithout = await fetchStats({ username: "anuraghazra" }, config);
+  it('should include own repos in contributed-to count when contribs_include_own_repos is true', async () => {
+    const statsWithout = await fetchStats({ username: 'anuraghazra' }, config);
     expect(statsWithout.contributedTo).toBe(61);
 
     const statsWith = await fetchStatsWith({
@@ -531,14 +485,14 @@ describe("Test fetchStats", () => {
     expect(statsWith.contributedTo).toBe(75);
   });
 
-  it("should fetch all-time repos contributed to when include_all_time_contribs is true", async () => {
+  it('should fetch all-time repos contributed to when include_all_time_contribs is true', async () => {
     const stats = await fetchStatsWith({ include_all_time_contribs: true });
 
     // org/repo1, org/repo2 and org/repo4; both anuraghazra/* repos are filtered out
     expect(stats.allTimeContributedTo).toBe(3);
   });
 
-  it("should include own repos in all-time contributed-to count when contribs_include_own_repos is true", async () => {
+  it('should include own repos in all-time contributed-to count when contribs_include_own_repos is true', async () => {
     const stats = await fetchStatsWith({
       include_all_time_contribs: true,
       contribs_include_own_repos: true,
@@ -551,14 +505,14 @@ describe("Test fetchStats", () => {
     { contribsIncludeOwnRepos: false, shouldSelect: false },
     { contribsIncludeOwnRepos: true, shouldSelect: true },
   ])(
-    "should select repositoryContributions only when own repos are wanted (own repos: $contribsIncludeOwnRepos)",
+    'should select repositoryContributions only when own repos are wanted (own repos: $contribsIncludeOwnRepos)',
     async ({ contribsIncludeOwnRepos, shouldSelect }) => {
-      let contributedToQuery = "";
+      let contributedToQuery = '';
 
       mock.reset();
-      mock.onPost("https://api.github.com/graphql").reply((cfg) => {
+      mock.onPost('https://api.github.com/graphql').reply((cfg) => {
         const req = JSON.parse(cfg.data as string) as { query: string };
-        if (req.query.includes("userReposContributedTo")) {
+        if (req.query.includes('userReposContributedTo')) {
           contributedToQuery = req.query;
           return [200, data_repos_contributed_to];
         }
@@ -571,13 +525,11 @@ describe("Test fetchStats", () => {
       });
 
       // an @include(if: false) field would still count toward the node cost
-      expect(contributedToQuery.includes("repositoryContributions")).toBe(
-        shouldSelect,
-      );
+      expect(contributedToQuery.includes('repositoryContributions')).toBe(shouldSelect);
     },
   );
 
-  it("should split saturated ranges until 1-day", async () => {
+  it('should split saturated ranges until 1-day', async () => {
     const saturatedRange: RangeContributionsByRepoFragment = {
       commitContributionsByRepository: Array.from({ length: 100 }, (_, i) => ({
         repository: { nameWithOwner: `org/repo${i}` },
@@ -590,11 +542,11 @@ describe("Test fetchStats", () => {
     let requestCount = 0;
 
     mock.reset();
-    mock.onPost("https://api.github.com/graphql").reply((cfg) => {
+    mock.onPost('https://api.github.com/graphql').reply((cfg) => {
       requestCount++;
       const req = JSON.parse(cfg.data as string) as { query: string };
 
-      if (req.query.includes("userReposContributedTo")) {
+      if (req.query.includes('userReposContributedTo')) {
         const rangeCount = (req.query.match(/range_\d+:/g) ?? []).length;
         const ranges: QueryUser<ReposContributedToQuery> = {};
         for (let i = 0; i < rangeCount; i++) {

@@ -11,7 +11,7 @@ on:
     #        │ │  │   │ │
     #        │ │  │   │ │
     #        * *  *   * *
-    - cron: "45 22 */7 * *"
+    - cron: '45 22 */7 * *'
 
 permissions:
   contents: write
@@ -36,12 +36,12 @@ jobs:
       - name: Create Pull Request if upstream language file is changed
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          commit-message: "feat(core): update language colors"
-          branch: "update_langs/patch"
+          commit-message: 'feat(core): update language colors'
+          branch: 'update_langs/patch'
           delete-branch: true
           title: Update languages colors
           body: >-
             The [generate-language-colors](https://github.com/stats-forge/github-stats-forge/actions/workflows/generate-language-colors.yml)
             workflow detected changes in the [upstream languages JSON
             file](https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml) and regenerated the local language colors JSON file.
-          labels: "ci"
+          labels: 'ci'

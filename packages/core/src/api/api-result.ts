@@ -1,7 +1,7 @@
-import type { ColorParams } from "../common/color.js";
-import type { ErrorCode } from "../common/error.js";
-import { CardError } from "../common/error.js";
-import { renderError } from "../common/render.js";
+import type { ColorParams } from '../common/color.js';
+import type { ErrorCode } from '../common/error.js';
+import { CardError } from '../common/error.js';
+import { renderError } from '../common/render.js';
 
 /**
  * Why a card could not be rendered, in a form a host can act on.
@@ -25,9 +25,9 @@ export interface ApiError {
 
 /** What every api handler returns: a rendered card, or a rendered error. */
 export type ApiResult =
-  | { status: "success"; content: string }
+  | { status: 'success'; content: string }
   | {
-      status: "error";
+      status: 'error';
       /** Whether repeating the request could produce a different answer. */
       retryable: boolean;
       error: ApiError;
@@ -44,14 +44,11 @@ export type ApiResult =
  *        omitted when it was a color that was rejected.
  * @returns The rendered error.
  */
-export const errorResult = (
-  err: unknown,
-  renderOptions?: ColorParams,
-): ApiResult => {
+export const errorResult = (err: unknown, renderOptions?: ColorParams): ApiResult => {
   const error = CardError.from(err);
 
   return {
-    status: "error",
+    status: 'error',
     retryable: error.retryable,
     error: {
       code: error.code,
@@ -65,7 +62,7 @@ export const errorResult = (
       renderOptions: {
         ...renderOptions,
         // A missing param is the caller's to fix, so the card links its docs instead.
-        show_repo_link: error.code !== "missing_param",
+        show_repo_link: error.code !== 'missing_param',
       },
     }),
   };

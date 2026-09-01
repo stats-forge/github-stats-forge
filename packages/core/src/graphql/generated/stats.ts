@@ -2,9 +2,9 @@
 
 /** Internal type. DO NOT USE DIRECTLY. */
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-import type * as Types from "./common.js";
+import { graphqlDocument } from '../graphqlDocument.js';
 
-import { graphqlDocument } from "../graphqlDocument.js";
+import type * as Types from './common.js';
 export type RepoNodeFragment = { name: string; stargazerCount: number };
 
 export type RepoStarsFragment = {
@@ -73,29 +73,18 @@ export type UserInfoQuery = {
   } | null;
 };
 
-export type YearContributionsFragment = {
-  contributionCalendar: { totalContributions: number };
-};
+export type YearContributionsFragment = { contributionCalendar: { totalContributions: number } };
 
 export type RangeContributionsByRepoFragment = {
-  commitContributionsByRepository: Array<{
-    repository: { nameWithOwner: string };
-  }>;
-  issueContributionsByRepository: Array<{
-    repository: { nameWithOwner: string };
-  }>;
-  pullRequestContributionsByRepository: Array<{
-    repository: { nameWithOwner: string };
-  }>;
+  commitContributionsByRepository: Array<{ repository: { nameWithOwner: string } }>;
+  issueContributionsByRepository: Array<{ repository: { nameWithOwner: string } }>;
+  pullRequestContributionsByRepository: Array<{ repository: { nameWithOwner: string } }>;
   repositoryContributions?: {
     nodes: Array<{ repository: { nameWithOwner: string } } | null> | null;
   };
 };
 
-export const UserReposDocument = graphqlDocument<
-  UserReposQuery,
-  UserReposQueryVariables
->(`
+export const UserReposDocument = graphqlDocument<UserReposQuery, UserReposQueryVariables>(`
 query userRepos($login: String!, $after: String, $ownerAffiliations: [RepositoryAffiliation]) {
   user(login: $login) {
     ...RepoStars
@@ -123,10 +112,7 @@ fragment RepoNode on Repository {
   stargazerCount
 }`);
 
-export const UserInfoDocument = graphqlDocument<
-  UserInfoQuery,
-  UserInfoQueryVariables
->(`
+export const UserInfoDocument = graphqlDocument<UserInfoQuery, UserInfoQueryVariables>(`
 query userInfo($login: String!, $after: String, $includeMergedPullRequests: Boolean!, $includeDiscussions: Boolean!, $includeDiscussionsAnswers: Boolean!, $startTime: DateTime = null, $ownerAffiliations: [RepositoryAffiliation], $includeUserRepositories: Boolean!) {
   user(login: $login) {
     name

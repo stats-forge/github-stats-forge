@@ -2,7 +2,7 @@
 
 /** Internal type. DO NOT USE DIRECTLY. */
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-import { graphqlDocument } from "../graphqlDocument.js";
+import { graphqlDocument } from '../graphqlDocument.js';
 export type GistFileInfoFragment = {
   name: string | null;
   size: number | null;
@@ -29,10 +29,7 @@ export type GistInfoQuery = {
   };
 };
 
-export const GistInfoDocument = graphqlDocument<
-  GistInfoQuery,
-  GistInfoQueryVariables
->(`
+export const GistInfoDocument = graphqlDocument<GistInfoQuery, GistInfoQueryVariables>(`
 query gistInfo($gistName: String!) {
   viewer {
     gist(name: $gistName) {

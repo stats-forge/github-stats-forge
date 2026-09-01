@@ -1,16 +1,12 @@
-import * as z from "zod/mini";
+import * as z from 'zod/mini';
 
-import {
-  DISPLAY_FORMATS,
-  WAKATIME_LAYOUTS,
-  renderWakatimeCard,
-} from "../cards/wakatime.js";
-import type { CardConfig } from "../common/config.js";
-import { fetchWakatimeStats } from "../fetchers/wakatime.js";
+import { DISPLAY_FORMATS, WAKATIME_LAYOUTS, renderWakatimeCard } from '../cards/wakatime.js';
+import type { CardConfig } from '../common/config.js';
+import { fetchWakatimeStats } from '../fetchers/wakatime.js';
 
-import type { ApiResult } from "./api-result.js";
-import { errorResult } from "./api-result.js";
-import type { ApiQuery } from "./params.js";
+import type { ApiResult } from './api-result.js';
+import { errorResult } from './api-result.js';
+import type { ApiQuery } from './params.js';
 import {
   booleanParam,
   enumParam,
@@ -22,7 +18,7 @@ import {
   parseParams,
   rawParam,
   safeParam,
-} from "./params.js";
+} from './params.js';
 
 /** What the wakatime endpoint accepts, on top of the shared color params. */
 const wakatimeQuery = z.object({
@@ -70,10 +66,7 @@ type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
  * @param config Deployment config supplying the transport.
  * @returns The rendered card, or a rendered error.
  */
-const renderWakatime = async (
-  query: WakatimeApiQuery,
-  config: CardConfig,
-): Promise<ApiResult> => {
+const renderWakatime = async (query: WakatimeApiQuery, config: CardConfig): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -104,7 +97,7 @@ const renderWakatime = async (
     const stats = await fetchWakatimeStats({ username, api_domain }, config);
 
     return {
-      status: "success",
+      status: 'success',
       content: renderWakatimeCard(stats, {
         ...colors,
         custom_title,

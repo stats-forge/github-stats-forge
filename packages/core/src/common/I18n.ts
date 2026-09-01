@@ -1,4 +1,4 @@
-const FALLBACK_LOCALE = "en";
+const FALLBACK_LOCALE = 'en';
 
 /** A map of translation keys to per-locale strings. */
 type TranslationsMap = Record<string, Record<string, string>>;
@@ -41,9 +41,7 @@ class I18n<Translations extends TranslationsMap = TranslationsMap> {
 
     const localized = translation[this.locale];
     if (!localized) {
-      throw new Error(
-        `'${str}' translation not found for locale '${this.locale}'`,
-      );
+      throw new Error(`'${str}' translation not found for locale '${this.locale}'`);
     }
 
     return localized;

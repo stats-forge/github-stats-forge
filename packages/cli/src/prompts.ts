@@ -1,9 +1,9 @@
-import { confirm, input, password, select } from "@inquirer/prompts";
+import { confirm, input, password, select } from '@inquirer/prompts';
 
-import type { CardKind, CardOption } from "./cards.js";
-import { cards } from "./cards.js";
-import type { Answer } from "./query.js";
-import { describeAnswer } from "./query.js";
+import type { CardKind, CardOption } from './cards.js';
+import { cards } from './cards.js';
+import type { Answer } from './query.js';
+import { describeAnswer } from './query.js';
 
 /**
  * @file The navigation itself.
@@ -17,7 +17,7 @@ import { describeAnswer } from "./query.js";
  */
 export const pickCard = async (): Promise<CardKind> =>
   select({
-    message: "Which card?",
+    message: 'Which card?',
     choices: cards.map((card) => ({ name: card.label, value: card })),
   });
 
@@ -28,21 +28,16 @@ export const pickCard = async (): Promise<CardKind> =>
  * @param current What it holds now.
  * @returns The answer, or `undefined` when it was cleared.
  */
-const askOption = async (
-  option: CardOption,
-  current: Answer,
-): Promise<Answer> => {
-  const message = option.hint
-    ? `${option.label} (${option.hint})`
-    : option.label;
+const askOption = async (option: CardOption, current: Answer): Promise<Answer> => {
+  const message = option.hint ? `${option.label} (${option.hint})` : option.label;
 
-  if (option.kind === "boolean") {
+  if (option.kind === 'boolean') {
     return confirm({ message, default: current === true });
   }
 
-  if (option.kind === "choice") {
+  if (option.kind === 'choice') {
     const choices = [
-      { name: "— leave unset —", value: undefined as Answer },
+      { name: '— leave unset —', value: undefined as Answer },
       ...(option.choices ?? []).map((value) => ({ name: value, value })),
     ];
     return select({ message, choices, default: current });
@@ -52,11 +47,11 @@ const askOption = async (
     message,
     default: current === undefined ? undefined : String(current),
   });
-  return answer.trim() === "" ? undefined : answer.trim();
+  return answer.trim() === '' ? undefined : answer.trim();
 };
 
 /** How a trip through the option menu ended. */
-export type MenuChoice = "generate" | "save" | "quit";
+export type MenuChoice = 'generate' | 'save' | 'quit';
 
 /** What the menu carries between trips through it. */
 export interface Menu {
@@ -87,20 +82,18 @@ export const navigateOptions = async (
   status?: string,
 ): Promise<MenuChoice> => {
   // The label carries a description after an em dash; the menu wants the name.
-  const [name = card.id] = card.label.split(" — ");
+  const [name = card.id] = card.label.split(' — ');
 
   for (;;) {
     const choice = await select<CardOption | MenuChoice>({
-      message: status
-        ? `${name} — ${status}`
-        : `${name} — set an option, or generate`,
+      message: status ? `${name} — ${status}` : `${name} — set an option, or generate`,
       pageSize: 15,
       // Matched by reference against the values below, so the option objects work.
       default: menu.cursor,
       choices: [
-        { name: "Generate the card", value: "generate" as const },
-        { name: "Save these options", value: "save" as const },
-        { name: "Quit", value: "quit" as const },
+        { name: 'Generate the card', value: 'generate' as const },
+        { name: 'Save these options', value: 'save' as const },
+        { name: 'Quit', value: 'quit' as const },
         ...card.options.map((option) => ({
           name: `${option.label.padEnd(38)} ${describeAnswer(option, menu.answers.get(option.name))}`,
           value: option,
@@ -110,7 +103,7 @@ export const navigateOptions = async (
 
     menu.cursor = choice;
 
-    if (choice === "generate" || choice === "save" || choice === "quit") {
+    if (choice === 'generate' || choice === 'save' || choice === 'quit') {
       return choice;
     }
 
@@ -129,16 +122,14 @@ export const navigateOptions = async (
  * @param card The card being built.
  * @returns The answers, one per required param.
  */
-export const askRequired = async (
-  card: CardKind,
-): Promise<Map<string, Answer>> => {
+export const askRequired = async (card: CardKind): Promise<Map<string, Answer>> => {
   const answers = new Map<string, Answer>();
   for (const option of card.required) {
     answers.set(
       option.name,
       await input({
         message: option.label,
-        validate: (value) => value.trim() !== "" || "Required",
+        validate: (value) => value.trim() !== '' || 'Required',
       }),
     );
   }
@@ -151,14 +142,12 @@ export const askRequired = async (
  * @param suggestion The path offered by default.
  * @returns The path, or `undefined` when the run changed its mind.
  */
-export const askSavePath = async (
-  suggestion: string,
-): Promise<string | undefined> => {
+export const askSavePath = async (suggestion: string): Promise<string | undefined> => {
   const answer = await input({
-    message: "Save the options to",
+    message: 'Save the options to',
     default: suggestion,
   });
-  return answer.trim() === "" ? undefined : answer.trim();
+  return answer.trim() === '' ? undefined : answer.trim();
 };
 
 /**
@@ -168,8 +157,8 @@ export const askSavePath = async (
  */
 export const askToken = async (): Promise<string | undefined> => {
   const value = await password({
-    message: "GitHub personal access token (input hidden)",
-    mask: "*",
+    message: 'GitHub personal access token (input hidden)',
+    mask: '*',
   });
-  return value.trim() === "" ? undefined : value.trim();
+  return value.trim() === '' ? undefined : value.trim();
 };

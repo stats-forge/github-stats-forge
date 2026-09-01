@@ -6,13 +6,13 @@
  */
 
 /** Braille frames: one cell wide, so the line never reflows. */
-const FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 const INTERVAL_MS = 80;
 
-const HIDE_CURSOR = "\u001b[?25l";
-const SHOW_CURSOR = "\u001b[?25h";
+const HIDE_CURSOR = '\u001b[?25l';
+const SHOW_CURSOR = '\u001b[?25h';
 /** Return to the start of the line and wipe what was on it. */
-const CLEAR_LINE = "\r\u001b[K";
+const CLEAR_LINE = '\r\u001b[K';
 
 /** What the spinner writes to; `process.stderr`, or a fake in a test. */
 export interface SpinnerStream {
@@ -44,9 +44,7 @@ export const withSpinner = async <T>(
   let frame = 0;
   stream.write(HIDE_CURSOR);
   const tick = setInterval(() => {
-    stream.write(
-      `${CLEAR_LINE}${FRAMES[frame % FRAMES.length] ?? ""} ${label}`,
-    );
+    stream.write(`${CLEAR_LINE}${FRAMES[frame % FRAMES.length] ?? ''} ${label}`);
     frame += 1;
   }, INTERVAL_MS);
 

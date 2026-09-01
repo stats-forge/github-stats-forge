@@ -1,8 +1,8 @@
-import { getCardColors, isPrefixedHexColor } from "./color.js";
-import { SECONDARY_ERROR_MESSAGES, TRY_AGAIN_LATER } from "./error.js";
-import { kFormatter } from "./fmt.js";
-import { encodeHTML } from "./html.js";
-import { clampValue } from "./ops.js";
+import { getCardColors, isPrefixedHexColor } from './color.js';
+import { SECONDARY_ERROR_MESSAGES, TRY_AGAIN_LATER } from './error.js';
+import { kFormatter } from './fmt.js';
+import { encodeHTML } from './html.js';
+import { clampValue } from './ops.js';
 
 /**
  * Auto layout utility, allows us to layout things vertically or horizontally with
@@ -25,11 +25,11 @@ const flexLayout = ({
 }: {
   items: Array<string>;
   gap: number;
-  direction?: "column" | "row";
+  direction?: 'column' | 'row';
   sizes?: Array<number>;
 }): Array<string> => {
   if (sizes.some((size) => !Number.isFinite(size))) {
-    throw new Error("flexLayout: `sizes` must contain only numbers");
+    throw new Error('flexLayout: `sizes` must contain only numbers');
   }
 
   let lastSize = 0;
@@ -37,7 +37,7 @@ const flexLayout = ({
   return items.filter(Boolean).map((item, i) => {
     const size = sizes[i] || 0;
     let transform = `translate(${lastSize}, 0)`;
-    if (direction === "column") {
+    if (direction === 'column') {
       transform = `translate(0, ${lastSize})`;
     }
     lastSize += size + gap;
@@ -117,7 +117,7 @@ const createProgressNode = ({
       <svg data-testid="lang-progress" width="${progressPercentage}%">
         <rect
             height="8"
-            ${color === undefined ? "" : `fill="${color}"`}
+            ${color === undefined ? '' : `fill="${color}"`}
             rx="5" ry="5" x="0" y="0"
             class="lang-progress"
             style="animation-delay: ${delay}ms;"
@@ -178,7 +178,7 @@ const wrappedTextNode = ({
     throw new Error(`Invalid lineCount: "${lineCount}"`);
   }
 
-  const testIdAttr = testId ? ` data-testid="${encodeHTML(testId)}"` : "";
+  const testIdAttr = testId ? ` data-testid="${encodeHTML(testId)}"` : '';
   return `
     <foreignObject x="${x}" y="${y}" width="${width}" height="${height}">
       <div xmlns="http://www.w3.org/1999/xhtml" class="${encodeHTML(className)}" style="--lines: ${lineCount};"${testIdAttr}>${encodeHTML(
@@ -235,8 +235,8 @@ const iconWithLabel = (
   testid: string,
   iconSize: number,
 ): string => {
-  if (typeof label === "number" && label <= 0) {
-    return "";
+  if (typeof label === 'number' && label <= 0) {
+    return '';
   }
 
   if (!Number.isFinite(iconSize)) {
@@ -256,7 +256,7 @@ const iconWithLabel = (
       </svg>
     `;
   const text = `<text data-testid="${encodeHTML(testid)}" class="gray">${encodeHTML(String(label))}</text>`;
-  return flexLayout({ items: [iconSvg, text], gap: 20 }).join("");
+  return flexLayout({ items: [iconSvg, text], gap: 20 }).join('');
 };
 
 /**
@@ -328,25 +328,21 @@ const createTextNode = ({
       : undefined;
   // `long` format and the percentage stat keep the raw value; everything else
   // (always a number here) is abbreviated via kFormatter.
-  const rawValue =
-    numberFormat.toLowerCase() === "long" || id === "prs_merged_percentage";
-  const kValue =
-    rawValue || typeof value !== "number"
-      ? value
-      : kFormatter(value, precision);
+  const rawValue = numberFormat.toLowerCase() === 'long' || id === 'prs_merged_percentage';
+  const kValue = rawValue || typeof value !== 'number' ? value : kFormatter(value, precision);
 
   const staggerDelay = (index + 3) * 150;
-  const boldClass = bold ? " bold" : "not_bold";
+  const boldClass = bold ? ' bold' : 'not_bold';
   const valueX = (showIcons ? 140 : 120) + (bold ? 5 : 0) + shiftValuePos;
-  const unit = unitSymbol ? ` ${unitSymbol}` : "";
-  const labelOffset = showIcons ? `x="${labelXOffset}"` : "";
+  const unit = unitSymbol ? ` ${unitSymbol}` : '';
+  const labelOffset = showIcons ? `x="${labelXOffset}"` : '';
   const iconSvg = showIcons
     ? `
     <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">
       ${icon}
     </svg>
   `
-    : "";
+    : '';
 
   const content = `
       ${iconSvg}
@@ -368,10 +364,7 @@ const createTextNode = ({
 // Script parameters.
 const ERROR_CARD_LENGTH = 576.5;
 
-const UPSTREAM_API_ERRORS = [
-  TRY_AGAIN_LATER,
-  SECONDARY_ERROR_MESSAGES.rate_limited,
-];
+const UPSTREAM_API_ERRORS = [TRY_AGAIN_LATER, SECONDARY_ERROR_MESSAGES.rate_limited];
 
 /**
  * Renders error message on the card.
@@ -390,7 +383,7 @@ const UPSTREAM_API_ERRORS = [
  */
 const renderError = ({
   message,
-  secondaryMessage = "",
+  secondaryMessage = '',
   renderOptions = {},
 }: {
   message: string;
@@ -410,17 +403,17 @@ const renderError = ({
     text_color,
     bg_color,
     border_color,
-    theme = "default",
+    theme = 'default',
     show_repo_link = true,
   } = renderOptions;
 
   const { titleColor, textColor, bgColor, borderColor } = getCardColors({
     title_color,
     text_color,
-    icon_color: "",
+    icon_color: '',
     bg_color,
     border_color,
-    ring_color: "",
+    ring_color: '',
     theme,
   });
 
@@ -436,8 +429,8 @@ const renderError = ({
     }" height="99%" rx="4.5" fill="${String(bgColor)}" stroke="${borderColor}"/>
     <text x="25" y="45" class="text">Something went wrong!${
       UPSTREAM_API_ERRORS.includes(secondaryMessage) || !show_repo_link
-        ? ""
-        : " file an issue at https://tinyurl.com/github-stats"
+        ? ''
+        : ' file an issue at https://tinyurl.com/github-stats'
     }</text>
     <text data-testid="message" x="25" y="55" class="text small">
       <tspan x="25" dy="18">${encodeHTML(message)}</tspan>
@@ -500,9 +493,9 @@ const measureText = (str: string, fontSize = 10): number => {
 
   return (
     str
-      .split("")
+      .split('')
       .map((c) => {
-        if (cjkRange.test(c) || c === "\u3000") {
+        if (cjkRange.test(c) || c === '\u3000') {
           // CJK glyphs and U+3000 IDEOGRAPHIC SPACE are full-width by default;
           return 1;
         }
@@ -528,11 +521,7 @@ const measureText = (str: string, fontSize = 10): number => {
  * @param maxWidth Available wrap width in px.
  * @returns Estimated wrapped lines.
  */
-const splitWrappedText = (
-  text: string,
-  fontSize: number,
-  maxWidth: number,
-): Array<string> => {
+const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Array<string> => {
   if (!text) {
     return [];
   }
@@ -547,7 +536,7 @@ const splitWrappedText = (
   // Korean Hangul (U+AC00–U+D7AF) is intentionally NOT in the CJK range
   // because Korean wraps at word boundaries by default in HTML.
   // ASCII whitespace is collapsed to a single space per CSS `white-space: normal;`
-  const normalizedText = text.replace(/[\t\n\r ]+/g, " ");
+  const normalizedText = text.replace(/[\t\n\r ]+/g, ' ');
   const tokens = normalizedText.match(
     /\s|[\u3000-\u9FFF\uFF00-\uFFEF]|[^\s\u3000-\u9FFF\uFF00-\uFFEF]+/g,
   );
@@ -556,8 +545,8 @@ const splitWrappedText = (
   }
 
   const takeFittingSegment = (token: string, availableWidth: number) => {
-    const characters = token.split("");
-    let segment = "";
+    const characters = token.split('');
+    let segment = '';
     let width = 0;
 
     for (const character of characters) {
@@ -575,16 +564,16 @@ const splitWrappedText = (
     };
   };
 
-  const lines = [""];
+  const lines = [''];
   let currentWidth = 0;
 
   for (const token of tokens) {
-    if (token === " ") {
+    if (token === ' ') {
       // Whitespace at the start of a line is dropped by browsers.
       if (currentWidth === 0) {
         continue;
       }
-      lines[lines.length - 1] = (lines[lines.length - 1] ?? "") + token;
+      lines[lines.length - 1] = (lines[lines.length - 1] ?? '') + token;
       currentWidth += measureText(token, fontSize);
       continue;
     }
@@ -594,26 +583,26 @@ const splitWrappedText = (
     while (remaining) {
       const w = measureText(remaining, fontSize);
       if (currentWidth + w <= maxWidth) {
-        lines[lines.length - 1] = (lines[lines.length - 1] ?? "") + remaining;
+        lines[lines.length - 1] = (lines[lines.length - 1] ?? '') + remaining;
         currentWidth += w;
         break;
       }
 
       if (currentWidth > 0) {
-        lines.push("");
+        lines.push('');
         currentWidth = 0;
         continue;
       }
 
       // An atom wider than the box wraps mid-glyph (overflow-wrap: anywhere).
       const { segment, width } = takeFittingSegment(remaining, maxWidth);
-      lines[lines.length - 1] = (lines[lines.length - 1] ?? "") + segment;
+      lines[lines.length - 1] = (lines[lines.length - 1] ?? '') + segment;
       currentWidth = width;
       remaining = remaining.slice(segment.length);
     }
   }
 
-  return lines.map((line) => line.replace(/[\t\n\r ]+$/, ""));
+  return lines.map((line) => line.replace(/[\t\n\r ]+$/, ''));
 };
 
 /**
@@ -632,10 +621,7 @@ const countWrappedLines = (
   maxWidth: number,
   maxLines: number,
 ): number => {
-  return Math.min(
-    Math.max(1, splitWrappedText(text, fontSize, maxWidth).length),
-    maxLines,
-  );
+  return Math.min(Math.max(1, splitWrappedText(text, fontSize, maxWidth).length), maxLines);
 };
 
 export {

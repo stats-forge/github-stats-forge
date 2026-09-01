@@ -16,11 +16,11 @@ export type Scalars = {
 /** The affiliation of a user to a repository */
 export type RepositoryAffiliation =
   /** Repositories that the user has been added to as a collaborator. */
-  | "COLLABORATOR"
+  | 'COLLABORATOR'
   /**
    * Repositories that the user has access to through being a member of an
    * organization. This includes every repository on every team that the user is on.
    */
-  | "ORGANIZATION_MEMBER"
+  | 'ORGANIZATION_MEMBER'
   /** Repositories that are owned by the authenticated user. */
-  | "OWNER";
+  | 'OWNER';

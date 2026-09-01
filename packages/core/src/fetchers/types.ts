@@ -1,4 +1,4 @@
-import type { RepoInfoFragment } from "../graphql/generated/repo.js";
+import type { RepoInfoFragment } from '../graphql/generated/repo.js';
 
 export interface GistData {
   name: string;
@@ -13,7 +13,7 @@ export interface GistData {
  * What the repo query returns, with `primaryLanguage` loosened:
  * the schema says `name` is non-null, but the card falls back to defaults for callers passing untyped data.
  */
-type RepoInfo = Omit<RepoInfoFragment, "primaryLanguage"> & {
+type RepoInfo = Omit<RepoInfoFragment, 'primaryLanguage'> & {
   primaryLanguage: {
     color: string | null;
     id?: string;

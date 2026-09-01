@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { calculateRank } from "../src/calculateRank.js";
+import { calculateRank } from '../src/calculateRank.js';
 
-import { approxNumber } from "./utils.js";
+import { approxNumber } from './utils.js';
 
-describe("Test calculateRank", () => {
-  it("new user gets C rank", () => {
+describe('Test calculateRank', () => {
+  it('new user gets C rank', () => {
     expect(
       calculateRank({
         all_commits: false,
@@ -17,10 +17,10 @@ describe("Test calculateRank", () => {
         stars: 0,
         followers: 0,
       }),
-    ).toStrictEqual({ level: "C", percentile: 100 });
+    ).toStrictEqual({ level: 'C', percentile: 100 });
   });
 
-  it("beginner user gets B- rank", () => {
+  it('beginner user gets B- rank', () => {
     expect(
       calculateRank({
         all_commits: false,
@@ -33,12 +33,12 @@ describe("Test calculateRank", () => {
         followers: 5,
       }),
     ).toStrictEqual({
-      level: "B-",
+      level: 'B-',
       percentile: approxNumber(65.02918514848255),
     });
   });
 
-  it("median user gets B+ rank", () => {
+  it('median user gets B+ rank', () => {
     expect(
       calculateRank({
         all_commits: false,
@@ -50,10 +50,10 @@ describe("Test calculateRank", () => {
         stars: 50,
         followers: 10,
       }),
-    ).toStrictEqual({ level: "B+", percentile: approxNumber(46.09375) });
+    ).toStrictEqual({ level: 'B+', percentile: approxNumber(46.09375) });
   });
 
-  it("average user gets B+ rank (include_all_commits)", () => {
+  it('average user gets B+ rank (include_all_commits)', () => {
     expect(
       calculateRank({
         all_commits: true,
@@ -65,10 +65,10 @@ describe("Test calculateRank", () => {
         stars: 50,
         followers: 10,
       }),
-    ).toStrictEqual({ level: "B+", percentile: approxNumber(46.09375) });
+    ).toStrictEqual({ level: 'B+', percentile: approxNumber(46.09375) });
   });
 
-  it("advanced user gets A rank", () => {
+  it('advanced user gets A rank', () => {
     expect(
       calculateRank({
         all_commits: false,
@@ -81,12 +81,12 @@ describe("Test calculateRank", () => {
         followers: 40,
       }),
     ).toStrictEqual({
-      level: "A",
+      level: 'A',
       percentile: approxNumber(20.841471354166664),
     });
   });
 
-  it("expert user gets A+ rank", () => {
+  it('expert user gets A+ rank', () => {
     expect(
       calculateRank({
         all_commits: false,
@@ -99,12 +99,12 @@ describe("Test calculateRank", () => {
         followers: 160,
       }),
     ).toStrictEqual({
-      level: "A+",
+      level: 'A+',
       percentile: approxNumber(5.575988339442828),
     });
   });
 
-  it("sindresorhus gets S rank", () => {
+  it('sindresorhus gets S rank', () => {
     expect(
       calculateRank({
         all_commits: false,
@@ -117,7 +117,7 @@ describe("Test calculateRank", () => {
         followers: 50000,
       }),
     ).toStrictEqual({
-      level: "S",
+      level: 'S',
       percentile: approxNumber(0.4578556547153667),
     });
   });

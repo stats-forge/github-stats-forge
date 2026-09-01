@@ -1,4 +1,4 @@
-import type { ColorParams } from "../common/color.js";
+import type { ColorParams } from '../common/color.js';
 
 /**
  * Options every card accepts.

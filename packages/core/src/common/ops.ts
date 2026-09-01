@@ -1,9 +1,9 @@
-import toEmoji from "emoji-name-map";
+import toEmoji from 'emoji-name-map';
 
-import type { RepositoryAffiliation } from "../graphql/generated/common.js";
+import type { RepositoryAffiliation } from '../graphql/generated/common.js';
 
-import { OWNER_AFFILIATIONS } from "./constants.js";
-import { CardError, INVALID_AFFILIATION } from "./error.js";
+import { OWNER_AFFILIATIONS } from './constants.js';
+import { CardError, INVALID_AFFILIATION } from './error.js';
 
 /**
  * Returns boolean if value is either "true" or "false" else the value as it is.
@@ -11,17 +11,15 @@ import { CardError, INVALID_AFFILIATION } from "./error.js";
  * @param value The value to parse; `undefined` when the param was not sent.
  * @returns The parsed value.
  */
-const parseBoolean = (
-  value: string | boolean | undefined,
-): boolean | undefined => {
-  if (typeof value === "boolean") {
+const parseBoolean = (value: string | boolean | undefined): boolean | undefined => {
+  if (typeof value === 'boolean') {
     return value;
   }
 
-  if (typeof value === "string") {
-    if (value.toLowerCase() === "true") {
+  if (typeof value === 'string') {
+    if (value.toLowerCase() === 'true') {
       return true;
-    } else if (value.toLowerCase() === "false") {
+    } else if (value.toLowerCase() === 'false') {
       return false;
     }
   }
@@ -38,7 +36,7 @@ const parseArray = (str: string | undefined): Array<string> => {
   if (!str) {
     return [];
   }
-  return str.split(",");
+  return str.split(',');
 };
 
 /**
@@ -49,11 +47,7 @@ const parseArray = (str: string | undefined): Array<string> => {
  * @param max The maximum value.
  * @returns The clamped number.
  */
-const clampValue = (
-  number: string | number,
-  min: number,
-  max: number,
-): number => {
+const clampValue = (number: string | number, min: number, max: number): number => {
   if (Number.isNaN(parseInt(String(number), 10))) {
     return min;
   }
@@ -94,10 +88,10 @@ const chunkArray = <T>(arr: Array<T>, perChunk: number): Array<Array<T>> => {
  */
 const parseEmojis = (str: string): string => {
   if (!str) {
-    throw new Error("[parseEmoji]: str argument not provided");
+    throw new Error('[parseEmoji]: str argument not provided');
   }
   return str.replace(/:\w+:/gm, (emoji) => {
-    return toEmoji.get(emoji) || "";
+    return toEmoji.get(emoji) || '';
   });
 };
 
@@ -112,20 +106,18 @@ const isOwnerAffiliation = (value: string): value is RepositoryAffiliation =>
  *
  * @throws {CardError} If affiliations contains invalid values.
  */
-const parseOwnerAffiliations = (
-  affiliations: Array<string>,
-): Array<RepositoryAffiliation> => {
+const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAffiliation> => {
   // Set default value for ownerAffiliations.
   // NOTE: Done here since parseArray() will always return an empty array even nothing
   //was specified.
   const normalized =
     affiliations.length > 0
       ? affiliations.map((affiliation) => affiliation.toUpperCase())
-      : ["OWNER"];
+      : ['OWNER'];
 
   // Check if ownerAffiliations contains valid values.
   if (!normalized.every(isOwnerAffiliation)) {
-    throw CardError.invalidParam("role", INVALID_AFFILIATION);
+    throw CardError.invalidParam('role', INVALID_AFFILIATION);
   }
   return normalized;
 };
@@ -135,13 +127,9 @@ const buildSearchFilter = (
   owners: Array<string> | string = [],
 ): string => {
   const repoFilter =
-    Array.isArray(repos) && repos.length > 0
-      ? repos.map((r) => `repo:${r} `).join("")
-      : "";
+    Array.isArray(repos) && repos.length > 0 ? repos.map((r) => `repo:${r} `).join('') : '';
   const orgFilter =
-    Array.isArray(owners) && owners.length > 0
-      ? owners.map((o) => `owner:${o} `).join("")
-      : "";
+    Array.isArray(owners) && owners.length > 0 ? owners.map((o) => `owner:${o} `).join('') : '';
   return repoFilter + orgFilter;
 };
 

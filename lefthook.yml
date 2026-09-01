@@ -4,9 +4,9 @@ pre-commit:
   piped: true
   jobs:
     - name: format
-      glob: "*.{js,jsx,ts,tsx,css,json,jsonc,yaml,yml}"
-      run: pnpm exec prettier --write {staged_files}
-      # a file prettier rewrote goes into the same commit, rather than being left dirty
+      glob: '*.{js,jsx,ts,tsx,json,jsonc,yaml,yml,md,graphql}'
+      run: pnpm exec oxfmt -c oxfmt.config.ts --write {staged_files}
+      # a file the formatter rewrote goes into the same commit, rather than being left dirty
       stage_fixed: true
 
     - name: lint

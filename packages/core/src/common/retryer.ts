@@ -1,7 +1,7 @@
-import type { CardConfig } from "./config.js";
-import { CardError } from "./error.js";
-import type { FetcherContext, HttpResponse } from "./http.js";
-import { logger } from "./log.js";
+import type { CardConfig } from './config.js';
+import { CardError } from './error.js';
+import type { FetcherContext, HttpResponse } from './http.js';
+import { logger } from './log.js';
 
 /**
  * Error-detection fields the retryer inspects to detect rate-limiting and credential failures.
@@ -59,7 +59,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
   const PATs = config.pats;
 
   if (!PATs.length) {
-    throw new CardError("No GitHub API tokens found", { code: "no_tokens" });
+    throw new CardError('No GitHub API tokens found', { code: 'no_tokens' });
   }
   const startPAT = getRandomInt(PATs.length);
 
@@ -79,10 +79,9 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
     // https://github.com/anuraghazra/github-readme-stats/issues/4425
     const errors = response.data.errors;
     const errorType = errors?.[0]?.type;
-    const errorMsg = errors?.[0]?.message ?? "";
+    const errorMsg = errors?.[0]?.message ?? '';
     const isRateLimited =
-      (!!errors && errorType === "RATE_LIMITED") ||
-      /rate limit/i.test(errorMsg);
+      (!!errors && errorType === 'RATE_LIMITED') || /rate limit/i.test(errorMsg);
 
     if (isRateLimited) {
       logger.log(`${currentPAT.name} Failed due to rate limiting`);
@@ -91,8 +90,8 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 
     // also checking for bad credentials if any tokens gets invalidated
     const message = response.data.message;
-    const isBadCredential = message === "Bad credentials";
-    const isAccountSuspended = message === "Sorry. Your account was suspended.";
+    const isBadCredential = message === 'Bad credentials';
+    const isAccountSuspended = message === 'Sorry. Your account was suspended.';
 
     if (isBadCredential || isAccountSuspended) {
       logger.log(`${currentPAT.name} Failed due to bad credentials`);
@@ -103,8 +102,8 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
     return response;
   }
 
-  throw new CardError("Downtime due to GitHub API rate limiting", {
-    code: "rate_limited",
+  throw new CardError('Downtime due to GitHub API rate limiting', {
+    code: 'rate_limited',
   });
 };
 

@@ -1,6 +1,6 @@
-import { vi } from "vitest";
+import { vi } from 'vitest';
 
-import type * as loggerModule from "../src/common/log.js";
+import type * as loggerModule from '../src/common/log.js';
 
 /**
  * Creates an asymmetric matcher for approximate numeric equality.
@@ -32,7 +32,7 @@ export function approxNumber(
 } {
   return {
     asymmetricMatch(actual) {
-      if (typeof actual !== "number" || typeof expected !== "number") {
+      if (typeof actual !== 'number' || typeof expected !== 'number') {
         return false;
       }
       const epsilon = Math.pow(10, -precision);
