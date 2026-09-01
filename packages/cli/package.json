@@ -48,13 +48,13 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
-    "@inquirer/prompts": "8.6.0",
+    "@inquirer/prompts": "8.7.0",
     "@stats-forge/github-stats-forge-core": "workspace:^"
   },
   "devDependencies": {
     "vitest": "catalog:default"
   },
   "engines": {
-    "node": ">=24"
+    "node": "^24 || >=26"
   }
 }

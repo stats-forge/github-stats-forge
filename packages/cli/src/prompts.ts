@@ -89,7 +89,8 @@ export const navigateOptions = async (
       message: status ? `${name} — ${status}` : `${name} — set an option, or generate`,
       pageSize: 15,
       // Matched by reference against the values below, so the option objects work.
-      default: menu.cursor,
+      // `default` does not accept an explicit undefined, so an unset cursor omits it.
+      ...(menu.cursor !== undefined && { default: menu.cursor }),
       choices: [
         { name: 'Generate the card', value: 'generate' as const },
         { name: 'Save these options', value: 'save' as const },
