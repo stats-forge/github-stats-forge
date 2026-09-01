@@ -7,9 +7,8 @@
 GitHub Stats Forge renders GitHub stats as SVG cards: your contribution stats, your
 top languages, pinned repositories, gists and WakaTime coding time.
 
-This repository is the library those cards are rendered by. It is what the
-[GitHub Action](https://github.com/stats-forge/github-stats-forge-action) runs, and
-what any self-hosted endpoint calls.
+This repository is the library those cards are rendered by, and the CLI that renders one
+to a local file. It is what any self-hosted endpoint calls.
 
 ## Table of Contents
 
@@ -26,7 +25,7 @@ what any self-hosted endpoint calls.
 | Package                          | What it is                                                                      |
 | -------------------------------- | ------------------------------------------------------------------------------- |
 | [`packages/core`](packages/core) | The library: fetchers, card renderers, themes and the query-string api handlers |
-| [`packages/cli`](packages/cli)   | `stats-forge`: renders a card to a local SVG, one prompt at a time              |
+| [`packages/cli`](packages/cli)   | `github-stats-forge`: renders a card to a local SVG, one prompt at a time       |
 
 ## Usage
 
@@ -51,10 +50,11 @@ const result = await stats({ username: 'anuraghazra' }, config);
 //                              result.content the error drawn as a card
 ```
 
-The handlers are `stats`, `pin`, `topLangs`, `gist` and `wakatime` — the last of
-which reads the WakaTime API and so takes no config. Nothing in the library reads
-`process.env`: the host builds the config and passes it in, which is what lets the
-same code run in an action, on a server and in a browser.
+The handlers are `stats`, `pin`, `topLangs`, `gist` and `wakatime`. The last needs no
+GitHub token, but still takes the config, since that is what carries the transport every
+request goes through. Nothing in the library reads `process.env`: the host builds the
+config and passes it in, which is what lets the same code run in an action, on a server
+and in a browser.
 
 To render one from the terminal instead, without writing any code:
 

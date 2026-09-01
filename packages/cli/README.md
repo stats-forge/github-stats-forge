@@ -1,9 +1,25 @@
+# @stats-forge/github-stats-forge-cli
+
 Render a [GitHub Stats Forge](https://github.com/stats-forge/github-stats-forge) card
 to a local SVG file, one prompt at a time.
+
+Run it without installing anything:
 
 ```sh
 npx @stats-forge/github-stats-forge-cli
 ```
+
+or keep it around as `github-stats-forge`:
+
+```sh
+pnpm add -g @stats-forge/github-stats-forge-cli
+github-stats-forge
+```
+
+Requires Node 24 or newer. The cards themselves come from
+[`@stats-forge/github-stats-forge-core`](https://www.npmjs.com/package/@stats-forge/github-stats-forge-core),
+so every option below is the one that package's api accepts — the prompts read the
+accepted values off it rather than keeping their own copy.
 
 It asks which card you want, then the params that card cannot render without, then
 puts you in a menu of every other option it accepts — pick one, answer it, and the
@@ -31,7 +47,7 @@ again. `Quit` (or Ctrl-C) ends the session.
 `--config` loads one back:
 
 ```sh
-stats-forge --config my-stats.json      # picks up where the file left off
+github-stats-forge --config my-stats.json      # picks up where the file left off
 ```
 
 ```json
@@ -53,7 +69,7 @@ so the next `Save these options` writes back to it without asking.
 `--generate` skips the menu too, rendering exactly what the file holds:
 
 ```sh
-stats-forge --config my-stats.json --generate
+github-stats-forge --config my-stats.json --generate
 ```
 
 Nothing is asked, so this is the form for a script or a scheduled job — refresh a
@@ -61,7 +77,7 @@ card on a cron, or regenerate a directory of them. It exits non-zero if the card
 could not be rendered, and needs its token from `--pat`, an env file or the
 environment, since there is nobody to ask.
 
-While it fetches, a spinner runs on stderr — so `stats-forge > card.svg` still
+While it fetches, a spinner runs on stderr — so `github-stats-forge > card.svg` still
 pipes only the card, and a CI log gets one line instead of an animation.
 
 ## The token
@@ -71,7 +87,7 @@ Every card except WakaTime reads the GitHub API, so it needs a personal access t
 from any of these, in this order:
 
 ```sh
-stats-forge --pat ghp_yourtoken      # the flag wins
+github-stats-forge --pat ghp_yourtoken      # the flag wins
 echo "PAT_1=ghp_yourtoken" > .env    # read from ./.env by default
 export PAT_1=ghp_yourtoken           # or straight from the environment
 ```

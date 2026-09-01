@@ -14,10 +14,10 @@ import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from './sav
 import { withSpinner } from './spinner.js';
 import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.js';
 
-const HELP = `stats-forge — render a GitHub stats card to a local SVG
+const HELP = `github-stats-forge — render a GitHub stats card to a local SVG
 
 Usage
-  stats-forge [options]
+  github-stats-forge [options]
 
 Options
   -c, --card <id>       Skip the card prompt: ${cards.map((card) => card.id).join(', ')}
@@ -134,7 +134,7 @@ const main = async (): Promise<void> => {
    */
   if (!flags.generate && !process.stdin.isTTY) {
     throw new Error(
-      'stats-forge asks questions, so it needs a terminal. Render a saved card instead: --config <file> --generate',
+      'github-stats-forge asks questions, so it needs a terminal. Render a saved card instead: --config <file> --generate',
     );
   }
 

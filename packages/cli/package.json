@@ -23,7 +23,7 @@
     "directory": "packages/cli"
   },
   "bin": {
-    "stats-forge": "./build/index.js"
+    "github-stats-forge": "./build/index.js"
   },
   "files": [
     "build",
@@ -55,6 +55,6 @@
     "vitest": "catalog:default"
   },
   "engines": {
-    "node": "24.x"
+    "node": ">=24"
   }
 }

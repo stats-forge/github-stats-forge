@@ -23,11 +23,11 @@ gives way to an injected `fetch`).
 GitHub stats as SVG cards. The server and the docs site that used to live here are
 gone: consumers (the GitHub Action, any self-hosted endpoint) import the package.
 
-| Path            | What it is                                                                                         |
-| --------------- | -------------------------------------------------------------------------------------------------- |
-| `packages/core` | The library: fetchers, card renderers, themes, api handlers                                        |
-| `packages/cli`  | `stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config |
-| `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json`                              |
+| Path            | What it is                                                                                                |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| `packages/core` | The library: fetchers, card renderers, themes, api handlers                                               |
+| `packages/cli`  | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config |
+| `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json`                                     |
 
 `packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
 `api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
@@ -45,7 +45,7 @@ pnpm lint                 # turbo lint (eslint per package)
 pnpm lint:eslint          # eslint directly (`:fix` to autofix)
 pnpm lint:knip            # unused files/exports/deps
 pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
-pnpm format               # prettier --write . (`format:check` in CI)
+pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
 ```
 
@@ -66,8 +66,9 @@ suite. A package that imports another resolves it through the `@stats/source`
 condition, which vitest only applies when it is set under **`ssr.resolve.conditions`**
 as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
 
-pnpm is held at **10.x** out of inertia: bumping to 11 wants a lockfile regeneration
-and a CI run, so it is a change of its own.
+pnpm is **11.x**. The v11 rename of `onlyBuiltDependencies` to the `allowBuilds` map is
+the one that bites: the old key stops applying silently, so a package's install scripts
+are skipped until it is listed again.
 
 ## Working agreements
 
@@ -314,7 +315,7 @@ That is specific to the package: the repo-root `scripts/` **is** covered, by
 
 ## The CLI
 
-`packages/cli` is `@stats-forge/github-stats-forge-cli`, whose `bin` (`stats-forge`)
+`packages/cli` is `@stats-forge/github-stats-forge-cli`, whose `bin` (`github-stats-forge`)
 points at `./build/index.js`. Node 24 runs TypeScript directly but does **not** rewrite a
 `./x.js` specifier to `.ts`, so `node src/index.ts` dies on its first relative import —
 which is why `pnpm dev` is `pnpm run build && node build/index.js`.
@@ -338,7 +339,7 @@ which is why `pnpm dev` is `pnpm run build && node build/index.js`.
 - Vitest. In `packages/core` the card tests assert on the rendered DOM, not on snapshots —
   the one exception is `tests/__snapshots__/renderWakatimeCard.test.ts.snap`.
 - **Snapshots are byte-exact.** Template-literal contents in card renderers include
-  their whitespace verbatim, and prettier will reflow a multi-line `${cond ? a : b}`
+  their whitespace verbatim, and the formatter will reflow a multi-line `${cond ? a : b}`
   interpolation onto its own line, injecting a newline and indent into the SVG. Hoist
   such expressions into a `const` so the template only ever interpolates a plain
   `${identifier}`. After any card edit, diff the snapshots before assuming success.

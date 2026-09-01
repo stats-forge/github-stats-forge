@@ -1,30 +1,73 @@
-name: Publish core package to npm
+name: Release
+
+# workflow_run is restricted to the main branch and guarded at the job level
+# with `github.event.workflow_run.head_repository.full_name == github.repository`
+# to prevent fork PRs from triggering the release job.
 on:
-  workflow_dispatch:
-  release:
-    types: [released]
+  workflow_run: # zizmor: ignore[dangerous-triggers]
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions: {}
 
+env:
+  LEFTHOOK: 0
+
 jobs:
   release:
+    name: Release
+
+    environment: release-npm
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
     runs-on: ubuntu-latest
+
     permissions:
-      contents: read
-      id-token: write
+      contents: write # required to push release commits and tags
+      pull-requests: write # required to create and update release PRs
+      id-token: write # required for npm OIDC trusted publishing
+
     steps:
-      - name: Checkout code
+      # A GitHub App token, not GITHUB_TOKEN: events from the default token do not
+      # start other workflows, so CI would never run on the release PR.
+      - name: Setup release helper
+        id: release-helper
+        uses: marcalexiei/github-actions/setup-github-app-user-bot@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
+        with:
+          app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
+          private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
+
+      - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Verify core package
-        run: |
-          pnpm --filter @stats-forge/github-stats-forge-core run typecheck
-          pnpm test
-          pnpm build:packages
-          pnpm --filter @stats-forge/github-stats-forge-core pack --dry-run
+      # `pnpm release` builds, then `changeset publish` publishes every package whose
+      # version is not yet on npm, in dependency order.
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
+        with:
+          github-token: ${{ steps.release-helper.outputs.token }}
+          commit-message: 'chore: release'
+          pr-title: 'chore: release'
+          pr-base-branch: main
+          publish-script: 'pnpm release'
 
-      - name: Publish core package to npm
-        run: pnpm --filter @stats-forge/github-stats-forge-core publish --provenance --access public --no-git-checks
+  on-ci-fail:
+    name: 'Failure'
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo "CI failed. Release will not run"

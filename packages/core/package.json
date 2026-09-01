@@ -110,6 +110,6 @@
     "vitest": "catalog:default"
   },
   "engines": {
-    "node": "24.x"
+    "node": ">=24"
   }
 }
