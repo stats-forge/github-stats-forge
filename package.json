@@ -2,7 +2,7 @@
   "name": "@stats-forge/root",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.34.1+sha512.b58fbde6dca66a929538021581f648b4570b6ca19b18e7cbd7f2c07a7b24454155388dacdf08f2af3678e88a6d1fe04f9d609df24bf51735a060ea041b374ab7",
+  "packageManager": "pnpm@11.25.0+sha512.5cde925b4f075f725eb71fbae18a42ffe784524789f19b61c731cb8721ec28aaee160e01a8d5af4fedb2a42cdbf300efe23db356b0d4a17b4d63e11f8ab7c956",
   "devDependencies": {
     "@eslint/compat": "2.1.0",
     "@eslint/js": "10.0.1",

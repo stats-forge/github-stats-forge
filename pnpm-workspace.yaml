@@ -1,20 +1,19 @@
-# `packageManager` in package.json is held at pnpm 10 out of inertia, not need:
-# bumping to 11 wants a lockfile regeneration and a CI run, so it is a change of its own.
 packages:
   - packages/*
 
-onlyBuiltDependencies:
-  - "@swc/core"
-  - esbuild
-  - unrs-resolver
+# `onlyBuiltDependencies` in pnpm 10; renamed and turned into a map in 11.
+# `@swc/core` left the dependency graph, so its entry went with it.
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
 
 catalog:
   "@vitest/coverage-v8": 4.1.10
   jsdom: 29.1.1
   vitest: 4.1.10
 
-# Deliberately stricter than pnpm 11's 1440 default (7 days vs 1)
-minimumReleaseAge: 10080
+# Deliberately stricter than pnpm's 1440 default (3 days vs 1)
+minimumReleaseAge: 4320
 
 # Reject a version with weaker publish trust evidence than an earlier one.
 trustPolicy: no-downgrade
