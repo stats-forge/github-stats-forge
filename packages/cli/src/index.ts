@@ -6,6 +6,7 @@ import { parseArgs } from "node:util";
 import { CardConfig } from "@stats-forge/github-stats-forge-core";
 
 import { cards, findCard } from "./cards.js";
+import type { Menu } from "./prompts.js";
 import { askRequired, askToken, navigateOptions, pickCard } from "./prompts.js";
 import { defaultFileName, toQuery } from "./query.js";
 import { withSpinner } from "./spinner.js";
@@ -90,36 +91,60 @@ const main = async (): Promise<void> => {
     tokens = [{ name: "prompt", value: typed }];
   }
 
-  const answers = await askRequired(card);
-  await navigateOptions(card, answers);
-  const query = toQuery(answers);
+  const config = new CardConfig({ pats: tokens });
+  const menu: Menu = { answers: await askRequired(card) };
 
-  const result = await withSpinner(`Rendering the ${card.id} card`, () =>
-    card.render(query, new CardConfig({ pats: tokens })),
-  );
+  /*
+   * The menu stays open after a render:
+   * a card is rarely right the first time, and the whole point of the option
+   * list is to change one thing and look again.
+   */
+  let status: string | undefined;
+  let lastFailed = false;
 
-  if (result.status === "error") {
-    const { code, message, secondaryMessage, param } = result.error;
-    process.stderr.write(
-      [
-        `Could not render the ${card.id} card.`,
-        `  ${message}${secondaryMessage ? `: ${secondaryMessage}` : ""}`,
-        `  code: ${code}${param ? `, param: ${param}` : ""}`,
-        result.retryable ? "  This one may work on a retry." : "",
-      ]
-        .filter(Boolean)
-        .join("\n") + "\n",
+  for (;;) {
+    if ((await navigateOptions(card, menu, status)) === "quit") {
+      break;
+    }
+
+    const query = toQuery(menu.answers);
+    const result = await withSpinner(`Rendering the ${card.id} card`, () =>
+      card.render(query, config),
     );
-    process.exitCode = 1;
-    return;
+
+    if (result.status === "error") {
+      const { code, message, secondaryMessage, param } = result.error;
+      process.stderr.write(
+        [
+          `Could not render the ${card.id} card.`,
+          `  ${message}${secondaryMessage ? `: ${secondaryMessage}` : ""}`,
+          `  code: ${code}${param ? `, param: ${param}` : ""}`,
+          result.retryable ? "  This one may work on a retry." : "",
+        ]
+          .filter(Boolean)
+          .join("\n") + "\n",
+      );
+      // Left on the menu, since a rejected param is one edit away from working.
+      status = `${code} — fix it and generate again`;
+      lastFailed = true;
+      continue;
+    }
+
+    const file = resolve(
+      process.cwd(),
+      flags.out ?? defaultFileName(card, query),
+    );
+    await writeFile(file, result.content, "utf8");
+    const written = relative(process.cwd(), file);
+    process.stdout.write(`Wrote ${written}\n`);
+    status = `wrote ${written} — edit an option and generate again`;
+    lastFailed = false;
   }
 
-  const file = resolve(
-    process.cwd(),
-    flags.out ?? defaultFileName(card, query),
-  );
-  await writeFile(file, result.content, "utf8");
-  process.stdout.write(`Wrote ${relative(process.cwd(), file)}\n`);
+  // Leaving straight after a failure still reports one.
+  if (lastFailed) {
+    process.exitCode = 1;
+  }
 };
 
 try {

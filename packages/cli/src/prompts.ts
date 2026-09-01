@@ -12,9 +12,6 @@ import { describeAnswer } from "./query.js";
  * pick one, answer it, and land back on the menu with the answer beside it.
  */
 
-/** What the option menu answers with when the run wants the card. */
-const GENERATE = Symbol("generate");
-
 /**
  * @returns The card to render.
  */
@@ -58,41 +55,69 @@ const askOption = async (
   return answer.trim() === "" ? undefined : answer.trim();
 };
 
+/** How a trip through the option menu ended. */
+export type MenuChoice = "generate" | "quit";
+
+/** What the menu carries between trips through it. */
+export interface Menu {
+  /** Answers so far, edited in place. */
+  answers: Map<string, Answer>;
+  /**
+   * Where the cursor sat when the menu was last left.
+   * Reopening lands on it, so editing one option after another does not mean
+   * scrolling back down each time.
+   */
+  cursor?: CardOption | MenuChoice | undefined;
+}
+
 /**
- * Walks a card's options until the run asks for the card.
+ * Walks a card's options until the run asks for the card, or to leave.
+ *
+ * The menu is edited in place, so reopening it after a render keeps every answer
+ * and the cursor exactly where they were.
  *
  * @param card The card being built.
- * @param answers Answers so far; required params are already in it.
- * @returns The answers to render with.
+ * @param menu Answers so far, and where the cursor sat.
+ * @param status What happened last time round, shown in the menu's own line.
+ * @returns Whether to render the card or to stop.
  */
 export const navigateOptions = async (
   card: CardKind,
-  answers: Map<string, Answer>,
-): Promise<Map<string, Answer>> => {
+  menu: Menu,
+  status?: string,
+): Promise<MenuChoice> => {
+  // The label carries a description after an em dash; the menu wants the name.
+  const [name = card.id] = card.label.split(" — ");
+
   for (;;) {
-    // The label carries a description after an em dash; the menu wants the name.
-    const [name = card.id] = card.label.split(" — ");
-    const choice = await select<CardOption | typeof GENERATE>({
-      message: `${name} — set an option, or generate`,
+    const choice = await select<CardOption | MenuChoice>({
+      message: status
+        ? `${name} — ${status}`
+        : `${name} — set an option, or generate`,
       pageSize: 15,
+      // Matched by reference against the values below, so the option objects work.
+      default: menu.cursor,
       choices: [
-        { name: "Generate the card", value: GENERATE },
+        { name: "Generate the card", value: "generate" as const },
+        { name: "Quit", value: "quit" as const },
         ...card.options.map((option) => ({
-          name: `${option.label.padEnd(38)} ${describeAnswer(option, answers.get(option.name))}`,
+          name: `${option.label.padEnd(38)} ${describeAnswer(option, menu.answers.get(option.name))}`,
           value: option,
         })),
       ],
     });
 
-    if (choice === GENERATE) {
-      return answers;
+    menu.cursor = choice;
+
+    if (choice === "generate" || choice === "quit") {
+      return choice;
     }
 
-    const answer = await askOption(choice, answers.get(choice.name));
+    const answer = await askOption(choice, menu.answers.get(choice.name));
     if (answer === undefined) {
-      answers.delete(choice.name);
+      menu.answers.delete(choice.name);
     } else {
-      answers.set(choice.name, answer);
+      menu.answers.set(choice.name, answer);
     }
   }
 };

@@ -9,11 +9,16 @@ It asks which card you want, then the params that card cannot render without, th
 puts you in a menu of every other option it accepts — pick one, answer it, and the
 menu comes back with the answer beside it. `Generate the card` writes the SVG.
 
+The menu stays open afterwards, with every answer still on it and the cursor where
+you left it, so tuning a card is: generate, look at it, change one option, generate
+again. `Quit` (or Ctrl-C) ends the session.
+
 ```
 ? Which card? Stats — commits, PRs, issues, reviews and a rank
 ? GitHub username anuraghazra
-? Stats — set an option, or generate
+? Stats — wrote stats-anuraghazra.svg — edit an option and generate again
 ❯ Generate the card
+  Quit
   Extra stats to show                    reviews,prs_merged
   Stats to hide                          —
   Show the stat icons                    yes
