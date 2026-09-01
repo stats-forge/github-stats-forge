@@ -16,33 +16,6 @@ updates:
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
     groups:
-      react:
-        patterns:
-          - 'react'
-          - 'react-dom'
-          - 'react-*'
-          - '@types/react'
-          - '@types/react-dom'
-      redux:
-        patterns:
-          - 'redux'
-          - '@reduxjs/*'
-          - 'react-redux'
-      vite:
-        patterns:
-          - 'vite'
-          - '@vitejs/*'
-      astro:
-        patterns:
-          - 'astro'
-          - 'astro-*'
-          - '@astrojs/*'
-          - 'starlight-*'
-      tailwind:
-        patterns:
-          - 'tailwindcss'
-          - '@tailwindcss/*'
-          - 'daisyui'
       vitest:
         patterns:
           - 'vitest'
@@ -57,18 +30,19 @@ updates:
         patterns:
           - 'typescript'
           - '@types/*'
-      playwright:
-        patterns:
-          - '@playwright/*'
-      axios:
-        patterns:
-          - 'axios'
-          - 'axios-*'
       graphql:
         patterns:
           - 'graphql'
           - '@graphql-codegen/*'
           - '@octokit/graphql-schema'
+      testing-library:
+        patterns:
+          - '@testing-library/*'
+      # the config declares a peer range on oxfmt, so a lone bump can break it
+      oxfmt:
+        patterns:
+          - 'oxfmt'
+          - '@marcalexiei/oxfmt-config'
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: github-actions
@@ -78,18 +52,5 @@ updates:
     open-pull-requests-limit: 20
     commit-message:
       prefix: 'ci(deps)'
-      prefix-development: 'ci(deps-dev)'
-    cooldown:
-      default-days: 7
-
-  # Maintain dependencies for Devcontainers
-  - package-ecosystem: devcontainers
-    directory: '/'
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 20
-    commit-message:
-      prefix: 'build(deps)'
-      prefix-development: 'build(deps-dev)'
     cooldown:
       default-days: 7
