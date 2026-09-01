@@ -198,7 +198,10 @@ const totalItemsFetcher = async (
 ): Promise<number> => {
   if (!githubUsernameRegex.test(username)) {
     logger.log("Invalid username provided.");
-    throw new Error("Invalid username provided.");
+    throw new CardError("Invalid username provided.", {
+      code: "invalid_param",
+      param: "username",
+    });
   }
 
   let res: AxiosResponse<{ total_count?: number }>;

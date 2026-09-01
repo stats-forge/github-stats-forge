@@ -1,5 +1,5 @@
 import type { CardConfig } from "../common/config.js";
-import { CardError } from "../common/error.js";
+import { CardError, GIST_NOT_FOUND } from "../common/error.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import { retryer } from "../common/retryer.js";
 import { GistInfoDocument } from "../graphql/generated/gist.js";
@@ -55,15 +55,24 @@ const fetchGist = async (
   }
   const res = await retryer(fetcher, { gistName: id }, config);
   if (res.data.errors) {
-    throw new Error(res.data.errors[0]?.message);
+    throw new CardError(
+      res.data.errors[0]?.message ?? "Could not fetch gist.",
+      {
+        code: "upstream",
+      },
+    );
   }
   const gist = res.data.data.viewer.gist;
   if (!gist) {
-    throw new Error("Gist not found");
+    throw new CardError("Gist not found", {
+      code: "not_found",
+      secondaryMessage: GIST_NOT_FOUND,
+    });
   }
   const firstFile = gist.files?.[0];
   if (!firstFile?.name) {
-    throw new Error("Gist has no files");
+    // A gist with nothing to render will not gain a file on a retry.
+    throw new CardError("Gist has no files", { code: "not_found" });
   }
   return {
     name: firstFile.name,

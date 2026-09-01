@@ -15,7 +15,11 @@ export interface ApiError {
   message: string;
   /** Second line of the error card, when the code has more to say. */
   secondaryMessage: string | undefined;
-  /** The param at fault, for `invalid_param` and `missing_param`. */
+  /**
+   * The first param at fault, when the failure names one.
+   * `missing_param` names every missing param in `message`, and not every
+   * `invalid_param` comes from a single param, so this can be absent.
+   */
   param: string | undefined;
 }
 

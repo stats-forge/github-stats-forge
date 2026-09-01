@@ -43,9 +43,8 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
 };
 
 /**
- * A check that reports itself:
- * the kind rides on the issue so a rejection can be turned back into a code,
- * and the message is built from the kind and the path rather than passed in.
+ * A check that words its own rejection:
+ * the message is built from the kind and the param's path rather than passed in.
  *
  * @param kind What the check rejects the param for.
  * @param passes Whether a value is acceptable.
@@ -53,7 +52,6 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
  */
 const rejects = (kind: Rejection, passes: (value: string) => boolean) =>
   z.refine((value: unknown) => typeof value !== "string" || passes(value), {
-    params: { kind },
     error: (issue) => REJECTION_MESSAGES[kind](String(issue.path?.[0] ?? "")),
   });
 
@@ -75,9 +73,7 @@ const listParam = z.pipe(rawParam, z.transform(parseArray));
  * a render-time guard would throw into the generic catch and read as a temporary error.
  *
  * `parseFloat`, matching the coercion `Card` performs internally, so `?border_radius=10px` still renders `rx="10"`.
- *
- * @param name Param being parsed, for the rejection message.
- * @returns Schema yielding the parsed number, or `undefined` when absent.
+ * Yields the parsed number, or `undefined` when the param is absent.
  */
 const numberParam: z.ZodMiniType<number | undefined, string | undefined> =
   z.pipe(
@@ -103,9 +99,7 @@ const looseIntParam = z.pipe(
 /**
  * A four-digit year.
  * Anything else builds a `DateTime` GitHub rejects, so it is a permanent error here rather than a failed request later.
- *
- * @param name Param being parsed, for the rejection message.
- * @returns Schema yielding the year, or `undefined` when absent.
+ * Yields the year, or `undefined` when the param is absent.
  */
 const yearParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
   rawParam.check(rejects("year", (value) => /^\d{4}$/.test(value))),
@@ -114,10 +108,7 @@ const yearParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
 
 /**
  * An id the fetchers put in a URL.
- * Rejected before any request is made.
- *
- * @param error Message naming what the value is, e.g. "Gist ID".
- * @returns Schema yielding the value unchanged.
+ * Rejected before any request is made, and yielded unchanged otherwise.
  */
 const safeParam: z.ZodMiniType<string | undefined, string | undefined> =
   rawParam.check(
@@ -127,9 +118,7 @@ const safeParam: z.ZodMiniType<string | undefined, string | undefined> =
 /**
  * A comma-separated list of ids, checked before it is split.
  * The safe pattern allows the commas, so one check covers the whole list.
- *
- * @param error Message naming what the values are.
- * @returns Schema yielding the split values, empty when the param is absent.
+ * Yields the split values, empty when the param is absent.
  */
 const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = z.pipe(
   safeParam,
@@ -190,7 +179,8 @@ type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> &
 
 /**
  * Turns a rejection back into the error the api answers with.
- * The kind rode along on the issue, so nothing is recovered from prose.
+ * Every rejection is the query's fault, so they share one code
+ * and differ only in the message the check already worded.
  *
  * @param error What the schema rejected.
  * @returns The failure, ready to render.

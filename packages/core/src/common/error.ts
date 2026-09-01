@@ -5,7 +5,9 @@ import { OWNER_AFFILIATIONS } from "./constants.js";
  *
  * A failure carries a `code` a host can branch on, the two lines the error card
  * draws, and — through the code — whether repeating the request could help.
- * Nothing else in the package throws a bare `Error`.
+ * The fetchers throw this rather than a bare `Error`, so a host is told what failed.
+ * Anything else that escapes is wrapped as `upstream` by `from`, which is retryable —
+ * so a permanent failure has to throw a `CardError` to be reported as one.
  */
 
 /** A general message to ask user to try again later. */
@@ -54,7 +56,7 @@ interface CardErrorInit {
   code: ErrorCode;
   /** Second line of the error card; the code's own message when omitted. */
   secondaryMessage?: string | undefined;
-  /** The param at fault, for `invalid_param` and `missing_param`. */
+  /** The first param at fault, when the failure names one. */
   param?: string | undefined;
 }
 
@@ -101,6 +103,7 @@ class CardError extends Error {
    * A param the endpoint cannot render without.
    *
    * @param params Names of the missing params.
+   *        `param` carries the first; the message names them all.
    * @param secondaryMessage Where to pass them, when the endpoint can say.
    * @returns The error.
    */
@@ -148,11 +151,20 @@ const WAKATIME_USER_NOT_FOUND = "Make sure you have a public WakaTime profile";
 /** A GitHub username that resolves to nothing, or to an organization. */
 const USER_NOT_FOUND = "Make sure the provided username is not an organization";
 
+/** A repository the token cannot see, because it is missing or private. */
+const REPO_NOT_FOUND =
+  "Make sure the provided username and repository are correct";
+
+/** A gist id that resolves to nothing. */
+const GIST_NOT_FOUND = "Make sure the provided gist ID is correct";
+
 export type { ErrorCode };
 
 export {
   CardError,
+  GIST_NOT_FOUND,
   INVALID_AFFILIATION,
+  REPO_NOT_FOUND,
   SECONDARY_ERROR_MESSAGES,
   TRY_AGAIN_LATER,
   USER_NOT_FOUND,

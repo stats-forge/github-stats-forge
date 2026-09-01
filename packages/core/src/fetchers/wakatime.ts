@@ -32,15 +32,23 @@ const fetchWakatimeStats = async ({
 
     return data.data;
   } catch (err) {
-    if (
-      axios.isAxiosError(err) &&
-      err.response &&
-      (err.response.status < 200 || err.response.status > 299)
-    ) {
-      throw new CardError(
-        `Could not resolve to a User with the login of '${username}'`,
-        { code: "not_found", secondaryMessage: WAKATIME_USER_NOT_FOUND },
-      );
+    if (axios.isAxiosError(err) && err.response) {
+      const { status } = err.response;
+      // Only a 404 says the profile does not exist.
+      // Any other failure is WakaTime being unavailable, which a retry can still answer,
+      // so it must not be reported as a permanent one a host would cache.
+      if (status === 404) {
+        throw new CardError(
+          `Could not resolve to a User with the login of '${username}'`,
+          { code: "not_found", secondaryMessage: WAKATIME_USER_NOT_FOUND },
+        );
+      }
+      if (status < 200 || status > 299) {
+        throw new CardError(
+          `Could not fetch the WakaTime stats of '${username}'`,
+          { code: "upstream" },
+        );
+      }
     }
     throw err;
   }

@@ -1,5 +1,5 @@
 import type { CardConfig } from "../common/config.js";
-import { CardError } from "../common/error.js";
+import { CardError, REPO_NOT_FOUND } from "../common/error.js";
 import { createGraphQLFetcher } from "../common/http.js";
 import { retryer } from "../common/retryer.js";
 import { GetRepoDocument } from "../graphql/generated/repo.js";
@@ -69,13 +69,19 @@ const fetchRepo = async (
   const data = res.data.data;
 
   if (!data.user && !data.organization) {
-    throw new Error("Not found");
+    throw new CardError("Not found", {
+      code: "not_found",
+      secondaryMessage: REPO_NOT_FOUND,
+    });
   }
 
   if (data.organization === null && data.user) {
     const repository = data.user.repository;
     if (!repository || repository.isPrivate) {
-      throw new Error("User Repository Not found");
+      throw new CardError("User Repository Not found", {
+        code: "not_found",
+        secondaryMessage: REPO_NOT_FOUND,
+      });
     }
     const repoUserStats = await fetchRepoUserStats(
       username,
@@ -97,7 +103,10 @@ const fetchRepo = async (
   if (data.user === null && data.organization) {
     const repository = data.organization.repository;
     if (!repository || repository.isPrivate) {
-      throw new Error("Organization Repository Not found");
+      throw new CardError("Organization Repository Not found", {
+        code: "not_found",
+        secondaryMessage: REPO_NOT_FOUND,
+      });
     }
     const repoUserStats = await fetchRepoUserStats(
       username,
@@ -116,7 +125,7 @@ const fetchRepo = async (
     };
   }
 
-  throw new Error("Unexpected behavior");
+  throw new CardError("Unexpected behavior", { code: "upstream" });
 };
 
 export { fetchRepo };
