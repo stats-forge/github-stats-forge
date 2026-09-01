@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { gist as gistApi } from "../src/api/gist.js";
-import { pin as pinApi } from "../src/api/pin.js";
-import { stats as statsApi } from "../src/api/stats.js";
-import { topLangs as topLangsApi } from "../src/api/top-langs.js";
-import { wakatime as wakatimeApi } from "../src/api/wakatime.js";
+import type { ApiResult } from "../src/api/api-result.js";
+import { gist } from "../src/api/gist.js";
+import { pin } from "../src/api/pin.js";
+import { stats } from "../src/api/stats.js";
+import { topLangs } from "../src/api/top-langs.js";
+import { wakatime } from "../src/api/wakatime.js";
+import { CardConfig } from "../src/common/config.js";
 
-vi.mock("../src/fetchers/gist.js", () => ({
+vi.mock(import("../src/fetchers/gist.js"), () => ({
   fetchGist: vi.fn().mockResolvedValue({
     name: "<script>alert('xss')</script>",
     nameWithOwner: "<script>alert('xss')</script>",
@@ -17,7 +19,7 @@ vi.mock("../src/fetchers/gist.js", () => ({
   }),
 }));
 
-vi.mock("../src/fetchers/repo.js", () => ({
+vi.mock(import("../src/fetchers/repo.js"), () => ({
   fetchRepo: vi.fn().mockResolvedValue({
     nameWithOwner: "<script>alert('xss')</script>",
     name: "<script>alert('xss')</script>",
@@ -32,7 +34,7 @@ vi.mock("../src/fetchers/repo.js", () => ({
   }),
 }));
 
-vi.mock("../src/fetchers/stats.js", () => ({
+vi.mock(import("../src/fetchers/stats.js"), () => ({
   fetchStats: vi.fn().mockResolvedValue({
     name: "<script>alert('xss')</script>",
     totalStars: 100,
@@ -49,7 +51,7 @@ vi.mock("../src/fetchers/stats.js", () => ({
   }),
 }));
 
-vi.mock("../src/fetchers/top-languages.js", () => ({
+vi.mock(import("../src/fetchers/top-languages.js"), () => ({
   fetchTopLanguages: vi.fn().mockResolvedValue({
     HTML: { color: "#0f0", name: "<script>alert('xss')</script>", size: 200 },
     javascript: {
@@ -61,7 +63,7 @@ vi.mock("../src/fetchers/top-languages.js", () => ({
   }),
 }));
 
-vi.mock("../src/fetchers/wakatime.js", () => ({
+vi.mock(import("../src/fetchers/wakatime.js"), () => ({
   fetchWakatimeStats: vi.fn().mockResolvedValue({
     categories: [
       {
@@ -125,10 +127,33 @@ vi.mock("../src/fetchers/wakatime.js", () => ({
   }),
 }));
 
+// Unused: every fetcher is mocked, so no request is made.
+const config = new CardConfig({ pats: [{ name: "PAT_1", value: "token" }] });
+
 const xssPayloads = [
   "<script>alert('xss')</script>",
   "\"><script>alert('xss')</script>",
 ];
+
+/**
+ * Renders the result into the document and fails if a script survived.
+ *
+ * @param result What the endpoint answered.
+ */
+const expectNoScript = (result: ApiResult): void => {
+  document.body.innerHTML = result.content;
+  const svg = document.querySelector("svg");
+  expect(svg?.querySelector("script")).toBeNull();
+};
+
+/**
+ * @param params Every param the endpoint accepts.
+ * @returns One `[param, payload]` case per payload, for `it.each`.
+ */
+const casesFor = (params: Array<string>): Array<[string, string]> =>
+  params.flatMap((param) =>
+    xssPayloads.map((payload): [string, string] => [param, payload]),
+  );
 
 describe("XSS prevention - stats API", () => {
   const apiParamNames = [
@@ -177,32 +202,21 @@ describe("XSS prevention - stats API", () => {
     "theme_dark",
   ];
 
-  const testCases = apiParamNames.flatMap((param) =>
-    xssPayloads.map((payload) => [param, payload]),
-  );
-
-  it.each(testCases)(
+  it.each(casesFor(apiParamNames))(
     "should prevent XSS via %s (%s)",
     async (param, payload) => {
-      const result = await statsApi({
+      const query: Record<string, string> = {
         username: "user",
         [param]: payload,
-      });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+      };
+      expectNoScript(await stats(query, config));
     },
   );
 
   it.each(xssPayloads)(
     "should prevent XSS via username (%s)",
-    async (_label, payload) => {
-      const result = await statsApi({ username: payload });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+    async (payload) => {
+      expectNoScript(await stats({ username: payload }, config));
     },
   );
 });
@@ -246,32 +260,21 @@ describe("XSS prevention - top-langs API", () => {
     "theme_dark",
   ];
 
-  const testCases = apiParamNames.flatMap((param) =>
-    xssPayloads.map((payload) => [param, payload]),
-  );
-
-  it.each(testCases)(
+  it.each(casesFor(apiParamNames))(
     "should prevent XSS via %s (%s)",
     async (param, payload) => {
-      const result = await topLangsApi({
+      const query: Record<string, string> = {
         username: "user",
         [param]: payload,
-      });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+      };
+      expectNoScript(await topLangs(query, config));
     },
   );
 
   it.each(xssPayloads)(
     "should prevent XSS via username (%s)",
-    async (_label, payload) => {
-      const result = await topLangsApi({ username: payload });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+    async (payload) => {
+      expectNoScript(await topLangs({ username: payload }, config));
     },
   );
 });
@@ -311,34 +314,17 @@ describe("XSS prevention - pin API", () => {
     "theme_dark",
   ];
 
-  const testCases = apiParamNames.flatMap((param) =>
-    xssPayloads.map((payload) => [param, payload]),
-  );
-
-  it.each(testCases)(
+  it.each(casesFor(apiParamNames))(
     "should prevent XSS via %s (%s)",
     async (param, payload) => {
-      const result = await pinApi({
-        repo: "repo",
-        [param]: payload,
-      });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+      const query: Record<string, string> = { repo: "repo", [param]: payload };
+      expectNoScript(await pin(query, config));
     },
   );
 
-  it.each(xssPayloads)(
-    "should prevent XSS via username (%s)",
-    async (_label, payload) => {
-      const result = await pinApi({ repo: payload });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
-    },
-  );
+  it.each(xssPayloads)("should prevent XSS via repo (%s)", async (payload) => {
+    expectNoScript(await pin({ repo: payload }, config));
+  });
 });
 
 describe("XSS prevention - gist API", () => {
@@ -368,34 +354,20 @@ describe("XSS prevention - gist API", () => {
     "theme_dark",
   ];
 
-  const testCases = apiParamNames.flatMap((param) =>
-    xssPayloads.map((payload) => [param, payload]),
-  );
-
-  it.each(testCases)(
+  it.each(casesFor(apiParamNames))(
     "should prevent XSS via %s (%s)",
     async (param, payload) => {
-      const result = await gistApi({
+      const query: Record<string, string> = {
         id: "test-id",
         [param]: payload,
-      });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+      };
+      expectNoScript(await gist(query, config));
     },
   );
 
-  it.each(xssPayloads)(
-    "should prevent XSS via id (%s)",
-    async (_label, payload) => {
-      const result = await gistApi({ id: payload });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
-    },
-  );
+  it.each(xssPayloads)("should prevent XSS via id (%s)", async (payload) => {
+    expectNoScript(await gist({ id: payload }, config));
+  });
 });
 
 describe("XSS prevention - wakatime API", () => {
@@ -434,32 +406,21 @@ describe("XSS prevention - wakatime API", () => {
     "theme_dark",
   ];
 
-  const testCases = apiParamNames.flatMap((param) =>
-    xssPayloads.map((payload) => [param, payload]),
-  );
-
-  it.each(testCases)(
+  it.each(casesFor(apiParamNames))(
     "should prevent XSS via %s (%s)",
     async (param, payload) => {
-      const result = await wakatimeApi({
+      const query: Record<string, string> = {
         username: "user",
         [param]: payload,
-      });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+      };
+      expectNoScript(await wakatime(query));
     },
   );
 
   it.each(xssPayloads)(
     "should prevent XSS via username (%s)",
-    async (_label, payload) => {
-      const result = await wakatimeApi({ username: payload });
-
-      document.body.innerHTML = result.content;
-      const svg = document.querySelector("svg");
-      expect(svg?.querySelector("script")).toBeNull();
+    async (payload) => {
+      expectNoScript(await wakatime({ username: payload }));
     },
   );
 });
