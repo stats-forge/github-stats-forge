@@ -50,6 +50,17 @@ can be edited by hand. Loading one skips both the card prompt and the required
 params, landing you straight on the menu — and `--config` doubles as the save target,
 so the next `Save these options` writes back to it without asking.
 
+`--generate` skips the menu too, rendering exactly what the file holds:
+
+```sh
+stats-forge --config my-stats.json --generate
+```
+
+Nothing is asked, so this is the form for a script or a scheduled job — refresh a
+card on a cron, or regenerate a directory of them. It exits non-zero if the card
+could not be rendered, and needs its token from `--pat`, an env file or the
+environment, since there is nobody to ask.
+
 While it fetches, a spinner runs on stderr — so `stats-forge > card.svg` still
 pipes only the card, and a CI log gets one line instead of an animation.
 
@@ -74,6 +85,8 @@ token and hides what you type.
 ```
 -c, --card <id>       Skip the card prompt: stats, top-langs, pin, gist, wakatime
 -o, --out <file>      Where to write the card (default: named after the card)
+    --config <file>   Options to load, and where "Save these options" writes
+-g, --generate        Render what --config holds and exit, without the menu
     --pat <token>     GitHub token; repeat for several
     --env-file <file> Env file to read PAT_1, PAT_2, … from (default: .env)
 -h, --help            Show the help
