@@ -5,6 +5,7 @@ packages:
 # `@swc/core` left the dependency graph, so its entry went with it.
 allowBuilds:
   esbuild: true
+  lefthook: true
   unrs-resolver: true
 
 catalog:

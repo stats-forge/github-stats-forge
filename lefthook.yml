@@ -1,0 +1,16 @@
+# Hooks are installed by `prepare`, which pnpm runs after every install.
+pre-commit:
+  # `lint` and `test` read what `format` rewrote, so the order matters.
+  piped: true
+  jobs:
+    - name: format
+      glob: "*.{js,jsx,ts,tsx,css,json,jsonc,yaml,yml}"
+      run: pnpm exec prettier --write {staged_files}
+      # a file prettier rewrote goes into the same commit, rather than being left dirty
+      stage_fixed: true
+
+    - name: lint
+      run: pnpm run lint
+
+    - name: test
+      run: pnpm test
