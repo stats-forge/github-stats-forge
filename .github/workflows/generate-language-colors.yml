@@ -13,9 +13,7 @@ on:
     #        * *  *   * *
     - cron: '45 22 */7 * *'
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   update-languages:
@@ -23,9 +21,25 @@ jobs:
     name: Generate Language Colors
     runs-on: ubuntu-latest
 
+    environment: release-npm # where RELEASE_HELPER_APP_ID and RELEASE_HELPER_PRIVATE_KEY live
+
+    permissions:
+      contents: read # the app token, not GITHUB_TOKEN, pushes the branch and opens the PR
+
     steps:
+      # A GitHub App token, not GITHUB_TOKEN: events from the default token do not
+      # start other workflows, so CI would never run on the generated PR.
+      - name: Setup release helper
+        id: release-helper
+        uses: marcalexiei/github-actions/setup-github-app-user-bot@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
+        with:
+          app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
+          private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Dependencies
         uses: marcalexiei/github-actions/setup-node-and-pnpm@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
@@ -33,13 +47,28 @@ jobs:
       - name: Run update-languages-json.js script
         run: pnpm --filter ./packages/core/ run generate-language-colors
 
+      # A change to packages/* without one is invisible in the published CHANGELOG.
+      - name: Add a changeset if the language colors changed
+        run: |
+          if [ -z "$(git status --porcelain packages/core/src/common/languageColors.json)" ]; then
+            exit 0
+          fi
+          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat(core): update language colors
+
+          Regenerated from the [upstream linguist languages file](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml).'
+
       - name: Create Pull Request if upstream language file is changed
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        env:
+          BOT_USER: '${{ steps.release-helper.outputs.bot-name }} <${{ steps.release-helper.outputs.bot-email }}>'
         with:
+          token: ${{ steps.release-helper.outputs.token }}
           commit-message: 'feat(core): update language colors'
+          author: ${{ env.BOT_USER }}
+          committer: ${{ env.BOT_USER }}
           branch: 'update_langs/patch'
           delete-branch: true
-          title: Update languages colors
+          title: 'feat(core): update language colors'
           body: >-
             The [generate-language-colors](https://github.com/stats-forge/github-stats-forge/actions/workflows/generate-language-colors.yml)
             workflow detected changes in the [upstream languages JSON
