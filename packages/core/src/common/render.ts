@@ -275,7 +275,9 @@ const iconWithLabel = (
  * @param params.index The index of the stat.
  * @param params.showIcons Whether to show icons.
  * @param params.shiftValuePos Number of pixels the value has to be shifted to the right.
- * @param params.bold Whether to bold the label.
+ * @param params.valueAnchorX X position the value ends at, right-aligning it. Overrides `shiftValuePos`.
+ * @param params.bold Whether to bold the value.
+ * @param params.labelBold Whether to bold the label. Defaults to `bold`.
  * @param params.numberFormat The format of numbers on card.
  * @param params.numberPrecision The precision of numbers on card.
  * @param params.link Sanitized url to link to.
@@ -291,7 +293,9 @@ const createTextNode = ({
   index,
   showIcons,
   shiftValuePos,
+  valueAnchorX,
   bold,
+  labelBold = bold,
   numberFormat,
   numberPrecision,
   link,
@@ -306,7 +310,9 @@ const createTextNode = ({
   index: number;
   showIcons: boolean;
   shiftValuePos: number;
+  valueAnchorX?: number | undefined;
   bold: boolean;
+  labelBold?: boolean;
   numberFormat: string;
   numberPrecision?: number | undefined;
   link?: string | undefined;
@@ -321,6 +327,9 @@ const createTextNode = ({
   if (!Number.isFinite(index)) {
     throw new Error(`Invalid index: "${index}"`);
   }
+  if (valueAnchorX !== undefined && !Number.isFinite(valueAnchorX)) {
+    throw new Error(`Invalid valueAnchorX: "${valueAnchorX}"`);
+  }
 
   const precision =
     numberPrecision !== undefined && Number.isFinite(numberPrecision)
@@ -331,9 +340,12 @@ const createTextNode = ({
   const rawValue = numberFormat.toLowerCase() === 'long' || id === 'prs_merged_percentage';
   const kValue = rawValue || typeof value !== 'number' ? value : kFormatter(value, precision);
 
-  const staggerDelay = (index + 3) * 150;
+  const staggerDelay = 120 + index * 40;
   const boldClass = bold ? ' bold' : 'not_bold';
+  const labelBoldClass = labelBold ? ' bold' : 'not_bold';
   const valueX = (showIcons ? 140 : 120) + (bold ? 5 : 0) + shiftValuePos;
+  const valuePos =
+    valueAnchorX === undefined ? `x="${valueX}"` : `x="${valueAnchorX}" text-anchor="end"`;
   const unit = unitSymbol ? ` ${unitSymbol}` : '';
   const labelOffset = showIcons ? `x="${labelXOffset}"` : '';
   const iconSvg = showIcons
@@ -346,10 +358,10 @@ const createTextNode = ({
 
   const content = `
       ${iconSvg}
-      <text class="stat ${boldClass}" ${labelOffset} y="12.5">${encodeHTML(label)}:</text>
+      <text class="stat ${labelBoldClass}" ${labelOffset} y="12.5">${encodeHTML(label)}:</text>
       <text
         class="stat ${boldClass}"
-        x="${valueX}"
+        ${valuePos}
         y="12.5"
         data-testid="${id}"
       >${kValue}${unit}</text>`;
@@ -428,7 +440,7 @@ const renderError = ({
     </style>
     <rect x="0.5" y="0.5" width="${
       ERROR_CARD_LENGTH - 1
-    }" height="99%" rx="4.5" fill="${String(bgColor)}" stroke="${borderColor}"/>
+    }" height="99%" rx="8" fill="${String(bgColor)}" stroke="${borderColor}"/>
     <text x="25" y="45" class="text">Something went wrong!${
       UPSTREAM_API_ERRORS.includes(secondaryMessage) || !show_repo_link
         ? ''

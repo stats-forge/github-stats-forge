@@ -48,6 +48,9 @@
           opacity: 1;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+      }
     
           
         </style>
@@ -64,9 +67,9 @@
           class="card-bg"
           x="0.5"
           y="0.5"
-          rx="4.5"
+          rx="8"
           height="99%"
-          stroke="#e4e2e2"
+          stroke="#ffffff26"
           width="399"
           fill="#1a1b27"
           stroke-opacity="1"

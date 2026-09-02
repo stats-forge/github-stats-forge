@@ -9,7 +9,7 @@
         aria-labelledby="titleId descId"
       >
         <title id="titleId">Marco, in short, Rank: A</title>
-        <desc id="descId">Total Stars Earned: 86, Total Commits  (last year) : 947, Total PRs: 1027</desc>
+        <desc id="descId">Total Stars Earned: 86, Total Commits  (last year) : 949, Total PRs: 1029</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -22,7 +22,8 @@
           }
           
     .stat {
-      font: 600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: #434d58;
+      font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: #434d58;
+      font-variant-numeric: tabular-nums;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -33,7 +34,7 @@
       animation: fadeInAnimation 0.3s ease-in-out forwards;
     }
     .rank-text {
-      font: 800 24px 'Segoe UI', Ubuntu, Sans-Serif; fill: #434d58;
+      font: 700 22px 'Segoe UI', Ubuntu, Sans-Serif; fill: #434d58;
       animation: scaleInAnimation 0.3s ease-in-out forwards;
     }
     .rank-percentile-header {
@@ -42,30 +43,32 @@
     .rank-percentile-text {
       font-size: 16px;
     }
-    
-    .not_bold { font-weight: 400 }
-    .bold { font-weight: 700 }
+
+    /* Labels recede so that the values read first. */
+    .not_bold { font-weight: 400; opacity: 0.75 }
+    .bold { font-weight: 600 }
     .icon {
       fill: #4c71f2;
+      opacity: 0.75;
       display: none;
     }
 
     .rank-circle-rim {
       stroke: #2f80ed;
       fill: none;
-      stroke-width: 6;
-      opacity: 0.2;
+      stroke-width: 4;
+      opacity: 0.15;
     }
     .rank-circle {
       stroke: #2f80ed;
       stroke-dasharray: 250;
       fill: none;
-      stroke-width: 6;
+      stroke-width: 4;
       stroke-linecap: round;
-      opacity: 0.8;
+      opacity: 1;
       transform-origin: -10px 8px;
       transform: rotate(-90deg);
-      animation: rankAnimation 1s forwards ease-in-out;
+      animation: rankAnimation 0.8s forwards ease-in-out;
     }
     
     @keyframes rankAnimation {
@@ -73,7 +76,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 39.816661011223296;
+        stroke-dashoffset: 39.79989120454432;
       }
     }
   
@@ -98,6 +101,9 @@
           opacity: 1;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+      }
     
           
         </style>
@@ -114,9 +120,9 @@
           class="card-bg"
           x="0.5"
           y="0.5"
-          rx="4.5"
+          rx="8"
           height="99%"
-          stroke="#e4e2e2"
+          stroke="#0000001f"
           width="379"
           fill="#fffefe"
           stroke-opacity="1"
@@ -146,34 +152,34 @@
     
     <svg x="0" y="0">
       <g transform="translate(0, 0)">
-    <g class="stagger" style="animation-delay: 450ms" transform="translate(25, 0)">
+    <g class="stagger" style="animation-delay: 120ms" transform="translate(25, 0)">
       
       <text class="stat not_bold"  y="12.5">Total Stars Earned:</text>
       <text
         class="stat not_bold"
-        x="199.01"
+        x="330" text-anchor="end"
         y="12.5"
         data-testid="stars"
       >86</text>
     </g>
   </g><g transform="translate(0, 25)">
-    <g class="stagger" style="animation-delay: 600ms" transform="translate(25, 0)">
+    <g class="stagger" style="animation-delay: 160ms" transform="translate(25, 0)">
       
       <text class="stat not_bold"  y="12.5">Total Commits (last year):</text>
       <text
         class="stat not_bold"
-        x="199.01"
+        x="330" text-anchor="end"
         y="12.5"
         data-testid="commits"
-      >947</text>
+      >949</text>
     </g>
   </g><g transform="translate(0, 50)">
-    <g class="stagger" style="animation-delay: 750ms" transform="translate(25, 0)">
+    <g class="stagger" style="animation-delay: 200ms" transform="translate(25, 0)">
       
       <text class="stat not_bold"  y="12.5">Total PRs:</text>
       <text
         class="stat not_bold"
-        x="199.01"
+        x="330" text-anchor="end"
         y="12.5"
         data-testid="prs"
       >1k</text>

@@ -82,6 +82,53 @@ const fallbackColor = (
   return fallbackColor;
 };
 
+/** Border a light background gets when neither the user nor the theme names one. */
+const LIGHT_BG_BORDER = '#0000001f';
+/** Border a dark background gets when neither the user nor the theme names one. */
+const DARK_BG_BORDER = '#ffffff26';
+/** Border a see-through background gets: neutral, since the page behind it decides the contrast. */
+const TRANSLUCENT_BG_BORDER = '#8b949e59';
+
+/**
+ * @param hex A `#`-prefixed hex color of 3, 4, 6 or 8 digits.
+ * @returns Its `[r, g, b, a]` channels, each on 0–1.
+ */
+const hexChannels = (hex: string): [number, number, number, number] => {
+  const digits = hex.slice(1);
+  const expanded =
+    digits.length <= 4
+      ? digits
+          .split('')
+          .map((digit) => digit + digit)
+          .join('')
+      : digits;
+  const channel = (index: number): number =>
+    parseInt(expanded.slice(index * 2, index * 2 + 2), 16) / 255;
+
+  return [channel(0), channel(1), channel(2), expanded.length === 8 ? channel(3) : 1];
+};
+
+/**
+ * Derives a border from the background, so a dark card never gets a light hairline.
+ *
+ * @param bgColor The resolved background, or a gradient as `[angle, ...stops]`.
+ * @returns A translucent `#`-prefixed hex border color.
+ */
+const borderColorFor = (bgColor: string | Array<string>): string => {
+  // A gradient is judged by its first stop.
+  const hex = typeof bgColor === 'string' ? bgColor : `#${bgColor[1] ?? ''}`;
+  if (!isPrefixedHexColor(hex)) {
+    return LIGHT_BG_BORDER;
+  }
+
+  const [r, g, b, a] = hexChannels(hex);
+  if (a < 0.5) {
+    return TRANSLUCENT_BG_BORDER;
+  }
+
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5 ? DARK_BG_BORDER : LIGHT_BG_BORDER;
+};
+
 /**
  * Resolved card colors for a single color scheme, as written into the SVG.
  */
@@ -158,8 +205,7 @@ const getCardColors = ({
   const defaultTheme = themes.default;
   const selectedTheme = isThemeName(theme) ? themes[theme] : defaultTheme;
 
-  const defaultBorderColor =
-    'border_color' in selectedTheme ? selectedTheme.border_color : defaultTheme.border_color;
+  const themeBorderColor = 'border_color' in selectedTheme ? selectedTheme.border_color : undefined;
 
   // get the color provided by the user else the theme color
   // finally if both colors are invalid fallback to default theme
@@ -180,7 +226,7 @@ const getCardColors = ({
   );
   const bgColor = fallbackColor(bg_color || selectedTheme.bg_color, '#' + defaultTheme.bg_color);
 
-  const borderColor = fallbackColor(border_color || defaultBorderColor, '#' + defaultBorderColor);
+  const borderColor = fallbackColor(border_color || themeBorderColor, borderColorFor(bgColor));
   // No theme defines `ring_color`, so it falls back to the title color.
   const ringColor = fallbackColor(ring_color, titleColor);
   // No theme defines `prog_bar_bg_color`, so it falls back to "#ddd".

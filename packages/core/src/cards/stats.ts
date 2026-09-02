@@ -18,6 +18,18 @@ const RANK_CARD_DEFAULT_WIDTH = 450;
 const RANK_ONLY_CARD_MIN_WIDTH = 290;
 const RANK_ONLY_CARD_DEFAULT_WIDTH = 290;
 
+const STAT_FONT_SIZE = 14;
+/** Padding the card keeps at its edges; matches `Card`'s own `paddingX`. */
+const CARD_PADDING_X = 25;
+/** How far a stat row is translated into the card; see `createTextNode`. */
+const STAT_ROW_X = 25;
+/** Room the rank ring needs at the right edge, so a value never runs into it. */
+const RANK_GUTTER = 120;
+/** `createTextNode`'s own label offset, which it applies only when icons are shown. */
+const LABEL_X_OFFSET = 25;
+/** Smallest gap kept between the longest label and its value. */
+const LABEL_VALUE_GAP = 16;
+
 /** Rank indicators the card can draw; the api validates `rank_icon` against this. */
 const RANK_ICONS = ['default', 'github', 'percentile'] as const;
 type RankIcon = (typeof RANK_ICONS)[number];
@@ -149,7 +161,8 @@ const getStyles = ({
 }): string => {
   return `
     .stat {
-      font: 600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: ${textColor};
+      font: 400 ${STAT_FONT_SIZE}px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: ${textColor};
+      font-variant-numeric: tabular-nums;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -160,7 +173,7 @@ const getStyles = ({
       animation: fadeInAnimation 0.3s ease-in-out forwards;
     }
     .rank-text {
-      font: 800 24px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor};
+      font: 700 22px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor};
       animation: scaleInAnimation 0.3s ease-in-out forwards;
     }
     .rank-percentile-header {
@@ -169,30 +182,32 @@ const getStyles = ({
     .rank-percentile-text {
       font-size: 16px;
     }
-    
-    .not_bold { font-weight: 400 }
-    .bold { font-weight: 700 }
+
+    /* Labels recede so that the values read first. */
+    .not_bold { font-weight: 400; opacity: 0.75 }
+    .bold { font-weight: 600 }
     .icon {
       fill: ${iconColor};
+      opacity: 0.75;
       display: ${show_icons ? 'block' : 'none'};
     }
 
     .rank-circle-rim {
       stroke: ${ringColor};
       fill: none;
-      stroke-width: 6;
-      opacity: 0.2;
+      stroke-width: 4;
+      opacity: 0.15;
     }
     .rank-circle {
       stroke: ${ringColor};
       stroke-dasharray: 250;
       fill: none;
-      stroke-width: 6;
+      stroke-width: 4;
       stroke-linecap: round;
-      opacity: 0.8;
+      opacity: 1;
       transform-origin: -10px 8px;
       transform: rotate(-90deg);
-      animation: rankAnimation 1s forwards ease-in-out;
+      animation: rankAnimation 0.8s forwards ease-in-out;
     }
     ${getProgressAnimation({ progress })}
   `;
@@ -447,44 +462,24 @@ const renderStatsCard = (
 
   const isLongLocale = locale ? LONG_LOCALES.includes(locale) : false;
 
-  // check if all used labels are short
-  const longLabels = Object.entries(STATS)
-    .filter(([key]) => !hide.includes(key))
-    .some(([, stat]) => stat.label.length > 18);
+  // filter out hidden stats defined by user
+  const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
 
-  // filter out hidden stats defined by user & create the text nodes
-  const statItems = Object.entries(STATS)
-    .filter(([key]) => !hide.includes(key))
-    // pass index so that we can calculate the line spacing
-    .map(([, stat], index) =>
-      createTextNode({
-        icon: stat.icon,
-        label: stat.label,
-        value: stat.value,
-        id: stat.id,
-        unitSymbol: stat.unitSymbol,
-        index,
-        showIcons: show_icons,
-        shiftValuePos: 29.01 + (longLabels ? 50 : 0) + (isLongLocale ? 50 : 0),
-        bold: text_bold,
-        numberFormat: number_format,
-        numberPrecision: number_precision,
-        link: stat.link,
-      }),
-    );
-
-  if (statItems.length === 0 && hide_rank) {
+  if (visibleStats.length === 0 && hide_rank) {
     throw new CardError('Could not render stats card.', {
       code: 'invalid_param',
       secondaryMessage: 'Either stats or rank are required.',
     });
   }
 
+  // check if all used labels are short
+  const longLabels = visibleStats.some(([, stat]) => stat.label.length > 18);
+
   // Calculate the card height depending on how many items there are
   // but if rank circle is visible clamp the minimum height to `150`
   const height = Math.max(
-    45 + (statItems.length + 1) * lheight,
-    hide_rank ? 0 : statItems.length ? 150 : 180,
+    45 + (visibleStats.length + 1) * lheight,
+    hide_rank ? 0 : visibleStats.length ? 150 : 180,
   );
 
   // the lower the user's percentile the better
@@ -494,7 +489,7 @@ const renderStatsCard = (
     return measureText(
       custom_title
         ? custom_title
-        : statItems.length
+        : visibleStats.length
           ? i18n.t('statcard.title')
           : i18n.t('statcard.ranktitle'),
     );
@@ -505,17 +500,17 @@ const renderStatsCard = (
     When hide_rank=false, the minimum card_width is 340 px + the icon width (if show_icons=true).
     Numbers are picked by looking at existing dimensions on production.
   */
-  const iconWidth = show_icons && statItems.length ? 16 + /* padding */ 1 : 0;
+  const iconWidth = show_icons && visibleStats.length ? 16 + /* padding */ 1 : 0;
   const minCardWidth =
     (hide_rank
       ? clampValue(50 /* padding */ + calculateTextWidth() * 2, CARD_MIN_WIDTH, Infinity)
-      : statItems.length
+      : visibleStats.length
         ? RANK_CARD_MIN_WIDTH
         : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
   const defaultCardWidth =
     (hide_rank
       ? CARD_DEFAULT_WIDTH
-      : statItems.length
+      : visibleStats.length
         ? RANK_CARD_DEFAULT_WIDTH
         : RANK_ONLY_CARD_DEFAULT_WIDTH) + iconWidth;
   const width = card_width
@@ -524,9 +519,41 @@ const renderStatsCard = (
       : card_width
     : Math.max(defaultCardWidth, minCardWidth);
 
+  // A value ends at the card's inner edge, clear of the rank ring — or right after
+  // the longest label, on a card too narrow for that.
+  const widestLabel = visibleStats.length
+    ? Math.max(...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, STAT_FONT_SIZE)))
+    : 0;
+  const valueAnchorX = Math.round(
+    Math.max(
+      width - CARD_PADDING_X - STAT_ROW_X - (hide_rank ? 0 : RANK_GUTTER),
+      (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP,
+    ),
+  );
+
+  // pass index so that we can calculate the line spacing
+  const statItems = visibleStats.map(([, stat], index) =>
+    createTextNode({
+      icon: stat.icon,
+      label: stat.label,
+      value: stat.value,
+      id: stat.id,
+      unitSymbol: stat.unitSymbol,
+      index,
+      showIcons: show_icons,
+      shiftValuePos: 29.01 + (longLabels ? 50 : 0) + (isLongLocale ? 50 : 0),
+      valueAnchorX,
+      bold: text_bold,
+      labelBold: false,
+      numberFormat: number_format,
+      numberPrecision: number_precision,
+      link: stat.link,
+    }),
+  );
+
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: statItems.length ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle'),
+    defaultTitle: visibleStats.length ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle'),
     width,
     height,
     border_radius,
@@ -555,7 +582,7 @@ const renderStatsCard = (
    * @returns Rank circle translation value.
    */
   const calculateRankXTranslation = (): number => {
-    if (statItems.length) {
+    if (visibleStats.length) {
       const minXTranslation = RANK_CARD_MIN_WIDTH + iconWidth - 70;
       if (width > RANK_CARD_DEFAULT_WIDTH) {
         const xMaxExpansion = minXTranslation + (450 - minCardWidth) / 2;
@@ -581,8 +608,7 @@ const renderStatsCard = (
       </g>`;
 
   // Accessibility Labels
-  const labels = Object.entries(STATS)
-    .filter(([key]) => !hide.includes(key))
+  const labels = visibleStats
     .map(([key, stat]) => {
       if (key === 'commits') {
         return `${i18n.t('statcard.commits')} ${getTotalCommitsYearLabel(

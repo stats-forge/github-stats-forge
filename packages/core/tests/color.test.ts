@@ -51,7 +51,7 @@ describe('getCardColors', () => {
       iconColor: '#00f',
       ringColor: '#2f80ed',
       bgColor: '#fff',
-      borderColor: '#e4e2e2',
+      borderColor: '#0000001f',
       progBarBgColor: '#ddd',
     });
   });
@@ -66,7 +66,7 @@ describe('getCardColors', () => {
       ringColor: '#fff',
       iconColor: '#79ff97',
       bgColor: '#151515',
-      borderColor: '#e4e2e2',
+      borderColor: '#ffffff26',
       progBarBgColor: '#ddd',
     });
   });
@@ -101,9 +101,23 @@ describe('getCardColors', () => {
       iconColor: '#4c71f2',
       ringColor: '#2f80ed',
       bgColor: '#fffefe',
-      borderColor: '#e4e2e2',
+      borderColor: '#0000001f',
       progBarBgColor: '#ddd',
     });
+  });
+
+  it('should derive the border from the background when nothing defines one', () => {
+    expect(getCardColors({ bg_color: '0d1117' }).borderColor).toBe('#ffffff26');
+    expect(getCardColors({ bg_color: 'ffffff' }).borderColor).toBe('#0000001f');
+    // A see-through card cannot know what it sits on.
+    expect(getCardColors({ bg_color: 'ffffff00' }).borderColor).toBe('#8b949e59');
+    // A gradient is judged by its first stop.
+    expect(getCardColors({ bg_color: '90,000000,ffffff' }).borderColor).toBe('#ffffff26');
+  });
+
+  it('should keep a border named by the theme or the user', () => {
+    expect(getCardColors({ theme: 'dark', border_color: 'f00' }).borderColor).toBe('#f00');
+    expect(getCardColors({ theme: 'dark_github' }).borderColor).toBe('#3d444d');
   });
 });
 

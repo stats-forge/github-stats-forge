@@ -44,7 +44,7 @@ class Card {
   constructor({
     width = 100,
     height = 100,
-    border_radius = 4.5,
+    border_radius = 8,
     colors = { light: getCardColors({}), dark: null },
     customTitle,
     defaultTitle = '',
@@ -245,6 +245,9 @@ class Card {
         to {
           opacity: 1;
         }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
       }
     `;
   };
