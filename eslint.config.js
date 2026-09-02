@@ -164,7 +164,7 @@ export default defineConfig(
   },
   {
     // `scripts/` and the package's own generators run under Node.
-    files: ['scripts/**/*.{js,ts}', 'packages/*/scripts/**/*.js'],
+    files: ['scripts/**/*.{js,ts}', 'packages/*/scripts/**/*.{js,ts}'],
     languageOptions: {
       globals: {
         ...globals.node,

@@ -1,0 +1,85 @@
+name: Update emoji map
+on:
+  workflow_dispatch:
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │  ┌───────────── hour (0 - 23)
+    #        │  │ ┌───────────── day of the month (1 - 31)
+    #        │  │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │  │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        *  * * * *
+    # Monthly: emojibase follows Unicode releases, which land about once a year.
+    - cron: '30 4 1 * *'
+
+permissions: {}
+
+jobs:
+  update-emoji-map:
+    if: github.repository == 'stats-forge/github-stats-forge'
+    name: Generate Emoji Map
+    runs-on: ubuntu-latest
+
+    environment: update-meta-files # where HELPER_APP_ID and HELPER_PRIVATE_KEY live
+
+    permissions:
+      contents: read # the app token, not GITHUB_TOKEN, pushes the branch and opens the PR
+
+    steps:
+      # A GitHub App token, not GITHUB_TOKEN: events from the default token do not
+      # start other workflows, so CI would never run on the generated PR.
+      - name: Setup release helper
+        id: release-helper
+        uses: marcalexiei/github-actions/setup-github-app-user-bot@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
+        with:
+          app-id: ${{ vars.HELPER_APP_ID }}
+          private-key: ${{ secrets.HELPER_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Dependencies
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
+
+      - name: Run generate-emoji-map script
+        run: pnpm --filter ./packages/core/ run generate-emoji-map
+
+      # A change to packages/* without one is invisible in the published CHANGELOG.
+      - name: Add a changeset if the emoji map changed
+        run: | # zizmor: ignore[adhoc-packages] -- "add" is changeset's subcommand, not an install
+          if [ -z "$(git status --porcelain packages/core/src/common/emojiMap.json)" ]; then
+            exit 0
+          fi
+          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat(core): update emoji map
+
+          Regenerated from the [GitHub shortcode preset in emojibase](https://github.com/milesj/emojibase/blob/master/packages/data/en/shortcodes/github.raw.json).'
+
+      - name: Create Pull Request if the upstream shortcodes changed
+        id: create_pr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        env:
+          BOT_USER: '${{ steps.release-helper.outputs.bot-name }} <${{ steps.release-helper.outputs.bot-email }}>'
+        with:
+          token: ${{ steps.release-helper.outputs.token }}
+          commit-message: 'feat(core): update emoji map'
+          author: ${{ env.BOT_USER }}
+          committer: ${{ env.BOT_USER }}
+          branch: 'update_emoji/patch'
+          delete-branch: true
+          title: 'feat(core): update emoji map'
+          body: >-
+            The [generate-emoji-map](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-emoji-map.yml)
+            workflow detected changes in the [upstream emojibase data](https://www.npmjs.com/package/emojibase-data)
+            and regenerated the local emoji map JSON file.
+          labels: 'ci'
+
+      - name: Enable auto-merge
+        if: ${{ steps.create_pr.outputs.pull-request-number }} # the PR might not have been opened
+        run: gh pr merge --squash --auto "${PULL_REQUEST_NUMBER}"
+        env:
+          GH_TOKEN: ${{ steps.release-helper.outputs.token }}
+          PULL_REQUEST_NUMBER: ${{ steps.create_pr.outputs.pull-request-number }}

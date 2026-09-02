@@ -93,9 +93,6 @@ importers:
 
   packages/core:
     dependencies:
-      emoji-name-map:
-        specifier: ^2.0.3
-        version: 2.0.3
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -118,6 +115,9 @@ importers:
       '@testing-library/jest-dom':
         specifier: 7.0.1
         version: 7.0.1(@testing-library/dom@10.4.1)(vitest@4.1.11)
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
       '@uppercod/css-to-object':
         specifier: 1.1.1
         version: 1.1.1
@@ -1727,9 +1727,6 @@ packages:
 
   dom-accessibility-api@0.6.3:
     resolution: {integrity: sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==}
-
-  emoji-name-map@2.0.3:
-    resolution: {integrity: sha512-3KBuQuhYkRtLd9utBKfTtclbWP3IytC1FNcXg+NKARltPSYpkg/MLiklGv4vLwl8A8jMQjdneXNBYx8k0rrg+g==}
 
   entities@8.0.0:
     resolution: {integrity: sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA==}
@@ -4028,8 +4025,6 @@ snapshots:
   dom-accessibility-api@0.5.16: {}
 
   dom-accessibility-api@0.6.3: {}
-
-  emoji-name-map@2.0.3: {}
 
   entities@8.0.0: {}
 
