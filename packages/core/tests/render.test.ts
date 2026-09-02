@@ -1,7 +1,12 @@
 import { queryByTestId } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
-import { countWrappedLines, renderError, splitWrappedText } from '../src/common/render.js';
+import {
+  countWrappedLines,
+  renderError,
+  splitWrappedText,
+  wrapTextMultiline,
+} from '../src/common/render.js';
 
 describe('Test splitWrappedText', () => {
   it('should return an empty array for empty text', () => {
@@ -32,6 +37,37 @@ describe('Test splitWrappedText', () => {
 
   it('trailing spaces should not cause line breaks', () => {
     expect(splitWrappedText('hi hi ', 10, 12)).toEqual(['hi', 'hi']);
+  });
+});
+
+describe('Test wrapTextMultiline', () => {
+  it('should not wrap small texts', () => {
+    {
+      const multiLineText = wrapTextMultiline('Small text should not wrap', 130, 11, 3);
+      expect(multiLineText).toEqual(['Small text should not wrap']);
+    }
+  });
+
+  it('should wrap large texts', () => {
+    const multiLineText = wrapTextMultiline('Hello world long long long text', 130, 11, 3);
+    expect(multiLineText).toEqual(['Hello world long long', 'long text']);
+  });
+
+  it('should wrap large texts and limit max lines', () => {
+    const multiLineText = wrapTextMultiline('Hello world long long long text', 53, 11, 2);
+    expect(multiLineText).toEqual(['Hello', 'world long...']);
+  });
+
+  it('should handle chinese characters', () => {
+    const multiLineText = wrapTextMultiline(
+      '专门为刚开始刷题的同学准备的算法基地，没有最细只有更细，立志用动画将晦涩难懂的算法说的通俗易懂！',
+      130,
+      11,
+      3,
+    );
+    expect(multiLineText).toHaveLength(3);
+    // Plain characters: the escaping happens when the line is serialized into the card.
+    expect(multiLineText[0]).toHaveLength(11);
   });
 });
 

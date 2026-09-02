@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatBytes, kFormatter, wrapTextMultiline } from '../src/common/fmt.js';
+import { formatBytes, kFormatter } from '../src/common/fmt.js';
 
 describe('Test fmt.js', () => {
   it('kFormatter: should format numbers correctly by default', () => {
@@ -64,34 +64,5 @@ describe('Test fmt.js', () => {
 
     expect(formatBytes(1234 * 1024)).toBe('1.2 MB');
     expect(formatBytes(123.4 * 1024)).toBe('123.4 KB');
-  });
-
-  it('wrapTextMultiline: should not wrap small texts', () => {
-    {
-      const multiLineText = wrapTextMultiline('Small text should not wrap', 130, 11, 3);
-      expect(multiLineText).toEqual(['Small text should not wrap']);
-    }
-  });
-
-  it('wrapTextMultiline: should wrap large texts', () => {
-    const multiLineText = wrapTextMultiline('Hello world long long long text', 130, 11, 3);
-    expect(multiLineText).toEqual(['Hello world long long', 'long text']);
-  });
-
-  it('wrapTextMultiline: should wrap large texts and limit max lines', () => {
-    const multiLineText = wrapTextMultiline('Hello world long long long text', 53, 11, 2);
-    expect(multiLineText).toEqual(['Hello', 'world long...']);
-  });
-
-  it('wrapTextMultiline: should handle chinese characters', () => {
-    const multiLineText = wrapTextMultiline(
-      '专门为刚开始刷题的同学准备的算法基地，没有最细只有更细，立志用动画将晦涩难懂的算法说的通俗易懂！',
-      130,
-      11,
-      3,
-    );
-    expect(multiLineText).toHaveLength(3);
-    // Plain characters: the escaping happens when the line is serialized into the card.
-    expect(multiLineText[0]).toHaveLength(11);
   });
 });

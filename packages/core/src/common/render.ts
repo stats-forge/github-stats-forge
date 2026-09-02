@@ -688,6 +688,38 @@ const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Arr
 };
 
 /**
+ * Split text over multiple lines based on the card width.
+ *
+ * @param text Text to split.
+ * @param width Available wrap width in px.
+ * @param fontSize Font size in px.
+ * @param maxLines Maximum number of lines.
+ * @returns Array of lines.
+ */
+const wrapTextMultiline = (
+  text: string,
+  width: number,
+  fontSize: number,
+  maxLines = 3,
+): Array<string> => {
+  const wrapped = splitWrappedText(text, fontSize, width);
+  const lines = wrapped.map((line) => line.trim()).slice(0, maxLines); // Only consider maxLines lines
+
+  // Add "..." to the last line if the text exceeds maxLines
+  if (wrapped.length > maxLines) {
+    const lastIndex = maxLines - 1;
+    const lastLine = lines[lastIndex];
+    if (lastLine !== undefined) {
+      lines[lastIndex] = `${lastLine}...`;
+    }
+  }
+
+  // Remove empty lines if text fits in less than maxLines lines
+  const multiLineText = lines.filter(Boolean);
+  return multiLineText;
+};
+
+/**
  * Estimate how many lines a string will wrap to when laid out greedily at the
  * given font size inside a box of width `maxWidth`, capped at `maxLines`.
  *
@@ -715,6 +747,7 @@ export {
   flexLayout,
   measureText,
   splitWrappedText,
+  wrapTextMultiline,
   countWrappedLines,
   wrappedTextNode,
   wrappedTextStyles,
