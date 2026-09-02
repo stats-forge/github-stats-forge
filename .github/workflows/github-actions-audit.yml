@@ -1,0 +1,36 @@
+name: GitHub Actions Audit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/**/*
+  pull_request:
+    paths:
+      - .github/**/*
+
+permissions: {}
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      security-events: write # required to upload SARIF results to GitHub Code Scanning
+      contents: read # required to check out the repository
+      actions: read # required by zizmor to read workflow runs
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
