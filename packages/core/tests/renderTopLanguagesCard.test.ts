@@ -667,7 +667,7 @@ describe('Test renderTopLanguages', () => {
     document.body.innerHTML = renderTopLanguages(langs, { border_radius: 0 });
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     document.body.innerHTML = renderTopLanguages(langs, {});
-    expect(document.querySelector('rect')).toHaveAttribute('rx', '4.5');
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
   });
 
   it('should render langs with specified langs_count', () => {

@@ -232,7 +232,7 @@ describe('test renderGistCard', () => {
     });
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     document.body.innerHTML = renderGistCard(data, {});
-    expect(document.querySelector('rect')).toHaveAttribute('rx', '4.5');
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
   });
 
   it('should fallback to default description', () => {

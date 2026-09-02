@@ -340,7 +340,7 @@ describe('Test renderRepoCard', () => {
     });
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     document.body.innerHTML = renderRepoCard(data_repo.repository, {});
-    expect(document.querySelector('rect')).toHaveAttribute('rx', '4.5');
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
   });
 
   it('should fallback to default description', () => {

@@ -9,8 +9,8 @@ pnpm examples stats top-langs # redraw just these two
 ```
 
 The SVGs land in [`previews/`](previews),
-next to a generated [`PREVIEWS.md`](previews/PREVIEWS.md) that embeds every one of them.
-Open that file to see the whole set at once.
+next to a generated `README.md` that embeds every one of them —
+so opening [that folder](previews) shows the whole set at once.
 Both are committed, so the cards are visible without rendering anything.
 They carry live stats, so they age between runs — which is what `pnpm examples` is for.
 

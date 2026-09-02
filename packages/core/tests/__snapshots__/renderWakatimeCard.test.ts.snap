@@ -85,6 +85,9 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
           opacity: 1;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+      }
     
           
         </style>
@@ -101,9 +104,9 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
           class="card-bg"
           x="0.5"
           y="0.5"
-          rx="4.5"
+          rx="8"
           height="99%"
-          stroke="#e4e2e2"
+          stroke="#0000001f"
           width="494"
           fill="#fffefe"
           stroke-opacity="1"
@@ -270,6 +273,9 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
           opacity: 1;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+      }
     
           
         </style>
@@ -286,9 +292,9 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
           class="card-bg"
           x="0.5"
           y="0.5"
-          rx="4.5"
+          rx="8"
           height="99%"
-          stroke="#e4e2e2"
+          stroke="#0000001f"
           width="494"
           fill="#fffefe"
           stroke-opacity="1"
@@ -449,6 +455,9 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
           opacity: 1;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+      }
     
           
         </style>
@@ -465,9 +474,9 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
           class="card-bg"
           x="0.5"
           y="0.5"
-          rx="4.5"
+          rx="8"
           height="99%"
-          stroke="#e4e2e2"
+          stroke="#0000001f"
           width="494"
           fill="#fffefe"
           stroke-opacity="1"
@@ -628,6 +637,9 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
           opacity: 1;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+      }
     
           
         </style>
@@ -651,9 +663,9 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
           class="card-bg"
           x="0.5"
           y="0.5"
-          rx="4.5"
+          rx="8"
           height="99%"
-          stroke="#e4e2e2"
+          stroke="#ffffff26"
           width="494"
           fill="url(#gradient)"
           stroke-opacity="1"
@@ -820,6 +832,9 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
           opacity: 1;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+      }
     
           
         </style>
@@ -836,9 +851,9 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
           class="card-bg"
           x="0.5"
           y="0.5"
-          rx="4.5"
+          rx="8"
           height="99%"
-          stroke="#e4e2e2"
+          stroke="#0000001f"
           width="494"
           fill="#fffefe"
           stroke-opacity="1"

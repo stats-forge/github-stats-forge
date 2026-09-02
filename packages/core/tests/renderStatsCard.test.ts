@@ -345,6 +345,31 @@ describe('Test renderStatsCard', () => {
     expect(stars.previousElementSibling).not.toHaveAttribute('x');
   });
 
+  it('should right-align every value on one anchor, clear of the rank ring', () => {
+    document.body.innerHTML = renderStatsCard(stats);
+
+    for (const id of ['stars', 'commits', 'prs', 'issues', 'contribs']) {
+      const value = screen.getByTestId(id);
+      // The default 450 wide, less the padding, the row offset and the ring's gutter.
+      expect(value).toHaveAttribute('x', '280');
+      expect(value).toHaveAttribute('text-anchor', 'end');
+    }
+  });
+
+  it('should keep the values off the labels on a card too narrow for the ring', () => {
+    document.body.innerHTML = renderStatsCard(stats, { card_width: 200 });
+
+    // Too narrow for the gutter, so the anchor sits just after the longest label instead.
+    expect(screen.getByTestId('stars')).toHaveAttribute('x', '173');
+  });
+
+  it('should render the labels lighter than the values', () => {
+    document.body.innerHTML = renderStatsCard(stats);
+
+    expect(screen.getByTestId('stars')).toHaveClass('bold');
+    expect(document.querySelector('.stagger > .stat')).toHaveClass('not_bold');
+  });
+
   it('should auto resize if hide_rank is true', () => {
     document.body.innerHTML = renderStatsCard(stats, {
       hide_rank: true,
@@ -366,19 +391,19 @@ describe('Test renderStatsCard', () => {
     document.body.innerHTML = renderStatsCard(stats, { locale: 'cn' });
     expect(document.querySelector('.header')).toHaveTextContent('Anurag Hazra 的 GitHub 统计数据');
     expect(
-      document.querySelector('g[transform="translate(0, 0)"]>.stagger>.stat.bold'),
+      document.querySelector('g[transform="translate(0, 0)"]>.stagger>.stat.not_bold'),
     ).toHaveTextContent('获标星数:');
     expect(
-      document.querySelector('g[transform="translate(0, 25)"]>.stagger>.stat.bold'),
+      document.querySelector('g[transform="translate(0, 25)"]>.stagger>.stat.not_bold'),
     ).toHaveTextContent('累计提交总数 (去年):');
     expect(
-      document.querySelector('g[transform="translate(0, 50)"]>.stagger>.stat.bold'),
+      document.querySelector('g[transform="translate(0, 50)"]>.stagger>.stat.not_bold'),
     ).toHaveTextContent('发起的 PR 总数:');
     expect(
-      document.querySelector('g[transform="translate(0, 75)"]>.stagger>.stat.bold'),
+      document.querySelector('g[transform="translate(0, 75)"]>.stagger>.stat.not_bold'),
     ).toHaveTextContent('提出的 issue 总数:');
     expect(
-      document.querySelector('g[transform="translate(0, 100)"]>.stagger>.stat.bold'),
+      document.querySelector('g[transform="translate(0, 100)"]>.stagger>.stat.not_bold'),
     ).toHaveTextContent('贡献的项目数（去年）:');
   });
 
@@ -386,7 +411,7 @@ describe('Test renderStatsCard', () => {
     document.body.innerHTML = renderStatsCard(stats, { border_radius: 0 });
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     document.body.innerHTML = renderStatsCard(stats, {});
-    expect(document.querySelector('rect')).toHaveAttribute('rx', '4.5');
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
   });
 
   it('should shorten values', () => {

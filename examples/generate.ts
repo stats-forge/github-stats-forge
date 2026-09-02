@@ -130,7 +130,8 @@ const writeIndex = async (previews: Array<Preview>): Promise<string> => {
     ].join('\n');
   });
 
-  const file = join(PREVIEWS_DIR, 'PREVIEWS.md');
+  // Named README.md so that opening the folder shows the previews.
+  const file = join(PREVIEWS_DIR, 'README.md');
   await writeFile(
     file,
     [
