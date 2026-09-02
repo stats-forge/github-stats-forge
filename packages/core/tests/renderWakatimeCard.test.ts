@@ -41,9 +41,9 @@ describe('Test Render WakaTime Card', () => {
   it('should render translations', () => {
     document.body.innerHTML = renderWakatimeCard({}, { locale: 'cn' });
     expect(document.querySelector('.header')).toHaveTextContent('WakaTime 周统计');
-    expect(
-      document.querySelector('g[transform="translate(0, 0)"]>text.stat.bold'),
-    ).toHaveTextContent('WakaTime 用户个人资料未公开');
+    expect(document.querySelector('text.stat.bold')).toHaveTextContent(
+      'WakaTime 用户个人资料未公开',
+    );
   });
 
   it('should render without rounding', () => {

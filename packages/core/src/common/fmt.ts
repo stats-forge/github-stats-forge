@@ -1,4 +1,3 @@
-import { encodeHTML } from './html.js';
 import { splitWrappedText } from './render.js';
 
 /**
@@ -67,7 +66,7 @@ const wrapTextMultiline = (
   maxLines = 3,
 ): Array<string> => {
   const wrapped = splitWrappedText(text, fontSize, width);
-  const lines = wrapped.map((line) => encodeHTML(line.trim())).slice(0, maxLines); // Only consider maxLines lines
+  const lines = wrapped.map((line) => line.trim()).slice(0, maxLines); // Only consider maxLines lines
 
   // Add "..." to the last line if the text exceeds maxLines
   if (wrapped.length > maxLines) {

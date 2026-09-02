@@ -1,12 +1,13 @@
 import { Card } from '../common/Card.js';
 import { getLightDarkColors, isPrefixedHexColor } from '../common/color.js';
 import { formatBytes } from '../common/fmt.js';
-import { encodeHTML } from '../common/html.js';
 import { I18n } from '../common/I18n.js';
 import { DEFAULT_LANG_COLOR } from '../common/languageColors.js';
 import { chunkArray, clampValue, lowercaseTrim } from '../common/ops.js';
 import { createProgressNode, flexLayout, measureText } from '../common/render.js';
 import type { Lang, TopLangData } from '../fetchers/types.js';
+import type { Child, MarkupElement } from '../markup/index.js';
+import { atRule, cssComment, el, rule } from '../markup/index.js';
 import { langCardLocales } from '../translations.js';
 
 import type { CardOptions, CommonCardOptions } from './options.js';
@@ -283,7 +284,7 @@ const createProgressTextNode = ({
   statsFormat: string;
   hideValues?: boolean | undefined;
   index: number;
-}): string => {
+}): MarkupElement => {
   const staggerDelay = (index + 3) * 150;
   const paddingRight = hideValues ? CARD_PADDING * 2 : 95;
   const progressTextX = width - paddingRight + 10;
@@ -292,20 +293,20 @@ const createProgressTextNode = ({
   const progress = (size / totalSize) * 100;
   const displayValue = getDisplayValue(size, progress, statsFormat);
 
-  return `
-    <g class="stagger" style="animation-delay: ${staggerDelay}ms">
-      <text data-testid="lang-name" x="2" y="15" class="lang-name">${encodeHTML(name)}</text>
-      ${hideValues ? '' : `<text x="${progressTextX}" y="34" class="lang-name">${encodeHTML(displayValue)}</text>`}
-      ${createProgressNode({
-        x: 0,
-        y: 25,
-        color,
-        width: progressWidth,
-        progress,
-        delay: staggerDelay + 300,
-      })}
-    </g>
-  `;
+  return el(
+    'g',
+    { class: 'stagger', style: `animation-delay: ${staggerDelay}ms` },
+    el('text', { 'data-testid': 'lang-name', x: 2, y: 15, class: 'lang-name' }, name),
+    !hideValues && el('text', { x: progressTextX, y: 34, class: 'lang-name' }, displayValue),
+    createProgressNode({
+      x: 0,
+      y: 25,
+      color,
+      width: progressWidth,
+      progress,
+      delay: staggerDelay + 300,
+    }),
+  );
 };
 
 /**
@@ -334,21 +335,21 @@ const createCompactLangNode = ({
   hideValues?: boolean | undefined;
   statsFormat?: string | undefined;
   index: number;
-}): string => {
+}): MarkupElement => {
   const percentages = (lang.size / totalSize) * 100;
   const displayValue = getDisplayValue(lang.size, percentages, statsFormat);
 
   const staggerDelay = (index + 3) * 150;
   const color = resolveLangColor(lang);
 
-  return `
-    <g class="stagger" style="animation-delay: ${staggerDelay}ms">
-      <circle cx="5" cy="6" r="5" fill="${color}" />
-      <text data-testid="lang-name" x="15" y="10" class='lang-name'>
-        ${encodeHTML(lang.name)} ${hideProgress || hideValues ? '' : encodeHTML(displayValue)}
-      </text>
-    </g>
-  `;
+  const label = hideProgress || hideValues ? lang.name : `${lang.name} ${displayValue}`;
+
+  return el(
+    'g',
+    { class: 'stagger', style: `animation-delay: ${staggerDelay}ms` },
+    el('circle', { cx: 5, cy: 6, r: 5, fill: color }),
+    el('text', { 'data-testid': 'lang-name', x: 15, y: 10, class: 'lang-name' }, label),
+  );
 };
 
 /**
@@ -374,7 +375,7 @@ const createLanguageTextNode = ({
   hideProgress?: boolean | undefined;
   hideValues?: boolean | undefined;
   statsFormat?: string | undefined;
-}): string => {
+}): Array<Child> => {
   const longestLang = getLongestLang(langs);
   const chunked = chunkArray(langs, langs.length / 2);
   const layouts = chunked.map((array) => {
@@ -388,20 +389,13 @@ const createLanguageTextNode = ({
         index,
       }),
     );
-    return flexLayout({
-      items,
-      gap: 25,
-      direction: 'column',
-    }).join('');
+    return flexLayout({ items, gap: 25, direction: 'column' });
   });
 
   const percent = ((longestLang.size / totalSize) * 100).toFixed(2);
   const minGap = 150;
   const maxGap = 20 + measureText(`${longestLang.name} ${percent}%`, 11);
-  return flexLayout({
-    items: layouts,
-    gap: maxGap < minGap ? minGap : maxGap,
-  }).join('');
+  return flexLayout({ items: layouts, gap: maxGap < minGap ? minGap : maxGap });
 };
 
 /**
@@ -424,21 +418,21 @@ const createDonutLanguagesNode = ({
   totalSize: number;
   hideValues?: boolean | undefined;
   statsFormat?: string | undefined;
-}): string => {
+}): Array<Child> => {
   return flexLayout({
-    items: langs.map((lang, index) => {
-      return createCompactLangNode({
+    items: langs.map((lang, index) =>
+      createCompactLangNode({
         lang,
         totalSize,
         hideProgress: false,
         hideValues,
         statsFormat,
         index,
-      });
-    }),
+      }),
+    ),
     gap: 32,
     direction: 'column',
-  }).join('');
+  });
 };
 
 /**
@@ -457,10 +451,10 @@ const renderNormalLayout = (
   totalLanguageSize: number,
   statsFormat: string,
   hideValues?: boolean,
-): string => {
+): Array<Child> => {
   return flexLayout({
-    items: langs.map((lang, index) => {
-      return createProgressTextNode({
+    items: langs.map((lang, index) =>
+      createProgressTextNode({
         width,
         name: lang.name,
         color: lang.color || DEFAULT_LANG_COLOR,
@@ -469,11 +463,11 @@ const renderNormalLayout = (
         statsFormat,
         hideValues,
         index,
-      });
-    }),
+      }),
+    ),
     gap: 40,
     direction: 'column',
-  }).join('');
+  });
 };
 
 /**
@@ -494,57 +488,49 @@ const renderCompactLayout = (
   hideProgress?: boolean,
   statsFormat = 'percentages',
   hideValues?: boolean,
-): string => {
+): Array<Child> => {
   const paddingRight = 50;
   const offsetWidth = width - paddingRight;
   // progressOffset holds the previous language's width and used to offset the next language
   // so that we can stack them one after another, like this: [--][----][---]
   let progressOffset = 0;
-  const compactProgressBar = langs
-    .map((lang) => {
-      const langColor = resolveLangColor(lang);
+  const compactProgressBar = langs.map((lang) => {
+    const percentage = parseFloat(((lang.size / totalLanguageSize) * offsetWidth).toFixed(2));
+    const x = progressOffset;
+    progressOffset += percentage;
 
-      const percentage = parseFloat(((lang.size / totalLanguageSize) * offsetWidth).toFixed(2));
+    return el('rect', {
+      mask: 'url(#rect-mask)',
+      'data-testid': 'lang-progress',
+      x,
+      y: 0,
+      width: percentage < 10 ? percentage + 10 : percentage,
+      height: 8,
+      fill: resolveLangColor(lang),
+    });
+  });
 
-      const progress = percentage < 10 ? percentage + 10 : percentage;
-
-      const output = `
-        <rect
-          mask="url(#rect-mask)"
-          data-testid="lang-progress"
-          x="${progressOffset}"
-          y="0"
-          width="${progress}"
-          height="8"
-          fill="${langColor}"
-        />
-      `;
-      progressOffset += percentage;
-      return output;
-    })
-    .join('');
-
-  return `
-  ${
-    hideProgress
-      ? ''
-      : `
-      <mask id="rect-mask">
-          <rect x="0" y="0" width="${offsetWidth}" height="8" fill="white" rx="5"/>
-        </mask>
-        ${compactProgressBar}
-      `
-  }
-    <g transform="translate(0, ${hideProgress ? '0' : '25'})">
-      ${createLanguageTextNode({
+  return [
+    !hideProgress && [
+      el(
+        'mask',
+        { id: 'rect-mask' },
+        el('rect', { x: 0, y: 0, width: offsetWidth, height: 8, fill: 'white', rx: 5 }),
+      ),
+      compactProgressBar,
+    ],
+    el(
+      'g',
+      { transform: `translate(0, ${hideProgress ? 0 : 25})` },
+      createLanguageTextNode({
         langs,
         totalSize: totalLanguageSize,
         hideProgress,
         statsFormat,
         hideValues,
-      })}
-    </g>
-  `;
+      }),
+    ),
+  ];
 };
 
 /**
@@ -561,7 +547,7 @@ const renderDonutVerticalLayout = (
   totalLanguageSize: number,
   statsFormat: string,
   hideValues?: boolean,
-): string => {
+): MarkupElement => {
   // Donut vertical chart radius and total length
   const radius = 80;
   const totalCircleLength = getCircleLength(radius);
@@ -583,22 +569,24 @@ const renderDonutVerticalLayout = (
     const circleLength = totalCircleLength * (percentage / 100);
     const delay = startDelayCoefficient * 100;
 
-    circles.push(`
-      <g class="stagger" style="animation-delay: ${delay}ms">
-        <circle
-          cx="150"
-          cy="100"
-          r="${radius}"
-          fill="transparent"
-          stroke="${langColor}"
-          stroke-width="25"
-          stroke-dasharray="${totalCircleLength}"
-          stroke-dashoffset="${indent}"
-          size="${percentage}"
-          data-testid="lang-donut"
-        />
-      </g>
-    `);
+    circles.push(
+      el(
+        'g',
+        { class: 'stagger', style: `animation-delay: ${delay}ms` },
+        el('circle', {
+          cx: 150,
+          cy: 100,
+          r: radius,
+          fill: 'transparent',
+          stroke: langColor,
+          'stroke-width': 25,
+          'stroke-dasharray': totalCircleLength,
+          'stroke-dashoffset': indent,
+          size: percentage,
+          'data-testid': 'lang-donut',
+        }),
+      ),
+    );
 
     // Update the indent for the next part
     indent += circleLength;
@@ -606,26 +594,26 @@ const renderDonutVerticalLayout = (
     startDelayCoefficient += 1;
   }
 
-  return `
-    <svg data-testid="lang-items">
-      <g transform="translate(0, 0)">
-        <svg data-testid="donut">
-          ${circles.join('')}
-        </svg>
-      </g>
-      <g transform="translate(0, 220)">
-        <svg data-testid="lang-names" x="${CARD_PADDING}">
-          ${createLanguageTextNode({
-            langs,
-            totalSize: totalLanguageSize,
-            hideProgress: false,
-            statsFormat,
-            hideValues,
-          })}
-        </svg>
-      </g>
-    </svg>
-  `;
+  return el(
+    'svg',
+    { 'data-testid': 'lang-items' },
+    el('svg', { 'data-testid': 'donut' }, circles),
+    el(
+      'g',
+      { transform: 'translate(0, 220)' },
+      el(
+        'svg',
+        { 'data-testid': 'lang-names', x: CARD_PADDING },
+        createLanguageTextNode({
+          langs,
+          totalSize: totalLanguageSize,
+          hideProgress: false,
+          statsFormat,
+          hideValues,
+        }),
+      ),
+    ),
+  );
 };
 
 /**
@@ -642,7 +630,7 @@ const renderPieLayout = (
   totalLanguageSize: number,
   statsFormat: string,
   hideValues?: boolean,
-): string => {
+): MarkupElement => {
   // Pie chart radius and center coordinates
   const radius = 90;
   const centerX = 150;
@@ -662,17 +650,17 @@ const renderPieLayout = (
     const langColor = resolveLangColor(lang);
 
     if (langs.length === 1) {
-      paths.push(`
-        <circle
-          cx="${centerX}"
-          cy="${centerY}"
-          r="${radius}"
-          stroke="none"
-          fill="${langColor}"
-          data-testid="lang-pie"
-          size="100"
-        />
-      `);
+      paths.push(
+        el('circle', {
+          cx: centerX,
+          cy: centerY,
+          r: radius,
+          stroke: 'none',
+          fill: langColor,
+          'data-testid': 'lang-pie',
+          size: 100,
+        }),
+      );
       break;
     }
 
@@ -695,16 +683,18 @@ const renderPieLayout = (
     const delay = startDelayCoefficient * 100;
 
     // SVG arc markup
-    paths.push(`
-      <g class="stagger" style="animation-delay: ${delay}ms">
-        <path
-          data-testid="lang-pie"
-          size="${percentage}"
-          d="M ${centerX} ${centerY} L ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y} Z"
-          fill="${langColor}"
-        />
-      </g>
-    `);
+    paths.push(
+      el(
+        'g',
+        { class: 'stagger', style: `animation-delay: ${delay}ms` },
+        el('path', {
+          'data-testid': 'lang-pie',
+          size: percentage,
+          d: `M ${centerX} ${centerY} L ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y} Z`,
+          fill: langColor,
+        }),
+      ),
+    );
 
     // Update the start angle for the next part
     startAngle = endAngle;
@@ -712,26 +702,26 @@ const renderPieLayout = (
     startDelayCoefficient += 1;
   }
 
-  return `
-    <svg data-testid="lang-items">
-      <g transform="translate(0, 0)">
-        <svg data-testid="pie">
-          ${paths.join('')}
-        </svg>
-      </g>
-      <g transform="translate(0, 220)">
-        <svg data-testid="lang-names" x="${CARD_PADDING}">
-          ${createLanguageTextNode({
-            langs,
-            totalSize: totalLanguageSize,
-            hideProgress: false,
-            statsFormat,
-            hideValues,
-          })}
-        </svg>
-      </g>
-    </svg>
-  `;
+  return el(
+    'svg',
+    { 'data-testid': 'lang-items' },
+    el('svg', { 'data-testid': 'pie' }, paths),
+    el(
+      'g',
+      { transform: 'translate(0, 220)' },
+      el(
+        'svg',
+        { 'data-testid': 'lang-names', x: CARD_PADDING },
+        createLanguageTextNode({
+          langs,
+          totalSize: totalLanguageSize,
+          hideProgress: false,
+          statsFormat,
+          hideValues,
+        }),
+      ),
+    ),
+  );
 };
 
 /**
@@ -787,7 +777,7 @@ const renderDonutLayout = (
   totalLanguageSize: number,
   statsFormat: string,
   hideValues?: boolean,
-): string => {
+): Array<Child> => {
   if (!Number.isFinite(width)) {
     throw new Error(`Invalid width: "${width}"`);
   }
@@ -804,44 +794,43 @@ const renderDonutLayout = (
 
   const langPaths = createDonutPaths(centerX, centerY, radius, langsPercents);
 
-  const donutPaths =
+  const donutPaths: Array<Child> =
     langs.length === 1
-      ? `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${colors[0] ?? DEFAULT_LANG_COLOR}" fill="none" stroke-width="${strokeWidth}" data-testid="lang-donut" size="100"/>`
-      : langPaths
-          .map((section, index) => {
-            const staggerDelay = (index + 3) * 100;
-            const delay = staggerDelay + 300;
+      ? [
+          el('circle', {
+            cx: centerX,
+            cy: centerY,
+            r: radius,
+            stroke: colors[0] ?? DEFAULT_LANG_COLOR,
+            fill: 'none',
+            'stroke-width': strokeWidth,
+            'data-testid': 'lang-donut',
+            size: 100,
+          }),
+        ]
+      : langPaths.map((section, index) =>
+          el(
+            'g',
+            { class: 'stagger', style: `animation-delay: ${(index + 3) * 100 + 300}ms` },
+            el('path', {
+              'data-testid': 'lang-donut',
+              size: section.percent,
+              d: section.d,
+              stroke: colors[index] ?? DEFAULT_LANG_COLOR,
+              fill: 'none',
+              'stroke-width': strokeWidth,
+            }),
+          ),
+        );
 
-            const output = `
-       <g class="stagger" style="animation-delay: ${delay}ms">
-        <path
-          data-testid="lang-donut"
-          size="${section.percent}"
-          d="${section.d}"
-          stroke="${colors[index] ?? DEFAULT_LANG_COLOR}"
-          fill="none"
-          stroke-width="${strokeWidth}">
-        </path>
-      </g>
-      `;
-
-            return output;
-          })
-          .join('');
-
-  const donut = `<svg width="${width}" height="${width}">${donutPaths}</svg>`;
-
-  return `
-    <g transform="translate(0, 0)">
-      <g transform="translate(0, 0)">
-        ${createDonutLanguagesNode({ langs, totalSize: totalLanguageSize, hideValues, statsFormat })}
-      </g>
-
-      <g transform="translate(125, ${donutCenterTranslation(langs.length)})">
-        ${donut}
-      </g>
-    </g>
-  `;
+  return [
+    createDonutLanguagesNode({ langs, totalSize: totalLanguageSize, hideValues, statsFormat }),
+    el(
+      'g',
+      { transform: `translate(125, ${donutCenterTranslation(langs.length)})` },
+      el('svg', { width, height: width }, donutPaths),
+    ),
+  ];
 };
 
 /**
@@ -858,13 +847,16 @@ const noLanguagesDataNode = ({
 }: {
   text: string;
   layout: TopLangLayout | undefined;
-}): string => {
-  return `
-    <text x="${
-      layout === 'pie' || layout === 'donut-vertical' ? CARD_PADDING : 0
-    }" y="11" class="stat bold">${encodeHTML(text)}</text>
-  `;
-};
+}): MarkupElement =>
+  el(
+    'text',
+    {
+      x: layout === 'pie' || layout === 'donut-vertical' ? CARD_PADDING : 0,
+      y: 11,
+      class: 'stat bold',
+    },
+    text,
+  );
 
 /**
  * Get default languages count for provided card layout.
@@ -939,7 +931,7 @@ const renderTopLanguages = (
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
-  let finalLayout: string;
+  let finalLayout: Child;
   if (langs.length === 0) {
     height = COMPACT_LAYOUT_BASE_HEIGHT;
     finalLayout = noLanguagesDataNode({
@@ -987,52 +979,40 @@ const renderTopLanguages = (
   card.setHideBorder(hide_border);
   card.setHideTitle(hide_title);
   card.setCSS({
-    light: ({ textColor, progBarBgColor }) => `
-    @keyframes slideInAnimation {
-      from {
-        width: 0;
-      }
-      to {
-        width: calc(100%-100px);
-      }
-    }
-    @keyframes growWidthAnimation {
-      from {
-        width: 0;
-      }
-      to {
-        width: 100%;
-      }
-    }
-    .stat {
-      font: 600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: ${textColor};
-    }
-    @supports(-moz-appearance: auto) {
-      /* Selector detects Firefox */
-      .stat { font-size:12px; }
-    }
-    .bold { font-weight: 700 }
-    .lang-name {
-      font: 400 11px "Segoe UI", Ubuntu, Sans-Serif;
-      fill: ${textColor};
-    }
-    .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
-    }
-    #rect-mask rect{
-      animation: slideInAnimation 1s ease-in-out forwards;
-    }
-    .lang-progress{
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
-    }
-    .progress-background { fill: ${progBarBgColor}; }
-    `,
-    dark: ({ textColor, progBarBgColor }) => `
-      .stat { fill: ${textColor}; }
-      .lang-name { fill: ${textColor}; }
-      .progress-background { fill: ${progBarBgColor}; }
-    `,
+    light: ({ textColor, progBarBgColor }) => [
+      atRule(
+        '@keyframes slideInAnimation',
+        rule('from', { width: 0 }),
+        // Invalid on purpose: browsers drop it and animate to the rect's own width,
+        // which is the reveal the mask wants. See the changeset.
+        rule('to', { width: 'calc(100%-100px)' }),
+      ),
+      atRule(
+        '@keyframes growWidthAnimation',
+        rule('from', { width: 0 }),
+        rule('to', { width: '100%' }),
+      ),
+      rule('.stat', {
+        font: `600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
+        fill: textColor,
+      }),
+      atRule(
+        '@supports(-moz-appearance: auto)',
+        cssComment('Selector detects Firefox'),
+        rule('.stat', { 'font-size': '12px' }),
+      ),
+      rule('.bold', { 'font-weight': 700 }),
+      rule('.lang-name', { font: '400 11px "Segoe UI", Ubuntu, Sans-Serif', fill: textColor }),
+      rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
+      rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out forwards' }),
+      rule('.lang-progress', { animation: 'growWidthAnimation 0.6s ease-in-out forwards' }),
+      rule('.progress-background', { fill: progBarBgColor }),
+    ],
+    dark: ({ textColor, progBarBgColor }) => [
+      rule('.stat', { fill: textColor }),
+      rule('.lang-name', { fill: textColor }),
+      rule('.progress-background', { fill: progBarBgColor }),
+    ],
   });
 
   // `role="img"` hides the inner text from assistive tech, so everything the card
@@ -1048,11 +1028,7 @@ const renderTopLanguages = (
     return card.render(finalLayout);
   }
 
-  return card.render(`
-    <svg data-testid="lang-items" x="${CARD_PADDING}">
-      ${finalLayout}
-    </svg>
-  `);
+  return card.render(el('svg', { 'data-testid': 'lang-items', x: CARD_PADDING }, finalLayout));
 };
 
 export {

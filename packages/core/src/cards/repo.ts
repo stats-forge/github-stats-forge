@@ -1,7 +1,6 @@
 import { Card } from '../common/Card.js';
 import { getLightDarkColors } from '../common/color.js';
 import { kFormatter, wrapTextMultiline } from '../common/fmt.js';
-import { encodeHTML } from '../common/html.js';
 import { I18n } from '../common/I18n.js';
 import { icons } from '../common/icons.js';
 import { buildSearchFilter, clampValue, parseEmojis } from '../common/ops.js';
@@ -16,6 +15,8 @@ import {
   wrappedTextStyles,
 } from '../common/render.js';
 import type { RepositoryData } from '../fetchers/types.js';
+import type { Child, MarkupElement } from '../markup/index.js';
+import { el, rule } from '../markup/index.js';
 import { repoCardLocales } from '../translations.js';
 
 import type { CardOptions, CommonCardOptions } from './options.js';
@@ -42,7 +43,7 @@ interface RepoCardOptions extends CommonCardOptions {
 }
 
 interface RepoStatItem {
-  icon: string;
+  icon: Child;
   label: string;
   value: number | undefined;
   id: string;
@@ -57,24 +58,27 @@ interface RepoStatItem {
  * @param xOffset Horizontal offset of the badge.
  * @returns Wrapped repo description SVG object.
  */
-const getBadgeSVG = (label: string, xOffset = 0): string => {
+const getBadgeSVG = (label: string, xOffset = 0): MarkupElement => {
   if (!Number.isFinite(xOffset)) {
     throw new Error(`Invalid xOffset: "${xOffset}"`);
   }
 
-  return `
-    <g data-testid="badge" class="badge" transform="translate(${320 + xOffset}, -18)">
-      <rect stroke-width="1" width="70" height="20" x="-12" y="-14" ry="10" rx="10"></rect>
-      <text
-        x="23" y="-5"
-        alignment-baseline="central"
-        dominant-baseline="central"
-        text-anchor="middle"
-      >
-        ${encodeHTML(label)}
-      </text>
-    </g>
-  `;
+  return el(
+    'g',
+    { 'data-testid': 'badge', class: 'badge', transform: `translate(${320 + xOffset}, -18)` },
+    el('rect', { 'stroke-width': 1, width: 70, height: 20, x: -12, y: -14, ry: 10, rx: 10 }),
+    el(
+      'text',
+      {
+        x: 23,
+        y: -5,
+        'alignment-baseline': 'central',
+        'dominant-baseline': 'central',
+        'text-anchor': 'middle',
+      },
+      label,
+    ),
+  );
 };
 
 /**
@@ -208,7 +212,7 @@ const renderRepoCard = (
   const descriptionBoxWidth = card_width - 2 * X_OFFSET;
 
   let descriptionLinesCount: number;
-  let descriptionSvg: string;
+  let descriptionSvg: Child;
   if (browser_rendering) {
     // The browser performs the actual text wrapping inside the foreignObject;
     // we only estimate the line count server-side so the SVG can reserve enough
@@ -240,12 +244,11 @@ const renderRepoCard = (
     descriptionLinesCount = description_lines_count
       ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
       : multiLineDescription.length;
-    descriptionSvg = multiLineDescription
-      .map((line) => `<tspan dy="1.2em" x="${X_OFFSET}">${encodeHTML(line)}</tspan>`)
-      .join('');
-    descriptionSvg = `<text class="description" x="${X_OFFSET}" y="-5"> 
-      ${descriptionSvg}
-    </text>`;
+    descriptionSvg = el(
+      'text',
+      { class: 'description', x: X_OFFSET, y: -5 },
+      multiLineDescription.map((line) => el('tspan', { dy: '1.2em', x: X_OFFSET }, line)),
+    );
   }
 
   const extraHeight = Object.keys(STATS).length
@@ -256,7 +259,7 @@ const renderRepoCard = (
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
-  const svgLanguage = primaryLanguage ? createLanguageNode(langName, langColor) : '';
+  const svgLanguage = primaryLanguage ? createLanguageNode(langName, langColor) : undefined;
 
   const totalStars = kFormatter(stargazerCount);
   const totalForks = kFormatter(forkCount);
@@ -271,27 +274,27 @@ const renderRepoCard = (
       ICON_SIZE + measureText(`${totalForks}`, 12),
     ],
     gap: 25,
-  }).join('');
+  });
 
-  const extraRows: Array<string> = [];
+  const extraRows: Array<Child> = [];
   for (let i = 0; i < statItems.length; i += 2) {
     extraRows.push(
       flexLayout({
         items: statItems.slice(i, i + 2),
         gap: 210,
         direction: 'row',
-      }).join(''),
+      }),
     );
   }
-  const extraItems = `
-  <svg x="0" y="0"><g transform="translate(-3, ${height - 52 - extraHeight})">
-      ${flexLayout({
-        items: extraRows,
-        gap: extraLHeight,
-        direction: 'column',
-      }).join('')}
-    </g></svg>
-    `;
+  const extraItems = el(
+    'svg',
+    { x: 0, y: 0 },
+    el(
+      'g',
+      { transform: `translate(-3, ${height - 52 - extraHeight})` },
+      flexLayout({ items: extraRows, gap: extraLHeight, direction: 'column' }),
+    ),
+  );
 
   const card = new Card({
     defaultTitle: header.length > 35 ? `${header.slice(0, 35)}...` : header,
@@ -306,39 +309,36 @@ const renderRepoCard = (
   card.setHideBorder(hide_border);
   card.setHideTitle(false);
   card.setCSS({
-    light: ({ textColor, iconColor }) => `
-    .description {
-      font: 400 ${DESCRIPTION_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif;fill: ${textColor};
-      ${browser_rendering ? wrappedTextStyles(textColor) : ''}
-    }
-    .gray { font: 400 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor} }
-    .badge { font: 600 11px 'Segoe UI', Ubuntu, Sans-Serif; }
-    .badge rect { opacity: 0.2; stroke: ${textColor} }
-    .badge text { fill: ${textColor} }
-
-    .stat { font: 400 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor} }
-    .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
-    }
-    .not_bold { font-weight: 400 }
-    .bold { font-weight: 700 }
-    .icon {
-      fill: ${iconColor};
-      display: block;
-    }
-  `,
-    dark: ({ textColor, iconColor }) => `
-      .description {
-        fill: ${textColor};
-        ${browser_rendering ? wrappedTextStyles(textColor) : ''}
-      }
-      .gray { fill: ${textColor} }
-      .badge rect { stroke: ${textColor} }
-      .badge text { fill: ${textColor} }
-      .stat { fill: ${textColor} }
-      .icon { fill: ${iconColor}; }
-    `,
+    light: ({ textColor, iconColor }) => [
+      rule('.description', {
+        font: `400 ${DESCRIPTION_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif`,
+        fill: textColor,
+        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+      }),
+      rule('.gray', { font: "400 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+      rule('.badge', { font: "600 11px 'Segoe UI', Ubuntu, Sans-Serif" }),
+      rule('.badge rect', { opacity: 0.2, stroke: textColor }),
+      rule('.badge text', { fill: textColor }),
+      rule('.stat', { font: "400 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+      rule('.stagger', {
+        opacity: 0,
+        animation: 'fadeInAnimation 0.3s ease-in-out forwards',
+      }),
+      rule('.not_bold', { 'font-weight': 400 }),
+      rule('.bold', { 'font-weight': 700 }),
+      rule('.icon', { fill: iconColor, display: 'block' }),
+    ],
+    dark: ({ textColor, iconColor }) => [
+      rule('.description', {
+        fill: textColor,
+        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+      }),
+      rule('.gray', { fill: textColor }),
+      rule('.badge rect', { stroke: textColor }),
+      rule('.badge text', { fill: textColor }),
+      rule('.stat', { fill: textColor }),
+      rule('.icon', { fill: iconColor }),
+    ],
   });
 
   const extraStatLabels = Object.values(STATS)
@@ -355,22 +355,16 @@ const renderRepoCard = (
     desc: [`${desc}.`, primaryLanguage ? langName : '', extraStatLabels].filter(Boolean).join(', '),
   });
 
-  return card.render(`
-    ${
-      isTemplate
-        ? getBadgeSVG(i18n.t('repocard.template'), card_width - CARD_DEFAULT_WIDTH)
-        : isArchived
-          ? getBadgeSVG(i18n.t('repocard.archived'), card_width - CARD_DEFAULT_WIDTH)
-          : ''
-    }
-
-    ${descriptionSvg}
-
-    <g transform="translate(30, ${height - 75 - extraHeight})">
-      ${starAndForkCount}
-    </g>
-    ${extraItems}
-  `);
+  return card.render([
+    isTemplate
+      ? getBadgeSVG(i18n.t('repocard.template'), card_width - CARD_DEFAULT_WIDTH)
+      : isArchived
+        ? getBadgeSVG(i18n.t('repocard.archived'), card_width - CARD_DEFAULT_WIDTH)
+        : undefined,
+    descriptionSvg,
+    el('g', { transform: `translate(30, ${height - 75 - extraHeight})` }, starAndForkCount),
+    extraItems,
+  ]);
 };
 
 export { renderRepoCard };

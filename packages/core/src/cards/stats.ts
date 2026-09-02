@@ -7,6 +7,8 @@ import { icons, rankIcon } from '../common/icons.js';
 import { buildSearchFilter, clampValue } from '../common/ops.js';
 import { createTextNode, flexLayout, measureText } from '../common/render.js';
 import type { StatsData } from '../fetchers/types.js';
+import type { Child, CssChild } from '../markup/index.js';
+import { atRule, cssComment, el, rule } from '../markup/index.js';
 import { statCardLocales, wakatimeCardLocales } from '../translations.js';
 
 import type { CardOptions, CommonCardOptions } from './options.js';
@@ -56,7 +58,7 @@ interface StatCardOptions extends CommonCardOptions {
 
 /** Meta data for a stat, used to build its text node and accessibility label. */
 interface StatItem {
-  icon: string;
+  icon: Child;
   label: string;
   value: number | string;
   id: string;
@@ -122,18 +124,12 @@ const calculateCircleProgress = (value: number): number => {
  * @param props.progress The progress value to animate to.
  * @returns Progress animation css.
  */
-const getProgressAnimation = ({ progress }: { progress: number }): string => {
-  return `
-    @keyframes rankAnimation {
-      from {
-        stroke-dashoffset: ${calculateCircleProgress(0)};
-      }
-      to {
-        stroke-dashoffset: ${calculateCircleProgress(progress)};
-      }
-    }
-  `;
-};
+const getProgressAnimation = ({ progress }: { progress: number }): CssChild =>
+  atRule(
+    '@keyframes rankAnimation',
+    rule('from', { 'stroke-dashoffset': calculateCircleProgress(0) }),
+    rule('to', { 'stroke-dashoffset': calculateCircleProgress(progress) }),
+  );
 
 /**
  * Retrieves CSS styles for a card.
@@ -158,59 +154,53 @@ const getStyles = ({
   ringColor: string;
   show_icons: boolean;
   progress: number;
-}): string => {
-  return `
-    .stat {
-      font: 400 ${STAT_FONT_SIZE}px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: ${textColor};
-      font-variant-numeric: tabular-nums;
-    }
-    @supports(-moz-appearance: auto) {
-      /* Selector detects Firefox */
-      .stat { font-size:12px; }
-    }
-    .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
-    }
-    .rank-text {
-      font: 700 22px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor};
-      animation: scaleInAnimation 0.3s ease-in-out forwards;
-    }
-    .rank-percentile-header {
-      font-size: 14px;
-    }
-    .rank-percentile-text {
-      font-size: 16px;
-    }
-
-    /* Labels recede so that the values read first. */
-    .not_bold { font-weight: 400; opacity: 0.75 }
-    .bold { font-weight: 600 }
-    .icon {
-      fill: ${iconColor};
-      opacity: 0.75;
-      display: ${show_icons ? 'block' : 'none'};
-    }
-
-    .rank-circle-rim {
-      stroke: ${ringColor};
-      fill: none;
-      stroke-width: 4;
-      opacity: 0.15;
-    }
-    .rank-circle {
-      stroke: ${ringColor};
-      stroke-dasharray: 250;
-      fill: none;
-      stroke-width: 4;
-      stroke-linecap: round;
-      opacity: 1;
-      transform-origin: -10px 8px;
-      transform: rotate(-90deg);
-      animation: rankAnimation 0.8s forwards ease-in-out;
-    }
-    ${getProgressAnimation({ progress })}
-  `;
+}): Array<CssChild> => {
+  return [
+    rule('.stat', {
+      font: `400 ${STAT_FONT_SIZE}px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
+      fill: textColor,
+      'font-variant-numeric': 'tabular-nums',
+    }),
+    atRule(
+      '@supports(-moz-appearance: auto)',
+      cssComment('Selector detects Firefox'),
+      rule('.stat', { 'font-size': '12px' }),
+    ),
+    rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
+    rule('.rank-text', {
+      font: "700 22px 'Segoe UI', Ubuntu, Sans-Serif",
+      fill: textColor,
+      animation: 'scaleInAnimation 0.3s ease-in-out forwards',
+    }),
+    rule('.rank-percentile-header', { 'font-size': '14px' }),
+    rule('.rank-percentile-text', { 'font-size': '16px' }),
+    cssComment('Labels recede so that the values read first.'),
+    rule('.not_bold', { 'font-weight': 400, opacity: 0.75 }),
+    rule('.bold', { 'font-weight': 600 }),
+    rule('.icon', {
+      fill: iconColor,
+      opacity: 0.75,
+      display: show_icons ? 'block' : 'none',
+    }),
+    rule('.rank-circle-rim', {
+      stroke: ringColor,
+      fill: 'none',
+      'stroke-width': 4,
+      opacity: 0.15,
+    }),
+    rule('.rank-circle', {
+      stroke: ringColor,
+      'stroke-dasharray': 250,
+      fill: 'none',
+      'stroke-width': 4,
+      'stroke-linecap': 'round',
+      opacity: 1,
+      'transform-origin': '-10px 8px',
+      transform: 'rotate(-90deg)',
+      animation: 'rankAnimation 0.8s forwards ease-in-out',
+    }),
+    getProgressAnimation({ progress }),
+  ];
 };
 
 /**
@@ -562,7 +552,7 @@ const renderStatsCard = (
 
   card.setHideBorder(hide_border);
   card.setHideTitle(hide_title);
-  const cardStyles = ({ ringColor, textColor, iconColor }: CardColors): string =>
+  const cardStyles = ({ ringColor, textColor, iconColor }: CardColors): Array<CssChild> =>
     getStyles({ ringColor, textColor, iconColor, show_icons, progress });
 
   card.setCSS({ light: cardStyles, dark: cardStyles });
@@ -596,16 +586,18 @@ const renderStatsCard = (
   };
 
   // Conditionally rendered elements
-  const rankCircle = hide_rank
-    ? ''
-    : `<g data-testid="rank-circle"
-          transform="translate(${calculateRankXTranslation()}, ${height / 2 - 50})">
-        <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
-        <circle class="rank-circle" cx="-10" cy="8" r="40" />
-        <g class="rank-text">
-          ${rankIcon(rank_icon, rank.level, rank.percentile)}
-        </g>
-      </g>`;
+  const rankCircle =
+    !hide_rank &&
+    el(
+      'g',
+      {
+        'data-testid': 'rank-circle',
+        transform: `translate(${calculateRankXTranslation()}, ${height / 2 - 50})`,
+      },
+      el('circle', { class: 'rank-circle-rim', cx: -10, cy: 8, r: 40 }),
+      el('circle', { class: 'rank-circle', cx: -10, cy: 8, r: 40 }),
+      el('g', { class: 'rank-text' }, rankIcon(rank_icon, rank.level, rank.percentile)),
+    );
 
   // Accessibility Labels
   const labels = visibleStats
@@ -626,16 +618,10 @@ const renderStatsCard = (
     desc: labels,
   });
 
-  return card.render(`
-    ${rankCircle}
-    <svg x="0" y="0">
-      ${flexLayout({
-        items: statItems,
-        gap: lheight,
-        direction: 'column',
-      }).join('')}
-    </svg>
-  `);
+  return card.render([
+    rankCircle,
+    el('svg', { x: 0, y: 0 }, flexLayout({ items: statItems, gap: lheight, direction: 'column' })),
+  ]);
 };
 
 export { RANK_ICONS, renderStatsCard };

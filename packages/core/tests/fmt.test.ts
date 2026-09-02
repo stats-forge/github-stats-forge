@@ -91,6 +91,7 @@ describe('Test fmt.js', () => {
       3,
     );
     expect(multiLineText).toHaveLength(3);
-    expect(multiLineText[0]).toHaveLength(11 * 8); // &#xxxxx; x 8
+    // Plain characters: the escaping happens when the line is serialized into the card.
+    expect(multiLineText[0]).toHaveLength(11);
   });
 });

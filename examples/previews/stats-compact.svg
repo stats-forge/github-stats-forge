@@ -1,40 +1,36 @@
-
-      <svg
-        width="380"
-        height="145"
-        viewBox="0 0 380 145"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        role="img"
-        aria-labelledby="titleId descId"
-      >
-        <title id="titleId">Marco, in short, Rank: A</title>
-        <desc id="descId">Total Stars Earned: 86, Total Commits  (last year) : 949, Total PRs: 1029</desc>
-        <style>
-          .header {
-            font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
-            fill: #2f80ed;
-            animation: fadeInAnimation 0.8s ease-in-out forwards;
-          }
-          @supports(-moz-appearance: auto) {
-            /* Selector detects Firefox */
-            .header { font-size: 15.5px; }
-          }
-          
+<svg width="380" height="145" viewBox="0 0 380 145" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
+  <title id="titleId">Marco, in short, Rank: A</title>
+  <desc id="descId">Total Stars Earned: 86, Total Commits  (last year) : 950, Total PRs: 1030</desc>
+  <style>
+    .header {
+      font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
+      fill: #2f80ed;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    @supports(-moz-appearance: auto) {
+      /* Selector detects Firefox */
+      .header {
+        font-size: 15.5px;
+      }
+    }
     .stat {
-      font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: #434d58;
+      font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #434d58;
       font-variant-numeric: tabular-nums;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
-      .stat { font-size:12px; }
+      .stat {
+        font-size: 12px;
+      }
     }
     .stagger {
       opacity: 0;
       animation: fadeInAnimation 0.3s ease-in-out forwards;
     }
     .rank-text {
-      font: 700 22px 'Segoe UI', Ubuntu, Sans-Serif; fill: #434d58;
+      font: 700 22px 'Segoe UI', Ubuntu, Sans-Serif;
+      fill: #434d58;
       animation: scaleInAnimation 0.3s ease-in-out forwards;
     }
     .rank-percentile-header {
@@ -43,16 +39,19 @@
     .rank-percentile-text {
       font-size: 16px;
     }
-
     /* Labels recede so that the values read first. */
-    .not_bold { font-weight: 400; opacity: 0.75 }
-    .bold { font-weight: 600 }
+    .not_bold {
+      font-weight: 400;
+      opacity: 0.75;
+    }
+    .bold {
+      font-weight: 600;
+    }
     .icon {
       fill: #4c71f2;
       opacity: 0.75;
       display: none;
     }
-
     .rank-circle-rim {
       stroke: #2f80ed;
       fill: none;
@@ -70,123 +69,62 @@
       transform: rotate(-90deg);
       animation: rankAnimation 0.8s forwards ease-in-out;
     }
-    
     @keyframes rankAnimation {
       from {
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 39.79989120454432;
+        stroke-dashoffset: 39.79154111791791;
       }
     }
-  
-  
-          
-
-          
-      /* Animations */
-      @keyframes scaleInAnimation {
-        from {
-          transform: translate(-5px, 5px) scale(0);
-        }
-        to {
-          transform: translate(-5px, 5px) scale(1);
-        }
+    /* Animations */
+    @keyframes scaleInAnimation {
+      from {
+        transform: translate(-5px, 5px) scale(0);
       }
-      @keyframes fadeInAnimation {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+      to {
+        transform: translate(-5px, 5px) scale(1);
       }
-      @media (prefers-reduced-motion: reduce) {
-        * { animation-duration: 0s !important; animation-delay: 0s !important; }
+    }
+    @keyframes fadeInAnimation {
+      from {
+        opacity: 0;
       }
-    
-          
-        </style>
-
-        
-        <defs>
-          
-          
-        </defs>
-        
-
-        <rect
-          data-testid="card-bg"
-          class="card-bg"
-          x="0.5"
-          y="0.5"
-          rx="8"
-          height="99%"
-          stroke="#0000001f"
-          width="379"
-          fill="#fffefe"
-          stroke-opacity="1"
-        />
-
-        
-      <g
-        data-testid="card-title"
-        transform="translate(25, 35)"
-      >
-        <g transform="translate(0, 0)">
-      <text
-        x="0"
-        y="0"
-        class="header"
-        data-testid="header"
-      >Marco, in short</text>
-    </g>
-      </g>
-    
-
-        <g
-          data-testid="main-card-body"
-          transform="translate(0, 55)"
-        >
-          
-    
-    <svg x="0" y="0">
-      <g transform="translate(0, 0)">
-    <g class="stagger" style="animation-delay: 120ms" transform="translate(25, 0)">
-      
-      <text class="stat not_bold"  y="12.5">Total Stars Earned:</text>
-      <text
-        class="stat not_bold"
-        x="330" text-anchor="end"
-        y="12.5"
-        data-testid="stars"
-      >86</text>
-    </g>
-  </g><g transform="translate(0, 25)">
-    <g class="stagger" style="animation-delay: 160ms" transform="translate(25, 0)">
-      
-      <text class="stat not_bold"  y="12.5">Total Commits (last year):</text>
-      <text
-        class="stat not_bold"
-        x="330" text-anchor="end"
-        y="12.5"
-        data-testid="commits"
-      >949</text>
-    </g>
-  </g><g transform="translate(0, 50)">
-    <g class="stagger" style="animation-delay: 200ms" transform="translate(25, 0)">
-      
-      <text class="stat not_bold"  y="12.5">Total PRs:</text>
-      <text
-        class="stat not_bold"
-        x="330" text-anchor="end"
-        y="12.5"
-        data-testid="prs"
-      >1k</text>
-    </g>
+      to {
+        opacity: 1;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+      }
+    }
+  </style>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#0000001f" width="379" fill="#fffefe" stroke-opacity="1" />
+  <g data-testid="card-title" transform="translate(25, 35)">
+    <text x="0" y="0" class="header" data-testid="header">Marco, in short</text>
   </g>
-    </svg>
-  
+  <g data-testid="main-card-body" transform="translate(0, 55)">
+    <svg x="0" y="0">
+      <g>
+        <g class="stagger" style="animation-delay: 120ms" transform="translate(25, 0)">
+          <text class="stat not_bold" y="12.5">Total Stars Earned:</text>
+          <text class="stat not_bold" x="330" text-anchor="end" y="12.5" data-testid="stars">86</text>
         </g>
-      </svg>
-    
+      </g>
+      <g transform="translate(0, 25)">
+        <g class="stagger" style="animation-delay: 160ms" transform="translate(25, 0)">
+          <text class="stat not_bold" y="12.5">Total Commits (last year):</text>
+          <text class="stat not_bold" x="330" text-anchor="end" y="12.5" data-testid="commits">950</text>
+        </g>
+      </g>
+      <g transform="translate(0, 50)">
+        <g class="stagger" style="animation-delay: 200ms" transform="translate(25, 0)">
+          <text class="stat not_bold" y="12.5">Total PRs:</text>
+          <text class="stat not_bold" x="330" text-anchor="end" y="12.5" data-testid="prs">1k</text>
+        </g>
+      </g>
+    </svg>
+  </g>
+</svg>
