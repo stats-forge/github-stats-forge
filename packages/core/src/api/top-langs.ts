@@ -21,12 +21,12 @@ import {
   parseColorParams,
   parseParams,
   rawParam,
-  safeParam,
+  usernameParam,
 } from './params.js';
 
 /** What the top-languages endpoint accepts, on top of the shared color params. */
 const topLangsQuery = z.object({
-  username: safeParam,
+  username: usernameParam,
   hide: listParam,
   hide_title: booleanParam,
   hide_border: booleanParam,

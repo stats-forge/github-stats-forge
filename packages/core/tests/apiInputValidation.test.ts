@@ -20,15 +20,23 @@ const config = new CardConfig({ pats: [{ name: 'PAT_1', value: 'token' }] });
  * so the rejection cannot be blamed on another param.
  */
 const endpoints: Array<[string, string, (value: string) => Promise<ApiResult>]> = [
-  ['top-langs', 'username', (username) => topLangs({ username }, config)],
+  // A WakaTime username is not a GitHub login, so it is only checked against the safe set.
   ['wakatime', 'username', (username) => wakatime({ username }, config)],
   ['gist', 'id', (id) => gist({ id }, config)],
-  ['stats', 'username', (username) => stats({ username }, config)],
   ['stats', 'repo', (repo) => stats({ repo }, config)],
   ['stats', 'owner', (owner) => stats({ owner }, config)],
-  ['pin', 'username', (username) => pin({ username }, config)],
   ['pin', 'repo', (repo) => pin({ repo }, config)],
 ];
+
+/** Every endpoint whose `username` is a GitHub login. */
+const githubUsernameEndpoints: Array<[string, (username: string) => Promise<ApiResult>]> = [
+  ['top-langs', (username) => topLangs({ username }, config)],
+  ['stats', (username) => stats({ username }, config)],
+  ['pin', (username) => pin({ username }, config)],
+];
+
+// Within the safe set, but not logins GitHub can issue: a hyphen may not lead, trail or double.
+const malformedUsernames = ['-user', 'user-', 'a--b', 'a'.repeat(40)];
 
 describe('API input validation', () => {
   describe.each(endpoints)('%s: %s', (_endpoint, param, send) => {
@@ -36,6 +44,19 @@ describe('API input validation', () => {
       const result = await send(value);
       expect(result.status).toBe('error');
       expect(result.content).toContain('unsafe characters');
+    });
+  });
+
+  describe.each(githubUsernameEndpoints)('%s: username', (_endpoint, send) => {
+    it.each([...unsafeValues, ...malformedUsernames])('rejects username %j', async (value) => {
+      const result = await send(value);
+      expect(result).toMatchObject({
+        status: 'error',
+        retryable: false,
+        error: { code: 'invalid_param', param: 'username' },
+      });
+      // the error card html-escapes the quotes around the parameter name
+      expect(result.content).toContain('Invalid username input for parameter &#34;username&#34;');
     });
   });
 

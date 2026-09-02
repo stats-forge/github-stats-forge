@@ -17,11 +17,12 @@ import {
   parseParams,
   rawParam,
   safeParam,
+  usernameParam,
 } from './params.js';
 
 /** What the pin endpoint accepts, on top of the shared color params. */
 const pinQuery = z.object({
-  username: safeParam,
+  username: usernameParam,
   repo: safeParam,
   hide_border: booleanParam,
   card_width: looseIntParam,

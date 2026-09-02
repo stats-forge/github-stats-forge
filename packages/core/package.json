@@ -84,7 +84,6 @@
   },
   "dependencies": {
     "emoji-name-map": "^2.0.3",
-    "github-username-regex": "^1.0.0",
     "zod": "^4.5.4"
   },
   "devDependencies": {
