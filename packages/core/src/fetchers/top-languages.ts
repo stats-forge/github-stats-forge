@@ -91,8 +91,6 @@ const fetchTopLanguages = async (
     (node): node is TopLanguagesRepositoryFragment => !!node && !repoToHide[node.name],
   );
 
-  // flatten edges across repos. Order matters: `concat(acc)` prepends, and the
-  // shared repoCount below depends on visitation order.
   const languageEdges = repoNodes.reduce<Array<TopLanguageFragment>>((acc, repo) => {
     const edges = (repo.languages?.edges ?? []).filter(
       (edge): edge is TopLanguageFragment => !!edge,
@@ -100,25 +98,15 @@ const fetchTopLanguages = async (
     return edges.length > 0 ? edges.concat(acc) : acc;
   }, []);
 
-  // accumulate size and repo count per language
+  // accumulate size and repo count per language, each read back off the language's own entry
   const languageMap: Record<string, Lang> = {};
-  let repoCount = 0;
   for (const edge of languageEdges) {
     const existing = languageMap[edge.node.name];
-
-    // same language seen again: add to its size and bump count; else reset to 1
-    let langSize = edge.size;
-    if (existing && edge.node.name === existing.name) {
-      langSize = edge.size + existing.size;
-      repoCount += 1;
-    } else {
-      repoCount = 1;
-    }
     languageMap[edge.node.name] = {
       name: edge.node.name,
       color: edge.node.color,
-      size: langSize,
-      count: repoCount,
+      size: edge.size + (existing?.size ?? 0),
+      count: (existing?.count ?? 0) + 1,
     };
   }
 

@@ -22,6 +22,7 @@ afterEach(() => {
   loggerErrorSpy.mockClear();
 });
 
+// The languages interleave, so a count taken from anything but the language's own entry is wrong.
 const data_langs = {
   data: {
     user: {
@@ -36,13 +37,13 @@ const data_langs = {
           {
             name: 'test-repo-2',
             languages: {
-              edges: [{ size: 100, node: { color: '#0f0', name: 'HTML' } }],
+              edges: [{ size: 100, node: { color: '#0ff', name: 'javascript' } }],
             },
           },
           {
             name: 'test-repo-3',
             languages: {
-              edges: [{ size: 100, node: { color: '#0ff', name: 'javascript' } }],
+              edges: [{ size: 100, node: { color: '#0f0', name: 'HTML' } }],
             },
           },
           {
