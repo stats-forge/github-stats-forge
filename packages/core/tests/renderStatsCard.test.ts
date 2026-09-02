@@ -390,9 +390,9 @@ describe('Test renderStatsCard', () => {
   it('should render translations', () => {
     document.body.innerHTML = renderStatsCard(stats, { locale: 'cn' });
     expect(document.querySelector('.header')).toHaveTextContent('Anurag Hazra 的 GitHub 统计数据');
-    expect(
-      document.querySelector('g[transform="translate(0, 0)"]>.stagger>.stat.not_bold'),
-    ).toHaveTextContent('获标星数:');
+    expect(document.querySelector('g:not([transform])>.stagger>.stat.not_bold')).toHaveTextContent(
+      '获标星数:',
+    );
     expect(
       document.querySelector('g[transform="translate(0, 25)"]>.stagger>.stat.not_bold'),
     ).toHaveTextContent('累计提交总数 (去年):');

@@ -267,7 +267,24 @@ type LightDarkColorParams = Partial<Record<`${BaseColorKey}_${ThemeVariant}`, st
 const extractLightDarkColors = (
   params: LightDarkColorParams,
   suffix: `_${ThemeVariant}`,
-): ColorInput => Object.fromEntries(BASE_COLOR_KEYS.map((key) => [key, params[`${key}${suffix}`]]));
+): ColorInput => {
+  const colors: ColorInput = {};
+  for (const key of BASE_COLOR_KEYS) {
+    const value = params[`${key}${suffix}`];
+    if (value !== undefined) {
+      colors[key] = value;
+    }
+  }
+  return colors;
+};
+
+/**
+ * Every suffixed key, so asking "any per-scheme colors at all?" is one pass over names,
+ * not two objects built to be thrown away.
+ */
+const MODE_OVERRIDE_KEYS: ReadonlyArray<keyof LightDarkColorParams> = THEME_VARIANTS.flatMap(
+  (variant) => BASE_COLOR_KEYS.map((key) => `${key}_${variant}` as const),
+);
 
 /**
  * Returns resolved colors for both light and dark mode given all input params.
@@ -280,31 +297,23 @@ const extractLightDarkColors = (
  * Anything a mode does not override falls back to the general params,
  * so a partial override such as `bg_color_dark` alone keeps every other color from the base theme.
  *
- * When no `_light` / `_dark` param is provided at all, `darkColors` is `null` and the caller emits no dark-mode block.
+ * When no `_light` / `_dark` param is provided at all,
+ * `darkColors` is `null` and the caller emits no dark-mode block.
  *
- * @param params Raw query params, containing both general and `_light`/`_dark` suffixed colors and themes.
+ * @param params Raw query params, both general and `_light` / `_dark` suffixed colors and themes.
  * @returns `{ lightColors, darkColors }`, resolved colors for both light and dark mode
  */
 const getLightDarkColors = (
   params: ColorInput & LightDarkColorParams,
 ): { lightColors: CardColors; darkColors: CardColors | null } => {
-  const lightOverrides = extractLightDarkColors(params, '_light');
-  const darkOverrides = extractLightDarkColors(params, '_dark');
-
-  const hasModeOverrides =
-    Object.values(lightOverrides).some((v) => v !== undefined) ||
-    Object.values(darkOverrides).some((v) => v !== undefined);
-
-  if (!hasModeOverrides) {
+  // The common case is no per-scheme params at all, so it never builds the overrides.
+  if (!MODE_OVERRIDE_KEYS.some((key) => params[key] !== undefined)) {
     return { lightColors: getCardColors(params), darkColors: null };
   }
 
-  const defined = (obj: ColorInput): ColorInput =>
-    Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
-
   return {
-    lightColors: getCardColors({ ...params, ...defined(lightOverrides) }),
-    darkColors: getCardColors({ ...params, ...defined(darkOverrides) }),
+    lightColors: getCardColors({ ...params, ...extractLightDarkColors(params, '_light') }),
+    darkColors: getCardColors({ ...params, ...extractLightDarkColors(params, '_dark') }),
   };
 };
 

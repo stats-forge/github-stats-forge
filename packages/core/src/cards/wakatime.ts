@@ -1,11 +1,12 @@
 import { Card } from '../common/Card.js';
 import { getLightDarkColors, isPrefixedHexColor } from '../common/color.js';
-import { encodeHTML } from '../common/html.js';
 import { I18n } from '../common/I18n.js';
 import { getLanguageColor } from '../common/languageColors.js';
 import { clampValue, lowercaseTrim } from '../common/ops.js';
 import { createProgressNode, flexLayout } from '../common/render.js';
 import type { WakaTimeData, WakaTimeLang } from '../fetchers/types.js';
+import type { Child, CssChild, MarkupElement } from '../markup/index.js';
+import { atRule, cssComment, el, rule } from '../markup/index.js';
 import { wakatimeCardLocales } from '../translations.js';
 
 import type { CardOptions, CommonCardOptions } from './options.js';
@@ -48,11 +49,8 @@ interface WakaTimeOptions extends CommonCardOptions {
  * @param props.text No coding activity translated text.
  * @returns No coding activity SVG node string.
  */
-const noCodingActivityNode = ({ text }: { text: string }): string => {
-  return `
-    <text x="25" y="11" class="stat bold">${encodeHTML(text)}</text>
-  `;
-};
+const noCodingActivityNode = ({ text }: { text: string }): MarkupElement =>
+  el('text', { x: 25, y: 11, class: 'stat bold' }, text);
 
 /**
  * Format language value.
@@ -92,7 +90,7 @@ const createCompactLangNode = ({
   x: number;
   y: number;
   display_format: DisplayFormat;
-}): string => {
+}): MarkupElement => {
   if (!Number.isFinite(x)) {
     throw new Error(`Invalid x: "${x}"`);
   }
@@ -103,14 +101,16 @@ const createCompactLangNode = ({
   const color = getLanguageColor(lang.name);
   const value = formatLanguageValue({ display_format, lang });
 
-  return `
-    <g transform="translate(${x}, ${y})">
-      <circle cx="5" cy="6" r="5" fill="${color}" />
-      <text data-testid="lang-name" x="15" y="10" class='lang-name'>
-        ${encodeHTML(lang.name)} - ${encodeHTML(value)}
-      </text>
-    </g>
-  `;
+  return el(
+    'g',
+    { transform: `translate(${x}, ${y})` },
+    el('circle', { cx: 5, cy: 6, r: 5, fill: color }),
+    el(
+      'text',
+      { 'data-testid': 'lang-name', x: 15, y: 10, class: 'lang-name' },
+      `${lang.name} - ${value}`,
+    ),
+  );
 };
 
 /**
@@ -133,7 +133,7 @@ const createLanguageTextNode = ({
   y: number;
   display_format: DisplayFormat;
   card_width: number;
-}): Array<string> => {
+}): Array<Child> => {
   const LEFT_X = 25;
   const RIGHT_X_BASE = 230;
   const rightOffset = (card_width - DEFAULT_CARD_WIDTH) / 2;
@@ -179,7 +179,7 @@ const createTextNode = ({
   percent: number;
   hideProgress?: boolean | undefined;
   progressBarWidth: number;
-}): string => {
+}): MarkupElement => {
   if (!Number.isFinite(index)) {
     throw new Error(`Invalid index: "${index}"`);
   }
@@ -188,27 +188,33 @@ const createTextNode = ({
   }
 
   const staggerDelay = (index + 3) * 150;
-  const cardProgress = hideProgress
-    ? null
-    : createProgressNode({
+
+  return el(
+    'g',
+    {
+      class: 'stagger',
+      style: `animation-delay: ${staggerDelay}ms`,
+      transform: 'translate(25, 0)',
+    },
+    el('text', { class: 'stat bold', y: 12.5, 'data-testid': id }, `${label}:`),
+    el(
+      'text',
+      {
+        class: 'stat',
+        x: hideProgress ? HIDDEN_PROGRESSBAR_PADDING : PROGRESSBAR_PADDING + progressBarWidth,
+        y: 12.5,
+      },
+      value,
+    ),
+    !hideProgress &&
+      createProgressNode({
         x: 110,
         y: 4,
         progress: percent,
         width: progressBarWidth,
         delay: staggerDelay + 300,
-      });
-
-  return `
-    <g class="stagger" style="animation-delay: ${staggerDelay}ms" transform="translate(25, 0)">
-      <text class="stat bold" y="12.5" data-testid="${encodeHTML(id)}">${encodeHTML(label)}:</text>
-      <text
-        class="stat"
-        x="${hideProgress ? HIDDEN_PROGRESSBAR_PADDING : PROGRESSBAR_PADDING + progressBarWidth}"
-        y="12.5"
-      >${encodeHTML(value)}</text>
-      ${String(cardProgress)}
-    </g>
-  `;
+      }),
+  );
 };
 
 /**
@@ -232,27 +238,30 @@ const recalculatePercentages = (languages: Array<WakaTimeLang>): void => {
  * @param colors.textColor The text color.
  * @returns Card CSS styles.
  */
-const getStyles = ({ textColor }: { textColor: string }): string => {
+const getStyles = ({ textColor }: { textColor: string }): Array<CssChild> => {
   if (!isPrefixedHexColor(textColor)) {
     throw new Error(`Invalid text color: "${textColor}"`);
   }
 
-  return `
-    .stat {
-      font: 600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif; fill: ${textColor};
-    }
-    @supports(-moz-appearance: auto) {
-      /* Selector detects Firefox */
-      .stat { font-size:12px; }
-    }
-    .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
-    }
-    .not_bold { font-weight: 400 }
-    .bold { font-weight: 700 }
-  `;
+  return [
+    rule('.stat', {
+      font: `600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
+      fill: textColor,
+    }),
+    atRule(
+      '@supports(-moz-appearance: auto)',
+      cssComment('Selector detects Firefox'),
+      rule('.stat', { 'font-size': '12px' }),
+    ),
+    rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
+    rule('.not_bold', { 'font-weight': 400 }),
+    rule('.bold', { 'font-weight': 700 }),
+  ];
 };
+
+/** A bar the same color as the text behind it would be invisible, so it goes transparent. */
+const progressBackground = (titleColor: string, textColor: string): string =>
+  textColor === titleColor ? '#fff0' : textColor;
 
 /**
  * Normalize incoming width (string or number) and clamp to minimum.
@@ -335,7 +344,7 @@ const renderWakatimeCard = (
   // but if rank circle is visible clamp the minimum height to `150`
   let height = Math.max(45 + (filteredLanguages.length + 1) * lheight, 150);
 
-  let finalLayout: string;
+  let finalLayout: Child;
 
   // RENDER COMPACT LAYOUT
   if (layout === 'compact') {
@@ -345,50 +354,51 @@ const renderWakatimeCard = (
     // progressOffset holds the previous language's width and used to offset the next language
     // so that we can stack them one after another, like this: [--][----][---]
     let progressOffset = 0;
-    const compactProgressBar = filteredLanguages
-      .map((language) => {
-        const progress = ((width - COMPACT_LAYOUT_PROGRESSBAR_PADDING) * language.percent) / 100;
+    const compactProgressBar = filteredLanguages.map((language) => {
+      const progress = ((width - COMPACT_LAYOUT_PROGRESSBAR_PADDING) * language.percent) / 100;
+      const x = progressOffset;
+      progressOffset += progress;
 
-        const languageColor = getLanguageColor(language.name);
+      return el('rect', {
+        mask: 'url(#rect-mask)',
+        'data-testid': 'lang-progress',
+        x,
+        y: 0,
+        width: progress,
+        height: 8,
+        fill: getLanguageColor(language.name),
+      });
+    });
 
-        const output = `
-          <rect
-            mask="url(#rect-mask)"
-            data-testid="lang-progress"
-            x="${progressOffset}"
-            y="0"
-            width="${progress}"
-            height="8"
-            fill="${languageColor}"
-          />
-        `;
-        progressOffset += progress;
-        return output;
-      })
-      .join('');
-
-    finalLayout = `
-      <mask id="rect-mask">
-      <rect x="${COMPACT_LAYOUT_PROGRESSBAR_PADDING}" y="0" width="${width - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING}" height="8" fill="white" rx="5" />
-      </mask>
-      ${compactProgressBar}
-      ${
-        filteredLanguages.length
-          ? createLanguageTextNode({
-              y: 25,
-              langs: filteredLanguages,
-              display_format,
-              card_width: normalizedWidth,
-            }).join('')
-          : noCodingActivityNode({
-              text: stats.is_coding_activity_visible
-                ? stats.is_other_usage_visible
-                  ? i18n.t('wakatimecard.nocodingactivity')
-                  : i18n.t('wakatimecard.nocodedetails')
-                : i18n.t('wakatimecard.notpublic'),
-            })
-      }
-    `;
+    finalLayout = [
+      el(
+        'mask',
+        { id: 'rect-mask' },
+        el('rect', {
+          x: COMPACT_LAYOUT_PROGRESSBAR_PADDING,
+          y: 0,
+          width: width - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING,
+          height: 8,
+          fill: 'white',
+          rx: 5,
+        }),
+      ),
+      compactProgressBar,
+      filteredLanguages.length
+        ? createLanguageTextNode({
+            y: 25,
+            langs: filteredLanguages,
+            display_format,
+            card_width: normalizedWidth,
+          })
+        : noCodingActivityNode({
+            text: stats.is_coding_activity_visible
+              ? stats.is_other_usage_visible
+                ? i18n.t('wakatimecard.nocodingactivity')
+                : i18n.t('wakatimecard.nocodedetails')
+              : i18n.t('wakatimecard.notpublic'),
+          }),
+    ];
   } else {
     finalLayout = flexLayout({
       items: filteredLanguages.length
@@ -414,7 +424,7 @@ const renderWakatimeCard = (
           ],
       gap: lheight,
       direction: 'column',
-    }).join('');
+    });
   }
 
   // Get title range text
@@ -444,40 +454,34 @@ const renderWakatimeCard = (
   card.setHideBorder(hide_border);
   card.setHideTitle(hide_title);
   card.setCSS({
-    light: ({ titleColor, textColor }) => `
-    ${getStyles({ textColor })}
-    @keyframes slideInAnimation {
-      from {
-        width: 0;
-      }
-      to {
-        width: calc(100%-100px);
-      }
-    }
-    @keyframes growWidthAnimation {
-      from {
-        width: 0;
-      }
-      to {
-        width: 100%;
-      }
-    }
-    .lang-name { font: 400 11px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor} }
-    #rect-mask rect{
-      animation: slideInAnimation 1s ease-in-out forwards;
-    }
-    .lang-progress{
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
-      fill: ${titleColor};
-    }
-    .progress-background { fill: ${textColor === titleColor ? '#fff0' /* transparent */ : textColor}; }
-    `,
-    dark: ({ titleColor, textColor }) => `
-      ${getStyles({ textColor })}
-      .lang-name { fill: ${textColor} }
-      .lang-progress { fill: ${titleColor}; }
-      .progress-background { fill: ${textColor === titleColor ? '#fff0' /* transparent */ : textColor}; }
-    `,
+    light: ({ titleColor, textColor }) => [
+      getStyles({ textColor }),
+      atRule(
+        '@keyframes slideInAnimation',
+        rule('from', { width: 0 }),
+        // Invalid on purpose: browsers drop it and animate to the rect's own width,
+        // which is the reveal the mask wants. See the changeset.
+        rule('to', { width: 'calc(100%-100px)' }),
+      ),
+      atRule(
+        '@keyframes growWidthAnimation',
+        rule('from', { width: 0 }),
+        rule('to', { width: '100%' }),
+      ),
+      rule('.lang-name', { font: "400 11px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+      rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out forwards' }),
+      rule('.lang-progress', {
+        animation: 'growWidthAnimation 0.6s ease-in-out forwards',
+        fill: titleColor,
+      }),
+      rule('.progress-background', { fill: progressBackground(titleColor, textColor) }),
+    ],
+    dark: ({ titleColor, textColor }) => [
+      getStyles({ textColor }),
+      rule('.lang-name', { fill: textColor }),
+      rule('.lang-progress', { fill: titleColor }),
+      rule('.progress-background', { fill: progressBackground(titleColor, textColor) }),
+    ],
   });
 
   // `role="img"` hides the inner text from assistive tech, so everything the card
@@ -491,11 +495,7 @@ const renderWakatimeCard = (
       : i18n.t('wakatimecard.nocodingactivity'),
   });
 
-  return card.render(`
-    <svg x="0" y="0" width="100%">
-      ${finalLayout}
-    </svg>
-  `);
+  return card.render(el('svg', { x: 0, y: 0, width: '100%' }, finalLayout));
 };
 
 export { DISPLAY_FORMATS, WAKATIME_LAYOUTS, renderWakatimeCard };

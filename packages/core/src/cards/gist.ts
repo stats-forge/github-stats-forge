@@ -1,7 +1,6 @@
 import { default as Card } from '../common/Card.js';
 import { getLightDarkColors } from '../common/color.js';
 import { kFormatter, wrapTextMultiline } from '../common/fmt.js';
-import { encodeHTML } from '../common/html.js';
 import { icons } from '../common/icons.js';
 import { getLanguageColor } from '../common/languageColors.js';
 import { parseEmojis } from '../common/ops.js';
@@ -15,6 +14,8 @@ import {
   wrappedTextStyles,
 } from '../common/render.js';
 import type { GistData } from '../fetchers/types.js';
+import type { Child } from '../markup/index.js';
+import { el, rule } from '../markup/index.js';
 
 import type { CardOptions, CommonCardOptions } from './options.js';
 
@@ -54,7 +55,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   const desc = parseEmojis(description || 'No description provided');
 
   let descriptionLines: number;
-  let descriptionSvg: string;
+  let descriptionSvg: Child;
   if (browser_rendering) {
     // The browser performs the actual text wrapping inside the foreignObject;
     // we only estimate the line count server-side so the SVG can reserve enough
@@ -86,12 +87,11 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
       linesLimit,
     );
     descriptionLines = multiLineDescription.length;
-    descriptionSvg = multiLineDescription
-      .map((line) => `<tspan dy="1.2em" x="${X_OFFSET}">${encodeHTML(line)}</tspan>`)
-      .join('');
-    descriptionSvg = `<text class="description" x="${X_OFFSET}" y="-5">
-        ${descriptionSvg}
-    </text>`;
+    descriptionSvg = el(
+      'text',
+      { class: 'description', x: X_OFFSET, y: -5 },
+      multiLineDescription.map((line) => el('tspan', { dy: '1.2em', x: X_OFFSET }, line)),
+    );
   }
 
   const lineHeight = descriptionLines > 3 ? 12 : 10;
@@ -115,7 +115,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
       ICON_SIZE + measureText(`${totalForks}`, 12),
     ],
     gap: 25,
-  }).join('');
+  });
 
   const header = show_owner ? nameWithOwner : name;
 
@@ -130,22 +130,23 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   });
 
   card.setCSS({
-    light: ({ textColor, iconColor }) => `
-    .description {
-      font: 400 ${DESCRIPTION_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif;fill: ${textColor};
-      ${browser_rendering ? wrappedTextStyles(textColor) : ''}
-    }
-    .gray { font: 400 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor} }
-    .icon { fill: ${iconColor} }
-  `,
-    dark: ({ textColor, iconColor }) => `
-      .description {
-        fill: ${textColor};
-        ${browser_rendering ? wrappedTextStyles(textColor) : ''}
-      }
-      .gray { fill: ${textColor} }
-      .icon { fill: ${iconColor} }
-    `,
+    light: ({ textColor, iconColor }) => [
+      rule('.description', {
+        font: `400 ${DESCRIPTION_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif`,
+        fill: textColor,
+        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+      }),
+      rule('.gray', { font: "400 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+      rule('.icon', { fill: iconColor }),
+    ],
+    dark: ({ textColor, iconColor }) => [
+      rule('.description', {
+        fill: textColor,
+        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+      }),
+      rule('.gray', { fill: textColor }),
+      rule('.icon', { fill: iconColor }),
+    ],
   });
 
   card.setHideBorder(hide_border);
@@ -157,13 +158,10 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     desc: `${desc}. Language: ${languageName}, Stars: ${totalStars}, Forks: ${totalForks}`,
   });
 
-  return card.render(`
-    ${descriptionSvg}
-
-    <g transform="translate(30, ${height - 75})">
-        ${starAndForkCount}
-    </g>
-  `);
+  return card.render([
+    descriptionSvg,
+    el('g', { transform: `translate(30, ${height - 75})` }, starAndForkCount),
+  ]);
 };
 
 export { renderGistCard };

@@ -1,21 +1,21 @@
+import type { Child, Declarations, MarkupElement } from '../markup/index.js';
+import { el, renderMarkup, rule, style } from '../markup/index.js';
+
 import { getCardColors, isPrefixedHexColor } from './color.js';
 import { SECONDARY_ERROR_MESSAGES, TRY_AGAIN_LATER } from './error.js';
 import { kFormatter } from './fmt.js';
-import { encodeHTML } from './html.js';
 import { clampValue } from './ops.js';
 
 /**
  * Auto layout utility, allows us to layout things vertically or horizontally with
  * proper gaping.
  *
- * The caller must ensure that the passed `items` are properly sanitized!
- *
  * @param props Function properties.
- * @param props.items Array of sanitized items to layout.
+ * @param props.items Items to layout; the ones that carry nothing are skipped.
  * @param props.gap Gap between items.
  * @param props.direction Direction to layout items.
  * @param props.sizes Array of sizes for each item.
- * @returns Array of items with proper layout.
+ * @returns The items, each in the group that positions it.
  */
 const flexLayout = ({
   items,
@@ -23,25 +23,36 @@ const flexLayout = ({
   direction,
   sizes = [],
 }: {
-  items: Array<string>;
+  items: Array<Child>;
   gap: number;
   direction?: 'column' | 'row';
   sizes?: Array<number>;
-}): Array<string> => {
+}): Array<Child> => {
   if (sizes.some((size) => !Number.isFinite(size))) {
     throw new Error('flexLayout: `sizes` must contain only numbers');
   }
 
+  const laidOut = items.filter(Boolean);
+
+  // A lone item is already where it belongs, so it needs no group to move it.
+  if (laidOut.length === 1) {
+    return laidOut;
+  }
+
   let lastSize = 0;
-  // filter() for filtering out empty strings
-  return items.filter(Boolean).map((item, i) => {
-    const size = sizes[i] || 0;
-    let transform = `translate(${lastSize}, 0)`;
-    if (direction === 'column') {
-      transform = `translate(0, ${lastSize})`;
-    }
-    lastSize += size + gap;
-    return `<g transform="${transform}">${item}</g>`;
+  return laidOut.map((item, i) => {
+    const offset = lastSize;
+    lastSize += (sizes[i] ?? 0) + gap;
+
+    // The first item never moves, so it gets no transform to carry.
+    const transform =
+      offset === 0
+        ? undefined
+        : direction === 'column'
+          ? `translate(0, ${offset})`
+          : `translate(${offset}, 0)`;
+
+    return el('g', { transform }, item);
   });
 };
 
@@ -52,17 +63,17 @@ const flexLayout = ({
  * @param langColor Language color.
  * @returns Language display SVG object.
  */
-const createLanguageNode = (langName: string, langColor: string): string => {
+const createLanguageNode = (langName: string, langColor: string): MarkupElement => {
   if (!isPrefixedHexColor(langColor)) {
     throw new Error(`Invalid language color: "${langColor}"`);
   }
 
-  return `
-    <g data-testid="primary-lang">
-      <circle data-testid="lang-color" cx="0" cy="-5" r="6" fill="${langColor}" />
-      <text data-testid="lang-name" class="gray" x="15">${encodeHTML(langName)}</text>
-    </g>
-    `;
+  return el(
+    'g',
+    { 'data-testid': 'primary-lang' },
+    el('circle', { 'data-testid': 'lang-color', cx: 0, cy: -5, r: 6, fill: langColor }),
+    el('text', { 'data-testid': 'lang-name', class: 'gray', x: 15 }, langName),
+  );
 };
 
 /**
@@ -92,7 +103,7 @@ const createProgressNode = ({
   color?: string;
   progress: number;
   delay: number;
-}): string => {
+}): MarkupElement => {
   if (color !== undefined && !isPrefixedHexColor(color)) {
     throw new Error(`Invalid progress color: "${color}"`);
   }
@@ -111,20 +122,34 @@ const createProgressNode = ({
 
   const progressPercentage = clampValue(progress, 2, 100);
 
-  return `
-    <svg width="${width}" x="${x}" y="${y}">
-      <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="${width}" height="8"></rect>
-      <svg data-testid="lang-progress" width="${progressPercentage}%">
-        <rect
-            height="8"
-            ${color === undefined ? '' : `fill="${color}"`}
-            rx="5" ry="5" x="0" y="0"
-            class="lang-progress"
-            style="animation-delay: ${delay}ms;"
-        />
-      </svg>
-    </svg>
-  `;
+  return el(
+    'svg',
+    { width, x, y },
+    el('rect', {
+      'data-testid': 'progress-background',
+      class: 'progress-background',
+      rx: 5,
+      ry: 5,
+      x: 0,
+      y: 0,
+      width,
+      height: 8,
+    }),
+    el(
+      'svg',
+      { 'data-testid': 'lang-progress', width: `${progressPercentage}%` },
+      el('rect', {
+        height: 8,
+        fill: color,
+        rx: 5,
+        ry: 5,
+        x: 0,
+        y: 0,
+        class: 'lang-progress',
+        style: `animation-delay: ${delay}ms;`,
+      }),
+    ),
+  );
 };
 
 /**
@@ -161,7 +186,7 @@ const wrappedTextNode = ({
   lineCount: number;
   className: string;
   testId?: string;
-}): string => {
+}): MarkupElement => {
   if (!Number.isFinite(x)) {
     throw new Error(`Invalid x: "${x}"`);
   }
@@ -178,14 +203,20 @@ const wrappedTextNode = ({
     throw new Error(`Invalid lineCount: "${lineCount}"`);
   }
 
-  const testIdAttr = testId ? ` data-testid="${encodeHTML(testId)}"` : '';
-  return `
-    <foreignObject x="${x}" y="${y}" width="${width}" height="${height}">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="${encodeHTML(className)}" style="--lines: ${lineCount};"${testIdAttr}>${encodeHTML(
-        text,
-      )}</div>
-    </foreignObject>
-  `;
+  return el(
+    'foreignObject',
+    { x, y, width, height },
+    el(
+      'div',
+      {
+        xmlns: 'http://www.w3.org/1999/xhtml',
+        class: className,
+        style: `--lines: ${lineCount};`,
+        'data-testid': testId,
+      },
+      text,
+    ),
+  );
 };
 
 /**
@@ -195,68 +226,70 @@ const wrappedTextNode = ({
  * custom property set on the element.
  *
  * @param color Text color (CSS `color` property).
- * @returns CSS rules block (without the surrounding selector).
+ * @returns The declarations, to merge into the class's own rule.
  */
-const wrappedTextStyles = (color: string): string => {
+const wrappedTextStyles = (color: string): Declarations => {
   if (!isPrefixedHexColor(color)) {
     throw new Error(`Invalid text color: "${color}"`);
   }
 
-  return `
-      color: ${color};
-      margin: 0;
-      line-height: 1.2;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: var(--lines);
-      line-clamp: var(--lines);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding-bottom: 0.15em;
-  `;
+  return {
+    color,
+    margin: 0,
+    'line-height': 1.2,
+    'overflow-wrap': 'anywhere',
+    'word-break': 'break-word',
+    display: '-webkit-box',
+    '-webkit-box-orient': 'vertical',
+    '-webkit-line-clamp': 'var(--lines)',
+    'line-clamp': 'var(--lines)',
+    overflow: 'hidden',
+    'text-overflow': 'ellipsis',
+    'padding-bottom': '0.15em',
+  };
 };
 
 /**
  * Creates an icon with label to display repository/gist stats like forks, stars, etc.
  *
- * The caller must ensure that the passed `icon` is properly sanitized!
- *
- * @param icon The sanitized icon to display.
+ * @param icon The icon to display.
  * @param label The label to display.
  * @param testid The testid to assign to the label.
  * @param iconSize The size of the icon.
- * @returns Icon with label SVG object.
+ * @returns Icon with label SVG object, or nothing when the label is not positive.
  */
 const iconWithLabel = (
-  icon: string,
+  icon: Child,
   label: number | string,
   testid: string,
   iconSize: number,
-): string => {
+): Child => {
   if (typeof label === 'number' && label <= 0) {
-    return '';
+    return undefined;
   }
 
   if (!Number.isFinite(iconSize)) {
     throw new Error(`Invalid iconSize: "${iconSize}"`);
   }
 
-  const iconSvg = `
-      <svg
-        class="icon"
-        y="-12"
-        viewBox="0 0 16 16"
-        version="1.1"
-        width="${iconSize}"
-        height="${iconSize}"
-      >
-        ${icon}
-      </svg>
-    `;
-  const text = `<text data-testid="${encodeHTML(testid)}" class="gray">${encodeHTML(String(label))}</text>`;
-  return flexLayout({ items: [iconSvg, text], gap: 20 }).join('');
+  return flexLayout({
+    items: [
+      el(
+        'svg',
+        {
+          class: 'icon',
+          y: -12,
+          viewBox: '0 0 16 16',
+          version: '1.1',
+          width: iconSize,
+          height: iconSize,
+        },
+        icon,
+      ),
+      el('text', { 'data-testid': testid, class: 'gray' }, String(label)),
+    ],
+    gap: 20,
+  });
 };
 
 /**
@@ -264,10 +297,10 @@ const iconWithLabel = (
  * (a label and its value, optionally with an icon and link).
  * Shared by the stats and repo cards.
  *
- * The caller must ensure that the passed `icon` and `link` are properly sanitized!
+ * The caller must ensure that the passed `link` is properly sanitized!
  *
  * @param params Object that contains the createTextNode parameters.
- * @param params.icon The sanitized icon to display.
+ * @param params.icon The icon to display.
  * @param params.label The label to display.
  * @param params.value The value to display.
  * @param params.id The id of the stat.
@@ -301,7 +334,7 @@ const createTextNode = ({
   link,
   labelXOffset = 25,
 }: {
-  icon: string;
+  icon: Child;
   label: string;
   value: number | string;
   id: string;
@@ -317,7 +350,7 @@ const createTextNode = ({
   numberPrecision?: number | undefined;
   link?: string | undefined;
   labelXOffset?: number;
-}): string => {
+}): MarkupElement => {
   if (!Number.isFinite(labelXOffset)) {
     throw new Error(`Invalid labelXOffset: "${labelXOffset}"`);
   }
@@ -341,36 +374,52 @@ const createTextNode = ({
   const kValue = rawValue || typeof value !== 'number' ? value : kFormatter(value, precision);
 
   const staggerDelay = 120 + index * 40;
-  const boldClass = bold ? ' bold' : 'not_bold';
-  const labelBoldClass = labelBold ? ' bold' : 'not_bold';
+  const boldClass = bold ? 'bold' : 'not_bold';
+  const labelBoldClass = labelBold ? 'bold' : 'not_bold';
   const valueX = (showIcons ? 140 : 120) + (bold ? 5 : 0) + shiftValuePos;
-  const valuePos =
-    valueAnchorX === undefined ? `x="${valueX}"` : `x="${valueAnchorX}" text-anchor="end"`;
   const unit = unitSymbol ? ` ${unitSymbol}` : '';
-  const labelOffset = showIcons ? `x="${labelXOffset}"` : '';
-  const iconSvg = showIcons
-    ? `
-    <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">
-      ${icon}
-    </svg>
-  `
-    : '';
 
-  const content = `
-      ${iconSvg}
-      <text class="stat ${labelBoldClass}" ${labelOffset} y="12.5">${encodeHTML(label)}:</text>
-      <text
-        class="stat ${boldClass}"
-        ${valuePos}
-        y="12.5"
-        data-testid="${id}"
-      >${kValue}${unit}</text>`;
-  const inner = link ? `<a href="${link}">${content}</a>` : content;
+  const content = [
+    showIcons &&
+      el(
+        'svg',
+        {
+          'data-testid': 'icon',
+          class: 'icon',
+          viewBox: '0 0 16 16',
+          version: '1.1',
+          width: 16,
+          height: 16,
+        },
+        icon,
+      ),
+    el(
+      'text',
+      { class: `stat ${labelBoldClass}`, x: showIcons ? labelXOffset : undefined, y: 12.5 },
+      `${label}:`,
+    ),
+    el(
+      'text',
+      {
+        class: `stat ${boldClass}`,
+        x: valueAnchorX ?? valueX,
+        'text-anchor': valueAnchorX === undefined ? undefined : 'end',
+        y: 12.5,
+        'data-testid': id,
+      },
+      `${String(kValue)}${unit}`,
+    ),
+  ];
 
-  return `
-    <g class="stagger" style="animation-delay: ${staggerDelay}ms" transform="translate(25, 0)">${inner}
-    </g>
-  `;
+  return el(
+    'g',
+    {
+      class: 'stagger',
+      style: `animation-delay: ${staggerDelay}ms`,
+      transform: 'translate(25, 0)',
+    },
+    link ? el('a', { href: link }, content) : content,
+  );
 };
 
 // Script parameters.
@@ -429,29 +478,48 @@ const renderError = ({
     theme,
   });
 
-  return `
-    <svg width="${ERROR_CARD_LENGTH}"  height="120" viewBox="0 0 ${ERROR_CARD_LENGTH} 120" fill="${String(bgColor)}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
-    <title id="titleId">${encodeHTML(message)}</title>
-    <desc id="descId">${encodeHTML(secondaryMessage)}</desc>
-    <style>
-    .text { font: 600 16px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${titleColor} }
-    .small { font: 600 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${textColor} }
-    .gray { fill: #858585 }
-    </style>
-    <rect x="0.5" y="0.5" width="${
-      ERROR_CARD_LENGTH - 1
-    }" height="99%" rx="8" fill="${String(bgColor)}" stroke="${borderColor}"/>
-    <text x="25" y="45" class="text">Something went wrong!${
-      UPSTREAM_API_ERRORS.includes(secondaryMessage) || !show_repo_link
-        ? ''
-        : ' file an issue at https://tinyurl.com/github-stats'
-    }</text>
-    <text data-testid="message" x="25" y="55" class="text small">
-      <tspan x="25" dy="18">${encodeHTML(message)}</tspan>
-      <tspan x="25" dy="18" class="gray">${encodeHTML(secondaryMessage)}</tspan>
-    </text>
-    </svg>
-  `;
+  const hint =
+    UPSTREAM_API_ERRORS.includes(secondaryMessage) || !show_repo_link
+      ? ''
+      : ' file an issue at https://tinyurl.com/github-stats';
+
+  return renderMarkup(
+    el(
+      'svg',
+      {
+        width: ERROR_CARD_LENGTH,
+        height: 120,
+        viewBox: `0 0 ${ERROR_CARD_LENGTH} 120`,
+        fill: String(bgColor),
+        xmlns: 'http://www.w3.org/2000/svg',
+        role: 'img',
+        'aria-labelledby': 'titleId descId',
+      },
+      el('title', { id: 'titleId' }, message),
+      el('desc', { id: 'descId' }, secondaryMessage),
+      style(
+        rule('.text', { font: "600 16px 'Segoe UI', Ubuntu, Sans-Serif", fill: titleColor }),
+        rule('.small', { font: "600 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+        rule('.gray', { fill: '#858585' }),
+      ),
+      el('rect', {
+        x: 0.5,
+        y: 0.5,
+        width: ERROR_CARD_LENGTH - 1,
+        height: '99%',
+        rx: 8,
+        fill: String(bgColor),
+        stroke: borderColor,
+      }),
+      el('text', { x: 25, y: 45, class: 'text' }, `Something went wrong!${hint}`),
+      el(
+        'text',
+        { 'data-testid': 'message', x: 25, y: 55, class: 'text small' },
+        el('tspan', { x: 25, dy: 18 }, message),
+        el('tspan', { x: 25, dy: 18, class: 'gray' }, secondaryMessage),
+      ),
+    ),
+  );
 };
 
 /**
