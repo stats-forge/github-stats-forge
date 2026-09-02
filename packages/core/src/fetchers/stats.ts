@@ -1,7 +1,6 @@
-import githubUsernameRegex from 'github-username-regex';
-
 import { calculateRank } from '../calculateRank.js';
 import type { CardConfig } from '../common/config.js';
+import { GITHUB_USERNAME_PATTERN } from '../common/constants.js';
 import type { GitHubDateRange } from '../common/date.js';
 import { getGitHubYearRange, toGitHubDateTime } from '../common/date.js';
 import { CardError, USER_NOT_FOUND } from '../common/error.js';
@@ -201,7 +200,7 @@ const totalItemsFetcher = async (
   },
   config: CardConfig,
 ): Promise<number> => {
-  if (!githubUsernameRegex.test(username)) {
+  if (!GITHUB_USERNAME_PATTERN.test(username)) {
     logger.log('Invalid username provided.');
     throw new CardError('Invalid username provided.', {
       code: 'invalid_param',

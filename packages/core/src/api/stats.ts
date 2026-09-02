@@ -18,13 +18,13 @@ import {
   parseParams,
   rawParam,
   safeListParam,
-  safeParam,
+  usernameParam,
   yearParam,
 } from './params.js';
 
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z.object({
-  username: safeParam,
+  username: usernameParam,
   repo: safeListParam,
   owner: safeListParam,
   hide: listParam,

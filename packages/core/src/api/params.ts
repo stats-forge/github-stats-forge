@@ -2,6 +2,7 @@ import * as z from 'zod/mini';
 
 import type { ColorParams } from '../common/color.js';
 import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.js';
+import { GITHUB_USERNAME_PATTERN } from '../common/constants.js';
 import { CardError } from '../common/error.js';
 import { parseArray, parseBoolean } from '../common/ops.js';
 import { isLocaleAvailable } from '../translations.js';
@@ -19,11 +20,11 @@ import { isLocaleAvailable } from '../translations.js';
 /** Every param arrives as a string, or not at all. */
 const rawParam = z.optional(z.string());
 
-/** Characters a username, repository, owner or gist id may contain. */
+/** Characters a repository, owner or gist id may contain. */
 const SAFE_PATTERN = /^[-\w/.,]+$/;
 
 /** What a check rejected a param for. */
-type Rejection = 'number' | 'year' | 'unsafe' | 'locale' | 'enum' | 'color';
+type Rejection = 'number' | 'year' | 'unsafe' | 'username' | 'locale' | 'enum' | 'color';
 
 /**
  * Every rejection the api can put on an error card, in one place.
@@ -33,6 +34,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   number: (param) => `Invalid number input for parameter "${param}"`,
   year: (param) => `Invalid number input for parameter "${param}"`,
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
+  username: (param) => `Invalid username input for parameter "${param}"`,
   locale: () => 'Locale not found',
   enum: (param) => `Incorrect ${param} input`,
   color: (param) => `Invalid color input for parameter "${param}"`,
@@ -101,6 +103,14 @@ const yearParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
  */
 const safeParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
   rejects('unsafe', (value) => !value || SAFE_PATTERN.test(value)),
+);
+
+/**
+ * A GitHub login, stricter than `safeParam`: no leading, trailing or doubled hyphen.
+ * Rejected here so a malformed one is a permanent error rather than the NOT_FOUND GitHub answers.
+ */
+const usernameParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
+  rejects('username', (value) => !value || GITHUB_USERNAME_PATTERN.test(value)),
 );
 
 /**
@@ -217,5 +227,6 @@ export {
   rawParam,
   safeListParam,
   safeParam,
+  usernameParam,
   yearParam,
 };

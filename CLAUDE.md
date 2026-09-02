@@ -105,6 +105,11 @@ are skipped until it is listed again.
   This governs prose in markdown as much as comments in code: sentence-per-line was
   applied to `examples/README.md` on 2026-09-02 and corrected the same day —
   the rule is where a break lands, not that every sentence earns one.
+  **Every file the repo writes prose into is in scope, a changeset and a commit message
+  included** — a changeset summary written on 2026-09-03 wrapped mid-phrase and had to be
+  rewrapped, and it lands verbatim in the published `CHANGELOG.md`. The existing
+  changesets are the reference: each break falls on a comma, colon or full stop, and a
+  long clause is allowed to run past the width rather than be split.
 - **`examples/previews` is committed, so redraw it when a card's output changes.**
   `pnpm examples` renders every saved card in `examples/cards` through the built CLI;
   it needs `PAT_1` in a root `.env`, which is why CI cannot keep the previews current.
@@ -164,10 +169,15 @@ CommonCardOptions {…}` (an interface, not `type &`) in its own file, **not exp
   and delete it once the call becomes valid.
 - Unused args are only allowed with a leading `_`.
 - Untyped deps with no `exports`-mapped declaration get a `declare module` shim:
-  `@uppercod/css-to-object` → `tests/_css-to-object.d.ts`; `emoji-name-map` →
-  `src/_emoji-name-map.d.ts` and `github-username-regex` →
-  `src/_github-username-regex.d.ts` (runtime deps' shims have to live under `src/` for the
-  build config to see them).
+  `@uppercod/css-to-object` → `tests/_css-to-object.d.ts` and `emoji-name-map` →
+  `src/_emoji-name-map.d.ts` (a runtime dep's shim has to live under `src/` for the build
+  config to see it).
+- **A dependency whose whole body is one literal gets inlined instead.**
+  `github-username-regex` cost a runtime dep, a `declare module` shim and a bullet in this
+  file, all to deliver the 87 bytes of `/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i` —
+  v1.0.0, published 2017, CC0. It is now `GITHUB_USERNAME_PATTERN` in
+  `common/constants.ts` and the shim is gone. Read a small package's source before adding
+  it: where copying costs a line and a comment, and the licence allows it, copy it.
 
 ### The api layer is the trust boundary
 
@@ -215,6 +225,14 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
   A host branches on `code` / `retryable` instead of matching `"error - temporary"`, and
   never has to read the SVG to find out what happened.
 
+- **A shape check inside a fetcher is not validation.** GitHub's login rules were
+  enforced in `totalItemsFetcher` — the REST-search path alone — while the api layer let
+  through anything in the safe character set, so `?username=-foo` was rejected mid-fetch
+  or not at all depending on which request ran first. The shape now lives in
+  `usernameParam`, so the three endpoints taking a GitHub login reject it as
+  `invalid_param` once, before any request. The fetcher keeps its own guard —
+  `./fetchers` is a public export and that is where the value reaches a URL — but it
+  tests the shared pattern rather than a copy.
 - **The api parses; the card defaults.** A handler turns strings into typed values
   (`parseBoolean`, `parseFloat`, `toLowerCase`) and stops there — it never supplies a
   fallback the render function already owns. `parseBoolean(x) ?? false` alongside the
