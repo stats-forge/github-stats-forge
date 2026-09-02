@@ -61,11 +61,13 @@ describe('Test ops.js', () => {
   it('should test parseEmojis', () => {
     // unknown emoji name is stripped
     expect(parseEmojis('Hello :nonexistent:')).toBe('Hello ');
-    // common emoji names should be replaced (at least token removed)
-    const out = parseEmojis('I :heart: OSS');
-    expect(out).not.toContain(':heart:');
-    expect(out.startsWith('I ')).toBe(true);
-    expect(out.endsWith(' OSS')).toBe(true);
+    expect(parseEmojis('I :heart: OSS')).toBe('I ❤️ OSS');
+    // shortcodes GitHub spells with `+` or `-`
+    expect(parseEmojis(':+1: and :-1:')).toBe('👍️ and 👎️');
+    expect(parseEmojis(':non-potable_water:')).toBe('🚱');
+    // a flag and a recent addition, neither of which the old table carried
+    expect(parseEmojis('made in :it:')).toBe('made in 🇮🇹');
+    expect(parseEmojis(':melting_face:')).toBe('🫠');
 
     expect(() => parseEmojis('')).toThrow(/parseEmoji/);
     // @ts-expect-error testing missing argument

@@ -77,13 +77,13 @@
     "test:e2e": "vitest --config vitest.config.e2e.ts",
     "bench": "vitest bench --run --config vitest.config.bench.ts",
     "lint": "eslint",
-    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "typecheck": "tsc -p tsconfig.typecheck.json && tsc -p tsconfig.scripts.json",
     "generate-graphql-types": "node scripts/generate-graphql-types",
     "check-graphql-types": "node scripts/generate-graphql-types --check",
-    "generate-language-colors": "node scripts/generate-language-colors"
+    "generate-language-colors": "node scripts/generate-language-colors",
+    "generate-emoji-map": "node scripts/generate-emoji-map.ts"
   },
   "dependencies": {
-    "emoji-name-map": "^2.0.3",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -93,6 +93,7 @@
     "@octokit/graphql-schema": "15.26.1",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "7.0.1",
+    "@types/node": "24.13.3",
     "@uppercod/css-to-object": "1.1.1",
     "graphql": "16.14.2",
     "js-yaml": "5.4.1",

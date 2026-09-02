@@ -1,8 +1,7 @@
-import toEmoji from 'emoji-name-map';
-
 import type { RepositoryAffiliation } from '../graphql/generated/common.js';
 
 import { OWNER_AFFILIATIONS } from './constants.js';
+import { getEmoji } from './emojiMap.js';
 import { CardError, INVALID_AFFILIATION } from './error.js';
 
 /**
@@ -90,8 +89,9 @@ const parseEmojis = (str: string): string => {
   if (!str) {
     throw new Error('[parseEmoji]: str argument not provided');
   }
-  return str.replace(/:\w+:/gm, (emoji) => {
-    return toEmoji.get(emoji) || '';
+  // `+` and `-` are part of a shortcode: `:+1:`, `:non-potable_water:`.
+  return str.replace(/:([\w+-]+):/g, (_match, name: string) => {
+    return getEmoji(name) ?? '';
   });
 };
 
