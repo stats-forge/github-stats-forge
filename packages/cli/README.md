@@ -21,7 +21,7 @@ Requires Node 24 or newer. The cards themselves come from
 so every option below is the one that package's api accepts — the prompts read the
 accepted values off it rather than keeping their own copy.
 
-It asks which card you want, then the params that card cannot render without, then
+It asks which card you want, then the options that card cannot render without, then
 puts you in a menu of every other option it accepts — pick one, answer it, and the
 menu comes back with the answer beside it. `Generate the card` writes the SVG.
 
@@ -43,7 +43,7 @@ again. `Quit` (or Ctrl-C) ends the session.
 
 ## Saving a card
 
-`Save these options` in the menu writes the card and its params to a JSON file, and
+`Save these options` in the menu writes the card and its options to a JSON file, and
 `--config` loads one back:
 
 ```sh
@@ -53,7 +53,7 @@ github-stats-forge --config my-stats.json      # picks up where the file left of
 ```json
 {
   "card": "stats",
-  "params": {
+  "options": {
     "username": "anuraghazra",
     "theme": "tokyonight",
     "show_icons": "true"
@@ -63,7 +63,7 @@ github-stats-forge --config my-stats.json      # picks up where the file left of
 
 The file holds what a query string holds, so it reads like the URL it stands for and
 can be edited by hand. Loading one skips both the card prompt and the required
-params, landing you straight on the menu — and `--config` doubles as the save target,
+options, landing you straight on the menu — and `--config` doubles as the save target,
 so the next `Save these options` writes back to it without asking.
 
 `--generate` skips the menu too, rendering exactly what the file holds:

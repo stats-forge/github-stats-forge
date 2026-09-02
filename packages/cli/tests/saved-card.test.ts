@@ -23,7 +23,7 @@ const card = (name: string) => {
 };
 
 describe('writeSavedCard', () => {
-  it('writes the card and its params as a query string would carry them', async () => {
+  it('writes the card and its options as a query string would carry them', async () => {
     const file = join(dir(), 'card.json');
 
     await writeSavedCard(file, card('stats'), {
@@ -33,7 +33,7 @@ describe('writeSavedCard', () => {
 
     expect(JSON.parse(await readFile(file, 'utf8'))).toStrictEqual({
       card: 'stats',
-      params: { username: 'anuraghazra', show_icons: 'true' },
+      options: { username: 'anuraghazra', show_icons: 'true' },
     });
   });
 });
@@ -49,7 +49,7 @@ describe('readSavedCard', () => {
     const loaded = await readSavedCard(file);
 
     expect(loaded.card.id).toBe('top-langs');
-    expect(loaded.params).toStrictEqual({
+    expect(loaded.options).toStrictEqual({
       username: 'anuraghazra',
       layout: 'donut',
     });
@@ -57,10 +57,10 @@ describe('readSavedCard', () => {
 
   it('reads a file written by hand', async () => {
     const file = join(dir(), 'by-hand.json');
-    writeFileSync(file, '{ "card": "gist", "params": { "id": "abc123" } }');
+    writeFileSync(file, '{ "card": "gist", "options": { "id": "abc123" } }');
 
     await expect(readSavedCard(file)).resolves.toMatchObject({
-      params: { id: 'abc123' },
+      options: { id: 'abc123' },
     });
   });
 
@@ -73,20 +73,20 @@ describe('readSavedCard', () => {
 
   it('says so when the card is not one this version renders', async () => {
     const file = join(dir(), 'unknown.json');
-    writeFileSync(file, '{ "card": "sparklines", "params": {} }');
+    writeFileSync(file, '{ "card": "sparklines", "options": {} }');
 
     await expect(readSavedCard(file)).rejects.toThrow(/names no card/);
   });
 
-  it('drops a param that could not have come off a query string', async () => {
+  it('drops an option that could not have come off a query string', async () => {
     const file = join(dir(), 'odd.json');
     writeFileSync(
       file,
-      '{ "card": "stats", "params": { "username": "x", "hide": ["a"], "card_width": 400 } }',
+      '{ "card": "stats", "options": { "username": "x", "hide": ["a"], "card_width": 400 } }',
     );
 
     await expect(readSavedCard(file)).resolves.toMatchObject({
-      params: { username: 'x' },
+      options: { username: 'x' },
     });
   });
 });

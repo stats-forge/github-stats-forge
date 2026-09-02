@@ -79,6 +79,10 @@ Every card takes the [common options](packages/core/src/cards/options.ts) — co
 title, border, theme, locale — plus its own. A card that only renders a fixed set of
 values carries them on its handler, e.g. `topLangs.LAYOUTS` and `stats.RANK_ICONS`.
 
+One of each, rendered: [`examples/previews/PREVIEWS.md`](examples/previews/PREVIEWS.md).
+The saved cards they come from live in [`examples/`](examples),
+and `pnpm examples` draws them again.
+
 ## Themes
 
 Every built-in theme is defined in
@@ -94,6 +98,7 @@ pnpm test                   # vitest
 pnpm typecheck              # turbo typecheck + the repo scripts
 pnpm lint                   # eslint per package
 pnpm build:packages         # build packages/*
+pnpm examples               # redraw examples/previews from examples/cards
 ```
 
 ## Acknowledgements

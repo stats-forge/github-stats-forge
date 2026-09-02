@@ -173,7 +173,7 @@ const main = async (): Promise<void> => {
 
   // `--generate` renders what the file holds and stops: no menu, nothing to answer.
   if (saved && flags.generate) {
-    const outcome = await renderAndWrite(card, saved.params, config, flags.out);
+    const outcome = await renderAndWrite(card, saved.options, config, flags.out);
     if ('failed' in outcome) {
       process.exitCode = 1;
     }
@@ -181,7 +181,7 @@ const main = async (): Promise<void> => {
   }
 
   const menu: Menu = {
-    answers: saved ? toAnswers(card, saved.params) : await askRequired(card),
+    answers: saved ? toAnswers(card, saved.options) : await askRequired(card),
   };
   let savePath = flags.config;
 
