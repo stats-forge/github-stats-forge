@@ -1,0 +1,9 @@
+{
+  "card": "stats",
+  "options": {
+    "username": "marcalexiei",
+    "theme": "tokyonight",
+    "show_icons": "true",
+    "show": "reviews,prs_merged"
+  }
+}

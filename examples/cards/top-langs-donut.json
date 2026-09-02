@@ -1,0 +1,10 @@
+{
+  "card": "top-langs",
+  "options": {
+    "username": "marcalexiei",
+    "layout": "donut",
+    "langs_count": "6",
+    "hide": "html,css",
+    "theme": "radical"
+  }
+}

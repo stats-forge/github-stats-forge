@@ -1,0 +1,11 @@
+{
+  "card": "stats",
+  "options": {
+    "username": "marcalexiei",
+    "custom_title": "Marco, in short",
+    "hide": "issues,contribs",
+    "hide_rank": "true",
+    "card_width": "380",
+    "text_bold": "false"
+  }
+}

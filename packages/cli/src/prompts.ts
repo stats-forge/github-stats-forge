@@ -8,7 +8,7 @@ import { describeAnswer } from './query.js';
 /**
  * @file The navigation itself.
  *
- * A card first, then its required params, then a menu of every other option:
+ * A card first, then its required options, then a menu of every other option:
  * pick one, answer it, and land back on the menu with the answer beside it.
  */
 
@@ -118,7 +118,7 @@ export const navigateOptions = async (
 };
 
 /**
- * Asks for the params the card cannot render without.
+ * Asks for the options the card cannot render without.
  *
  * @param card The card being built.
  * @returns The answers, one per required param.

@@ -9,6 +9,9 @@ coverage
 build
 *.tsbuildinfo
 
+# The CLI reads PAT_1 from ./.env by default, so a real token lands here.
+.env
+
 # IDE
 .idea/
 .vscode/*

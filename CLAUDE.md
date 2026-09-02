@@ -28,6 +28,7 @@ gone: consumers (the GitHub Action, any self-hosted endpoint) import the package
 | `packages/core` | The library: fetchers, card renderers, themes, api handlers                                               |
 | `packages/cli`  | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config |
 | `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json`                                     |
+| `examples/`     | A saved card per file, rendered through the CLI by `generate.ts` into `previews/`                         |
 
 `packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
 `api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
@@ -47,6 +48,7 @@ pnpm lint:knip            # unused files/exports/deps
 pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
 pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
+pnpm examples             # build, then redraw examples/previews (add a name for one)
 ```
 
 Per-package (from either package): `pnpm exec tsc -p tsconfig.typecheck.json` and
@@ -96,11 +98,18 @@ are skipped until it is listed again.
   repo root. This file is the exception: `CLAUDE.md` stays at the root, the only project
   path Claude Code loads on its own.
 - Keep code comments short — one line, and only for what the code cannot show itself.
-- **Break a comment line after its punctuation.**
-  A comment that runs past one line wraps at the sentence, not at the column:
-  start the next line after the full stop, colon or dash that ends the thought,
-  rather than filling to the print width.
-  One thought per line, so a later edit touches one line in the diff.
+- **Break a line after its punctuation — but only where it has to break.**
+  Fill to the print width first: a thought that fits on one line stays on one line.
+  Where it does not fit, start the next line after the full stop, colon, dash or comma
+  that ends the clause, never mid-sentence, so a later edit touches one line in the diff.
+  This governs prose in markdown as much as comments in code: sentence-per-line was
+  applied to `examples/README.md` on 2026-09-02 and corrected the same day —
+  the rule is where a break lands, not that every sentence earns one.
+- **`examples/previews` is committed, so redraw it when a card's output changes.**
+  `pnpm examples` renders every saved card in `examples/cards` through the built CLI;
+  it needs `PAT_1` in a root `.env`, which is why CI cannot keep the previews current.
+  The SVGs carry live stats and drift on their own — that is expected, and not a reason
+  to regenerate them in an unrelated change.
 - `.claude/scratch/CORE_DEFERRED_IMPROVEMENTS.md` lists the follow-ups `packages/core`
   still owes. Check it before starting work there — several items are unblocked now that
   the api layer is typed — and keep it current as they land.
@@ -338,9 +347,11 @@ which is why `pnpm dev` is `pnpm run build && node build/index.js`.
   `stats.RANK_ICONS`, `topLangs.LAYOUTS`, `wakatime.DISPLAY_FORMATS` and
   `Object.keys(themes)`, so a prompt cannot offer a value the schema would reject. This is
   the reason the api handlers carry their lists as properties.
-- **A saved card file is a query string in JSON**: `{ card, params }` with every param a
-  string, so it reads like the URL it stands for and survives hand-editing. A param that
+- **A saved card file is a query string in JSON**: `{ card, options }` with every option a
+  string, so it reads like the URL it stands for and survives hand-editing. An option that
   is not a string is dropped on read, because it could not have come off a query string.
+  The key is `options`, not `params`, to match what the menu calls them and what a render
+  function takes; `params` stays the word for the query on its way to a handler.
 - **stdout carries the result; everything else goes to stderr** — the spinner, the error
   report, the status line. The spinner degrades to a single printed line when stderr is
   not a TTY.
