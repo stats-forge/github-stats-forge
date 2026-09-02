@@ -58,6 +58,7 @@ jobs:
           Regenerated from the [upstream linguist languages file](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml).'
 
       - name: Create Pull Request if upstream language file is changed
+        id: create_pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         env:
           BOT_USER: '${{ steps.release-helper.outputs.bot-name }} <${{ steps.release-helper.outputs.bot-email }}>'
@@ -74,3 +75,10 @@ jobs:
             workflow detected changes in the [upstream languages JSON file](https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml)
             and regenerated the local language colors JSON file.
           labels: 'ci'
+
+      - name: Enable auto-merge
+        if: ${{ steps.create_pr.outputs.pull-request-number }} # the PR might not have been opened
+        run: gh pr merge --squash --auto "${PULL_REQUEST_NUMBER}"
+        env:
+          GH_TOKEN: ${{ steps.release-helper.outputs.token }}
+          PULL_REQUEST_NUMBER: ${{ steps.create_pr.outputs.pull-request-number }}
