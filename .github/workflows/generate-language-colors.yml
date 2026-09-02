@@ -21,7 +21,7 @@ jobs:
     name: Generate Language Colors
     runs-on: ubuntu-latest
 
-    environment: release-npm # where RELEASE_HELPER_APP_ID and RELEASE_HELPER_PRIVATE_KEY live
+    environment: update-meta-files # where HELPER_APP_ID and HELPER_PRIVATE_KEY live
 
     permissions:
       contents: read # the app token, not GITHUB_TOKEN, pushes the branch and opens the PR
@@ -33,8 +33,8 @@ jobs:
         id: release-helper
         uses: marcalexiei/github-actions/setup-github-app-user-bot@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
         with:
-          app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
-          private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
+          app-id: ${{ vars.HELPER_APP_ID }}
+          private-key: ${{ secrets.HELPER_PRIVATE_KEY }}
 
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,7 +49,7 @@ jobs:
 
       # A change to packages/* without one is invisible in the published CHANGELOG.
       - name: Add a changeset if the language colors changed
-        run: |
+        run: | # zizmor: ignore[adhoc-packages] -- "add" is changeset's subcommand, not an install
           if [ -z "$(git status --porcelain packages/core/src/common/languageColors.json)" ]; then
             exit 0
           fi
@@ -70,7 +70,7 @@ jobs:
           delete-branch: true
           title: 'feat(core): update language colors'
           body: >-
-            The [generate-language-colors](https://github.com/stats-forge/github-stats-forge/actions/workflows/generate-language-colors.yml)
-            workflow detected changes in the [upstream languages JSON
-            file](https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml) and regenerated the local language colors JSON file.
+            The [generate-language-colors](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-language-colors.yml)
+            workflow detected changes in the [upstream languages JSON file](https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml)
+            and regenerated the local language colors JSON file.
           labels: 'ci'
