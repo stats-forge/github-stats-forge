@@ -7,7 +7,6 @@ import { CardError, INVALID_AFFILIATION } from './error.js';
 /**
  * Returns boolean if value is either "true" or "false" else the value as it is.
  *
- * @param value The value to parse; `undefined` when the param was not sent.
  * @returns The parsed value.
  */
 const parseBoolean = (value: string | boolean | undefined): boolean | undefined => {
@@ -29,7 +28,6 @@ const parseBoolean = (value: string | boolean | undefined): boolean | undefined 
 /**
  * Parse string to array of strings.
  *
- * @param str The string to parse; `undefined` when the param was not sent.
  * @returns The array of strings.
  */
 const parseArray = (str: string | undefined): Array<string> => {
@@ -42,9 +40,6 @@ const parseArray = (str: string | undefined): Array<string> => {
 /**
  * Clamp the given number between the given range.
  *
- * @param number The number to clamp.
- * @param min The minimum value.
- * @param max The maximum value.
  * @returns The clamped number.
  */
 const clampValue = (number: string | number, min: number, max: number): number => {
@@ -57,7 +52,6 @@ const clampValue = (number: string | number, min: number, max: number): number =
 /**
  * Lowercase and trim string.
  *
- * @param name String to lowercase and trim.
  * @returns Lowercased and trimmed string.
  */
 const lowercaseTrim = (name: string): string => name.toLowerCase().trim();
@@ -65,9 +59,6 @@ const lowercaseTrim = (name: string): string => name.toLowerCase().trim();
 /**
  * Split array of languages in two columns.
  *
- * @template T Language object.
- * @param arr Array of languages.
- * @param perChunk Number of languages per column.
  * @returns Array of languages split in two columns.
  */
 const chunkArray = <T>(arr: Array<T>, perChunk: number): Array<Array<T>> => {
@@ -84,7 +75,6 @@ const chunkArray = <T>(arr: Array<T>, perChunk: number): Array<Array<T>> => {
 /**
  * Parse emoji from string.
  *
- * @param str String to parse emoji from.
  * @returns String with emoji parsed.
  */
 const parseEmojis = (str: string): string => {
@@ -104,10 +94,9 @@ const isOwnerAffiliation = (value: string): value is RepositoryAffiliation =>
 /**
  * Parse owner affiliations.
  *
- * @param affiliations input affiliations to be parsed.
- * @returns Parsed affiliations.
- *
  * @throws {CardError} If affiliations contains invalid values.
+ *
+ * @returns Parsed affiliations.
  */
 const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAffiliation> => {
   // Set default value for ownerAffiliations.

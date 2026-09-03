@@ -17,10 +17,9 @@ export const DEFAULT_ENV_FILE = '.env';
 /**
  * Loads an env file into `process.env`, the way `node --env-file` would.
  *
- * @param path File to load, relative to the working directory.
- * @param required Whether a missing file is an error.
- * @returns Whether anything was loaded.
  * @throws {Error} When `required` and the file is not there.
+ *
+ * @returns Whether anything was loaded.
  */
 export const loadEnvFile = (path: string, required: boolean): boolean => {
   const absolute = resolve(process.cwd(), path);
@@ -35,9 +34,9 @@ export const loadEnvFile = (path: string, required: boolean): boolean => {
 };
 
 /**
- * The tokens an env holds, under the `PAT_1`, `PAT_2`, … names core reads.
+ * The tokens an env holds, under the `PAT_1`, `PAT_2`, … names core reads,
+ * in name order and skipping any that are empty.
  *
- * @param env Environment to read.
  * @returns The tokens, in name order, skipping any that are empty.
  */
 export const tokensFromEnv = (
@@ -54,8 +53,6 @@ export const tokensFromEnv = (
 /**
  * The tokens a run will use.
  *
- * @param flags Tokens passed as `--pat`, which win over the environment.
- * @param env Environment to read, once any env file has been loaded into it.
  * @returns The tokens, empty when the run has none yet.
  */
 export const resolveTokens = (

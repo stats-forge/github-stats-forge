@@ -55,8 +55,6 @@ interface RepoStatItem {
 /**
  * Retrieves the repository description and wraps it to fit the card width.
  *
- * @param label The repository description.
- * @param xOffset Horizontal offset of the badge.
  * @returns Wrapped repo description SVG object.
  */
 const getBadgeSVG = (label: string, xOffset = 0): MarkupElement => {
@@ -85,8 +83,6 @@ const getBadgeSVG = (label: string, xOffset = 0): MarkupElement => {
 /**
  * Renders repository card details.
  *
- * @param repo Repository data.
- * @param options Card options.
  * @returns Repository card SVG object.
  */
 const renderRepoCard = (

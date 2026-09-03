@@ -37,8 +37,6 @@ interface GistCardOptions extends CommonCardOptions {
 /**
  * Render gist card.
  *
- * @param gistData Gist data.
- * @param options Gist card options.
  * @returns Gist card.
  */
 const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions> = {}): string => {

@@ -18,13 +18,6 @@ const fetcher = createGraphQLFetcher(TopLanguagesDocument, 'token');
 /**
  * Fetch top languages for a given username.
  *
- * @param props Fetcher props.
- * @param props.username GitHub username.
- * @param props.exclude_repo List of repositories to exclude. Default: [].
- * @param props.size_weight Weightage to be given to size.
- * @param props.count_weight Weightage to be given to count.
- * @param props.ownerAffiliations The owner affiliations to filter by. Default: OWNER.
- * @param config Deployment config supplying the PAT pool.
  * @returns Top languages data.
  */
 const fetchTopLanguages = async (

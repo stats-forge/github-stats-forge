@@ -8,10 +8,18 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { codegen } from '@graphql-codegen/core';
+import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript';
 import * as typescriptPlugin from '@graphql-codegen/typescript';
+import type { TypeScriptDocumentsPluginConfig } from '@graphql-codegen/typescript-operations';
 import * as typescriptOperationsPlugin from '@graphql-codegen/typescript-operations';
 import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
 import { schema as githubSchema } from '@octokit/graphql-schema';
+import type {
+  ASTNode,
+  FragmentDefinitionNode,
+  GraphQLNamedType,
+  OperationDefinitionNode,
+} from 'graphql';
 import {
   GraphQLSchema,
   Kind,
@@ -26,17 +34,11 @@ import {
 } from 'graphql';
 import { format } from 'oxfmt';
 
-/**
- * @typedef {Parameters<typeof codegen>[0]} CodegenOptions
- * @typedef {CodegenOptions["pluginMap"][string]} CodegenPlugin
- * @typedef {import("@graphql-codegen/typescript").TypeScriptPluginConfig} TypeScriptPluginConfig
- * @typedef {import("@graphql-codegen/typescript-operations").TypeScriptDocumentsPluginConfig} TypeScriptDocumentsPluginConfig
- * @typedef {import("graphql").ASTNode} ASTNode
- * @typedef {import("graphql").FragmentDefinitionNode} FragmentDefinitionNode
- * @typedef {import("graphql").GraphQLNamedType} GraphQLNamedType
- * @typedef {import("graphql").OperationDefinitionNode} OperationDefinitionNode
- * @typedef {Map<string, FragmentDefinitionNode>} FragmentMap Fragment definitions by name.
- */
+type CodegenOptions = Parameters<typeof codegen>[0];
+type CodegenPlugin = CodegenOptions['pluginMap'][string];
+
+/** Fragment definitions by name. */
+type FragmentMap = Map<string, FragmentDefinitionNode>;
 
 const PACKAGE_ROOT = path.join(import.meta.dirname, '..');
 const QUERIES_DIR = path.join(PACKAGE_ROOT, 'src/graphql/queries');
@@ -45,17 +47,13 @@ const COMMON_FILE = path.join(OUT_DIR, 'common.ts');
 // `typescript-operations` resolves this against the working directory
 const COMMON_IMPORT_PATH = path.relative(process.cwd(), COMMON_FILE.replace(/\.ts$/, '.js'));
 
-/**
- * @param {string} file Absolute path.
- * @returns {string} The same path relative to the package, for log messages.
- */
-const pathRelativeFromRoot = (file) => path.relative(PACKAGE_ROOT, file);
+/** An absolute path, relative to the package, for log messages. */
+const pathRelativeFromRoot = (file: string): string => path.relative(PACKAGE_ROOT, file);
 
 // CI mode: regenerate in memory, fail on any difference
 const checkOnly = process.argv.includes('--check');
 
-/** @type {TypeScriptPluginConfig & TypeScriptDocumentsPluginConfig} */
-const config = {
+const config: TypeScriptPluginConfig & TypeScriptDocumentsPluginConfig = {
   importExtension: '.js',
   enumsAsTypes: true,
   skipTypename: true,
@@ -87,15 +85,12 @@ const documents = await Promise.all(
   }),
 );
 
-/**
- * Every fragment a node spreads, directly or through another fragment.
- *
- * @param {ASTNode} node Operation or fragment definition to walk.
- * @param {FragmentMap} fragments Fragments defined in the same file.
- * @param {FragmentMap} found Fragments collected so far.
- * @returns {FragmentMap} The fragment definitions the node needs.
- */
-const spreadFragments = (node, fragments, found = new Map()) => {
+/** Every fragment a node spreads, directly or through another fragment. */
+const spreadFragments = (
+  node: ASTNode,
+  fragments: FragmentMap,
+  found: FragmentMap = new Map(),
+): FragmentMap => {
   visit(node, {
     FragmentSpread(spread) {
       const name = spread.name.value;
@@ -113,19 +108,12 @@ const spreadFragments = (node, fragments, found = new Map()) => {
   return found;
 };
 
-/**
- * @param {string} value Word to capitalize.
- * @returns {string} The capitalized word.
- */
-const pascalCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
+const pascalCase = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
-/**
- * The names `typescript-operations` gives an operation's types.
- *
- * @param {OperationDefinitionNode} operation Operation definition.
- * @returns {{ documentName: string; resultType: string; variablesType: string }} Names to reference in the emitted document.
- */
-const operationNames = (operation) => {
+/** The names `typescript-operations` gives an operation's types. */
+const operationNames = (
+  operation: OperationDefinitionNode,
+): { documentName: string; resultType: string; variablesType: string } => {
   if (!operation.name) {
     throw new Error('Every query needs a name to generate types from');
   }
@@ -139,12 +127,8 @@ const operationNames = (operation) => {
   };
 };
 
-/**
- * Emits one typed document per operation, beside its types.
- *
- * @type {CodegenPlugin['plugin']}
- */
-const documentsPlugin = (_schema, files) => {
+/** Emits one typed document per operation, beside its types. */
+const documentsPlugin: CodegenPlugin['plugin'] = (_schema, files) => {
   // `document` is optional on codegen's file type; ours are always parsed
   const definitions = files.flatMap((file) => file.document?.definitions ?? []);
   const { FRAGMENT_DEFINITION, OPERATION_DEFINITION } = Kind;
@@ -174,8 +158,7 @@ const documentsPlugin = (_schema, files) => {
 
 // only the types the queries name in their variables; an unknown name yields undefined,
 // which codegen reports later against the query
-/** @type {Set<GraphQLNamedType>} */
-const commonTypes = new Set();
+const commonTypes = new Set<GraphQLNamedType>();
 for (const { document } of documents) {
   visit(document, {
     VariableDefinition({ type }) {
@@ -194,8 +177,7 @@ const INCREMENTAL_TYPE =
 
 const BANNER = `// Generated file — see .github/CONTRIBUTING.md\n\n`;
 
-/** @type {Array<Omit<CodegenOptions, "config">>} */
-const outputs = documents.map((file) => ({
+const outputs: Array<Omit<CodegenOptions, 'config'>> = documents.map((file) => ({
   filename: file.output,
   schema: schemaDocument,
   schemaAst,

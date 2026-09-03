@@ -98,9 +98,6 @@ const RANK_TEXT = {
 /**
  * Get rank icon
  *
- * @param kind - The rank icon type.
- * @param rankLevel - The rank level.
- * @param percentile - The rank percentile.
  * @returns The rank icon.
  */
 const rankIcon = (kind: string, rankLevel: string, percentile: number): Child => {

@@ -50,7 +50,6 @@ interface TopLangOptions extends CommonCardOptions {
 /**
  * Retrieves the programming language whose name is the longest.
  *
- * @param arr Array of programming languages.
  * @returns Longest programming language object.
  */
 const getLongestLang = (arr: Array<Lang>): Pick<Lang, 'name' | 'size' | 'color'> => {
@@ -66,7 +65,6 @@ const getLongestLang = (arr: Array<Lang>): Pick<Lang, 'name' | 'size' | 'color'>
 /**
  * Convert degrees to radians.
  *
- * @param angleInDegrees Angle in degrees.
  * @returns Angle in radians.
  */
 const degreesToRadians = (angleInDegrees: number): number => angleInDegrees * (Math.PI / 180);
@@ -74,7 +72,6 @@ const degreesToRadians = (angleInDegrees: number): number => angleInDegrees * (M
 /**
  * Convert radians to degrees.
  *
- * @param angleInRadians Angle in radians.
  * @returns Angle in degrees.
  */
 const radiansToDegrees = (angleInRadians: number): number => angleInRadians / (Math.PI / 180);
@@ -82,10 +79,6 @@ const radiansToDegrees = (angleInRadians: number): number => angleInRadians / (M
 /**
  * Convert polar coordinates to cartesian coordinates.
  *
- * @param centerX Center x coordinate.
- * @param centerY Center y coordinate.
- * @param radius Radius of the circle.
- * @param angleInDegrees Angle in degrees.
  * @returns Cartesian coordinates.
  */
 const polarToCartesian = (
@@ -104,10 +97,6 @@ const polarToCartesian = (
 /**
  * Convert cartesian coordinates to polar coordinates.
  *
- * @param centerX Center x coordinate.
- * @param centerY Center y coordinate.
- * @param x Point x coordinate.
- * @param y Point y coordinate.
  * @returns Polar coordinates.
  */
 const cartesianToPolar = (
@@ -127,7 +116,6 @@ const cartesianToPolar = (
 /**
  * Calculates length of circle.
  *
- * @param radius Radius of the circle.
  * @returns The length of the circle.
  */
 const getCircleLength = (radius: number): number => 2 * Math.PI * radius;
@@ -135,7 +123,6 @@ const getCircleLength = (radius: number): number => 2 * Math.PI * radius;
 /**
  * Calculates height for the compact layout.
  *
- * @param totalLangs Total number of languages.
  * @returns Card height.
  */
 const calculateCompactLayoutHeight = (totalLangs: number): number =>
@@ -144,7 +131,6 @@ const calculateCompactLayoutHeight = (totalLangs: number): number =>
 /**
  * Calculates height for the normal layout.
  *
- * @param totalLangs Total number of languages.
  * @returns Card height.
  */
 const calculateNormalLayoutHeight = (totalLangs: number): number => 45 + (totalLangs + 1) * 40;
@@ -152,7 +138,6 @@ const calculateNormalLayoutHeight = (totalLangs: number): number => 45 + (totalL
 /**
  * Calculates height for the donut layout.
  *
- * @param totalLangs Total number of languages.
  * @returns Card height.
  */
 const calculateDonutLayoutHeight = (totalLangs: number): number =>
@@ -161,7 +146,6 @@ const calculateDonutLayoutHeight = (totalLangs: number): number =>
 /**
  * Calculates height for the donut vertical layout.
  *
- * @param totalLangs Total number of languages.
  * @returns Card height.
  */
 const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
@@ -170,7 +154,6 @@ const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
 /**
  * Calculates height for the pie layout.
  *
- * @param totalLangs Total number of languages.
  * @returns Card height.
  */
 const calculatePieLayoutHeight = (totalLangs: number): number =>
@@ -179,7 +162,6 @@ const calculatePieLayoutHeight = (totalLangs: number): number =>
 /**
  * Calculates the center translation needed to keep the donut chart centred.
  *
- * @param totalLangs Total number of languages.
  * @returns Donut center translation.
  */
 const donutCenterTranslation = (totalLangs: number): number =>
@@ -188,9 +170,6 @@ const donutCenterTranslation = (totalLangs: number): number =>
 /**
  * Trim top languages to lang_count while also hiding certain languages.
  *
- * @param topLangs Top languages.
- * @param langs_count Number of languages to show.
- * @param hide Languages to hide.
  * @returns Trimmed top languages and total size.
  */
 const trimTopLanguages = (
@@ -223,9 +202,6 @@ const trimTopLanguages = (
 /**
  * Get display value corresponding to the format.
  *
- * @param size Bytes size.
- * @param percentages Percentage value.
- * @param format Format of the stats.
  * @returns Display value.
  */
 const getDisplayValue = (size: number, percentages: number, format: string): string =>
@@ -235,7 +211,6 @@ const getDisplayValue = (size: number, percentages: number, format: string): str
  * Resolves a language's display color, falling back to the default, and
  * validates it is a prefixed hex color.
  *
- * @param lang Programming language object.
  * @returns Validated language color.
  */
 const resolveLangColor = (lang: Lang): string => {
@@ -249,15 +224,6 @@ const resolveLangColor = (lang: Lang): string => {
 /**
  * Create progress bar text item for a programming language.
  *
- * @param props Function properties.
- * @param props.width The card width
- * @param props.color Color of the programming language.
- * @param props.name Name of the programming language.
- * @param props.size Size of the programming language.
- * @param props.totalSize Total size of all languages.
- * @param props.statsFormat Stats format.
- * @param props.hideValues Whether to hide stats values.
- * @param props.index Index of the programming language.
  * @returns Programming language SVG node.
  */
 const createProgressTextNode = ({
@@ -306,13 +272,6 @@ const createProgressTextNode = ({
 /**
  * Creates compact text item for a programming language.
  *
- * @param props Function properties.
- * @param props.lang Programming language object.
- * @param props.totalSize Total size of all languages.
- * @param props.hideProgress Whether to hide percentage.
- * @param props.hideValues Whether to hide stats values (percentages/bytes).
- * @param props.statsFormat Stats format
- * @param props.index Index of the programming language.
  * @returns Compact layout programming language SVG node.
  */
 const createCompactLangNode = ({
@@ -349,12 +308,6 @@ const createCompactLangNode = ({
 /**
  * Create compact languages text items for all programming languages.
  *
- * @param props Function properties.
- * @param props.langs Array of programming languages.
- * @param props.totalSize Total size of all languages.
- * @param props.hideProgress Whether to hide percentage.
- * @param props.hideValues Whether to hide stats values.
- * @param props.statsFormat Stats format
  * @returns Programming languages SVG node.
  */
 const createLanguageTextNode = ({
@@ -395,11 +348,6 @@ const createLanguageTextNode = ({
 /**
  * Create donut languages text items for all programming languages.
  *
- * @param props Function properties.
- * @param props.langs Array of programming languages.
- * @param props.totalSize Total size of all languages.
- * @param props.hideValues Whether to hide stats values.
- * @param props.statsFormat Stats format
  * @returns Donut layout programming language SVG node.
  */
 const createDonutLanguagesNode = ({
@@ -431,11 +379,6 @@ const createDonutLanguagesNode = ({
 /**
  * Renders the default language card layout.
  *
- * @param langs Array of programming languages.
- * @param width Card width.
- * @param totalLanguageSize Total size of all languages.
- * @param statsFormat Stats format.
- * @param hideValues Whether to hide stats values.
  * @returns Normal layout card SVG object.
  */
 const renderNormalLayout = (
@@ -465,12 +408,6 @@ const renderNormalLayout = (
 /**
  * Renders the compact language card layout.
  *
- * @param langs Array of programming languages.
- * @param width Card width.
- * @param totalLanguageSize Total size of all languages.
- * @param hideProgress Whether to hide progress bar.
- * @param statsFormat Stats format.
- * @param hideValues Whether to hide stats values.
  * @returns Compact layout card SVG object.
  */
 const renderCompactLayout = (
@@ -530,10 +467,6 @@ const renderCompactLayout = (
 /**
  * Renders donut vertical layout to display user's most frequently used programming languages.
  *
- * @param langs Array of programming languages.
- * @param totalLanguageSize Total size of all languages.
- * @param statsFormat Stats format.
- * @param hideValues Whether to hide stats values.
  * @returns Compact layout card SVG object.
  */
 const renderDonutVerticalLayout = (
@@ -613,10 +546,6 @@ const renderDonutVerticalLayout = (
 /**
  * Renders pie layout to display user's most frequently used programming languages.
  *
- * @param langs Array of programming languages.
- * @param totalLanguageSize Total size of all languages.
- * @param statsFormat Stats format.
- * @param hideValues Whether to hide stats values.
  * @returns Compact layout card SVG object.
  */
 const renderPieLayout = (
@@ -721,10 +650,6 @@ const renderPieLayout = (
 /**
  * Creates the SVG paths for the language donut chart.
  *
- * @param cx Donut center x-position.
- * @param cy Donut center y-position.
- * @param radius Donut arc Radius.
- * @param percentages Array with donut section percentages.
  * @returns Array of svg path elements
  */
 const createDonutPaths = (
@@ -758,11 +683,6 @@ const createDonutPaths = (
 /**
  * Renders the donut language card layout.
  *
- * @param langs Array of programming languages.
- * @param width Card width.
- * @param totalLanguageSize Total size of all languages.
- * @param statsFormat Stats format.
- * @param hideValues Whether to hide stats values.
  * @returns Donut layout card SVG object.
  */
 const renderDonutLayout = (
@@ -830,9 +750,6 @@ const renderDonutLayout = (
 /**
  * Creates the no languages data SVG node.
  *
- * @param props Object with function properties.
- * @param props.text No languages data translated text.
- * @param props.layout Card layout.
  * @returns No languages data SVG node string.
  */
 const noLanguagesDataNode = ({
@@ -855,9 +772,6 @@ const noLanguagesDataNode = ({
 /**
  * Get default languages count for provided card layout.
  *
- * @param props Function properties.
- * @param props.layout Input layout string.
- * @param props.hide_progress Input hide_progress parameter value.
  * @returns Default languages count for input layout.
  */
 const getDefaultLanguagesCountByLayout = ({
@@ -885,8 +799,6 @@ const getDefaultLanguagesCountByLayout = ({
 /**
  * Renders card that display user's most frequently used programming languages.
  *
- * @param topLangs User's most frequently used programming languages.
- * @param options Card options.
  * @returns Language card SVG object.
  */
 const renderTopLanguages = (

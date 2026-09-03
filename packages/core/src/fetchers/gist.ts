@@ -12,7 +12,6 @@ const fetcher = createGraphQLFetcher(GistInfoDocument, 'token');
 /**
  * This function calculates the primary language of a gist by files size.
  *
- * @param files Files.
  * @returns Primary language, or `null` when no file has a language.
  */
 const calculatePrimaryLanguage = (files: Array<GistFileInfoFragment>): string | null => {
@@ -39,9 +38,6 @@ const calculatePrimaryLanguage = (files: Array<GistFileInfoFragment>): string | 
 /**
  * Fetch GitHub gist information by given username and ID.
  *
- * @param props Fetcher props.
- * @param props.id GitHub gist ID.
- * @param config Deployment config supplying the PAT pool.
  * @returns Gist data.
  */
 const fetchGist = async (

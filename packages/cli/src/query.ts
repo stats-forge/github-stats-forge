@@ -11,7 +11,6 @@ import type { CardKind, CardOption } from './cards.js';
 export type Answer = string | number | boolean | Array<string> | undefined;
 
 /**
- * @param value What the prompt returned.
  * @returns The query string form, or `undefined` when there is nothing to send.
  */
 export const toParam = (value: Answer): string | undefined => {
@@ -25,7 +24,6 @@ export const toParam = (value: Answer): string | undefined => {
 };
 
 /**
- * @param answers What each option was answered with.
  * @returns The query the card handler is called with.
  */
 export const toQuery = (answers: ReadonlyMap<string, Answer>): Record<string, string> => {
@@ -42,8 +40,6 @@ export const toQuery = (answers: ReadonlyMap<string, Answer>): Record<string, st
 /**
  * How an answer reads back in the option menu.
  *
- * @param option The option it answers.
- * @param value What it was answered with.
  * @returns The value as the menu shows it.
  */
 export const describeAnswer = (option: CardOption, value: Answer): string => {
@@ -55,11 +51,9 @@ export const describeAnswer = (option: CardOption, value: Answer): string => {
 };
 
 /**
- * The file a card is written to when `--out` is not given.
+ * The `.svg` file a card is written to when `--out` is not given.
  * Named after the card and whoever it is about, so a directory of them stays readable.
  *
- * @param card The card being rendered.
- * @param query The answers it was rendered from.
  * @returns A file name, ending in `.svg`.
  */
 export const defaultFileName = (card: CardKind, query: Record<string, string>): string => {

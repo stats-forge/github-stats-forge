@@ -44,22 +44,6 @@ type PinApiQuery = ApiQuery<typeof pinQuery>;
 /**
  * Render the repository card for a set of query params.
  *
- * @param query Raw query params, plus any of the shared color params.
- * @param query.username GitHub username the repository belongs to.
- * @param query.repo Repository name.
- * @param query.hide_border Whether to hide the card border.
- * @param query.card_width Card width.
- * @param query.show_owner Whether to show the repository owner.
- * @param query.browser_rendering Whether the browser wraps the description text.
- * @param query.show Comma-separated extra stats to show.
- * @param query.show_icons Whether to show the stat icons.
- * @param query.number_format How numbers are abbreviated.
- * @param query.text_bold Whether the stat values are bold.
- * @param query.line_height Line height between the stats.
- * @param query.locale Language the card is rendered in.
- * @param query.border_radius Card border radius.
- * @param query.description_lines_count Lines the description is wrapped to.
- * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
 export const pin = async (query: PinApiQuery, config: CardConfig): Promise<ApiResult> => {

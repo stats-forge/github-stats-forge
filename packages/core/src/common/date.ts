@@ -10,7 +10,6 @@ interface GitHubDateRange {
  * Format a date as a GitHub `DateTime` scalar.
  * Seconds precision, no milliseconds.
  *
- * @param date Date to format.
  * @returns e.g. `2024-01-01T00:00:00Z`.
  */
 const toGitHubDateTime = (date: Date): string => `${date.toISOString().slice(0, 19)}Z`;
@@ -22,7 +21,6 @@ const toGitHubDateTime = (date: Date): string => `${date.toISOString().slice(0, 
  * GitHub's `contributionsCollection` defaults `to` to one year after `from`,
  * which pulls the next 1st of January into the year.
  *
- * @param year Four-digit year.
  * @returns The range covering it.
  */
 const getGitHubYearRange = (year: number): GitHubDateRange => ({

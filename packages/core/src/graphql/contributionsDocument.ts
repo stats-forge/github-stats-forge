@@ -16,7 +16,6 @@ interface ContributionsQuery {
  * Build the all-time contributions query, one aliased `contributionsCollection` field per year.
  * The shape is only known at runtime.
  *
- * @param years Contribution years, one `year_<year>` alias each.
  * @returns Document for `createGraphQLFetcher`.
  */
 const buildContributionsDocument = (

@@ -14,15 +14,6 @@ const urlExample = '/api/pin?username=USERNAME&repo=REPO_NAME';
 /**
  * Fetch repository data.
  *
- * @param props Fetcher props.
- * @param props.username GitHub username.
- * @param props.reponame GitHub repository name.
- * @param props.include_prs_authored Include count of PRs authored.
- * @param props.include_prs_commented Include count of PRs commented.
- * @param props.include_prs_reviewed Include count of PRs reviewed.
- * @param props.include_issues_authored Include count of issues authored.
- * @param props.include_issues_commented Include count of issues commented.
- * @param config Deployment config supplying the PAT pool.
  * @returns Repository data.
  */
 const fetchRepo = async (

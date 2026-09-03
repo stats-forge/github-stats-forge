@@ -35,19 +35,10 @@ const reposFetcher = createGraphQLFetcher(UserReposDocument, 'bearer');
 /**
  * Fetch stats information for a given username.
  *
- * @param variables Fetcher variables.
- * @param variables.username GitHub username.
- * @param variables.includeMergedPullRequests Include merged pull requests.
- * @param variables.includeDiscussions Include discussions.
- * @param variables.includeDiscussionsAnswers Include discussions answers.
- * @param variables.startTime Time to start the count of total commits.
- * @param variables.ownerAffiliations The owner affiliations to filter by. Default: OWNER.
- * @param variables.includeUserRepositories Whether to include the user's own repositories in the repos contributed to.
- * @param config Deployment config supplying the PAT pool.
- * @returns The stats response, with every fetched page's repos merged in.
- *
  * @description Supports multi-page fetching when the `FETCH_MULTI_PAGE_STARS`
  * env variable is `true` or a fetch limit.
+ *
+ * @returns The stats response, with every fetched page's repos merged in.
  */
 const statsFetcher = async (
   {
@@ -135,13 +126,9 @@ const statsFetcher = async (
 /**
  * Fetch total items count using the REST search API.
  *
- * @param variables Fetcher variables.
- * @param token GitHub token.
- * @param context What the retryer supplies each attempt.
- * @param context.fetch Transport to send the request with.
- * @returns The search response, carrying `total_count`.
- *
  * @see https://developer.github.com/v3/search/#search-commits
+ *
+ * @returns The search response, carrying `total_count`.
  */
 const fetchTotalItems = (
   variables: Record<string, unknown>,
@@ -172,18 +159,11 @@ const fetchTotalItems = (
 /**
  * Fetch a total count for a given username via the REST search API.
  *
- * @param props Fetcher props.
- * @param props.username GitHub username.
- * @param props.repo Repositories the search is scoped to.
- * @param props.owner Owners the search is scoped to.
- * @param props.type Search endpoint to hit, `issues` or `commits`.
- * @param props.filter Query fragment appended to the scope filter.
- * @param config Deployment config supplying the PAT pool.
- * @returns Total count.
- *
  * The GraphQL API can't return this.
  * @see https://github.com/anuraghazra/github-readme-stats/issues/92#issuecomment-661026467
  * @see https://github.com/anuraghazra/github-readme-stats/pull/211
+ *
+ * @returns Total count.
  */
 const totalItemsFetcher = async (
   {
@@ -234,16 +214,6 @@ const totalItemsFetcher = async (
 /**
  * Fetch the per-repository counts the REST search API answers, one request each.
  *
- * @param props Fetcher props.
- * @param props.username GitHub username.
- * @param props.repo Repositories the search is scoped to.
- * @param props.owner Owners the search is scoped to.
- * @param props.include_prs_authored Include count of PRs authored.
- * @param props.include_prs_commented Include count of PRs commented.
- * @param props.include_prs_reviewed Include count of PRs reviewed.
- * @param props.include_issues_authored Include count of issues authored.
- * @param props.include_issues_commented Include count of issues commented.
- * @param config Deployment config supplying the PAT pool.
  * @returns Only the counts that were asked for.
  */
 const fetchRepoUserStats = async (
@@ -334,10 +304,6 @@ const fetchRepoUserStats = async (
 
 /**
  * Turn a GraphQL `errors` payload into the error to throw.
- *
- * @param errors Errors from the response envelope.
- * @param statusText HTTP status text, used as the error type when GitHub gave a message.
- * @param fallback Message when GitHub gave none.
  */
 const graphqlError = (
   errors: NonNullable<GraphQLResponse<unknown>['data']['errors']>,
@@ -420,14 +386,10 @@ const REPOS_CONTRIBUTED_TO_ERROR =
  *
  * Whether private contributions are included depends on the used PAT.
  *
- * @param canonicalUsername Username as GitHub reports it; `nameWithOwner` uses its
- *        casing, which the raw query-string username need not match.
- * @param years Contribution years to walk.
- * @param includeOwnRepos Whether to count the user's own repositories.
- * @param config Deployment config supplying the PAT pool.
  * @returns Count of repositories.
  */
 const fetchAllTimeReposContributedTo = async (
+  /** `nameWithOwner` uses GitHub's casing, which the query-string username need not match */
   canonicalUsername: string,
   years: Array<number>,
   includeOwnRepos: boolean,
@@ -515,26 +477,6 @@ const fetchAllTimeReposContributedTo = async (
 /**
  * Fetch stats for a given username.
  *
- * @param props Fetcher props.
- * @param props.username GitHub username.
- * @param props.include_all_commits Include all commits.
- * @param props.exclude_repo Repositories to exclude.
- * @param props.include_merged_pull_requests Include merged pull requests.
- * @param props.include_discussions Include discussions.
- * @param props.include_discussions_answers Include discussions answers.
- * @param props.commits_year Year to count total commits.
- * @param props.repo Repositories to scope the REST search to.
- * @param props.owner Owners to scope the REST search to.
- * @param props.include_prs_authored Include count of PRs authored.
- * @param props.include_prs_commented Include count of PRs commented.
- * @param props.include_prs_reviewed Include count of PRs reviewed.
- * @param props.include_issues_authored Include count of issues authored.
- * @param props.include_issues_commented Include count of issues commented.
- * @param props.ownerAffiliations Owner affiliations. Default: OWNER.
- * @param props.include_contributions Include all-time contributions.
- * @param props.include_all_time_contribs Include all-time count of repos contributed to.
- * @param props.contribs_include_own_repos Include user-owned repos in contributed-to counts.
- * @param config Deployment config supplying the PAT pool.
  * @returns Stats data.
  */
 const fetchStats = async (

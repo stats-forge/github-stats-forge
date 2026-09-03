@@ -58,8 +58,6 @@ const readFlags = (): Flags =>
  *
  * The CLI runs from the repository root, so it finds the root `.env` on its own.
  *
- * @param name The example's name, which is also the file it writes.
- * @param passthrough Token flags handed to the CLI.
  * @returns Nothing when it rendered, or why it did not.
  */
 const renderPreview = (name: string, passthrough: Array<string>): Promise<string | undefined> => {
@@ -98,7 +96,6 @@ const renderPreview = (name: string, passthrough: Array<string>): Promise<string
 };
 
 /**
- * @param options The options the card was rendered from.
  * @returns Them as one line of inline code.
  */
 const describeOptions = (options: Record<string, string>): string =>
@@ -112,7 +109,6 @@ const describeOptions = (options: Record<string, string>): string =>
  * It covers every saved card, not only the ones this run redrew,
  * so rendering a single example does not empty the index of the rest.
  *
- * @param previews Every example, in the order the cards directory holds them.
  * @returns The file written.
  */
 const writeIndex = async (previews: Array<Preview>): Promise<string> => {
@@ -154,6 +150,8 @@ const writeIndex = async (previews: Array<Preview>): Promise<string> => {
 };
 
 /**
+ * Sets a non-zero exit code rather than throwing when a card could not be rendered.
+ *
  * @returns Nothing; the process exits non-zero when a card could not be rendered.
  */
 const main = async (): Promise<void> => {

@@ -1,8 +1,6 @@
 /**
  * Retrieves num with suffix k(thousands) precise to given decimal places.
  *
- * @param num The number to format.
- * @param precision The number of decimal places to include.
  * @returns The formatted number.
  */
 const kFormatter = (num: number, precision?: number): string | number => {
@@ -23,9 +21,9 @@ const kFormatter = (num: number, precision?: number): string | number => {
 /**
  * Convert bytes to a human-readable string representation.
  *
- * @param bytes The number of bytes to convert.
- * @returns The human-readable representation of bytes.
  * @throws {Error} If bytes is negative or too large.
+ *
+ * @returns The human-readable representation of bytes.
  */
 const formatBytes = (bytes: number): string => {
   if (bytes < 0) {

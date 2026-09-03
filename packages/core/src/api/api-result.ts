@@ -37,14 +37,15 @@ export type ApiResult =
 
 /**
  * Turns anything a handler threw into the one shape it answers with.
+ * Anything that is not a `CardError` is treated as upstream's.
  *
- * @param err The failure.
- *        Anything that is not a `CardError` is treated as upstream's.
- * @param renderOptions Colors the error card is drawn with;
- *        omitted when it was a color that was rejected.
  * @returns The rendered error.
  */
-export const errorResult = (err: unknown, renderOptions?: ColorParams): ApiResult => {
+export const errorResult = (
+  err: unknown,
+  /** omitted when it was a color that was rejected, which cannot draw its own error card */
+  renderOptions?: ColorParams,
+): ApiResult => {
   const error = CardError.from(err);
 
   return {

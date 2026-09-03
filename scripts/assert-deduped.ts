@@ -11,7 +11,6 @@ const lockfile = fs.readFileSync('pnpm-lock.yaml', 'utf8').split('\n');
  * Collects every version a package is locked at, read from the lockfile's
  * top-level entry keys (`  name@version:`, optionally quoted).
  *
- * @param name package name to look for
  * @returns the distinct locked versions
  */
 function lockedVersions(name: string): Set<string> {

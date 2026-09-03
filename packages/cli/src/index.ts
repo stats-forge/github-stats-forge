@@ -65,10 +65,6 @@ const readFlags = (): Flags =>
 /**
  * Renders a card and writes it next to wherever the run was started.
  *
- * @param card The card to render.
- * @param query Its params.
- * @param config Tokens the fetchers use.
- * @param out Where to write it; named after the card when absent.
  * @returns The file written, or the code that says why nothing was.
  */
 const renderAndWrite = async (
@@ -105,6 +101,7 @@ const renderAndWrite = async (
 
 /**
  * Renders one card and writes it next to wherever the run was started.
+ * Sets a non-zero exit code rather than throwing when it could not.
  *
  * @returns Nothing; the process exits non-zero when the card could not be rendered.
  */

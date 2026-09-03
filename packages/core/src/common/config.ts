@@ -20,14 +20,12 @@ interface CardConfigInit {
 }
 
 /**
- * @param value Comma-separated string.
  * @returns Parsed string values.
  */
 const parseCsv = (value: string | undefined): Array<string> | undefined =>
   value ? value.split(',') : undefined;
 
 /**
- * @param value Raw `FETCH_MULTI_PAGE_STARS` value.
  * @returns Page limit: `"true"` means every page, a positive number caps the pages, anything else means one.
  */
 const parseFetchMultiPageStars = (value: string | undefined): number => {
@@ -39,7 +37,6 @@ const parseFetchMultiPageStars = (value: string | undefined): number => {
 };
 
 /**
- * @param env Environment variables to inspect.
  * @returns Personal access tokens found in the environment.
  */
 const parsePATsFromEnv = (env: Env): Array<PersonalAccessToken> =>
@@ -74,10 +71,7 @@ export class CardConfig {
     this.fetch = init.fetch ?? defaultFetch;
   }
 
-  /**
-   * @param env Environment variables to read — the host passes `process.env` or an equivalent.
-   * @returns Config for this deployment.
-   */
+  /** @returns Config for this deployment. */
   static fromEnv(env: Env): CardConfig {
     return new CardConfig({
       pats: parsePATsFromEnv(env),
@@ -88,20 +82,13 @@ export class CardConfig {
     });
   }
 
-  /**
-   * @param id Username or gist id being requested.
-   * @param kind Which allowlist applies.
-   * @returns Whether this deployment serves the id.
-   */
+  /** @returns Whether this deployment serves the id. */
   isAllowed(id: string, kind: 'username' | 'gist'): boolean {
     const list = kind === 'gist' ? this.gistAllowlist : this.usernameAllowlist;
     return list === undefined || list.includes(id);
   }
 
-  /**
-   * @param overrides Fields to replace.
-   * @returns A copy with `overrides` applied — how a host swaps in a user's PAT per request.
-   */
+  /** @returns A copy with `overrides` applied — how a host swaps in a user's PAT per request. */
   with(overrides: CardConfigInit): CardConfig {
     return new CardConfig({
       pats: this.pats,

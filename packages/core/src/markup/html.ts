@@ -16,9 +16,9 @@ const BACKSPACE = '\u0008';
  * The serializer is now the only place text becomes markup, so nothing arrives pre-escaped:
  * a literal `&#38;` is encoded like any other `&` rather than passed through as a reference.
  *
- * @param str The text to encode.
- * @returns The text, safe to place in an attribute or as character data.
  * @see https://stackoverflow.com/a/48073476/10629172
+ *
+ * @returns The text, safe to place in an attribute or as character data.
  */
 const encodeHTML = (str: string): string => {
   // Most strings a card writes are plain ASCII, so they leave without a rewrite.

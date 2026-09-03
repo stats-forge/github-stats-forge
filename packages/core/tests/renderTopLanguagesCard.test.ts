@@ -36,7 +36,6 @@ const langs = {
 /**
  * Retrieve number array from SVG path definition string.
  *
- * @param d SVG path definition string.
  * @returns Resulting numbers array.
  */
 const getNumbersFromSvgPathDefinitionAttribute = (d: string): Array<number> =>
@@ -48,9 +47,6 @@ const getNumbersFromSvgPathDefinitionAttribute = (d: string): Array<number> =>
 /**
  * Retrieve the language percentage from the donut chart SVG.
  *
- * @param d The SVG path element.
- * @param centerX The center X coordinate of the donut chart.
- * @param centerY The center Y coordinate of the donut chart.
  * @returns The percentage of the language.
  */
 const langPercentFromDonutLayoutSvg = (d: string, centerX: number, centerY: number): number => {
@@ -68,8 +64,6 @@ const langPercentFromDonutLayoutSvg = (d: string, centerX: number, centerY: numb
 /**
  * Calculate language percentage for donut vertical chart SVG.
  *
- * @param partLength Length of current chart part.
- * @param totalCircleLength Total length of circle.
  * @returns Chart part percentage.
  */
 const langPercentFromDonutVerticalLayoutSvg = (
@@ -80,9 +74,6 @@ const langPercentFromDonutVerticalLayoutSvg = (
 /**
  * Retrieve the language percentage from the pie chart SVG.
  *
- * @param d The SVG path element.
- * @param centerX The center X coordinate of the pie chart.
- * @param centerY The center Y coordinate of the pie chart.
  * @returns The percentage of the language.
  */
 const langPercentFromPieLayoutSvg = (d: string, centerX: number, centerY: number): number => {

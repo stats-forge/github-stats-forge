@@ -15,16 +15,11 @@ import type * as loggerModule from '../src/common/log.js';
  *
  * For example, with `precision = 3`, values must be within `0.001`.
  *
- * @param expected The expected numeric value to compare against.
- * @param precision
- *   The number of decimal places of tolerance. Higher values mean stricter
- *   comparison. Internally converted to epsilon = 10^-precision.
- *
  * @returns An object implementing Jest-style asymmetric matcher methods.
- *
  */
 export function approxNumber(
   expected: number,
+  /** decimal places of tolerance: higher is stricter, converted to epsilon = 10^-precision */
   precision = 10,
 ): {
   asymmetricMatch: (actual: unknown) => boolean;

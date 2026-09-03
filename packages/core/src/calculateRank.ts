@@ -1,7 +1,6 @@
 /**
  * Calculates the exponential cdf.
  *
- * @param x The value.
  * @returns The exponential cdf.
  */
 function exponential_cdf(x: number): number {
@@ -11,7 +10,6 @@ function exponential_cdf(x: number): number {
 /**
  * Calculates the log normal cdf.
  *
- * @param x The value.
  * @returns The log normal cdf.
  */
 function log_normal_cdf(x: number): number {
@@ -22,15 +20,6 @@ function log_normal_cdf(x: number): number {
 /**
  * Calculates the users rank.
  *
- * @param params Parameters on which the user's rank depends.
- * @param params.all_commits Whether `include_all_commits` was used.
- * @param params.commits Number of commits.
- * @param params.prs The number of pull requests.
- * @param params.issues The number of issues.
- * @param params.reviews The number of reviews.
- * @param params.repos Total number of repos (accepted for compatibility, unused in the calculation).
- * @param params.stars The number of stars.
- * @param params.followers The number of followers.
  * @returns The users rank.
  */
 function calculateRank({

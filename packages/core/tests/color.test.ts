@@ -284,7 +284,6 @@ describe(getLightDarkColors, () => {
 });
 
 /**
- * @param query Raw query params.
  * @returns The param the schema rejected, or null when it accepted them all.
  */
 const invalidParam = (query: Record<string, string>): string | null => {

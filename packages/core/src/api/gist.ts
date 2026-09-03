@@ -24,13 +24,6 @@ type GistApiQuery = ApiQuery<typeof gistQuery>;
 /**
  * Render the gist card for a set of query params.
  *
- * @param query Raw query params, plus any of the shared color params.
- * @param query.id GitHub gist ID.
- * @param query.border_radius Card border radius.
- * @param query.show_owner Whether to show the gist owner.
- * @param query.browser_rendering Whether the browser wraps the description text.
- * @param query.hide_border Whether to hide the card border.
- * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
 export const gist = async (query: GistApiQuery, config: CardConfig): Promise<ApiResult> => {

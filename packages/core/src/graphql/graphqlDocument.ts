@@ -14,7 +14,6 @@ interface GraphQLDocument<TResult, TVariables> {
 /**
  * Build a typed document.
  *
- * @param text The query text, including every fragment it spreads.
  * @returns The document to pass to the function created by `createGraphQLFetcher`.
  */
 const graphqlDocument = <TResult, TVariables>(
