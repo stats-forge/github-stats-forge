@@ -37,12 +37,22 @@ const matches = (handler: Handler, request: MockRequest): boolean => {
 
 /** Registers what one matcher answers with. Every method returns the mock, so calls chain. */
 interface Registrar {
-  reply(status: number, body?: unknown): FetchMock;
-  reply(fn: ReplyFn): FetchMock;
-  replyOnce(status: number, body?: unknown): FetchMock;
-  replyOnce(fn: ReplyFn): FetchMock;
-  networkError(): FetchMock;
+  reply: {
+    (status: number, body?: unknown): FetchMock;
+    (fn: ReplyFn): FetchMock;
+  };
+  replyOnce: {
+    (status: number, body?: unknown): FetchMock;
+    (fn: ReplyFn): FetchMock;
+  };
+  networkError: () => FetchMock;
 }
+
+/** Turns either `reply` form — a status plus a body, or a function — into one reply function. */
+const asReplyFn =
+  (statusOrFn: number | ReplyFn, body: unknown): ReplyFn =>
+  (request) =>
+    typeof statusOrFn === 'function' ? statusOrFn(request) : [statusOrFn, body];
 
 /**
  * Stands in for the transport a `CardConfig` carries, with the surface
@@ -112,11 +122,6 @@ class FetchMock {
       }
       return this;
     };
-
-    const asReplyFn =
-      (statusOrFn: number | ReplyFn, body: unknown): ReplyFn =>
-      (request) =>
-        typeof statusOrFn === 'function' ? statusOrFn(request) : [statusOrFn, body];
 
     return {
       reply: (statusOrFn: number | ReplyFn, body?: unknown) =>

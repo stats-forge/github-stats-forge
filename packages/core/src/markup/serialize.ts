@@ -18,7 +18,7 @@ const indents = ['', INDENT];
  * @returns Two spaces per level.
  */
 const indentAt = (depth: number): string => {
-  for (let i = indents.length; i <= depth; i++) {
+  for (let i = indents.length; i <= depth; i += 1) {
     indents.push(`${indents[i - 1] ?? ''}${INDENT}`);
   }
   return indents[depth] ?? '';

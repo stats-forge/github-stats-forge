@@ -9,8 +9,6 @@ const emojiMap: Record<string, string> = emojiMapJson;
  * @param name Shortcode without the surrounding colons, e.g. `heart`.
  * @returns The emoji, or `undefined` when GitHub has no such shortcode.
  */
-const getEmoji = (name: string): string | undefined => {
-  return emojiMap[name];
-};
+const getEmoji = (name: string): string | undefined => emojiMap[name];
 
 export { getEmoji };

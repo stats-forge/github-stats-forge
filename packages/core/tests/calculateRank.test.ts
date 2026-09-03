@@ -113,8 +113,8 @@ describe('Test calculateRank', () => {
         issues: 4500,
         reviews: 1000,
         repos: 0,
-        stars: 600000,
-        followers: 50000,
+        stars: 600_000,
+        followers: 50_000,
       }),
     ).toStrictEqual({
       level: 'S',

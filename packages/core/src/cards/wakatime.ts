@@ -66,9 +66,7 @@ const formatLanguageValue = ({
 }: {
   display_format: DisplayFormat;
   lang: WakaTimeLang;
-}): string => {
-  return display_format === 'percent' ? `${lang.percent.toFixed(2)} %` : lang.text;
-};
+}): string => (display_format === 'percent' ? `${lang.percent.toFixed(2)} %` : lang.text);
 
 /**
  * Create compact WakaTime layout.
@@ -92,10 +90,10 @@ const createCompactLangNode = ({
   display_format: DisplayFormat;
 }): MarkupElement => {
   if (!Number.isFinite(x)) {
-    throw new Error(`Invalid x: "${x}"`);
+    throw new TypeError(`Invalid x: "${x}"`);
   }
   if (!Number.isFinite(y)) {
-    throw new Error(`Invalid y: "${y}"`);
+    throw new TypeError(`Invalid y: "${y}"`);
   }
 
   const color = getLanguageColor(lang.name);
@@ -181,10 +179,10 @@ const createTextNode = ({
   progressBarWidth: number;
 }): MarkupElement => {
   if (!Number.isFinite(index)) {
-    throw new Error(`Invalid index: "${index}"`);
+    throw new TypeError(`Invalid index: "${index}"`);
   }
   if (!Number.isFinite(progressBarWidth)) {
-    throw new Error(`Invalid progressBarWidth: "${progressBarWidth}"`);
+    throw new TypeError(`Invalid progressBarWidth: "${progressBarWidth}"`);
   }
 
   const staggerDelay = (index + 3) * 150;
@@ -224,11 +222,11 @@ const createTextNode = ({
  * @param languages The languages array.
  */
 const recalculatePercentages = (languages: Array<WakaTimeLang>): void => {
-  const totalSum = languages.reduce((totalSum, language) => totalSum + language.percent, 0);
-  const weight = +(100 / totalSum).toFixed(2);
-  languages.forEach((language) => {
-    language.percent = +(language.percent * weight).toFixed(2);
-  });
+  const totalSum = languages.reduce((sum, language) => sum + language.percent, 0);
+  const weight = Number((100 / totalSum).toFixed(2));
+  for (const language of languages) {
+    language.percent = Number((language.percent * weight).toFixed(2));
+  }
 };
 
 /**
@@ -278,7 +276,7 @@ const normalizeCardWidth = ({
   value?: number | undefined;
   layout?: WakaTimeLayout | undefined;
 }): number => {
-  if (value === undefined || isNaN(value)) {
+  if (value === undefined || Number.isNaN(value)) {
     return DEFAULT_CARD_WIDTH;
   }
   return Math.max(layout === 'compact' ? COMPACT_LAYOUT_MIN_WIDTH : MIN_CARD_WIDTH, value);
@@ -293,7 +291,7 @@ const normalizeCardWidth = ({
  */
 const renderWakatimeCard = (
   stats: Partial<WakaTimeData> = {},
-  options: CardOptions<WakaTimeOptions> = { hide: [] },
+  options: CardOptions<WakaTimeOptions> = {},
 ): string => {
   let { languages = [] } = stats;
   const {
@@ -330,7 +328,7 @@ const renderWakatimeCard = (
     translations: wakatimeCardLocales,
   });
 
-  const lheight = parseInt(String(line_height), 10);
+  const lheight = Number.parseInt(String(line_height), 10);
 
   const langsCount = clampValue(langs_count, 1, langs_count);
 
@@ -384,7 +382,7 @@ const renderWakatimeCard = (
         }),
       ),
       compactProgressBar,
-      filteredLanguages.length
+      filteredLanguages.length > 0
         ? createLanguageTextNode({
             y: 25,
             langs: filteredLanguages,
@@ -401,27 +399,28 @@ const renderWakatimeCard = (
     ];
   } else {
     finalLayout = flexLayout({
-      items: filteredLanguages.length
-        ? filteredLanguages.map((language, index) => {
-            return createTextNode({
-              id: language.name,
-              label: language.name,
-              value: formatLanguageValue({ display_format, lang: language }),
-              index,
-              percent: language.percent,
-              hideProgress: hide_progress,
-              progressBarWidth: normalizedWidth - TOTAL_TEXT_WIDTH,
-            });
-          })
-        : [
-            noCodingActivityNode({
-              text: stats.is_coding_activity_visible
-                ? stats.is_other_usage_visible
-                  ? i18n.t('wakatimecard.nocodingactivity')
-                  : i18n.t('wakatimecard.nocodedetails')
-                : i18n.t('wakatimecard.notpublic'),
-            }),
-          ],
+      items:
+        filteredLanguages.length > 0
+          ? filteredLanguages.map((language, index) =>
+              createTextNode({
+                id: language.name,
+                label: language.name,
+                value: formatLanguageValue({ display_format, lang: language }),
+                index,
+                percent: language.percent,
+                hideProgress: hide_progress,
+                progressBarWidth: normalizedWidth - TOTAL_TEXT_WIDTH,
+              }),
+            )
+          : [
+              noCodingActivityNode({
+                text: stats.is_coding_activity_visible
+                  ? stats.is_other_usage_visible
+                    ? i18n.t('wakatimecard.nocodingactivity')
+                    : i18n.t('wakatimecard.nocodedetails')
+                  : i18n.t('wakatimecard.notpublic'),
+              }),
+            ],
       gap: lheight,
       direction: 'column',
     });
@@ -430,12 +429,17 @@ const renderWakatimeCard = (
   // Get title range text
   let titleText = i18n.t('wakatimecard.title');
   switch (stats.range) {
-    case 'last_7_days':
+    case 'last_7_days': {
       titleText += ` (${i18n.t('wakatimecard.last7days')})`;
       break;
-    case 'last_year':
+    }
+    case 'last_year': {
       titleText += ` (${i18n.t('wakatimecard.lastyear')})`;
       break;
+    }
+    default: {
+      break;
+    }
   }
 
   const card = new Card({
@@ -488,11 +492,12 @@ const renderWakatimeCard = (
   // shows has to be repeated here.
   card.setAccessibilityLabel({
     title: card.title,
-    desc: filteredLanguages.length
-      ? filteredLanguages
-          .map((lang) => `${lang.name}: ${formatLanguageValue({ display_format, lang })}`)
-          .join(', ')
-      : i18n.t('wakatimecard.nocodingactivity'),
+    desc:
+      filteredLanguages.length > 0
+        ? filteredLanguages
+            .map((lang) => `${lang.name}: ${formatLanguageValue({ display_format, lang })}`)
+            .join(', ')
+        : i18n.t('wakatimecard.nocodingactivity'),
   });
 
   return card.render(el('svg', { x: 0, y: 0, width: '100%' }, finalLayout));

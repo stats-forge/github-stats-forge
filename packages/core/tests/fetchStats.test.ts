@@ -198,8 +198,9 @@ const baseConfig = testConfig.with({ fetch: mock.fetch });
 let config: CardConfig;
 
 /** `fetchStats` for the mocked user, with only the options a test changes spelled out. */
-const fetchStatsWith = (options: Omit<Parameters<typeof fetchStats>[0], 'username'>) =>
-  fetchStats({ username: 'anuraghazra', ...options }, config);
+const fetchStatsWith = (
+  options: Omit<Parameters<typeof fetchStats>[0], 'username'>,
+): ReturnType<typeof fetchStats> => fetchStats({ username: 'anuraghazra', ...options }, config);
 
 type RankInput = Parameters<typeof calculateRank>[0];
 
@@ -543,13 +544,13 @@ describe('Test fetchStats', () => {
 
     mock.reset();
     mock.onPost('https://api.github.com/graphql').reply((cfg) => {
-      requestCount++;
+      requestCount += 1;
       const req = JSON.parse(cfg.data as string) as { query: string };
 
       if (req.query.includes('userReposContributedTo')) {
         const rangeCount = (req.query.match(/range_\d+:/g) ?? []).length;
         const ranges: QueryUser<ReposContributedToQuery> = {};
-        for (let i = 0; i < rangeCount; i++) {
+        for (let i = 0; i < rangeCount; i += 1) {
           ranges[`range_${i}`] = saturatedRange;
         }
         return [200, { data: { user: ranges } }];
@@ -561,6 +562,6 @@ describe('Test fetchStats', () => {
 
     expect(stats.allTimeContributedTo).toBe(100);
     // rounds past MAX_RANGES_PER_REQUEST ranges take more than one request each
-    expect(requestCount).toEqual(23);
+    expect(requestCount).toBe(23);
   });
 });

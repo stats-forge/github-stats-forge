@@ -2,7 +2,6 @@
   "recommendations": [
     "yzhang.markdown-all-in-one",
     "oxc.oxc-vscode",
-    "dbaeumer.vscode-eslint",
     "github.vscode-github-actions"
   ]
 }

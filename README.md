@@ -96,7 +96,7 @@ Run from the repository root:
 ```sh
 pnpm test                   # vitest
 pnpm typecheck              # turbo typecheck + the repo scripts
-pnpm lint                   # eslint per package
+pnpm lint                   # oxlint
 pnpm build:packages         # build packages/*
 pnpm examples               # redraw examples/previews from examples/cards
 ```

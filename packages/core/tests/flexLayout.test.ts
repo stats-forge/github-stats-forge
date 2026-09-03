@@ -10,7 +10,7 @@ const layout = (items: Array<Child>): string => renderMarkup(el('g', {}, items))
 const texts = (count: number): Array<Child> =>
   Array.from({ length: count }, (_, i) => el('text', {}, i + 1));
 
-describe('flexLayout', () => {
+describe(flexLayout, () => {
   it('should lay items out in a row', () => {
     expect(layout(flexLayout({ items: texts(2), gap: 60 }))).toMatchInlineSnapshot(`
       "<g>
@@ -72,7 +72,7 @@ describe('flexLayout', () => {
   });
 
   it('should reject sizes that are not numbers', () => {
-    expect(() => flexLayout({ items: [el('text', {}, 1)], gap: 0, sizes: [NaN] })).toThrow(
+    expect(() => flexLayout({ items: [el('text', {}, 1)], gap: 0, sizes: [Number.NaN] })).toThrow(
       'flexLayout: `sizes` must contain only numbers',
     );
   });

@@ -108,16 +108,16 @@ const createProgressNode = ({
     throw new Error(`Invalid progress color: "${color}"`);
   }
   if (!Number.isFinite(width)) {
-    throw new Error(`Invalid width: "${width}"`);
+    throw new TypeError(`Invalid width: "${width}"`);
   }
   if (!Number.isFinite(x)) {
-    throw new Error(`Invalid x: "${x}"`);
+    throw new TypeError(`Invalid x: "${x}"`);
   }
   if (!Number.isFinite(y)) {
-    throw new Error(`Invalid y: "${y}"`);
+    throw new TypeError(`Invalid y: "${y}"`);
   }
   if (!Number.isFinite(delay)) {
-    throw new Error(`Invalid delay: "${delay}"`);
+    throw new TypeError(`Invalid delay: "${delay}"`);
   }
 
   const progressPercentage = clampValue(progress, 2, 100);
@@ -188,19 +188,19 @@ const wrappedTextNode = ({
   testId?: string;
 }): MarkupElement => {
   if (!Number.isFinite(x)) {
-    throw new Error(`Invalid x: "${x}"`);
+    throw new TypeError(`Invalid x: "${x}"`);
   }
   if (!Number.isFinite(y)) {
-    throw new Error(`Invalid y: "${y}"`);
+    throw new TypeError(`Invalid y: "${y}"`);
   }
   if (!Number.isFinite(width)) {
-    throw new Error(`Invalid width: "${width}"`);
+    throw new TypeError(`Invalid width: "${width}"`);
   }
   if (!Number.isFinite(height)) {
-    throw new Error(`Invalid height: "${height}"`);
+    throw new TypeError(`Invalid height: "${height}"`);
   }
   if (!Number.isFinite(lineCount)) {
-    throw new Error(`Invalid lineCount: "${lineCount}"`);
+    throw new TypeError(`Invalid lineCount: "${lineCount}"`);
   }
 
   return el(
@@ -269,7 +269,7 @@ const iconWithLabel = (
   }
 
   if (!Number.isFinite(iconSize)) {
-    throw new Error(`Invalid iconSize: "${iconSize}"`);
+    throw new TypeError(`Invalid iconSize: "${iconSize}"`);
   }
 
   return flexLayout({
@@ -352,13 +352,13 @@ const createTextNode = ({
   labelXOffset?: number;
 }): MarkupElement => {
   if (!Number.isFinite(labelXOffset)) {
-    throw new Error(`Invalid labelXOffset: "${labelXOffset}"`);
+    throw new TypeError(`Invalid labelXOffset: "${labelXOffset}"`);
   }
   if (!Number.isFinite(shiftValuePos)) {
-    throw new Error(`Invalid shiftValuePos: "${shiftValuePos}"`);
+    throw new TypeError(`Invalid shiftValuePos: "${shiftValuePos}"`);
   }
   if (!Number.isFinite(index)) {
-    throw new Error(`Invalid index: "${index}"`);
+    throw new TypeError(`Invalid index: "${index}"`);
   }
   if (valueAnchorX !== undefined && !Number.isFinite(valueAnchorX)) {
     throw new Error(`Invalid valueAnchorX: "${valueAnchorX}"`);
@@ -425,7 +425,7 @@ const createTextNode = ({
 // Script parameters.
 const ERROR_CARD_LENGTH = 576.5;
 
-const UPSTREAM_API_ERRORS = [TRY_AGAIN_LATER, SECONDARY_ERROR_MESSAGES.rate_limited];
+const UPSTREAM_API_ERRORS = new Set([TRY_AGAIN_LATER, SECONDARY_ERROR_MESSAGES.rate_limited]);
 
 /**
  * Renders error message on the card.
@@ -479,7 +479,7 @@ const renderError = ({
   });
 
   const hint =
-    UPSTREAM_API_ERRORS.includes(secondaryMessage) || !show_repo_link
+    UPSTREAM_API_ERRORS.has(secondaryMessage) || !show_repo_link
       ? ''
       : ' file an issue at https://tinyurl.com/github-stats';
 
@@ -574,18 +574,17 @@ const measureText = (str: string, fontSize = 10): number => {
   const cjkRange = /[\u3000-\u9FFF\uFF00-\uFFEF]/;
 
   return (
-    str
-      .split('')
-      .map((c) => {
-        if (cjkRange.test(c) || c === '\u3000') {
+    [...str]
+      .map((char) => {
+        if (cjkRange.test(char) || char === '\u3000') {
           // CJK glyphs and U+3000 IDEOGRAPHIC SPACE are full-width by default;
           return 1;
         }
-        if (c.charCodeAt(0) < widths.length) {
-          return widths[c.charCodeAt(0)] ?? avg;
-        } else {
-          return avg;
+        const code = char.codePointAt(0) ?? 0;
+        if (code < widths.length) {
+          return widths[code] ?? avg;
         }
+        return avg;
       })
       .reduce((cur, acc) => acc + cur) * fontSize
   );
@@ -618,7 +617,7 @@ const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Arr
   // Korean Hangul (U+AC00–U+D7AF) is intentionally NOT in the CJK range
   // because Korean wraps at word boundaries by default in HTML.
   // ASCII whitespace is collapsed to a single space per CSS `white-space: normal;`
-  const normalizedText = text.replace(/[\t\n\r ]+/g, ' ');
+  const normalizedText = text.replaceAll(/[\t\n\r ]+/g, ' ');
   const tokens = normalizedText.match(
     /\s|[\u3000-\u9FFF\uFF00-\uFFEF]|[^\s\u3000-\u9FFF\uFF00-\uFFEF]+/g,
   );
@@ -626,8 +625,11 @@ const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Arr
     return [];
   }
 
-  const takeFittingSegment = (token: string, availableWidth: number) => {
-    const characters = token.split('');
+  const takeFittingSegment = (
+    token: string,
+    availableWidth: number,
+  ): { segment: string; width: number } => {
+    const characters = [...token];
     let segment = '';
     let width = 0;
 
@@ -655,7 +657,7 @@ const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Arr
       if (currentWidth === 0) {
         continue;
       }
-      lines[lines.length - 1] = (lines[lines.length - 1] ?? '') + token;
+      lines[lines.length - 1] = (lines.at(-1) ?? '') + token;
       currentWidth += measureText(token, fontSize);
       continue;
     }
@@ -665,7 +667,7 @@ const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Arr
     while (remaining) {
       const w = measureText(remaining, fontSize);
       if (currentWidth + w <= maxWidth) {
-        lines[lines.length - 1] = (lines[lines.length - 1] ?? '') + remaining;
+        lines[lines.length - 1] = (lines.at(-1) ?? '') + remaining;
         currentWidth += w;
         break;
       }
@@ -678,7 +680,7 @@ const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Arr
 
       // An atom wider than the box wraps mid-glyph (overflow-wrap: anywhere).
       const { segment, width } = takeFittingSegment(remaining, maxWidth);
-      lines[lines.length - 1] = (lines[lines.length - 1] ?? '') + segment;
+      lines[lines.length - 1] = (lines.at(-1) ?? '') + segment;
       currentWidth = width;
       remaining = remaining.slice(segment.length);
     }
@@ -734,9 +736,7 @@ const countWrappedLines = (
   fontSize: number,
   maxWidth: number,
   maxLines: number,
-): number => {
-  return Math.min(Math.max(1, splitWrappedText(text, fontSize, maxWidth).length), maxLines);
-};
+): number => Math.min(Math.max(1, splitWrappedText(text, fontSize, maxWidth).length), maxLines);
 
 export {
   renderError,

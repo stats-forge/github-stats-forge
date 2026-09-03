@@ -41,8 +41,8 @@ export const readSavedCard = async (
   let parsed: unknown;
   try {
     parsed = JSON.parse(await readFile(file, 'utf8'));
-  } catch (err) {
-    throw new Error(`${file} is not readable as JSON`, { cause: err });
+  } catch (error) {
+    throw new Error(`${file} is not readable as JSON`, { cause: error });
   }
 
   if (typeof parsed !== 'object' || parsed === null) {

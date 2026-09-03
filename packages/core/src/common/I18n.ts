@@ -35,6 +35,9 @@ class I18n<Translations extends TranslationsMap = TranslationsMap> {
    */
   t(str: keyof Translations & string): string {
     const translation = this.translations[str];
+    // A key the type says is present can still be missing at runtime: a card passes
+    // a locale table it built, and `i18n.test.ts` covers exactly that.
+    // oxlint-disable-next-line typescript/no-unnecessary-condition
     if (!translation) {
       throw new Error(`${str} Translation string not found`);
     }

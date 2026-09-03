@@ -4,7 +4,7 @@ import { cards, findCard } from '../src/cards.js';
 import type { Answer } from '../src/query.js';
 import { defaultFileName, describeAnswer, toParam, toQuery } from '../src/query.js';
 
-describe('toParam', () => {
+describe(toParam, () => {
   it('carries a value the way a query string would', () => {
     expect(toParam('anuraghazra')).toBe('anuraghazra');
     expect(toParam(4)).toBe('4');
@@ -23,7 +23,7 @@ describe('toParam', () => {
   });
 });
 
-describe('toQuery', () => {
+describe(toQuery, () => {
   it('drops what was never answered', () => {
     const query = toQuery(
       new Map<string, Answer>([
@@ -41,7 +41,7 @@ describe('toQuery', () => {
   });
 });
 
-describe('describeAnswer', () => {
+describe(describeAnswer, () => {
   const option = {
     name: 'show_icons',
     label: 'Show icons',
@@ -58,7 +58,7 @@ describe('describeAnswer', () => {
   });
 });
 
-describe('defaultFileName', () => {
+describe(defaultFileName, () => {
   it('names the file after the card and its subject', () => {
     const stats = findCard('stats');
     expect(stats && defaultFileName(stats, { username: 'anuraghazra' })).toBe(
@@ -99,10 +99,8 @@ describe('the card catalog', () => {
 
   it('gives every choice option its choices', () => {
     for (const card of cards) {
-      for (const option of card.options) {
-        if (option.kind === 'choice') {
-          expect(option.choices?.length, `${card.id}.${option.name}`).toBeGreaterThan(0);
-        }
+      for (const option of card.options.filter((entry) => entry.kind === 'choice')) {
+        expect(option.choices?.length, `${card.id}.${option.name}`).toBeGreaterThan(0);
       }
     }
   });

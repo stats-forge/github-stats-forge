@@ -29,7 +29,7 @@ const fetchWakatimeStats = async (
     throw CardError.missingParam(['username']);
   }
 
-  const domain = api_domain ? api_domain.replace(/\/$/gi, '') : 'wakatime.com';
+  const domain = api_domain ? api_domain.replaceAll(/\/$/gi, '') : 'wakatime.com';
   const res = await httpRequest<{ data: WakaTimeData }>(
     config.fetch,
     `https://${domain}/api/v1/users/${username}/stats?is_including_today=true`,

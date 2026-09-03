@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 // Packages held at a single version by an override in pnpm-workspace.yaml.
 // Keep in sync with that block:
@@ -15,7 +15,7 @@ const lockfile = fs.readFileSync('pnpm-lock.yaml', 'utf8').split('\n');
  * @returns the distinct locked versions
  */
 function lockedVersions(name: string): Set<string> {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = name.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   const entry = new RegExp(`^ {2}'?${escaped}@(\\d[^':]*)'?:`);
 
   return new Set(lockfile.map((line) => entry.exec(line)?.[1]).filter((v) => v !== undefined));

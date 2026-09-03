@@ -21,17 +21,17 @@ describe('Test ops.js', () => {
     expect(parseBoolean('TRUE')).toBe(true);
     expect(parseBoolean('FALSE')).toBe(false);
 
-    expect(parseBoolean('1')).toBe(undefined);
-    expect(parseBoolean('0')).toBe(undefined);
-    expect(parseBoolean('')).toBe(undefined);
-    expect(parseBoolean(undefined)).toBe(undefined);
+    expect(parseBoolean('1')).toBeUndefined();
+    expect(parseBoolean('0')).toBeUndefined();
+    expect(parseBoolean('')).toBeUndefined();
+    expect(parseBoolean(undefined)).toBeUndefined();
   });
 
   it('should test parseArray', () => {
-    expect(parseArray('a,b,c')).toEqual(['a', 'b', 'c']);
-    expect(parseArray('a, b, c')).toEqual(['a', ' b', ' c']); // preserves spaces
-    expect(parseArray('')).toEqual([]);
-    expect(parseArray(undefined)).toEqual([]);
+    expect(parseArray('a,b,c')).toStrictEqual(['a', 'b', 'c']);
+    expect(parseArray('a, b, c')).toStrictEqual(['a', ' b', ' c']); // preserves spaces
+    expect(parseArray('')).toStrictEqual([]);
+    expect(parseArray(undefined)).toStrictEqual([]);
   });
 
   it('should test clampValue', () => {
@@ -44,7 +44,7 @@ describe('Test ops.js', () => {
 
     // non-numeric and NaN fall back to min
     expect(clampValue('abc', 1, 10)).toBe(1);
-    expect(clampValue(NaN, 2, 5)).toBe(2);
+    expect(clampValue(Number.NaN, 2, 5)).toBe(2);
   });
 
   it('should test lowercaseTrim', () => {
@@ -53,9 +53,9 @@ describe('Test ops.js', () => {
   });
 
   it('should test chunkArray', () => {
-    expect(chunkArray([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
-    expect(chunkArray([1, 2, 3, 4, 5], 1)).toEqual([[1], [2], [3], [4], [5]]);
-    expect(chunkArray([1, 2, 3, 4, 5], 10)).toEqual([[1, 2, 3, 4, 5]]);
+    expect(chunkArray([1, 2, 3, 4, 5], 2)).toStrictEqual([[1, 2], [3, 4], [5]]);
+    expect(chunkArray([1, 2, 3, 4, 5], 1)).toStrictEqual([[1], [2], [3], [4], [5]]);
+    expect(chunkArray([1, 2, 3, 4, 5], 10)).toStrictEqual([[1, 2, 3, 4, 5]]);
   });
 
   it('should test parseEmojis', () => {

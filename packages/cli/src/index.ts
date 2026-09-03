@@ -32,10 +32,22 @@ Options
 The token can also come from PAT_1 in the environment, or be typed when asked.
 `;
 
+/** What the command line can carry. */
+interface Flags {
+  card?: string;
+  out?: string;
+  config?: string;
+  generate: boolean;
+  pat: Array<string>;
+  'env-file'?: string;
+  help: boolean;
+  version: boolean;
+}
+
 /**
  * @returns The flags this run was given.
  */
-const readFlags = () =>
+const readFlags = (): Flags =>
   parseArgs({
     options: {
       card: { type: 'string', short: 'c' },
@@ -72,14 +84,14 @@ const renderAndWrite = async (
   if (result.status === 'error') {
     const { code, message, secondaryMessage, param } = result.error;
     process.stderr.write(
-      [
+      `${[
         `Could not render the ${card.id} card.`,
         `  ${message}${secondaryMessage ? `: ${secondaryMessage}` : ''}`,
         `  code: ${code}${param ? `, param: ${param}` : ''}`,
         result.retryable ? '  This one may work on a retry.' : '',
       ]
         .filter(Boolean)
-        .join('\n') + '\n',
+        .join('\n')}\n`,
     );
     return { failed: code };
   }
@@ -232,12 +244,12 @@ const main = async (): Promise<void> => {
 
 try {
   await main();
-} catch (err) {
+} catch (error) {
   // A cancelled prompt is a normal way to leave, not a crash.
-  if (err instanceof Error && err.name === 'ExitPromptError') {
+  if (error instanceof Error && error.name === 'ExitPromptError') {
     process.exitCode = 130;
   } else {
-    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }
 }

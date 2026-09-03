@@ -8,7 +8,7 @@ import { FetchMock } from './_fetch-mock.js';
 const data_repo = {
   repository: {
     name: 'convoychat',
-    stargazerCount: 38000,
+    stargazerCount: 38_000,
     description: 'Help us take over the world! React + TS + GraphQL Chat App',
     primaryLanguage: {
       color: '#2b7489',

@@ -6,7 +6,7 @@ import { Card } from '../src/common/Card.js';
 import { getCardColors } from '../src/common/color.js';
 import { icons } from '../src/common/icons.js';
 
-describe('Card', () => {
+describe(Card, () => {
   afterEach(() => {
     document.body.innerHTML = '';
   });

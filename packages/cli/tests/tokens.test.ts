@@ -10,7 +10,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe('tokensFromEnv', () => {
+describe(tokensFromEnv, () => {
   it('reads the PAT_n names core writes', () => {
     expect(tokensFromEnv({ PAT_1: 'one', PAT_2: 'two', HOME: '/somewhere' })).toStrictEqual([
       { name: 'PAT_1', value: 'one' },
@@ -29,7 +29,7 @@ describe('tokensFromEnv', () => {
   });
 });
 
-describe('resolveTokens', () => {
+describe(resolveTokens, () => {
   it('prefers the flag over the environment', () => {
     expect(resolveTokens(['from-flag'], { PAT_1: 'from-env' })).toStrictEqual([
       { name: '--pat #1', value: 'from-flag' },
@@ -47,7 +47,7 @@ describe('resolveTokens', () => {
   });
 });
 
-describe('loadEnvFile', () => {
+describe(loadEnvFile, () => {
   it('loads the PAT the file carries', () => {
     const dir = mkdtempSync(join(tmpdir(), 'stats-forge-cli-'));
     const file = join(dir, '.env');

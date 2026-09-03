@@ -67,7 +67,7 @@ interface StatItem {
 }
 
 /** Long locales that need more space for text. Keep sorted alphabetically. */
-const LONG_LOCALES: Array<string> = [
+const LONG_LOCALES: ReadonlySet<string> = new Set([
   'az',
   'bg',
   'cs',
@@ -94,7 +94,7 @@ const LONG_LOCALES: Array<string> = [
   'uk-ua',
   'uz',
   'zh-tw',
-];
+]);
 
 /**
  * Calculates progress along the boundary of the circle, i.e. its circumference.
@@ -104,16 +104,10 @@ const LONG_LOCALES: Array<string> = [
  */
 const calculateCircleProgress = (value: number): number => {
   const radius = 40;
-  const c = Math.PI * (radius * 2);
+  const circumference = Math.PI * (radius * 2);
+  const clamped = Math.min(Math.max(value, 0), 100);
 
-  if (value < 0) {
-    value = 0;
-  }
-  if (value > 100) {
-    value = 100;
-  }
-
-  return ((100 - value) / 100) * c;
+  return ((100 - clamped) / 100) * circumference;
 };
 
 /**
@@ -154,54 +148,52 @@ const getStyles = ({
   ringColor: string;
   show_icons: boolean;
   progress: number;
-}): Array<CssChild> => {
-  return [
-    rule('.stat', {
-      font: `400 ${STAT_FONT_SIZE}px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
-      fill: textColor,
-      'font-variant-numeric': 'tabular-nums',
-    }),
-    atRule(
-      '@supports(-moz-appearance: auto)',
-      cssComment('Selector detects Firefox'),
-      rule('.stat', { 'font-size': '12px' }),
-    ),
-    rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
-    rule('.rank-text', {
-      font: "700 22px 'Segoe UI', Ubuntu, Sans-Serif",
-      fill: textColor,
-      animation: 'scaleInAnimation 0.3s ease-in-out forwards',
-    }),
-    rule('.rank-percentile-header', { 'font-size': '14px' }),
-    rule('.rank-percentile-text', { 'font-size': '16px' }),
-    cssComment('Labels recede so that the values read first.'),
-    rule('.not_bold', { 'font-weight': 400, opacity: 0.75 }),
-    rule('.bold', { 'font-weight': 600 }),
-    rule('.icon', {
-      fill: iconColor,
-      opacity: 0.75,
-      display: show_icons ? 'block' : 'none',
-    }),
-    rule('.rank-circle-rim', {
-      stroke: ringColor,
-      fill: 'none',
-      'stroke-width': 4,
-      opacity: 0.15,
-    }),
-    rule('.rank-circle', {
-      stroke: ringColor,
-      'stroke-dasharray': 250,
-      fill: 'none',
-      'stroke-width': 4,
-      'stroke-linecap': 'round',
-      opacity: 1,
-      'transform-origin': '-10px 8px',
-      transform: 'rotate(-90deg)',
-      animation: 'rankAnimation 0.8s forwards ease-in-out',
-    }),
-    getProgressAnimation({ progress }),
-  ];
-};
+}): Array<CssChild> => [
+  rule('.stat', {
+    font: `400 ${STAT_FONT_SIZE}px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
+    fill: textColor,
+    'font-variant-numeric': 'tabular-nums',
+  }),
+  atRule(
+    '@supports(-moz-appearance: auto)',
+    cssComment('Selector detects Firefox'),
+    rule('.stat', { 'font-size': '12px' }),
+  ),
+  rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
+  rule('.rank-text', {
+    font: "700 22px 'Segoe UI', Ubuntu, Sans-Serif",
+    fill: textColor,
+    animation: 'scaleInAnimation 0.3s ease-in-out forwards',
+  }),
+  rule('.rank-percentile-header', { 'font-size': '14px' }),
+  rule('.rank-percentile-text', { 'font-size': '16px' }),
+  cssComment('Labels recede so that the values read first.'),
+  rule('.not_bold', { 'font-weight': 400, opacity: 0.75 }),
+  rule('.bold', { 'font-weight': 600 }),
+  rule('.icon', {
+    fill: iconColor,
+    opacity: 0.75,
+    display: show_icons ? 'block' : 'none',
+  }),
+  rule('.rank-circle-rim', {
+    stroke: ringColor,
+    fill: 'none',
+    'stroke-width': 4,
+    opacity: 0.15,
+  }),
+  rule('.rank-circle', {
+    stroke: ringColor,
+    'stroke-dasharray': 250,
+    fill: 'none',
+    'stroke-width': 4,
+    'stroke-linecap': 'round',
+    opacity: 1,
+    'transform-origin': '-10px 8px',
+    transform: 'rotate(-90deg)',
+    animation: 'rankAnimation 0.8s forwards ease-in-out',
+  }),
+  getProgressAnimation({ progress }),
+];
 
 /**
  * Return the label for commits according to the selected options
@@ -281,7 +273,7 @@ const renderStatsCard = (
     show = [],
   } = options;
 
-  const lheight = parseInt(String(line_height), 10);
+  const lheight = Number.parseInt(String(line_height), 10);
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
@@ -295,13 +287,13 @@ const renderStatsCard = (
   });
 
   // Meta data for creating text nodes with createTextNode function
-  const STATS: Record<string, StatItem> = {};
-
-  STATS['stars'] = {
-    icon: icons.star,
-    label: i18n.t('statcard.totalstars'),
-    value: totalStars,
-    id: 'stars',
+  const STATS: Record<string, StatItem> = {
+    stars: {
+      icon: icons.star,
+      label: i18n.t('statcard.totalstars'),
+      value: totalStars,
+      id: 'stars',
+    },
   };
 
   if (show.includes('contributions')) {
@@ -450,7 +442,7 @@ const renderStatsCard = (
     };
   }
 
-  const isLongLocale = locale ? LONG_LOCALES.includes(locale) : false;
+  const isLongLocale = locale ? LONG_LOCALES.has(locale) : false;
 
   // filter out hidden stats defined by user
   const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
@@ -469,51 +461,48 @@ const renderStatsCard = (
   // but if rank circle is visible clamp the minimum height to `150`
   const height = Math.max(
     45 + (visibleStats.length + 1) * lheight,
-    hide_rank ? 0 : visibleStats.length ? 150 : 180,
+    hide_rank ? 0 : visibleStats.length > 0 ? 150 : 180,
   );
 
   // the lower the user's percentile the better
   const progress = 100 - rank.percentile;
 
-  const calculateTextWidth = () => {
-    return measureText(
-      custom_title
-        ? custom_title
-        : visibleStats.length
-          ? i18n.t('statcard.title')
-          : i18n.t('statcard.ranktitle'),
+  const calculateTextWidth = (): number =>
+    measureText(
+      custom_title ||
+        (visibleStats.length > 0 ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle')),
     );
-  };
 
   /*
     When hide_rank=true, the minimum card width is 270 px + the title length and padding.
     When hide_rank=false, the minimum card_width is 340 px + the icon width (if show_icons=true).
     Numbers are picked by looking at existing dimensions on production.
   */
-  const iconWidth = show_icons && visibleStats.length ? 16 + /* padding */ 1 : 0;
+  const iconWidth = show_icons && visibleStats.length > 0 ? 16 + /* padding */ 1 : 0;
   const minCardWidth =
     (hide_rank
       ? clampValue(50 /* padding */ + calculateTextWidth() * 2, CARD_MIN_WIDTH, Infinity)
-      : visibleStats.length
+      : visibleStats.length > 0
         ? RANK_CARD_MIN_WIDTH
         : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
   const defaultCardWidth =
     (hide_rank
       ? CARD_DEFAULT_WIDTH
-      : visibleStats.length
+      : visibleStats.length > 0
         ? RANK_CARD_DEFAULT_WIDTH
         : RANK_ONLY_CARD_DEFAULT_WIDTH) + iconWidth;
   const width = card_width
-    ? isNaN(card_width)
+    ? Number.isNaN(card_width)
       ? Math.max(defaultCardWidth, minCardWidth)
       : card_width
     : Math.max(defaultCardWidth, minCardWidth);
 
   // A value ends at the card's inner edge, clear of the rank ring — or right after
   // the longest label, on a card too narrow for that.
-  const widestLabel = visibleStats.length
-    ? Math.max(...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, STAT_FONT_SIZE)))
-    : 0;
+  const widestLabel =
+    visibleStats.length > 0
+      ? Math.max(...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, STAT_FONT_SIZE)))
+      : 0;
   const valueAnchorX = Math.round(
     Math.max(
       width - CARD_PADDING_X - STAT_ROW_X - (hide_rank ? 0 : RANK_GUTTER),
@@ -543,7 +532,7 @@ const renderStatsCard = (
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: visibleStats.length ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle'),
+    defaultTitle: visibleStats.length > 0 ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle'),
     width,
     height,
     border_radius,
@@ -572,17 +561,15 @@ const renderStatsCard = (
    * @returns Rank circle translation value.
    */
   const calculateRankXTranslation = (): number => {
-    if (visibleStats.length) {
+    if (visibleStats.length > 0) {
       const minXTranslation = RANK_CARD_MIN_WIDTH + iconWidth - 70;
       if (width > RANK_CARD_DEFAULT_WIDTH) {
         const xMaxExpansion = minXTranslation + (450 - minCardWidth) / 2;
         return xMaxExpansion + width - RANK_CARD_DEFAULT_WIDTH;
-      } else {
-        return minXTranslation + (width - minCardWidth) / 2;
       }
-    } else {
-      return width / 2 + 20 - 10;
+      return minXTranslation + (width - minCardWidth) / 2;
     }
+    return width / 2 + 20 - 10;
   };
 
   // Conditionally rendered elements

@@ -45,7 +45,7 @@ export const tokensFromEnv = (
 ): Array<PersonalAccessToken> =>
   Object.keys(env)
     .filter((name) => /^PAT_\d+$/.test(name))
-    .sort()
+    .toSorted()
     .flatMap((name) => {
       const value = env[name];
       return value ? [{ name, value }] : [];

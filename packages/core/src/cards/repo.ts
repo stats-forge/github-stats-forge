@@ -61,7 +61,7 @@ interface RepoStatItem {
  */
 const getBadgeSVG = (label: string, xOffset = 0): MarkupElement => {
   if (!Number.isFinite(xOffset)) {
-    throw new Error(`Invalid xOffset: "${xOffset}"`);
+    throw new TypeError(`Invalid xOffset: "${xOffset}"`);
   }
 
   return el(
@@ -126,7 +126,7 @@ const renderRepoCard = (
   } = options;
 
   const card_width =
-    card_width_input && !isNaN(card_width_input)
+    card_width_input && !Number.isNaN(card_width_input)
       ? card_width_input
       : show.length >= 2
         ? CARD_DEFAULT_WIDTH + 30
@@ -204,11 +204,11 @@ const renderRepoCard = (
     }),
   );
 
-  const extraLHeight = parseInt(String(line_height), 10);
+  const extraLHeight = Number.parseInt(String(line_height), 10);
   const lineHeight = 10;
   const header = show_owner ? nameWithOwner : name;
-  const langName = (primaryLanguage && primaryLanguage.name) || 'Unspecified';
-  const langColor = (primaryLanguage && primaryLanguage.color) || '#333';
+  const langName = primaryLanguage?.name || 'Unspecified';
+  const langColor = primaryLanguage?.color || '#333';
   const desc = parseEmojis(description || 'No description provided');
   const descriptionBoxWidth = card_width - 2 * X_OFFSET;
 
@@ -252,9 +252,8 @@ const renderRepoCard = (
     );
   }
 
-  const extraHeight = Object.keys(STATS).length
-    ? -7 + (Math.ceil(statItems.length / 2) + 1) * extraLHeight
-    : 0;
+  const extraHeight =
+    Object.keys(STATS).length > 0 ? -7 + (Math.ceil(statItems.length / 2) + 1) * extraLHeight : 0;
   const height =
     (descriptionLinesCount > 1 ? 120 : 110) + descriptionLinesCount * lineHeight + extraHeight;
 

@@ -29,7 +29,7 @@ vi.mock(import('../src/fetchers/repo.js'), () => ({
       id: "<script>alert('xss')</script>",
       name: "<script>alert('xss')</script>",
     },
-    stargazerCount: 38000,
+    stargazerCount: 38_000,
     forkCount: 100,
   }),
 }));
@@ -73,7 +73,7 @@ vi.mock(import('../src/fetchers/wakatime.js'), () => ({
         name: 'Coding',
         percent: 100,
         text: '22 hrs 40 mins',
-        total_seconds: 81643.570077,
+        total_seconds: 81_643.570077,
       },
     ],
     editors: [
@@ -84,7 +84,7 @@ vi.mock(import('../src/fetchers/wakatime.js'), () => ({
         name: 'VS Code',
         percent: 100,
         text: '22 hrs 40 mins',
-        total_seconds: 81643.570077,
+        total_seconds: 81_643.570077,
       },
     ],
     languages: [
@@ -115,7 +115,7 @@ vi.mock(import('../src/fetchers/wakatime.js'), () => ({
         name: 'Mac',
         percent: 100,
         text: '22 hrs 40 mins',
-        total_seconds: 81643.570077,
+        total_seconds: 81_643.570077,
       },
     ],
     is_coding_activity_visible: true,

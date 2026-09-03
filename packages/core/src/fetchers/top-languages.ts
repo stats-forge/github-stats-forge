@@ -59,7 +59,7 @@ const fetchTopLanguages = async (
 
   if (res.data.errors) {
     logger.error(res.data.errors);
-    const firstError = res.data.errors[0];
+    const [firstError] = res.data.errors;
     if (firstError?.type === 'NOT_FOUND') {
       throw new CardError(firstError.message || 'Could not fetch user.', {
         code: 'not_found',
@@ -82,21 +82,24 @@ const fetchTopLanguages = async (
   const allExcludedRepos = [...exclude_repo, ...config.excludeRepositories];
 
   // populate repoToHide map for quick lookup while filtering out
-  allExcludedRepos.forEach((repoName) => {
+  for (const repoName of allExcludedRepos) {
     repoToHide[repoName] = true;
-  });
+  }
 
   // filter out repositories to be hidden
   const repoNodes = (res.data.data.user?.repositories.nodes ?? []).filter(
     (node): node is TopLanguagesRepositoryFragment => !!node && !repoToHide[node.name],
   );
 
-  const languageEdges = repoNodes.reduce<Array<TopLanguageFragment>>((acc, repo) => {
+  let languageEdges: Array<TopLanguageFragment> = [];
+  for (const repo of repoNodes) {
     const edges = (repo.languages?.edges ?? []).filter(
       (edge): edge is TopLanguageFragment => !!edge,
     );
-    return edges.length > 0 ? edges.concat(acc) : acc;
-  }, []);
+    if (edges.length > 0) {
+      languageEdges = [...edges, ...languageEdges];
+    }
+  }
 
   // accumulate size and repo count per language, each read back off the language's own entry
   const languageMap: Record<string, Lang> = {};
@@ -112,11 +115,13 @@ const fetchTopLanguages = async (
 
   // comparison index calculation
   for (const lang of Object.values(languageMap)) {
-    lang.size = Math.pow(lang.size, size_weight) * Math.pow(lang.count, count_weight);
+    lang.size = lang.size ** size_weight * lang.count ** count_weight;
   }
 
   // return languages sorted by (weighted) size, descending
-  return Object.fromEntries(Object.entries(languageMap).sort(([, a], [, b]) => b.size - a.size));
+  return Object.fromEntries(
+    Object.entries(languageMap).toSorted(([, a], [, b]) => b.size - a.size),
+  );
 };
 
 export { fetchTopLanguages };

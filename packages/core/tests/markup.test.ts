@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { atRule, cssComment, rule } from '../src/markup/index.js';
-import { el, renderMarkup, style } from '../src/markup/index.js';
+import { atRule, cssComment, rule, el, renderMarkup, style } from '../src/markup/index.js';
 
-describe('renderMarkup', () => {
+describe(renderMarkup, () => {
   it('should write one element per line, two spaces per level', () => {
     expect(renderMarkup(el('svg', { width: 10 }, el('g', {}, el('rect', { x: 0, y: 1.5 })))))
       .toMatchInlineSnapshot(`
@@ -37,7 +36,7 @@ describe('renderMarkup', () => {
   });
 
   it('should write an element with no children self-closing', () => {
-    expect(renderMarkup(el('g', { class: 'a' }, undefined))).toMatchInlineSnapshot(`
+    expect(renderMarkup(el('g', { class: 'a' }))).toMatchInlineSnapshot(`
       "<g class="a" />
       "
     `);

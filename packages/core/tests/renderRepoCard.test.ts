@@ -22,7 +22,7 @@ const data_repo: { repository: RepositoryData } = {
     isPrivate: false,
     isArchived: false,
     isTemplate: false,
-    stargazerCount: 38000,
+    stargazerCount: 38_000,
     forkCount: 100,
   },
 };
@@ -188,7 +188,7 @@ describe('Test renderRepoCard', () => {
   });
 
   it('should render with all the themes', () => {
-    Object.entries(themes).forEach(([name, themeData]) => {
+    for (const [name, themeData] of Object.entries(themes)) {
       document.body.innerHTML = renderRepoCard(data_repo.repository, {
         theme: name,
       });
@@ -210,7 +210,7 @@ describe('Test renderRepoCard', () => {
       const backgroundElement = screen.queryByTestId('card-bg');
       const backgroundElementFill = backgroundElement?.getAttribute('fill');
       expect([`#${bg_color}`, 'url(#gradient)']).toContain(backgroundElementFill);
-    });
+    }
   });
 
   it('should render custom colors with themes', () => {

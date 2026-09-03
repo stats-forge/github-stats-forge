@@ -37,9 +37,9 @@ export const gist = async (query: GistApiQuery, config: CardConfig): Promise<Api
   let colors;
   try {
     colors = parseColorParams(query);
-  } catch (err) {
+  } catch (error) {
     // A rejected color cannot be used to draw its own error card.
-    return errorResult(err);
+    return errorResult(error);
   }
 
   try {
@@ -60,7 +60,7 @@ export const gist = async (query: GistApiQuery, config: CardConfig): Promise<Api
         hide_border,
       }),
     };
-  } catch (err) {
-    return errorResult(err, colors);
+  } catch (error) {
+    return errorResult(error, colors);
   }
 };

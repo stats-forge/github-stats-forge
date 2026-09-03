@@ -58,12 +58,12 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 ): Promise<FetcherResponse<TData>> => {
   const PATs = config.pats;
 
-  if (!PATs.length) {
+  if (PATs.length === 0) {
     throw new CardError('No GitHub API tokens found', { code: 'no_tokens' });
   }
   const startPAT = getRandomInt(PATs.length);
 
-  for (let retries = 0; retries < PATs.length; retries++) {
+  for (let retries = 0; retries < PATs.length; retries += 1) {
     const currentPAT = PATs[(startPAT + retries) % PATs.length];
     if (!currentPAT) {
       continue;
@@ -77,7 +77,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 
     // react on both type and message-based rate-limit signals.
     // https://github.com/anuraghazra/github-readme-stats/issues/4425
-    const errors = response.data.errors;
+    const { errors } = response.data;
     const errorType = errors?.[0]?.type;
     const errorMsg = errors?.[0]?.message ?? '';
     const isRateLimited =
@@ -89,7 +89,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
     }
 
     // also checking for bad credentials if any tokens gets invalidated
-    const message = response.data.message;
+    const { message } = response.data;
     const isBadCredential = message === 'Bad credentials';
     const isAccountSuspended = message === 'Sorry. Your account was suspended.';
 
