@@ -1,9 +1,9 @@
 import type { CardConfig } from '../common/config.js';
 import { CardError, USER_NOT_FOUND } from '../common/error.js';
-import { wrapTextMultiline } from '../common/fmt.js';
 import { createGraphQLFetcher } from '../common/http.js';
 import { logger } from '../common/log.js';
 import { parseOwnerAffiliations } from '../common/ops.js';
+import { wrapTextMultiline } from '../common/render.js';
 import { retryer } from '../common/retryer.js';
 import { TopLanguagesDocument } from '../graphql/generated/top-languages.js';
 import type {

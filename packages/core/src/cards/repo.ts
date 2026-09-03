@@ -1,11 +1,12 @@
 import { Card } from '../common/Card.js';
 import { getLightDarkColors } from '../common/color.js';
-import { kFormatter, wrapTextMultiline } from '../common/fmt.js';
+import { kFormatter } from '../common/fmt.js';
 import { I18n } from '../common/I18n.js';
 import { icons } from '../common/icons.js';
 import { buildSearchFilter, clampValue, parseEmojis } from '../common/ops.js';
 import {
   countWrappedLines,
+  wrapTextMultiline,
   createLanguageNode,
   createTextNode,
   flexLayout,
