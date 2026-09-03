@@ -43,7 +43,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@d5a5561c7caea4f18642f3967aad095af51c3905 # v2.1.0
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@e3b04865510c657477cc722854b31a3b74c72c09 # v2.2.0
 
       - name: Run generate-emoji-map script
         run: pnpm --filter ./packages/core/ run generate-emoji-map
