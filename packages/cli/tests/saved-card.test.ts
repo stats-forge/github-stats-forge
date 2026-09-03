@@ -5,6 +5,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import type { CardKind } from '../src/cards.js';
 import { findCard } from '../src/cards.js';
 import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from '../src/saved-card.js';
 
@@ -14,7 +15,7 @@ const dir = (): string => mkdtempSync(join(tmpdir(), 'stats-forge-saved-'));
  * @param name Card to look up.
  * @returns The card, which the catalog always has.
  */
-const card = (name: string) => {
+const card = (name: string): CardKind => {
   const found = findCard(name);
   if (!found) {
     throw new Error(`the catalog lost ${name}`);
@@ -22,7 +23,7 @@ const card = (name: string) => {
   return found;
 };
 
-describe('writeSavedCard', () => {
+describe(writeSavedCard, () => {
   it('writes the card and its options as a query string would carry them', async () => {
     const file = join(dir(), 'card.json');
 
@@ -38,7 +39,7 @@ describe('writeSavedCard', () => {
   });
 });
 
-describe('readSavedCard', () => {
+describe(readSavedCard, () => {
   it('reads back what was written', async () => {
     const file = join(dir(), 'card.json');
     await writeSavedCard(file, card('top-langs'), {
@@ -91,7 +92,7 @@ describe('readSavedCard', () => {
   });
 });
 
-describe('savedCardExists', () => {
+describe(savedCardExists, () => {
   it('knows whether there is anything to load', () => {
     const file = join(dir(), 'card.json');
     expect(savedCardExists(file)).toBe(false);
@@ -100,7 +101,7 @@ describe('savedCardExists', () => {
   });
 });
 
-describe('toAnswers', () => {
+describe(toAnswers, () => {
   it('gives a boolean option its boolean back', () => {
     const answers = toAnswers(card('stats'), {
       username: 'anuraghazra',

@@ -12,8 +12,6 @@ const languageColors: Record<string, string> = languageColorsJson;
  * @param name Language name as GitHub spells it.
  * @returns The language's hex color, or the default gray when it is unknown.
  */
-const getLanguageColor = (name: string): string => {
-  return languageColors[name] ?? DEFAULT_LANG_COLOR;
-};
+const getLanguageColor = (name: string): string => languageColors[name] ?? DEFAULT_LANG_COLOR;
 
 export { DEFAULT_LANG_COLOR, getLanguageColor };

@@ -53,11 +53,15 @@ interface TopLangOptions extends CommonCardOptions {
  * @param arr Array of programming languages.
  * @returns Longest programming language object.
  */
-const getLongestLang = (arr: Array<Lang>): Pick<Lang, 'name' | 'size' | 'color'> =>
-  arr.reduce<Pick<Lang, 'name' | 'size' | 'color'>>(
-    (savedLang, lang) => (lang.name.length > savedLang.name.length ? lang : savedLang),
-    { name: '', size: 0, color: '' },
-  );
+const getLongestLang = (arr: Array<Lang>): Pick<Lang, 'name' | 'size' | 'color'> => {
+  let longest: Pick<Lang, 'name' | 'size' | 'color'> = { name: '', size: 0, color: '' };
+  for (const lang of arr) {
+    if (lang.name.length > longest.name.length) {
+      longest = lang;
+    }
+  }
+  return longest;
+};
 
 /**
  * Convert degrees to radians.
@@ -65,7 +69,7 @@ const getLongestLang = (arr: Array<Lang>): Pick<Lang, 'name' | 'size' | 'color'>
  * @param angleInDegrees Angle in degrees.
  * @returns Angle in radians.
  */
-const degreesToRadians = (angleInDegrees: number): number => angleInDegrees * (Math.PI / 180.0);
+const degreesToRadians = (angleInDegrees: number): number => angleInDegrees * (Math.PI / 180);
 
 /**
  * Convert radians to degrees.
@@ -73,7 +77,7 @@ const degreesToRadians = (angleInDegrees: number): number => angleInDegrees * (M
  * @param angleInRadians Angle in radians.
  * @returns Angle in degrees.
  */
-const radiansToDegrees = (angleInRadians: number): number => angleInRadians / (Math.PI / 180.0);
+const radiansToDegrees = (angleInRadians: number): number => angleInRadians / (Math.PI / 180);
 
 /**
  * Convert polar coordinates to cartesian coordinates.
@@ -112,7 +116,7 @@ const cartesianToPolar = (
   x: number,
   y: number,
 ): { radius: number; angleInDegrees: number } => {
-  const radius = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+  const radius = Math.hypot(x - centerX, y - centerY);
   let angleInDegrees = radiansToDegrees(Math.atan2(y - centerY, x - centerX));
   if (angleInDegrees < 0) {
     angleInDegrees += 360;
@@ -126,9 +130,7 @@ const cartesianToPolar = (
  * @param radius Radius of the circle.
  * @returns The length of the circle.
  */
-const getCircleLength = (radius: number): number => {
-  return 2 * Math.PI * radius;
-};
+const getCircleLength = (radius: number): number => 2 * Math.PI * radius;
 
 /**
  * Calculates height for the compact layout.
@@ -136,9 +138,8 @@ const getCircleLength = (radius: number): number => {
  * @param totalLangs Total number of languages.
  * @returns Card height.
  */
-const calculateCompactLayoutHeight = (totalLangs: number): number => {
-  return COMPACT_LAYOUT_BASE_HEIGHT + Math.round(totalLangs / 2) * 25;
-};
+const calculateCompactLayoutHeight = (totalLangs: number): number =>
+  COMPACT_LAYOUT_BASE_HEIGHT + Math.round(totalLangs / 2) * 25;
 
 /**
  * Calculates height for the normal layout.
@@ -146,9 +147,7 @@ const calculateCompactLayoutHeight = (totalLangs: number): number => {
  * @param totalLangs Total number of languages.
  * @returns Card height.
  */
-const calculateNormalLayoutHeight = (totalLangs: number): number => {
-  return 45 + (totalLangs + 1) * 40;
-};
+const calculateNormalLayoutHeight = (totalLangs: number): number => 45 + (totalLangs + 1) * 40;
 
 /**
  * Calculates height for the donut layout.
@@ -156,9 +155,8 @@ const calculateNormalLayoutHeight = (totalLangs: number): number => {
  * @param totalLangs Total number of languages.
  * @returns Card height.
  */
-const calculateDonutLayoutHeight = (totalLangs: number): number => {
-  return 215 + Math.max(totalLangs - 5, 0) * 32;
-};
+const calculateDonutLayoutHeight = (totalLangs: number): number =>
+  215 + Math.max(totalLangs - 5, 0) * 32;
 
 /**
  * Calculates height for the donut vertical layout.
@@ -166,9 +164,8 @@ const calculateDonutLayoutHeight = (totalLangs: number): number => {
  * @param totalLangs Total number of languages.
  * @returns Card height.
  */
-const calculateDonutVerticalLayoutHeight = (totalLangs: number): number => {
-  return 300 + Math.round(totalLangs / 2) * 25;
-};
+const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
+  300 + Math.round(totalLangs / 2) * 25;
 
 /**
  * Calculates height for the pie layout.
@@ -176,9 +173,8 @@ const calculateDonutVerticalLayoutHeight = (totalLangs: number): number => {
  * @param totalLangs Total number of languages.
  * @returns Card height.
  */
-const calculatePieLayoutHeight = (totalLangs: number): number => {
-  return 300 + Math.round(totalLangs / 2) * 25;
-};
+const calculatePieLayoutHeight = (totalLangs: number): number =>
+  300 + Math.round(totalLangs / 2) * 25;
 
 /**
  * Calculates the center translation needed to keep the donut chart centred.
@@ -186,9 +182,8 @@ const calculatePieLayoutHeight = (totalLangs: number): number => {
  * @param totalLangs Total number of languages.
  * @returns Donut center translation.
  */
-const donutCenterTranslation = (totalLangs: number): number => {
-  return -45 + Math.max(totalLangs - 5, 0) * 16;
-};
+const donutCenterTranslation = (totalLangs: number): number =>
+  -45 + Math.max(totalLangs - 5, 0) * 16;
 
 /**
  * Trim top languages to lang_count while also hiding certain languages.
@@ -209,14 +204,14 @@ const trimTopLanguages = (
 
   // populate langsToHide map for quick lookup while filtering out
   if (hide) {
-    hide.forEach((langName) => {
+    for (const langName of hide) {
       langsToHide[lowercaseTrim(langName)] = true;
-    });
+    }
   }
 
   // filter out languages to be hidden
   langs = langs
-    .sort((a, b) => b.size - a.size)
+    .toSorted((a, b) => b.size - a.size)
     .filter((lang) => !langsToHide[lowercaseTrim(lang.name)])
     .slice(0, langsCount);
 
@@ -233,9 +228,8 @@ const trimTopLanguages = (
  * @param format Format of the stats.
  * @returns Display value.
  */
-const getDisplayValue = (size: number, percentages: number, format: string): string => {
-  return format === 'bytes' ? formatBytes(size) : `${percentages.toFixed(2)}%`;
-};
+const getDisplayValue = (size: number, percentages: number, format: string): string =>
+  format === 'bytes' ? formatBytes(size) : `${percentages.toFixed(2)}%`;
 
 /**
  * Resolves a language's display color, falling back to the default, and
@@ -418,8 +412,8 @@ const createDonutLanguagesNode = ({
   totalSize: number;
   hideValues?: boolean | undefined;
   statsFormat?: string | undefined;
-}): Array<Child> => {
-  return flexLayout({
+}): Array<Child> =>
+  flexLayout({
     items: langs.map((lang, index) =>
       createCompactLangNode({
         lang,
@@ -433,7 +427,6 @@ const createDonutLanguagesNode = ({
     gap: 32,
     direction: 'column',
   });
-};
 
 /**
  * Renders the default language card layout.
@@ -451,8 +444,8 @@ const renderNormalLayout = (
   totalLanguageSize: number,
   statsFormat: string,
   hideValues?: boolean,
-): Array<Child> => {
-  return flexLayout({
+): Array<Child> =>
+  flexLayout({
     items: langs.map((lang, index) =>
       createProgressTextNode({
         width,
@@ -468,7 +461,6 @@ const renderNormalLayout = (
     gap: 40,
     direction: 'column',
   });
-};
 
 /**
  * Renders the compact language card layout.
@@ -495,7 +487,9 @@ const renderCompactLayout = (
   // so that we can stack them one after another, like this: [--][----][---]
   let progressOffset = 0;
   const compactProgressBar = langs.map((lang) => {
-    const percentage = parseFloat(((lang.size / totalLanguageSize) * offsetWidth).toFixed(2));
+    const percentage = Number.parseFloat(
+      ((lang.size / totalLanguageSize) * offsetWidth).toFixed(2),
+    );
     const x = progressOffset;
     progressOffset += percentage;
 
@@ -744,7 +738,7 @@ const createDonutPaths = (
 
   const totalPercent = percentages.reduce((acc, curr) => acc + curr, 0);
   for (const rawPercent of percentages) {
-    const percent = parseFloat(((rawPercent / totalPercent) * 100).toFixed(2));
+    const percent = Number.parseFloat(((rawPercent / totalPercent) * 100).toFixed(2));
 
     const endAngle = 3.6 * percent + startAngle;
     const startPoint = polarToCartesian(cx, cy, radius, endAngle - 90); // rotate donut 90 degrees counter-clockwise.
@@ -779,7 +773,7 @@ const renderDonutLayout = (
   hideValues?: boolean,
 ): Array<Child> => {
   if (!Number.isFinite(width)) {
-    throw new Error(`Invalid width: "${width}"`);
+    throw new TypeError(`Invalid width: "${width}"`);
   }
 
   const centerX = width / 3;
@@ -787,9 +781,9 @@ const renderDonutLayout = (
   const radius = centerX - 60;
   const strokeWidth = 12;
 
-  const colors = langs.map(resolveLangColor);
+  const colors = langs.map((lang) => resolveLangColor(lang));
   const langsPercents = langs.map((lang) =>
-    parseFloat(((lang.size / totalLanguageSize) * 100).toFixed(2)),
+    Number.parseFloat(((lang.size / totalLanguageSize) * 100).toFixed(2)),
   );
 
   const langPaths = createDonutPaths(centerX, centerY, radius, langsPercents);
@@ -875,15 +869,17 @@ const getDefaultLanguagesCountByLayout = ({
 }): number => {
   if (layout === 'compact' || hide_progress === true) {
     return COMPACT_LAYOUT_DEFAULT_LANGS_COUNT;
-  } else if (layout === 'donut') {
-    return DONUT_LAYOUT_DEFAULT_LANGS_COUNT;
-  } else if (layout === 'donut-vertical') {
-    return DONUT_VERTICAL_LAYOUT_DEFAULT_LANGS_COUNT;
-  } else if (layout === 'pie') {
-    return PIE_LAYOUT_DEFAULT_LANGS_COUNT;
-  } else {
-    return NORMAL_LAYOUT_DEFAULT_LANGS_COUNT;
   }
+  if (layout === 'donut') {
+    return DONUT_LAYOUT_DEFAULT_LANGS_COUNT;
+  }
+  if (layout === 'donut-vertical') {
+    return DONUT_VERTICAL_LAYOUT_DEFAULT_LANGS_COUNT;
+  }
+  if (layout === 'pie') {
+    return PIE_LAYOUT_DEFAULT_LANGS_COUNT;
+  }
+  return NORMAL_LAYOUT_DEFAULT_LANGS_COUNT;
 };
 
 /**
@@ -921,7 +917,7 @@ const renderTopLanguages = (
   const { langs, totalLanguageSize } = trimTopLanguages(topLangs, langs_count, hide);
 
   let width = card_width
-    ? isNaN(card_width)
+    ? Number.isNaN(card_width)
       ? DEFAULT_CARD_WIDTH
       : card_width < MIN_CARD_WIDTH
         ? MIN_CARD_WIDTH
@@ -957,7 +953,7 @@ const renderTopLanguages = (
     );
   } else if (layout === 'donut') {
     height = calculateDonutLayoutHeight(langs.length);
-    width = width + 50; // padding
+    width += 50; // padding
     finalLayout = renderDonutLayout(langs, width, totalLanguageSize, stats_format, hide_values);
   } else {
     finalLayout = renderNormalLayout(langs, width, totalLanguageSize, stats_format, hide_values);

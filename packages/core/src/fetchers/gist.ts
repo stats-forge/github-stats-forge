@@ -57,7 +57,7 @@ const fetchGist = async (
       code: 'upstream',
     });
   }
-  const gist = res.data.data.viewer.gist;
+  const { gist } = res.data.data.viewer;
   if (!gist) {
     throw new CardError('Gist not found', {
       code: 'not_found',

@@ -13,7 +13,7 @@ import {
 } from '../src/common/color.js';
 import { CardError } from '../src/common/error.js';
 
-describe('getCardColors', () => {
+describe(getCardColors, () => {
   it('should return expected values', () => {
     const colors = getCardColors({
       title_color: 'f00',
@@ -121,7 +121,7 @@ describe('getCardColors', () => {
   });
 });
 
-describe('isPrefixedHexColor', () => {
+describe(isPrefixedHexColor, () => {
   it('should validate hex colors with # prefix', () => {
     expect(isPrefixedHexColor('#f00')).toBe(true);
     expect(isPrefixedHexColor('#ffffff')).toBe(true);
@@ -137,7 +137,7 @@ describe('isPrefixedHexColor', () => {
   });
 });
 
-describe('isBareHexColor', () => {
+describe(isBareHexColor, () => {
   it('should validate hex colors without # prefix', () => {
     expect(isBareHexColor('f00')).toBe(true);
     expect(isBareHexColor('ffffff')).toBe(true);
@@ -153,7 +153,7 @@ describe('isBareHexColor', () => {
   });
 });
 
-describe('isValidGradient', () => {
+describe(isValidGradient, () => {
   it('should validate valid gradients', () => {
     expect(isValidGradient(['90', 'f00', '0f0'])).toBe(true);
     expect(isValidGradient(['45', 'fff', '000', 'abc'])).toBe(true);
@@ -173,7 +173,7 @@ describe('isValidGradient', () => {
   });
 });
 
-describe('getLightDarkColors', () => {
+describe(getLightDarkColors, () => {
   it('returns darkColors null when no mode-specific params are given', () => {
     const { lightColors, darkColors } = getLightDarkColors({
       title_color: 'f00',
@@ -283,20 +283,20 @@ describe('getLightDarkColors', () => {
   });
 });
 
-describe('parseColorParams', () => {
-  /**
-   * @param query Raw query params.
-   * @returns The param the schema rejected, or null when it accepted them all.
-   */
-  const invalidParam = (query: Record<string, string>): string | null => {
-    try {
-      parseColorParams(query);
-      return null;
-    } catch (err) {
-      return err instanceof CardError ? (err.param ?? null) : null;
-    }
-  };
+/**
+ * @param query Raw query params.
+ * @returns The param the schema rejected, or null when it accepted them all.
+ */
+const invalidParam = (query: Record<string, string>): string | null => {
+  try {
+    parseColorParams(query);
+    return null;
+  } catch (error) {
+    return error instanceof CardError ? (error.param ?? null) : null;
+  }
+};
 
+describe(parseColorParams, () => {
   it('should accept valid colors', () => {
     expect(invalidParam({ title_color: 'f00', text_color: '0f0', bg_color: 'fff' })).toBeNull();
   });

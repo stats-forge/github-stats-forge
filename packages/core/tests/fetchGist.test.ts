@@ -24,28 +24,28 @@ const gist_data = {
             language: {
               name: 'JSON',
             },
-            size: 85858,
+            size: 85_858,
           },
           {
             name: 'territories.txt',
             language: {
               name: 'Text',
             },
-            size: 87858,
+            size: 87_858,
           },
           {
             name: 'countries_spanish.json',
             language: {
               name: 'JSON',
             },
-            size: 85858,
+            size: 85_858,
           },
           {
             name: 'territories_spanish.txt',
             language: {
               name: 'Text',
             },
-            size: 87858,
+            size: 87_858,
           },
         ],
       },

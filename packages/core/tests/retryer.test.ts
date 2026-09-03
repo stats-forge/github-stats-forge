@@ -40,9 +40,9 @@ const fetcherFailWithMessageBasedRateLimitErr = vi.fn((_vars, _token, { retries 
   return Promise.resolve({ data: 'ok' });
 }) as unknown as Fetcher;
 
-const customFetcher = vi.fn((_variables: unknown, token: string) => {
-  return Promise.resolve({ data: { token } });
-}) as unknown as Fetcher;
+const customFetcher = vi.fn((_variables: unknown, token: string) =>
+  Promise.resolve({ data: { token } }),
+) as unknown as Fetcher;
 
 describe('Test Retryer', () => {
   it('retryer should return value and have zero retries on first try', async () => {

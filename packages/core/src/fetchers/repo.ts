@@ -45,35 +45,31 @@ const fetchRepo = async (
   },
   config: CardConfig,
 ): Promise<RepositoryData> => {
-  let owner = username;
-  if (reponame && reponame.includes('/')) {
-    const [parsedOwner, parsedRepo] = reponame.split('/');
-    owner = parsedOwner ?? '';
-    reponame = parsedRepo ?? '';
+  // `?repo=owner/name` carries the owner itself, and then it wins over `?username=`.
+  let parsedOwner = username;
+  let repo = reponame;
+  if (repo?.includes('/')) {
+    const [ownerFromRepo, nameFromRepo] = repo.split('/');
+    parsedOwner = ownerFromRepo ?? '';
+    repo = nameFromRepo ?? '';
   }
 
-  if (owner && !username) {
-    username = owner;
-  }
-  if (username && !owner) {
-    owner = username;
-  }
-  if (!username && !reponame) {
+  const login = username || parsedOwner;
+  if (!login && !repo) {
     throw CardError.missingParam(['username', 'repo'], urlExample);
   }
-  if (!username) {
+  if (!login) {
     throw CardError.missingParam(['username'], urlExample);
   }
-  if (!reponame) {
+  if (!repo) {
     throw CardError.missingParam(['repo'], urlExample);
   }
 
-  // the guards above leave `username` set, and `owner` mirrors it when `repo` carried none
-  const repoOwner = owner ?? username;
+  const repoOwner = parsedOwner || login;
 
-  const res = await retryer(fetcher, { login: repoOwner, repo: reponame }, config);
+  const res = await retryer(fetcher, { login: repoOwner, repo }, config);
 
-  const data = res.data.data;
+  const { data } = res.data;
 
   if (!data.user && !data.organization) {
     throw new CardError('Not found', {
@@ -83,7 +79,7 @@ const fetchRepo = async (
   }
 
   if (data.organization === null && data.user) {
-    const repository = data.user.repository;
+    const { repository } = data.user;
     if (!repository || repository.isPrivate) {
       throw new CardError('User Repository Not found', {
         code: 'not_found',
@@ -92,8 +88,8 @@ const fetchRepo = async (
     }
     const repoUserStats = await fetchRepoUserStats(
       {
-        username,
-        repo: [`${repoOwner}/${reponame}`],
+        username: login,
+        repo: [`${repoOwner}/${repo}`],
         include_prs_authored,
         include_prs_commented,
         include_prs_reviewed,
@@ -109,7 +105,7 @@ const fetchRepo = async (
   }
 
   if (data.user === null && data.organization) {
-    const repository = data.organization.repository;
+    const { repository } = data.organization;
     if (!repository || repository.isPrivate) {
       throw new CardError('Organization Repository Not found', {
         code: 'not_found',
@@ -118,8 +114,8 @@ const fetchRepo = async (
     }
     const repoUserStats = await fetchRepoUserStats(
       {
-        username,
-        repo: [`${repoOwner}/${reponame}`],
+        username: login,
+        repo: [`${repoOwner}/${repo}`],
         include_prs_authored,
         include_prs_commented,
         include_prs_reviewed,

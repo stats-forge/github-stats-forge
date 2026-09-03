@@ -2,6 +2,7 @@ import type { GitHubDateRange } from '../common/date.js';
 import { toGitHubDateTime } from '../common/date.js';
 
 import type { RangeContributionsByRepoFragment } from './generated/stats.js';
+import type { GraphQLDocument } from './graphqlDocument.js';
 import { graphqlDocument } from './graphqlDocument.js';
 
 /** max value GitHub allows for `first/maxRepositories` */
@@ -31,7 +32,7 @@ interface ReposContributedToQuery {
 const buildReposContributedToDocument = (
   ranges: Array<GitHubDateRange>,
   includeOwnRepos: boolean,
-) => {
+): GraphQLDocument<ReposContributedToQuery, ReposContributedToQueryVariables> => {
   const rangeFields = ranges
     .map(
       ({ from, to }, index) =>

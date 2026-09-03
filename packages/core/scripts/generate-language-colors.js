@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 import * as jsYaml from 'js-yaml';
 
@@ -15,11 +15,11 @@ const languages = jsYaml.load(await response.text());
 const languageColors = {};
 
 // Filter only language colors from the whole file
-Object.keys(languages).forEach((lang) => {
+for (const lang of Object.keys(languages)) {
   languageColors[lang] = languages[lang].color;
-});
+}
 
 // Debug Print
 // console.dir(languageColors);
 // Written the way the formatter would, so a regenerated file passes `format:check` as-is.
-fs.writeFileSync(LANGS_FILEPATH, JSON.stringify(languageColors, null, 2) + '\n');
+fs.writeFileSync(LANGS_FILEPATH, `${JSON.stringify(languageColors, null, 2)}\n`);

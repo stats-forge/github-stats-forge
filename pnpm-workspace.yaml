@@ -1,12 +1,8 @@
 packages:
   - packages/*
 
-# `onlyBuiltDependencies` in pnpm 10; renamed and turned into a map in 11.
-# `@swc/core` left the dependency graph, so its entry went with it.
 allowBuilds:
-  esbuild: true
   lefthook: true
-  unrs-resolver: true
 
 catalog:
   '@vitest/coverage-v8': 4.1.11
@@ -15,6 +11,10 @@ catalog:
 
 # Deliberately stricter than pnpm's 1440 default (3 days vs 1)
 minimumReleaseAge: 4320
+
+minimumReleaseAgeExclude:
+  - '@marcalexiei/oxfmt-config@1.3.0'
+  - '@marcalexiei/oxlint-config@1.5.0'
 
 # Reject a version with weaker publish trust evidence than an earlier one.
 trustPolicy: no-downgrade

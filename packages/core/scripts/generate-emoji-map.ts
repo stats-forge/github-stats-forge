@@ -52,4 +52,4 @@ if (total < 1500) {
 }
 
 // Written the way the formatter would, so a regenerated file passes `format:check` as-is.
-fs.writeFileSync(EMOJI_FILEPATH, JSON.stringify(emojiMap, null, 2) + '\n');
+fs.writeFileSync(EMOJI_FILEPATH, `${JSON.stringify(emojiMap, null, 2)}\n`);

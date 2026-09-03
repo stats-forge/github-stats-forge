@@ -242,7 +242,7 @@ describe('Test renderStatsCard', () => {
   });
 
   it('should render with all the themes', () => {
-    Object.entries(themes).forEach(([name, themeData]) => {
+    for (const [name, themeData] of Object.entries(themes)) {
       document.body.innerHTML = renderStatsCard(stats, {
         theme: name,
       });
@@ -263,7 +263,7 @@ describe('Test renderStatsCard', () => {
       const backgroundElement = screen.queryByTestId('card-bg');
       const backgroundElementFill = backgroundElement?.getAttribute('fill');
       expect([`#${bg_color}`, 'url(#gradient)']).toContain(backgroundElementFill);
-    });
+    }
   });
 
   it('should render custom colors with themes and fallback to default colors if invalid', () => {

@@ -117,7 +117,7 @@ const statsFetcher = async (
 
     pageRepositories = page.data.data.user?.repositories;
     extraRepoNodes.push(...(pageRepositories?.nodes ?? []));
-    fetchedPages++;
+    fetchedPages += 1;
   }
 
   if (extraRepoNodes.length > 0) {
@@ -154,9 +154,10 @@ const fetchTotalItems = (
   const owner = variables['owner'] as Array<string> | string;
   return httpRequest(
     fetch,
-    `https://api.github.com/search/${type}?per_page=1&q=` +
-      buildSearchFilter(repo, owner).replaceAll(' ', '+') +
-      filter,
+    `https://api.github.com/search/${type}?per_page=1&q=${buildSearchFilter(repo, owner).replaceAll(
+      ' ',
+      '+',
+    )}${filter}`,
     {
       method: 'GET',
       headers: {
@@ -215,14 +216,14 @@ const totalItemsFetcher = async (
       { login: username, repo, owner, type, filter },
       config,
     );
-  } catch (err) {
-    logger.log(err);
-    throw err;
+  } catch (error) {
+    logger.log(error);
+    throw error;
   }
 
   const totalCount = res.data.total_count;
-  if (totalCount === undefined || isNaN(totalCount)) {
-    logger.error('GitHub error: ' + JSON.stringify(res.data));
+  if (typeof totalCount !== 'number' || Number.isNaN(totalCount)) {
+    logger.error(`GitHub error: ${JSON.stringify(res.data)}`);
     throw new CardError('Could not fetch data from GitHub REST API.', {
       code: 'upstream',
     });
@@ -381,7 +382,7 @@ const fetchTotalContributions = async (
     );
   }
 
-  const user = contribRes.data.data.user;
+  const { user } = contribRes.data.data;
   if (!user) {
     return 0;
   }
@@ -433,25 +434,25 @@ const fetchAllTimeReposContributedTo = async (
   config: CardConfig,
 ): Promise<number> => {
   const repos = new Set<string>();
-  let pending = years.map(getGitHubYearRange);
+  let pending = years.map((year) => getGitHubYearRange(year));
 
   while (pending.length > 0) {
     const nextPending: Array<GitHubDateRange> = [];
 
     for (const chunk of chunkArray(pending, MAX_RANGES_PER_REQUEST)) {
-      const fetcher = createGraphQLFetcher(
+      const chunkFetcher = createGraphQLFetcher(
         buildReposContributedToDocument(chunk, includeOwnRepos),
         'bearer',
       );
       const res = await retryer(
-        fetcher,
+        chunkFetcher,
         { login: canonicalUsername, maxRepositories: MAX_REPOSITORIES_LIMIT },
         config,
       );
       if (res.data.errors) {
         throw graphqlError(res.data.errors, res.statusText, REPOS_CONTRIBUTED_TO_ERROR);
       }
-      const user = res.data.data.user;
+      const { user } = res.data.data;
       if (!user) {
         throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: 'upstream' });
       }
@@ -624,7 +625,7 @@ const fetchStats = async (
   // Catch GraphQL errors.
   if (res.data.errors) {
     logger.error(res.data.errors);
-    const firstError = res.data.errors[0];
+    const [firstError] = res.data.errors;
     if (firstError?.type === 'NOT_FOUND') {
       throw new CardError(firstError.message || 'Could not fetch user.', {
         code: 'not_found',
@@ -643,7 +644,7 @@ const fetchStats = async (
     );
   }
 
-  const user = res.data.data.user;
+  const { user } = res.data.data;
   if (!user) {
     throw new CardError('Could not fetch user.', {
       code: 'not_found',

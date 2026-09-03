@@ -39,12 +39,11 @@ const langs = {
  * @param d SVG path definition string.
  * @returns Resulting numbers array.
  */
-const getNumbersFromSvgPathDefinitionAttribute = (d: string): Array<number> => {
-  return d
+const getNumbersFromSvgPathDefinitionAttribute = (d: string): Array<number> =>
+  d
     .split(' ')
-    .filter((x) => !isNaN(Number(x)))
-    .map((x) => parseFloat(x));
-};
+    .filter((x) => !Number.isNaN(Number(x)))
+    .map((x) => Number.parseFloat(x));
 
 /**
  * Retrieve the language percentage from the donut chart SVG.
@@ -76,9 +75,7 @@ const langPercentFromDonutLayoutSvg = (d: string, centerX: number, centerY: numb
 const langPercentFromDonutVerticalLayoutSvg = (
   partLength: number,
   totalCircleLength: number,
-): number => {
-  return (partLength / totalCircleLength) * 100;
-};
+): number => (partLength / totalCircleLength) * 100;
 
 /**
  * Retrieve the language percentage from the pie chart SVG.
@@ -319,13 +316,13 @@ describe('Test renderTopLanguages helper functions', () => {
   });
 
   it('getDefaultLanguagesCountByLayout', () => {
-    expect(getDefaultLanguagesCountByLayout({ layout: 'normal' })).toStrictEqual(5);
-    expect(getDefaultLanguagesCountByLayout({})).toStrictEqual(5);
-    expect(getDefaultLanguagesCountByLayout({ layout: 'compact' })).toStrictEqual(6);
-    expect(getDefaultLanguagesCountByLayout({ hide_progress: true })).toStrictEqual(6);
-    expect(getDefaultLanguagesCountByLayout({ layout: 'donut' })).toStrictEqual(5);
-    expect(getDefaultLanguagesCountByLayout({ layout: 'donut-vertical' })).toStrictEqual(6);
-    expect(getDefaultLanguagesCountByLayout({ layout: 'pie' })).toStrictEqual(6);
+    expect(getDefaultLanguagesCountByLayout({ layout: 'normal' })).toBe(5);
+    expect(getDefaultLanguagesCountByLayout({})).toBe(5);
+    expect(getDefaultLanguagesCountByLayout({ layout: 'compact' })).toBe(6);
+    expect(getDefaultLanguagesCountByLayout({ hide_progress: true })).toBe(6);
+    expect(getDefaultLanguagesCountByLayout({ layout: 'donut' })).toBe(5);
+    expect(getDefaultLanguagesCountByLayout({ layout: 'donut-vertical' })).toBe(6);
+    expect(getDefaultLanguagesCountByLayout({ layout: 'pie' })).toBe(6);
   });
 });
 
@@ -464,7 +461,7 @@ describe('Test renderTopLanguages', () => {
   });
 
   it('should render with all the themes', () => {
-    Object.entries(themes).forEach(([name, themeData]) => {
+    for (const [name, themeData] of Object.entries(themes)) {
       document.body.innerHTML = renderTopLanguages(langs, {
         theme: name,
       });
@@ -481,7 +478,7 @@ describe('Test renderTopLanguages', () => {
       const backgroundElement = screen.queryByTestId('card-bg');
       const backgroundElementFill = backgroundElement?.getAttribute('fill');
       expect([`#${themeData.bg_color}`, 'url(#gradient)']).toContain(backgroundElementFill);
-    });
+    }
   });
 
   it('should render with layout compact', () => {

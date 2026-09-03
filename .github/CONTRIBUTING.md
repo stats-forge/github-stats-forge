@@ -16,7 +16,7 @@ own — the tests do not, they run against recorded responses.
 
 ```bash
 pnpm run test       # unit tests
-pnpm run lint       # eslint
+pnpm run lint       # oxlint
 pnpm run typecheck  # tsc
 ```
 

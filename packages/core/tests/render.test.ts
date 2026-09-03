@@ -10,23 +10,23 @@ import {
 
 describe('Test splitWrappedText', () => {
   it('should return an empty array for empty text', () => {
-    expect(splitWrappedText('', 10, 200)).toEqual([]);
+    expect(splitWrappedText('', 10, 200)).toStrictEqual([]);
   });
 
   it('should split a two-word string across lines', () => {
-    expect(splitWrappedText('hello world', 10, 25)).toEqual(['hello', 'world']);
+    expect(splitWrappedText('hello world', 10, 25)).toStrictEqual(['hello', 'world']);
   });
 
   it('should split a word wider than maxWidth', () => {
-    expect(splitWrappedText('aaaa', 10, 15)).toEqual(['aa', 'aa']);
+    expect(splitWrappedText('aaaa', 10, 15)).toStrictEqual(['aa', 'aa']);
   });
 
   it('should handle mix of short and long words', () => {
-    expect(splitWrappedText('short looooong', 10, 40)).toEqual(['short', 'looooon', 'g']);
+    expect(splitWrappedText('short looooong', 10, 40)).toStrictEqual(['short', 'looooon', 'g']);
   });
 
   it('should handle complex whitespace characters', () => {
-    expect(splitWrappedText('One         two three', 10, 25)).toEqual([
+    expect(splitWrappedText('One         two three', 10, 25)).toStrictEqual([
       'One',
       '     ',
       '  ',
@@ -36,7 +36,7 @@ describe('Test splitWrappedText', () => {
   });
 
   it('trailing spaces should not cause line breaks', () => {
-    expect(splitWrappedText('hi hi ', 10, 12)).toEqual(['hi', 'hi']);
+    expect(splitWrappedText('hi hi ', 10, 12)).toStrictEqual(['hi', 'hi']);
   });
 });
 
@@ -44,18 +44,18 @@ describe('Test wrapTextMultiline', () => {
   it('should not wrap small texts', () => {
     {
       const multiLineText = wrapTextMultiline('Small text should not wrap', 130, 11, 3);
-      expect(multiLineText).toEqual(['Small text should not wrap']);
+      expect(multiLineText).toStrictEqual(['Small text should not wrap']);
     }
   });
 
   it('should wrap large texts', () => {
     const multiLineText = wrapTextMultiline('Hello world long long long text', 130, 11, 3);
-    expect(multiLineText).toEqual(['Hello world long long', 'long text']);
+    expect(multiLineText).toStrictEqual(['Hello world long long', 'long text']);
   });
 
   it('should wrap large texts and limit max lines', () => {
     const multiLineText = wrapTextMultiline('Hello world long long long text', 53, 11, 2);
-    expect(multiLineText).toEqual(['Hello', 'world long...']);
+    expect(multiLineText).toStrictEqual(['Hello', 'world long...']);
   });
 
   it('should handle chinese characters', () => {

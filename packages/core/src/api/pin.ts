@@ -66,9 +66,9 @@ export const pin = async (query: PinApiQuery, config: CardConfig): Promise<ApiRe
   let colors;
   try {
     colors = parseColorParams(query);
-  } catch (err) {
+  } catch (error) {
     // A rejected color cannot be used to draw its own error card.
-    return errorResult(err);
+    return errorResult(error);
   }
 
   try {
@@ -121,7 +121,7 @@ export const pin = async (query: PinApiQuery, config: CardConfig): Promise<ApiRe
         description_lines_count,
       }),
     };
-  } catch (err) {
-    return errorResult(err, colors);
+  } catch (error) {
+    return errorResult(error, colors);
   }
 };

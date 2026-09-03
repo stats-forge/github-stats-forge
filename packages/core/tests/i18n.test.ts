@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { I18n } from '../src/common/I18n.js';
 import { statCardLocales } from '../src/translations.js';
 
-describe('I18n', () => {
+describe(I18n, () => {
   it('should return translated string', () => {
     const i18n = new I18n({
       locale: 'en',

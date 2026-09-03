@@ -64,7 +64,7 @@ export const describeAnswer = (option: CardOption, value: Answer): string => {
  */
 export const defaultFileName = (card: CardKind, query: Record<string, string>): string => {
   const subject = query['username'] ?? query['id'] ?? 'card';
-  const repo = query['repo'];
+  const { repo } = query;
   const parts = [card.id, subject, repo].filter(Boolean).join('-');
-  return `${parts.replace(/[^\w.-]/g, '-')}.svg`;
+  return `${parts.replaceAll(/[^\w.-]/g, '-')}.svg`;
 };

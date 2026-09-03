@@ -9,10 +9,10 @@
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 const INTERVAL_MS = 80;
 
-const HIDE_CURSOR = '\u001b[?25l';
-const SHOW_CURSOR = '\u001b[?25h';
+const HIDE_CURSOR = '\u001B[?25l';
+const SHOW_CURSOR = '\u001B[?25h';
 /** Return to the start of the line and wipe what was on it. */
-const CLEAR_LINE = '\r\u001b[K';
+const CLEAR_LINE = '\r\u001B[K';
 
 /** What the spinner writes to; `process.stderr`, or a fake in a test. */
 export interface SpinnerStream {

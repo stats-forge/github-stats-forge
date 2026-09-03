@@ -32,7 +32,7 @@ const repoData: RepositoryData = {
   isArchived: false,
   isPrivate: false,
   forkCount: 100,
-  stargazerCount: 38000,
+  stargazerCount: 38_000,
 };
 
 const statsData: StatsData = {
@@ -71,7 +71,7 @@ const wakatimeData: Partial<WakaTimeData> = {
       hours: 8,
       minutes: 0,
       digital: '8:00',
-      total_seconds: 28800,
+      total_seconds: 28_800,
     },
     {
       name: 'Python',
@@ -88,11 +88,11 @@ const wakatimeData: Partial<WakaTimeData> = {
 
 /** Every card, rendered with data that exercises its labels. */
 const cards = {
-  gist: () => renderGistCard(gistData),
-  repo: () => renderRepoCard(repoData),
-  stats: () => renderStatsCard(statsData),
-  'top-languages': () => renderTopLanguages(topLangs),
-  wakatime: () => renderWakatimeCard(wakatimeData),
+  gist: (): string => renderGistCard(gistData),
+  repo: (): string => renderRepoCard(repoData),
+  stats: (): string => renderStatsCard(statsData),
+  'top-languages': (): string => renderTopLanguages(topLangs),
+  wakatime: (): string => renderWakatimeCard(wakatimeData),
 };
 
 const parse = (svg: string): SVGElement => {
@@ -137,7 +137,7 @@ describe('card accessibility', () => {
     const ids = svg.getAttribute('aria-labelledby')?.split(' ') ?? [];
     expect(ids).not.toHaveLength(0);
     for (const id of ids) {
-      expect(document.getElementById(id)).toBeInTheDocument();
+      expect(document.querySelector(`#${id}`)).toBeInTheDocument();
     }
   });
 
@@ -158,6 +158,6 @@ describe('card accessibility and locale', () => {
     parse(renderRepoCard(repoData, { locale: 'cn' }));
 
     const desc = document.querySelector('desc#descId')?.textContent ?? '';
-    expect(desc).not.toMatch(/\b(Stars|Forks|Language)\b/);
+    expect(desc).not.toMatch(/\b(?:Stars|Forks|Language)\b/);
   });
 });

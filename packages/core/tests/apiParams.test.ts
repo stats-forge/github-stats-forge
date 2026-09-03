@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import type { ApiResult } from '../src/api/api-result.js';
 import { gist as gistApi } from '../src/api/gist.js';
 import { pin as pinApi } from '../src/api/pin.js';
 import { stats as statsApi } from '../src/api/stats.js';
@@ -16,11 +17,11 @@ const config = testConfig.with({ fetch: mock.fetch });
 
 /** Every endpoint, called the way its own signature allows. */
 const endpoints = {
-  stats: (query: Record<string, string>) => statsApi(query, config),
-  pin: (query: Record<string, string>) => pinApi(query, config),
-  'top-langs': (query: Record<string, string>) => topLangsApi(query, config),
-  gist: (query: Record<string, string>) => gistApi(query, config),
-  wakatime: (query: Record<string, string>) => wakatimeApi(query, config),
+  stats: (query: Record<string, string>): Promise<ApiResult> => statsApi(query, config),
+  pin: (query: Record<string, string>): Promise<ApiResult> => pinApi(query, config),
+  'top-langs': (query: Record<string, string>): Promise<ApiResult> => topLangsApi(query, config),
+  gist: (query: Record<string, string>): Promise<ApiResult> => gistApi(query, config),
+  wakatime: (query: Record<string, string>): Promise<ApiResult> => wakatimeApi(query, config),
 };
 
 const withUser = (endpoint: string): Record<string, string> =>
@@ -35,20 +36,21 @@ afterAll(() => {
 });
 
 describe('api query schemas', () => {
-  it.each(Object.entries(endpoints))(
+  it.each(Object.entries(endpoints).filter(([name]) => name !== 'gist'))(
     '%s rejects an unavailable locale with the same wording',
     async (name, call) => {
       const result = await call({ ...withUser(name), locale: 'xx' });
 
-      // the gist card has no translated text, so it takes no locale at all
-      if (name === 'gist') {
-        expect(result.content).not.toContain('Locale not found');
-        return;
-      }
       expect(result.status).toBe('error');
       expect(result.content).toContain('Locale not found');
     },
   );
+
+  it('gist takes no locale at all, so it has none to reject', async () => {
+    const result = await endpoints.gist({ ...withUser('gist'), locale: 'xx' });
+
+    expect(result.content).not.toContain('Locale not found');
+  });
 
   it.each(Object.entries(endpoints))(
     '%s ignores params it does not declare',

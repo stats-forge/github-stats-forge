@@ -12,7 +12,7 @@ describe('repo fetcher types', () => {
       isPrivate: false,
       isArchived: false,
       isTemplate: false,
-      stargazerCount: 38000,
+      stargazerCount: 38_000,
       description: 'Help us take over the world!',
       primaryLanguage: {
         color: '#2b7489',

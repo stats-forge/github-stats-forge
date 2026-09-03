@@ -56,7 +56,7 @@ const checkOnly = process.argv.includes('--check');
 
 /** @type {TypeScriptPluginConfig & TypeScriptDocumentsPluginConfig} */
 const config = {
-  emitLegacyCommonJSImports: false,
+  importExtension: '.js',
   enumsAsTypes: true,
   skipTypename: true,
   useTypeImports: true,
@@ -76,7 +76,7 @@ const queryDir = await fs.readdir(QUERIES_DIR).catch(() => {
   console.error(`No queries in ${pathRelativeFromRoot(QUERIES_DIR)}`);
   process.exit(1);
 });
-const queryFiles = queryDir.filter((file) => file.endsWith('.graphql')).sort();
+const queryFiles = queryDir.filter((file) => file.endsWith('.graphql')).toSorted();
 
 const documents = await Promise.all(
   queryFiles.map(async (file) => {
@@ -161,7 +161,7 @@ const documentsPlugin = (_schema, files) => {
       const { documentName, resultType, variablesType } = operationNames(operation);
       const text = [
         print(operation),
-        ...[...spreadFragments(operation, fragments).values()].map(print),
+        ...[...spreadFragments(operation, fragments).values()].map((node) => print(node)),
       ].join('\n');
       return `export const ${documentName} = graphqlDocument<${resultType}, ${variablesType}>(\`\n${text}\`);`;
     });
@@ -208,7 +208,7 @@ const outputs = documents.map((file) => ({
 }));
 
 // queries with only built-in scalar variables need no common file
-if (commonTypes.size) {
+if (commonTypes.size > 0) {
   const commonSchema = new GraphQLSchema({ types: [...commonTypes] });
   outputs.push({
     filename: COMMON_FILE,
@@ -223,11 +223,12 @@ if (commonTypes.size) {
 const generated = await Promise.all(
   outputs.map(async ({ filename, ...options }) => {
     const content = await codegen({ filename, config, ...options });
-    return {
+    const formatted = await format(
       filename,
-      content: (await format(filename, BANNER + content.replace(INCREMENTAL_TYPE, ''), oxfmtConfig))
-        .code,
-    };
+      BANNER + content.replace(INCREMENTAL_TYPE, ''),
+      oxfmtConfig,
+    );
+    return { filename, content: formatted.code };
   }),
 );
 
@@ -235,13 +236,14 @@ const queryCount = `${documents.length} ${documents.length === 1 ? 'query' : 'qu
 
 // a deleted query leaves its generated file behind; anything else in the folder is not ours
 const expected = new Set(generated.map(({ filename }) => filename));
-const stale = (await fs.readdir(OUT_DIR).catch(() => []))
+const outDirFiles = await fs.readdir(OUT_DIR).catch(() => []);
+const stale = outDirFiles
   .filter((file) => file.endsWith('.ts'))
   .map((file) => path.join(OUT_DIR, file))
   .filter((file) => !expected.has(file));
 
 if (checkOnly) {
-  const outdated = stale.map(pathRelativeFromRoot);
+  const outdated = stale.map((file) => pathRelativeFromRoot(file));
   for (const { filename, content } of generated) {
     const current = await fs.readFile(filename, 'utf8').catch(() => null);
     if (current !== content) {

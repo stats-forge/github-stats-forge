@@ -1,6 +1,7 @@
 import { getGitHubYearRange, toGitHubDateTime } from '../common/date.js';
 
 import type { YearContributionsFragment } from './generated/stats.js';
+import type { GraphQLDocument } from './graphqlDocument.js';
 import { graphqlDocument } from './graphqlDocument.js';
 
 interface ContributionsQueryVariables {
@@ -18,7 +19,9 @@ interface ContributionsQuery {
  * @param years Contribution years, one `year_<year>` alias each.
  * @returns Document for `createGraphQLFetcher`.
  */
-const buildContributionsDocument = (years: Array<number>) => {
+const buildContributionsDocument = (
+  years: Array<number>,
+): GraphQLDocument<ContributionsQuery, ContributionsQueryVariables> => {
   const yearFields = years
     .map((year) => {
       const { from, to } = getGitHubYearRange(year);

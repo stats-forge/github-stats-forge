@@ -20,7 +20,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('withSpinner', () => {
+describe(withSpinner, () => {
   it('answers with what the work answered', async () => {
     const stream = fakeStream(false);
 

@@ -16,6 +16,41 @@ const NO_MOTION = {
   'animation-delay': '0s !important',
 } as const;
 
+/**
+ * Retrieves css animations for a card.
+ *
+ * @returns Animation css.
+ */
+const getAnimations = (): Array<CssChild> => [
+  cssComment('Animations'),
+  atRule(
+    '@keyframes scaleInAnimation',
+    rule('from', { transform: 'translate(-5px, 5px) scale(0)' }),
+    rule('to', { transform: 'translate(-5px, 5px) scale(1)' }),
+  ),
+  atRule('@keyframes fadeInAnimation', rule('from', { opacity: 0 }), rule('to', { opacity: 1 })),
+  atRule('@media (prefers-reduced-motion: reduce)', rule('*', NO_MOTION)),
+];
+
+/** One `linearGradient` definition, built from an angle followed by its stops. */
+const buildGradientDef = (id: string, bgColor: Array<string>): MarkupElement => {
+  const gradients = bgColor.slice(1);
+  return el(
+    'linearGradient',
+    {
+      id,
+      gradientTransform: `rotate(${String(bgColor[0])})`,
+      gradientUnits: 'userSpaceOnUse',
+    },
+    gradients.map((grad, index) =>
+      el('stop', {
+        offset: `${(index * 100) / (gradients.length - 1)}%`,
+        'stop-color': `#${grad}`,
+      }),
+    ),
+  );
+};
+
 class Card {
   width: number;
   height: number;
@@ -71,10 +106,10 @@ class Card {
     this.hideBorder = false;
     this.hideTitle = false;
 
-    this.border_radius = parseFloat(String(border_radius));
+    this.border_radius = Number.parseFloat(String(border_radius));
 
     this.colors = colors;
-    this.title = customTitle === undefined ? defaultTitle : customTitle;
+    this.title = customTitle ?? defaultTitle;
 
     this.css = [];
     this.darkCss = [];
@@ -181,24 +216,6 @@ class Card {
    * @returns The card's gradient definitions, or nothing when no color is a gradient.
    */
   renderGradient(): Child {
-    const buildGradientDef = (id: string, bgColor: Array<string>): MarkupElement => {
-      const gradients = bgColor.slice(1);
-      return el(
-        'linearGradient',
-        {
-          id,
-          gradientTransform: `rotate(${String(bgColor[0])})`,
-          gradientUnits: 'userSpaceOnUse',
-        },
-        gradients.map((grad, index) =>
-          el('stop', {
-            offset: `${(index * 100) / (gradients.length - 1)}%`,
-            'stop-color': `#${grad}`,
-          }),
-        ),
-      );
-    };
-
     if (
       typeof this.colors.light.bgColor === 'object' &&
       !isValidGradient(this.colors.light.bgColor)
@@ -223,28 +240,6 @@ class Card {
 
     return defs.length === 0 ? undefined : el('defs', {}, defs);
   }
-
-  /**
-   * Retrieves css animations for a card.
-   *
-   * @returns Animation css.
-   */
-  getAnimations = (): Array<CssChild> => {
-    return [
-      cssComment('Animations'),
-      atRule(
-        '@keyframes scaleInAnimation',
-        rule('from', { transform: 'translate(-5px, 5px) scale(0)' }),
-        rule('to', { transform: 'translate(-5px, 5px) scale(1)' }),
-      ),
-      atRule(
-        '@keyframes fadeInAnimation',
-        rule('from', { opacity: 0 }),
-        rule('to', { opacity: 1 }),
-      ),
-      atRule('@media (prefers-reduced-motion: reduce)', rule('*', NO_MOTION)),
-    ];
-  };
 
   /**
    * Builds the @media (prefers-color-scheme: dark) CSS block for the card.
@@ -274,7 +269,7 @@ class Card {
    */
   render(body: Child): string {
     if (!Number.isFinite(this.border_radius)) {
-      throw new Error(`Invalid border radius: "${this.border_radius}"`);
+      throw new TypeError(`Invalid border radius: "${this.border_radius}"`);
     }
     if (!isPrefixedHexColor(this.colors.light.titleColor)) {
       throw new Error(`Invalid title color: "${this.colors.light.titleColor}"`);
@@ -317,7 +312,7 @@ class Card {
           ),
           this.css,
           this.renderDarkMediaBlock(),
-          this.getAnimations(),
+          getAnimations(),
           !this.animations && rule('*', NO_MOTION),
         ),
         this.renderGradient(),
@@ -351,4 +346,3 @@ class Card {
 }
 
 export { Card };
-export default Card;

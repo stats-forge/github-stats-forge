@@ -2,7 +2,7 @@
  * What has to be encoded: the markup characters, everything above plain ASCII, and a backspace.
  * One source for both regexes, so the check and the replacement cannot disagree.
  */
-const ENCODED = '[<>&"\'\\u00A0-\\u9999\\u0008]';
+const ENCODED = String.raw`[<>&"'\u00A0-\u9999\u0008]`;
 
 /** Non-global, so `.test` stays stateless: a global regex would carry `lastIndex`. */
 const NEEDS_ENCODING = new RegExp(ENCODED);
@@ -26,7 +26,9 @@ const encodeHTML = (str: string): string => {
     return str;
   }
 
-  return str.replace(TO_ENCODE, (char) => (char === BACKSPACE ? '' : `&#${char.charCodeAt(0)};`));
+  return str.replace(TO_ENCODE, (char) =>
+    char === BACKSPACE ? '' : `&#${char.codePointAt(0) ?? 0};`,
+  );
 };
 
 export { encodeHTML };

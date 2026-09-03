@@ -18,7 +18,8 @@ const parseBoolean = (value: string | boolean | undefined): boolean | undefined 
   if (typeof value === 'string') {
     if (value.toLowerCase() === 'true') {
       return true;
-    } else if (value.toLowerCase() === 'false') {
+    }
+    if (value.toLowerCase() === 'false') {
       return false;
     }
   }
@@ -47,7 +48,7 @@ const parseArray = (str: string | undefined): Array<string> => {
  * @returns The clamped number.
  */
 const clampValue = (number: string | number, min: number, max: number): number => {
-  if (Number.isNaN(parseInt(String(number), 10))) {
+  if (Number.isNaN(Number.parseInt(String(number), 10))) {
     return min;
   }
   return Math.max(min, Math.min(Number(number), max));
@@ -70,13 +71,14 @@ const lowercaseTrim = (name: string): string => name.toLowerCase().trim();
  * @returns Array of languages split in two columns.
  */
 const chunkArray = <T>(arr: Array<T>, perChunk: number): Array<Array<T>> => {
-  return arr.reduce<Array<Array<T>>>((resultArray, item, index) => {
+  const chunks: Array<Array<T>> = [];
+  for (const [index, item] of arr.entries()) {
     const chunkIndex = Math.floor(index / perChunk);
-    const chunk = resultArray[chunkIndex] ?? [];
+    const chunk = chunks[chunkIndex] ?? [];
     chunk.push(item);
-    resultArray[chunkIndex] = chunk;
-    return resultArray;
-  }, []);
+    chunks[chunkIndex] = chunk;
+  }
+  return chunks;
 };
 
 /**
@@ -90,9 +92,10 @@ const parseEmojis = (str: string): string => {
     throw new Error('[parseEmoji]: str argument not provided');
   }
   // `+` and `-` are part of a shortcode: `:+1:`, `:non-potable_water:`.
-  return str.replace(/:([\w+-]+):/g, (_match, name: string) => {
-    return getEmoji(name) ?? '';
-  });
+  return str.replaceAll(
+    /:(?<shortcode>[\w+-]+):/g,
+    (_match, shortcode: string) => getEmoji(shortcode) ?? '',
+  );
 };
 
 const isOwnerAffiliation = (value: string): value is RepositoryAffiliation =>
@@ -116,7 +119,7 @@ const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAf
       : ['OWNER'];
 
   // Check if ownerAffiliations contains valid values.
-  if (!normalized.every(isOwnerAffiliation)) {
+  if (!normalized.every((value) => isOwnerAffiliation(value))) {
     throw CardError.invalidParam('role', INVALID_AFFILIATION);
   }
   return normalized;
@@ -127,9 +130,11 @@ const buildSearchFilter = (
   owners: Array<string> | string = [],
 ): string => {
   const repoFilter =
-    Array.isArray(repos) && repos.length > 0 ? repos.map((r) => `repo:${r} `).join('') : '';
+    Array.isArray(repos) && repos.length > 0 ? repos.map((repo) => `repo:${repo} `).join('') : '';
   const orgFilter =
-    Array.isArray(owners) && owners.length > 0 ? owners.map((o) => `owner:${o} `).join('') : '';
+    Array.isArray(owners) && owners.length > 0
+      ? owners.map((owner) => `owner:${owner} `).join('')
+      : '';
   return repoFilter + orgFilter;
 };
 

@@ -82,13 +82,13 @@ describe('FetchTopLanguages', () => {
         color: '#0f0',
         count: 2,
         name: 'HTML',
-        size: approxNumber(20.0),
+        size: approxNumber(20),
       },
       javascript: {
         color: '#0ff',
         count: 2,
         name: 'javascript',
-        size: approxNumber(20.0),
+        size: approxNumber(20),
       },
     });
   });
@@ -169,7 +169,7 @@ describe('FetchTopLanguages', () => {
       "Could not resolve to a User with the login of 'noname'.",
     );
 
-    expect(loggerErrorSpy).toHaveBeenCalledOnce();
+    expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should throw other errors with their message', async () => {
@@ -181,7 +181,7 @@ describe('FetchTopLanguages', () => {
       'Some test GraphQL error',
     );
 
-    expect(loggerErrorSpy).toHaveBeenCalledOnce();
+    expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should throw error with specific message when error does not contain message property', async () => {
@@ -193,6 +193,6 @@ describe('FetchTopLanguages', () => {
       'Something went wrong while trying to retrieve the language data using the GraphQL API.',
     );
 
-    expect(loggerErrorSpy).toHaveBeenCalledOnce();
+    expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
   });
 });

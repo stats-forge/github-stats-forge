@@ -1,7 +1,7 @@
 import { isThemeName, themes } from '../themes/index.js';
 
 /** Matches a 3-, 4-, 6-, or 8-digit hex color with no leading `#`. */
-const HEX_COLOR = /^([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/;
+const HEX_COLOR = /^(?<digits>[A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/;
 
 /**
  * Checks if a value is a bare hex color, i.e. hex digits with no `#` prefix
@@ -11,9 +11,8 @@ const HEX_COLOR = /^([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3}
  * @param value Value to check.
  * @returns True if the value is a bare hex color.
  */
-const isBareHexColor = (value: unknown): boolean => {
-  return typeof value === 'string' && HEX_COLOR.test(value);
-};
+const isBareHexColor = (value: unknown): boolean =>
+  typeof value === 'string' && HEX_COLOR.test(value);
 
 /**
  * Checks if a value is a `#`-prefixed hex color (`"#f00"`, `"#ffffff"`). This
@@ -23,9 +22,8 @@ const isBareHexColor = (value: unknown): boolean => {
  * @param value Value to check.
  * @returns True if the value is a `#`-prefixed hex color.
  */
-const isPrefixedHexColor = (value: unknown): boolean => {
-  return typeof value === 'string' && value.startsWith('#') && HEX_COLOR.test(value.slice(1));
-};
+const isPrefixedHexColor = (value: unknown): boolean =>
+  typeof value === 'string' && value.startsWith('#') && HEX_COLOR.test(value.slice(1));
 
 /**
  * Checks if the given parts form a valid gradient: a finite numeric angle
@@ -42,7 +40,7 @@ const isValidGradient = (parts: Array<string>): boolean => {
     angle !== undefined &&
     angle.trim() !== '' &&
     Number.isFinite(Number(angle)) &&
-    stops.every(isBareHexColor)
+    stops.every((stop) => isBareHexColor(stop))
   );
 };
 
@@ -63,12 +61,12 @@ const isValidColorInput = (color: string | null | undefined): boolean => {
  * Retrieves a gradient if color has more than one valid hex codes else a single color.
  *
  * @param color The color to parse.
- * @param fallbackColor The fallback color.
+ * @param fallback The fallback color.
  * @returns The gradient or color.
  */
 const fallbackColor = (
   color: string | undefined,
-  fallbackColor: string | Array<string>,
+  fallback: string | Array<string>,
 ): string | Array<string> => {
   const colors = color ? color.split(',') : [];
   if (colors.length > 1 && isValidGradient(colors)) {
@@ -79,7 +77,7 @@ const fallbackColor = (
     return `#${color}`;
   }
 
-  return fallbackColor;
+  return fallback;
 };
 
 /** Border a light background gets when neither the user nor the theme names one. */
@@ -95,15 +93,9 @@ const TRANSLUCENT_BG_BORDER = '#8b949e59';
  */
 const hexChannels = (hex: string): [number, number, number, number] => {
   const digits = hex.slice(1);
-  const expanded =
-    digits.length <= 4
-      ? digits
-          .split('')
-          .map((digit) => digit + digit)
-          .join('')
-      : digits;
+  const expanded = digits.length <= 4 ? [...digits].map((digit) => digit + digit).join('') : digits;
   const channel = (index: number): number =>
-    parseInt(expanded.slice(index * 2, index * 2 + 2), 16) / 255;
+    Number.parseInt(expanded.slice(index * 2, index * 2 + 2), 16) / 255;
 
   return [channel(0), channel(1), channel(2), expanded.length === 8 ? channel(3) : 1];
 };
@@ -211,20 +203,20 @@ const getCardColors = ({
   // finally if both colors are invalid fallback to default theme
   const titleColor = fallbackColor(
     title_color || selectedTheme.title_color,
-    '#' + defaultTheme.title_color,
+    `#${defaultTheme.title_color}`,
   );
 
   // get the color provided by the user else the theme color
   // finally if both colors are invalid we use the titleColor
   const iconColor = fallbackColor(
     icon_color || selectedTheme.icon_color,
-    '#' + defaultTheme.icon_color,
+    `#${defaultTheme.icon_color}`,
   );
   const textColor = fallbackColor(
     text_color || selectedTheme.text_color,
-    '#' + defaultTheme.text_color,
+    `#${defaultTheme.text_color}`,
   );
-  const bgColor = fallbackColor(bg_color || selectedTheme.bg_color, '#' + defaultTheme.bg_color);
+  const bgColor = fallbackColor(bg_color || selectedTheme.bg_color, `#${defaultTheme.bg_color}`);
 
   const borderColor = fallbackColor(border_color || themeBorderColor, borderColorFor(bgColor));
   // No theme defines `ring_color`, so it falls back to the title color.
@@ -240,7 +232,7 @@ const getCardColors = ({
     typeof iconColor !== 'string' ||
     typeof borderColor !== 'string'
   ) {
-    throw new Error('Unexpected behavior, all colors except background should be string.');
+    throw new TypeError('Unexpected behavior, all colors except background should be string.');
   }
 
   return {

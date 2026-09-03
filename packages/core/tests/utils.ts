@@ -27,15 +27,15 @@ export function approxNumber(
   expected: number,
   precision = 10,
 ): {
-  asymmetricMatch(actual: unknown): boolean;
-  toAsymmetricMatcher(): string;
+  asymmetricMatch: (actual: unknown) => boolean;
+  toAsymmetricMatcher: () => string;
 } {
   return {
     asymmetricMatch(actual) {
       if (typeof actual !== 'number' || typeof expected !== 'number') {
         return false;
       }
-      const epsilon = Math.pow(10, -precision);
+      const epsilon = 10 ** -precision;
       return Math.abs(actual - expected) < epsilon;
     },
     toAsymmetricMatcher() {
@@ -65,8 +65,8 @@ export function approxNumber(
 export function createLoggerMock(): typeof loggerModule {
   return {
     logger: {
-      log: vi.fn(),
-      error: vi.fn(),
+      log: vi.fn<(...args: Array<unknown>) => void>(),
+      error: vi.fn<(...args: Array<unknown>) => void>(),
     },
   };
 }

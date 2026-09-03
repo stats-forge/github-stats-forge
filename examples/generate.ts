@@ -13,7 +13,7 @@ import { parseArgs } from 'node:util';
  * A preview is therefore made the way anyone else would make one — through the CLI.
  */
 
-const EXAMPLES_DIR = fileURLToPath(new URL('.', import.meta.url));
+const EXAMPLES_DIR = import.meta.dirname;
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const CARDS_DIR = join(EXAMPLES_DIR, 'cards');
 const PREVIEWS_DIR = join(EXAMPLES_DIR, 'previews');
@@ -35,10 +35,16 @@ interface Preview {
   rendered: boolean;
 }
 
+/** What the command line can carry: the flags, then the example names. */
+interface Flags {
+  values: { pat: Array<string>; 'env-file'?: string };
+  positionals: Array<string>;
+}
+
 /**
  * @returns The flags and example names this run was given.
  */
-const readFlags = () =>
+const readFlags = (): Flags =>
   parseArgs({
     options: {
       pat: { type: 'string', multiple: true, default: [] },
@@ -157,10 +163,11 @@ const main = async (): Promise<void> => {
     throw new Error(`No CLI at ${relative(REPO_ROOT, CLI)}. Build it first: pnpm build:packages`);
   }
 
-  const available = (await readdir(CARDS_DIR))
+  const cardFiles = await readdir(CARDS_DIR);
+  const available = cardFiles
     .filter((file) => file.endsWith('.json'))
     .map((file) => basename(file, '.json'))
-    .sort();
+    .toSorted();
 
   const unknown = positionals.filter((name) => !available.includes(name));
   if (unknown.length > 0) {
@@ -200,7 +207,7 @@ const main = async (): Promise<void> => {
 
 try {
   await main();
-} catch (err) {
-  process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
+} catch (error) {
+  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 }

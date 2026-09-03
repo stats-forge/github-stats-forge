@@ -48,7 +48,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
  * @param passes Whether a value is acceptable.
  * @returns The check, ready for `.check()`.
  */
-const rejects = (kind: Rejection, passes: (value: string) => boolean) =>
+const rejects = (kind: Rejection, passes: (value: string) => boolean): z.core.$ZodCheck<unknown> =>
   z.refine((value: unknown) => typeof value !== 'string' || passes(value), {
     error: (issue) => REJECTION_MESSAGES[kind](String(issue.path?.[0] ?? '')),
   });
@@ -74,8 +74,8 @@ const listParam = z.pipe(rawParam, z.transform(parseArray));
  * Yields the parsed number, or `undefined` when the param is absent.
  */
 const numberParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
-  rawParam.check(rejects('number', (value) => Number.isFinite(parseFloat(value)))),
-  z.transform((value) => (value === undefined ? undefined : parseFloat(value))),
+  rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseFloat(value)))),
+  z.transform((value) => (value === undefined ? undefined : Number.parseFloat(value))),
 );
 
 /**
@@ -84,7 +84,7 @@ const numberParam: z.ZodMiniType<number | undefined, string | undefined> = z.pip
  */
 const looseIntParam = z.pipe(
   rawParam,
-  z.transform((value) => (value === undefined ? undefined : parseInt(value, 10))),
+  z.transform((value) => (value === undefined ? undefined : Number.parseInt(value, 10))),
 );
 
 /**
@@ -177,7 +177,7 @@ type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> & Color
  * @returns The failure, ready to render.
  */
 const toCardError = (error: z.core.$ZodError): CardError => {
-  const issue = error.issues[0];
+  const [issue] = error.issues;
   return CardError.invalidParam(String(issue?.path[0] ?? ''), issue?.message ?? 'Invalid input');
 };
 

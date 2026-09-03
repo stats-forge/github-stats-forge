@@ -74,16 +74,17 @@ type GraphQLResponse<TResult> = HttpResponse<{
  * @param scheme `Authorization` scheme for the token.
  * @returns A fetcher `retryer` can drive.
  */
-const createGraphQLFetcher = <TResult, TVariables>(
-  document: GraphQLDocument<TResult, TVariables>,
-  scheme: 'bearer' | 'token',
-) => {
-  return (
+const createGraphQLFetcher =
+  <TResult, TVariables>(
+    document: GraphQLDocument<TResult, TVariables>,
+    scheme: 'bearer' | 'token',
+  ) =>
+  (
     variables: TVariables,
     token: string,
     { fetch }: FetcherContext,
-  ): Promise<GraphQLResponse<TResult>> => {
-    return httpRequest(fetch, GITHUB_GRAPHQL_API, {
+  ): Promise<GraphQLResponse<TResult>> =>
+    httpRequest(fetch, GITHUB_GRAPHQL_API, {
       method: 'POST',
       headers: {
         Authorization: `${scheme} ${token}`,
@@ -91,8 +92,6 @@ const createGraphQLFetcher = <TResult, TVariables>(
       },
       body: JSON.stringify({ query: document.text, variables }),
     });
-  };
-};
 
 export { createGraphQLFetcher, defaultFetch, httpRequest };
 export type { FetcherContext, FetchLike, GraphQLResponse, HttpResponse };
