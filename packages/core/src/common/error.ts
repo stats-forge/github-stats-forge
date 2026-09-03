@@ -65,10 +65,6 @@ class CardError extends Error {
   readonly secondaryMessage: string | undefined;
   readonly param: string | undefined;
 
-  /**
-   * @param message First line of the error card.
-   * @param init Why it failed, and what to draw under the message.
-   */
   constructor(message: string, init: CardErrorInit) {
     super(message);
     this.name = 'CardError';
@@ -85,8 +81,6 @@ class CardError extends Error {
   /**
    * A param the endpoint cannot render with.
    *
-   * @param param Name of the param.
-   * @param secondaryMessage What is wrong with it.
    * @returns The error.
    */
   static invalidParam(param: string, secondaryMessage: string): CardError {
@@ -99,10 +93,8 @@ class CardError extends Error {
 
   /**
    * A param the endpoint cannot render without.
+   * `param` carries the first; the message names them all.
    *
-   * @param params Names of the missing params.
-   *        `param` carries the first; the message names them all.
-   * @param secondaryMessage Where to pass them, when the endpoint can say.
    * @returns The error.
    */
   static missingParam(params: Array<string>, secondaryMessage?: string): CardError {
@@ -118,7 +110,6 @@ class CardError extends Error {
    * Anything thrown that is not already a `CardError`:
    * an upstream failure, since the query itself got this far.
    *
-   * @param err Whatever was thrown.
    * @returns The error, unchanged when it already was one.
    */
   static from(err: unknown): CardError {

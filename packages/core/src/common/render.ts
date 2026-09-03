@@ -10,11 +10,6 @@ import { clampValue } from './ops.js';
  * Auto layout utility, allows us to layout things vertically or horizontally with
  * proper gaping.
  *
- * @param props Function properties.
- * @param props.items Items to layout; the ones that carry nothing are skipped.
- * @param props.gap Gap between items.
- * @param props.direction Direction to layout items.
- * @param props.sizes Array of sizes for each item.
  * @returns The items, each in the group that positions it.
  */
 const flexLayout = ({
@@ -59,8 +54,6 @@ const flexLayout = ({
 /**
  * Creates a node to display the primary programming language of the repository/gist.
  *
- * @param langName Language name.
- * @param langColor Language color.
  * @returns Language display SVG object.
  */
 const createLanguageNode = (langName: string, langColor: string): MarkupElement => {
@@ -79,14 +72,6 @@ const createLanguageNode = (langName: string, langColor: string): MarkupElement 
 /**
  * Create a node to indicate progress in percentage along a horizontal line.
  *
- * @param params Object that contains the createProgressNode parameters.
- * @param params.x X-axis position.
- * @param params.y Y-axis position.
- * @param params.width Width of progress bar.
- * @param params.color Optional foreground color as an inline fill fallback.
- *   When omitted, the color must be set via a `.lang-progress` CSS rule.
- * @param params.progress Progress value.
- * @param params.delay Delay before animation starts.
  * @returns Progress node.
  */
 const createProgressNode = ({
@@ -100,6 +85,7 @@ const createProgressNode = ({
   x: number;
   y: number;
   width: number;
+  /** When omitted, the color must be set via a `.lang-progress` CSS rule. */
   color?: string;
   progress: number;
   delay: number;
@@ -157,15 +143,6 @@ const createProgressNode = ({
  * native, font-aware wrapping. Content overflowing `lineCount` lines is
  * clipped (with an ellipsis on the last visible line) by CSS line-clamp.
  *
- * @param props Function properties.
- * @param props.text Text to render (will be HTML-encoded).
- * @param props.x X position of the foreignObject.
- * @param props.y Y position of the foreignObject.
- * @param props.width Width of the wrap box.
- * @param props.height Height of the wrap box.
- * @param props.lineCount Maximum number of lines to display.
- * @param props.className CSS class applied to the inner element.
- * @param props.testId Optional test id for the inner element.
  * @returns foreignObject SVG node.
  */
 const wrappedTextNode = ({
@@ -225,7 +202,6 @@ const wrappedTextNode = ({
  * browser handles wrapping and the line count is taken from the `--lines`
  * custom property set on the element.
  *
- * @param color Text color (CSS `color` property).
  * @returns The declarations, to merge into the class's own rule.
  */
 const wrappedTextStyles = (color: string): Declarations => {
@@ -251,11 +227,8 @@ const wrappedTextStyles = (color: string): Declarations => {
 
 /**
  * Creates an icon with label to display repository/gist stats like forks, stars, etc.
+ * Draws nothing when the label is not positive.
  *
- * @param icon The icon to display.
- * @param label The label to display.
- * @param testid The testid to assign to the label.
- * @param iconSize The size of the icon.
  * @returns Icon with label SVG object, or nothing when the label is not positive.
  */
 const iconWithLabel = (
@@ -299,22 +272,6 @@ const iconWithLabel = (
  *
  * The caller must ensure that the passed `link` is properly sanitized!
  *
- * @param params Object that contains the createTextNode parameters.
- * @param params.icon The icon to display.
- * @param params.label The label to display.
- * @param params.value The value to display.
- * @param params.id The id of the stat.
- * @param params.unitSymbol The unit symbol of the stat.
- * @param params.index The index of the stat.
- * @param params.showIcons Whether to show icons.
- * @param params.shiftValuePos Number of pixels the value has to be shifted to the right.
- * @param params.valueAnchorX X position the value ends at, right-aligning it. Overrides `shiftValuePos`.
- * @param params.bold Whether to bold the value.
- * @param params.labelBold Whether to bold the label. Defaults to `bold`.
- * @param params.numberFormat The format of numbers on card.
- * @param params.numberPrecision The precision of numbers on card.
- * @param params.link Sanitized url to link to.
- * @param params.labelXOffset horizontal offset for label.
  * @returns The stats card text item SVG object.
  */
 const createTextNode = ({
@@ -430,16 +387,6 @@ const UPSTREAM_API_ERRORS = new Set([TRY_AGAIN_LATER, SECONDARY_ERROR_MESSAGES.r
 /**
  * Renders error message on the card.
  *
- * @param args Function arguments.
- * @param args.message Main error message.
- * @param args.secondaryMessage The secondary error message.
- * @param args.renderOptions Render options.
- * @param args.renderOptions.title_color Card title color.
- * @param args.renderOptions.text_color Card text color.
- * @param args.renderOptions.bg_color Card background color.
- * @param args.renderOptions.border_color Card border color.
- * @param args.renderOptions.theme Card theme.
- * @param args.renderOptions.show_repo_link Whether to show repo link or not.
  * @returns The SVG markup.
  */
 const renderError = ({
@@ -526,8 +473,7 @@ const renderError = ({
  * Retrieve text length based on Segoe UI font.
  *
  * @see https://stackoverflow.com/a/48172630/10629172
- * @param str String to measure.
- * @param fontSize Font size.
+ *
  * @returns Text length.
  */
 const measureText = (str: string, fontSize = 10): number => {
@@ -597,9 +543,6 @@ const measureText = (str: string, fontSize = 10): number => {
  * The browser still does the real wrap inside the foreignObject; this is only
  * used to size the SVG.
  *
- * @param text Text to split.
- * @param fontSize Font size in px (matches `measureText`).
- * @param maxWidth Available wrap width in px.
  * @returns Estimated wrapped lines.
  */
 const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Array<string> => {
@@ -692,10 +635,6 @@ const splitWrappedText = (text: string, fontSize: number, maxWidth: number): Arr
 /**
  * Split text over multiple lines based on the card width.
  *
- * @param text Text to split.
- * @param width Available wrap width in px.
- * @param fontSize Font size in px.
- * @param maxLines Maximum number of lines.
  * @returns Array of lines.
  */
 const wrapTextMultiline = (
@@ -725,10 +664,6 @@ const wrapTextMultiline = (
  * Estimate how many lines a string will wrap to when laid out greedily at the
  * given font size inside a box of width `maxWidth`, capped at `maxLines`.
  *
- * @param text Text to estimate.
- * @param fontSize Font size in px (matches `measureText`).
- * @param maxWidth Available wrap width in px.
- * @param maxLines Cap on the returned line count.
  * @returns Estimated line count, at least 1, at most `maxLines`.
  */
 const countWrappedLines = (

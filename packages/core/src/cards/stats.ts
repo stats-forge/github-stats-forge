@@ -99,7 +99,6 @@ const LONG_LOCALES: ReadonlySet<string> = new Set([
 /**
  * Calculates progress along the boundary of the circle, i.e. its circumference.
  *
- * @param value The rank value to calculate progress for.
  * @returns Progress value.
  */
 const calculateCircleProgress = (value: number): number => {
@@ -114,8 +113,6 @@ const calculateCircleProgress = (value: number): number => {
  * Retrieves the animation to display progress along the circumference of circle
  * from the beginning to the given value in a clockwise direction.
  *
- * @param props The props object.
- * @param props.progress The progress value to animate to.
  * @returns Progress animation css.
  */
 const getProgressAnimation = ({ progress }: { progress: number }): CssChild =>
@@ -128,12 +125,6 @@ const getProgressAnimation = ({ progress }: { progress: number }): CssChild =>
 /**
  * Retrieves CSS styles for a card.
  *
- * @param colors The colors to use for the card.
- * @param colors.textColor The text color.
- * @param colors.iconColor The icon color.
- * @param colors.ringColor The ring color.
- * @param colors.show_icons Whether to show icons.
- * @param colors.progress The progress value to animate to.
  * @returns Card CSS styles.
  */
 const getStyles = ({
@@ -198,9 +189,6 @@ const getStyles = ({
 /**
  * Return the label for commits according to the selected options
  *
- * @param include_all_commits Option to include all years
- * @param commits_year Option to include only selected year
- * @param i18n The I18n instance.
  * @returns The label corresponding to the options.
  */
 const getTotalCommitsYearLabel = (
@@ -217,11 +205,6 @@ const getTotalCommitsYearLabel = (
 /**
  * Renders the stats card.
  *
- * @param stats The stats data.
- * @param options The card options.
- * @param username GitHub username, used to build stat search links.
- * @param repo Repositories to scope the search links to.
- * @param owner Owners to scope the search links to.
  * @returns The stats card SVG object.
  */
 const renderStatsCard = (

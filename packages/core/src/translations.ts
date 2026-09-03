@@ -1,12 +1,9 @@
 /**
  * Retrieves stat card labels in the available locales.
  *
- * @param props Function arguments.
- * @param props.name The name of the locale.
- * @param props.apostrophe Whether to use apostrophe or not.
- * @returns The locales object.
- *
  * @see https://www.andiamo.co.uk/resources/iso-language-codes/ for language codes.
+ *
+ * @returns The locales object.
  */
 // The literal key union is what `I18n#t` checks a card's `t('…')` call against, so the
 // return type is left to inference.
@@ -1151,7 +1148,6 @@ const availableLocales = Object.keys(repoCardLocales['repocard.archived']);
 /**
  * Checks whether the locale is available or not.
  *
- * @param locale The locale to check.
  * @returns Boolean specifying whether the locale is available or not.
  */
 const isLocaleAvailable = (locale: string): boolean =>

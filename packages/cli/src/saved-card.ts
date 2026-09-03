@@ -22,7 +22,6 @@ interface SavedCard {
 }
 
 /**
- * @param path File to look for, relative to the working directory.
  * @returns Whether there is something there to load.
  */
 export const savedCardExists = (path: string): boolean => existsSync(resolve(process.cwd(), path));
@@ -30,9 +29,9 @@ export const savedCardExists = (path: string): boolean => existsSync(resolve(pro
 /**
  * Reads a card back off disk.
  *
- * @param path File to read, relative to the working directory.
- * @returns The card it names, and its options.
  * @throws {Error} When the file is not a card this version can render.
+ *
+ * @returns The card it names, and its options.
  */
 export const readSavedCard = async (
   path: string,
@@ -66,9 +65,6 @@ export const readSavedCard = async (
 /**
  * Writes a card down, so the same one can be rendered again later.
  *
- * @param path File to write, relative to the working directory.
- * @param card The card being rendered.
- * @param options Its options, as they reach the endpoint.
  * @returns The path written to.
  */
 export const writeSavedCard = async (
@@ -88,8 +84,6 @@ export const writeSavedCard = async (
  * Everything on a query string is a string;
  * a boolean option becomes one again so its prompt opens on the right answer.
  *
- * @param card The card the options belong to.
- * @param options The saved options.
  * @returns The answers, ready for the menu.
  */
 export const toAnswers = (card: CardKind, options: Record<string, string>): Map<string, Answer> => {

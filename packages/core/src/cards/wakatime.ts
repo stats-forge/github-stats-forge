@@ -45,8 +45,6 @@ interface WakaTimeOptions extends CommonCardOptions {
 /**
  * Creates the no coding activity SVG node.
  *
- * @param props The function properties.
- * @param props.text No coding activity translated text.
  * @returns No coding activity SVG node string.
  */
 const noCodingActivityNode = ({ text }: { text: string }): MarkupElement =>
@@ -55,9 +53,6 @@ const noCodingActivityNode = ({ text }: { text: string }): MarkupElement =>
 /**
  * Format language value.
  *
- * @param args The function arguments.
- * @param args.lang The language object.
- * @param args.display_format The display format of the language node.
  * @returns The formatted language value.
  */
 const formatLanguageValue = ({
@@ -71,11 +66,6 @@ const formatLanguageValue = ({
 /**
  * Create compact WakaTime layout.
  *
- * @param args The function arguments.
- * @param args.lang The languages array.
- * @param args.x The x position of the language node.
- * @param args.y The y position of the language node.
- * @param args.display_format The display format of the language node.
  * @returns The compact layout language SVG node.
  */
 const createCompactLangNode = ({
@@ -114,11 +104,6 @@ const createCompactLangNode = ({
 /**
  * Create WakaTime language text node item.
  *
- * @param args The function arguments.
- * @param args.langs The language objects.
- * @param args.y The y position of the language node.
- * @param args.display_format The display format of the language node.
- * @param args.card_width Width in px of the card.
  * @returns The language text node items.
  */
 const createLanguageTextNode = ({
@@ -151,14 +136,6 @@ const createLanguageTextNode = ({
 /**
  * Create WakaTime text item.
  *
- * @param args The function arguments.
- * @param args.id The id of the text node item.
- * @param args.label The label of the text node item.
- * @param args.value The value of the text node item.
- * @param args.index The index of the text node item.
- * @param args.percent Percentage of the text node item.
- * @param args.hideProgress Whether to hide the progress bar.
- * @param args.progressBarWidth The width of the progress bar.
  * @returns The text SVG node.
  */
 const createTextNode = ({
@@ -218,8 +195,6 @@ const createTextNode = ({
 /**
  * Recalculating percentages so that, compact layout's progress bar does not break when
  * hiding languages.
- *
- * @param languages The languages array.
  */
 const recalculatePercentages = (languages: Array<WakaTimeLang>): void => {
   const totalSum = languages.reduce((sum, language) => sum + language.percent, 0);
@@ -232,8 +207,6 @@ const recalculatePercentages = (languages: Array<WakaTimeLang>): void => {
 /**
  * Retrieves CSS styles for a card.
  *
- * @param colors The colors to use for the card.
- * @param colors.textColor The text color.
  * @returns Card CSS styles.
  */
 const getStyles = ({ textColor }: { textColor: string }): Array<CssChild> => {
@@ -264,9 +237,6 @@ const progressBackground = (titleColor: string, textColor: string): string =>
 /**
  * Normalize incoming width (string or number) and clamp to minimum.
  *
- * @param args The function arguments.
- * @param args.layout The incoming layout value.
- * @param args.value The incoming width value.
  * @returns The normalized width value.
  */
 const normalizeCardWidth = ({
@@ -285,8 +255,6 @@ const normalizeCardWidth = ({
 /**
  * Renders WakaTime card.
  *
- * @param stats WakaTime stats.
- * @param options Card options.
  * @returns WakaTime card SVG.
  */
 const renderWakatimeCard = (

@@ -12,9 +12,7 @@ import { describeAnswer } from './query.js';
  * pick one, answer it, and land back on the menu with the answer beside it.
  */
 
-/**
- * @returns The card to render.
- */
+/** @returns The card to render. */
 export const pickCard = (): Promise<CardKind> =>
   select({
     message: 'Which card?',
@@ -24,8 +22,6 @@ export const pickCard = (): Promise<CardKind> =>
 /**
  * Asks for one option, seeded with whatever it already holds.
  *
- * @param option The option to ask for.
- * @param current What it holds now.
  * @returns The answer, or `undefined` when it was cleared.
  */
 const askOption = async (option: CardOption, current: Answer): Promise<Answer> => {
@@ -71,9 +67,6 @@ export interface Menu {
  * The menu is edited in place, so reopening it after a render keeps every answer
  * and the cursor exactly where they were.
  *
- * @param card The card being built.
- * @param menu Answers so far, and where the cursor sat.
- * @param status What happened last time round, shown in the menu's own line.
  * @returns Whether to render the card or to stop.
  */
 export const navigateOptions = async (
@@ -120,7 +113,6 @@ export const navigateOptions = async (
 /**
  * Asks for the options the card cannot render without.
  *
- * @param card The card being built.
  * @returns The answers, one per required param.
  */
 export const askRequired = async (card: CardKind): Promise<Map<string, Answer>> => {
@@ -140,7 +132,6 @@ export const askRequired = async (card: CardKind): Promise<Map<string, Answer>> 
 /**
  * Asks where to write the options, when no `--config` said.
  *
- * @param suggestion The path offered by default.
  * @returns The path, or `undefined` when the run changed its mind.
  */
 export const askSavePath = async (suggestion: string): Promise<string | undefined> => {

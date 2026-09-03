@@ -56,32 +56,6 @@ type StatsApiQuery = ApiQuery<typeof statsQuery>;
 /**
  * Render the stats card for a set of query params.
  *
- * @param query Raw query params, plus any of the shared color params.
- * @param query.username GitHub username.
- * @param query.repo Comma-separated repositories the search-based stats are scoped to.
- * @param query.owner Comma-separated owners the search-based stats are scoped to.
- * @param query.hide Comma-separated stats to hide.
- * @param query.hide_title Whether to hide the card title.
- * @param query.hide_border Whether to hide the card border.
- * @param query.card_width Card width.
- * @param query.hide_rank Whether to hide the rank circle.
- * @param query.show_icons Whether to show the stat icons.
- * @param query.include_all_commits Whether to count commits of all time.
- * @param query.commits_year Year the commits are counted for.
- * @param query.line_height Line height between the stats.
- * @param query.text_bold Whether the stat values are bold.
- * @param query.exclude_repo Comma-separated repositories to exclude.
- * @param query.custom_title Card title.
- * @param query.locale Language the card is rendered in.
- * @param query.disable_animations Whether to disable the card animations.
- * @param query.border_radius Card border radius.
- * @param query.number_format How numbers are abbreviated.
- * @param query.role Comma-separated owner affiliations to include.
- * @param query.number_precision Decimals kept when a number is abbreviated.
- * @param query.rank_icon Which rank indicator to draw.
- * @param query.show Comma-separated extra stats to show.
- * @param query.contribs_include_own_repos Whether the contributed-to counts include the user's own repositories.
- * @param config Deployment config supplying the PAT pool.
  * @returns The rendered card, or a rendered error.
  */
 const renderStats = async (query: StatsApiQuery, config: CardConfig): Promise<ApiResult> => {

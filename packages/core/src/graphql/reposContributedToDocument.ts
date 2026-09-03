@@ -25,8 +25,6 @@ interface ReposContributedToQuery {
  * Mirrors the `contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]`
  * filter used by `repositoriesContributedTo` in `stats.graphql`.
  *
- * @param ranges Ranges to fetch, one `range_<index>` alias each.
- * @param includeOwnRepos Whether to select `repositoryContributions`.
  * @returns Document for `createGraphQLFetcher`.
  */
 const buildReposContributedToDocument = (

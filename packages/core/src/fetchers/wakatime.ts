@@ -9,10 +9,6 @@ import type { WakaTimeData } from './types.js';
  *
  * WakaTime needs no GitHub token; the config is here for the transport it carries.
  *
- * @param props Fetcher props.
- * @param props.username WakaTime username.
- * @param props.api_domain Optional WakaTime API domain (defaults to `wakatime.com`).
- * @param config Deployment config supplying the transport.
  * @returns WakaTime data response.
  */
 const fetchWakatimeStats = async (

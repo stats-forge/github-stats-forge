@@ -70,17 +70,6 @@ class Card {
 
   /**
    * Creates a new card instance.
-   *
-   * @param props Card arguments.
-   * @param props.width Card width.
-   * @param props.height Card height.
-   * @param props.border_radius Card border radius.
-   * @param props.colors Card colors for light and dark mode.
-   * @param props.colors.light Card colors for light mode.
-   * @param props.colors.dark Card colors for dark mode, or `null` when no dark-mode override is needed.
-   * @param props.customTitle Card custom title.
-   * @param props.defaultTitle Card default title.
-   * @param props.titlePrefixIcon Card title prefix icon.
    */
   constructor({
     width = 100,
@@ -126,11 +115,6 @@ class Card {
     this.animations = false;
   }
 
-  /**
-   * @param props The props object.
-   * @param props.title Accessibility title.
-   * @param props.desc Accessibility description.
-   */
   setAccessibilityLabel({ title, desc }: { title: string; desc: string }): void {
     this.a11yTitle = title;
     this.a11yDesc = desc;
@@ -142,26 +126,16 @@ class Card {
    * Each builder receives the colors of its own color scheme,
    * so a card never handles a missing dark palette itself:
    * `dark` runs only when the card has dark colors, and always with non-null ones.
-   *
-   * @param props The props object.
-   * @param props.light Builds the CSS applied unconditionally (light/default mode).
-   * @param props.dark Builds the CSS placed inside a `@media (prefers-color-scheme: dark)` block.
    */
   setCSS({ light, dark }: { light: CardCSSBuilder; dark: CardCSSBuilder }): void {
     this.css = light(this.colors.light);
     this.darkCss = this.colors.dark ? dark(this.colors.dark) : [];
   }
 
-  /**
-   * @param value Whether to hide the border or not.
-   */
   setHideBorder(value: boolean): void {
     this.hideBorder = value;
   }
 
-  /**
-   * @param value Whether to hide the title or not.
-   */
   setHideTitle(value: boolean): void {
     if (value && !this.hideTitle) {
       this.height -= 30;
@@ -172,16 +146,11 @@ class Card {
     this.hideTitle = value;
   }
 
-  /**
-   * @param text The title to set.
-   */
   setTitle(text: string): void {
     this.title = text;
   }
 
-  /**
-   * @returns The rendered card title.
-   */
+  /** @returns The rendered card title. */
   renderTitle(): MarkupElement {
     return el(
       'g',
@@ -212,9 +181,7 @@ class Card {
     );
   }
 
-  /**
-   * @returns The card's gradient definitions, or nothing when no color is a gradient.
-   */
+  /** @returns The card's gradient definitions, or nothing when no color is a gradient. */
   renderGradient(): Child {
     if (
       typeof this.colors.light.bgColor === 'object' &&
@@ -263,10 +230,7 @@ class Card {
     );
   }
 
-  /**
-   * @param body The inner body of the card.
-   * @returns The rendered card.
-   */
+  /** @returns The rendered card. */
   render(body: Child): string {
     if (!Number.isFinite(this.border_radius)) {
       throw new TypeError(`Invalid border radius: "${this.border_radius}"`);

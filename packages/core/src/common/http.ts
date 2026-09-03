@@ -35,9 +35,6 @@ interface FetcherContext {
 }
 
 /**
- * @param fetchImpl Transport to send the request with.
- * @param url Absolute URL to request.
- * @param init Request init forwarded to the transport.
  * @returns The response; a JSON body parsed, anything else left as text.
  */
 const httpRequest = async <TData>(
@@ -70,8 +67,6 @@ type GraphQLResponse<TResult> = HttpResponse<{
 }>;
 
 /**
- * @param document Generated query document.
- * @param scheme `Authorization` scheme for the token.
  * @returns A fetcher `retryer` can drive.
  */
 const createGraphQLFetcher =

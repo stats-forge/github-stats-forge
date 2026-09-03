@@ -102,11 +102,7 @@ class FetchMock {
     });
   };
 
-  /**
-   * @param method HTTP method to match, or `undefined` for any.
-   * @param matcher URL to match.
-   * @returns The registrar for this matcher.
-   */
+  /** @returns The registrar for this matcher. */
   private on(method: string | undefined, matcher: Matcher): Registrar {
     const add = (reply: ReplyFn, once: boolean): FetchMock => {
       const handler: Handler = { method, matcher, reply, once };

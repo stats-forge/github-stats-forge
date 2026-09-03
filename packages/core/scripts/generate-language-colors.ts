@@ -10,13 +10,13 @@ const response = await fetch(
 );
 
 // and convert them to a JS Object
-const languages = jsYaml.load(await response.text());
+const languages = jsYaml.load(await response.text()) as Record<string, { color?: string }>;
 
-const languageColors = {};
+const languageColors: Record<string, string | undefined> = {};
 
 // Filter only language colors from the whole file
-for (const lang of Object.keys(languages)) {
-  languageColors[lang] = languages[lang].color;
+for (const [lang, entry] of Object.entries(languages)) {
+  languageColors[lang] = entry.color;
 }
 
 // Debug Print

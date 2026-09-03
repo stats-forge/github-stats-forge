@@ -4,7 +4,6 @@ import type { SpinnerStream } from '../src/spinner.js';
 import { withSpinner } from '../src/spinner.js';
 
 /**
- * @param isTTY Whether the fake stream animates.
  * @returns The stream, with everything written to it.
  */
 const fakeStream = (isTTY: boolean): SpinnerStream & { written: Array<string> } => {

@@ -12,7 +12,6 @@ import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from '../sr
 const dir = (): string => mkdtempSync(join(tmpdir(), 'stats-forge-saved-'));
 
 /**
- * @param name Card to look up.
  * @returns The card, which the catalog always has.
  */
 const card = (name: string): CardKind => {

@@ -44,8 +44,6 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
  * A check that words its own rejection:
  * the message is built from the kind and the param's path rather than passed in.
  *
- * @param kind What the check rejects the param for.
- * @param passes Whether a value is acceptable.
  * @returns The check, ready for `.check()`.
  */
 const rejects = (kind: Rejection, passes: (value: string) => boolean): z.core.$ZodCheck<unknown> =>
@@ -136,7 +134,6 @@ const localeParam = z.pipe(
 /**
  * A param the card only renders as one of a fixed set of values.
  *
- * @param values The accepted values, as the card that renders them declares them.
  * @returns Schema yielding one of `values`, or `undefined` when absent.
  */
 const enumParam = <const T extends ReadonlyArray<string>>(
@@ -173,7 +170,6 @@ type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> & Color
  * Every rejection is the query's fault, so they share one code
  * and differ only in the message the check already worded.
  *
- * @param error What the schema rejected.
  * @returns The failure, ready to render.
  */
 const toCardError = (error: z.core.$ZodError): CardError => {
@@ -187,10 +183,9 @@ const toCardError = (error: z.core.$ZodError): CardError => {
  * Only the first rejection is reported:
  * the error card has room for one line.
  *
- * @param schema The endpoint's schema.
- * @param query Raw query params.
- * @returns The parsed params.
  * @throws {CardError} When the schema rejects a param.
+ *
+ * @returns The parsed params.
  */
 const parseParams = <TSchema extends z.ZodMiniType>(
   schema: TSchema,
@@ -207,9 +202,9 @@ const parseParams = <TSchema extends z.ZodMiniType>(
  * The color params, validated.
  * Split from the endpoint's own schema because a rejected color cannot then be used to render its own error card.
  *
- * @param query Raw query params.
- * @returns The color params.
  * @throws {CardError} When a param does not hold a color or a gradient.
+ *
+ * @returns The color params.
  */
 const parseColorParams = (query: unknown): ColorParams => parseParams(colorParamsSchema, query);
 

@@ -10,11 +10,6 @@ class I18n<Translations extends TranslationsMap = TranslationsMap> {
   locale: string;
   translations: Translations;
 
-  /**
-   * @param props Constructor arguments.
-   * @param props.locale Locale.
-   * @param props.translations Translations.
-   */
   constructor({
     locale,
     translations,
@@ -30,7 +25,6 @@ class I18n<Translations extends TranslationsMap = TranslationsMap> {
   /**
    * Get translation.
    *
-   * @param str String to translate.
    * @returns Translated string.
    */
   t(str: keyof Translations & string): string {

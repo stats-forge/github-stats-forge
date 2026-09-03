@@ -26,9 +26,6 @@ export interface SpinnerStream {
  * Written to stderr, so stdout carries only the result.
  * Without a TTY — a pipe, a CI log — the label is printed once and nothing animates.
  *
- * @param label What the wait is for.
- * @param work The wait itself.
- * @param stream Where the spinner is drawn.
  * @returns Whatever `work` answered with.
  */
 export const withSpinner = async <T>(

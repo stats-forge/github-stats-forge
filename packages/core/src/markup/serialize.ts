@@ -14,7 +14,6 @@ interface Sink {
 const indents = ['', INDENT];
 
 /**
- * @param depth Nesting level.
  * @returns Two spaces per level.
  */
 const indentAt = (depth: number): string => {

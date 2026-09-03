@@ -106,10 +106,6 @@ type FlatChild = MarkupElement | StyleElement | string | number;
 
 /**
  * Builds one element. Attribute values and text children are encoded on the way out.
- *
- * @param tag Element name.
- * @param attributes Attributes to write; a `undefined` value is left out.
- * @param children Element content.
  */
 const el = (tag: Tag, attributes: Attributes = {}, ...children: Array<Child>): MarkupElement => ({
   tag,
@@ -119,8 +115,6 @@ const el = (tag: Tag, attributes: Attributes = {}, ...children: Array<Child>): M
 
 /**
  * Builds the `<style>` element from a stylesheet rather than from text.
- *
- * @param rules The rules the card needs; falsy entries drop out.
  */
 const style = (...rules: Array<CssChild>): StyleElement => ({ tag: 'style', rules });
 
@@ -240,7 +234,6 @@ const write = (node: FlatChild, depth: number, sink: Sink): void => {
 /**
  * Serializes a finished card: one element per line, two spaces per nesting level.
  *
- * @param root The document's root element.
  * @returns The rendered SVG.
  */
 const renderMarkup = (root: MarkupElement): string => {

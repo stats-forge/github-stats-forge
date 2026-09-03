@@ -6,6 +6,9 @@ import { defineConfig } from 'oxlint';
 export default defineConfig({
   extends: [baseConfig, typescriptConfig],
 
+  // `jsdoc` is off by default; only the tags this repo actually writes are checked.
+  plugins: ['eslint', 'import', 'unicorn', 'typescript', 'jsdoc'],
+
   env: {
     browser: true,
     node: true,
@@ -19,6 +22,12 @@ export default defineConfig({
   },
 
   rules: {
+    // A doc block is a summary plus `@returns`; these keep the few tags honest without
+    // asking for the `@param` list the signature already carries.
+    'jsdoc/check-tag-names': 'error',
+    'jsdoc/empty-tags': 'error',
+    'jsdoc/no-blank-blocks': 'error',
+
     // ---------------------------------------------------------------------------
     // Tuned to what this repository is
     // ---------------------------------------------------------------------------
@@ -189,17 +198,6 @@ export default defineConfig({
       files: ['packages/core/tests/_setup.ts'],
       rules: {
         'import/no-unassigned-import': 'off',
-      },
-    },
-    {
-      // No tsconfig covers the remaining `.js` generators, so type-aware rules see `any`.
-      files: ['**/*.js'],
-      rules: {
-        'typescript/no-unsafe-argument': 'off',
-        'typescript/no-unsafe-assignment': 'off',
-        'typescript/no-unsafe-call': 'off',
-        'typescript/no-unsafe-member-access': 'off',
-        'typescript/no-unsafe-return': 'off',
       },
     },
   ],

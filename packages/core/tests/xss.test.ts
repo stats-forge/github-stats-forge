@@ -134,8 +134,6 @@ const xssPayloads = ["<script>alert('xss')</script>", "\"><script>alert('xss')</
 
 /**
  * Renders the result into the document and fails if a script survived.
- *
- * @param result What the endpoint answered.
  */
 const expectNoScript = (result: ApiResult): void => {
   document.body.innerHTML = result.content;
@@ -144,7 +142,6 @@ const expectNoScript = (result: ApiResult): void => {
 };
 
 /**
- * @param params Every param the endpoint accepts.
  * @returns One `[param, payload]` case per payload, for `it.each`.
  */
 const casesFor = (params: Array<string>): Array<[string, string]> =>

@@ -41,11 +41,7 @@ export interface CardKind {
   required: ReadonlyArray<CardOption>;
   /** Everything else, navigable in any order. */
   options: ReadonlyArray<CardOption>;
-  /**
-   * @param query The answers, as a query string would carry them.
-   * @param config Tokens the fetchers use.
-   * @returns The rendered card, or the rendered error.
-   */
+  /** @returns The rendered card, or the rendered error. */
   render: (query: Record<string, string>, config: CardConfig) => Promise<ApiResult>;
 }
 
@@ -344,7 +340,6 @@ export const cards: ReadonlyArray<CardKind> = CARDS.map((card) => ({
 }));
 
 /**
- * @param id The card's id, as `--card` takes it.
  * @returns The card, or `undefined` when nothing renders under that name.
  */
 export const findCard = (id: string): CardKind | undefined => cards.find((card) => card.id === id);

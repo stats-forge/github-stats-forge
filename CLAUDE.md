@@ -34,6 +34,10 @@ gone: consumers (the GitHub Action, any self-hosted endpoint) import the package
 `api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
 theme table and `graphql/` for query text and its generated types.
 
+**Every source file is TypeScript.** The generators under `packages/core/scripts/` were
+the last `.js` holdouts and became `.ts` on 2026-09-03, which also put them under
+`packages/core/tsconfig.scripts.json` — so CI typechecks them now.
+
 ## Commands
 
 Run from the **repo root** unless stated otherwise.
@@ -42,8 +46,9 @@ Run from the **repo root** unless stated otherwise.
 pnpm test                 # vitest, whole workspace
 pnpm test:coverage        # vitest with the coverage config
 pnpm typecheck            # turbo typecheck + tsc -p tsconfig.scripts.json
-pnpm lint                 # turbo lint (eslint per package)
-pnpm lint:eslint          # eslint directly (`:fix` to autofix)
+pnpm lint                 # oxlint over the whole workspace
+pnpm lint:ci              # oxlint --format=github (what CI runs, for annotations)
+pnpm lint:fix             # oxlint --fix
 pnpm lint:knip            # unused files/exports/deps
 pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
 pnpm format               # oxfmt --write . (`format:check` in CI)
@@ -51,8 +56,9 @@ pnpm build:packages       # build packages/*
 pnpm examples             # build, then redraw examples/previews (add a name for one)
 ```
 
-Per-package (from either package): `pnpm exec tsc -p tsconfig.typecheck.json` and
-`pnpm exec eslint`.
+Per-package: `pnpm exec tsc -p tsconfig.typecheck.json`. There is no per-package lint
+script — oxlint reads one root config and lints the workspace in a single pass, so
+`turbo` only owns `build` and `typecheck`.
 
 GraphQL types are generated, so run these from the repo root after touching any
 `src/graphql/queries/*.graphql`:
@@ -68,14 +74,10 @@ suite. A package that imports another resolves it through the `@stats/source`
 condition, which vitest only applies when it is set under **`ssr.resolve.conditions`**
 as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
 
-pnpm is **11.x**. The v11 rename of `onlyBuiltDependencies` to the `allowBuilds` map is
-the one that bites: the old key stops applying silently, so a package's install scripts
-are skipped until it is listed again.
-
 ## Working agreements
 
-- **Don't commit or open PRs** — the repo owner does that. Leave changes in the working
-  tree.
+- **Don't commit or open PRs unless asked** — the repo owner usually does that. Leave
+  changes in the working tree, and when a branch is wanted, say which commits are on it.
 - **A change to `packages/*` carries a changeset, written without being asked.**
   Add it to `.changeset/` as part of the same change, not as a follow-up:
   the published `CHANGELOG.md` is generated from these files,
@@ -90,14 +92,15 @@ are skipped until it is listed again.
     `updateInternalDependencies: patch` bumps it, so removing core's root entry
     patched the CLI without the changeset naming it.
     Confirm with `pnpm exec changeset status` before committing.
-- **Don't edit this file unless explicitly asked.** Auditing it, reporting stale rules,
-  or proposing wording is fine unprompted; writing the change is not. A rule lands here
-  only when the repo owner says so.
+  - A pure tooling change that leaves the published output alone can go without one —
+    that is the owner's call, so ask rather than assume.
+- **Keep this file current.** When a rule here stops matching the repo, fix it in the
+  same change that broke it; no need to ask first. The rules earn their keep only while
+  they are true, and a stale rule is worse than no rule.
 - **Every untracked working file lives in `.claude/scratch/`** — review replies, design
   plans and pending-work lists, all in one ignored folder instead of scattered across the
   repo root. This file is the exception: `CLAUDE.md` stays at the root, the only project
   path Claude Code loads on its own.
-- Keep code comments short — one line, and only for what the code cannot show itself.
 - **Break a line after its punctuation — but only where it has to break.**
   Fill to the print width first: a thought that fits on one line stays on one line.
   Where it does not fit, start the next line after the full stop, colon, dash or comma
@@ -116,15 +119,106 @@ are skipped until it is listed again.
   The SVGs carry live stats and drift on their own — that is expected, and not a reason
   to regenerate them in an unrelated change.
 - `.claude/scratch/CORE_DEFERRED_IMPROVEMENTS.md` lists the follow-ups `packages/core`
-  still owes. Check it before starting work there — several items are unblocked now that
-  the api layer is typed — and keep it current as they land.
+  still owes. Check it before starting work there, and keep it current as they land.
+
+## Comments
+
+**A comment states the reason, never the behaviour.** Write it, then delete every
+sentence the reader could have got from the code itself; what survives is usually one
+line. A comment that only announces what the next block does is not worth keeping.
+
+**There are no `@param` tags in this repository; `@returns` stays.** 566 `@param` lines
+were deleted on 2026-09-03 across 56 files, because under TypeScript they restated the
+signature and nothing checked them — eslint's `jsdoc/check-param-names` kept the
+`@param props.x` paths honest, and oxlint has no equivalent, so they were free to rot.
+A return value has no name in the signature, so its description is the one tag that
+still earns its place. What replaced the rest:
+
+- **A doc block is a summary, then `@returns`.** One or two sentences on what the
+  function is for, plus `@see` / `@example` / `@deprecated` where they earn it.
+- **A note about one parameter or property goes next to that declaration, as a `/** */`**
+  — not as a tag far from the thing it describes, and not as a `//` line comment, which
+  no editor surfaces on hover. `createProgressNode`'s `color?: string` carries
+  `/** When omitted, the color must be set via a '.lang-progress' CSS rule. */` this way,
+  and so do the parameters of `errorResult`, `approxNumber` and
+  `fetchAllTimeReposContributedTo`.
+- **Keep what the type cannot say.** A range (`0 <= n < max`), an ordering, a unit, a
+  fallback, a format guarantee (`.svg`), or a side effect (`main` sets a non-zero exit
+  code rather than throwing) belongs in the summary or the `@returns`, never dropped
+  because the signature "looks obvious".
+- **Mind multi-line tags when stripping them mechanically.** `api/api-result.ts`,
+  `common/error.ts`, `common/render.ts`, `fetchers/stats.ts` and `tests/utils.ts` each had
+  a `@param` whose text ran onto a second line; deleting the tag line alone left the
+  continuation orphaned under the summary. Audit the diff for removed lines that are not
+  tags or delimiters.
+
+**Domain interfaces** (`CardColors`, `Config`, …) — data shapes that aren't one
+function's parameter object — document their members inline with `/** */`.
+
+**oxlint's `jsdoc` plugin holds the line, as far as it can.** `check-tag-names`,
+`empty-tags` and `no-blank-blocks` are on and clean. `require-returns-type` stays off —
+it wants `@returns {Type}`, which the signature already carries, and would flag all 171
+tags. `require-returns` is off too: it would demand a tag on 26 functions that never had
+one, which is a bigger decision than a lint rule should make on its own.
+
+## Linting and formatting
+
+**oxlint replaced eslint on 2026-09-03.** `oxlint.config.ts` at the root extends
+`@marcalexiei/oxlint-config` (`base` + `typescript`, and `vitest` in an override for
+`**/*.{test,bench}.ts`), and runs **type-aware** via `oxlint-tsgolint`. `oxfmt`
+formats, configured from `@marcalexiei/oxfmt-config`.
+
+Both configs are the repo owner's own packages, developed in a sibling checkout of
+`void-0-configs` and published to npm. **When the shared config is wrong, fix it there**
+rather than working around it here — three bugs were found and fixed upstream during the
+migration, including a `vitest` config that enabled the `jest` plugin alongside it and so
+reported all 49 shared rules twice.
+
+- **Every local override carries its reason, in the config.** `oxlint.config.ts` splits
+  them into "tuned to what this repository is" and "off, each for a reason this repository
+  owns", one comment per entry. An override with no reason is a rule someone silenced.
+- **`reportUnusedDisableDirectives` is `error`.** An `oxlint-disable` that stops being
+  needed fails the build, so the handful in the tree stay honest.
+- **Prefer a rule option to switching a rule off.** `id-length` keeps `properties: 'never'`
+  and a list of the single letters SVG, colour channels and comparators actually use;
+  `prefer-nullish-coalescing` keeps `ignorePrimitives: { string: true }` because a query
+  param arrives as `''` when empty, so `||` is what falls back to the theme.
+- **`unicorn/prefer-number-coercion` is off for a behavioural reason.** It rewrites
+  `Number.parseFloat(x)` to `Number(x)`, which would break `?border_radius=10px`.
+- **`import/no-cycle` is fully enforced, with no exemptions.** The `fmt` ↔ `render` cycle
+  that once needed two disable directives was untangled on 2026-09-03 by moving
+  `wrapTextMultiline` into `render.ts`, so `fmt.ts` no longer imports back.
+- **The autofixer is not a review.** `oxlint --fix` is worth running, but it converted an
+  array to a `Set` without updating its `Array<string>` annotation, and stripped explicit
+  `undefined` arguments that a required parameter still needed. Typecheck and test after
+  every `--fix`, and read the diff.
+
+## Dependencies and pnpm
+
+pnpm is **11.x**. The v11 rename of `onlyBuiltDependencies` to the `allowBuilds` map is
+the one that bites: the old key stops applying silently, so a package's install scripts
+are skipped until it is listed again.
+
+- **`allowBuilds` holds only packages still in the graph.** It is down to `lefthook`;
+  `@swc/core`, `unrs-resolver` and `esbuild` were removed as each left. Check with
+  `pnpm why <pkg>` before adding or keeping an entry.
+- **A stale lockfile can hold a package nothing depends on.** `esbuild` survived as an
+  optional peer of `vite` long after vite moved to rolldown. Deleting `node_modules` **and**
+  `pnpm-lock.yaml` and reinstalling dropped it and six others; deleting the lockfile alone
+  does not, because pnpm reuses what is already installed.
+- **`minimumReleaseAge` is 4320 minutes (3 days), deliberately stricter than the default.**
+  A package published minutes ago cannot be installed, which is why a fresh release of a
+  first-party config is excluded by exact version in `minimumReleaseAgeExclude` — the
+  cooling-off period is there to catch a third-party publish going bad. Pin the version in
+  the exclusion; a bare package name would exempt every future publish too.
+- `strictPeerDependencies` and `engineStrict` are on, so an unmet peer fails the install
+  rather than warning.
 
 ## TypeScript conventions
 
-The JSDoc-annotated `.js` → `.ts` migration is **done**: `packages/core` is `.ts`
-throughout, source and tests alike, and `allowJs` is gone from its `tsconfig.json`. The
-only `.js` left in the package is `scripts/generate-graphql-types.js`, which no config
-includes. The rules below came out of that migration and still hold for new code.
+`packages/core` and `packages/cli` are `.ts` throughout, source, tests and scripts alike.
+TypeScript is **7.x**; the type-aware linter tracks the same major, so `tsc` and
+`oxlint-tsgolint` agree on semantics.
 
 `tsconfig.base.json` is strict and then some — `strict`, `noUncheckedIndexedAccess`,
 `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals`,
@@ -132,8 +226,8 @@ includes. The rules below came out of that migration and still hold for new code
 
 **Never widen a signature just to keep an old test compiling — adapt the test to the
 code.** Type every function to the contract its _production_ call sites actually use. If
-a `.js`-era test called it with something looser, fix the test. This was a real
-regression: the top-languages conversion typed
+a test called it with something looser, fix the test. This was a real regression: the
+top-languages conversion typed
 `trimTopLanguages(topLangs: TopLangData | Array<Lang>, langs_count?: number)`, where the
 union and the `?` existed only because the old tests passed bare arrays and omitted the
 count — the card itself always passes a `TopLangData` and a `langs_count`. A maintainer
@@ -161,9 +255,12 @@ CommonCardOptions {…}` (an interface, not `type &`) in its own file, **not exp
   card's contract even though no card destructures them by name.
 - **If a card exports something another card imports, move it to `common/`** — e.g.
   `createTextNode` moved from the stats card to `common/render.ts`. Ask before moving.
-- Prefer `Array<T>` over `T[]` (`@typescript-eslint/array-type: generic`).
+- **One export style per module.** `Card.ts` carried both a named and a default export of
+  the same class, and one card imported the default while four imported the name; knip
+  flagged the default as unused once that import was normalised, and it was deleted.
+- Prefer `Array<T>` over `T[]` (`typescript/array-type: generic`).
 - No `string | undefined` or `null` inside template literals
-  (`restrict-template-expressions` with `allowNullish: false`); resolve with `??` first.
+  (`typescript/restrict-template-expressions` with `allowNullish: false`); resolve with `??` first.
 - No `@ts-check` / `@ts-ignore` — use real types. For deliberate misuse in tests,
   `// @ts-expect-error <description>` (the description is required by `ban-ts-comment`),
   and delete it once the call becomes valid.
@@ -224,7 +321,6 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
   failure is `{ status: "error", retryable, error: { code, message, secondaryMessage, param }, content }`.
   A host branches on `code` / `retryable` instead of matching `"error - temporary"`, and
   never has to read the SVG to find out what happened.
-
 - **A shape check inside a fetcher is not validation.** GitHub's login rules were
   enforced in `totalItemsFetcher` — the REST-search path alone — while the api layer let
   through anything in the safe character set, so `?username=-foo` was rejected mid-fetch
@@ -234,8 +330,8 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
   `./fetchers` is a public export and that is where the value reaches a URL — but it
   tests the shared pattern rather than a copy.
 - **The api parses; the card defaults.** A handler turns strings into typed values
-  (`parseBoolean`, `parseFloat`, `toLowerCase`) and stops there — it never supplies a
-  fallback the render function already owns. `parseBoolean(x) ?? false` alongside the
+  (`parseBoolean`, `Number.parseFloat`, `toLowerCase`) and stops there — it never supplies
+  a fallback the render function already owns. `parseBoolean(x) ?? false` alongside the
   card's own `show_owner = false` is the same default written twice, and card defaults are
   card knowledge anyway (gist's theme default is `default_repocard`, not `default`).
 - **Write plain properties, not conditional spreads.** `CardOptions<T>` accepts an
@@ -249,10 +345,11 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
   `Invalid border radius: "NaN"` as a temporary error; it is now a permanent
   `Invalid number input for parameter "border_radius"`, matching the colour wording. Name
   the parameter, never echo the value.
-- **Match the coercion the callee already performed.** `border_radius` is `parseFloat`d by
-  `numberParam` because `Card` did `parseFloat(String(border_radius))` internally, so
-  `?border_radius=10px` still renders `rx="10"`; `Number()` would also have made
-  `?border_radius=` a silent `0` instead of an error.
+- **Match the coercion the callee already performed.** `border_radius` is
+  `Number.parseFloat`d by `numberParam` because `Card` does
+  `Number.parseFloat(String(border_radius))` internally, so `?border_radius=10px` still
+  renders `rx="10"`; `Number()` would also have made `?border_radius=` a silent `0`
+  instead of an error. This is why `unicorn/prefer-number-coercion` is off.
 - **`CardOptions<T>`** (`cards/options.ts`) is `Partial<T>` that also accepts an
   explicit `undefined`. Render functions take it because a handler forwards params that
   may legitimately be absent.
@@ -295,7 +392,7 @@ There are no TypeScript project references anywhere, so don't reach for `composi
 Query text lives in `src/graphql/queries/*.graphql`, never inline in a fetcher. Each file
 generates `src/graphql/generated/<name>.ts`, plus a shared `common.ts` for the enums and
 scalars the variables name. **Never hand-edit `src/graphql/generated/**` — change the
-query and regenerate;** the folder is committed and both eslint and knip ignore it, so
+query and regenerate;** the folder is committed and both oxlint and knip ignore it, so
 nothing else guards it. Derive fetcher types from the generated ones (`RepoInfo` is
 `Omit<RepoInfoFragment, …>`) and give a sub-shape a name with a GraphQL `fragment` rather
 than a `NonNullable<…>` chain.
@@ -320,27 +417,11 @@ The alternative — one static `($login, $from, $to)` query fetched per year in 
 was tried and dropped: it costs ~1 rate-limit point per account year instead of 1
 total. Fetchers still never contain query text.
 
-The generator (`packages/core/scripts/generate-graphql-types.js`) is deliberately
-dev-only — no codegen dependency reaches consumers. It is plain `.js`, and
-`packages/core/tsconfig.json` includes only `src`, `tests` and `vitest.config.ts`, so
-nothing typechecks the package's `scripts/` and its JSDoc types are not verified by CI.
-That is specific to the package: the repo-root `scripts/` **is** covered, by
-`tsconfig.scripts.json` under `pnpm typecheck`.
-
-### JSDoc
-
-- Param docs use **`@param props.x`**, with the object type written inline at the call
-  site rather than as a named `Options` interface. Keep the root `@param props` line —
-  the nested lines need it. `jsdoc/check-param-names` (an error on TS files) keeps those
-  path strings in sync with the destructured parameters, which is what makes the
-  convention safe; it also descends into nested option objects, so a nested property
-  needs its full `@param args.renderOptions.x` path.
-- Delete a dead param rather than documenting it — an unused one that stays only to
-  satisfy a doc block is a lint error waiting to happen.
-- Keep `@param`/`@returns` that carry real information (scalar params, return
-  descriptions); drop the ones that just restate the type.
-- **Domain interfaces** (`CardColors`, `Config`, …) — data shapes that aren't one
-  function's parameter object — document their members inline with `/** */`.
+The generator (`packages/core/scripts/generate-graphql-types.ts`) is deliberately
+dev-only — no codegen dependency reaches consumers. It is covered by
+`packages/core/tsconfig.scripts.json`, so `pnpm typecheck` checks it like any other
+source file. The repo-root `scripts/` is covered the same way, by `tsconfig.scripts.json`
+at the root.
 
 ### Strict-mode friction to expect
 
@@ -415,3 +496,9 @@ which is why `pnpm dev` is `pnpm run build && node build/index.js`.
   that you also access by dot, annotating it would trip
   `noPropertyAccessFromIndexSignature` — use `… satisfies TopLangData` instead, which
   validates against the type while keeping the concrete keys.
+- **The vitest rules oxlint disagrees with are off in one place, with reasons.** A card
+  test asserts on every node the card drew, so `max-expects` is off; the `?.` and `??`
+  that `noUncheckedIndexedAccess` forces are not "conditionals in tests", so
+  `no-conditional-in-test` is off; a file-level `beforeAll` applies to every suite in the
+  file, so `require-top-level-describe` is off. `expect-expect` knows about the XSS
+  suite's `expectNoScript` helper through `assertFunctionNames`.

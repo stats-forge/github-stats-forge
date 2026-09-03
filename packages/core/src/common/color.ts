@@ -8,7 +8,6 @@ const HEX_COLOR = /^(?<digits>[A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa
  * (`"f00"`, `"ffffff"`). This is the form user-supplied color params and
  * gradient stops arrive in.
  *
- * @param value Value to check.
  * @returns True if the value is a bare hex color.
  */
 const isBareHexColor = (value: unknown): boolean =>
@@ -19,7 +18,6 @@ const isBareHexColor = (value: unknown): boolean =>
  * is the form colors take once resolved by {@link getCardColors}, i.e. right
  * before they are written into the SVG.
  *
- * @param value Value to check.
  * @returns True if the value is a `#`-prefixed hex color.
  */
 const isPrefixedHexColor = (value: unknown): boolean =>
@@ -30,7 +28,6 @@ const isPrefixedHexColor = (value: unknown): boolean =>
  * followed by at least two bare-hex color stops, e.g. `["90", "f00", "0f0"]`.
  * The angle is written into the SVG `gradientTransform="rotate(...)"`.
  *
- * @param parts Gradient parts: `[angle, ...stops]`.
  * @returns True if the parts form a valid gradient.
  */
 const isValidGradient = (parts: Array<string>): boolean => {
@@ -47,7 +44,6 @@ const isValidGradient = (parts: Array<string>): boolean => {
 /**
  * Checks if a string is a valid input for a color or gradient.
  *
- * @param color String to check, may be null or undefined.
  * @returns True if the given string is a valid input.
  */
 const isValidColorInput = (color: string | null | undefined): boolean => {
@@ -60,8 +56,6 @@ const isValidColorInput = (color: string | null | undefined): boolean => {
 /**
  * Retrieves a gradient if color has more than one valid hex codes else a single color.
  *
- * @param color The color to parse.
- * @param fallback The fallback color.
  * @returns The gradient or color.
  */
 const fallbackColor = (
@@ -88,7 +82,6 @@ const DARK_BG_BORDER = '#ffffff26';
 const TRANSLUCENT_BG_BORDER = '#8b949e59';
 
 /**
- * @param hex A `#`-prefixed hex color of 3, 4, 6 or 8 digits.
  * @returns Its `[r, g, b, a]` channels, each on 0–1.
  */
 const hexChannels = (hex: string): [number, number, number, number] => {
@@ -103,7 +96,6 @@ const hexChannels = (hex: string): [number, number, number, number] => {
 /**
  * Derives a border from the background, so a dark card never gets a light hairline.
  *
- * @param bgColor The resolved background, or a gradient as `[angle, ...stops]`.
  * @returns A translucent `#`-prefixed hex border color.
  */
 const borderColorFor = (bgColor: string | Array<string>): string => {
@@ -173,15 +165,6 @@ type ColorInput = Partial<Record<BaseColorKey, string | undefined>>;
 /**
  * Returns theme based colors with proper overrides and defaults.
  *
- * @param props Function arguments.
- * @param props.title_color Card title color.
- * @param props.text_color Card text color.
- * @param props.icon_color Card icon color.
- * @param props.bg_color Card background color.
- * @param props.border_color Card border color.
- * @param props.ring_color Card ring color.
- * @param props.prog_bar_bg_color Progress bar background color.
- * @param props.theme Card theme.
  * @returns Card colors.
  */
 const getCardColors = ({
@@ -252,8 +235,6 @@ type LightDarkColorParams = Partial<Record<`${BaseColorKey}_${ThemeVariant}`, st
  * Returns the light- or dark-mode-specific color params, given a set of
  * raw query params. Also removes the "_light" or "_dark" suffixes.
  *
- * @param params Raw query params with optional `_light` / `_dark` suffixes.
- * @param suffix `"_light"` or `"_dark"`.
  * @returns ColorInput with the suffix stripped, ready for `getCardColors`.
  */
 const extractLightDarkColors = (
@@ -292,7 +273,6 @@ const MODE_OVERRIDE_KEYS: ReadonlyArray<keyof LightDarkColorParams> = THEME_VARI
  * When no `_light` / `_dark` param is provided at all,
  * `darkColors` is `null` and the caller emits no dark-mode block.
  *
- * @param params Raw query params, both general and `_light` / `_dark` suffixed colors and themes.
  * @returns `{ lightColors, darkColors }`, resolved colors for both light and dark mode
  */
 const getLightDarkColors = (

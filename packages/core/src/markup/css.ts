@@ -46,9 +46,6 @@ type CssChild = CssNode | false | null | undefined | Array<CssChild>;
 
 /**
  * Selectors stay free-form: they compose (`.badge rect`), and a keyframe stop is one too (`from`).
- *
- * @param selector The selector the declarations apply to.
- * @param declarations Property/value pairs; a `undefined` value is left out.
  */
 const rule = (selector: string, declarations: Declarations): CssNode => ({
   kind: 'rule',
@@ -56,10 +53,6 @@ const rule = (selector: string, declarations: Declarations): CssNode => ({
   declarations,
 });
 
-/**
- * @param prelude The at-rule and its condition, e.g. `@media (prefers-color-scheme: dark)`.
- * @param children The rules it wraps.
- */
 const atRule = (prelude: string, ...children: Array<CssChild>): CssNode => ({
   kind: 'at',
   prelude,
@@ -88,10 +81,6 @@ const flatten = (children: Array<CssChild>, into: Array<CssNode> = []): Array<Cs
  *
  * A block is written optimistically and rewound if its body turns out empty,
  * so the tree is walked once however deeply the at-rules nest.
- *
- * @param children The rules to write.
- * @param depth Nesting level, one `INDENT` each.
- * @param sink Collects the output.
  */
 const writeCss = (children: Array<CssChild>, depth: number, sink: Sink): void => {
   const indent = indentAt(depth);

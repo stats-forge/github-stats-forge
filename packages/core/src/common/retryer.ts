@@ -19,8 +19,6 @@ interface ResponseErrors {
  * The value is generated using `Math.random()` and uniformly distributed
  * across the range.
  *
- * @param max The upper bound (exclusive). Must be a positive number.
- *
  * @returns A random integer `n` such that `0 <= n < max`.
  */
 function getRandomInt(max: number): number {
@@ -44,11 +42,6 @@ type FetcherFunction<TData = unknown, TVariables = Record<string, unknown>> = (
 /**
  * Try to execute the fetcher function until it succeeds or the max number of retries is reached.
  *
- * @template TData Shape of `response.data` returned by the fetcher.
- * @template TVariables Variables the fetcher accepts.
- * @param fetcher The fetcher function.
- * @param variables Object with arguments to pass to the fetcher function.
- * @param config Deployment config supplying the PAT pool and the transport.
  * @returns The response from the fetcher function.
  */
 const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
