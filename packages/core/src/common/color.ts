@@ -182,15 +182,11 @@ const getCardColors = ({
 
   const themeBorderColor = 'border_color' in selectedTheme ? selectedTheme.border_color : undefined;
 
-  // get the color provided by the user else the theme color
-  // finally if both colors are invalid fallback to default theme
+  // Each color is the user's, else the selected theme's, else the default theme's.
   const titleColor = fallbackColor(
     title_color || selectedTheme.title_color,
     `#${defaultTheme.title_color}`,
   );
-
-  // get the color provided by the user else the theme color
-  // finally if both colors are invalid we use the titleColor
   const iconColor = fallbackColor(
     icon_color || selectedTheme.icon_color,
     `#${defaultTheme.icon_color}`,

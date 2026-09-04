@@ -112,7 +112,7 @@ const statsFetcher = async (
   }
 
   if (extraRepoNodes.length > 0) {
-    // deep copy to avoid mutating the response cached by the frontend
+    // defensive: the merge below is the only place a parsed response is mutated
     stats = structuredClone({
       data: stats.data,
       statusText: stats.statusText,

@@ -891,8 +891,8 @@ const renderTopLanguages = (
       atRule(
         '@keyframes slideInAnimation',
         rule('from', { width: 0 }),
-        // Invalid on purpose: browsers drop it and animate to the rect's own width,
-        // which is the reveal the mask wants. See the changeset.
+        // Invalid on purpose — `calc` needs spaces around its `-`. Browsers drop the
+        // declaration and animate to the rect's own width, which is the reveal the mask wants.
         rule('to', { width: 'calc(100%-100px)' }),
       ),
       atRule(

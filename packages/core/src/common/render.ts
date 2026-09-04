@@ -379,7 +379,6 @@ const createTextNode = ({
   );
 };
 
-// Script parameters.
 const ERROR_CARD_LENGTH = 576.5;
 
 const UPSTREAM_API_ERRORS = new Set([TRY_AGAIN_LATER, SECONDARY_ERROR_MESSAGES.rate_limited]);
