@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "prepare": "lefthook install",
-    "build:packages": "turbo run build --filter=./packages/*",
+    "build:packages": "pnpm -r --filter \"./packages/*\" run build",
     "cli": "pnpm run build:packages && node packages/cli/build/index.js",
     "examples": "pnpm run build:packages && node examples/generate.ts",
     "test": "vitest",
@@ -16,7 +16,7 @@
     "lint:fix": "oxlint --fix",
     "lint:knip": "knip",
     "lint:deps": "node scripts/assert-deduped.ts",
-    "typecheck": "turbo run typecheck && tsc -p tsconfig.scripts.json",
+    "typecheck": "pnpm run build:packages && pnpm -r --filter \"./packages/*\" run typecheck && tsc -p tsconfig.scripts.json",
     "release": "pnpm run build:packages && changeset publish"
   },
   "devDependencies": {
@@ -31,7 +31,6 @@
     "oxfmt": "0.65.0",
     "oxlint": "1.80.0",
     "oxlint-tsgolint": "7.0.2001",
-    "turbo": "2.10.12",
     "typescript": "7.0.2",
     "vitest": "catalog:default"
   },

@@ -5,7 +5,6 @@ node_modules
 
 # Project
 coverage
-.turbo
 build
 *.tsbuildinfo
 
