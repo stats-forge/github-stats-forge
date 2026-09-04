@@ -440,8 +440,7 @@ const renderStatsCard = (
   // check if all used labels are short
   const longLabels = visibleStats.some(([, stat]) => stat.label.length > 18);
 
-  // Calculate the card height depending on how many items there are
-  // but if rank circle is visible clamp the minimum height to `150`
+  // The rank ring sets the floor: 150 beside the stats, 180 when it is the whole card.
   const height = Math.max(
     45 + (visibleStats.length + 1) * lheight,
     hide_rank ? 0 : visibleStats.length > 0 ? 150 : 180,

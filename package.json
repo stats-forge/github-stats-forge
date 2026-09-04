@@ -5,6 +5,7 @@
   "scripts": {
     "prepare": "lefthook install",
     "build:packages": "turbo run build --filter=./packages/*",
+    "cli": "pnpm run build:packages && node packages/cli/build/index.js",
     "examples": "pnpm run build:packages && node examples/generate.ts",
     "test": "vitest",
     "test:coverage": "vitest --config vitest.config.coverage.ts",

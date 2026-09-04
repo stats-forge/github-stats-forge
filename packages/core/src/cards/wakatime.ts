@@ -306,8 +306,7 @@ const renderWakatimeCard = (
     .filter((language) => language.hours || language.minutes)
     .slice(0, langsCount);
 
-  // Calculate the card height depending on how many items there are
-  // but if rank circle is visible clamp the minimum height to `150`
+  // A short language list would otherwise draw a stub card, so 150 is the floor.
   let height = Math.max(45 + (filteredLanguages.length + 1) * lheight, 150);
 
   let finalLayout: Child;
@@ -431,8 +430,8 @@ const renderWakatimeCard = (
       atRule(
         '@keyframes slideInAnimation',
         rule('from', { width: 0 }),
-        // Invalid on purpose: browsers drop it and animate to the rect's own width,
-        // which is the reveal the mask wants. See the changeset.
+        // Invalid on purpose — `calc` needs spaces around its `-`. Browsers drop the
+        // declaration and animate to the rect's own width, which is the reveal the mask wants.
         rule('to', { width: 'calc(100%-100px)' }),
       ),
       atRule(

@@ -99,9 +99,7 @@ const isOwnerAffiliation = (value: string): value is RepositoryAffiliation =>
  * @returns Parsed affiliations.
  */
 const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAffiliation> => {
-  // Set default value for ownerAffiliations.
-  // NOTE: Done here since parseArray() will always return an empty array even nothing
-  //was specified.
+  // `parseArray` returns an empty array for an absent param, so the default lands here.
   const normalized =
     affiliations.length > 0
       ? affiliations.map((affiliation) => affiliation.toUpperCase())

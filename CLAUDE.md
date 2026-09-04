@@ -53,6 +53,7 @@ pnpm lint:knip            # unused files/exports/deps
 pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
 pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
+pnpm cli --help           # build, then run the CLI (add any of its flags)
 pnpm examples             # build, then redraw examples/previews (add a name for one)
 ```
 
@@ -441,6 +442,10 @@ at the root.
 points at `./build/index.js`. Node 24 runs TypeScript directly but does **not** rewrite a
 `./x.js` specifier to `.ts`, so `node src/index.ts` dies on its first relative import —
 which is why `pnpm dev` is `pnpm run build && node build/index.js`.
+
+From the repo root, `pnpm cli` builds both packages and runs the CLI there,
+so it picks up the root `.env` the way `pnpm examples` does.
+Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
 
 - **Choices come from core's exports, never a copy.** `src/cards.ts` reads
   `stats.RANK_ICONS`, `topLangs.LAYOUTS`, `wakatime.DISPLAY_FORMATS` and
