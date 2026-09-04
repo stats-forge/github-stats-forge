@@ -1,12 +1,12 @@
 import * as z from 'zod/mini';
 
-import { renderRepoCard } from '../cards/repo.js';
-import type { CardConfig } from '../common/config.js';
-import { fetchRepo } from '../fetchers/repo.js';
+import { renderRepoCard } from '../cards/repo.ts';
+import type { CardConfig } from '../common/config.ts';
+import { fetchRepo } from '../fetchers/repo.ts';
 
-import type { ApiResult } from './api-result.js';
-import { errorResult } from './api-result.js';
-import type { ApiQuery } from './params.js';
+import type { ApiResult } from './api-result.ts';
+import { errorResult } from './api-result.ts';
+import type { ApiQuery } from './params.ts';
 import {
   booleanParam,
   listParam,
@@ -18,7 +18,7 @@ import {
   rawParam,
   safeParam,
   usernameParam,
-} from './params.js';
+} from './params.ts';
 
 /** What the pin endpoint accepts, on top of the shared color params. */
 const pinQuery = z.object({

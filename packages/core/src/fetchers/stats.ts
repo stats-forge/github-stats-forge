@@ -1,29 +1,29 @@
-import { calculateRank } from '../calculateRank.js';
-import type { CardConfig } from '../common/config.js';
-import { GITHUB_USERNAME_PATTERN } from '../common/constants.js';
-import type { GitHubDateRange } from '../common/date.js';
-import { getGitHubYearRange, toGitHubDateTime } from '../common/date.js';
-import { CardError, USER_NOT_FOUND } from '../common/error.js';
-import { createGraphQLFetcher, httpRequest } from '../common/http.js';
-import type { FetcherContext, GraphQLResponse } from '../common/http.js';
-import { logger } from '../common/log.js';
-import { buildSearchFilter, chunkArray, parseOwnerAffiliations } from '../common/ops.js';
-import { wrapTextMultiline } from '../common/render.js';
-import { retryer } from '../common/retryer.js';
-import type { FetcherResponse } from '../common/retryer.js';
-import { buildContributionsDocument } from '../graphql/contributionsDocument.js';
-import { UserInfoDocument, UserReposDocument } from '../graphql/generated/stats.js';
+import { calculateRank } from '../calculateRank.ts';
+import type { CardConfig } from '../common/config.ts';
+import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
+import type { GitHubDateRange } from '../common/date.ts';
+import { getGitHubYearRange, toGitHubDateTime } from '../common/date.ts';
+import { CardError, USER_NOT_FOUND } from '../common/error.ts';
+import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
+import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
+import { logger } from '../common/log.ts';
+import { buildSearchFilter, chunkArray, parseOwnerAffiliations } from '../common/ops.ts';
+import { wrapTextMultiline } from '../common/render.ts';
+import { retryer } from '../common/retryer.ts';
+import type { FetcherResponse } from '../common/retryer.ts';
+import { buildContributionsDocument } from '../graphql/contributionsDocument.ts';
+import { UserInfoDocument, UserReposDocument } from '../graphql/generated/stats.ts';
 import type {
   RepoNodeFragment,
   UserInfoQuery,
   UserInfoQueryVariables,
-} from '../graphql/generated/stats.js';
+} from '../graphql/generated/stats.ts';
 import {
   MAX_REPOSITORIES_LIMIT,
   buildReposContributedToDocument,
-} from '../graphql/reposContributedToDocument.js';
+} from '../graphql/reposContributedToDocument.ts';
 
-import type { RepoUserStats, StatsData } from './types.js';
+import type { RepoUserStats, StatsData } from './types.ts';
 
 /** The subset of the stats response `statsFetcher` returns and threads on. */
 type StatsFetcherResponse = Pick<GraphQLResponse<UserInfoQuery>, 'data' | 'statusText'>;

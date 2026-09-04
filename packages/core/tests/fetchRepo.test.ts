@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { fetchRepo } from '../src/fetchers/repo.js';
+import { fetchRepo } from '../src/fetchers/repo.ts';
 
-import { testConfig } from './_config.js';
-import { FetchMock } from './_fetch-mock.js';
+import { testConfig } from './_config.ts';
+import { FetchMock } from './_fetch-mock.ts';
 
 const data_repo = {
   repository: {

@@ -1,4 +1,4 @@
-import type { FetchLike } from '../src/common/http.js';
+import type { FetchLike } from '../src/common/http.ts';
 
 /** A request the mock was asked to send, as the assertions read it back. */
 interface MockRequest {

@@ -2,9 +2,9 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import type { CardKind } from './cards.js';
-import { findCard } from './cards.js';
-import type { Answer } from './query.js';
+import type { CardKind } from './cards.ts';
+import { findCard } from './cards.ts';
+import type { Answer } from './query.ts';
 
 /**
  * @file A card, written down.

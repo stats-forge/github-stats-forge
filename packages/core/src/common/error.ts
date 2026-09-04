@@ -1,4 +1,4 @@
-import { OWNER_AFFILIATIONS } from './constants.js';
+import { OWNER_AFFILIATIONS } from './constants.ts';
 
 /**
  * @file One error type for everything a card render can fail on.

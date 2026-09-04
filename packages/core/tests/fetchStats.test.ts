@@ -1,24 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { calculateRank } from '../src/calculateRank.js';
-import type { CardConfig } from '../src/common/config.js';
-import type { GraphQLResponse } from '../src/common/http.js';
-import { fetchStats } from '../src/fetchers/stats.js';
-import type { StatsData } from '../src/fetchers/types.js';
-import type { ContributionsQuery } from '../src/graphql/contributionsDocument.js';
+import { calculateRank } from '../src/calculateRank.ts';
+import type { CardConfig } from '../src/common/config.ts';
+import type { GraphQLResponse } from '../src/common/http.ts';
+import { fetchStats } from '../src/fetchers/stats.ts';
+import type { StatsData } from '../src/fetchers/types.ts';
+import type { ContributionsQuery } from '../src/graphql/contributionsDocument.ts';
 import type {
   RangeContributionsByRepoFragment,
   RepoStarsFragment,
   UserInfoQuery,
   UserReposQuery,
-} from '../src/graphql/generated/stats.js';
-import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.js';
+} from '../src/graphql/generated/stats.ts';
+import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.ts';
 
-import { testConfig } from './_config.js';
-import { FetchMock } from './_fetch-mock.js';
+import { testConfig } from './_config.ts';
+import { FetchMock } from './_fetch-mock.ts';
 
-vi.mock(import('../src/common/log.js'), async () => {
-  const { createLoggerMock } = await import('./utils.js');
+vi.mock(import('../src/common/log.ts'), async () => {
+  const { createLoggerMock } = await import('./utils.ts');
   return createLoggerMock();
 });
 

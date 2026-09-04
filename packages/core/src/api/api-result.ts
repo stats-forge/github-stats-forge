@@ -1,7 +1,7 @@
-import type { ColorParams } from '../common/color.js';
-import type { ErrorCode } from '../common/error.js';
-import { CardError } from '../common/error.js';
-import { renderError } from '../common/render.js';
+import type { ColorParams } from '../common/color.ts';
+import type { ErrorCode } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
+import { renderError } from '../common/render.ts';
 
 /**
  * Why a card could not be rendered, in a form a host can act on.

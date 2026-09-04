@@ -1,4 +1,4 @@
-import type { CardKind, CardOption } from './cards.js';
+import type { CardKind, CardOption } from './cards.ts';
 
 /**
  * @file Answers in, query params out.

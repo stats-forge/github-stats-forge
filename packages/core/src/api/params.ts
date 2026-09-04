@@ -1,11 +1,11 @@
 import * as z from 'zod/mini';
 
-import type { ColorParams } from '../common/color.js';
-import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.js';
-import { GITHUB_USERNAME_PATTERN } from '../common/constants.js';
-import { CardError } from '../common/error.js';
-import { parseArray, parseBoolean } from '../common/ops.js';
-import { isLocaleAvailable } from '../translations.js';
+import type { ColorParams } from '../common/color.ts';
+import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.ts';
+import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
+import { CardError } from '../common/error.ts';
+import { parseArray, parseBoolean } from '../common/ops.ts';
+import { isLocaleAvailable } from '../translations.ts';
 
 /**
  * @file The api layer is the trust boundary:

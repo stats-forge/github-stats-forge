@@ -81,6 +81,12 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
+      # Relative specifiers are written `.ts` and rewritten on emit, so the published
+      # resolution is checked rather than assumed. `typecheck` above leaves the build in
+      # place for it.
+      - name: Lint (packaging and published types)
+        run: pnpm run lint:publish
+
   ci-ok:
     name: CI OK
     runs-on: ubuntu-latest

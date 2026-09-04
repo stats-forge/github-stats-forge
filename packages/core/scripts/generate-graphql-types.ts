@@ -45,7 +45,7 @@ const QUERIES_DIR = path.join(PACKAGE_ROOT, 'src/graphql/queries');
 const OUT_DIR = path.join(PACKAGE_ROOT, 'src/graphql/generated');
 const COMMON_FILE = path.join(OUT_DIR, 'common.ts');
 // `typescript-operations` resolves this against the working directory
-const COMMON_IMPORT_PATH = path.relative(process.cwd(), COMMON_FILE.replace(/\.ts$/, '.js'));
+const COMMON_IMPORT_PATH = path.relative(process.cwd(), COMMON_FILE);
 
 /** An absolute path, relative to the package, for log messages. */
 const pathRelativeFromRoot = (file: string): string => path.relative(PACKAGE_ROOT, file);
@@ -54,7 +54,7 @@ const pathRelativeFromRoot = (file: string): string => path.relative(PACKAGE_ROO
 const checkOnly = process.argv.includes('--check');
 
 const config: TypeScriptPluginConfig & TypeScriptDocumentsPluginConfig = {
-  importExtension: '.js',
+  importExtension: '.ts',
   enumsAsTypes: true,
   skipTypename: true,
   useTypeImports: true,
@@ -151,7 +151,7 @@ const documentsPlugin: CodegenPlugin['plugin'] = (_schema, files) => {
     });
 
   return {
-    prepend: [`import { graphqlDocument } from "../graphqlDocument.js";`],
+    prepend: [`import { graphqlDocument } from "../graphqlDocument.ts";`],
     content: operations.join('\n\n'),
   };
 };

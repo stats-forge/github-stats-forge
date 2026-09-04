@@ -3,7 +3,7 @@
  * It depends on nothing else in the package, so it sits below `cards/`, not inside `common/`.
  */
 
-export { atRule, cssComment, rule } from './css.js';
-export type { CssChild, Declarations } from './css.js';
-export { el, renderMarkup, style } from './element.js';
-export type { Child, MarkupElement } from './element.js';
+export { atRule, cssComment, rule } from './css.ts';
+export type { CssChild, Declarations } from './css.ts';
+export { el, renderMarkup, style } from './element.ts';
+export type { Child, MarkupElement } from './element.ts';

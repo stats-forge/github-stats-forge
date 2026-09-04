@@ -6,7 +6,7 @@ import {
   renderError,
   splitWrappedText,
   wrapTextMultiline,
-} from '../src/common/render.js';
+} from '../src/common/render.ts';
 
 describe('Test splitWrappedText', () => {
   it('should return an empty array for empty text', () => {

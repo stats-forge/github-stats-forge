@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ApiResult } from '../src/api/api-result.js';
-import { gist } from '../src/api/gist.js';
-import { pin } from '../src/api/pin.js';
-import { stats } from '../src/api/stats.js';
-import { topLangs } from '../src/api/top-langs.js';
-import { wakatime } from '../src/api/wakatime.js';
-import { CardConfig } from '../src/common/config.js';
+import type { ApiResult } from '../src/api/api-result.ts';
+import { gist } from '../src/api/gist.ts';
+import { pin } from '../src/api/pin.ts';
+import { stats } from '../src/api/stats.ts';
+import { topLangs } from '../src/api/top-langs.ts';
+import { wakatime } from '../src/api/wakatime.ts';
+import { CardConfig } from '../src/common/config.ts';
 
 // Values containing characters outside the safe set /^[-\w/.,]+$/. These must be
 // rejected before any network request is made.

@@ -2,9 +2,9 @@
 
 /** Internal type. DO NOT USE DIRECTLY. */
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-import { graphqlDocument } from '../graphqlDocument.js';
+import { graphqlDocument } from '../graphqlDocument.ts';
 
-import type * as Types from './common.js';
+import type * as Types from './common.ts';
 export type RepoNodeFragment = { name: string; stargazerCount: number };
 
 export type RepoStarsFragment = {

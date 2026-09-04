@@ -1,9 +1,9 @@
-import { Card } from '../common/Card.js';
-import { getLightDarkColors } from '../common/color.js';
-import { kFormatter } from '../common/fmt.js';
-import { icons } from '../common/icons.js';
-import { getLanguageColor } from '../common/languageColors.js';
-import { parseEmojis } from '../common/ops.js';
+import { Card } from '../common/Card.ts';
+import { getLightDarkColors } from '../common/color.ts';
+import { kFormatter } from '../common/fmt.ts';
+import { icons } from '../common/icons.ts';
+import { getLanguageColor } from '../common/languageColors.ts';
+import { parseEmojis } from '../common/ops.ts';
 import {
   countWrappedLines,
   wrapTextMultiline,
@@ -13,12 +13,12 @@ import {
   measureText,
   wrappedTextNode,
   wrappedTextStyles,
-} from '../common/render.js';
-import type { GistData } from '../fetchers/types.js';
-import type { Child } from '../markup/index.js';
-import { el, rule } from '../markup/index.js';
+} from '../common/render.ts';
+import type { GistData } from '../fetchers/types.ts';
+import type { Child } from '../markup/index.ts';
+import { el, rule } from '../markup/index.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.js';
+import type { CardOptions, CommonCardOptions } from './options.ts';
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = 400;

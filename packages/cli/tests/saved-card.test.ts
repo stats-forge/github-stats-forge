@@ -5,9 +5,9 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import type { CardKind } from '../src/cards.js';
-import { findCard } from '../src/cards.js';
-import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from '../src/saved-card.js';
+import type { CardKind } from '../src/cards.ts';
+import { findCard } from '../src/cards.ts';
+import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from '../src/saved-card.ts';
 
 const dir = (): string => mkdtempSync(join(tmpdir(), 'stats-forge-saved-'));
 

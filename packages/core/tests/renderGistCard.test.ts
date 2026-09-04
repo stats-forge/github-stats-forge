@@ -2,12 +2,12 @@ import { screen } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
-import { gist as gistApi } from '../src/api/gist.js';
-import { renderGistCard } from '../src/cards/gist.js';
-import type { GistData } from '../src/fetchers/types.js';
-import { themes } from '../src/themes/index.js';
+import { gist as gistApi } from '../src/api/gist.ts';
+import { renderGistCard } from '../src/cards/gist.ts';
+import type { GistData } from '../src/fetchers/types.ts';
+import { themes } from '../src/themes/index.ts';
 
-import { testConfig } from './_config.js';
+import { testConfig } from './_config.ts';
 
 const data: GistData = {
   name: 'test',

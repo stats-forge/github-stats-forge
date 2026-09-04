@@ -1,12 +1,12 @@
 import * as z from 'zod/mini';
 
-import { DISPLAY_FORMATS, WAKATIME_LAYOUTS, renderWakatimeCard } from '../cards/wakatime.js';
-import type { CardConfig } from '../common/config.js';
-import { fetchWakatimeStats } from '../fetchers/wakatime.js';
+import { DISPLAY_FORMATS, WAKATIME_LAYOUTS, renderWakatimeCard } from '../cards/wakatime.ts';
+import type { CardConfig } from '../common/config.ts';
+import { fetchWakatimeStats } from '../fetchers/wakatime.ts';
 
-import type { ApiResult } from './api-result.js';
-import { errorResult } from './api-result.js';
-import type { ApiQuery } from './params.js';
+import type { ApiResult } from './api-result.ts';
+import { errorResult } from './api-result.ts';
+import type { ApiQuery } from './params.ts';
 import {
   booleanParam,
   enumParam,
@@ -18,7 +18,7 @@ import {
   parseParams,
   rawParam,
   safeParam,
-} from './params.js';
+} from './params.ts';
 
 /** What the wakatime endpoint accepts, on top of the shared color params. */
 const wakatimeQuery = z.object({

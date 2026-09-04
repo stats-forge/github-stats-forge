@@ -1,17 +1,17 @@
-import { Card } from '../common/Card.js';
-import { getLightDarkColors } from '../common/color.js';
-import type { CardColors } from '../common/color.js';
-import { CardError } from '../common/error.js';
-import { I18n } from '../common/I18n.js';
-import { icons, rankIcon } from '../common/icons.js';
-import { buildSearchFilter, clampValue } from '../common/ops.js';
-import { createTextNode, flexLayout, measureText } from '../common/render.js';
-import type { StatsData } from '../fetchers/types.js';
-import type { Child, CssChild } from '../markup/index.js';
-import { atRule, cssComment, el, rule } from '../markup/index.js';
-import { statCardLocales, wakatimeCardLocales } from '../translations.js';
+import { Card } from '../common/Card.ts';
+import { getLightDarkColors } from '../common/color.ts';
+import type { CardColors } from '../common/color.ts';
+import { CardError } from '../common/error.ts';
+import { I18n } from '../common/I18n.ts';
+import { icons, rankIcon } from '../common/icons.ts';
+import { buildSearchFilter, clampValue } from '../common/ops.ts';
+import { createTextNode, flexLayout, measureText } from '../common/render.ts';
+import type { StatsData } from '../fetchers/types.ts';
+import type { Child, CssChild } from '../markup/index.ts';
+import { atRule, cssComment, el, rule } from '../markup/index.ts';
+import { statCardLocales, wakatimeCardLocales } from '../translations.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.js';
+import type { CardOptions, CommonCardOptions } from './options.ts';
 
 const CARD_MIN_WIDTH = 287;
 const CARD_DEFAULT_WIDTH = 287;

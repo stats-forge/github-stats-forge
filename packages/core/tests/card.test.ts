@@ -2,9 +2,9 @@ import { queryByTestId } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { Card } from '../src/common/Card.js';
-import { getCardColors } from '../src/common/color.js';
-import { icons } from '../src/common/icons.js';
+import { Card } from '../src/common/Card.ts';
+import { getCardColors } from '../src/common/color.ts';
+import { icons } from '../src/common/icons.ts';
 
 describe(Card, () => {
   afterEach(() => {

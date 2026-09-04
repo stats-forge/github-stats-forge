@@ -1,16 +1,16 @@
-export { gist } from './gist.js';
-export { pin } from './pin.js';
-export { stats } from './stats.js';
-export { topLangs } from './top-langs.js';
-export { wakatime } from './wakatime.js';
+export { gist } from './gist.ts';
+export { pin } from './pin.ts';
+export { stats } from './stats.ts';
+export { topLangs } from './top-langs.ts';
+export { wakatime } from './wakatime.ts';
 
-export type { ApiError, ApiResult } from './api-result.js';
+export type { ApiError, ApiResult } from './api-result.ts';
 
 // every handler but `wakatime` needs the PAT pool, and that one still needs the transport.
-export { CardConfig } from '../common/config.js';
-export type { CardConfigInit, PersonalAccessToken } from '../common/config.js';
-export type { FetchLike } from '../common/http.js';
-export type { ErrorCode } from '../common/error.js';
+export { CardConfig } from '../common/config.ts';
+export type { CardConfigInit, PersonalAccessToken } from '../common/config.ts';
+export type { FetchLike } from '../common/http.ts';
+export type { ErrorCode } from '../common/error.ts';
 
-export { themes } from '../themes/index.js';
-export type { ThemeName } from '../themes/index.js';
+export { themes } from '../themes/index.ts';
+export type { ThemeName } from '../themes/index.ts';

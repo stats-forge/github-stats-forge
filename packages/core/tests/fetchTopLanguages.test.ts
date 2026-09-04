@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { logger } from '../src/common/log.js';
-import { fetchTopLanguages } from '../src/fetchers/top-languages.js';
+import { logger } from '../src/common/log.ts';
+import { fetchTopLanguages } from '../src/fetchers/top-languages.ts';
 
-import { testConfig } from './_config.js';
-import { FetchMock } from './_fetch-mock.js';
-import { approxNumber } from './utils.js';
+import { testConfig } from './_config.ts';
+import { FetchMock } from './_fetch-mock.ts';
+import { approxNumber } from './utils.ts';
 
-vi.mock(import('../src/common/log.js'), async () => {
-  const { createLoggerMock } = await import('./utils.js');
+vi.mock(import('../src/common/log.ts'), async () => {
+  const { createLoggerMock } = await import('./utils.ts');
   return createLoggerMock();
 });
 

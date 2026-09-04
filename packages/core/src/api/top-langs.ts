@@ -4,13 +4,13 @@ import {
   TOP_LANG_LAYOUTS,
   TOP_LANG_STATS_FORMATS,
   renderTopLanguages,
-} from '../cards/top-languages.js';
-import type { CardConfig } from '../common/config.js';
-import { fetchTopLanguages } from '../fetchers/top-languages.js';
+} from '../cards/top-languages.ts';
+import type { CardConfig } from '../common/config.ts';
+import { fetchTopLanguages } from '../fetchers/top-languages.ts';
 
-import type { ApiResult } from './api-result.js';
-import { errorResult } from './api-result.js';
-import type { ApiQuery } from './params.js';
+import type { ApiResult } from './api-result.ts';
+import { errorResult } from './api-result.ts';
+import type { ApiQuery } from './params.ts';
 import {
   booleanParam,
   enumParam,
@@ -22,7 +22,7 @@ import {
   parseParams,
   rawParam,
   usernameParam,
-} from './params.js';
+} from './params.ts';
 
 /** What the top-languages endpoint accepts, on top of the shared color params. */
 const topLangsQuery = z.object({

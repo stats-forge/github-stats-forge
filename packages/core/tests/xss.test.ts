@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ApiResult } from '../src/api/api-result.js';
-import { gist } from '../src/api/gist.js';
-import { pin } from '../src/api/pin.js';
-import { stats } from '../src/api/stats.js';
-import { topLangs } from '../src/api/top-langs.js';
-import { wakatime } from '../src/api/wakatime.js';
-import { CardConfig } from '../src/common/config.js';
+import type { ApiResult } from '../src/api/api-result.ts';
+import { gist } from '../src/api/gist.ts';
+import { pin } from '../src/api/pin.ts';
+import { stats } from '../src/api/stats.ts';
+import { topLangs } from '../src/api/top-langs.ts';
+import { wakatime } from '../src/api/wakatime.ts';
+import { CardConfig } from '../src/common/config.ts';
 
-vi.mock(import('../src/fetchers/gist.js'), () => ({
+vi.mock(import('../src/fetchers/gist.ts'), () => ({
   fetchGist: vi.fn().mockResolvedValue({
     name: "<script>alert('xss')</script>",
     nameWithOwner: "<script>alert('xss')</script>",
@@ -19,7 +19,7 @@ vi.mock(import('../src/fetchers/gist.js'), () => ({
   }),
 }));
 
-vi.mock(import('../src/fetchers/repo.js'), () => ({
+vi.mock(import('../src/fetchers/repo.ts'), () => ({
   fetchRepo: vi.fn().mockResolvedValue({
     nameWithOwner: "<script>alert('xss')</script>",
     name: "<script>alert('xss')</script>",
@@ -34,7 +34,7 @@ vi.mock(import('../src/fetchers/repo.js'), () => ({
   }),
 }));
 
-vi.mock(import('../src/fetchers/stats.js'), () => ({
+vi.mock(import('../src/fetchers/stats.ts'), () => ({
   fetchStats: vi.fn().mockResolvedValue({
     name: "<script>alert('xss')</script>",
     totalStars: 100,
@@ -51,7 +51,7 @@ vi.mock(import('../src/fetchers/stats.js'), () => ({
   }),
 }));
 
-vi.mock(import('../src/fetchers/top-languages.js'), () => ({
+vi.mock(import('../src/fetchers/top-languages.ts'), () => ({
   fetchTopLanguages: vi.fn().mockResolvedValue({
     HTML: { color: '#0f0', name: "<script>alert('xss')</script>", size: 200 },
     javascript: {
@@ -63,7 +63,7 @@ vi.mock(import('../src/fetchers/top-languages.js'), () => ({
   }),
 }));
 
-vi.mock(import('../src/fetchers/wakatime.js'), () => ({
+vi.mock(import('../src/fetchers/wakatime.ts'), () => ({
   fetchWakatimeStats: vi.fn().mockResolvedValue({
     categories: [
       {

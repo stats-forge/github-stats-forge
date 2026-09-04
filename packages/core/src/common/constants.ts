@@ -1,4 +1,4 @@
-import type { RepositoryAffiliation } from '../graphql/generated/common.js';
+import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
 
 /** A GitHub login: alphanumerics and single inner hyphens, 39 characters at most. */
 const GITHUB_USERNAME_PATTERN = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;

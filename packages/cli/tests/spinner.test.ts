@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { SpinnerStream } from '../src/spinner.js';
-import { withSpinner } from '../src/spinner.js';
+import type { SpinnerStream } from '../src/spinner.ts';
+import { withSpinner } from '../src/spinner.ts';
 
 /**
  * @returns The stream, with everything written to it.

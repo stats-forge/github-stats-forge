@@ -7,7 +7,7 @@ import {
   parseArray,
   parseBoolean,
   parseEmojis,
-} from '../src/common/ops.js';
+} from '../src/common/ops.ts';
 
 describe('Test ops.js', () => {
   it('should test parseBoolean', () => {

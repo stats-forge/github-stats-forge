@@ -1,4 +1,4 @@
-import type { GraphQLDocument } from '../graphql/graphqlDocument.js';
+import type { GraphQLDocument } from '../graphql/graphqlDocument.ts';
 
 const GITHUB_GRAPHQL_API = 'https://api.github.com/graphql';
 

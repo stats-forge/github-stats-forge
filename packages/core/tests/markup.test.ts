@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { atRule, cssComment, rule, el, renderMarkup, style } from '../src/markup/index.js';
+import { atRule, cssComment, rule, el, renderMarkup, style } from '../src/markup/index.ts';
 
 describe(renderMarkup, () => {
   it('should write one element per line, two spaces per level', () => {

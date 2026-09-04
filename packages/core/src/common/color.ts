@@ -1,4 +1,4 @@
-import { isThemeName, themes } from '../themes/index.js';
+import { isThemeName, themes } from '../themes/index.ts';
 
 /** Matches a 3-, 4-, 6-, or 8-digit hex color with no leading `#`. */
 const HEX_COLOR = /^(?<digits>[A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/;

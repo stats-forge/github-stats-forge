@@ -1,9 +1,9 @@
-import type { GitHubDateRange } from '../common/date.js';
-import { toGitHubDateTime } from '../common/date.js';
+import type { GitHubDateRange } from '../common/date.ts';
+import { toGitHubDateTime } from '../common/date.ts';
 
-import type { RangeContributionsByRepoFragment } from './generated/stats.js';
-import type { GraphQLDocument } from './graphqlDocument.js';
-import { graphqlDocument } from './graphqlDocument.js';
+import type { RangeContributionsByRepoFragment } from './generated/stats.ts';
+import type { GraphQLDocument } from './graphqlDocument.ts';
+import { graphqlDocument } from './graphqlDocument.ts';
 
 /** max value GitHub allows for `first/maxRepositories` */
 const MAX_REPOSITORIES_LIMIT = 100;

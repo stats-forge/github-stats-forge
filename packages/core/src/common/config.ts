@@ -1,5 +1,5 @@
-import { defaultFetch } from './http.js';
-import type { FetchLike } from './http.js';
+import { defaultFetch } from './http.ts';
+import type { FetchLike } from './http.ts';
 
 type Env = Record<string, string | undefined>;
 

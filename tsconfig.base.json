@@ -23,10 +23,15 @@
        * Custom condition that resolved to original typescript source
        * It allows realtime typechecking between packages without the need to rebuild them.
 
-       * Keep in sync with `eslint.config.js` `createTypeScriptImportResolver`
+       * Keep in sync with the `conditions` in `vitest.config.ts` and `packages/cli/vitest.config.ts`.
        */
       "@stats/source"
     ],
+
+    // A relative import names the file that exists, so `node src/index.ts` resolves it.
+    "allowImportingTsExtensions": true,
+    // Required for the two `tsconfig.build.json` to emit: rewrites `./x.ts` to `./x.js`.
+    "rewriteRelativeImportExtensions": true,
 
     // Emit
     // Off by default so no `tsc` writes output unless explicitly opted in

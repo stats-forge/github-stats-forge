@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { I18n } from '../src/common/I18n.js';
-import { statCardLocales } from '../src/translations.js';
+import { I18n } from '../src/common/I18n.ts';
+import { statCardLocales } from '../src/translations.ts';
 
 describe(I18n, () => {
   it('should return translated string', () => {

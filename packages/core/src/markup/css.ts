@@ -1,5 +1,5 @@
-import type { Sink } from './serialize.js';
-import { INDENT, indentAt } from './serialize.js';
+import type { Sink } from './serialize.ts';
+import { INDENT, indentAt } from './serialize.ts';
 
 /** Every CSS property a card declares, closed so a typo is a compile error, not a dropped rule. */
 type CssProperty =

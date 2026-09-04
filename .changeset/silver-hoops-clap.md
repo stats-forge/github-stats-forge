@@ -9,5 +9,5 @@ chore!: narrow the supported Node range to `^24 || >=26`
 It is an odd-numbered line that never reaches LTS,
 and dropping it keeps the supported set to the two versions CI runs.
 
-Runtime dependencies move too:
-`zod` to `^4.5.4` in core, and `@inquirer/prompts` to `8.7.0` in the CLI.
+Runtime dependencies move too: `zod` to `^4.5.4` in core,
+and `@inquirer/prompts` to `8.7.0` in the CLI.

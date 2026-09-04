@@ -1,12 +1,12 @@
 import * as z from 'zod/mini';
 
-import { RANK_ICONS, renderStatsCard } from '../cards/stats.js';
-import type { CardConfig } from '../common/config.js';
-import { fetchStats } from '../fetchers/stats.js';
+import { RANK_ICONS, renderStatsCard } from '../cards/stats.ts';
+import type { CardConfig } from '../common/config.ts';
+import { fetchStats } from '../fetchers/stats.ts';
 
-import type { ApiResult } from './api-result.js';
-import { errorResult } from './api-result.js';
-import type { ApiQuery } from './params.js';
+import type { ApiResult } from './api-result.ts';
+import { errorResult } from './api-result.ts';
+import type { ApiQuery } from './params.ts';
 import {
   booleanParam,
   enumParam,
@@ -20,7 +20,7 @@ import {
   safeListParam,
   usernameParam,
   yearParam,
-} from './params.js';
+} from './params.ts';
 
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z.object({

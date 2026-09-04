@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { encodeHTML } from '../src/markup/html.js';
+import { encodeHTML } from '../src/markup/html.ts';
 
 describe('Test html.js', () => {
   it('should encode HTML entities', () => {

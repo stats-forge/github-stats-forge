@@ -43,7 +43,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/stats-forge/github-stats-forge.git",
+    "url": "git+https://github.com/stats-forge/github-stats-forge.git",
     "directory": "packages/core"
   },
   "files": [
@@ -72,6 +72,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepack": "pnpm run build",
+    "lint:publish": "attw --pack . --profile node16 --ignore-rules cjs-resolves-to-esm && publint --strict",
     "test": "vitest",
     "test:update:snapshot": "vitest -u",
     "test:e2e": "vitest --config vitest.config.e2e.ts",

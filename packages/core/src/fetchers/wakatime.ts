@@ -1,8 +1,8 @@
-import type { CardConfig } from '../common/config.js';
-import { CardError, WAKATIME_USER_NOT_FOUND } from '../common/error.js';
-import { httpRequest } from '../common/http.js';
+import type { CardConfig } from '../common/config.ts';
+import { CardError, WAKATIME_USER_NOT_FOUND } from '../common/error.ts';
+import { httpRequest } from '../common/http.ts';
 
-import type { WakaTimeData } from './types.js';
+import type { WakaTimeData } from './types.ts';
 
 /**
  * WakaTime data fetcher.
