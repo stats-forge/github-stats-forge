@@ -19,7 +19,7 @@ gives way to an injected `fetch`).
 
 ## What this is
 
-`github-stats-forge` — a pnpm + turbo monorepo holding the library that renders
+`github-stats-forge` — a pnpm monorepo holding the library that renders
 GitHub stats as SVG cards. The server and the docs site that used to live here are
 gone: consumers (the GitHub Action, any self-hosted endpoint) import the package.
 
@@ -45,7 +45,7 @@ Run from the **repo root** unless stated otherwise.
 ```sh
 pnpm test                 # vitest, whole workspace
 pnpm test:coverage        # vitest with the coverage config
-pnpm typecheck            # turbo typecheck + tsc -p tsconfig.scripts.json
+pnpm typecheck            # build, then tsc over the packages and scripts/
 pnpm lint                 # oxlint over the whole workspace
 pnpm lint:ci              # oxlint --format=github (what CI runs, for annotations)
 pnpm lint:fix             # oxlint --fix
@@ -58,8 +58,20 @@ pnpm examples             # build, then redraw examples/previews (add a name for
 ```
 
 Per-package: `pnpm exec tsc -p tsconfig.typecheck.json`. There is no per-package lint
-script — oxlint reads one root config and lints the workspace in a single pass, so
-`turbo` only owns `build` and `typecheck`.
+script — oxlint reads one root config and lints the workspace in a single pass.
+
+**Task ordering is `pnpm -r`'s, not a task runner's.** `pnpm run -r` walks the workspace
+in topological order, so `build:packages` builds core before cli for free. `typecheck`
+spells out its one extra edge by building first: each package's `tsconfig.typecheck.json`
+clears `customConditions`, so cli resolves core through its built `.d.ts`.
+
+**turbo was removed on 2026-09-04, after being measured.** It owned exactly these two
+tasks, and its own startup cost more than the `tsc` builds it ordered — 2.0s cold against
+1.3s for plain `pnpm -r`, with a warm cache hit at 0.6s saving under a second. CI never
+collected even that: there was no `actions/cache` step and no remote cache, so all four
+matrix jobs paid the cold-run penalty. It also cost the poisoned-cache session recorded
+under "tsconfig layout and emit". Don't reinstate a runner for two packages; if the
+package split lands, measure again rather than assume.
 
 GraphQL types are generated, so run these from the repo root after touching any
 `src/graphql/queries/*.graphql`:
@@ -378,12 +390,11 @@ runs against built `.d.ts` the way a consumer would resolve them rather than thr
 
 This came from `packages/core/tsconfig.json` — the config the editor and a bare `tsc`
 pick up — carrying `outDir: "build"` while including `tests`. Any stray `tsc` in the
-package wrote `build/src`, `build/tests` and `build/vitest.config.js`; turbo then captured
-that under its `build/**` outputs, so every later `pnpm build:packages` replayed the test
-files back into `build/` on a cache hit and the build _looked_ like it was producing them.
-When build output is wrong, suspect the turbo cache before the compiler: force a real run
-with `pnpm exec turbo run build "--filter=./packages/*" --force`, and clear a poisoned
-entry by removing `packages/core/.turbo`, `node_modules/.cache/turbo` and `.turbo/cache`.
+package wrote `build/src`, `build/tests` and `build/vitest.config.js`; turbo, which ran
+the builds at the time, captured that under its `build/**` outputs and replayed the test
+files back into `build/` on every later cache hit, so the build _looked_ like it was
+producing them. The cache left with turbo, but the lesson did not: when build output is
+wrong, check what the editor's config emits before suspecting the build config.
 
 There are no TypeScript project references anywhere, so don't reach for `composite: true`
 — where it used to sit, its only live effect was forcing declaration emit.
