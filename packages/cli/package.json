@@ -1,6 +1,6 @@
 {
   "name": "@stats-forge/github-stats-forge-cli",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Render a GitHub stats card to a local SVG file, one prompt at a time",
   "keywords": [
     "cli",
