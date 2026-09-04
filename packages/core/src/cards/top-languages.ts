@@ -1,16 +1,16 @@
-import { Card } from '../common/Card.js';
-import { getLightDarkColors, isPrefixedHexColor } from '../common/color.js';
-import { formatBytes } from '../common/fmt.js';
-import { I18n } from '../common/I18n.js';
-import { DEFAULT_LANG_COLOR } from '../common/languageColors.js';
-import { chunkArray, clampValue, lowercaseTrim } from '../common/ops.js';
-import { createProgressNode, flexLayout, measureText } from '../common/render.js';
-import type { Lang, TopLangData } from '../fetchers/types.js';
-import type { Child, MarkupElement } from '../markup/index.js';
-import { atRule, cssComment, el, rule } from '../markup/index.js';
-import { langCardLocales } from '../translations.js';
+import { Card } from '../common/Card.ts';
+import { getLightDarkColors, isPrefixedHexColor } from '../common/color.ts';
+import { formatBytes } from '../common/fmt.ts';
+import { I18n } from '../common/I18n.ts';
+import { DEFAULT_LANG_COLOR } from '../common/languageColors.ts';
+import { chunkArray, clampValue, lowercaseTrim } from '../common/ops.ts';
+import { createProgressNode, flexLayout, measureText } from '../common/render.ts';
+import type { Lang, TopLangData } from '../fetchers/types.ts';
+import type { Child, MarkupElement } from '../markup/index.ts';
+import { atRule, cssComment, el, rule } from '../markup/index.ts';
+import { langCardLocales } from '../translations.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.js';
+import type { CardOptions, CommonCardOptions } from './options.ts';
 
 const DEFAULT_CARD_WIDTH = 300;
 const MIN_CARD_WIDTH = 280;

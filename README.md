@@ -4,14 +4,15 @@
   <p>Dynamically generate GitHub stats cards for your READMEs.</p>
 </div>
 
-GitHub Stats Forge renders GitHub stats as SVG cards: your contribution stats, your
-top languages, pinned repositories, gists and WakaTime coding time.
+GitHub Stats Forge renders GitHub stats as SVG cards: your contribution stats, your top languages,
+pinned repositories, gists and WakaTime coding time.
 
-This repository is the library those cards are rendered by, and the CLI that renders one
-to a local file. It is what any self-hosted endpoint calls.
+This repository is the library those cards are rendered by,
+and the CLI that renders one to a local file. It is what any self-hosted endpoint calls.
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Packages](#packages)
 - [Usage](#usage)
 - [Cards](#cards)
@@ -33,8 +34,8 @@ to a local file. It is what any self-hosted endpoint calls.
 pnpm add @stats-forge/github-stats-forge-core
 ```
 
-Each api handler takes the query params its endpoint accepts and a `CardConfig`
-carrying the GitHub tokens, and answers with the rendered card:
+Each api handler takes the query params its endpoint accepts and a `CardConfig` carrying the GitHub tokens,
+and answers with the rendered card:
 
 ```js
 import { CardConfig, stats } from '@stats-forge/github-stats-forge-core/api';
@@ -50,11 +51,10 @@ const result = await stats({ username: 'anuraghazra' }, config);
 //                              result.content the error drawn as a card
 ```
 
-The handlers are `stats`, `pin`, `topLangs`, `gist` and `wakatime`. The last needs no
-GitHub token, but still takes the config, since that is what carries the transport every
-request goes through. Nothing in the library reads `process.env`: the host builds the
-config and passes it in, which is what lets the same code run in an action, on a server
-and in a browser.
+The handlers are `stats`, `pin`, `topLangs`, `gist` and `wakatime`. The last needs no GitHub token,
+but still takes the config, since that is what carries the transport every request goes through.
+Nothing in the library reads `process.env`: the host builds the config and passes it in,
+which is what lets the same code run in an action, on a server and in a browser.
 
 To render one from the terminal instead, without writing any code:
 
@@ -75,9 +75,10 @@ see [`packages/cli`](packages/cli).
 | Gist pin       | `gist`     | One gist                                                  |
 | WakaTime       | `wakatime` | Coding time per language                                  |
 
-Every card takes the [common options](packages/core/src/cards/options.ts) — colors,
-title, border, theme, locale — plus its own. A card that only renders a fixed set of
-values carries them on its handler, e.g. `topLangs.LAYOUTS` and `stats.RANK_ICONS`.
+Every card takes the [common options](packages/core/src/cards/options.ts) — colors, title, border,
+theme, locale — plus its own.
+A card that only renders a fixed set of values carries them on its handler,
+e.g. `topLangs.LAYOUTS` and `stats.RANK_ICONS`.
 
 One of each, rendered: [`examples/previews`](examples/previews).
 The saved cards they come from live in [`examples/`](examples),
@@ -85,9 +86,8 @@ and `pnpm examples` draws them again.
 
 ## Themes
 
-Every built-in theme is defined in
-[`packages/core/src/themes/index.ts`](packages/core/src/themes/index.ts) — pass one by
-name as `theme`, or pass explicit colors to override it.
+Every built-in theme is defined in [`packages/core/src/themes/index.ts`](packages/core/src/themes/index.ts) —
+pass one by name as `theme`, or pass explicit colors to override it.
 
 ## Development
 
@@ -105,9 +105,15 @@ pnpm examples               # redraw examples/previews from examples/cards
 
 This repository continues the work of [github-stats-extended](https://github.com/stats-organization/github-stats-extended),
 which is itself based on [github-readme-stats](https://github.com/anuraghazra/github-readme-stats).
-Big thanks to [@anuraghazra](https://github.com/anuraghazra), [@avgupta456](https://github.com/avgupta456),
-[@rickstaa](https://github.com/rickstaa), [@qwerty541](https://github.com/qwerty541),
-[@martin-mfg](https://github.com/martin-mfg) and everyone else who worked on these projects! ❤️
+
+Big thanks to
+
+- [@anuraghazra](https://github.com/anuraghazra)
+- [@avgupta456](https://github.com/avgupta456)
+- [@rickstaa](https://github.com/rickstaa)
+- [@qwerty541](https://github.com/qwerty541)
+- [@martin-mfg](https://github.com/martin-mfg)
+- Everyone else who worked on these projects! ❤️
 
 ## Contributing
 

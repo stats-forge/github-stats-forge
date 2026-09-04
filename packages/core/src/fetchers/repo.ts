@@ -1,11 +1,11 @@
-import type { CardConfig } from '../common/config.js';
-import { CardError, REPO_NOT_FOUND } from '../common/error.js';
-import { createGraphQLFetcher } from '../common/http.js';
-import { retryer } from '../common/retryer.js';
-import { GetRepoDocument } from '../graphql/generated/repo.js';
+import type { CardConfig } from '../common/config.ts';
+import { CardError, REPO_NOT_FOUND } from '../common/error.ts';
+import { createGraphQLFetcher } from '../common/http.ts';
+import { retryer } from '../common/retryer.ts';
+import { GetRepoDocument } from '../graphql/generated/repo.ts';
 
-import { fetchRepoUserStats } from './stats.js';
-import type { RepositoryData } from './types.js';
+import { fetchRepoUserStats } from './stats.ts';
+import type { RepositoryData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(GetRepoDocument, 'token');
 

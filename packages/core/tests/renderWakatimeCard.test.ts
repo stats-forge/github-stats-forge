@@ -1,11 +1,11 @@
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
-import { wakatime as wakatimeApi } from '../src/api/wakatime.js';
-import { renderWakatimeCard } from '../src/cards/wakatime.js';
+import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
+import { renderWakatimeCard } from '../src/cards/wakatime.ts';
 
-import { testConfig } from './_config.js';
-import { wakaTimeData } from './fetchWakatime.test.js';
+import { testConfig } from './_config.ts';
+import { wakaTimeData } from './fetchWakatime.test.ts';
 
 describe('Test Render WakaTime Card', () => {
   it('should render correctly', () => {

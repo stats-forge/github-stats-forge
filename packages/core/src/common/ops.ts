@@ -1,8 +1,8 @@
-import type { RepositoryAffiliation } from '../graphql/generated/common.js';
+import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
 
-import { OWNER_AFFILIATIONS } from './constants.js';
-import { getEmoji } from './emojiMap.js';
-import { CardError, INVALID_AFFILIATION } from './error.js';
+import { OWNER_AFFILIATIONS } from './constants.ts';
+import { getEmoji } from './emojiMap.ts';
+import { CardError, INVALID_AFFILIATION } from './error.ts';
 
 /**
  * Returns boolean if value is either "true" or "false" else the value as it is.

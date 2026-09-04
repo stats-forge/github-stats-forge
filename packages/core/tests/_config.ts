@@ -1,4 +1,4 @@
-import { CardConfig } from '../src/common/config.js';
+import { CardConfig } from '../src/common/config.ts';
 
 /** Baseline config for tests: the two tokens the suite used to put in `process.env`. */
 export const testConfig = new CardConfig({

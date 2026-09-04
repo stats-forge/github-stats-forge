@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { fetchWakatimeStats } from '../src/fetchers/wakatime.js';
+import { fetchWakatimeStats } from '../src/fetchers/wakatime.ts';
 
-import { testConfig } from './_config.js';
-import { FetchMock } from './_fetch-mock.js';
+import { testConfig } from './_config.ts';
+import { FetchMock } from './_fetch-mock.ts';
 
 const mock = new FetchMock();
 const config = testConfig.with({ fetch: mock.fetch });

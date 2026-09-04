@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { calculateRank } from '../src/calculateRank.js';
+import { calculateRank } from '../src/calculateRank.ts';
 
-import { approxNumber } from './utils.js';
+import { approxNumber } from './utils.ts';
 
 describe('Test calculateRank', () => {
   it('new user gets C rank', () => {

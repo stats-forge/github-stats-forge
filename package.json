@@ -16,10 +16,13 @@
     "lint:fix": "oxlint --fix",
     "lint:knip": "knip",
     "lint:deps": "node scripts/assert-deduped.ts",
+    "lint:publish": "pnpm -r --filter \"./packages/*\" run lint:publish",
     "typecheck": "pnpm run build:packages && pnpm -r --filter \"./packages/*\" run typecheck && tsc -p tsconfig.scripts.json",
+    "check-all": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run lint:publish && pnpm --filter ./packages/core/ run check-graphql-types && pnpm run lint:knip && pnpm run lint:deps && vitest --run",
     "release": "pnpm run build:packages && changeset publish"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
     "@changesets/changelog-github": "1.0.0",
     "@changesets/cli": "3.0.1",
     "@marcalexiei/oxfmt-config": "1.3.0",
@@ -31,6 +34,7 @@
     "oxfmt": "0.65.0",
     "oxlint": "1.80.0",
     "oxlint-tsgolint": "7.0.2001",
+    "publint": "0.3.24",
     "typescript": "7.0.2",
     "vitest": "catalog:default"
   },

@@ -1,13 +1,13 @@
 import * as z from 'zod/mini';
 
-import { renderGistCard } from '../cards/gist.js';
-import type { CardConfig } from '../common/config.js';
-import { fetchGist } from '../fetchers/gist.js';
+import { renderGistCard } from '../cards/gist.ts';
+import type { CardConfig } from '../common/config.ts';
+import { fetchGist } from '../fetchers/gist.ts';
 
-import type { ApiResult } from './api-result.js';
-import { errorResult } from './api-result.js';
-import type { ApiQuery } from './params.js';
-import { booleanParam, numberParam, parseColorParams, parseParams, safeParam } from './params.js';
+import type { ApiResult } from './api-result.ts';
+import { errorResult } from './api-result.ts';
+import type { ApiQuery } from './params.ts';
+import { booleanParam, numberParam, parseColorParams, parseParams, safeParam } from './params.ts';
 
 /** What the gist endpoint accepts, on top of the shared color params. */
 const gistQuery = z.object({

@@ -5,8 +5,8 @@
 fix(core): count the repositories a language appears in correctly
 
 `fetchTopLanguages` accumulated `count` in one variable shared by every language,
-so a repeat only counted correctly while a language's repositories arrived together.
-Interleaved — HTML, javascript, HTML, javascript —
+so a repeat only counted correctly while a language's repositories arrived together. Interleaved —
+HTML, javascript, HTML, javascript —
 the second HTML read the counter javascript had just left behind,
 and reported 3 repositories instead of 2.
 Each language's count and size now come off that language's own entry,

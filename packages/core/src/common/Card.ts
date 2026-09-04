@@ -1,9 +1,9 @@
-import type { Child, CssChild, MarkupElement } from '../markup/index.js';
-import { atRule, cssComment, el, renderMarkup, rule, style } from '../markup/index.js';
+import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
+import { atRule, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
 
-import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.js';
-import type { CardColors } from './color.js';
-import { flexLayout } from './render.js';
+import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.ts';
+import type { CardColors } from './color.ts';
+import { flexLayout } from './render.ts';
 
 /**
  * Builds the card CSS for one color scheme from that scheme's resolved colors.

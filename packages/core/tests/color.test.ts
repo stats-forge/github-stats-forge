@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseColorParams } from '../src/api/params.js';
+import { parseColorParams } from '../src/api/params.ts';
 import {
   BASE_COLOR_KEYS,
   COLOR_PARAM_KEYS,
@@ -10,8 +10,8 @@ import {
   isBareHexColor,
   isPrefixedHexColor,
   isValidGradient,
-} from '../src/common/color.js';
-import { CardError } from '../src/common/error.js';
+} from '../src/common/color.ts';
+import { CardError } from '../src/common/error.ts';
 
 describe(getCardColors, () => {
   it('should return expected values', () => {

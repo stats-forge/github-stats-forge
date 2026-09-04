@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { loadEnvFile, resolveTokens, tokensFromEnv } from '../src/tokens.js';
+import { loadEnvFile, resolveTokens, tokensFromEnv } from '../src/tokens.ts';
 
 afterEach(() => {
   vi.unstubAllEnvs();

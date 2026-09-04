@@ -1,9 +1,9 @@
 import { confirm, input, password, select } from '@inquirer/prompts';
 
-import type { CardKind, CardOption } from './cards.js';
-import { cards } from './cards.js';
-import type { Answer } from './query.js';
-import { describeAnswer } from './query.js';
+import type { CardKind, CardOption } from './cards.ts';
+import { cards } from './cards.ts';
+import type { Answer } from './query.ts';
+import { describeAnswer } from './query.ts';
 
 /**
  * @file The navigation itself.

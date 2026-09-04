@@ -1,9 +1,9 @@
-import { Card } from '../common/Card.js';
-import { getLightDarkColors } from '../common/color.js';
-import { kFormatter } from '../common/fmt.js';
-import { I18n } from '../common/I18n.js';
-import { icons } from '../common/icons.js';
-import { buildSearchFilter, clampValue, parseEmojis } from '../common/ops.js';
+import { Card } from '../common/Card.ts';
+import { getLightDarkColors } from '../common/color.ts';
+import { kFormatter } from '../common/fmt.ts';
+import { I18n } from '../common/I18n.ts';
+import { icons } from '../common/icons.ts';
+import { buildSearchFilter, clampValue, parseEmojis } from '../common/ops.ts';
 import {
   countWrappedLines,
   wrapTextMultiline,
@@ -14,13 +14,13 @@ import {
   measureText,
   wrappedTextNode,
   wrappedTextStyles,
-} from '../common/render.js';
-import type { RepositoryData } from '../fetchers/types.js';
-import type { Child, MarkupElement } from '../markup/index.js';
-import { el, rule } from '../markup/index.js';
-import { repoCardLocales } from '../translations.js';
+} from '../common/render.ts';
+import type { RepositoryData } from '../fetchers/types.ts';
+import type { Child, MarkupElement } from '../markup/index.ts';
+import { el, rule } from '../markup/index.ts';
+import { repoCardLocales } from '../translations.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.js';
+import type { CardOptions, CommonCardOptions } from './options.ts';
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = 400;

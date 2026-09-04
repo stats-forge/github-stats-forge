@@ -1,8 +1,8 @@
-import type { CssChild } from './css.js';
-import { writeCss } from './css.js';
-import { encodeHTML } from './html.js';
-import type { Sink } from './serialize.js';
-import { indentAt } from './serialize.js';
+import type { CssChild } from './css.ts';
+import { writeCss } from './css.ts';
+import { encodeHTML } from './html.ts';
+import type { Sink } from './serialize.ts';
+import { indentAt } from './serialize.ts';
 
 /**
  * Every element a card draws, closed so `el('circel', …)` is a compile error.

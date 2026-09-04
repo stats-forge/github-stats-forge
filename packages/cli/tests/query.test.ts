@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { cards, findCard } from '../src/cards.js';
-import type { Answer } from '../src/query.js';
-import { defaultFileName, describeAnswer, toParam, toQuery } from '../src/query.js';
+import { cards, findCard } from '../src/cards.ts';
+import type { Answer } from '../src/query.ts';
+import { defaultFileName, describeAnswer, toParam, toQuery } from '../src/query.ts';
 
 describe(toParam, () => {
   it('carries a value the way a query string would', () => {

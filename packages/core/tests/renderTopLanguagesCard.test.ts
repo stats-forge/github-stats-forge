@@ -2,7 +2,7 @@ import { screen } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
-import { topLangs as topLangsApi } from '../src/api/top-langs.js';
+import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
 import {
   MIN_CARD_WIDTH,
   calculateCompactLayoutHeight,
@@ -20,12 +20,12 @@ import {
   radiansToDegrees,
   renderTopLanguages,
   trimTopLanguages,
-} from '../src/cards/top-languages.js';
-import type { TopLangData } from '../src/fetchers/types.js';
-import { themes } from '../src/themes/index.js';
+} from '../src/cards/top-languages.ts';
+import type { TopLangData } from '../src/fetchers/types.ts';
+import { themes } from '../src/themes/index.ts';
 
-import { testConfig } from './_config.js';
-import { approxNumber } from './utils.js';
+import { testConfig } from './_config.ts';
+import { approxNumber } from './utils.ts';
 
 const langs = {
   HTML: { color: '#0f0', name: 'HTML', size: 200, count: 1 },

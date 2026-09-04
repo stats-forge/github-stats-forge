@@ -1,8 +1,8 @@
-import { getGitHubYearRange, toGitHubDateTime } from '../common/date.js';
+import { getGitHubYearRange, toGitHubDateTime } from '../common/date.ts';
 
-import type { YearContributionsFragment } from './generated/stats.js';
-import type { GraphQLDocument } from './graphqlDocument.js';
-import { graphqlDocument } from './graphqlDocument.js';
+import type { YearContributionsFragment } from './generated/stats.ts';
+import type { GraphQLDocument } from './graphqlDocument.ts';
+import { graphqlDocument } from './graphqlDocument.ts';
 
 interface ContributionsQueryVariables {
   login: string;

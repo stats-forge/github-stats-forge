@@ -1,4 +1,4 @@
-import type { RepoInfoFragment } from '../graphql/generated/repo.js';
+import type { RepoInfoFragment } from '../graphql/generated/repo.ts';
 
 export interface GistData {
   name: string;

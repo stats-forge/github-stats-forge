@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stats-forge/github-stats-forge.git",
+    "url": "git+https://github.com/stats-forge/github-stats-forge.git",
     "directory": "packages/cli"
   },
   "bin": {
@@ -42,7 +42,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepack": "pnpm run build",
-    "dev": "pnpm run build && node build/index.js",
+    "lint:publish": "attw --pack . --profile node16 --ignore-rules cjs-resolves-to-esm && publint --strict",
+    "dev": "node --conditions=@stats/source src/index.ts",
     "test": "vitest",
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },

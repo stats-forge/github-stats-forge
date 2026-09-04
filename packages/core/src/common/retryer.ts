@@ -1,7 +1,7 @@
-import type { CardConfig } from './config.js';
-import { CardError } from './error.js';
-import type { FetcherContext, HttpResponse } from './http.js';
-import { logger } from './log.js';
+import type { CardConfig } from './config.ts';
+import { CardError } from './error.ts';
+import type { FetcherContext, HttpResponse } from './http.ts';
+import { logger } from './log.ts';
 
 /**
  * Error-detection fields the retryer inspects to detect rate-limiting and credential failures.

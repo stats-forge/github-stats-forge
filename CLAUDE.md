@@ -51,14 +51,29 @@ pnpm lint:ci              # oxlint --format=github (what CI runs, for annotation
 pnpm lint:fix             # oxlint --fix
 pnpm lint:knip            # unused files/exports/deps
 pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
+pnpm lint:publish         # attw + publint in each package — guards what gets published
 pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
 pnpm cli --help           # build, then run the CLI (add any of its flags)
 pnpm examples             # build, then redraw examples/previews (add a name for one)
+pnpm check-all            # every check CI runs, cheapest first, in one command
 ```
 
-Per-package: `pnpm exec tsc -p tsconfig.typecheck.json`. There is no per-package lint
-script — oxlint reads one root config and lints the workspace in a single pass.
+`check-all` is the one to reach for before handing work over: it is `format:check`,
+`lint`, `typecheck`, `lint:publish`, `check-graphql-types`, `lint:knip`, `lint:deps`
+and `vitest --run`, ordered so the fastest failure surfaces first. It does not build
+separately, because `typecheck` already does. Keep it in step with
+`.github/workflows/ci.yml` — a check that runs in CI and not here is a check that fails
+after the push instead of before it.
+
+Per-package: `pnpm exec tsc -p tsconfig.typecheck.json`.
+
+**A lint script is per-package only when the tool is.** oxlint reads one root config and
+sweeps the workspace in a single pass, so it has no per-package script and never will.
+`lint:publish` is the opposite: `attw --pack .` and `publint` each examine one tarball,
+so each package owns the script and the root one is
+`pnpm -r --filter "./packages/*" run lint:publish`. That way a third package is covered
+the day it appears, rather than the day someone remembers to add it to a hardcoded list.
 
 **Task ordering is `pnpm -r`'s, not a task runner's.** `pnpm run -r` walks the workspace
 in topological order, so `build:packages` builds core before cli for free. `typecheck`
@@ -236,6 +251,25 @@ TypeScript is **7.x**; the type-aware linter tracks the same major, so `tsc` and
 `tsconfig.base.json` is strict and then some — `strict`, `noUncheckedIndexedAccess`,
 `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals`,
 `noUnusedParameters`, `verbatimModuleSyntax`, `isolatedModules`, `module: nodenext`.
+
+**A relative import names the file that exists, so the extension is `.ts`.** This was
+`.js` until 2026-09-04, when 375 specifiers across 76 files were rewritten; the pair of
+options that allows it is `allowImportingTsExtensions` plus
+`rewriteRelativeImportExtensions`, both in `tsconfig.base.json` — the first alone demands
+`noEmit`, which the two `tsconfig.build.json` are not. What it bought is `pnpm dev` with
+no build step. Three things to know before touching it:
+
+- **Only the `.js` emit is rewritten. The `.d.ts` emit is not.** A declaration in `build`
+  still reads `from './x.ts'`, naming a file the tarball does not contain. `tsc` resolves
+  it to the sibling `.d.ts` anyway, and `attw` reports both packages green — which is why
+  `lint:publish` exists and runs in CI. Do not "fix" those specifiers by hand, and do not
+  drop that check: it is the only thing standing between this convention and a consumer
+  whose toolchain is less forgiving than `tsc`.
+- **The GraphQL generator carries the extension in two places.** `importExtension: '.ts'`
+  and the `prepend` literal in `packages/core/scripts/generate-graphql-types.ts`. Nothing
+  fails until someone regenerates, so change them with the convention, not after it.
+- **`noCheck: true` in the build configs means a green build proves nothing here.** Run
+  `pnpm check-all`.
 
 **Never widen a signature just to keep an old test compiling — adapt the test to the
 code.** Type every function to the contract its _production_ call sites actually use. If
@@ -450,9 +484,11 @@ at the root.
 ## The CLI
 
 `packages/cli` is `@stats-forge/github-stats-forge-cli`, whose `bin` (`github-stats-forge`)
-points at `./build/index.js`. Node 24 runs TypeScript directly but does **not** rewrite a
-`./x.js` specifier to `.ts`, so `node src/index.ts` dies on its first relative import —
-which is why `pnpm dev` is `pnpm run build && node build/index.js`.
+points at `./build/index.js`, but `pnpm dev` is
+`node --conditions=@stats/source src/index.ts` — no build step, because relative imports
+name `.ts` (see below) and Node strips the types. The condition is what makes it resolve
+`packages/core/src` rather than core's `build`; pnpm's workspace link is a symlink whose
+realpath falls outside `node_modules`, so Node does not refuse to strip types there.
 
 From the repo root, `pnpm cli` builds both packages and runs the CLI there,
 so it picks up the root `.env` the way `pnpm examples` does.

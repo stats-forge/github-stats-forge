@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { retryer } from '../src/common/retryer.js';
+import { retryer } from '../src/common/retryer.ts';
 
-import { testConfig } from './_config.js';
+import { testConfig } from './_config.ts';
 
 type Fetcher = Parameters<typeof retryer>[0];
 
-vi.mock(import('../src/common/log.js'), async () => {
-  const { createLoggerMock } = await import('./utils.js');
+vi.mock(import('../src/common/log.ts'), async () => {
+  const { createLoggerMock } = await import('./utils.ts');
   return createLoggerMock();
 });
 

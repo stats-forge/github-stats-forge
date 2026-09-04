@@ -1,14 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import type { ApiResult } from '../src/api/api-result.js';
-import { gist as gistApi } from '../src/api/gist.js';
-import { pin as pinApi } from '../src/api/pin.js';
-import { stats as statsApi } from '../src/api/stats.js';
-import { topLangs as topLangsApi } from '../src/api/top-langs.js';
-import { wakatime as wakatimeApi } from '../src/api/wakatime.js';
+import type { ApiResult } from '../src/api/api-result.ts';
+import { gist as gistApi } from '../src/api/gist.ts';
+import { pin as pinApi } from '../src/api/pin.ts';
+import { stats as statsApi } from '../src/api/stats.ts';
+import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
+import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 
-import { testConfig } from './_config.js';
-import { FetchMock } from './_fetch-mock.js';
+import { testConfig } from './_config.ts';
+import { FetchMock } from './_fetch-mock.ts';
 
 // Nothing here is about fetching:
 // every request fails immediately, so a query that got past validation is a temporary error.

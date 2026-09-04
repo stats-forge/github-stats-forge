@@ -2,13 +2,13 @@ import { screen } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
-import { stats as statsApi } from '../src/api/stats.js';
-import { renderStatsCard } from '../src/cards/stats.js';
-import { CardError } from '../src/common/error.js';
-import type { StatsData } from '../src/fetchers/types.js';
-import { themes } from '../src/themes/index.js';
+import { stats as statsApi } from '../src/api/stats.ts';
+import { renderStatsCard } from '../src/cards/stats.ts';
+import { CardError } from '../src/common/error.ts';
+import type { StatsData } from '../src/fetchers/types.ts';
+import { themes } from '../src/themes/index.ts';
 
-import { testConfig } from './_config.js';
+import { testConfig } from './_config.ts';
 
 const stats: StatsData = {
   name: 'Anurag Hazra',

@@ -1,15 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { gist as gistApi } from '../src/api/gist.js';
-import { pin as pinApi } from '../src/api/pin.js';
-import { stats as statsApi } from '../src/api/stats.js';
-import { wakatime as wakatimeApi } from '../src/api/wakatime.js';
+import { gist as gistApi } from '../src/api/gist.ts';
+import { pin as pinApi } from '../src/api/pin.ts';
+import { stats as statsApi } from '../src/api/stats.ts';
+import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 
-import { testConfig } from './_config.js';
-import { FetchMock } from './_fetch-mock.js';
+import { testConfig } from './_config.ts';
+import { FetchMock } from './_fetch-mock.ts';
 
-vi.mock(import('../src/common/log.js'), async () => {
-  const { createLoggerMock } = await import('./utils.js');
+vi.mock(import('../src/common/log.ts'), async () => {
+  const { createLoggerMock } = await import('./utils.ts');
   return createLoggerMock();
 });
 

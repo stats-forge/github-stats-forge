@@ -9,9 +9,9 @@ A card is assembled as a tree, then serialized once at the end:
 Nothing in the package concatenates markup any more.
 
 An attribute or child that resolves to `undefined` is simply not written.
-That removes what the template literals used to leave behind:
-blank lines, stray indentation, and gaps where an attribute was omitted.
-Cards come out one element per line, two spaces per nesting level.
+That removes what the template literals used to leave behind: blank lines, stray indentation,
+and gaps where an attribute was omitted. Cards come out one element per line,
+two spaces per nesting level.
 
 Three things a consumer may notice. A `<g>` carrying only `transform="translate(0, 0)"` is gone,
 as is the one `flexLayout` wrapped around a lone item:

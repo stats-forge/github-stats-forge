@@ -5,14 +5,14 @@ import { parseArgs } from 'node:util';
 
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
-import type { CardKind } from './cards.js';
-import { cards, findCard } from './cards.js';
-import type { Menu } from './prompts.js';
-import { askRequired, askSavePath, askToken, navigateOptions, pickCard } from './prompts.js';
-import { defaultFileName, toQuery } from './query.js';
-import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from './saved-card.js';
-import { withSpinner } from './spinner.js';
-import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.js';
+import type { CardKind } from './cards.ts';
+import { cards, findCard } from './cards.ts';
+import type { Menu } from './prompts.ts';
+import { askRequired, askSavePath, askToken, navigateOptions, pickCard } from './prompts.ts';
+import { defaultFileName, toQuery } from './query.ts';
+import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from './saved-card.ts';
+import { withSpinner } from './spinner.ts';
+import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.ts';
 
 const HELP = `github-stats-forge — render a GitHub stats card to a local SVG
 

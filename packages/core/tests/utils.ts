@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import type * as loggerModule from '../src/common/log.js';
+import type * as loggerModule from '../src/common/log.ts';
 
 /**
  * Creates an asymmetric matcher for approximate numeric equality.
@@ -45,10 +45,10 @@ export function approxNumber(
  *
  * @example
  * ```ts
- * import { logger } from "../src/common/log.js";
+ * import { logger } from "../src/common/log.ts";
  *
- * vi.mock(import("../src/common/log.js"), async () => {
- *  const { createLoggerMock } = await import("./utils.js");
+ * vi.mock(import("../src/common/log.ts"), async () => {
+ *  const { createLoggerMock } = await import("./utils.ts");
  *  return createLoggerMock();
  * });
  *

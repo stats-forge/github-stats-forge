@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { renderGistCard } from '../src/cards/gist.js';
-import { renderRepoCard } from '../src/cards/repo.js';
-import { renderStatsCard } from '../src/cards/stats.js';
-import { renderTopLanguages } from '../src/cards/top-languages.js';
-import { renderWakatimeCard } from '../src/cards/wakatime.js';
-import { renderError } from '../src/common/render.js';
+import { renderGistCard } from '../src/cards/gist.ts';
+import { renderRepoCard } from '../src/cards/repo.ts';
+import { renderStatsCard } from '../src/cards/stats.ts';
+import { renderTopLanguages } from '../src/cards/top-languages.ts';
+import { renderWakatimeCard } from '../src/cards/wakatime.ts';
+import { renderError } from '../src/common/render.ts';
 import type {
   GistData,
   RepositoryData,
   StatsData,
   TopLangData,
   WakaTimeData,
-} from '../src/fetchers/types.js';
+} from '../src/fetchers/types.ts';
 
 const gistData: GistData = {
   name: 'test',

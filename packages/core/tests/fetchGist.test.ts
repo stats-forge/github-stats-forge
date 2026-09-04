@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { fetchGist } from '../src/fetchers/gist.js';
+import { fetchGist } from '../src/fetchers/gist.ts';
 
-import { testConfig } from './_config.js';
-import { FetchMock } from './_fetch-mock.js';
+import { testConfig } from './_config.ts';
+import { FetchMock } from './_fetch-mock.ts';
 
 const gist_data = {
   data: {

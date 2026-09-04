@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatBytes, kFormatter } from '../src/common/fmt.js';
+import { formatBytes, kFormatter } from '../src/common/fmt.ts';
 
 describe('Test fmt.js', () => {
   it('kFormatter: should format numbers correctly by default', () => {

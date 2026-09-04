@@ -2,12 +2,12 @@ import { screen } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
-import { pin as pinApi } from '../src/api/pin.js';
-import { renderRepoCard } from '../src/cards/repo.js';
-import type { RepositoryData } from '../src/fetchers/types.js';
-import { themes } from '../src/themes/index.js';
+import { pin as pinApi } from '../src/api/pin.ts';
+import { renderRepoCard } from '../src/cards/repo.ts';
+import type { RepositoryData } from '../src/fetchers/types.ts';
+import { themes } from '../src/themes/index.ts';
 
-import { testConfig } from './_config.js';
+import { testConfig } from './_config.ts';
 
 const data_repo: { repository: RepositoryData } = {
   repository: {

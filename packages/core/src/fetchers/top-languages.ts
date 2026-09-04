@@ -1,17 +1,17 @@
-import type { CardConfig } from '../common/config.js';
-import { CardError, USER_NOT_FOUND } from '../common/error.js';
-import { createGraphQLFetcher } from '../common/http.js';
-import { logger } from '../common/log.js';
-import { parseOwnerAffiliations } from '../common/ops.js';
-import { wrapTextMultiline } from '../common/render.js';
-import { retryer } from '../common/retryer.js';
-import { TopLanguagesDocument } from '../graphql/generated/top-languages.js';
+import type { CardConfig } from '../common/config.ts';
+import { CardError, USER_NOT_FOUND } from '../common/error.ts';
+import { createGraphQLFetcher } from '../common/http.ts';
+import { logger } from '../common/log.ts';
+import { parseOwnerAffiliations } from '../common/ops.ts';
+import { wrapTextMultiline } from '../common/render.ts';
+import { retryer } from '../common/retryer.ts';
+import { TopLanguagesDocument } from '../graphql/generated/top-languages.ts';
 import type {
   TopLanguageFragment,
   TopLanguagesRepositoryFragment,
-} from '../graphql/generated/top-languages.js';
+} from '../graphql/generated/top-languages.ts';
 
-import type { Lang, TopLangData } from './types.js';
+import type { Lang, TopLangData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(TopLanguagesDocument, 'token');
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { flexLayout } from '../src/common/render.js';
-import { el, renderMarkup } from '../src/markup/index.js';
-import type { Child } from '../src/markup/index.js';
+import { flexLayout } from '../src/common/render.ts';
+import { el, renderMarkup } from '../src/markup/index.ts';
+import type { Child } from '../src/markup/index.ts';
 
 /** Renders a layout in the group a card would place it in, so the snapshot shows the offsets. */
 const layout = (items: Array<Child>): string => renderMarkup(el('g', {}, items));
