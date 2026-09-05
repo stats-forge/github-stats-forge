@@ -294,7 +294,7 @@ Other patterns:
   on.
 - **Colocate card options.** Each card declares `interface XCardOptions extends
 CommonCardOptions {…}` (an interface, not `type &`) in its own file, **not exported** —
-  knip flags it, and only that card uses it. All five cards do this, so
+  knip flags it, and only that card uses it. All six cards do this, so
   `cards/options.ts` holds only the shared base: `CommonCardOptions`, plus the
   `CardOptions<T>` helper below. The `ThemeName` union lives in `themes/index.ts`.
 - **`CommonCardOptions` extends `ColorParams`.** Every card forwards its whole options

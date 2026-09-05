@@ -1,0 +1,8 @@
+query userContributionYears($login: String!) {
+  user(login: $login) {
+    login
+    contributionsCollection {
+      contributionYears
+    }
+  }
+}

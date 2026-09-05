@@ -1,3 +1,4 @@
+export { contributedTo } from './contributed-to.ts';
 export { gist } from './gist.ts';
 export { pin } from './pin.ts';
 export { stats } from './stats.ts';

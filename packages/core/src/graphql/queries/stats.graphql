@@ -87,20 +87,30 @@ fragment YearContributions on ContributionsCollection {
   }
 }
 
+# `contributions` takes no slicing argument on purpose: `totalCount` alone costs no nodes.
 fragment RangeContributionsByRepo on ContributionsCollection {
   commitContributionsByRepository(maxRepositories: $maxRepositories) {
     repository {
       nameWithOwner
+    }
+    contributions {
+      totalCount
     }
   }
   issueContributionsByRepository(maxRepositories: $maxRepositories) {
     repository {
       nameWithOwner
     }
+    contributions {
+      totalCount
+    }
   }
   pullRequestContributionsByRepository(maxRepositories: $maxRepositories) {
     repository {
       nameWithOwner
+    }
+    contributions {
+      totalCount
     }
   }
   repositoryContributions(first: $maxRepositories) @include(if: $includeOwnRepos) {
