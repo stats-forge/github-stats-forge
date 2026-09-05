@@ -1,5 +1,63 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.2.0
+
+### Minor Changes
+
+- [#47](https://github.com/stats-forge/github-stats-forge/pull/47) [`3af493a`](https://github.com/stats-forge/github-stats-forge/commit/3af493a737a8b4ac901149b0a240b3d5e81a3ff8) - feat(core)!: count the `stats` and `contributedTo` cards within a date range
+
+  `from` and `to` replace `commits_year`, and give the `contributedTo` card the same pair.
+  Each accepts `2024`, `2024-03` or `2024-03-15` and covers the whole of what it names,
+  so `from=2024` starts on the 1st of January and `to=2024` ends on the 31st of December.
+  Either end may be left open;
+  a date outside 2008 through this year, or a `from` after its `to`, is rejected.
+
+  `commits_year` also counted a day too many:
+  GitHub reads an omitted `to` as a year after `from`,
+  so `?commits_year=2024` included the 1st of January 2025.
+
+- [#46](https://github.com/stats-forge/github-stats-forge/pull/46) [`e9c9eeb`](https://github.com/stats-forge/github-stats-forge/commit/e9c9eeb69d846b2db40b1dc2a4be653a6df8fed5) - feat(core)!: gather each card's accepted option values into one `OPTIONS` object
+
+  Every handler now carries `OPTIONS`, keyed by the query param each set governs:
+  `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`, `wakatime.OPTIONS.display_format`.
+  This replaces the flat properties, so `stats.RANK_ICONS` becomes `stats.OPTIONS.rank_icon`,
+  `topLangs.LAYOUTS` becomes `topLangs.OPTIONS.layout`,
+  and `wakatime.DISPLAY_FORMATS` becomes `wakatime.OPTIONS.display_format`.
+
+  It also covers the comma-separated params, which had no published list at all:
+  `show`, `hide` and `role`, so a UI can offer their values the way it offers an enum's.
+  The values live on the render function that draws them and the handler forwards them,
+  so what renders, what validates and what a UI offers cannot drift apart.
+
+- [#49](https://github.com/stats-forge/github-stats-forge/pull/49) [`dc8ba26`](https://github.com/stats-forge/github-stats-forge/commit/dc8ba26207819cfe8bd2e2fb2cbec3d3332df8f3) - feat(core): put every card's remaining English text through `I18n`
+
+  The `contributedTo` and gist cards read their words from a locale table now
+  and accept `locale`, as do the stats card's `Rank` label
+  and the repo card's missing description and unspecified language.
+
+  `I18n#t` falls back to the English string when a locale has no entry for a key,
+  so a key can be written in English and translated later —
+  before, such a key threw and failed the whole card.
+
+- [#44](https://github.com/stats-forge/github-stats-forge/pull/44) [`bf6a552`](https://github.com/stats-forge/github-stats-forge/commit/bf6a552a76bc7d62c198529c379a5e071de32309) - feat(core): add the `contributedTo` card
+
+  The repositories a user has contributed to, all-time, ranked, with a mark per
+  contribution year showing which ones each repository got. It reuses the walk `stats`
+  already runs for `all_time_contributed_to`, so it costs no extra request.
+
+  `contributions` counts commit-days, not commits: GitHub groups commit contributions by
+  day.
+
+### Patch Changes
+
+- [#48](https://github.com/stats-forge/github-stats-forge/pull/48) [`05d7a7d`](https://github.com/stats-forge/github-stats-forge/commit/05d7a7deb9bd80ab8c95f046ca6b325d63590950) - refactor(core): share one handler shape across the api endpoints
+
+  Every endpoint is now `cardHandler(schema, render)`,
+  so the color pass, the query parse and the error card are written once rather than in each handler.
+  The fetchers classify a GraphQL `NOT_FOUND` through the same helper,
+  `clampValue` and `buildSearchFilter` take the typed values their callers already pass,
+  and `measureText` no longer rebuilds its width table on every call.
+
 ## 0.1.0
 
 ### Minor Changes

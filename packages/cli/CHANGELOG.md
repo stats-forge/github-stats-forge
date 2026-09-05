@@ -1,5 +1,28 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.2.0
+
+### Minor Changes
+
+- [#46](https://github.com/stats-forge/github-stats-forge/pull/46) [`e9c9eeb`](https://github.com/stats-forge/github-stats-forge/commit/e9c9eeb69d846b2db40b1dc2a4be653a6df8fed5) - feat(cli): pick a comma-separated list from checkboxes
+
+  `show`, `hide` and `role` name a closed set of values,
+  so they are now a checkbox prompt rather than a line to type commas into:
+  nothing has to be remembered or spelled right.
+  The lists whose values are a repository or a language have no such set and stay free text.
+
+  Every prompt's choices now come from core's `OPTIONS`, including `number_format`,
+  which the catalog had spelled out itself in two places.
+
+### Patch Changes
+
+- [#49](https://github.com/stats-forge/github-stats-forge/pull/49) [`dc8ba26`](https://github.com/stats-forge/github-stats-forge/commit/dc8ba26207819cfe8bd2e2fb2cbec3d3332df8f3) - feat(cli): offer the locale prompt on the gist and contributed-to cards
+
+  Both cards draw translated text now, so both take a locale.
+
+- Updated dependencies [[`05d7a7d`](https://github.com/stats-forge/github-stats-forge/commit/05d7a7deb9bd80ab8c95f046ca6b325d63590950), [`3af493a`](https://github.com/stats-forge/github-stats-forge/commit/3af493a737a8b4ac901149b0a240b3d5e81a3ff8), [`e9c9eeb`](https://github.com/stats-forge/github-stats-forge/commit/e9c9eeb69d846b2db40b1dc2a4be653a6df8fed5), [`dc8ba26`](https://github.com/stats-forge/github-stats-forge/commit/dc8ba26207819cfe8bd2e2fb2cbec3d3332df8f3), [`bf6a552`](https://github.com/stats-forge/github-stats-forge/commit/bf6a552a76bc7d62c198529c379a5e071de32309)]:
+  - @stats-forge/github-stats-forge-core@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes
