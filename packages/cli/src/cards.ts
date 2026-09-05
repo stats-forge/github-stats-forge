@@ -184,7 +184,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       { name: 'ring_color', label: 'Rank ring color', kind: 'text' },
       LOCALE_OPTION,
     ],
-    render: (query, config) => stats(query, config),
+    render: stats,
   },
   {
     id: 'top-langs',
@@ -244,7 +244,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       LOCALE_OPTION,
     ],
-    render: (query, config) => topLangs(query, config),
+    render: topLangs,
   },
   {
     id: 'pin',
@@ -284,7 +284,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       LOCALE_OPTION,
     ],
-    render: (query, config) => pin(query, config),
+    render: pin,
   },
   {
     id: 'contributed-to',
@@ -320,7 +320,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'boolean',
       },
     ],
-    render: (query, config) => contributedTo(query, config),
+    render: contributedTo,
   },
   {
     id: 'gist',
@@ -335,7 +335,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'boolean',
       },
     ],
-    render: (query, config) => gist(query, config),
+    render: gist,
   },
   {
     id: 'wakatime',
@@ -379,7 +379,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       LOCALE_OPTION,
     ],
-    render: (query, config) => wakatime(query, config),
+    render: wakatime,
   },
 ];
 

@@ -15,7 +15,7 @@ import type { Answer } from './query.ts';
 
 /** A card and the answers it was rendered from: the shape of the file. */
 interface SavedCard {
-  /** Which card: `stats`, `top-langs`, `pin`, `gist`, `wakatime`. */
+  /** Which card, by the id the catalog gives it. */
   card: string;
   /** The options, exactly as they reach the endpoint. */
   options: Record<string, string>;

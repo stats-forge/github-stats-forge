@@ -1,9 +1,7 @@
 import type { CardConfig } from '../common/config.ts';
-import { CardError, USER_NOT_FOUND } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
-import { logger } from '../common/log.ts';
 import { parseOwnerAffiliations } from '../common/ops.ts';
-import { wrapTextMultiline } from '../common/render.ts';
 import { retryer } from '../common/retryer.ts';
 import { TopLanguagesDocument } from '../graphql/generated/top-languages.ts';
 import type {
@@ -11,6 +9,7 @@ import type {
   TopLanguagesRepositoryFragment,
 } from '../graphql/generated/top-languages.ts';
 
+import { graphqlError } from './graphql-error.ts';
 import type { Lang, TopLangData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(TopLanguagesDocument, 'token');
@@ -51,23 +50,10 @@ const fetchTopLanguages = async (
   );
 
   if (res.data.errors) {
-    logger.error(res.data.errors);
-    const [firstError] = res.data.errors;
-    if (firstError?.type === 'NOT_FOUND') {
-      throw new CardError(firstError.message || 'Could not fetch user.', {
-        code: 'not_found',
-        secondaryMessage: USER_NOT_FOUND,
-      });
-    }
-    if (firstError?.message) {
-      throw new CardError(wrapTextMultiline(firstError.message, 525, 12)[0] ?? '', {
-        code: 'upstream',
-        secondaryMessage: res.statusText,
-      });
-    }
-    throw new CardError(
+    throw graphqlError(
+      res.data.errors,
+      res.statusText,
       'Something went wrong while trying to retrieve the language data using the GraphQL API.',
-      { code: 'upstream' },
     );
   }
 

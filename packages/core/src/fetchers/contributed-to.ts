@@ -230,13 +230,6 @@ const fetchContributedTo = async (
 
   const res = await retryer(yearsFetcher, { login: username }, config);
   if (res.data.errors) {
-    const [firstError] = res.data.errors;
-    if (firstError?.type === 'NOT_FOUND') {
-      throw new CardError(firstError.message || 'Could not fetch user.', {
-        code: 'not_found',
-        secondaryMessage: USER_NOT_FOUND,
-      });
-    }
     throw graphqlError(res.data.errors, res.statusText, CONTRIBUTION_YEARS_ERROR);
   }
 

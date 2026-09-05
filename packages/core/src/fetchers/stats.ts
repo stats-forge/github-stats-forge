@@ -14,7 +14,6 @@ import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
 import { buildSearchFilter, parseOwnerAffiliations } from '../common/ops.ts';
-import { wrapTextMultiline } from '../common/render.ts';
 import { retryer } from '../common/retryer.ts';
 import type { FetcherResponse } from '../common/retryer.ts';
 import { buildContributionsDocument } from '../graphql/contributionsDocument.ts';
@@ -131,6 +130,16 @@ const statsFetcher = async (
   return stats;
 };
 
+/** One REST search: which index, the qualifiers scoping it, and the ones naming what to count. */
+interface SearchVariables {
+  /** `commits` or `issues`, the latter covering pull requests too. */
+  type: string;
+  /** Qualifiers appended after the scope, already `+`-joined. */
+  filter: string;
+  repo: Array<string>;
+  owner: Array<string>;
+}
+
 /**
  * Fetch total items count using the REST search API.
  *
@@ -139,15 +148,11 @@ const statsFetcher = async (
  * @returns The search response, carrying `total_count`.
  */
 const fetchTotalItems = (
-  variables: Record<string, unknown>,
+  { type, filter, repo, owner }: SearchVariables,
   token: string,
   { fetch }: FetcherContext,
-): Promise<FetcherResponse<{ total_count?: number }>> => {
-  const type = String(variables['type']);
-  const filter = String(variables['filter']);
-  const repo = variables['repo'] as Array<string> | string;
-  const owner = variables['owner'] as Array<string> | string;
-  return httpRequest(
+): Promise<FetcherResponse<{ total_count?: number }>> =>
+  httpRequest(
     fetch,
     `https://api.github.com/search/${type}?per_page=1&q=${buildSearchFilter(repo, owner).replaceAll(
       ' ',
@@ -162,7 +167,6 @@ const fetchTotalItems = (
       },
     },
   );
-};
 
 /**
  * Fetch a total count for a given username via the REST search API.
@@ -174,19 +178,7 @@ const fetchTotalItems = (
  * @returns Total count.
  */
 const totalItemsFetcher = async (
-  {
-    username,
-    repo,
-    owner,
-    type,
-    filter,
-  }: {
-    username: string;
-    repo: Array<string>;
-    owner: Array<string>;
-    type: string;
-    filter: string;
-  },
+  { username, ...search }: SearchVariables & { username: string },
   config: CardConfig,
 ): Promise<number> => {
   if (!GITHUB_USERNAME_PATTERN.test(username)) {
@@ -199,11 +191,7 @@ const totalItemsFetcher = async (
 
   let res: FetcherResponse<{ total_count?: number }>;
   try {
-    res = await retryer<{ total_count?: number }>(
-      fetchTotalItems,
-      { login: username, repo, owner, type, filter },
-      config,
-    );
+    res = await retryer(fetchTotalItems, search, config);
   } catch (error) {
     logger.log(error);
     throw error;
@@ -219,6 +207,38 @@ const totalItemsFetcher = async (
   return totalCount;
 };
 
+/** The flags that ask for a per-repository count, as the query names them. */
+interface RepoUserStatsFlags {
+  include_prs_authored?: boolean | undefined;
+  include_prs_commented?: boolean | undefined;
+  include_prs_reviewed?: boolean | undefined;
+  include_issues_authored?: boolean | undefined;
+  include_issues_commented?: boolean | undefined;
+}
+
+/** Each count the REST search API answers: the flag asking for it, and the qualifiers that find it. */
+const REPO_USER_SEARCHES: ReadonlyArray<
+  [flag: keyof RepoUserStatsFlags, stat: keyof RepoUserStats, filter: (username: string) => string]
+> = [
+  ['include_prs_authored', 'totalPRsAuthored', (username) => `author:${username}+type:pr`],
+  [
+    'include_prs_commented',
+    'totalPRsCommented',
+    (username) => `commenter:${username}+-author:${username}+type:pr`,
+  ],
+  [
+    'include_prs_reviewed',
+    'totalPRsReviewed',
+    (username) => `reviewed-by:${username}+-author:${username}+type:pr`,
+  ],
+  ['include_issues_authored', 'totalIssuesAuthored', (username) => `author:${username}+type:issue`],
+  [
+    'include_issues_commented',
+    'totalIssuesCommented',
+    (username) => `commenter:${username}+-author:${username}+type:issue`,
+  ],
+];
+
 /**
  * Fetch the per-repository counts the REST search API answers, one request each.
  *
@@ -229,83 +249,22 @@ const fetchRepoUserStats = async (
     username,
     repo = [],
     owner = [],
-    include_prs_authored = false,
-    include_prs_commented = false,
-    include_prs_reviewed = false,
-    include_issues_authored = false,
-    include_issues_commented = false,
-  }: {
+    ...flags
+  }: RepoUserStatsFlags & {
     username: string;
     repo?: Array<string>;
     owner?: Array<string>;
-    include_prs_authored?: boolean | undefined;
-    include_prs_commented?: boolean | undefined;
-    include_prs_reviewed?: boolean | undefined;
-    include_issues_authored?: boolean | undefined;
-    include_issues_commented?: boolean | undefined;
   },
   config: CardConfig,
 ): Promise<RepoUserStats> => {
   const stats: RepoUserStats = {};
-  if (include_prs_authored) {
-    stats.totalPRsAuthored = await totalItemsFetcher(
-      {
-        username,
-        repo,
-        owner,
-        type: 'issues',
-        filter: `author:${username}+type:pr`,
-      },
-      config,
-    );
-  }
-  if (include_prs_commented) {
-    stats.totalPRsCommented = await totalItemsFetcher(
-      {
-        username,
-        repo,
-        owner,
-        type: 'issues',
-        filter: `commenter:${username}+-author:${username}+type:pr`,
-      },
-      config,
-    );
-  }
-  if (include_prs_reviewed) {
-    stats.totalPRsReviewed = await totalItemsFetcher(
-      {
-        username,
-        repo,
-        owner,
-        type: 'issues',
-        filter: `reviewed-by:${username}+-author:${username}+type:pr`,
-      },
-      config,
-    );
-  }
-  if (include_issues_authored) {
-    stats.totalIssuesAuthored = await totalItemsFetcher(
-      {
-        username,
-        repo,
-        owner,
-        type: 'issues',
-        filter: `author:${username}+type:issue`,
-      },
-      config,
-    );
-  }
-  if (include_issues_commented) {
-    stats.totalIssuesCommented = await totalItemsFetcher(
-      {
-        username,
-        repo,
-        owner,
-        type: 'issues',
-        filter: `commenter:${username}+-author:${username}+type:issue`,
-      },
-      config,
-    );
+  for (const [flag, stat, filter] of REPO_USER_SEARCHES) {
+    if (flags[flag]) {
+      stats[stat] = await totalItemsFetcher(
+        { username, repo, owner, type: 'issues', filter: filter(username) },
+        config,
+      );
+    }
   }
   return stats;
 };
@@ -451,25 +410,11 @@ const fetchStats = async (
     config,
   );
 
-  // Catch GraphQL errors.
   if (res.data.errors) {
-    logger.error(res.data.errors);
-    const [firstError] = res.data.errors;
-    if (firstError?.type === 'NOT_FOUND') {
-      throw new CardError(firstError.message || 'Could not fetch user.', {
-        code: 'not_found',
-        secondaryMessage: USER_NOT_FOUND,
-      });
-    }
-    if (firstError?.message) {
-      throw new CardError(wrapTextMultiline(firstError.message, 525, 12)[0] ?? '', {
-        code: 'upstream',
-        secondaryMessage: res.statusText,
-      });
-    }
-    throw new CardError(
+    throw graphqlError(
+      res.data.errors,
+      res.statusText,
       'Something went wrong while trying to retrieve the stats data using the GraphQL API.',
-      { code: 'upstream' },
     );
   }
 

@@ -1,12 +1,9 @@
 import * as z from 'zod/mini';
 
 import { renderWakatimeCard } from '../cards/wakatime.ts';
-import type { CardConfig } from '../common/config.ts';
 import { fetchWakatimeStats } from '../fetchers/wakatime.ts';
 
-import type { ApiResult } from './api-result.ts';
-import { errorResult } from './api-result.ts';
-import type { ApiQuery } from './params.ts';
+import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   enumParam,
@@ -14,8 +11,6 @@ import {
   localeParam,
   looseIntParam,
   numberParam,
-  parseColorParams,
-  parseParams,
   rawParam,
   safeParam,
 } from './params.ts';
@@ -39,9 +34,6 @@ const wakatimeQuery = z.object({
   disable_animations: booleanParam,
 });
 
-/** The query this endpoint accepts, checked against the schema above. */
-type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
-
 /**
  * Render the WakaTime card for a set of query params.
  *
@@ -49,17 +41,10 @@ type WakatimeApiQuery = ApiQuery<typeof wakatimeQuery>;
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderWakatime = async (query: WakatimeApiQuery, config: CardConfig): Promise<ApiResult> => {
-  let colors;
-  try {
-    colors = parseColorParams(query);
-  } catch (error) {
-    // A rejected color cannot be used to draw its own error card.
-    return errorResult(error);
-  }
-
-  try {
-    const {
+const renderWakatime = cardHandler(
+  wakatimeQuery,
+  async (
+    {
       username,
       hide_border,
       card_width,
@@ -75,33 +60,30 @@ const renderWakatime = async (query: WakatimeApiQuery, config: CardConfig): Prom
       border_radius,
       display_format,
       disable_animations,
-    } = parseParams(wakatimeQuery, query);
-
+    },
+    colors,
+    config,
+  ) => {
     const stats = await fetchWakatimeStats({ username, api_domain }, config);
 
-    return {
-      status: 'success',
-      content: renderWakatimeCard(stats, {
-        ...colors,
-        custom_title,
-        hide_title,
-        hide_border,
-        card_width,
-        hide,
-        line_height,
-        hide_progress,
-        border_radius,
-        locale,
-        layout,
-        langs_count,
-        display_format,
-        disable_animations,
-      }),
-    };
-  } catch (error) {
-    return errorResult(error, colors);
-  }
-};
+    return renderWakatimeCard(stats, {
+      ...colors,
+      custom_title,
+      hide_title,
+      hide_border,
+      card_width,
+      hide,
+      line_height,
+      hide_progress,
+      border_radius,
+      locale,
+      layout,
+      langs_count,
+      display_format,
+      disable_animations,
+    });
+  },
+);
 
 /**
  * The card, and the values each of its options accepts, keyed by the option's own name.
