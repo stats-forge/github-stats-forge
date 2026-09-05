@@ -1,20 +1,15 @@
 import * as z from 'zod/mini';
 
 import { renderContributedToCard } from '../cards/contributed-to.ts';
-import type { CardConfig } from '../common/config.ts';
 import { fetchContributedTo } from '../fetchers/contributed-to.ts';
 
-import type { ApiResult } from './api-result.ts';
-import { errorResult } from './api-result.ts';
-import type { ApiQuery } from './params.ts';
+import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   fromParam,
   looseIntParam,
   numberParam,
   ORDERED_RANGE,
-  parseColorParams,
-  parseParams,
   rawParam,
   safeListParam,
   toParam,
@@ -40,9 +35,6 @@ const contributedToQuery = z
   })
   .check(ORDERED_RANGE);
 
-/** The query this endpoint accepts, checked against the schema above. */
-type ContributedToApiQuery = ApiQuery<typeof contributedToQuery>;
-
 /**
  * Render the contributed-to card for a set of query params.
  *
@@ -51,20 +43,10 @@ type ContributedToApiQuery = ApiQuery<typeof contributedToQuery>;
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderContributedTo = async (
-  query: ContributedToApiQuery,
-  config: CardConfig,
-): Promise<ApiResult> => {
-  let colors;
-  try {
-    colors = parseColorParams(query);
-  } catch (error) {
-    // A rejected color cannot be used to draw its own error card.
-    return errorResult(error);
-  }
-
-  try {
-    const {
+export const contributedTo = cardHandler(
+  contributedToQuery,
+  async (
+    {
       username,
       repos_count,
       include_own_repos,
@@ -78,29 +60,24 @@ const renderContributedTo = async (
       custom_title,
       border_radius,
       disable_animations,
-    } = parseParams(contributedToQuery, query);
-
-    const contributedTo = await fetchContributedTo(
+    },
+    colors,
+    config,
+  ) => {
+    const data = await fetchContributedTo(
       { username, include_own_repos, repos_count, exclude_repo, from, to },
       config,
     );
 
-    return {
-      status: 'success',
-      content: renderContributedToCard(contributedTo, {
-        ...colors,
-        hide_years,
-        hide_title,
-        hide_border,
-        card_width,
-        custom_title,
-        border_radius,
-        disable_animations,
-      }),
-    };
-  } catch (error) {
-    return errorResult(error, colors);
-  }
-};
-
-export const contributedTo = renderContributedTo;
+    return renderContributedToCard(data, {
+      ...colors,
+      hide_years,
+      hide_title,
+      hide_border,
+      card_width,
+      custom_title,
+      border_radius,
+      disable_animations,
+    });
+  },
+);

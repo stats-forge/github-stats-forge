@@ -38,12 +38,6 @@ describe('Test ops.js', () => {
     expect(clampValue(5, 1, 10)).toBe(5);
     expect(clampValue(0, 1, 10)).toBe(1);
     expect(clampValue(15, 1, 10)).toBe(10);
-
-    // string inputs are coerced numerically by Math.min/Math.max
-    expect(clampValue('7', 1, 10)).toBe(7);
-
-    // non-numeric and NaN fall back to min
-    expect(clampValue('abc', 1, 10)).toBe(1);
     expect(clampValue(Number.NaN, 2, 5)).toBe(2);
   });
 

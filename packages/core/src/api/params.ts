@@ -127,15 +127,8 @@ const toParam = rangeParam('to');
  * The pair-level rule the two ends cannot see on their own.
  * Every endpoint taking a range applies it, so an order no card could draw is rejected once.
  */
-const ORDERED_RANGE = z.refine(
-  (value: unknown) => {
-    if (typeof value !== 'object' || value === null) {
-      return true;
-    }
-    const from = 'from' in value ? value.from : undefined;
-    const to = 'to' in value ? value.to : undefined;
-    return !(from instanceof Date && to instanceof Date) || from <= to;
-  },
+const ORDERED_RANGE = z.refine<{ from?: Date | undefined; to?: Date | undefined }>(
+  ({ from, to }) => from === undefined || to === undefined || from <= to,
   { error: REJECTION_MESSAGES.inverted_range('from'), path: ['from'] },
 );
 

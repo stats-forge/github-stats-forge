@@ -1,20 +1,15 @@
 import * as z from 'zod/mini';
 
 import { renderRepoCard } from '../cards/repo.ts';
-import type { CardConfig } from '../common/config.ts';
 import { fetchRepo } from '../fetchers/repo.ts';
 
-import type { ApiResult } from './api-result.ts';
-import { errorResult } from './api-result.ts';
-import type { ApiQuery } from './params.ts';
+import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   listParam,
   localeParam,
   looseIntParam,
   numberParam,
-  parseColorParams,
-  parseParams,
   rawParam,
   safeParam,
   usernameParam,
@@ -38,25 +33,15 @@ const pinQuery = z.object({
   description_lines_count: looseIntParam,
 });
 
-/** The query this endpoint accepts, checked against the schema above. */
-type PinApiQuery = ApiQuery<typeof pinQuery>;
-
 /**
  * Render the repository card for a set of query params.
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderPin = async (query: PinApiQuery, config: CardConfig): Promise<ApiResult> => {
-  let colors;
-  try {
-    colors = parseColorParams(query);
-  } catch (error) {
-    // A rejected color cannot be used to draw its own error card.
-    return errorResult(error);
-  }
-
-  try {
-    const {
+const renderPin = cardHandler(
+  pinQuery,
+  async (
+    {
       username,
       repo,
       hide_border,
@@ -71,8 +56,10 @@ const renderPin = async (query: PinApiQuery, config: CardConfig): Promise<ApiRes
       locale,
       border_radius,
       description_lines_count,
-    } = parseParams(pinQuery, query);
-
+    },
+    colors,
+    config,
+  ) => {
     const repoData = await fetchRepo(
       {
         username,
@@ -86,29 +73,24 @@ const renderPin = async (query: PinApiQuery, config: CardConfig): Promise<ApiRes
       config,
     );
 
-    return {
-      status: 'success',
-      content: renderRepoCard(repoData, {
-        ...colors,
-        hide_border,
-        border_radius,
-        card_width_input: card_width,
-        show_owner,
-        browser_rendering,
-        show,
-        show_icons,
-        number_format,
-        text_bold,
-        line_height,
-        username,
-        locale,
-        description_lines_count,
-      }),
-    };
-  } catch (error) {
-    return errorResult(error, colors);
-  }
-};
+    return renderRepoCard(repoData, {
+      ...colors,
+      hide_border,
+      border_radius,
+      card_width_input: card_width,
+      show_owner,
+      browser_rendering,
+      show,
+      show_icons,
+      number_format,
+      text_bold,
+      line_height,
+      username,
+      locale,
+      description_lines_count,
+    });
+  },
+);
 
 /**
  * The card, and the values each of its options accepts, keyed by the option's own name.

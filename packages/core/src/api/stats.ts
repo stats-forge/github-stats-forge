@@ -1,13 +1,10 @@
 import * as z from 'zod/mini';
 
 import { renderStatsCard } from '../cards/stats.ts';
-import type { CardConfig } from '../common/config.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
 import { fetchStats } from '../fetchers/stats.ts';
 
-import type { ApiResult } from './api-result.ts';
-import { errorResult } from './api-result.ts';
-import type { ApiQuery } from './params.ts';
+import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   enumParam,
@@ -17,8 +14,6 @@ import {
   looseIntParam,
   numberParam,
   ORDERED_RANGE,
-  parseColorParams,
-  parseParams,
   rawParam,
   safeListParam,
   toParam,
@@ -56,25 +51,15 @@ const statsQuery = z
   })
   .check(ORDERED_RANGE);
 
-/** The query this endpoint accepts, checked against the schema above. */
-type StatsApiQuery = ApiQuery<typeof statsQuery>;
-
 /**
  * Render the stats card for a set of query params.
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderStats = async (query: StatsApiQuery, config: CardConfig): Promise<ApiResult> => {
-  let colors;
-  try {
-    colors = parseColorParams(query);
-  } catch (error) {
-    // A rejected color cannot be used to draw its own error card.
-    return errorResult(error);
-  }
-
-  try {
-    const {
+const renderStats = cardHandler(
+  statsQuery,
+  async (
+    {
       username,
       repo,
       owner,
@@ -100,8 +85,10 @@ const renderStats = async (query: StatsApiQuery, config: CardConfig): Promise<Ap
       rank_icon,
       show,
       contribs_include_own_repos,
-    } = parseParams(statsQuery, query);
-
+    },
+    colors,
+    config,
+  ) => {
     // A bare repo name is scoped to the user whose card this is.
     const repository = repo.map((name) =>
       name.includes('/') ? name : `${username ?? ''}/${name}`,
@@ -133,39 +120,34 @@ const renderStats = async (query: StatsApiQuery, config: CardConfig): Promise<Ap
       config,
     );
 
-    return {
-      status: 'success',
-      content: renderStatsCard(
-        stats,
-        {
-          ...colors,
-          hide,
-          show_icons,
-          hide_title,
-          hide_border,
-          card_width,
-          hide_rank,
-          include_all_commits,
-          line_height,
-          text_bold,
-          custom_title,
-          border_radius,
-          number_format,
-          number_precision,
-          locale,
-          disable_animations,
-          rank_icon,
-          show,
-        },
-        username,
-        repository,
-        owner,
-      ),
-    };
-  } catch (error) {
-    return errorResult(error, colors);
-  }
-};
+    return renderStatsCard(
+      stats,
+      {
+        ...colors,
+        hide,
+        show_icons,
+        hide_title,
+        hide_border,
+        card_width,
+        hide_rank,
+        include_all_commits,
+        line_height,
+        text_bold,
+        custom_title,
+        border_radius,
+        number_format,
+        number_precision,
+        locale,
+        disable_animations,
+        rank_icon,
+        show,
+      },
+      username,
+      repository,
+      owner,
+    );
+  },
+);
 
 /**
  * The card, and the values each of its options accepts, keyed by the option's own name.

@@ -3,7 +3,7 @@
  *
  * `text` is what goes over the wire; the other two members only carry types and are never assigned.
  * Documents are generated from `queries/*.graphql`
- * See `scripts/generate-graphql-types.js`.
+ * See `scripts/generate-graphql-types.ts`.
  */
 interface GraphQLDocument<TResult, TVariables> {
   readonly text: string;

@@ -336,19 +336,20 @@ params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `looseInt
 `rawParam`, `safeParam`, `safeListParam`, `localeParam`, `enumParam(values)`,
 `fromParam`, `toParam`) — none of which takes a message, because the wording is derived
 from the kind and the param name.
-A handler is then three steps — `parseColorParams(query)`, `parseParams(xQuery, query)`,
-render — wrapped in one `try`/`catch` whose `catch` is `errorResult(err, colors)`.
+A handler is then `cardHandler(xQuery, async (params, colors, config) => svg)` from `api/handler.ts`:
+it parses the colors, parses the query against the schema, awaits the render,
+and its two `catch`es are the only place `errorResult` is called.
 Parsing throws, fetching throws, and one place turns whatever was thrown into the answer.
+Six handlers each carried that control flow by hand until 2026-09-05.
 
 - **Colors parse first, separately.**
-  A rejected color cannot be used to draw its own error card, which is why
-  `parseColorParams` is its own pass and its error renders with no `renderOptions`.
-- **The query type comes from the schema.** Each handler declares
-  `type XApiQuery = ApiQuery<typeof xQuery>` and takes it as its parameter — the alias
-  stays module-local, since only that handler names it and knip flags an unused export.
-  `ApiQuery` itself is what `params.ts` exports. A consumer is checked at the call site
-  rather than by importing the alias: an unknown param or a non-string value is a
-  compile error, and every param stays optional.
+  A rejected color cannot be used to draw its own error card,
+  which is why `cardHandler` runs `parseColorParams` as its own pass and renders that error with no `renderOptions`.
+- **The query type comes from the schema.**
+  `cardHandler` types the handler it returns as taking `ApiQuery<typeof xQuery>`,
+  so no module names the alias; `ApiQuery` itself is what `params.ts` exports.
+  A consumer is checked at the call site rather than by importing a type:
+  an unknown param or a non-string value is a compile error, and every param stays optional.
 - **A card option's accepted values ride on the render function that draws them, in one
   `OPTIONS` object keyed by the option's own name.** Each card ends in
   `Object.assign(renderCard, { OPTIONS: { rank_icon: RANK_ICONS, show: SHOW_STATS, … } })`,

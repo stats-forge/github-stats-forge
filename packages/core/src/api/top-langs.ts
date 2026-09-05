@@ -1,13 +1,10 @@
 import * as z from 'zod/mini';
 
 import { renderTopLanguages } from '../cards/top-languages.ts';
-import type { CardConfig } from '../common/config.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
 import { fetchTopLanguages } from '../fetchers/top-languages.ts';
 
-import type { ApiResult } from './api-result.ts';
-import { errorResult } from './api-result.ts';
-import type { ApiQuery } from './params.ts';
+import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   enumParam,
@@ -15,8 +12,6 @@ import {
   localeParam,
   looseIntParam,
   numberParam,
-  parseColorParams,
-  parseParams,
   rawParam,
   usernameParam,
 } from './params.ts';
@@ -43,25 +38,15 @@ const topLangsQuery = z.object({
   stats_format: enumParam(renderTopLanguages.OPTIONS.stats_format),
 });
 
-/** The query this endpoint accepts, checked against the schema above. */
-type TopLangsApiQuery = ApiQuery<typeof topLangsQuery>;
-
 /**
  * Render the top languages card for a set of query params.
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderTopLangs = async (query: TopLangsApiQuery, config: CardConfig): Promise<ApiResult> => {
-  let colors;
-  try {
-    colors = parseColorParams(query);
-  } catch (error) {
-    // A rejected color cannot be used to draw its own error card.
-    return errorResult(error);
-  }
-
-  try {
-    const {
+const renderTopLangs = cardHandler(
+  topLangsQuery,
+  async (
+    {
       username,
       hide,
       hide_title,
@@ -80,8 +65,10 @@ const renderTopLangs = async (query: TopLangsApiQuery, config: CardConfig): Prom
       hide_progress,
       hide_values,
       stats_format,
-    } = parseParams(topLangsQuery, query);
-
+    },
+    colors,
+    config,
+  ) => {
     const topLangs = await fetchTopLanguages(
       {
         username,
@@ -93,29 +80,24 @@ const renderTopLangs = async (query: TopLangsApiQuery, config: CardConfig): Prom
       config,
     );
 
-    return {
-      status: 'success',
-      content: renderTopLanguages(topLangs, {
-        ...colors,
-        custom_title,
-        hide_title,
-        hide_border,
-        card_width,
-        hide,
-        layout,
-        langs_count,
-        border_radius,
-        locale,
-        disable_animations,
-        hide_progress,
-        hide_values,
-        stats_format,
-      }),
-    };
-  } catch (error) {
-    return errorResult(error, colors);
-  }
-};
+    return renderTopLanguages(topLangs, {
+      ...colors,
+      custom_title,
+      hide_title,
+      hide_border,
+      card_width,
+      hide,
+      layout,
+      langs_count,
+      border_radius,
+      locale,
+      disable_animations,
+      hide_progress,
+      hide_values,
+      stats_format,
+    });
+  },
+);
 
 /**
  * The card, and the values each of its options accepts, keyed by the option's own name.

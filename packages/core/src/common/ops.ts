@@ -40,14 +40,10 @@ const parseArray = (str: string | undefined): Array<string> => {
 /**
  * Clamp the given number between the given range.
  *
- * @returns The clamped number.
+ * @returns The clamped number; `min` for `NaN`.
  */
-const clampValue = (number: string | number, min: number, max: number): number => {
-  if (Number.isNaN(Number.parseInt(String(number), 10))) {
-    return min;
-  }
-  return Math.max(min, Math.min(Number(number), max));
-};
+const clampValue = (number: number, min: number, max: number): number =>
+  Number.isNaN(number) ? min : Math.max(min, Math.min(number, max));
 
 /**
  * Lowercase and trim string.
@@ -112,18 +108,13 @@ const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAf
   return normalized;
 };
 
-const buildSearchFilter = (
-  repos: Array<string> | string = [],
-  owners: Array<string> | string = [],
-): string => {
-  const repoFilter =
-    Array.isArray(repos) && repos.length > 0 ? repos.map((repo) => `repo:${repo} `).join('') : '';
-  const orgFilter =
-    Array.isArray(owners) && owners.length > 0
-      ? owners.map((owner) => `owner:${owner} `).join('')
-      : '';
-  return repoFilter + orgFilter;
-};
+/**
+ * The qualifiers that scope a REST search to repositories and owners.
+ *
+ * @returns e.g. `repo:a/b owner:c `, each qualifier followed by a space; empty when both lists are.
+ */
+const buildSearchFilter = (repos: Array<string>, owners: Array<string>): string =>
+  [...repos.map((repo) => `repo:${repo} `), ...owners.map((owner) => `owner:${owner} `)].join('');
 
 export {
   parseBoolean,
