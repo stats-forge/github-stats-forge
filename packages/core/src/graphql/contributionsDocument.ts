@@ -1,6 +1,7 @@
-import { getGitHubYearRange, toGitHubDateTime } from '../common/date.ts';
+import type { GitHubDateRange } from '../common/date.ts';
 
-import type { YearContributionsFragment } from './generated/stats.ts';
+import { aliasedRanges } from './contributionsCollection.ts';
+import type { RangeContributionsFragment } from './generated/stats.ts';
 import type { GraphQLDocument } from './graphqlDocument.ts';
 import { graphqlDocument } from './graphqlDocument.ts';
 
@@ -9,38 +10,30 @@ interface ContributionsQueryVariables {
 }
 
 interface ContributionsQuery {
-  user: Record<`year_${number}`, YearContributionsFragment> | null;
+  user: Record<`range_${number}`, RangeContributionsFragment> | null;
 }
 
 /**
- * Build the all-time contributions query, one aliased `contributionsCollection` field per year.
- * The shape is only known at runtime.
+ * Build the contributions query for a set of ranges. The shape is only known at runtime.
  *
  * @returns Document for `createGraphQLFetcher`.
  */
 const buildContributionsDocument = (
-  years: Array<number>,
-): GraphQLDocument<ContributionsQuery, ContributionsQueryVariables> => {
-  const yearFields = years
-    .map((year) => {
-      const { from, to } = getGitHubYearRange(year);
-      return `year_${year}: contributionsCollection(from: "${toGitHubDateTime(from)}", to: "${toGitHubDateTime(to)}") { ...YearContributions }`;
-    })
-    .join('\n');
-
+  ranges: Array<GitHubDateRange>,
+): GraphQLDocument<ContributionsQuery, ContributionsQueryVariables> =>
   // fragment must match queries/stats.graphql, which generates its type
-  return graphqlDocument<ContributionsQuery, ContributionsQueryVariables>(`
+  graphqlDocument<ContributionsQuery, ContributionsQueryVariables>(`
 query userContributions($login: String!) {
   user(login: $login) {
-    ${yearFields}
+    ${aliasedRanges(ranges, 'RangeContributions')}
   }
 }
-fragment YearContributions on ContributionsCollection {
+fragment RangeContributions on ContributionsCollection {
+  totalCommitContributions
   contributionCalendar {
     totalContributions
   }
 }`);
-};
 
 export { buildContributionsDocument };
 export type { ContributionsQuery };

@@ -1,5 +1,6 @@
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
+import { formatYears } from '../common/date.ts';
 import { kFormatter } from '../common/fmt.ts';
 import { icons } from '../common/icons.ts';
 import { clampValue } from '../common/ops.ts';
@@ -176,7 +177,7 @@ const createRepoRow = ({
   );
 
 /**
- * The line under the rows: how much of the walk the card is showing, and over what span.
+ * The line under the rows: how much of the walk the card is showing, and over what years.
  *
  * Never dropped, because the card shows a slice of the repositories
  * and a rank means nothing without the total it was taken from.
@@ -190,7 +191,7 @@ const footerText = ({
 }: {
   shown: number;
   totalRepos: number;
-  /** Empty when the year marks are hidden, which is what puts the span on the card. */
+  /** Empty when the year marks are hidden, which is what puts the years on the card. */
   years: Array<number>;
 }): string => {
   const repoWord = totalRepos === 1 ? 'repository' : 'repositories';
@@ -201,7 +202,7 @@ const footerText = ({
   const [firstYear] = years;
   const lastYear = years.at(-1);
   if (firstYear !== undefined && lastYear !== undefined) {
-    parts.push(firstYear === lastYear ? `${firstYear}` : `${firstYear}–${lastYear}`);
+    parts.push(formatYears(firstYear, lastYear));
   }
 
   return parts.join(' · ');
@@ -335,8 +336,8 @@ const renderContributedToCard = (
     title: card.title,
     desc: [
       ...repos.map((repo) => {
-        const span = hide_years ? '' : ` in ${repo.years.join(', ')}`;
-        return `${repo.nameWithOwner}: ${repo.contributions} contributions${span}`;
+        const inYears = hide_years ? '' : ` in ${repo.years.join(', ')}`;
+        return `${repo.nameWithOwner}: ${repo.contributions} contributions${inYears}`;
       }),
       footer,
     ].join('; '),

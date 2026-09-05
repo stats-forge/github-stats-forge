@@ -118,11 +118,11 @@ describe('api errors', () => {
   });
 
   it('draws the same failure onto the card', async () => {
-    const result = await statsApi({ username: 'anuraghazra', commits_year: '12' }, config);
+    const result = await statsApi({ username: 'anuraghazra', from: '12' }, config);
 
     expect(result.status).toBe('error');
     expect(result.status === 'error' && result.error.message).toBe('Something went wrong');
     // the error card html-escapes the quotes around the parameter name
-    expect(result.content).toContain('Invalid number input for parameter &#34;commits_year&#34;');
+    expect(result.content).toContain('Invalid date input for parameter &#34;from&#34;');
   });
 });

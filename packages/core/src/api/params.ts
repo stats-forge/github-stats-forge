@@ -3,6 +3,7 @@ import * as z from 'zod/mini';
 import type { ColorParams } from '../common/color.ts';
 import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.ts';
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
+import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
 import { parseArray, parseBoolean } from '../common/ops.ts';
 import { isLocaleAvailable } from '../translations.ts';
@@ -24,7 +25,16 @@ const rawParam = z.optional(z.string());
 const SAFE_PATTERN = /^[-\w/.,]+$/;
 
 /** What a check rejected a param for. */
-type Rejection = 'number' | 'year' | 'unsafe' | 'username' | 'locale' | 'enum' | 'color';
+type Rejection =
+  | 'number'
+  | 'date'
+  | 'out_of_range'
+  | 'inverted_range'
+  | 'unsafe'
+  | 'username'
+  | 'locale'
+  | 'enum'
+  | 'color';
 
 /**
  * Every rejection the api can put on an error card, in one place.
@@ -32,7 +42,9 @@ type Rejection = 'number' | 'year' | 'unsafe' | 'username' | 'locale' | 'enum' |
  */
 const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   number: (param) => `Invalid number input for parameter "${param}"`,
-  year: (param) => `Invalid number input for parameter "${param}"`,
+  date: (param) => `Invalid date input for parameter "${param}"`,
+  out_of_range: (param) => `Out of range date for parameter "${param}"`,
+  inverted_range: () => 'Range "from" is after "to"',
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
   username: (param) => `Invalid username input for parameter "${param}"`,
   locale: () => 'Locale not found',
@@ -86,13 +98,45 @@ const looseIntParam = z.pipe(
 );
 
 /**
- * A four-digit year.
- * Anything else builds a `DateTime` GitHub rejects, so it is a permanent error here rather than a failed request later.
- * Yields the year, or `undefined` when the param is absent.
+ * One end of the range a card counts within, written as `2024`, `2024-03` or `2024-03-15`.
+ *
+ * @returns Schema yielding the instant, or `undefined` when the param is absent.
  */
-const yearParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
-  rawParam.check(rejects('year', (value) => /^\d{4}$/.test(value))),
-  z.transform((value) => (value === undefined ? undefined : Number(value))),
+const rangeParam = (end: 'from' | 'to'): z.ZodMiniType<Date | undefined, string | undefined> => {
+  const parse = (value: string): Date | undefined => parseRangeDate(value, end);
+  return z.pipe(
+    rawParam.check(rejects('date', (value) => parse(value) !== undefined)).check(
+      rejects('out_of_range', (value) => {
+        const date = parse(value);
+        const widest = getWidestRange();
+        // a bad shape is already reported by the check above
+        return date === undefined || (date >= widest.from && date <= widest.to);
+      }),
+    ),
+    z.transform((value) => (value === undefined ? undefined : parse(value))),
+  );
+};
+
+/** The start of a card's range; see {@link rangeParam}. */
+const fromParam = rangeParam('from');
+
+/** The end of a card's range; see {@link rangeParam}. */
+const toParam = rangeParam('to');
+
+/**
+ * The pair-level rule the two ends cannot see on their own.
+ * Every endpoint taking a range applies it, so an order no card could draw is rejected once.
+ */
+const ORDERED_RANGE = z.refine(
+  (value: unknown) => {
+    if (typeof value !== 'object' || value === null) {
+      return true;
+    }
+    const from = 'from' in value ? value.from : undefined;
+    const to = 'to' in value ? value.to : undefined;
+    return !(from instanceof Date && to instanceof Date) || from <= to;
+  },
+  { error: REJECTION_MESSAGES.inverted_range('from'), path: ['from'] },
 );
 
 /**
@@ -213,7 +257,9 @@ export type { ApiQuery };
 export {
   booleanParam,
   enumParam,
+  fromParam,
   listParam,
+  ORDERED_RANGE,
   localeParam,
   looseIntParam,
   numberParam,
@@ -222,6 +268,6 @@ export {
   rawParam,
   safeListParam,
   safeParam,
+  toParam,
   usernameParam,
-  yearParam,
 };

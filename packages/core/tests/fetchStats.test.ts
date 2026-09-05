@@ -148,8 +148,8 @@ const data_repo_zero_stars: GraphQLBody<UserReposQuery> = {
 const data_contributions: GraphQLBody<ContributionsQuery> = {
   data: {
     user: {
-      year_2022: { contributionCalendar: { totalContributions: 150 } },
-      year_2024: { contributionCalendar: { totalContributions: 200 } },
+      range_0: { totalCommitContributions: 60, contributionCalendar: { totalContributions: 150 } },
+      range_1: { totalCommitContributions: 90, contributionCalendar: { totalContributions: 200 } },
     },
   },
 };
@@ -222,6 +222,7 @@ const expectedStats = (
   allTimeContributedTo: 0,
   name: 'Anurag Hazra',
   totalCommits: 100,
+  commitsRange: undefined,
   totalIssues: 200,
   totalPRs: 300,
   totalPRsMerged: 0,
@@ -433,10 +434,43 @@ describe('Test fetchStats', () => {
     );
   });
 
-  it('should get commits of provided year', async () => {
-    const stats = await fetchStatsWith({ commits_year: 2003 });
+  it('should count commits over the range alone, both ends named', async () => {
+    const range = {
+      from: new Date(Date.UTC(2003, 0, 1)),
+      to: new Date(Date.UTC(2003, 11, 31, 23, 59, 59)),
+    };
+    const stats = await fetchStatsWith({ from: range.from, to: range.to });
 
-    expect(stats).toStrictEqual(expectedStats({ totalCommits: 428 }, { commits: 428 }));
+    expect(stats).toStrictEqual(
+      expectedStats({ totalCommits: 428, commitsRange: range }, { commits: 428 }),
+    );
+    // an open `to` is a year after `from` to GitHub, which would count 2004-01-01 as 2003
+    const { variables } = JSON.parse(mock.history.post[0]?.data ?? '{}') as {
+      variables: { startTime: string; endTime: string };
+    };
+    expect(variables).toMatchObject({
+      startTime: '2003-01-01T00:00:00Z',
+      endTime: '2003-12-31T23:59:59Z',
+    });
+  });
+
+  it('should sum a range that crosses a year, one calendar year at a time', async () => {
+    const stats = await fetchStatsWith({
+      from: new Date(Date.UTC(2022, 0, 1)),
+      to: new Date(Date.UTC(2023, 11, 31, 23, 59, 59)),
+    });
+
+    // the two aliased ranges of data_contributions
+    expect(stats.totalCommits).toBe(150);
+  });
+
+  it('should count nothing for an inverted range, rather than the default year', async () => {
+    const stats = await fetchStatsWith({
+      from: new Date(Date.UTC(2024, 0, 1)),
+      to: new Date(Date.UTC(2022, 11, 31)),
+    });
+
+    expect(stats.totalCommits).toBe(0);
   });
 
   it('should fetch total contributions when include_contributions is true', async () => {

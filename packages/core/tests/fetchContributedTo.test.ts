@@ -124,6 +124,42 @@ describe('test fetchContributedTo', () => {
     expect(data.repos).toHaveLength(2);
   });
 
+  it('should walk only the contribution years the range covers', async () => {
+    const data = await fetchContributedTo(
+      {
+        username: 'anuraghazra',
+        from: new Date(Date.UTC(2022, 0, 1)),
+        to: new Date(Date.UTC(2022, 11, 31)),
+      },
+      config,
+    );
+
+    expect(data.years).toStrictEqual([2022]);
+    // 2024's 25 commits are outside the range, so only 2022's 10 are counted
+    expect(data.repos.map((repo) => repo.nameWithOwner)).toStrictEqual([
+      'other/repo2',
+      'org/repo1',
+    ]);
+    expect(data.repos[1]).toMatchObject({ contributions: 10, years: [2022] });
+  });
+
+  it('should draw nothing, and ask for no range, when the range covers no contribution year', async () => {
+    const data = await fetchContributedTo(
+      {
+        username: 'anuraghazra',
+        from: new Date(Date.UTC(2024, 0, 1)),
+        to: new Date(Date.UTC(2022, 11, 31)),
+      },
+      config,
+    );
+
+    expect(data.years).toStrictEqual([]);
+    expect(data.repos).toStrictEqual([]);
+    expect(data.totalRepos).toBe(0);
+    // only the contribution years query was sent
+    expect(mock.history.post).toHaveLength(1);
+  });
+
   it('should exclude a repository named in full, and stop counting it in the total', async () => {
     const data = await fetchContributedTo(
       { username: 'anuraghazra', exclude_repo: ['other/repo2'] },

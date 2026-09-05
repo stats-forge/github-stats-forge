@@ -1,6 +1,8 @@
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
 import type { CardColors } from '../common/color.ts';
+import type { GitHubDateRange } from '../common/date.ts';
+import { formatRange } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
 import { I18n } from '../common/I18n.ts';
 import { icons, rankIcon } from '../common/icons.ts';
@@ -68,7 +70,6 @@ interface StatCardOptions extends CommonCardOptions {
   card_width: number;
   hide_rank: boolean;
   include_all_commits: boolean;
-  commits_year: number;
   line_height: number | string;
   custom_title: string;
   disable_animations: boolean;
@@ -211,19 +212,17 @@ const getStyles = ({
 ];
 
 /**
- * Return the label for commits according to the selected options
- *
- * @returns The label corresponding to the options.
+ * @returns What the commit count covers, for the stat's label.
  */
-const getTotalCommitsYearLabel = (
+const getTotalCommitsRangeLabel = (
   include_all_commits: boolean,
-  commits_year: number | undefined,
+  commitsRange: GitHubDateRange | undefined,
   i18n: I18n,
 ): string =>
   include_all_commits
     ? ''
-    : commits_year
-      ? ` (${commits_year})`
+    : commitsRange
+      ? ` (${formatRange(commitsRange)})`
       : ` (${i18n.t('wakatimecard.lastyear')})`;
 
 /**
@@ -242,6 +241,7 @@ const renderCard = (
     name,
     totalStars,
     totalCommits,
+    commitsRange,
     totalIssues,
     totalPRs,
     totalPRsMerged,
@@ -267,7 +267,6 @@ const renderCard = (
     card_width,
     hide_rank = false,
     include_all_commits = false,
-    commits_year,
     line_height = 25,
     text_bold = true,
     custom_title,
@@ -317,9 +316,9 @@ const renderCard = (
 
   STATS['commits'] = {
     icon: icons.commits,
-    label: `${i18n.t('statcard.commits')}${getTotalCommitsYearLabel(
+    label: `${i18n.t('statcard.commits')}${getTotalCommitsRangeLabel(
       include_all_commits,
-      commits_year,
+      commitsRange,
       i18n,
     )}`,
     value: totalCommits,
@@ -599,9 +598,9 @@ const renderCard = (
   const labels = visibleStats
     .map(([key, stat]) => {
       if (key === 'commits') {
-        return `${i18n.t('statcard.commits')} ${getTotalCommitsYearLabel(
+        return `${i18n.t('statcard.commits')} ${getTotalCommitsRangeLabel(
           include_all_commits,
-          commits_year,
+          commitsRange,
           i18n,
         )} : ${stat.value}`;
       }

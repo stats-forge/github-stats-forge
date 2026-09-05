@@ -81,6 +81,19 @@ const COMMON_OPTIONS: ReadonlyArray<CardOption> = [
   { name: 'hide_border', label: 'Hide the border', kind: 'boolean' },
 ];
 
+/**
+ * The two ends of a card's date range.
+ *
+ * @returns The pair, naming what it counts.
+ */
+const rangeOptions = (counted: string): ReadonlyArray<CardOption> => {
+  const hint = 'A year, a month or a day: 2024, 2024-03, 2024-03-15';
+  return [
+    { name: 'from', label: `Count ${counted} from`, kind: 'text', hint },
+    { name: 'to', label: `Count ${counted} up to`, kind: 'text', hint },
+  ];
+};
+
 const LOCALE_OPTION: CardOption = {
   name: 'locale',
   label: 'Locale',
@@ -120,12 +133,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         label: 'Count commits of all time',
         kind: 'boolean',
       },
-      {
-        name: 'commits_year',
-        label: 'Count commits for one year',
-        kind: 'number',
-        hint: 'Four digits, e.g. 2025',
-      },
+      ...rangeOptions('commits'),
       {
         name: 'exclude_repo',
         label: 'Repositories to exclude',
@@ -296,6 +304,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'list',
         hint: 'Each one an owner/name, or just the name',
       },
+      ...rangeOptions('contributions'),
       {
         name: 'hide_years',
         label: 'Hide the year marks',

@@ -89,7 +89,7 @@ describe('test renderContributedToCard', () => {
     expect(strips[1]?.querySelectorAll('[data-testid="year-off"]')).toHaveLength(2);
   });
 
-  it('should drop the year strip and its span when hide_years is set', () => {
+  it('should drop the year strip and its years when hide_years is set', () => {
     document.body.innerHTML = renderContributedToCard(data, { hide_years: true });
 
     expect(screen.queryByTestId('year-strip')).not.toBeInTheDocument();
