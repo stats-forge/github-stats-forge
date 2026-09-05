@@ -23,7 +23,7 @@ class I18n<Translations extends TranslationsMap = TranslationsMap> {
   }
 
   /**
-   * Get translation.
+   * Get translation, falling back to the English string when the locale has no entry for the key.
    *
    * @returns Translated string.
    */
@@ -36,7 +36,9 @@ class I18n<Translations extends TranslationsMap = TranslationsMap> {
       throw new Error(`${str} Translation string not found`);
     }
 
-    const localized = translation[this.locale];
+    // A key is written in `en` first and translated afterwards, so a locale the key has
+    // not reached yet reads the English string rather than failing the whole card.
+    const localized = translation[this.locale] ?? translation[FALLBACK_LOCALE];
     if (!localized) {
       throw new Error(`'${str}' translation not found for locale '${this.locale}'`);
     }

@@ -355,6 +355,9 @@ const statCardLocales = ({ name, apostrophe }: { name: string; apostrophe: strin
   'statcard.all-time-contribs': {
     en: 'Contributed to (all time)',
   },
+  'statcard.rank': {
+    en: 'Rank',
+  },
   'statcard.reviews': {
     en: 'Total PRs Reviewed',
     ar: 'طلبات السحب التي تم مراجعتها',
@@ -625,6 +628,12 @@ const statCardLocales = ({ name, apostrophe }: { name: string; apostrophe: strin
 });
 
 const repoCardLocales = {
+  'repocard.no-description': {
+    en: 'No description provided',
+  },
+  'repocard.unspecified-language': {
+    en: 'Unspecified',
+  },
   'repocard.template': {
     en: 'Template',
     ar: 'قالب',
@@ -1143,6 +1152,72 @@ const wakatimeCardLocales = {
   },
 };
 
+const gistCardLocales = {
+  'gistcard.no-description': {
+    en: 'No description provided',
+  },
+  'gistcard.unspecified-language': {
+    en: 'Unspecified',
+  },
+  'gistcard.language': {
+    en: 'Language',
+  },
+  'gistcard.stars': {
+    en: 'Stars',
+  },
+  'gistcard.forks': {
+    en: 'Forks',
+  },
+};
+
+/** The values the contributed-to card's strings interpolate. */
+interface ContributedToValues {
+  login: string;
+  /** How many repositories the card draws, which is at most `totalRepos`. */
+  shown: number;
+  totalRepos: number;
+}
+
+/**
+ * Retrieves contributed-to card labels in the available locales.
+ *
+ * @see https://www.andiamo.co.uk/resources/iso-language-codes/ for language codes.
+ *
+ * @returns The locales object.
+ */
+// The literal key union is what `I18n#t` checks a card's `t('…')` call against, so the
+// return type is left to inference.
+// oxlint-disable-next-line typescript/explicit-function-return-type, typescript/explicit-module-boundary-types
+const contributedToCardLocales = ({ login, shown, totalRepos }: ContributedToValues) => {
+  // English's own plural rule; another locale picks its wording inside its own entry.
+  const repoWord = totalRepos === 1 ? 'repository' : 'repositories';
+
+  return {
+    'contributedtocard.title': {
+      en: `Repositories ${login} contributed to`,
+    },
+    // Drawn instead of the title above when naming the account overruns the card.
+    'contributedtocard.title-unnamed': {
+      en: 'Repositories contributed to',
+    },
+    'contributedtocard.no-contributions': {
+      en: 'No contributions found',
+    },
+    'contributedtocard.footer-all': {
+      en: `${totalRepos} ${repoWord}`,
+    },
+    'contributedtocard.footer-top': {
+      en: `top ${shown} of ${totalRepos} ${repoWord}`,
+    },
+    'contributedtocard.contributions': {
+      en: 'contributions',
+    },
+    'contributedtocard.years': {
+      en: 'years',
+    },
+  };
+};
+
 const availableLocales = Object.keys(repoCardLocales['repocard.archived']);
 
 /**
@@ -1154,6 +1229,8 @@ const isLocaleAvailable = (locale: string): boolean =>
   availableLocales.includes(locale.toLowerCase());
 
 export {
+  contributedToCardLocales,
+  gistCardLocales,
   isLocaleAvailable,
   langCardLocales,
   repoCardLocales,

@@ -290,11 +290,11 @@ Other patterns:
 
 - **Declare only the params you actually read — and validate nothing you do not use.**
   `locale` sat in `CommonCardOptions` and `api/gist.ts` both forwarded and validated it,
-  yet the gist card has no translated text and never read it, so `?locale=xx` returned
-  "Language not found" for an option that could not have changed the output. It now lives
-  on the four card options that do read it (`repo`, `stats`, `top-languages`, `wakatime`)
-  and is gone from the gist handler entirely. Applies to every card and handler from here
-  on.
+  yet the gist card had no translated text and never read it, so `?locale=xx` returned
+  "Language not found" for an option that could not have changed the output. It moved to
+  the card options that do read it. It is on all six today, because the gist and
+  contributed-to cards had their last English literals put through `I18n` on 2026-09-05 —
+  the rule is that the option follows the reading, not that any given card has one.
 - **Colocate card options.** Each card declares `interface XCardOptions extends
 CommonCardOptions {…}` (an interface, not `type &`) in its own file, **not exported** —
   knip flags it, and only that card uses it. All six cards do this, so
@@ -552,6 +552,40 @@ Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
 - **The menu stays open after a render** and keeps the cursor where it was, because a card
   is rarely right the first time and the point of the option list is to change one thing
   and look again.
+
+## Card text and translations
+
+**No user-visible string is written in English at its use site.** Every word a card draws
+— a label, a title, an empty state, a fallback description, and the `<desc>` an assistive
+reader gets — comes from `I18n#t`, so it is one table edit away from being translated.
+This was not true until 2026-09-05: the contributed-to card was English throughout (title,
+footer, "No contributions found", its whole accessibility description), the gist and repo
+cards hardcoded `'No description provided'` and the `'Unspecified'` they draw for a
+repository with no language, gist's accessibility line spelled out
+`Language: … , Stars: … , Forks: …`, and the stats card's spelled out `Rank:`. A string
+that reaches the SVG without passing through `t` is the bug this rule exists to stop.
+
+- **A new key is written in `en` only.** Backfilling 47 locales by machine translation is
+  worse than an honest fallback, so `I18n#t` reads the `en` string when the requested
+  locale has no entry for the key. That fallback landed with this rule and also repaired
+  the keys added before it — `statcard.contributions`, `statcard.all-time-contribs` and
+  the five `repocard.*` show-stats among them — each of which threw
+  `translation not found for locale` and so failed the whole card for every locale it had
+  not reached. `t` still throws when the key itself is absent, and when it has no `en`.
+- **A card whose text is translated takes `locale`,** in its options, in its handler's
+  schema and in the CLI's option list for it. The three move together.
+- **Interpolation lives in the locale table, not around it.** `statCardLocales` and
+  `contributedToCardLocales` are functions taking the values their strings need, so a
+  plural rule (`repository` / `repositories`) or a possessive is the locale's own business.
+  Compose fragments in the card only where the repo already does — a parenthesised year,
+  a `label: value` pair.
+- **Prefer `label: value` to a preposition** when a card assembles a phrase from a
+  translated word and its data. The accessibility rows read
+  `owner/name: 12 contributions, years: 2023, 2024` rather than `… in 2023, 2024`,
+  because a dangling `in` does not survive translation.
+- **Error card text is the known exception.** `CardError` and `REJECTION_MESSAGES` are
+  English, and deliberately outside `I18n`: an error is thrown before — and often
+  because — the locale was parsed. Don't quietly translate one; that is its own decision.
 
 ## Testing
 

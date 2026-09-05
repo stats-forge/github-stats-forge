@@ -7,6 +7,7 @@ import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   fromParam,
+  localeParam,
   looseIntParam,
   numberParam,
   ORDERED_RANGE,
@@ -20,6 +21,7 @@ import {
 const contributedToQuery = z
   .object({
     username: usernameParam,
+    locale: localeParam,
     repos_count: looseIntParam,
     include_own_repos: booleanParam,
     exclude_repo: safeListParam,
@@ -38,9 +40,6 @@ const contributedToQuery = z
 /**
  * Render the contributed-to card for a set of query params.
  *
- * The card draws no translated text, so it takes no `locale`:
- * `custom_title` is what replaces its one English line.
- *
  * @returns The rendered card, or a rendered error.
  */
 export const contributedTo = cardHandler(
@@ -48,6 +47,7 @@ export const contributedTo = cardHandler(
   async (
     {
       username,
+      locale,
       repos_count,
       include_own_repos,
       exclude_repo,
@@ -71,6 +71,7 @@ export const contributedTo = cardHandler(
 
     return renderContributedToCard(data, {
       ...colors,
+      locale,
       hide_years,
       hide_title,
       hide_border,

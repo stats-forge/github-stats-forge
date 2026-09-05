@@ -149,7 +149,7 @@ describe('test renderContributedToCard', () => {
     document.body.innerHTML = renderContributedToCard(data);
 
     const desc = document.querySelector('desc');
-    expect(desc).toHaveTextContent('vitest-dev/vitest: 128 contributions in 2022, 2023, 2024');
+    expect(desc).toHaveTextContent('vitest-dev/vitest: 128 contributions, years: 2022, 2023, 2024');
     expect(desc).toHaveTextContent('top 3 of 37 repositories');
   });
 });

@@ -36,7 +36,7 @@ afterAll(() => {
 });
 
 describe('api query schemas', () => {
-  it.each(Object.entries(endpoints).filter(([name]) => name !== 'gist'))(
+  it.each(Object.entries(endpoints))(
     '%s rejects an unavailable locale with the same wording',
     async (name, call) => {
       const result = await call({ ...withUser(name), locale: 'xx' });
@@ -45,12 +45,6 @@ describe('api query schemas', () => {
       expect(result.content).toContain('Locale not found');
     },
   );
-
-  it('gist takes no locale at all, so it has none to reject', async () => {
-    const result = await endpoints.gist({ ...withUser('gist'), locale: 'xx' });
-
-    expect(result.content).not.toContain('Locale not found');
-  });
 
   it.each(Object.entries(endpoints))(
     '%s ignores params it does not declare',

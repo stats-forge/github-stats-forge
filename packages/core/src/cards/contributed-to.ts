@@ -2,12 +2,14 @@ import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
 import { formatYears } from '../common/date.ts';
 import { kFormatter } from '../common/fmt.ts';
+import { I18n } from '../common/I18n.ts';
 import { icons } from '../common/icons.ts';
 import { clampValue } from '../common/ops.ts';
 import { createProgressNode, measureText } from '../common/render.ts';
 import type { ContributedRepo, ContributedToData } from '../fetchers/types.ts';
 import type { Child } from '../markup/index.ts';
 import { atRule, cssComment, el, rule } from '../markup/index.ts';
+import { contributedToCardLocales } from '../translations.ts';
 
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
@@ -44,12 +46,16 @@ const BODY_OFFSET_Y = 55;
 const BOTTOM_PADDING = 18;
 
 interface ContributedToCardOptions extends CommonCardOptions {
+  locale: string;
   hide_title: boolean;
   card_width: number;
   custom_title: string;
   disable_animations: boolean;
   hide_years: boolean;
 }
+
+/** The card's own translation table, so `t` is checked against the keys it declares. */
+type ContributedToI18n = I18n<ReturnType<typeof contributedToCardLocales>>;
 
 /**
  * The title, naming the account unless that makes it too wide for the card.
@@ -59,11 +65,11 @@ interface ContributedToCardOptions extends CommonCardOptions {
  *
  * @returns The default title, which `custom_title` still overrides.
  */
-const defaultTitleFor = (login: string, contentWidth: number): string => {
-  const named = `Repositories ${login} contributed to`;
+const defaultTitleFor = (i18n: ContributedToI18n, contentWidth: number): string => {
+  const named = i18n.t('contributedtocard.title');
   return measureText(named, TITLE_FONT_SIZE) <= contentWidth
     ? named
-    : 'Repositories contributed to';
+    : i18n.t('contributedtocard.title-unnamed');
 };
 
 /**
@@ -185,18 +191,19 @@ const createRepoRow = ({
  * @returns The footer text.
  */
 const footerText = ({
+  i18n,
   shown,
   totalRepos,
   years,
 }: {
+  i18n: ContributedToI18n;
   shown: number;
   totalRepos: number;
   /** Empty when the year marks are hidden, which is what puts the years on the card. */
   years: Array<number>;
 }): string => {
-  const repoWord = totalRepos === 1 ? 'repository' : 'repositories';
   const parts = [
-    shown < totalRepos ? `top ${shown} of ${totalRepos} ${repoWord}` : `${totalRepos} ${repoWord}`,
+    i18n.t(shown < totalRepos ? 'contributedtocard.footer-top' : 'contributedtocard.footer-all'),
   ];
 
   const [firstYear] = years;
@@ -218,6 +225,7 @@ const renderContributedToCard = (
   options: CardOptions<ContributedToCardOptions> = {},
 ): string => {
   const {
+    locale,
     hide_title = false,
     hide_border = false,
     card_width,
@@ -254,7 +262,12 @@ const renderContributedToCard = (
     }),
   );
 
-  const footer = footerText({ shown: repos.length, totalRepos, years });
+  const i18n = new I18n({
+    locale,
+    translations: contributedToCardLocales({ login, shown: repos.length, totalRepos }),
+  });
+
+  const footer = footerText({ i18n, shown: repos.length, totalRepos, years });
   const footerY = FIRST_ROW_Y + Math.max(repos.length, 1) * rowHeight + FOOTER_GAP;
   const height = BODY_OFFSET_Y + footerY + BOTTOM_PADDING;
 
@@ -262,7 +275,7 @@ const renderContributedToCard = (
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: defaultTitleFor(login, contentWidth - TITLE_ICON_COLUMN),
+    defaultTitle: defaultTitleFor(i18n, contentWidth - TITLE_ICON_COLUMN),
     titlePrefixIcon: icons.contribs,
     width,
     height,
@@ -336,8 +349,12 @@ const renderContributedToCard = (
     title: card.title,
     desc: [
       ...repos.map((repo) => {
-        const inYears = hide_years ? '' : ` in ${repo.years.join(', ')}`;
-        return `${repo.nameWithOwner}: ${repo.contributions} contributions${inYears}`;
+        const inYears = hide_years
+          ? ''
+          : `, ${i18n.t('contributedtocard.years')}: ${repo.years.join(', ')}`;
+        return `${repo.nameWithOwner}: ${repo.contributions} ${i18n.t(
+          'contributedtocard.contributions',
+        )}${inYears}`;
       }),
       footer,
     ].join('; '),
@@ -351,7 +368,7 @@ const renderContributedToCard = (
         ? el(
             'text',
             { class: 'repo-name', 'data-testid': 'no-repos', x: 0, y: FIRST_ROW_Y },
-            'No contributions found',
+            i18n.t('contributedtocard.no-contributions'),
           )
         : rows,
       el('text', { class: 'footer', 'data-testid': 'footer', x: 0, y: footerY }, footer),
