@@ -5,7 +5,7 @@ import { CardError } from '../common/error.ts';
 import { I18n } from '../common/I18n.ts';
 import { icons, rankIcon } from '../common/icons.ts';
 import { buildSearchFilter, clampValue } from '../common/ops.ts';
-import { createTextNode, flexLayout, measureText } from '../common/render.ts';
+import { NUMBER_FORMATS, createTextNode, flexLayout, measureText } from '../common/render.ts';
 import type { StatsData } from '../fetchers/types.ts';
 import type { Child, CssChild } from '../markup/index.ts';
 import { atRule, cssComment, el, rule } from '../markup/index.ts';
@@ -35,6 +35,30 @@ const LABEL_VALUE_GAP = 16;
 /** Rank indicators the card can draw; the api validates `rank_icon` against this. */
 const RANK_ICONS = ['default', 'github', 'percentile'] as const;
 type RankIcon = (typeof RANK_ICONS)[number];
+
+/** Stats the card draws only when `show` names them. */
+const SHOW_STATS = [
+  'contributions',
+  'prs_merged',
+  'prs_merged_percentage',
+  'reviews',
+  'discussions_started',
+  'discussions_answered',
+  'prs_authored',
+  'prs_commented',
+  'prs_reviewed',
+  'issues_authored',
+  'issues_commented',
+  'all_time_contribs',
+] as const;
+type ShowStat = (typeof SHOW_STATS)[number];
+
+/** Stats the card always draws, and so the ones `hide` has anything to remove. */
+const HIDE_STATS = ['stars', 'commits', 'prs', 'issues', 'contribs'] as const;
+type HideStat = (typeof HIDE_STATS)[number];
+
+/** Every stat the card can draw: the ones it always draws, plus the ones `show` adds. */
+type StatId = HideStat | ShowStat;
 
 interface StatCardOptions extends CommonCardOptions {
   locale: string;
@@ -207,7 +231,7 @@ const getTotalCommitsYearLabel = (
  *
  * @returns The stats card SVG object.
  */
-const renderStatsCard = (
+const renderCard = (
   stats: StatsData,
   options: CardOptions<StatCardOptions> = {},
   username?: string,
@@ -260,6 +284,9 @@ const renderStatsCard = (
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
+  // Typed against the exported list, so a stat drawn here cannot be missing from it.
+  const shows = (stat: ShowStat): boolean => show.includes(stat);
+
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const i18n = new I18n({
     locale,
@@ -270,7 +297,7 @@ const renderStatsCard = (
   });
 
   // Meta data for creating text nodes with createTextNode function
-  const STATS: Record<string, StatItem> = {
+  const STATS: Partial<Record<StatId, StatItem>> = {
     stars: {
       icon: icons.star,
       label: i18n.t('statcard.totalstars'),
@@ -279,7 +306,7 @@ const renderStatsCard = (
     },
   };
 
-  if (show.includes('contributions')) {
+  if (shows('contributions')) {
     STATS['contributions'] = {
       icon: icons.contributions,
       label: i18n.t('statcard.contributions'),
@@ -305,7 +332,7 @@ const renderStatsCard = (
     id: 'prs',
   };
 
-  if (show.includes('prs_merged')) {
+  if (shows('prs_merged')) {
     STATS['prs_merged'] = {
       icon: icons.prs_merged,
       label: i18n.t('statcard.prs-merged'),
@@ -314,7 +341,7 @@ const renderStatsCard = (
     };
   }
 
-  if (show.includes('prs_merged_percentage')) {
+  if (shows('prs_merged_percentage')) {
     STATS['prs_merged_percentage'] = {
       icon: icons.prs_merged_percentage,
       label: i18n.t('statcard.prs-merged-percentage'),
@@ -328,7 +355,7 @@ const renderStatsCard = (
     };
   }
 
-  if (show.includes('reviews')) {
+  if (shows('reviews')) {
     STATS['reviews'] = {
       icon: icons.reviews,
       label: i18n.t('statcard.reviews'),
@@ -344,7 +371,7 @@ const renderStatsCard = (
     id: 'issues',
   };
 
-  if (show.includes('discussions_started')) {
+  if (shows('discussions_started')) {
     STATS['discussions_started'] = {
       icon: icons.discussions_started,
       label: i18n.t('statcard.discussions-started'),
@@ -352,7 +379,7 @@ const renderStatsCard = (
       id: 'discussions_started',
     };
   }
-  if (show.includes('discussions_answered')) {
+  if (shows('discussions_answered')) {
     STATS['discussions_answered'] = {
       icon: icons.discussions_answered,
       label: i18n.t('statcard.discussions-answered'),
@@ -363,7 +390,7 @@ const renderStatsCard = (
 
   const repoFilter = encodeURIComponent(buildSearchFilter(repo, owner));
   const encodedUsername = encodeURIComponent(username ?? '');
-  if (show.includes('prs_authored')) {
+  if (shows('prs_authored')) {
     STATS['prs_authored'] = {
       icon: icons.prs,
       label: i18n.t('statcard.prs-authored'),
@@ -372,7 +399,7 @@ const renderStatsCard = (
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes('prs_commented')) {
+  if (shows('prs_commented')) {
     STATS['prs_commented'] = {
       icon: icons.comments,
       label: i18n.t('statcard.prs-commented'),
@@ -381,7 +408,7 @@ const renderStatsCard = (
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes('prs_reviewed')) {
+  if (shows('prs_reviewed')) {
     STATS['prs_reviewed'] = {
       icon: icons.reviews,
       label: i18n.t('statcard.prs-reviewed'),
@@ -390,7 +417,7 @@ const renderStatsCard = (
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes('issues_authored')) {
+  if (shows('issues_authored')) {
     STATS['issues_authored'] = {
       icon: icons.issues,
       label: i18n.t('statcard.issues-authored'),
@@ -399,7 +426,7 @@ const renderStatsCard = (
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
     };
   }
-  if (show.includes('issues_commented')) {
+  if (shows('issues_commented')) {
     STATS['issues_commented'] = {
       icon: icons.discussions_started,
       label: i18n.t('statcard.issues-commented'),
@@ -416,7 +443,7 @@ const renderStatsCard = (
     id: 'contribs',
   };
 
-  if (show.includes('all_time_contribs')) {
+  if (shows('all_time_contribs')) {
     STATS['all_time_contribs'] = {
       icon: icons.contribs,
       label: i18n.t('statcard.all-time-contribs'),
@@ -593,4 +620,18 @@ const renderStatsCard = (
   ]);
 };
 
-export { RANK_ICONS, renderStatsCard };
+/**
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * They ride on the renderer so a list cannot be found without what draws it;
+ * the api handler forwards them onto its own export, which is what a UI reads.
+ */
+const renderStatsCard = Object.assign(renderCard, {
+  OPTIONS: {
+    rank_icon: RANK_ICONS,
+    show: SHOW_STATS,
+    hide: HIDE_STATS,
+    number_format: NUMBER_FORMATS,
+  },
+});
+
+export { renderStatsCard };

@@ -1,11 +1,8 @@
 import * as z from 'zod/mini';
 
-import {
-  TOP_LANG_LAYOUTS,
-  TOP_LANG_STATS_FORMATS,
-  renderTopLanguages,
-} from '../cards/top-languages.ts';
+import { renderTopLanguages } from '../cards/top-languages.ts';
 import type { CardConfig } from '../common/config.ts';
+import { OWNER_AFFILIATIONS } from '../common/constants.ts';
 import { fetchTopLanguages } from '../fetchers/top-languages.ts';
 
 import type { ApiResult } from './api-result.ts';
@@ -31,7 +28,7 @@ const topLangsQuery = z.object({
   hide_title: booleanParam,
   hide_border: booleanParam,
   card_width: looseIntParam,
-  layout: enumParam(TOP_LANG_LAYOUTS),
+  layout: enumParam(renderTopLanguages.OPTIONS.layout),
   langs_count: looseIntParam,
   exclude_repo: listParam,
   size_weight: numberParam,
@@ -43,7 +40,7 @@ const topLangsQuery = z.object({
   disable_animations: booleanParam,
   hide_progress: booleanParam,
   hide_values: booleanParam,
-  stats_format: enumParam(TOP_LANG_STATS_FORMATS),
+  stats_format: enumParam(renderTopLanguages.OPTIONS.stats_format),
 });
 
 /** The query this endpoint accepts, checked against the schema above. */
@@ -121,10 +118,9 @@ const renderTopLangs = async (query: TopLangsApiQuery, config: CardConfig): Prom
 };
 
 /**
- * The card, with the values its enum params accept.
- * A UI reads them off the function it calls, e.g. `topLangs.LAYOUTS`.
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * A UI reads them off the function it calls: `topLangs.OPTIONS.layout`.
  */
 export const topLangs = Object.assign(renderTopLangs, {
-  LAYOUTS: TOP_LANG_LAYOUTS,
-  STATS_FORMATS: TOP_LANG_STATS_FORMATS,
+  OPTIONS: { ...renderTopLanguages.OPTIONS, role: OWNER_AFFILIATIONS },
 });

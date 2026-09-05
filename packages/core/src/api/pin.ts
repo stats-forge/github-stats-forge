@@ -46,7 +46,7 @@ type PinApiQuery = ApiQuery<typeof pinQuery>;
  *
  * @returns The rendered card, or a rendered error.
  */
-export const pin = async (query: PinApiQuery, config: CardConfig): Promise<ApiResult> => {
+const renderPin = async (query: PinApiQuery, config: CardConfig): Promise<ApiResult> => {
   let colors;
   try {
     colors = parseColorParams(query);
@@ -109,3 +109,9 @@ export const pin = async (query: PinApiQuery, config: CardConfig): Promise<ApiRe
     return errorResult(error, colors);
   }
 };
+
+/**
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * A UI reads them off the function it calls: `pin.OPTIONS.show`.
+ */
+export const pin = Object.assign(renderPin, { OPTIONS: renderRepoCard.OPTIONS });

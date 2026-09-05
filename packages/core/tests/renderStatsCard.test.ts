@@ -348,7 +348,10 @@ describe('Test renderStatsCard', () => {
   it('should right-align every value on one anchor, clear of the rank ring', () => {
     document.body.innerHTML = renderStatsCard(stats);
 
-    for (const id of ['stars', 'commits', 'prs', 'issues', 'contribs']) {
+    // One row per stat, so a default stat missing from `renderStatsCard.OPTIONS.hide` fails here.
+    expect(document.querySelectorAll('.stagger')).toHaveLength(renderStatsCard.OPTIONS.hide.length);
+
+    for (const id of renderStatsCard.OPTIONS.hide) {
       const value = screen.getByTestId(id);
       // The default 450 wide, less the padding, the row offset and the ring's gutter.
       expect(value).toHaveAttribute('x', '280');
@@ -458,7 +461,7 @@ describe('Test renderStatsCard', () => {
   it('should throw error if all stats and rank icon are hidden', () => {
     expect(() =>
       renderStatsCard(stats, {
-        hide: ['stars', 'commits', 'prs', 'issues', 'contribs'],
+        hide: [...renderStatsCard.OPTIONS.hide],
         hide_rank: true,
       }),
     ).toThrow(

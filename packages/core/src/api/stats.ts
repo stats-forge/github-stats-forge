@@ -1,7 +1,8 @@
 import * as z from 'zod/mini';
 
-import { RANK_ICONS, renderStatsCard } from '../cards/stats.ts';
+import { renderStatsCard } from '../cards/stats.ts';
 import type { CardConfig } from '../common/config.ts';
+import { OWNER_AFFILIATIONS } from '../common/constants.ts';
 import { fetchStats } from '../fetchers/stats.ts';
 
 import type { ApiResult } from './api-result.ts';
@@ -45,7 +46,7 @@ const statsQuery = z.object({
   number_format: rawParam,
   role: listParam,
   number_precision: looseIntParam,
-  rank_icon: enumParam(RANK_ICONS),
+  rank_icon: enumParam(renderStatsCard.OPTIONS.rank_icon),
   show: listParam,
   contribs_include_own_repos: booleanParam,
 });
@@ -161,9 +162,9 @@ const renderStats = async (query: StatsApiQuery, config: CardConfig): Promise<Ap
 };
 
 /**
- * The card, with the values its enum params accept.
- * A UI reads them off the function it calls, e.g. `stats.LAYOUTS`.
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * A UI reads them off the function it calls: `stats.OPTIONS.rank_icon`.
  */
 export const stats = Object.assign(renderStats, {
-  RANK_ICONS,
+  OPTIONS: { ...renderStatsCard.OPTIONS, role: OWNER_AFFILIATIONS },
 });

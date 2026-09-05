@@ -1,4 +1,4 @@
-import { confirm, input, password, select } from '@inquirer/prompts';
+import { checkbox, confirm, input, password, select } from '@inquirer/prompts';
 
 import type { CardKind, CardOption } from './cards.ts';
 import { cards } from './cards.ts';
@@ -29,6 +29,16 @@ const askOption = async (option: CardOption, current: Answer): Promise<Answer> =
 
   if (option.kind === 'boolean') {
     return confirm({ message, default: current === true });
+  }
+
+  if (option.kind === 'list' && option.choices) {
+    const chosen = new Set(Array.isArray(current) ? current : []);
+    const picked = await checkbox({
+      message,
+      pageSize: 15,
+      choices: option.choices.map((value) => ({ value, checked: chosen.has(value) })),
+    });
+    return picked.length > 0 ? picked : undefined;
   }
 
   if (option.kind === 'choice') {

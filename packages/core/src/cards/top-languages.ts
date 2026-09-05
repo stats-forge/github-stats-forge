@@ -801,10 +801,7 @@ const getDefaultLanguagesCountByLayout = ({
  *
  * @returns Language card SVG object.
  */
-const renderTopLanguages = (
-  topLangs: TopLangData,
-  options: CardOptions<TopLangOptions> = {},
-): string => {
+const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> = {}): string => {
   const {
     hide_title = false,
     hide_border = false,
@@ -939,6 +936,18 @@ const renderTopLanguages = (
   return card.render(el('svg', { 'data-testid': 'lang-items', x: CARD_PADDING }, finalLayout));
 };
 
+/**
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * They ride on the renderer so a list cannot be found without what draws it;
+ * the api handler forwards them onto its own export, which is what a UI reads.
+ */
+const renderTopLanguages = Object.assign(renderCard, {
+  OPTIONS: {
+    layout: TOP_LANG_LAYOUTS,
+    stats_format: TOP_LANG_STATS_FORMATS,
+  },
+});
+
 export {
   getLongestLang,
   degreesToRadians,
@@ -953,9 +962,7 @@ export {
   calculatePieLayoutHeight,
   donutCenterTranslation,
   trimTopLanguages,
-  renderTopLanguages,
   MIN_CARD_WIDTH,
   getDefaultLanguagesCountByLayout,
-  TOP_LANG_LAYOUTS,
-  TOP_LANG_STATS_FORMATS,
+  renderTopLanguages,
 };

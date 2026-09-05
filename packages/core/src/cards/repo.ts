@@ -5,6 +5,7 @@ import { I18n } from '../common/I18n.ts';
 import { icons } from '../common/icons.ts';
 import { buildSearchFilter, clampValue, parseEmojis } from '../common/ops.ts';
 import {
+  NUMBER_FORMATS,
   countWrappedLines,
   wrapTextMultiline,
   createLanguageNode,
@@ -28,6 +29,16 @@ const X_OFFSET = 25;
 const DESCRIPTION_FONT_SIZE = 13;
 const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 3;
+
+/** Stats the card draws only when `show` names them. */
+const REPO_SHOW_STATS = [
+  'prs_authored',
+  'prs_commented',
+  'prs_reviewed',
+  'issues_authored',
+  'issues_commented',
+] as const;
+type RepoShowStat = (typeof REPO_SHOW_STATS)[number];
 
 interface RepoCardOptions extends CommonCardOptions {
   locale: string;
@@ -85,10 +96,7 @@ const getBadgeSVG = (label: string, xOffset = 0): MarkupElement => {
  *
  * @returns Repository card SVG object.
  */
-const renderRepoCard = (
-  repo: RepositoryData,
-  options: CardOptions<RepoCardOptions> = {},
-): string => {
+const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> = {}): string => {
   const {
     name,
     nameWithOwner,
@@ -133,10 +141,13 @@ const renderRepoCard = (
     translations: repoCardLocales,
   });
 
+  // Typed against the exported list, so a stat drawn here cannot be missing from it.
+  const shows = (stat: RepoShowStat): boolean => show.includes(stat);
+
   const repoFilter = encodeURIComponent(buildSearchFilter([nameWithOwner], []));
   const encodedUsername = encodeURIComponent(username ?? '');
   const STATS: Record<string, RepoStatItem> = {};
-  if (show.includes('prs_authored')) {
+  if (shows('prs_authored')) {
     STATS['prs_authored'] = {
       icon: icons.prs,
       label: i18n.t('repocard.prs-authored'),
@@ -145,7 +156,7 @@ const renderRepoCard = (
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes('prs_commented')) {
+  if (shows('prs_commented')) {
     STATS['prs_commented'] = {
       icon: icons.comments,
       label: i18n.t('repocard.prs-commented'),
@@ -154,7 +165,7 @@ const renderRepoCard = (
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes('prs_reviewed')) {
+  if (shows('prs_reviewed')) {
     STATS['prs_reviewed'] = {
       icon: icons.reviews,
       label: i18n.t('repocard.prs-reviewed'),
@@ -163,7 +174,7 @@ const renderRepoCard = (
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (show.includes('issues_authored')) {
+  if (shows('issues_authored')) {
     STATS['issues_authored'] = {
       icon: icons.issues,
       label: i18n.t('repocard.issues-authored'),
@@ -172,7 +183,7 @@ const renderRepoCard = (
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
     };
   }
-  if (show.includes('issues_commented')) {
+  if (shows('issues_commented')) {
     STATS['issues_commented'] = {
       icon: icons.discussions_started,
       label: i18n.t('repocard.issues-commented'),
@@ -362,5 +373,17 @@ const renderRepoCard = (
     extraItems,
   ]);
 };
+
+/**
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * They ride on the renderer so a list cannot be found without what draws it;
+ * the api handler forwards them onto its own export, which is what a UI reads.
+ */
+const renderRepoCard = Object.assign(renderCard, {
+  OPTIONS: {
+    show: REPO_SHOW_STATS,
+    number_format: NUMBER_FORMATS,
+  },
+});
 
 export { renderRepoCard };

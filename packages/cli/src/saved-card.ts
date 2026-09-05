@@ -82,7 +82,8 @@ export const writeSavedCard = async (
  * Turns saved options back into answers the menu can show and edit.
  *
  * Everything on a query string is a string;
- * a boolean option becomes one again so its prompt opens on the right answer.
+ * a boolean becomes one again, and a list splits back into its values,
+ * so each prompt opens on the answer it was saved with.
  *
  * @returns The answers, ready for the menu.
  */
@@ -91,10 +92,22 @@ export const toAnswers = (card: CardKind, options: Record<string, string>): Map<
     [...card.required, ...card.options].map((option) => [option.name, option.kind]),
   );
 
-  return new Map(
-    Object.entries(options).map(([name, value]) => [
-      name,
-      kinds.get(name) === 'boolean' ? value === 'true' : value,
-    ]),
-  );
+  const toAnswer = (name: string, value: string): Answer => {
+    switch (kinds.get(name)) {
+      case 'boolean': {
+        return value === 'true';
+      }
+      case 'list': {
+        return value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+      default: {
+        return value;
+      }
+    }
+  };
+
+  return new Map(Object.entries(options).map(([name, value]) => [name, toAnswer(name, value)]));
 };

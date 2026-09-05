@@ -346,12 +346,34 @@ Parsing throws, fetching throws, and one place turns whatever was thrown into th
   `ApiQuery` itself is what `params.ts` exports. A consumer is checked at the call site
   rather than by importing the alias: an unknown param or a non-string value is a
   compile error, and every param stays optional.
-- **`enumParam` takes the card's own list.**
-  `RANK_ICONS`, `TOP_LANG_LAYOUTS`, `WAKATIME_LAYOUTS`, `DISPLAY_FORMATS` and
-  `TOP_LANG_STATS_FORMATS` are exported by the card that renders them, and the card's
-  union type is derived from the same const, so the schema cannot drift from what renders.
-  Each handler is a **named** export carrying its own lists, so a UI reads the accepted
-  values off the function it calls: `topLangs.LAYOUTS`, `stats.RANK_ICONS`.
+- **A card option's accepted values ride on the render function that draws them, in one
+  `OPTIONS` object keyed by the option's own name.** Each card ends in
+  `Object.assign(renderCard, { OPTIONS: { rank_icon: RANK_ICONS, show: SHOW_STATS, … } })`,
+  so a list cannot be found without the renderer it belongs to, and the key says which
+  param it governs rather than leaving that to the const's name. The card's union type
+  derives from the same const, so the schema cannot drift from what renders. This replaced
+  loose module-level exports on 2026-09-05, where a list was findable without its card and
+  the CLI kept its own copy of `['short', 'long']` in two places.
+- **The api handler forwards `OPTIONS`, and `enumParam` reads it back off the renderer.**
+  `Object.assign(renderStats, { OPTIONS: { ...renderStatsCard.OPTIONS, role: OWNER_AFFILIATIONS } })`,
+  then `enumParam(renderStatsCard.OPTIONS.rank_icon)` — one spread rather than a line per
+  list, so an option added to a card reaches its handler without the handler being edited.
+  Only `role` is added there, because affiliations belong to the fetcher's query rather
+  than to one card's drawing. A UI reads a param's values off the function it calls:
+  `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`, `pin.OPTIONS.show`.
+- **A `listParam` whose values are a closed set sits in `OPTIONS` beside the enum ones.**
+  `stats.OPTIONS.show`, `stats.OPTIONS.hide`, `pin.OPTIONS.show` and `role` on the two
+  handlers that take one: the schema cannot check a list against them — an unknown value
+  is ignored, not rejected — but a UI can offer them, which is what the CLI's checkbox
+  prompts read. Each card's `show` checks run through a `shows()` helper typed against its
+  own list, and the stats card's `STATS` record is keyed `Partial<Record<StatId, StatItem>>`
+  where `StatId` is both lists' unions, so a stat it draws cannot be missing from them.
+- **A value set the boundary does not police still belongs on the renderer.**
+  `NUMBER_FORMATS` is declared in `common/render.ts`, beside the `numberFormat === 'long'`
+  that reads it, and both cards that take the option carry it as `OPTIONS.number_format`.
+  `number_format` stays a `rawParam`: anything but `long` reads as `short`, so an unknown
+  value falls back rather than failing, and making it an `enumParam` would turn
+  `?number_format=xyz` into an error it has never been.
 - **One wording per kind of rejection, in one table.**
   `REJECTION_MESSAGES` in `api/params.ts` maps a `Rejection` kind to its message, and the
   param name comes from the issue's own `path` — no schema spells its own name or prose.
@@ -494,10 +516,19 @@ From the repo root, `pnpm cli` builds both packages and runs the CLI there,
 so it picks up the root `.env` the way `pnpm examples` does.
 Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
 
-- **Choices come from core's exports, never a copy.** `src/cards.ts` reads
-  `stats.RANK_ICONS`, `topLangs.LAYOUTS`, `wakatime.DISPLAY_FORMATS` and
-  `Object.keys(themes)`, so a prompt cannot offer a value the schema would reject. This is
-  the reason the api handlers carry their lists as properties.
+- **Choices come from core's exports, never a copy.** Every `choices` in `src/cards.ts`
+  is `<handler>.OPTIONS.<param>` — `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`,
+  `pin.OPTIONS.number_format` — with `Object.keys(themes)` the one exception, so a prompt
+  cannot offer a value the schema would reject and the option's `name` and its `choices`
+  key read the same. **No `choices` array is written out here**: a literal in this file is
+  a copy that drifts, which is exactly what `['short', 'long']` did in two card entries
+  until 2026-09-05.
+- **A `list` option with `choices` is a checkbox, not a line of commas.** `show`, `hide`
+  and `role` name a closed set, so the prompt offers it and the answer is an
+  `Array<string>` that `toParam` joins back. The lists whose values are a repository or a
+  language have no such set and stay free text: give a `list` option `choices` only when
+  every value it accepts is known. A saved list is split back into its values on read, so
+  the boxes reopen ticked.
 - **A saved card file is a query string in JSON**: `{ card, options }` with every option a
   string, so it reads like the URL it stands for and survives hand-editing. An option that
   is not a string is dropped on read, because it could not have come off a query string.
