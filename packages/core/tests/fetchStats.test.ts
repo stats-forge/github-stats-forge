@@ -161,8 +161,12 @@ const data_repos_contributed_to: GraphQLBody<ReposContributedToQuery> = {
   data: {
     user: {
       range_0: {
-        commitContributionsByRepository: [{ repository: { nameWithOwner: 'org/repo1' } }],
-        issueContributionsByRepository: [{ repository: { nameWithOwner: 'org/repo2' } }],
+        commitContributionsByRepository: [
+          { repository: { nameWithOwner: 'org/repo1' }, contributions: { totalCount: 12 } },
+        ],
+        issueContributionsByRepository: [
+          { repository: { nameWithOwner: 'org/repo2' }, contributions: { totalCount: 3 } },
+        ],
         pullRequestContributionsByRepository: [],
         repositoryContributions: {
           nodes: [{ repository: { nameWithOwner: 'anuraghazra/created-repo' } }],
@@ -170,10 +174,15 @@ const data_repos_contributed_to: GraphQLBody<ReposContributedToQuery> = {
       },
       range_1: {
         commitContributionsByRepository: [
-          { repository: { nameWithOwner: 'anuraghazra/own-repo' } },
+          {
+            repository: { nameWithOwner: 'anuraghazra/own-repo' },
+            contributions: { totalCount: 8 },
+          },
         ],
         issueContributionsByRepository: [],
-        pullRequestContributionsByRepository: [{ repository: { nameWithOwner: 'org/repo4' } }],
+        pullRequestContributionsByRepository: [
+          { repository: { nameWithOwner: 'org/repo4' }, contributions: { totalCount: 5 } },
+        ],
         repositoryContributions: {
           nodes: [{ repository: { nameWithOwner: 'anuraghazra/created-repo' } }],
         },
@@ -534,6 +543,7 @@ describe('Test fetchStats', () => {
     const saturatedRange: RangeContributionsByRepoFragment = {
       commitContributionsByRepository: Array.from({ length: 100 }, (_, i) => ({
         repository: { nameWithOwner: `org/repo${i}` },
+        contributions: { totalCount: 1 },
       })),
       issueContributionsByRepository: [],
       pullRequestContributionsByRepository: [],

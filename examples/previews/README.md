@@ -3,6 +3,12 @@
 Rendered by `pnpm examples` from the saved cards in [`../cards`](../cards).
 Edit one of those files and run `pnpm examples <name>` to redraw just that card.
 
+## contributed-to
+
+![contributed-to](./contributed-to.svg)
+
+The `contributed-to` card from [`cards/contributed-to.json`](../cards/contributed-to.json) — `username=marcalexiei` · `theme=tokyonight` · `repos_count=5` · `exclude_repo=tuono-labs/tuono`
+
 ## gist
 
 ![gist](./gist.svg)

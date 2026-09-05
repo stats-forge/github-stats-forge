@@ -76,9 +76,18 @@ export type UserInfoQuery = {
 export type YearContributionsFragment = { contributionCalendar: { totalContributions: number } };
 
 export type RangeContributionsByRepoFragment = {
-  commitContributionsByRepository: Array<{ repository: { nameWithOwner: string } }>;
-  issueContributionsByRepository: Array<{ repository: { nameWithOwner: string } }>;
-  pullRequestContributionsByRepository: Array<{ repository: { nameWithOwner: string } }>;
+  commitContributionsByRepository: Array<{
+    repository: { nameWithOwner: string };
+    contributions: { totalCount: number };
+  }>;
+  issueContributionsByRepository: Array<{
+    repository: { nameWithOwner: string };
+    contributions: { totalCount: number };
+  }>;
+  pullRequestContributionsByRepository: Array<{
+    repository: { nameWithOwner: string };
+    contributions: { totalCount: number };
+  }>;
   repositoryContributions?: {
     nodes: Array<{ repository: { nameWithOwner: string } } | null> | null;
   };

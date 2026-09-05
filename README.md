@@ -5,7 +5,7 @@
 </div>
 
 GitHub Stats Forge renders GitHub stats as SVG cards: your contribution stats, your top languages,
-pinned repositories, gists and WakaTime coding time.
+the repositories you contribute to, pinned repositories, gists and WakaTime coding time.
 
 This repository is the library those cards are rendered by,
 and the CLI that renders one to a local file. It is what any self-hosted endpoint calls.
@@ -51,8 +51,9 @@ const result = await stats({ username: 'anuraghazra' }, config);
 //                              result.content the error drawn as a card
 ```
 
-The handlers are `stats`, `pin`, `topLangs`, `gist` and `wakatime`. The last needs no GitHub token,
-but still takes the config, since that is what carries the transport every request goes through.
+The handlers are `stats`, `pin`, `topLangs`, `contributedTo`, `gist` and `wakatime`.
+The last needs no GitHub token, but still takes the config,
+since that is what carries the transport every request goes through.
 Nothing in the library reads `process.env`: the host builds the config and passes it in,
 which is what lets the same code run in an action, on a server and in a browser.
 
@@ -67,16 +68,17 @@ see [`packages/cli`](packages/cli).
 
 ## Cards
 
-| Card           | Handler    | What it shows                                             |
-| -------------- | ---------- | --------------------------------------------------------- |
-| Stats          | `stats`    | Commits, PRs, issues, reviews, stars and a rank           |
-| Top languages  | `topLangs` | The languages you write most, by size or repository count |
-| Repository pin | `pin`      | One repository, so a profile can pin more than six        |
-| Gist pin       | `gist`     | One gist                                                  |
-| WakaTime       | `wakatime` | Coding time per language                                  |
+| Card           | Handler         | What it shows                                                  |
+| -------------- | --------------- | -------------------------------------------------------------- |
+| Stats          | `stats`         | Commits, PRs, issues, reviews, stars and a rank                |
+| Top languages  | `topLangs`      | The languages you write most, by size or repository count      |
+| Contributed to | `contributedTo` | The repositories you contribute to, ranked, and in which years |
+| Repository pin | `pin`           | One repository, so a profile can pin more than six             |
+| Gist pin       | `gist`          | One gist                                                       |
+| WakaTime       | `wakatime`      | Coding time per language                                       |
 
 Every card takes the [common options](packages/core/src/cards/options.ts) — colors, title, border,
-theme, locale — plus its own.
+theme — plus its own, and `locale` where it has text to translate.
 A card that only renders a fixed set of values carries them on its handler,
 e.g. `topLangs.LAYOUTS` and `stats.RANK_ICONS`.
 

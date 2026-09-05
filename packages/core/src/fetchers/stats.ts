@@ -1,13 +1,12 @@
 import { calculateRank } from '../calculateRank.ts';
 import type { CardConfig } from '../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import type { GitHubDateRange } from '../common/date.ts';
 import { getGitHubYearRange, toGitHubDateTime } from '../common/date.ts';
 import { CardError, USER_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
-import { buildSearchFilter, chunkArray, parseOwnerAffiliations } from '../common/ops.ts';
+import { buildSearchFilter, parseOwnerAffiliations } from '../common/ops.ts';
 import { wrapTextMultiline } from '../common/render.ts';
 import { retryer } from '../common/retryer.ts';
 import type { FetcherResponse } from '../common/retryer.ts';
@@ -18,11 +17,9 @@ import type {
   UserInfoQuery,
   UserInfoQueryVariables,
 } from '../graphql/generated/stats.ts';
-import {
-  MAX_REPOSITORIES_LIMIT,
-  buildReposContributedToDocument,
-} from '../graphql/reposContributedToDocument.ts';
 
+import { fetchReposContributedTo } from './contributed-to.ts';
+import { graphqlError } from './graphql-error.ts';
 import type { RepoUserStats, StatsData } from './types.ts';
 
 /** The subset of the stats response `statsFetcher` returns and threads on. */
@@ -303,24 +300,6 @@ const fetchRepoUserStats = async (
 };
 
 /**
- * Turn a GraphQL `errors` payload into the error to throw.
- */
-const graphqlError = (
-  errors: NonNullable<GraphQLResponse<unknown>['data']['errors']>,
-  statusText: string,
-  fallback: string,
-): CardError => {
-  logger.error(errors);
-  const message = errors[0]?.message;
-  return message
-    ? new CardError(wrapTextMultiline(message, 525, 12)[0] ?? '', {
-        code: 'upstream',
-        secondaryMessage: statusText,
-      })
-    : new CardError(fallback, { code: 'upstream' });
-};
-
-/**
  * Fetch all-time contributions by building a single GraphQL query
  * for all the given years.
  *
@@ -361,117 +340,6 @@ const fetchTotalContributions = async (
     }
   }
   return total;
-};
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-/**
- * Ranges per request.
- * Each costs roughly `4 * MAX_REPOSITORIES_LIMIT` nodes,
- * so an unchunked round of a heavily split account would breach GitHub's 500k node ceiling
- * and lose the ranges that had already resolved along with it.
- */
-const MAX_RANGES_PER_REQUEST = 100;
-
-const REPOS_CONTRIBUTED_TO_ERROR =
-  'Something went wrong while trying to retrieve the repository contributions data using the GraphQL API.';
-
-/**
- * Count the repositories a user contributed to across every contribution year.
- *
- * `repositoriesContributedTo` spans at most one year,
- * so every year is fetched as an aliased `contributionsCollection(from, to)` in one request and the repos de-duplicated.
- * A range returning `MAX_REPOSITORIES_LIMIT` results may have more,
- * so it is halved and requeried in the next round.
- *
- * Whether private contributions are included depends on the used PAT.
- *
- * @returns Count of repositories.
- */
-const fetchAllTimeReposContributedTo = async (
-  /** `nameWithOwner` uses GitHub's casing, which the query-string username need not match */
-  canonicalUsername: string,
-  years: Array<number>,
-  includeOwnRepos: boolean,
-  config: CardConfig,
-): Promise<number> => {
-  const repos = new Set<string>();
-  let pending = years.map((year) => getGitHubYearRange(year));
-
-  while (pending.length > 0) {
-    const nextPending: Array<GitHubDateRange> = [];
-
-    for (const chunk of chunkArray(pending, MAX_RANGES_PER_REQUEST)) {
-      const chunkFetcher = createGraphQLFetcher(
-        buildReposContributedToDocument(chunk, includeOwnRepos),
-        'bearer',
-      );
-      const res = await retryer(
-        chunkFetcher,
-        { login: canonicalUsername, maxRepositories: MAX_REPOSITORIES_LIMIT },
-        config,
-      );
-      if (res.data.errors) {
-        throw graphqlError(res.data.errors, res.statusText, REPOS_CONTRIBUTED_TO_ERROR);
-      }
-      const { user } = res.data.data;
-      if (!user) {
-        throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: 'upstream' });
-      }
-
-      for (const [index, range] of chunk.entries()) {
-        const rangeResponse = user[`range_${index}`];
-        if (!rangeResponse) {
-          throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, {
-            code: 'upstream',
-          });
-        }
-
-        const lists = [
-          rangeResponse.commitContributionsByRepository,
-          rangeResponse.issueContributionsByRepository,
-          rangeResponse.pullRequestContributionsByRepository,
-          (rangeResponse.repositoryContributions?.nodes ?? []).filter((node) => node !== null),
-        ];
-        const isSaturated = lists.some((list) => list.length >= MAX_REPOSITORIES_LIMIT);
-
-        const rangeDays = Math.round((range.to.getTime() - range.from.getTime()) / MS_PER_DAY);
-        // a range of 1 day or less can't be split any further
-        if (isSaturated && rangeDays >= 2) {
-          // every `from` sits on UTC midnight, so the split lands on a day boundary too
-          const mid = new Date(range.from.getTime() + Math.floor(rangeDays / 2) * MS_PER_DAY);
-          // GitHub only reads the date portion,
-          // so the first half ends 1 second before `mid` to keep the halves from sharing a day
-          nextPending.push(
-            { from: range.from, to: new Date(mid.getTime() - 1000) },
-            { from: mid, to: range.to },
-          );
-          continue;
-        }
-        if (isSaturated) {
-          logger.log(
-            `Range ${range.from.toISOString()} - ${range.to.toISOString()} is saturated but cannot be split further.`,
-          );
-        }
-
-        for (const { repository } of lists.flat()) {
-          const name = repository.nameWithOwner;
-          if (includeOwnRepos || !name.startsWith(`${canonicalUsername}/`)) {
-            repos.add(name);
-          }
-        }
-      }
-    }
-
-    // each saturated range pushes both of its halves
-    const saturatedCount = nextPending.length / 2;
-    if (saturatedCount > 0) {
-      logger.log(`found ${saturatedCount} saturated ranges, splitting and retrying...`);
-    }
-    pending = nextPending;
-  }
-
-  return repos.size;
 };
 
 /**
@@ -651,12 +519,13 @@ const fetchStats = async (
   }
 
   if (include_all_time_contribs) {
-    stats.allTimeContributedTo = await fetchAllTimeReposContributedTo(
+    const reposContributedTo = await fetchReposContributedTo(
       user.login,
       user.contributionsCollection.contributionYears,
       contribs_include_own_repos,
       config,
     );
+    stats.allTimeContributedTo = reposContributedTo.size;
   }
 
   // Retrieve stars while filtering out repositories to be hidden.

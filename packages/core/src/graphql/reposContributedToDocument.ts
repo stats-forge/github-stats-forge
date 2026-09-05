@@ -63,15 +63,24 @@ fragment RangeContributionsByRepo on ContributionsCollection {
     repository {
       nameWithOwner
     }
+    contributions {
+      totalCount
+    }
   }
   issueContributionsByRepository(maxRepositories: $maxRepositories) {
     repository {
       nameWithOwner
     }
+    contributions {
+      totalCount
+    }
   }
   pullRequestContributionsByRepository(maxRepositories: $maxRepositories) {
     repository {
       nameWithOwner
+    }
+    contributions {
+      totalCount
     }
   }
   ${ownRepoField}

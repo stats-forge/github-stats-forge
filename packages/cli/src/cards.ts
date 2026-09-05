@@ -1,4 +1,5 @@
 import {
+  contributedTo,
   gist,
   pin,
   stats,
@@ -271,6 +272,41 @@ const CARDS: ReadonlyArray<CardKind> = [
       LOCALE_OPTION,
     ],
     render: (query, config) => pin(query, config),
+  },
+  {
+    id: 'contributed-to',
+    label: 'Contributed to — repositories you work on, ranked',
+    needsToken: true,
+    required: [{ name: 'username', label: 'GitHub username', kind: 'text' }],
+    options: [
+      { name: 'repos_count', label: 'Repositories to show', kind: 'number' },
+      {
+        name: 'include_own_repos',
+        label: 'Include your own repositories',
+        kind: 'boolean',
+      },
+      {
+        name: 'exclude_repo',
+        label: 'Repositories to exclude',
+        kind: 'list',
+        hint: 'Each one an owner/name, or just the name',
+      },
+      {
+        name: 'hide_years',
+        label: 'Hide the year marks',
+        kind: 'boolean',
+        hint: 'One mark per contribution year, filled for the years that repo got one',
+      },
+      { name: 'custom_title', label: 'Card title', kind: 'text' },
+      { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
+      { name: 'card_width', label: 'Card width', kind: 'number' },
+      {
+        name: 'disable_animations',
+        label: 'Disable the animations',
+        kind: 'boolean',
+      },
+    ],
+    render: (query, config) => contributedTo(query, config),
   },
   {
     id: 'gist',

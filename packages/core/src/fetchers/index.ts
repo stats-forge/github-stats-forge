@@ -1,3 +1,4 @@
+export { fetchContributedTo } from './contributed-to.ts';
 export { fetchGist } from './gist.ts';
 export { fetchRepo } from './repo.ts';
 export { fetchRepoUserStats, fetchStats } from './stats.ts';
@@ -5,6 +6,8 @@ export { fetchTopLanguages } from './top-languages.ts';
 export { fetchWakatimeStats } from './wakatime.ts';
 
 export type {
+  ContributedRepo,
+  ContributedToData,
   GistData,
   Lang,
   RepoUserStats,
