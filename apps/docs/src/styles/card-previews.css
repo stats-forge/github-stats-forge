@@ -1,0 +1,51 @@
+/* One preview, two files: `rehype-card-previews.ts` emits both and this picks one. */
+
+.card-preview {
+  display: block;
+}
+
+.card-preview__img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Starlight writes `data-theme` before first paint, so light is the pre-hydration default. */
+.card-preview__img--dark {
+  display: none;
+}
+
+:root[data-theme='dark'] .card-preview__img--light {
+  display: none;
+}
+
+:root[data-theme='dark'] .card-preview__img--dark {
+  display: block;
+}
+
+/* Swatches in the generated theme table. */
+.theme-swatch {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  vertical-align: -0.1em;
+  border: 1px solid var(--sl-color-gray-4);
+  border-radius: 3px;
+}
+
+/* A gradient needs room to read as one. */
+.theme-swatch--wide {
+  width: 3em;
+}
+
+/* A README puts cards side by side; the examples on the aligning page do the same. */
+.card-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Markdown wraps each image in its own paragraph; those are the flex items. */
+.card-row > p {
+  margin: 0;
+}

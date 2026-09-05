@@ -14,7 +14,11 @@ export default defineConfig({
     node: true,
   },
 
-  ignorePatterns: ['packages/core/src/graphql/generated/**'],
+  ignorePatterns: [
+    'packages/core/src/graphql/generated/**',
+    // written by `astro sync`, and rewritten on every build
+    'apps/docs/.astro/**',
+  ],
 
   options: {
     reportUnusedDisableDirectives: 'error',
@@ -171,9 +175,15 @@ export default defineConfig({
       },
     },
     {
+      // oxlint parses an `.astro` frontmatter as TypeScript, where `Astro` is injected by the
+      // compiler rather than declared.
+      files: ['**/*.astro'],
+      globals: { Astro: 'readonly' },
+    },
+    {
       // The generators and the CLI report to the terminal; that is their output,
       // and a script that fails says so with an exit code.
-      files: ['examples/**', 'scripts/**', 'packages/*/scripts/**', 'packages/cli/src/**'],
+      files: ['apps/*/scripts/**', 'scripts/**', 'packages/*/scripts/**', 'packages/cli/src/**'],
       rules: {
         'no-console': 'off',
         'unicorn/no-process-exit': 'off',

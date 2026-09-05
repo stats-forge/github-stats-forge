@@ -1,0 +1,35 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+import config from 'virtual:starlight/user-config';
+
+/**
+ * Starlight's social links, opening in a new tab.
+ *
+ * Both of them leave the site, and the default renders them without a `target`, so following one
+ * loses the page you were reading.
+ */
+
+const links = config.social ?? [];
+---
+
+{
+  links.map(({ label, href, icon }) => (
+    <a {href} target="_blank" rel="me noopener" class="sl-flex">
+      <span class="sr-only">{label} (opens in a new tab)</span>
+      <Icon name={icon} />
+    </a>
+  ))
+}
+
+<style>
+  /* Starlight's own, which the override replaces along with the markup. */
+  a {
+    color: var(--sl-color-text-accent);
+    padding: 0.5em;
+    margin: -0.5em;
+  }
+
+  a:hover {
+    color: var(--sl-color-white);
+  }
+</style>

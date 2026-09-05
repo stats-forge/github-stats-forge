@@ -7,6 +7,8 @@ node_modules
 coverage
 build
 *.tsbuildinfo
+# `astro sync` writes the content collection's types here
+.astro
 
 # The CLI reads PAT_1 from ./.env by default, so a real token lands here.
 .env

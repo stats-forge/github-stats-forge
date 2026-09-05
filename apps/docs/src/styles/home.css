@@ -1,0 +1,30 @@
+/* The landing page's call to action. Starlight's own button is a component, and the pages are
+   markdown, so the links are styled here instead. */
+
+/* Markdown puts both links in one paragraph; that is the row. */
+.hero-actions p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-block: 2rem;
+}
+
+.hero-actions a {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--sl-color-accent);
+  border-radius: 0.25rem;
+  background: var(--sl-color-accent);
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-lg);
+  text-decoration: none;
+}
+
+/* The second one leads off the site, so it does not compete with the first. */
+.hero-actions a:not(:first-child) {
+  background: transparent;
+}
+
+.hero-actions a:hover {
+  border-color: var(--sl-color-text-accent);
+}

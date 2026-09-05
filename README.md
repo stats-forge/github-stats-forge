@@ -2,6 +2,7 @@
   <img src=".github/assets/appIcon.svg" width="100px" alt="GitHub Stats Forge logo" />
   <h1>GitHub Stats Forge</h1>
   <p>Dynamically generate GitHub stats cards for your READMEs.</p>
+  <p><a href="https://stats-forge.github.io/github-stats-forge/"><strong>Documentation</strong></a></p>
 </div>
 
 GitHub Stats Forge renders GitHub stats as SVG cards: your contribution stats, your top languages,
@@ -10,86 +11,56 @@ the repositories you contribute to, pinned repositories, gists and WakaTime codi
 This repository is the library those cards are rendered by,
 and the CLI that renders one to a local file. It is what any self-hosted endpoint calls.
 
-## Table of Contents
+## Getting a card
 
-- [Table of Contents](#table-of-contents)
-- [Packages](#packages)
-- [Usage](#usage)
-- [Cards](#cards)
-- [Themes](#themes)
-- [Development](#development)
-- [Acknowledgements](#acknowledgements)
-- [Contributing](#contributing)
+**The recommended way is [the GitHub Action](https://github.com/stats-forge/github-stats-forge-action)**,
+which renders your cards in a workflow and commits the SVGs, so your README points at files in your
+own repository rather than at a server that has to be up:
 
-## Packages
-
-| Package                          | What it is                                                                      |
-| -------------------------------- | ------------------------------------------------------------------------------- |
-| [`packages/core`](packages/core) | The library: fetchers, card renderers, themes and the query-string api handlers |
-| [`packages/cli`](packages/cli)   | `github-stats-forge`: renders a card to a local SVG, one prompt at a time       |
-
-## Usage
-
-```sh
-pnpm add @stats-forge/github-stats-forge-core
+```yaml
+- uses: stats-forge/github-stats-forge-action@v0
+  with:
+    card: stats
+    options: '?username=octocat&show_icons=true&theme=dark'
+    path: profile/stats.svg
+    token: ${{ secrets.STATS_PAT }}
 ```
 
-Each api handler takes the query params its endpoint accepts and a `CardConfig` carrying the GitHub tokens,
-and answers with the rendered card:
-
-```js
-import { CardConfig, stats } from '@stats-forge/github-stats-forge-core/api';
-
-const config = new CardConfig({
-  pats: [{ name: 'PAT_1', value: process.env.PAT_1 }],
-});
-
-const result = await stats({ username: 'anuraghazra' }, config);
-// result.status === "success" → result.content is the card, as SVG
-// result.status === "error"   → result.error carries the code and the param at
-//                              fault, result.retryable whether to try again, and
-//                              result.content the error drawn as a card
-```
-
-The handlers are `stats`, `pin`, `topLangs`, `contributedTo`, `gist` and `wakatime`.
-The last needs no GitHub token, but still takes the config,
-since that is what carries the transport every request goes through.
-Nothing in the library reads `process.env`: the host builds the config and passes it in,
-which is what lets the same code run in an action, on a server and in a browser.
-
-To render one from the terminal instead, without writing any code:
+To settle on a card first, or to draw one locally:
 
 ```sh
 npx @stats-forge/github-stats-forge-cli
 ```
 
-It walks you through the cards and their options, and writes the SVG next to you —
-see [`packages/cli`](packages/cli).
+It asks which card you want and which options it should take, and writes the SVG next to you.
 
-## Cards
+To call it from your own code instead — an action of your own, a server, a browser:
 
-| Card           | Handler         | What it shows                                                  |
-| -------------- | --------------- | -------------------------------------------------------------- |
-| Stats          | `stats`         | Commits, PRs, issues, reviews, stars and a rank                |
-| Top languages  | `topLangs`      | The languages you write most, by size or repository count      |
-| Contributed to | `contributedTo` | The repositories you contribute to, ranked, and in which years |
-| Repository pin | `pin`           | One repository, so a profile can pin more than six             |
-| Gist pin       | `gist`          | One gist                                                       |
-| WakaTime       | `wakatime`      | Coding time per language                                       |
+```sh
+npm install @stats-forge/github-stats-forge-core
+```
 
-Every card takes the [common options](packages/core/src/cards/options.ts) — colors, title, border,
-theme — plus its own, and `locale` where it has text to translate.
-A card that only renders a fixed set of values carries them on its handler,
-e.g. `topLangs.LAYOUTS` and `stats.RANK_ICONS`.
+```js
+import { CardConfig, stats } from '@stats-forge/github-stats-forge-core/api';
 
-One of each, rendered: [`examples/previews`](examples/previews).
-The saved cards they come from live in [`examples/`](examples),
-and `pnpm examples` draws them again.
+const config = new CardConfig({ pats: [{ name: 'PAT_1', value: process.env.PAT_1 }] });
+const result = await stats({ username: 'octocat' }, config);
+```
 
-## Themes
+**Everything else is documented on the site:**
+[the six cards and every option each one takes](https://stats-forge.github.io/github-stats-forge/cards/stats/),
+[the 79 themes](https://stats-forge.github.io/github-stats-forge/customization/themes/),
+[light and dark mode](https://stats-forge.github.io/github-stats-forge/customization/light-and-dark/),
+[putting a card in a README](https://stats-forge.github.io/github-stats-forge/usage/in-your-readme/)
+and [the fetchers](https://stats-forge.github.io/github-stats-forge/fetchers/overview/).
 
-Every built-in theme is defined in [`packages/core/src/themes/index.ts`](packages/core/src/themes/index.ts) —
-pass one by name as `theme`, or pass explicit colors to override it.
+## What is in here
+
+| Path                             | What it is                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------- |
+| [`packages/core`](packages/core) | The library: fetchers, card renderers, themes and the query-string api handlers |
+| [`packages/cli`](packages/cli)   | `github-stats-forge`: renders a card to a local SVG, one prompt at a time       |
+| [`apps/docs`](apps/docs)         | The documentation site, published from every release                            |
 
 ## Development
 
@@ -100,8 +71,12 @@ pnpm test                   # vitest
 pnpm typecheck              # build, then tsc over the packages and the repo scripts
 pnpm lint                   # oxlint
 pnpm build:packages         # build packages/*
-pnpm examples               # redraw examples/previews from examples/cards
+pnpm docs                   # the documentation site's dev server
+pnpm docs:cards             # redraw the site's card previews
+pnpm check-all              # every check CI runs, cheapest first
 ```
+
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) before opening a pull request.
 
 ## Acknowledgements
 
@@ -116,7 +91,3 @@ Big thanks to
 - [@qwerty541](https://github.com/qwerty541)
 - [@martin-mfg](https://github.com/martin-mfg)
 - Everyone else who worked on these projects! ❤️
-
-## Contributing
-
-Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md).

@@ -1,0 +1,9 @@
+{
+  "card": "stats",
+  "options": {
+    "username": "marcalexiei",
+    "show_icons": "true",
+    "show": "reviews,prs_merged,contributions",
+    "rank_icon": "percentile"
+  }
+}

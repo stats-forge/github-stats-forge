@@ -35,6 +35,9 @@ jobs:
       pull-requests: write # required to create and update release PRs
       id-token: write # required for npm OIDC trusted publishing
 
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+
     steps:
       # A GitHub App token, not GITHUB_TOKEN: events from the default token do not
       # start other workflows, so CI would never run on the release PR.
@@ -64,6 +67,19 @@ jobs:
           pr-title: 'chore: release'
           pr-base-branch: main
           publish-script: 'pnpm release'
+
+  # The site documents what is on npm, so it is published when a release is, and only then.
+  docs:
+    name: Docs
+    needs: release
+    if: ${{ needs.release.outputs.published == 'true' }}
+    uses: $/.github/workflows/deploy-docs.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    with:
+      ref: ${{ github.event.workflow_run.head_sha }}
 
   on-ci-fail:
     name: 'Failure'
