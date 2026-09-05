@@ -1,6 +1,6 @@
 import * as z from 'zod/mini';
 
-import { DISPLAY_FORMATS, WAKATIME_LAYOUTS, renderWakatimeCard } from '../cards/wakatime.ts';
+import { renderWakatimeCard } from '../cards/wakatime.ts';
 import type { CardConfig } from '../common/config.ts';
 import { fetchWakatimeStats } from '../fetchers/wakatime.ts';
 
@@ -30,12 +30,12 @@ const wakatimeQuery = z.object({
   hide_progress: booleanParam,
   custom_title: rawParam,
   locale: localeParam,
-  layout: enumParam(WAKATIME_LAYOUTS),
+  layout: enumParam(renderWakatimeCard.OPTIONS.layout),
   langs_count: looseIntParam,
   hide: listParam,
   api_domain: rawParam,
   border_radius: numberParam,
-  display_format: enumParam(DISPLAY_FORMATS),
+  display_format: enumParam(renderWakatimeCard.OPTIONS.display_format),
   disable_animations: booleanParam,
 });
 
@@ -104,10 +104,7 @@ const renderWakatime = async (query: WakatimeApiQuery, config: CardConfig): Prom
 };
 
 /**
- * The card, with the values its enum params accept.
- * A UI reads them off the function it calls, e.g. `wakatime.LAYOUTS`.
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * A UI reads them off the function it calls: `wakatime.OPTIONS.layout`.
  */
-export const wakatime = Object.assign(renderWakatime, {
-  LAYOUTS: WAKATIME_LAYOUTS,
-  DISPLAY_FORMATS,
-});
+export const wakatime = Object.assign(renderWakatime, { OPTIONS: renderWakatimeCard.OPTIONS });

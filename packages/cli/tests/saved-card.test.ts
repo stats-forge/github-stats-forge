@@ -113,15 +113,17 @@ describe(toAnswers, () => {
     expect(answers.get('hide_rank')).toBe(false);
   });
 
+  it('splits a list back into its values', () => {
+    const answers = toAnswers(card('stats'), { show: 'reviews, prs_merged', hide: '' });
+
+    expect(answers.get('show')).toStrictEqual(['reviews', 'prs_merged']);
+    expect(answers.get('hide')).toStrictEqual([]);
+  });
+
   it('leaves everything else as the string it was', () => {
-    const answers = toAnswers(card('top-langs'), {
-      layout: 'donut',
-      langs_count: '4',
-      hide: 'html,css',
-    });
+    const answers = toAnswers(card('top-langs'), { layout: 'donut', langs_count: '4' });
 
     expect(answers.get('layout')).toBe('donut');
     expect(answers.get('langs_count')).toBe('4');
-    expect(answers.get('hide')).toBe('html,css');
   });
 });

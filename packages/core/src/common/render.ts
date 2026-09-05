@@ -266,6 +266,13 @@ const iconWithLabel = (
 };
 
 /**
+ * How a stat value is written.
+ * Not validated at the boundary: anything but `long` reads as `short`,
+ * so an unknown value falls back rather than failing.
+ */
+const NUMBER_FORMATS = ['short', 'long'] as const;
+
+/**
  * Create a labelled stat text item
  * (a label and its value, optionally with an icon and link).
  * Shared by the stats and repo cards.
@@ -673,6 +680,7 @@ const countWrappedLines = (
 ): number => Math.min(Math.max(1, splitWrappedText(text, fontSize, maxWidth).length), maxLines);
 
 export {
+  NUMBER_FORMATS,
   renderError,
   createLanguageNode,
   createProgressNode,

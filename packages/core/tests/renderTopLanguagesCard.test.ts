@@ -782,7 +782,7 @@ describe('test renderTopLanguages with languages missing a color', () => {
     Text: { color: null, name: 'Text', size: 100, count: 1 },
   } satisfies TopLangData;
 
-  it.each(['normal', 'compact', 'donut', 'donut-vertical', 'pie'] as const)(
+  it.each(renderTopLanguages.OPTIONS.layout)(
     'should render the %s layout using the default color',
     (layout) => {
       expect(() => renderTopLanguages(langsWithNullColor, { layout })).not.toThrow();

@@ -26,7 +26,7 @@ export interface CardOption {
   /** What the prompt asks. */
   label: string;
   kind: OptionKind;
-  /** The accepted values, for `choice`. */
+  /** The accepted values, for `choice` and for a `list` whose values are a closed set. */
   choices?: ReadonlyArray<string>;
   /** Shown under the prompt, for anything the label cannot say. */
   hint?: string;
@@ -99,13 +99,13 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'show',
         label: 'Extra stats to show',
         kind: 'list',
-        hint: 'e.g. reviews,discussions_started,prs_merged,contributions',
+        choices: stats.OPTIONS.show,
       },
       {
         name: 'hide',
         label: 'Stats to hide',
         kind: 'list',
-        hint: 'e.g. stars,commits,prs,issues,contribs',
+        choices: stats.OPTIONS.hide,
       },
       { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean' },
       { name: 'hide_rank', label: 'Hide the rank circle', kind: 'boolean' },
@@ -113,7 +113,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'rank_icon',
         label: 'Rank indicator',
         kind: 'choice',
-        choices: stats.RANK_ICONS,
+        choices: stats.OPTIONS.rank_icon,
       },
       {
         name: 'include_all_commits',
@@ -145,7 +145,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'role',
         label: 'Owner affiliations to include',
         kind: 'list',
-        hint: 'OWNER, COLLABORATOR, ORGANIZATION_MEMBER',
+        choices: stats.OPTIONS.role,
       },
       {
         name: 'contribs_include_own_repos',
@@ -161,7 +161,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'number_format',
         label: 'Number format',
         kind: 'choice',
-        choices: ['short', 'long'],
+        choices: stats.OPTIONS.number_format,
       },
       {
         name: 'number_precision',
@@ -188,7 +188,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'layout',
         label: 'Layout',
         kind: 'choice',
-        choices: topLangs.LAYOUTS,
+        choices: topLangs.OPTIONS.layout,
       },
       { name: 'langs_count', label: 'Languages to show', kind: 'number' },
       { name: 'hide', label: 'Languages to hide', kind: 'list' },
@@ -207,7 +207,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'stats_format',
         label: 'Show values as',
         kind: 'choice',
-        choices: topLangs.STATS_FORMATS,
+        choices: topLangs.OPTIONS.stats_format,
       },
       {
         name: 'hide_progress',
@@ -220,7 +220,12 @@ const CARDS: ReadonlyArray<CardKind> = [
         label: 'Progress bar background color',
         kind: 'text',
       },
-      { name: 'role', label: 'Owner affiliations to include', kind: 'list' },
+      {
+        name: 'role',
+        label: 'Owner affiliations to include',
+        kind: 'list',
+        choices: topLangs.OPTIONS.role,
+      },
       { name: 'custom_title', label: 'Card title', kind: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
       { name: 'card_width', label: 'Card width', kind: 'number' },
@@ -247,7 +252,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'show',
         label: 'Extra stats to show',
         kind: 'list',
-        hint: 'e.g. prs_authored,issues_commented',
+        choices: pin.OPTIONS.show,
       },
       { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean' },
       {
@@ -267,7 +272,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'number_format',
         label: 'Number format',
         kind: 'choice',
-        choices: ['short', 'long'],
+        choices: pin.OPTIONS.number_format,
       },
       LOCALE_OPTION,
     ],
@@ -333,13 +338,13 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'layout',
         label: 'Layout',
         kind: 'choice',
-        choices: wakatime.LAYOUTS,
+        choices: wakatime.OPTIONS.layout,
       },
       {
         name: 'display_format',
         label: 'Show values as',
         kind: 'choice',
-        choices: wakatime.DISPLAY_FORMATS,
+        choices: wakatime.OPTIONS.display_format,
       },
       { name: 'langs_count', label: 'Languages to show', kind: 'number' },
       { name: 'hide', label: 'Languages to hide', kind: 'list' },

@@ -257,7 +257,7 @@ const normalizeCardWidth = ({
  *
  * @returns WakaTime card SVG.
  */
-const renderWakatimeCard = (
+const renderCard = (
   stats: Partial<WakaTimeData> = {},
   options: CardOptions<WakaTimeOptions> = {},
 ): string => {
@@ -470,4 +470,16 @@ const renderWakatimeCard = (
   return card.render(el('svg', { x: 0, y: 0, width: '100%' }, finalLayout));
 };
 
-export { DISPLAY_FORMATS, WAKATIME_LAYOUTS, renderWakatimeCard };
+/**
+ * The card, and the values each of its options accepts, keyed by the option's own name.
+ * They ride on the renderer so a list cannot be found without what draws it;
+ * the api handler forwards them onto its own export, which is what a UI reads.
+ */
+const renderWakatimeCard = Object.assign(renderCard, {
+  OPTIONS: {
+    layout: WAKATIME_LAYOUTS,
+    display_format: DISPLAY_FORMATS,
+  },
+});
+
+export { renderWakatimeCard };
