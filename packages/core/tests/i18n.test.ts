@@ -23,13 +23,22 @@ describe(I18n, () => {
     ).toThrow('statcard.title1 Translation string not found');
   });
 
+  it('should fall back to english when the locale has no entry for the key', () => {
+    const i18n = new I18n({
+      locale: 'fr',
+      // a key written in english and not yet translated
+      translations: statCardLocales({ name: 'Anurag Hazra', apostrophe: 's' }),
+    });
+    expect(i18n.t('statcard.all-time-contribs')).toBe('Contributed to (all time)');
+  });
+
   it('should throw error if translation not found for locale', () => {
     const i18n = new I18n({
       locale: 'asdf',
-      translations: statCardLocales({ name: 'Anurag Hazra', apostrophe: 's' }),
+      translations: { 'card.title': { it: 'Titolo' } },
     });
-    expect(() => i18n.t('statcard.title')).toThrow(
-      "'statcard.title' translation not found for locale 'asdf'",
+    expect(() => i18n.t('card.title')).toThrow(
+      "'card.title' translation not found for locale 'asdf'",
     );
   });
 });

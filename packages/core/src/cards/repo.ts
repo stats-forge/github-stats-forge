@@ -214,9 +214,9 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const extraLHeight = Number.parseInt(String(line_height), 10);
   const lineHeight = 10;
   const header = show_owner ? nameWithOwner : name;
-  const langName = primaryLanguage?.name || 'Unspecified';
+  const langName = primaryLanguage?.name || i18n.t('repocard.unspecified-language');
   const langColor = primaryLanguage?.color || '#333';
-  const desc = parseEmojis(description || 'No description provided');
+  const desc = parseEmojis(description || i18n.t('repocard.no-description'));
   const descriptionBoxWidth = card_width - 2 * X_OFFSET;
 
   let descriptionLinesCount: number;

@@ -609,7 +609,7 @@ const renderCard = (
     .join(', ');
 
   card.setAccessibilityLabel({
-    title: `${card.title}, Rank: ${rank.level}`,
+    title: `${card.title}, ${i18n.t('statcard.rank')}: ${rank.level}`,
     desc: labels,
   });
 

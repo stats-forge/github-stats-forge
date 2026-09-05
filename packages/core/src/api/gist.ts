@@ -4,11 +4,12 @@ import { renderGistCard } from '../cards/gist.ts';
 import { fetchGist } from '../fetchers/gist.ts';
 
 import { cardHandler } from './handler.ts';
-import { booleanParam, numberParam, safeParam } from './params.ts';
+import { booleanParam, localeParam, numberParam, safeParam } from './params.ts';
 
 /** What the gist endpoint accepts, on top of the shared color params. */
 const gistQuery = z.object({
   id: safeParam,
+  locale: localeParam,
   border_radius: numberParam,
   show_owner: booleanParam,
   browser_rendering: booleanParam,
@@ -22,11 +23,16 @@ const gistQuery = z.object({
  */
 export const gist = cardHandler(
   gistQuery,
-  async ({ id, border_radius, show_owner, browser_rendering, hide_border }, colors, config) => {
+  async (
+    { id, locale, border_radius, show_owner, browser_rendering, hide_border },
+    colors,
+    config,
+  ) => {
     const gistData = await fetchGist({ id }, config);
 
     return renderGistCard(gistData, {
       ...colors,
+      locale,
       border_radius,
       show_owner,
       browser_rendering,

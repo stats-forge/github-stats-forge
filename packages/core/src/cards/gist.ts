@@ -1,6 +1,7 @@
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
 import { kFormatter } from '../common/fmt.ts';
+import { I18n } from '../common/I18n.ts';
 import { icons } from '../common/icons.ts';
 import { getLanguageColor } from '../common/languageColors.ts';
 import { parseEmojis } from '../common/ops.ts';
@@ -17,6 +18,7 @@ import {
 import type { GistData } from '../fetchers/types.ts';
 import type { Child } from '../markup/index.ts';
 import { el, rule } from '../markup/index.ts';
+import { gistCardLocales } from '../translations.ts';
 
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
@@ -30,6 +32,7 @@ const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 10;
 
 interface GistCardOptions extends CommonCardOptions {
+  locale: string;
   show_owner: boolean;
   browser_rendering: boolean;
 }
@@ -42,6 +45,7 @@ interface GistCardOptions extends CommonCardOptions {
 const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions> = {}): string => {
   const { name, nameWithOwner, description, language, starsCount, forksCount } = gistData;
   const {
+    locale,
     theme = 'default_repocard',
     border_radius,
     show_owner = false,
@@ -51,7 +55,9 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
-  const desc = parseEmojis(description || 'No description provided');
+  const i18n = new I18n({ locale, translations: gistCardLocales });
+
+  const desc = parseEmojis(description || i18n.t('gistcard.no-description'));
 
   let descriptionLines: number;
   let descriptionSvg: Child;
@@ -101,7 +107,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   const svgStars = iconWithLabel(icons.star, totalStars, 'starsCount', ICON_SIZE);
   const svgForks = iconWithLabel(icons.fork, totalForks, 'forksCount', ICON_SIZE);
 
-  const languageName = language || 'Unspecified';
+  const languageName = language || i18n.t('gistcard.unspecified-language');
   const languageColor = getLanguageColor(languageName);
 
   const svgLanguage = createLanguageNode(languageName, languageColor);
@@ -154,7 +160,9 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   // shows has to be repeated here.
   card.setAccessibilityLabel({
     title: card.title,
-    desc: `${desc}. Language: ${languageName}, Stars: ${totalStars}, Forks: ${totalForks}`,
+    desc: `${desc}. ${i18n.t('gistcard.language')}: ${languageName}, ${i18n.t(
+      'gistcard.stars',
+    )}: ${totalStars}, ${i18n.t('gistcard.forks')}: ${totalForks}`,
   });
 
   return card.render([
