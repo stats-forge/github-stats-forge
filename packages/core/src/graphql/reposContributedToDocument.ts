@@ -1,6 +1,6 @@
 import type { GitHubDateRange } from '../common/date.ts';
-import { toGitHubDateTime } from '../common/date.ts';
 
+import { aliasedRanges } from './contributionsCollection.ts';
 import type { RangeContributionsByRepoFragment } from './generated/stats.ts';
 import type { GraphQLDocument } from './graphqlDocument.ts';
 import { graphqlDocument } from './graphqlDocument.ts';
@@ -31,13 +31,6 @@ const buildReposContributedToDocument = (
   ranges: Array<GitHubDateRange>,
   includeOwnRepos: boolean,
 ): GraphQLDocument<ReposContributedToQuery, ReposContributedToQueryVariables> => {
-  const rangeFields = ranges
-    .map(
-      ({ from, to }, index) =>
-        `range_${index}: contributionsCollection(from: "${toGitHubDateTime(from)}", to: "${toGitHubDateTime(to)}") { ...RangeContributionsByRepo }`,
-    )
-    .join('\n');
-
   // `repositoryContributions` only ever returns repos the user owns,
   // so it is left out rather than gated with @include: an excluded field still counts toward the query's node cost.
   // stats.graphql carries the directive so the generated type marks the field optional.
@@ -55,7 +48,7 @@ const buildReposContributedToDocument = (
   return graphqlDocument<ReposContributedToQuery, ReposContributedToQueryVariables>(`
 query userReposContributedTo($login: String!, $maxRepositories: Int!) {
   user(login: $login) {
-    ${rangeFields}
+    ${aliasedRanges(ranges, 'RangeContributionsByRepo')}
   }
 }
 fragment RangeContributionsByRepo on ContributionsCollection {

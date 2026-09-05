@@ -1,6 +1,6 @@
 import type { CardConfig } from '../common/config.ts';
 import type { GitHubDateRange } from '../common/date.ts';
-import { getGitHubYearRange } from '../common/date.ts';
+import { toContributionRanges, toRange } from '../common/date.ts';
 import { CardError, USER_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import { logger } from '../common/log.ts';
@@ -54,10 +54,10 @@ const yearsFetcher = createGraphQLFetcher(UserContributionYearsDocument, 'bearer
  * The repositories a user contributed to across every contribution year, with what each one got.
  *
  * `repositoriesContributedTo` spans at most one year,
- * so every year is fetched as an aliased `contributionsCollection(from, to)` in one request and the repos merged.
+ * so every range is fetched as an aliased `contributionsCollection(from, to)` in one request and the repos merged.
  * A range returning `MAX_REPOSITORIES_LIMIT` results may have more,
- * so it is halved and requeried in the next round —
- * a split stays inside its own calendar year, which is what makes `range.from`'s year the contribution's year.
+ * so it is halved and requeried in the next round — a split stays inside its own calendar year,
+ * which is what makes `range.from`'s year the contribution's year.
  *
  * Whether private contributions are included depends on the used PAT.
  *
@@ -66,12 +66,13 @@ const yearsFetcher = createGraphQLFetcher(UserContributionYearsDocument, 'bearer
 const fetchReposContributedTo = async (
   /** `nameWithOwner` uses GitHub's casing, which the query-string username need not match */
   canonicalUsername: string,
-  years: Array<number>,
+  /** One per calendar year, so a contribution's year is the one its range starts in. */
+  ranges: Array<GitHubDateRange>,
   includeOwnRepos: boolean,
   config: CardConfig,
 ): Promise<Map<string, RepoContributions>> => {
   const repos = new Map<string, RepoContributions>();
-  let pending = years.map((year) => getGitHubYearRange(year));
+  let pending = ranges;
 
   while (pending.length > 0) {
     const nextPending: Array<GitHubDateRange> = [];
@@ -184,6 +185,10 @@ const excludes = (entries: Array<string>): ((nameWithOwner: string) => boolean) 
 /**
  * Rank the repositories a user has contributed to, most contributions first.
  *
+ * `from` and `to` narrow the walk to the range they name,
+ * so the ranking, the totals and the year marks all cover that range and nothing else.
+ * A range the account contributed in no year of draws an empty card rather than an error.
+ *
  * Ties keep the walk's order, which is chronological:
  * the repository first seen in the earliest range comes first.
  *
@@ -198,6 +203,8 @@ const fetchContributedTo = async (
     include_own_repos = false,
     repos_count,
     exclude_repo = [],
+    from,
+    to,
   }: {
     username: string | undefined;
     include_own_repos?: boolean | undefined;
@@ -205,6 +212,10 @@ const fetchContributedTo = async (
     repos_count?: number | undefined;
     /** Each entry is an `owner/name` or a bare `name`. */
     exclude_repo?: Array<string>;
+    /** Start of the range to walk; as early as GitHub goes when absent. */
+    from?: Date | undefined;
+    /** End of that range. */
+    to?: Date | undefined;
   },
   config: CardConfig,
 ): Promise<ContributedToData> => {
@@ -237,8 +248,13 @@ const fetchContributedTo = async (
     });
   }
 
-  const years = user.contributionsCollection.contributionYears.toSorted((a, b) => a - b);
-  const found = await fetchReposContributedTo(user.login, years, include_own_repos, config);
+  const ranges = toContributionRanges(
+    user.contributionsCollection.contributionYears,
+    toRange(from, to),
+  );
+  const years = ranges.map((range) => range.from.getUTCFullYear());
+
+  const found = await fetchReposContributedTo(user.login, ranges, include_own_repos, config);
 
   const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);
   const kept = [...found].filter(([nameWithOwner]) => !isExcluded(nameWithOwner));

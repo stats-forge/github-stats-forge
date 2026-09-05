@@ -9,29 +9,36 @@ import { errorResult } from './api-result.ts';
 import type { ApiQuery } from './params.ts';
 import {
   booleanParam,
+  fromParam,
   looseIntParam,
   numberParam,
+  ORDERED_RANGE,
   parseColorParams,
   parseParams,
   rawParam,
   safeListParam,
+  toParam,
   usernameParam,
 } from './params.ts';
 
 /** What the contributed-to endpoint accepts, on top of the shared color params. */
-const contributedToQuery = z.object({
-  username: usernameParam,
-  repos_count: looseIntParam,
-  include_own_repos: booleanParam,
-  exclude_repo: safeListParam,
-  hide_years: booleanParam,
-  hide_title: booleanParam,
-  hide_border: booleanParam,
-  card_width: looseIntParam,
-  custom_title: rawParam,
-  border_radius: numberParam,
-  disable_animations: booleanParam,
-});
+const contributedToQuery = z
+  .object({
+    username: usernameParam,
+    repos_count: looseIntParam,
+    include_own_repos: booleanParam,
+    exclude_repo: safeListParam,
+    from: fromParam,
+    to: toParam,
+    hide_years: booleanParam,
+    hide_title: booleanParam,
+    hide_border: booleanParam,
+    card_width: looseIntParam,
+    custom_title: rawParam,
+    border_radius: numberParam,
+    disable_animations: booleanParam,
+  })
+  .check(ORDERED_RANGE);
 
 /** The query this endpoint accepts, checked against the schema above. */
 type ContributedToApiQuery = ApiQuery<typeof contributedToQuery>;
@@ -62,6 +69,8 @@ const renderContributedTo = async (
       repos_count,
       include_own_repos,
       exclude_repo,
+      from,
+      to,
       hide_years,
       hide_title,
       hide_border,
@@ -72,7 +81,7 @@ const renderContributedTo = async (
     } = parseParams(contributedToQuery, query);
 
     const contributedTo = await fetchContributedTo(
-      { username, include_own_repos, repos_count, exclude_repo },
+      { username, include_own_repos, repos_count, exclude_repo, from, to },
       config,
     );
 

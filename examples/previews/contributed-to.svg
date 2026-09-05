@@ -1,6 +1,6 @@
 <svg width="450" height="285" viewBox="0 0 450 285" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
   <title id="titleId">Repositories marcalexiei contributed to</title>
-  <desc id="descId">scalar/scalar: 222 contributions in 2025, 2026; stats-organization/github-stats-extended: 107 contributions in 2026; stats-forge/github-stats-forge: 84 contributions in 2026; i18next/i18next: 78 contributions in 2022, 2023, 2024, 2026; elycruz/rollup-plugin-sass: 61 contributions in 2024, 2025; top 5 of 90 repositories &#183; 2014&#8211;2026</desc>
+  <desc id="descId">scalar/scalar: 222 contributions in 2025, 2026; stats-organization/github-stats-extended: 107 contributions in 2026; stats-forge/github-stats-forge: 88 contributions in 2026; i18next/i18next: 78 contributions in 2022, 2023, 2024, 2026; elycruz/rollup-plugin-sass: 61 contributions in 2024, 2025; top 5 of 90 repositories &#183; 2016&#8211;2026</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -122,10 +122,8 @@
           <rect data-testid="year-off" class="year-off" x="60" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="70" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="80" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="90" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="100" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="110" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="120" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="90" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="100" y="0" width="7" height="7" rx="1" ry="1" />
         </g>
       </g>
       <g class="stagger" style="animation-delay: 600ms" transform="translate(0, 48)">
@@ -148,20 +146,18 @@
           <rect data-testid="year-off" class="year-off" x="70" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="80" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="90" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="100" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="110" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="120" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="100" y="0" width="7" height="7" rx="1" ry="1" />
         </g>
       </g>
       <g class="stagger" style="animation-delay: 750ms" transform="translate(0, 86)">
         <text class="repo-name" data-testid="repo-name" x="0" y="0">stats-forge/github-stats-forge</text>
         <svg width="130" x="212" y="-9">
           <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="130" height="8" />
-          <svg data-testid="lang-progress" width="37.83783783783784%">
+          <svg data-testid="lang-progress" width="39.63963963963964%">
             <rect height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
           </svg>
         </svg>
-        <text class="count" data-testid="repo-contributions" x="400" y="0" text-anchor="end">84</text>
+        <text class="count" data-testid="repo-contributions" x="400" y="0" text-anchor="end">88</text>
         <g data-testid="year-strip" transform="translate(0, 8)">
           <rect data-testid="year-off" class="year-off" x="0" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="10" y="0" width="7" height="7" rx="1" ry="1" />
@@ -173,9 +169,7 @@
           <rect data-testid="year-off" class="year-off" x="70" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="80" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="90" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="100" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="110" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="120" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="100" y="0" width="7" height="7" rx="1" ry="1" />
         </g>
       </g>
       <g class="stagger" style="animation-delay: 900ms" transform="translate(0, 124)">
@@ -194,13 +188,11 @@
           <rect data-testid="year-off" class="year-off" x="30" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="40" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="50" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="60" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="70" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="60" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="70" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-on" class="year-on" x="80" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="90" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-off" class="year-off" x="90" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-on" class="year-on" x="100" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="110" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="120" y="0" width="7" height="7" rx="1" ry="1" />
         </g>
       </g>
       <g class="stagger" style="animation-delay: 1050ms" transform="translate(0, 162)">
@@ -221,14 +213,12 @@
           <rect data-testid="year-off" class="year-off" x="50" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="60" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="70" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="80" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="90" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="100" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-on" class="year-on" x="110" y="0" width="7" height="7" rx="1" ry="1" />
-          <rect data-testid="year-off" class="year-off" x="120" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="80" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-on" class="year-on" x="90" y="0" width="7" height="7" rx="1" ry="1" />
+          <rect data-testid="year-off" class="year-off" x="100" y="0" width="7" height="7" rx="1" ry="1" />
         </g>
       </g>
-      <text class="footer" data-testid="footer" x="0" y="212">top 5 of 90 repositories &#183; 2014&#8211;2026</text>
+      <text class="footer" data-testid="footer" x="0" y="212">top 5 of 90 repositories &#183; 2016&#8211;2026</text>
     </g>
   </g>
 </svg>

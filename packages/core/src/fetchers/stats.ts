@@ -1,7 +1,14 @@
 import { calculateRank } from '../calculateRank.ts';
 import type { CardConfig } from '../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import { getGitHubYearRange, toGitHubDateTime } from '../common/date.ts';
+import type { GitHubDateRange } from '../common/date.ts';
+import {
+  getWidestRange,
+  toContributionRanges,
+  toGitHubDateTime,
+  toRange,
+  toYearRanges,
+} from '../common/date.ts';
 import { CardError, USER_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
@@ -13,6 +20,7 @@ import type { FetcherResponse } from '../common/retryer.ts';
 import { buildContributionsDocument } from '../graphql/contributionsDocument.ts';
 import { UserInfoDocument, UserReposDocument } from '../graphql/generated/stats.ts';
 import type {
+  RangeContributionsFragment,
   RepoNodeFragment,
   UserInfoQuery,
   UserInfoQueryVariables,
@@ -43,7 +51,7 @@ const statsFetcher = async (
     includeMergedPullRequests,
     includeDiscussions,
     includeDiscussionsAnswers,
-    startTime,
+    commitsRange,
     ownerAffiliations,
     includeUserRepositories,
   }: {
@@ -51,7 +59,8 @@ const statsFetcher = async (
     includeMergedPullRequests: boolean;
     includeDiscussions: boolean;
     includeDiscussionsAnswers: boolean;
-    startTime: string | undefined;
+    /** The range the commit count covers; the last year, as GitHub reckons it, when absent. */
+    commitsRange: GitHubDateRange | undefined;
     ownerAffiliations: UserInfoQueryVariables['ownerAffiliations'];
     includeUserRepositories: boolean;
   },
@@ -66,7 +75,9 @@ const statsFetcher = async (
       includeMergedPullRequests,
       includeDiscussions,
       includeDiscussionsAnswers,
-      startTime,
+      // both ends together: an open `to` would run the range into the next 1st of January
+      startTime: commitsRange && toGitHubDateTime(commitsRange.from),
+      endTime: commitsRange && toGitHubDateTime(commitsRange.to),
       ownerAffiliations,
       includeUserRepositories,
     },
@@ -300,22 +311,25 @@ const fetchRepoUserStats = async (
 };
 
 /**
- * Fetch all-time contributions by building a single GraphQL query
- * for all the given years.
+ * Sum one figure over a set of ranges, fetched as aliased fields of a single query.
  *
  * Whether private contributions are included depends on the user's profile settings:
  * https://docs.github.com/en/account-and-profile/how-tos/contribution-settings/manage-visibility-settings-for-private-contributions-and-achievements#changing-the-visibility-of-your-private-contributions
+ *
+ * @returns The total over every range, and 0 when there are none.
  */
-const fetchTotalContributions = async (
+const sumOverRanges = async (
   username: string,
-  years: Array<number>,
+  ranges: Array<GitHubDateRange>,
+  /** What one range contributes to the total. */
+  pick: (block: RangeContributionsFragment) => number,
   config: CardConfig,
 ): Promise<number> => {
-  if (years.length === 0) {
+  if (ranges.length === 0) {
     return 0;
   }
 
-  const contributionsFetcher = createGraphQLFetcher(buildContributionsDocument(years), 'bearer');
+  const contributionsFetcher = createGraphQLFetcher(buildContributionsDocument(ranges), 'bearer');
 
   const contribRes = await retryer(contributionsFetcher, { login: username }, config);
 
@@ -333,11 +347,8 @@ const fetchTotalContributions = async (
   }
 
   let total = 0;
-  for (const year of years) {
-    const yearBlock = user[`year_${year}`];
-    if (yearBlock?.contributionCalendar.totalContributions) {
-      total += yearBlock.contributionCalendar.totalContributions;
-    }
+  for (const block of Object.values(user)) {
+    total += pick(block);
   }
   return total;
 };
@@ -355,7 +366,8 @@ const fetchStats = async (
     include_merged_pull_requests = false,
     include_discussions = false,
     include_discussions_answers = false,
-    commits_year,
+    from,
+    to,
     repo = [],
     owner = [],
     include_prs_authored = false,
@@ -374,7 +386,10 @@ const fetchStats = async (
     include_merged_pull_requests?: boolean;
     include_discussions?: boolean;
     include_discussions_answers?: boolean;
-    commits_year?: number | undefined;
+    /** Start of the range the commit count covers; GitHub's own last year when neither end is given. */
+    from?: Date | undefined;
+    /** End of that range. */
+    to?: Date | undefined;
     repo?: Array<string>;
     owner?: Array<string>;
     include_prs_authored?: boolean;
@@ -400,6 +415,7 @@ const fetchStats = async (
     mergedPRsPercentage: 0,
     totalReviews: 0,
     totalCommits: 0,
+    commitsRange: undefined,
     totalIssues: 0,
     totalStars: 0,
     totalDiscussionsStarted: 0,
@@ -416,16 +432,19 @@ const fetchStats = async (
   };
   const affiliations = parseOwnerAffiliations(ownerAffiliations);
 
+  // neither end given leaves GitHub's trailing year in place, which `userInfo` already carries
+  const commitsRange = from === undefined && to === undefined ? undefined : toRange(from, to);
+  const commitsYearRanges = commitsRange ? toYearRanges(commitsRange) : [];
+  // one calendar year is a range `userInfo` can ask for itself; anything else is summed separately
+  const inlineRange = commitsYearRanges.length === 1 ? commitsYearRanges[0] : undefined;
+
   const res = await statsFetcher(
     {
       username,
       includeMergedPullRequests: include_merged_pull_requests,
       includeDiscussions: include_discussions,
       includeDiscussionsAnswers: include_discussions_answers,
-      startTime:
-        commits_year === undefined
-          ? undefined
-          : toGitHubDateTime(getGitHubYearRange(commits_year).from),
+      commitsRange: inlineRange,
       ownerAffiliations: affiliations,
       includeUserRepositories: contribs_include_own_repos,
     },
@@ -477,7 +496,17 @@ const fetchStats = async (
       config,
     );
   } else {
-    stats.totalCommits = user.commits.totalCommitContributions;
+    stats.commitsRange = commitsRange;
+    // an inverted range sums no years, which is no commits rather than GitHub's default year
+    stats.totalCommits =
+      commitsRange && !inlineRange
+        ? await sumOverRanges(
+            username,
+            commitsYearRanges,
+            (block) => block.totalCommitContributions,
+            config,
+          )
+        : user.commits.totalCommitContributions;
   }
   const repoUserStats = await fetchRepoUserStats(
     {
@@ -510,10 +539,16 @@ const fetchStats = async (
   }
   stats.contributedTo = user.repositoriesContributedTo.totalCount;
 
+  const contributionRanges = toContributionRanges(
+    user.contributionsCollection.contributionYears,
+    getWidestRange(),
+  );
+
   if (include_contributions) {
-    stats.totalContributions = await fetchTotalContributions(
+    stats.totalContributions = await sumOverRanges(
       username,
-      user.contributionsCollection.contributionYears,
+      contributionRanges,
+      (block) => block.contributionCalendar.totalContributions,
       config,
     );
   }
@@ -521,7 +556,7 @@ const fetchStats = async (
   if (include_all_time_contribs) {
     const reposContributedTo = await fetchReposContributedTo(
       user.login,
-      user.contributionsCollection.contributionYears,
+      contributionRanges,
       contribs_include_own_repos,
       config,
     );

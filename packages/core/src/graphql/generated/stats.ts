@@ -42,6 +42,7 @@ export type UserInfoQueryVariables = Exact<{
   includeDiscussions: boolean;
   includeDiscussionsAnswers: boolean;
   startTime?: string | null | undefined;
+  endTime?: string | null | undefined;
   ownerAffiliations?:
     | Array<Types.RepositoryAffiliation | null | undefined>
     | Types.RepositoryAffiliation
@@ -73,7 +74,10 @@ export type UserInfoQuery = {
   } | null;
 };
 
-export type YearContributionsFragment = { contributionCalendar: { totalContributions: number } };
+export type RangeContributionsFragment = {
+  totalCommitContributions: number;
+  contributionCalendar: { totalContributions: number };
+};
 
 export type RangeContributionsByRepoFragment = {
   commitContributionsByRepository: Array<{
@@ -122,11 +126,11 @@ fragment RepoNode on Repository {
 }`);
 
 export const UserInfoDocument = graphqlDocument<UserInfoQuery, UserInfoQueryVariables>(`
-query userInfo($login: String!, $after: String, $includeMergedPullRequests: Boolean!, $includeDiscussions: Boolean!, $includeDiscussionsAnswers: Boolean!, $startTime: DateTime = null, $ownerAffiliations: [RepositoryAffiliation], $includeUserRepositories: Boolean!) {
+query userInfo($login: String!, $after: String, $includeMergedPullRequests: Boolean!, $includeDiscussions: Boolean!, $includeDiscussionsAnswers: Boolean!, $startTime: DateTime = null, $endTime: DateTime = null, $ownerAffiliations: [RepositoryAffiliation], $includeUserRepositories: Boolean!) {
   user(login: $login) {
     name
     login
-    commits: contributionsCollection(from: $startTime) {
+    commits: contributionsCollection(from: $startTime, to: $endTime) {
       totalCommitContributions
     }
     reviews: contributionsCollection {

@@ -1,6 +1,6 @@
 <svg width="380" height="145" viewBox="0 0 380 145" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
   <title id="titleId">Marco, in short, Rank: A</title>
-  <desc id="descId">Total Stars Earned: 86, Total Commits  (last year) : 950, Total PRs: 1030</desc>
+  <desc id="descId">Total Stars Earned: 86, Total Commits  (last year) : 975, Total PRs: 1055</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -74,7 +74,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 39.79154111791791;
+        stroke-dashoffset: 39.590140641384664;
       }
     }
     /* Animations */
@@ -116,13 +116,13 @@
       <g transform="translate(0, 25)">
         <g class="stagger" style="animation-delay: 160ms" transform="translate(25, 0)">
           <text class="stat not_bold" y="12.5">Total Commits (last year):</text>
-          <text class="stat not_bold" x="330" text-anchor="end" y="12.5" data-testid="commits">950</text>
+          <text class="stat not_bold" x="330" text-anchor="end" y="12.5" data-testid="commits">975</text>
         </g>
       </g>
       <g transform="translate(0, 50)">
         <g class="stagger" style="animation-delay: 200ms" transform="translate(25, 0)">
           <text class="stat not_bold" y="12.5">Total PRs:</text>
-          <text class="stat not_bold" x="330" text-anchor="end" y="12.5" data-testid="prs">1k</text>
+          <text class="stat not_bold" x="330" text-anchor="end" y="12.5" data-testid="prs">1.1k</text>
         </g>
       </g>
     </svg>

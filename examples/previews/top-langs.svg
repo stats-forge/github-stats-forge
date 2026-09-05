@@ -1,6 +1,6 @@
 <svg width="300" height="190" viewBox="0 0 300 190" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
   <title id="titleId">Most Used Languages</title>
-  <desc id="descId">TypeScript 93.57%, JavaScript 4.94%, Svelte 0.69%, SCSS 0.26%, HTML 0.21%, Rust 0.21%, CSS 0.11%</desc>
+  <desc id="descId">TypeScript 93.55%, JavaScript 4.96%, Svelte 0.70%, SCSS 0.26%, HTML 0.21%, Rust 0.21%, CSS 0.11%</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -92,31 +92,31 @@
       <mask id="rect-mask">
         <rect x="0" y="0" width="250" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="233.93" height="8" fill="#3178c6" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="233.93" y="0" width="12.36" height="8" fill="#f1e05a" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="246.29000000000002" y="0" width="11.74" height="8" fill="#ff3e00" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="248.03000000000003" y="0" width="10.64" height="8" fill="#c6538c" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="248.67000000000002" y="0" width="10.53" height="8" fill="#e34c26" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="249.20000000000002" y="0" width="10.52" height="8" fill="#dea584" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="249.72000000000003" y="0" width="10.28" height="8" fill="#663399" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="233.87" height="8" fill="#3178c6" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="233.87" y="0" width="12.4" height="8" fill="#f1e05a" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="246.27" y="0" width="11.74" height="8" fill="#ff3e00" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="248.01000000000002" y="0" width="10.64" height="8" fill="#c6538c" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="248.65" y="0" width="10.54" height="8" fill="#e34c26" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="249.19" y="0" width="10.52" height="8" fill="#dea584" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="249.71" y="0" width="10.29" height="8" fill="#663399" />
       <g transform="translate(0, 25)">
         <g>
           <g>
             <g class="stagger" style="animation-delay: 450ms">
               <circle cx="5" cy="6" r="5" fill="#3178c6" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 93.57%</text>
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 93.55%</text>
             </g>
           </g>
           <g transform="translate(0, 25)">
             <g class="stagger" style="animation-delay: 600ms">
               <circle cx="5" cy="6" r="5" fill="#f1e05a" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">JavaScript 4.94%</text>
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">JavaScript 4.96%</text>
             </g>
           </g>
           <g transform="translate(0, 50)">
             <g class="stagger" style="animation-delay: 750ms">
               <circle cx="5" cy="6" r="5" fill="#ff3e00" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 0.69%</text>
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 0.70%</text>
             </g>
           </g>
           <g transform="translate(0, 75)">

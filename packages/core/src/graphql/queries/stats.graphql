@@ -34,13 +34,14 @@ query userInfo(
   $includeDiscussions: Boolean!
   $includeDiscussionsAnswers: Boolean!
   $startTime: DateTime = null
+  $endTime: DateTime = null
   $ownerAffiliations: [RepositoryAffiliation]
   $includeUserRepositories: Boolean!
 ) {
   user(login: $login) {
     name
     login
-    commits: contributionsCollection(from: $startTime) {
+    commits: contributionsCollection(from: $startTime, to: $endTime) {
       totalCommitContributions
     }
     reviews: contributionsCollection {
@@ -81,7 +82,8 @@ query userInfo(
   }
 }
 
-fragment YearContributions on ContributionsCollection {
+fragment RangeContributions on ContributionsCollection {
+  totalCommitContributions
   contributionCalendar {
     totalContributions
   }

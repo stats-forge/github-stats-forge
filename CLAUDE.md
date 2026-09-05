@@ -141,6 +141,9 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   rewrapped, and it lands verbatim in the published `CHANGELOG.md`. The existing
   changesets are the reference: each break falls on a comma, colon or full stop, and a
   long clause is allowed to run past the width rather than be split.
+- **`examples/previews/README.md` lists the cards in the root README's order**, a variant
+  after the card it varies — `CARD_ORDER` in `examples/generate.ts` holds it, so reordering
+  the README's table means reordering that list too.
 - **`examples/previews` is committed, so redraw it when a card's output changes.**
   `pnpm examples` renders every saved card in `examples/cards` through the built CLI;
   it needs `PAT_1` in a root `.env`, which is why CI cannot keep the previews current.
@@ -331,8 +334,8 @@ hand the render functions typed values — defaults stay with the renderer.
 **Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
 params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `looseIntParam`,
 `rawParam`, `safeParam`, `safeListParam`, `localeParam`, `enumParam(values)`,
-`yearParam`) — none of which takes a message, because the wording is derived from the
-kind and the param name.
+`fromParam`, `toParam`) — none of which takes a message, because the wording is derived
+from the kind and the param name.
 A handler is then three steps — `parseColorParams(query)`, `parseParams(xQuery, query)`,
 render — wrapped in one `try`/`catch` whose `catch` is `errorResult(err, colors)`.
 Parsing throws, fetching throws, and one place turns whatever was thrown into the answer.
@@ -476,14 +479,22 @@ returns `graphqlDocument<Result, Variables>(…)` for `createGraphQLFetcher` (se
 
 The generator emits fragment **types** but not fragment **text**, so such a module has to
 repeat the fragment body in its template literal — `contributionsDocument.ts` spells out
-`YearContributions` verbatim while importing `YearContributionsFragment` from
-`generated/stats.js`. That duplication is unguarded: nothing fails if the `.graphql`
+`RangeContributions` verbatim while importing `RangeContributionsFragment` from
+`generated/stats.ts`. That duplication is unguarded: nothing fails if the `.graphql`
 fragment and the copy drift apart, so change both together and keep the comment pointing
 at the source.
 
 The alternative — one static `($login, $from, $to)` query fetched per year in parallel —
 was tried and dropped: it costs ~1 rate-limit point per account year instead of 1
 total. Fetchers still never contain query text.
+
+**A `contributionsCollection` names both ends of its range, always, and spans at most a
+year.** GitHub defaults an omitted `to` to a year after `from` — `?commits_year=2024` counted
+2 commits made on 2025-01-01 until this was fixed on 2026-09-05 — and refuses a longer range
+outright, so `common/date.ts` slices one per calendar year and `aliasedRanges` sends them as
+fields of a single request. The vocabulary there is **range, never span**: `from` and `to`,
+both ends inclusive, an open one filled from `getWidestRange()` — which is also the bound the
+api rejects a date outside of.
 
 The generator (`packages/core/scripts/generate-graphql-types.ts`) is deliberately
 dev-only — no codegen dependency reaches consumers. It is covered by

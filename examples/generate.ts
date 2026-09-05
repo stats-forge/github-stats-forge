@@ -19,6 +19,15 @@ const CARDS_DIR = join(EXAMPLES_DIR, 'cards');
 const PREVIEWS_DIR = join(EXAMPLES_DIR, 'previews');
 const CLI = join(REPO_ROOT, 'packages', 'cli', 'build', 'index.js');
 
+/** The order the root README lists the cards in; a variant follows the card it varies. */
+const CARD_ORDER = ['stats', 'top-langs', 'contributed-to', 'pin', 'gist', 'wakatime'];
+
+/** @returns Where a card sorts; one the README does not list goes last. */
+const cardRank = (card: string): number => {
+  const index = CARD_ORDER.indexOf(card);
+  return index === -1 ? CARD_ORDER.length : index;
+};
+
 /** A saved card, as the files in `cards/` hold it. */
 interface SavedCard {
   card: string;
@@ -104,6 +113,16 @@ const describeOptions = (options: Record<string, string>): string =>
     .join(' · ');
 
 /**
+ * Orders the examples as the root README lists their cards, alphabetically within each.
+ *
+ * @returns A new array.
+ */
+const inReadmeOrder = (previews: Array<Preview>): Array<Preview> =>
+  previews.toSorted(
+    (a, b) => cardRank(a.saved.card) - cardRank(b.saved.card) || a.name.localeCompare(b.name),
+  );
+
+/**
  * Writes the file that shows every preview at once.
  *
  * It covers every saved card, not only the ones this run redrew,
@@ -112,7 +131,7 @@ const describeOptions = (options: Record<string, string>): string =>
  * @returns The file written.
  */
 const writeIndex = async (previews: Array<Preview>): Promise<string> => {
-  const sections = previews.map(({ name, saved, error, rendered }) => {
+  const sections = inReadmeOrder(previews).map(({ name, saved, error, rendered }) => {
     let body: string;
     if (error !== undefined) {
       body = `> Did not render:\n>\n> \`\`\`\n> ${error.split('\n').join('\n> ')}\n> \`\`\``;

@@ -1,3 +1,4 @@
+import type { GitHubDateRange } from '../common/date.ts';
 import type { RepoInfoFragment } from '../graphql/generated/repo.ts';
 
 export interface GistData {
@@ -39,6 +40,8 @@ export interface StatsData {
   mergedPRsPercentage: number;
   totalReviews: number;
   totalCommits: number;
+  /** The range `totalCommits` covers; `undefined` when it is GitHub's own last year, or all time. */
+  commitsRange: GitHubDateRange | undefined;
   totalIssues: number;
   totalStars: number;
   totalDiscussionsStarted: number;
@@ -73,7 +76,7 @@ export interface ContributedToData {
   repos: Array<ContributedRepo>;
   /** Every repository the walk found, which `repos` is a slice of. */
   totalRepos: number;
-  /** The account's contribution years, ascending — the span the year marks cover. */
+  /** The account's contribution years, ascending — the range the year marks cover. */
   years: Array<number>;
 }
 

@@ -38,6 +38,7 @@ const repoData: RepositoryData = {
 const statsData: StatsData = {
   name: 'Anurag Hazra',
   totalStars: 100,
+  commitsRange: undefined,
   totalCommits: 200,
   totalIssues: 300,
   totalPRs: 400,
