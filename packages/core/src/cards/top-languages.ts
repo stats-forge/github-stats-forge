@@ -1,3 +1,4 @@
+import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../common/brand.ts';
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors, isPrefixedHexColor } from '../common/color.ts';
 import { formatBytes } from '../common/fmt.ts';
@@ -7,12 +8,12 @@ import { chunkArray, clampValue, lowercaseTrim } from '../common/ops.ts';
 import { createProgressNode, flexLayout, measureText } from '../common/render.ts';
 import type { Lang, TopLangData } from '../fetchers/types.ts';
 import type { Child, MarkupElement } from '../markup/index.ts';
-import { atRule, cssComment, el, rule } from '../markup/index.ts';
+import { atRule, el, rule } from '../markup/index.ts';
 import { langCardLocales } from '../translations.ts';
 
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
-const DEFAULT_CARD_WIDTH = 300;
+const DEFAULT_CARD_WIDTH = CARD_WIDTH.compact;
 const MIN_CARD_WIDTH = 280;
 const CARD_PADDING = 25;
 const COMPACT_LAYOUT_BASE_HEIGHT = 90;
@@ -21,6 +22,8 @@ const MAXIMUM_LANGS_COUNT = 20;
 const NORMAL_LAYOUT_DEFAULT_LANGS_COUNT = 5;
 const COMPACT_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 const DONUT_LAYOUT_DEFAULT_LANGS_COUNT = 5;
+/** Room for the chart that sits beside the language list. */
+const DONUT_EXTRA_WIDTH = 50;
 const PIE_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 const DONUT_VERTICAL_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 
@@ -862,7 +865,9 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     );
   } else if (layout === 'donut') {
     height = calculateDonutLayoutHeight(langs.length);
-    width += 50; // padding
+    // A donut defaults a step wider so the chart has its room; a width asked for
+    // explicitly keeps the extra it has always been given instead of being snapped.
+    width = width === DEFAULT_CARD_WIDTH ? CARD_WIDTH.standard : width + DONUT_EXTRA_WIDTH;
     finalLayout = renderDonutLayout(langs, width, totalLanguageSize, stats_format, hide_values);
   } else {
     finalLayout = renderNormalLayout(langs, width, totalLanguageSize, stats_format, hide_values);
@@ -871,6 +876,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
   const card = new Card({
     customTitle: custom_title,
     defaultTitle: i18n.t('langcard.title'),
+    titlePrefixIcon: CARD_ICON.topLanguages,
     width,
     height,
     border_radius,
@@ -898,16 +904,12 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
         rule('to', { width: '100%' }),
       ),
       rule('.stat', {
-        font: `600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
+        font: font('regular', 'body'),
         fill: textColor,
       }),
-      atRule(
-        '@supports(-moz-appearance: auto)',
-        cssComment('Selector detects Firefox'),
-        rule('.stat', { 'font-size': '12px' }),
-      ),
-      rule('.bold', { 'font-weight': 700 }),
-      rule('.lang-name', { font: '400 11px "Segoe UI", Ubuntu, Sans-Serif', fill: textColor }),
+      firefoxFontSize(['.stat'], 'small'),
+      rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
+      rule('.lang-name', { font: font('regular', 'micro'), fill: textColor }),
       rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
       rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out forwards' }),
       rule('.lang-progress', { animation: 'growWidthAnimation 0.6s ease-in-out forwards' }),

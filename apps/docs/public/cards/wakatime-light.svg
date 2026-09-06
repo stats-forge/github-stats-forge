@@ -1,11 +1,24 @@
-<svg width="495" height="115" viewBox="0 0 495 115" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
-  <title id="titleId">WakaTime Stats (last year)</title>
-  <desc id="descId">Other: 55 hrs 30 mins</desc>
+<svg width="500" height="115" viewBox="0 0 500 115" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+  <title id="title-id">WakaTime Stats (last year)</title>
+  <desc id="desc-id">Other: 54 hrs 30 mins</desc>
   <style>
     .header {
-      font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
+      font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #2f80ed;
       animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    /* The icon reads against the title rather than with it, so it keeps its own color. */
+    .title-icon {
+      fill: #4c71f2;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-accent {
+      fill: #4c71f2;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-band {
+      fill: #2f80ed;
+      opacity: 0.08;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -14,7 +27,7 @@
       }
     }
     .stat {
-      font: 600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #434d58;
     }
     @supports(-moz-appearance: auto) {
@@ -31,7 +44,7 @@
       font-weight: 400;
     }
     .bold {
-      font-weight: 700;
+      font-weight: 600;
     }
     @keyframes slideInAnimation {
       from {
@@ -50,7 +63,7 @@
       }
     }
     .lang-name {
-      font: 400 11px 'Segoe UI', Ubuntu, Sans-Serif;
+      font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #434d58;
     }
     #rect-mask rect {
@@ -87,19 +100,28 @@
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#0000001f" width="494" fill="#fffefe" stroke-opacity="1" />
-  <g data-testid="card-title" transform="translate(25, 35)">
-    <text x="0" y="0" class="header" data-testid="header">WakaTime Stats (last year)</text>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#0000001f" width="499" fill="#fffefe" stroke-opacity="1" />
+  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h483a8 8 0 0 1 8 8v37.5h-499z" />
+  <g data-testid="card-title" transform="translate(25, 30)">
+    <g>
+      <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.75.75 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z" />
+      </svg>
+    </g>
+    <g transform="translate(25, 0)">
+      <text x="0" y="0" class="header" data-testid="header">WakaTime Stats (last year)</text>
+    </g>
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
       <mask id="rect-mask">
-        <rect x="25" y="0" width="440" height="8" fill="white" rx="5" />
+        <rect x="25" y="0" width="445" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="465" height="8" fill="#858585" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="470" height="8" fill="#858585" />
       <g transform="translate(25, 25)">
         <circle cx="5" cy="6" r="5" fill="#858585" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 55 hrs 30 mins</text>
+        <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 54 hrs 30 mins</text>
       </g>
     </svg>
   </g>

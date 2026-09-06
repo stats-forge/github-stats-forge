@@ -1,28 +1,27 @@
+import { CARD_ICON, CARD_WIDTH, FONT_SIZE, firefoxFontSize, font } from '../common/brand.ts';
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
 import { formatYears } from '../common/date.ts';
 import { kFormatter } from '../common/fmt.ts';
 import { I18n } from '../common/I18n.ts';
-import { icons } from '../common/icons.ts';
 import { clampValue } from '../common/ops.ts';
 import { createProgressNode, measureText } from '../common/render.ts';
 import type { ContributedRepo, ContributedToData } from '../fetchers/types.ts';
 import type { Child } from '../markup/index.ts';
-import { atRule, cssComment, el, rule } from '../markup/index.ts';
+import { atRule, el, rule } from '../markup/index.ts';
 import { contributedToCardLocales } from '../translations.ts';
 
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
-const CARD_DEFAULT_WIDTH = 450;
+const CARD_DEFAULT_WIDTH = CARD_WIDTH.wide;
 const MIN_CARD_WIDTH = 340;
 /** Padding the card keeps at its edges; matches `Card`'s own `paddingX`. */
 const CARD_PADDING = 25;
 
-const TITLE_FONT_SIZE = 18;
+const TITLE_FONT_SIZE = FONT_SIZE.title;
 /** What `Card`'s title layout reserves for the prefix icon, so the title text starts past it. */
 const TITLE_ICON_COLUMN = 25;
-const NAME_FONT_SIZE = 13;
-const FOOTER_FONT_SIZE = 11;
+const NAME_FONT_SIZE = FONT_SIZE.meta;
 
 /** Room kept at the right edge for the contribution count. */
 const COUNT_WIDTH = 46;
@@ -276,7 +275,7 @@ const renderContributedToCard = (
   const card = new Card({
     customTitle: custom_title,
     defaultTitle: defaultTitleFor(i18n, contentWidth - TITLE_ICON_COLUMN),
-    titlePrefixIcon: icons.contribs,
+    titlePrefixIcon: CARD_ICON.contributedTo,
     width,
     height,
     border_radius,
@@ -297,25 +296,20 @@ const renderContributedToCard = (
         rule('to', { width: '100%' }),
       ),
       rule('.repo-name', {
-        font: `400 ${NAME_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif`,
+        font: font('regular', 'meta'),
         fill: textColor,
       }),
       rule('.count', {
-        font: `600 ${NAME_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif`,
+        font: font('semibold', 'meta'),
         fill: textColor,
         'font-variant-numeric': 'tabular-nums',
       }),
       rule('.footer', {
-        font: `400 ${FOOTER_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif`,
+        font: font('regular', 'micro'),
         fill: textColor,
         opacity: 0.7,
       }),
-      atRule(
-        '@supports(-moz-appearance: auto)',
-        cssComment('Selector detects Firefox'),
-        rule('.repo-name', { 'font-size': '12px' }),
-        rule('.count', { 'font-size': '12px' }),
-      ),
+      firefoxFontSize(['.repo-name', '.count'], 'small'),
       rule('.year-on', { fill: titleColor }),
       // a year with no contribution reads off the text color, not `progBarBgColor`:
       // on a dark theme that color is a light grey, and the empty marks came out looking filled

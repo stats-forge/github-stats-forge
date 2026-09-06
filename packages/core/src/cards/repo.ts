@@ -1,3 +1,4 @@
+import { CARD_ICON, CARD_WIDTH, FONT_SIZE, FONT_WEIGHT, font } from '../common/brand.ts';
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
 import { kFormatter } from '../common/fmt.ts';
@@ -24,9 +25,9 @@ import { repoCardLocales } from '../translations.ts';
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
 const ICON_SIZE = 16;
-const CARD_DEFAULT_WIDTH = 400;
+const CARD_DEFAULT_WIDTH = CARD_WIDTH.standard;
 const X_OFFSET = 25;
-const DESCRIPTION_FONT_SIZE = 13;
+const DESCRIPTION_FONT_SIZE = FONT_SIZE.meta;
 const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 3;
 
@@ -305,7 +306,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
 
   const card = new Card({
     defaultTitle: header.length > 35 ? `${header.slice(0, 35)}...` : header,
-    titlePrefixIcon: icons.contribs,
+    titlePrefixIcon: CARD_ICON.repo,
     width: card_width,
     height,
     border_radius,
@@ -318,21 +319,21 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   card.setCSS({
     light: ({ textColor, iconColor }) => [
       rule('.description', {
-        font: `400 ${DESCRIPTION_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif`,
+        font: font('regular', 'meta'),
         fill: textColor,
         ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
       }),
-      rule('.gray', { font: "400 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
-      rule('.badge', { font: "600 11px 'Segoe UI', Ubuntu, Sans-Serif" }),
+      rule('.gray', { font: font('regular', 'small'), fill: textColor }),
+      rule('.badge', { font: font('semibold', 'micro') }),
       rule('.badge rect', { opacity: 0.2, stroke: textColor }),
       rule('.badge text', { fill: textColor }),
-      rule('.stat', { font: "400 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+      rule('.stat', { font: font('regular', 'small'), fill: textColor }),
       rule('.stagger', {
         opacity: 0,
         animation: 'fadeInAnimation 0.3s ease-in-out forwards',
       }),
-      rule('.not_bold', { 'font-weight': 400 }),
-      rule('.bold', { 'font-weight': 700 }),
+      rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular }),
+      rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
       rule('.icon', { fill: iconColor, display: 'block' }),
     ],
     dark: ({ textColor, iconColor }) => [

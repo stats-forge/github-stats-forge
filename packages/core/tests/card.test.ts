@@ -1,4 +1,4 @@
-import { queryByTestId } from '@testing-library/dom';
+import { queryByTestId, screen } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -62,17 +62,56 @@ describe(Card, () => {
   });
 
   it('title should have prefix icon', () => {
-    const card = new Card({ titlePrefixIcon: icons.contribs });
+    const card = new Card({ titlePrefixIcon: icons.repo });
 
     document.body.innerHTML = card.render(``);
-    expect(document.querySelector('.icon')).toBeInTheDocument();
+    expect(document.querySelector('.title-icon')).toBeInTheDocument();
+  });
+
+  it('should band the title, and drop the band along with the title', () => {
+    const card = new Card({ width: 200 });
+
+    document.body.innerHTML = card.render(``);
+    expect(screen.getByTestId('title-band')).toBeInTheDocument();
+
+    card.setHideTitle(true);
+    document.body.innerHTML = card.render(``);
+    expect(screen.queryByTestId('title-band')).not.toBeInTheDocument();
+  });
+
+  it('should band the title in the title color and keep the icon out of it', () => {
+    const card = new Card({
+      titlePrefixIcon: icons.repo,
+      colors: {
+        light: getCardColors({ title_color: 'f00', icon_color: '0f0', theme: 'default' }),
+        dark: null,
+      },
+    });
+
+    document.body.innerHTML = card.render(``);
+    const stylesObject = cssToObject(document.querySelector('style')?.innerHTML ?? '');
+
+    expect(stylesObject[':host']?.['.title-band ']?.['fill']?.trim()).toBe('#f00');
+    expect(stylesObject[':host']?.['.title-icon ']?.['fill']?.trim()).toBe('#0f0');
+    expect(stylesObject[':host']?.['.title-accent ']?.['fill']?.trim()).toBe('#0f0');
+  });
+
+  it('should follow the card corners with the band, and square its foot', () => {
+    const card = new Card({ width: 200, border_radius: 8 });
+
+    document.body.innerHTML = card.render(``);
+    // Rounded in at both top corners, then straight down to its foot at 46.
+    expect(screen.getByTestId('title-band')).toHaveAttribute(
+      'd',
+      'M0.5 8.5a8 8 0 0 1 8 -8h183a8 8 0 0 1 8 8v37.5h-199z',
+    );
   });
 
   it('title should not have prefix icon', () => {
     const card = new Card({});
 
     document.body.innerHTML = card.render(``);
-    expect(document.querySelector('.icon')).not.toBeInTheDocument();
+    expect(document.querySelector('.title-icon')).not.toBeInTheDocument();
   });
 
   it('should have proper height, width', () => {

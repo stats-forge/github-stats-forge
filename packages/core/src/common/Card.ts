@@ -1,6 +1,7 @@
 import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
 import { atRule, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
 
+import { ACCENT, firefoxFontSize, font, TITLE_BAND, TITLE_FIREFOX_SIZE } from './brand.ts';
 import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.ts';
 import type { CardColors } from './color.ts';
 import { flexLayout } from './render.ts';
@@ -104,7 +105,7 @@ class Card {
     this.darkCss = [];
 
     this.paddingX = 25;
-    this.paddingY = 35;
+    this.paddingY = 30;
     this.titlePrefixIcon = titlePrefixIcon;
     this.animations = true;
     this.a11yTitle = '';
@@ -164,7 +165,7 @@ class Card {
             el(
               'svg',
               {
-                class: 'icon',
+                class: 'title-icon',
                 x: 0,
                 y: -13,
                 viewBox: '0 0 16 16',
@@ -178,7 +179,39 @@ class Card {
         ],
         gap: 25,
       }),
+      el('rect', {
+        'data-testid': 'title-accent',
+        class: 'title-accent',
+        x: 0,
+        y: ACCENT.y,
+        width: ACCENT.width,
+        height: ACCENT.height,
+        rx: ACCENT.height / 2,
+      }),
     );
+  }
+
+  /** Where the body starts, and so where the title band ends. */
+  private get bodyOffset(): number {
+    return this.hideTitle ? this.paddingX : this.paddingY + 25;
+  }
+
+  /**
+   * The band behind the title. Its top corners follow the card's own and its bottom
+   * ones stay square, so it meets the body as an edge rather than a floating box.
+   *
+   * @returns The rendered title band.
+   */
+  private renderTitleBand(): MarkupElement {
+    const height = this.bodyOffset - TITLE_BAND.gap;
+    const innerWidth = this.width - 1;
+    const r = Math.min(this.border_radius, height, innerWidth / 2);
+
+    return el('path', {
+      'data-testid': 'title-band',
+      class: 'title-band',
+      d: `M0.5 ${0.5 + r}a${r} ${r} 0 0 1 ${r} ${-r}h${innerWidth - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}v${height - r - 0.5}h${-innerWidth}z`,
+    });
   }
 
   /** @returns The card's gradient definitions, or nothing when no color is a gradient. */
@@ -225,6 +258,9 @@ class Card {
     return atRule(
       '@media (prefers-color-scheme: dark)',
       rule('.header', { fill: this.colors.dark.titleColor }),
+      rule('.title-icon', { fill: this.colors.dark.iconColor }),
+      rule('.title-accent', { fill: this.colors.dark.iconColor }),
+      rule('.title-band', { fill: this.colors.dark.titleColor }),
       rule('.card-bg', { fill: bgFill, stroke: this.colors.dark.borderColor }),
       this.darkCss,
     );
@@ -259,21 +295,29 @@ class Card {
           fill: 'none',
           xmlns: 'http://www.w3.org/2000/svg',
           role: 'img',
-          'aria-labelledby': 'titleId descId',
+          'aria-labelledby': 'title-id desc-id',
         },
-        el('title', { id: 'titleId' }, this.a11yTitle),
-        el('desc', { id: 'descId' }, this.a11yDesc),
+        el('title', { id: 'title-id' }, this.a11yTitle),
+        el('desc', { id: 'desc-id' }, this.a11yDesc),
         style(
           rule('.header', {
-            font: "600 18px 'Segoe UI', Ubuntu, Sans-Serif",
+            font: font('semibold', 'title'),
             fill: this.colors.light.titleColor,
             animation: 'fadeInAnimation 0.8s ease-in-out forwards',
           }),
-          atRule(
-            '@supports(-moz-appearance: auto)',
-            cssComment('Selector detects Firefox'),
-            rule('.header', { 'font-size': '15.5px' }),
+          cssComment(
+            'The icon reads against the title rather than with it, so it keeps its own color.',
           ),
+          rule('.title-icon', {
+            fill: this.colors.light.iconColor,
+            animation: 'fadeInAnimation 0.8s ease-in-out forwards',
+          }),
+          rule('.title-accent', {
+            fill: this.colors.light.iconColor,
+            animation: 'fadeInAnimation 0.8s ease-in-out forwards',
+          }),
+          rule('.title-band', { fill: this.colors.light.titleColor, opacity: TITLE_BAND.opacity }),
+          firefoxFontSize(['.header'], TITLE_FIREFOX_SIZE),
           this.css,
           this.renderDarkMediaBlock(),
           getAnimations(),
@@ -295,12 +339,13 @@ class Card {
               : this.colors.light.bgColor,
           'stroke-opacity': this.hideBorder ? 0 : 1,
         }),
+        !this.hideTitle && this.renderTitleBand(),
         !this.hideTitle && this.renderTitle(),
         el(
           'g',
           {
             'data-testid': 'main-card-body',
-            transform: `translate(0, ${this.hideTitle ? this.paddingX : this.paddingY + 20})`,
+            transform: `translate(0, ${this.bodyOffset})`,
           },
           body,
         ),
