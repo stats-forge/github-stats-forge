@@ -111,14 +111,14 @@ describe('card accessibility', () => {
 
     expect(svg).toHaveAttribute('role', 'img');
     // both ids, so the title is not merely present but actually announced
-    expect(svg).toHaveAttribute('aria-labelledby', 'titleId descId');
+    expect(svg).toHaveAttribute('aria-labelledby', 'title-id desc-id');
   });
 
   it.each(Object.entries(cards))('%s labels itself with a non-empty title', (_name, render) => {
     parse(render());
 
     // at least one non-whitespace character, so an empty label fails
-    expect(document.querySelector('title#titleId')).toHaveTextContent(/\S/);
+    expect(document.querySelector('title#title-id')).toHaveTextContent(/\S/);
   });
 
   it.each(Object.entries(cards))(
@@ -128,7 +128,7 @@ describe('card accessibility', () => {
 
       // `role="img"` hides the inner text, so an empty desc means the card's
       // numbers reach a screen reader as nothing at all.
-      expect(document.querySelector('desc#descId')).toHaveTextContent(/\S/);
+      expect(document.querySelector('desc#desc-id')).toHaveTextContent(/\S/);
     },
   );
 
@@ -148,8 +148,8 @@ describe('card accessibility', () => {
     );
 
     expect(svg).toHaveAttribute('role', 'img');
-    expect(document.querySelector('title#titleId')).toHaveTextContent('Something went wrong');
-    expect(document.querySelector('desc#descId')).toHaveTextContent('Try again');
+    expect(document.querySelector('title#title-id')).toHaveTextContent('Something went wrong');
+    expect(document.querySelector('desc#desc-id')).toHaveTextContent('Try again');
   });
 });
 
@@ -158,7 +158,7 @@ describe('card accessibility and locale', () => {
     // The card honours `locale`, so its label must not introduce words the card cannot translate.
     parse(renderRepoCard(repoData, { locale: 'cn' }));
 
-    const desc = document.querySelector('desc#descId')?.textContent ?? '';
+    const desc = document.querySelector('desc#desc-id')?.textContent ?? '';
     expect(desc).not.toMatch(/\b(?:Stars|Forks|Language)\b/);
   });
 });

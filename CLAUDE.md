@@ -699,6 +699,51 @@ Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
   is rarely right the first time and the point of the option list is to change one thing
   and look again.
 
+## Card branding
+
+**`common/brand.ts` owns how a card looks; a card composes from it.** One font stack, one
+type scale (`display` 22 through `micro` 11), one weight table, the three default widths and
+the icon each card wears. `TITLE_FIREFOX_SIZE` is the one size off the scale and still lives
+there, so "every size a card draws comes from `brand.ts`" holds without an exception to
+remember. A card that writes a `font` shorthand, a pixel size or a raw weight
+is drifting: before this landed on 2026-09-06 there were three font stacks — two of them
+inside the same card — and `.bold` meant 700 on three cards and 600 on a fourth.
+
+- **A default width is `CARD_WIDTH.compact`, `.standard` or `.wide` — 300, 400 or 500.**
+  Six cards had five default widths (287, 300, 400, 450, 495) and stacked in a README they
+  formed a ragged edge. A layout needing more room takes the next step up rather than adding
+  to one: the `donut` moved to `standard` instead of keeping its `+= 50`.
+  - **Raising a step can strand the minimum beneath it.** A minimum only ever meets its
+    default through `Math.max`, so once the ranked stats layouts moved to 500 and 300 their
+    420 and 290 floors could no longer change any output, and were deleted. Only a card sized
+    from its own title can still outgrow its step. Re-check the floors whenever a step moves.
+  - **A card's own slack absorbs its extras, so the default lands on the grid.** The stats
+    card added `iconWidth` to its default and came out 17px off; the icons now ride inside the
+    step, and only `minCardWidth`, which has no slack, still makes room for them.
+- **The title icon is `.title-icon`, not `.icon`.** `.icon` is the stat icon, and the stats
+  card sets `display: none` on it when `show_icons` is false — a title icon sharing that class
+  vanishes on the card's own default. It takes `iconColor`, and so does the rule beneath it,
+  so the two read against the title rather than dissolving into it.
+- **The header is a band, a title, an icon and a rule under that icon, in that order.** The
+  band is drawn by `Card` rather than by the title group, because it spans the card: its top
+  corners take the card's own `border_radius` and its foot stays square, so it meets the body
+  as an edge. `hide_title` drops the lot.
+- **The band's foot and the body are one subtraction apart, never two constants.** It ends at
+  `bodyOffset - TITLE_BAND.gap`, and `bodyOffset` is the single place that says where the body
+  starts, so the air under the header cannot silently close up. It did close up once: the band
+  first ran the full `bodyOffset` and met the first row of content with nothing between them.
+- **`paddingY` is 30, and the body still starts at 55.** The title used to sit at 35 with the
+  body 20 below it, which left the header top-heavy inside the band; moving the title up while
+  holding `paddingY + 25` kept every card's body exactly where it was, so nothing below the
+  header had to be re-measured.
+- **Each card's icon is distinct, and the mapping is one table.** `CARD_ICON` in `brand.ts`,
+  keyed by card. `repo` and `contributedTo` both passed `icons.contribs` — the repo glyph — and
+  three cards had no icon at all, so a card was not identifiable from its header.
+- **Two things that move with a width must be derived from it the same way.** The stats card
+  positioned its rank ring by interpolating between two constants while the values scaled 1:1
+  with the width, so widening the card by 50px moved them 50 and the ring 8, and the values
+  overran the ring. Both now come off `RANK_GUTTER`.
+
 ## Card text and translations
 
 **No user-visible string is written in English at its use site.** Every word a card draws

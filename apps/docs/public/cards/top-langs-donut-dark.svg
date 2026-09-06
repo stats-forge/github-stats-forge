@@ -1,11 +1,24 @@
-<svg width="350" height="247" viewBox="0 0 350 247" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
-  <title id="titleId">Most Used Languages</title>
-  <desc id="descId">TypeScript 93.66%, JavaScript 4.97%, Svelte 0.70%, SCSS 0.26%, HTML 0.21%, Rust 0.21%</desc>
+<svg width="400" height="247" viewBox="0 0 400 247" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+  <title id="title-id">Most Used Languages</title>
+  <desc id="desc-id">TypeScript 93.66%, JavaScript 4.97%, Svelte 0.70%, SCSS 0.26%, HTML 0.21%, Rust 0.21%</desc>
   <style>
     .header {
-      font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
+      font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #fff;
       animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    /* The icon reads against the title rather than with it, so it keeps its own color. */
+    .title-icon {
+      fill: #79ff97;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-accent {
+      fill: #79ff97;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-band {
+      fill: #fff;
+      opacity: 0.08;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -30,7 +43,7 @@
       }
     }
     .stat {
-      font: 600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #9f9f9f;
     }
     @supports(-moz-appearance: auto) {
@@ -40,10 +53,10 @@
       }
     }
     .bold {
-      font-weight: 700;
+      font-weight: 600;
     }
     .lang-name {
-      font: 400 11px "Segoe UI", Ubuntu, Sans-Serif;
+      font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #9f9f9f;
     }
     .stagger {
@@ -83,9 +96,18 @@
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="349" fill="#151515" stroke-opacity="1" />
-  <g data-testid="card-title" transform="translate(25, 35)">
-    <text x="0" y="0" class="header" data-testid="header">Most Used Languages</text>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="399" fill="#151515" stroke-opacity="1" />
+  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h383a8 8 0 0 1 8 8v37.5h-399z" />
+  <g data-testid="card-title" transform="translate(25, 30)">
+    <g>
+      <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+        <path d="M4.72 3.22a.75.75 0 0 1 1.06 1.06L2.06 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L.47 8.53a.75.75 0 0 1 0-1.06Zm6.56 0a.75.75 0 1 0-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06Z" />
+      </svg>
+    </g>
+    <g transform="translate(25, 0)">
+      <text x="0" y="0" class="header" data-testid="header">Most Used Languages</text>
+    </g>
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg data-testid="lang-items" x="25">
@@ -126,24 +148,24 @@
         </g>
       </g>
       <g transform="translate(125, -29)">
-        <svg width="350" height="350">
+        <svg width="400" height="400">
           <g class="stagger" style="animation-delay: 600ms">
-            <path data-testid="lang-donut" size="93.65" d="M 94.65275769088929 64.45077902011508 A 56.66666666666667 56.66666666666667 0 1 0 116.66666666666667 60" stroke="#3178c6" fill="none" stroke-width="12" />
+            <path data-testid="lang-donut" size="93.65" d="M 104.8447452470332 65.75983167309009 A 73.33333333333334 73.33333333333334 0 1 0 133.33333333333334 60" stroke="#3178c6" fill="none" stroke-width="12" />
           </g>
           <g class="stagger" style="animation-delay: 700ms">
-            <path data-testid="lang-donut" size="4.97" d="M 111.75937021742351 60.21288421880622 A 56.66666666666667 56.66666666666667 0 0 0 94.65275769088929 64.45077902011508" stroke="#f1e05a" fill="none" stroke-width="12" />
+            <path data-testid="lang-donut" size="4.97" d="M 126.98271439901865 60.27549722433746 A 73.33333333333334 73.33333333333334 0 0 0 104.8447452470332 65.75983167309009" stroke="#f1e05a" fill="none" stroke-width="12" />
           </g>
           <g class="stagger" style="animation-delay: 800ms">
-            <path data-testid="lang-donut" size="0.7" d="M 114.24628247980226 60.05171412319907 A 56.66666666666667 56.66666666666667 0 0 0 111.75937021742351 60.21288421880622" stroke="#ff3e00" fill="none" stroke-width="12" />
+            <path data-testid="lang-donut" size="0.7" d="M 130.20107144444998 60.066924159434095 A 73.33333333333334 73.33333333333334 0 0 0 126.98271439901865 60.27549722433746" stroke="#ff3e00" fill="none" stroke-width="12" />
           </g>
           <g class="stagger" style="animation-delay: 900ms">
-            <path data-testid="lang-donut" size="0.26" d="M 115.17144212320984 60.01973016807254 A 56.66666666666667 56.66666666666667 0 0 0 114.24628247980226 60.05171412319907" stroke="#c6538c" fill="none" stroke-width="12" />
+            <path data-testid="lang-donut" size="0.26" d="M 131.39833686533038 60.02553315868211 A 73.33333333333334 73.33333333333334 0 0 0 130.20107144444998 60.066924159434095" stroke="#c6538c" fill="none" stroke-width="12" />
           </g>
           <g class="stagger" style="animation-delay: 1000ms">
-            <path data-testid="lang-donut" size="0.21" d="M 115.91898931063534 60.00493275671304 A 56.66666666666667 56.66666666666667 0 0 0 115.17144212320984 60.01973016807254" stroke="#e34c26" fill="none" stroke-width="12" />
+            <path data-testid="lang-donut" size="0.21" d="M 132.36575087258691 60.006383567510994 A 73.33333333333334 73.33333333333334 0 0 0 131.39833686533038 60.02553315868211" stroke="#e34c26" fill="none" stroke-width="12" />
           </g>
           <g class="stagger" style="animation-delay: 1100ms">
-            <path data-testid="lang-donut" size="0.21" d="M 116.66666666666661 60 A 56.66666666666667 56.66666666666667 0 0 0 115.91898931063534 60.00493275671304" stroke="#dea584" fill="none" stroke-width="12" />
+            <path data-testid="lang-donut" size="0.21" d="M 133.33333333333326 60 A 73.33333333333334 73.33333333333334 0 0 0 132.36575087258691 60.006383567510994" stroke="#dea584" fill="none" stroke-width="12" />
           </g>
         </svg>
       </g>

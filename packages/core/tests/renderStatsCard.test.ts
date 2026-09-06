@@ -137,7 +137,7 @@ describe('Test renderStatsCard', () => {
 
   it('should render with custom width set', () => {
     document.body.innerHTML = renderStatsCard(stats);
-    expect(document.querySelector('svg')).toHaveAttribute('width', '450');
+    expect(document.querySelector('svg')).toHaveAttribute('width', '500');
 
     document.body.innerHTML = renderStatsCard(stats, { card_width: 500 });
     expect(document.querySelector('svg')).toHaveAttribute('width', '500');
@@ -354,8 +354,8 @@ describe('Test renderStatsCard', () => {
 
     for (const id of renderStatsCard.OPTIONS.hide) {
       const value = screen.getByTestId(id);
-      // The default 450 wide, less the padding, the row offset and the ring's gutter.
-      expect(value).toHaveAttribute('x', '280');
+      // The default 500 wide, less the padding, the row offset and the ring's gutter.
+      expect(value).toHaveAttribute('x', '330');
       expect(value).toHaveAttribute('text-anchor', 'end');
     }
   });
@@ -379,7 +379,7 @@ describe('Test renderStatsCard', () => {
       hide_rank: true,
     });
 
-    expect(document.querySelector('svg')).toHaveAttribute('width', '299.9666657447815');
+    expect(document.querySelector('svg')).toHaveAttribute('width', '300');
   });
 
   it('should auto resize if hide_rank is true & custom_title is set', () => {
@@ -388,7 +388,7 @@ describe('Test renderStatsCard', () => {
       custom_title: 'Hello world',
     });
 
-    expect(document.querySelector('svg')).toHaveAttribute('width', '287');
+    expect(document.querySelector('svg')).toHaveAttribute('width', '300');
   });
 
   it('should render translations', () => {

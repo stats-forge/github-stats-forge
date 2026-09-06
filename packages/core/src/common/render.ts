@@ -446,10 +446,10 @@ const renderError = ({
         fill: String(bgColor),
         xmlns: 'http://www.w3.org/2000/svg',
         role: 'img',
-        'aria-labelledby': 'titleId descId',
+        'aria-labelledby': 'title-id desc-id',
       },
-      el('title', { id: 'titleId' }, message),
-      el('desc', { id: 'descId' }, secondaryMessage),
+      el('title', { id: 'title-id' }, message),
+      el('desc', { id: 'desc-id' }, secondaryMessage),
       style(
         rule('.text', { font: "600 16px 'Segoe UI', Ubuntu, Sans-Serif", fill: titleColor }),
         rule('.small', { font: "600 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),

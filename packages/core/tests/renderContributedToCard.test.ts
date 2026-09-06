@@ -48,13 +48,13 @@ describe('test renderContributedToCard', () => {
     expect(document.querySelector('.header')).toHaveTextContent('Repositories contributed to');
   });
 
-  it('should color the title icon, which holds its own slot in the title either way', () => {
+  it('should give the title icon its own color, and hold its slot either way', () => {
     document.body.innerHTML = renderContributedToCard(data);
 
     const styleTag = document.querySelector('style');
-    const iconStyles = cssToObject(styleTag?.innerHTML ?? '')[':host']?.['.icon '];
+    const iconStyles = cssToObject(styleTag?.innerHTML ?? '')[':host']?.['.title-icon '];
 
-    expect(document.querySelector('.icon')).toBeInTheDocument();
+    expect(document.querySelector('.title-icon')).toBeInTheDocument();
     expect(iconStyles?.['fill']?.trim()).toBe(`#${themes.default.icon_color}`);
   });
 

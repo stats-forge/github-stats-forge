@@ -1,11 +1,24 @@
-<svg width="300" height="190" viewBox="0 0 300 190" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleId descId">
-  <title id="titleId">Most Used Languages</title>
-  <desc id="descId">TypeScript 93.55%, JavaScript 4.96%, Svelte 0.70%, SCSS 0.26%, HTML 0.21%, Rust 0.21%, CSS 0.11%</desc>
+<svg width="300" height="190" viewBox="0 0 300 190" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+  <title id="title-id">Most Used Languages</title>
+  <desc id="desc-id">TypeScript 93.55%, JavaScript 4.96%, Svelte 0.70%, SCSS 0.26%, HTML 0.21%, Rust 0.21%, CSS 0.11%</desc>
   <style>
     .header {
-      font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
+      font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #fff;
       animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    /* The icon reads against the title rather than with it, so it keeps its own color. */
+    .title-icon {
+      fill: #79ff97;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-accent {
+      fill: #79ff97;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-band {
+      fill: #fff;
+      opacity: 0.08;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -30,7 +43,7 @@
       }
     }
     .stat {
-      font: 600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #9f9f9f;
     }
     @supports(-moz-appearance: auto) {
@@ -40,10 +53,10 @@
       }
     }
     .bold {
-      font-weight: 700;
+      font-weight: 600;
     }
     .lang-name {
-      font: 400 11px "Segoe UI", Ubuntu, Sans-Serif;
+      font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #9f9f9f;
     }
     .stagger {
@@ -84,8 +97,17 @@
     }
   </style>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="299" fill="#151515" stroke-opacity="1" />
-  <g data-testid="card-title" transform="translate(25, 35)">
-    <text x="0" y="0" class="header" data-testid="header">Most Used Languages</text>
+  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h283a8 8 0 0 1 8 8v37.5h-299z" />
+  <g data-testid="card-title" transform="translate(25, 30)">
+    <g>
+      <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+        <path d="M4.72 3.22a.75.75 0 0 1 1.06 1.06L2.06 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L.47 8.53a.75.75 0 0 1 0-1.06Zm6.56 0a.75.75 0 1 0-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06Z" />
+      </svg>
+    </g>
+    <g transform="translate(25, 0)">
+      <text x="0" y="0" class="header" data-testid="header">Most Used Languages</text>
+    </g>
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg data-testid="lang-items" x="25">

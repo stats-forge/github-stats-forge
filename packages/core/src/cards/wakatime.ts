@@ -1,3 +1,4 @@
+import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../common/brand.ts';
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors, isPrefixedHexColor } from '../common/color.ts';
 import { I18n } from '../common/I18n.ts';
@@ -6,12 +7,12 @@ import { clampValue, lowercaseTrim } from '../common/ops.ts';
 import { createProgressNode, flexLayout } from '../common/render.ts';
 import type { WakaTimeData, WakaTimeLang } from '../fetchers/types.ts';
 import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
-import { atRule, cssComment, el, rule } from '../markup/index.ts';
+import { atRule, el, rule } from '../markup/index.ts';
 import { wakatimeCardLocales } from '../translations.ts';
 
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
-const DEFAULT_CARD_WIDTH = 495;
+const DEFAULT_CARD_WIDTH = CARD_WIDTH.wide;
 const MIN_CARD_WIDTH = 250;
 const COMPACT_LAYOUT_MIN_WIDTH = 400;
 const DEFAULT_LINE_HEIGHT = 25;
@@ -216,17 +217,13 @@ const getStyles = ({ textColor }: { textColor: string }): Array<CssChild> => {
 
   return [
     rule('.stat', {
-      font: `600 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
+      font: font('regular', 'body'),
       fill: textColor,
     }),
-    atRule(
-      '@supports(-moz-appearance: auto)',
-      cssComment('Selector detects Firefox'),
-      rule('.stat', { 'font-size': '12px' }),
-    ),
+    firefoxFontSize(['.stat'], 'small'),
     rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
-    rule('.not_bold', { 'font-weight': 400 }),
-    rule('.bold', { 'font-weight': 700 }),
+    rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular }),
+    rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
   ];
 };
 
@@ -412,6 +409,7 @@ const renderCard = (
   const card = new Card({
     customTitle: custom_title,
     defaultTitle: titleText,
+    titlePrefixIcon: CARD_ICON.wakatime,
     width: normalizedWidth,
     height,
     border_radius,
@@ -439,7 +437,7 @@ const renderCard = (
         rule('from', { width: 0 }),
         rule('to', { width: '100%' }),
       ),
-      rule('.lang-name', { font: "400 11px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+      rule('.lang-name', { font: font('regular', 'micro'), fill: textColor }),
       rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out forwards' }),
       rule('.lang-progress', {
         animation: 'growWidthAnimation 0.6s ease-in-out forwards',

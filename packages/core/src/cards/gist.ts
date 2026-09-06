@@ -1,3 +1,4 @@
+import { CARD_ICON, CARD_WIDTH, FONT_SIZE, font } from '../common/brand.ts';
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
 import { kFormatter } from '../common/fmt.ts';
@@ -23,11 +24,11 @@ import { gistCardLocales } from '../translations.ts';
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
 const ICON_SIZE = 16;
-const CARD_DEFAULT_WIDTH = 400;
+const CARD_DEFAULT_WIDTH = CARD_WIDTH.standard;
 const X_OFFSET = 25;
 const HEADER_MAX_LENGTH = 35;
 const DESCRIPTION_BOX_WIDTH = CARD_DEFAULT_WIDTH - 2 * X_OFFSET;
-const DESCRIPTION_FONT_SIZE = 13;
+const DESCRIPTION_FONT_SIZE = FONT_SIZE.meta;
 const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 10;
 
@@ -127,7 +128,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   const card = new Card({
     defaultTitle:
       header.length > HEADER_MAX_LENGTH ? `${header.slice(0, HEADER_MAX_LENGTH)}...` : header,
-    titlePrefixIcon: icons.gist,
+    titlePrefixIcon: CARD_ICON.gist,
     width: CARD_DEFAULT_WIDTH,
     height,
     border_radius,
@@ -137,11 +138,11 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   card.setCSS({
     light: ({ textColor, iconColor }) => [
       rule('.description', {
-        font: `400 ${DESCRIPTION_FONT_SIZE}px 'Segoe UI', Ubuntu, Sans-Serif`,
+        font: font('regular', 'meta'),
         fill: textColor,
         ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
       }),
-      rule('.gray', { font: "400 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
+      rule('.gray', { font: font('regular', 'small'), fill: textColor }),
       rule('.icon', { fill: iconColor }),
     ],
     dark: ({ textColor, iconColor }) => [

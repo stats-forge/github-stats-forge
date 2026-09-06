@@ -1,3 +1,11 @@
+import {
+  CARD_ICON,
+  CARD_WIDTH,
+  FONT_SIZE,
+  FONT_WEIGHT,
+  firefoxFontSize,
+  font,
+} from '../common/brand.ts';
 import { Card } from '../common/Card.ts';
 import { getLightDarkColors } from '../common/color.ts';
 import type { CardColors } from '../common/color.ts';
@@ -16,19 +24,19 @@ import { statCardLocales, wakatimeCardLocales } from '../translations.ts';
 import type { CardOptions, CommonCardOptions } from './options.ts';
 
 const CARD_MIN_WIDTH = 287;
-const CARD_DEFAULT_WIDTH = 287;
-const RANK_CARD_MIN_WIDTH = 420;
-const RANK_CARD_DEFAULT_WIDTH = 450;
-const RANK_ONLY_CARD_MIN_WIDTH = 290;
-const RANK_ONLY_CARD_DEFAULT_WIDTH = 290;
+const CARD_DEFAULT_WIDTH = CARD_WIDTH.compact;
+const RANK_CARD_DEFAULT_WIDTH = CARD_WIDTH.wide;
+const RANK_ONLY_CARD_DEFAULT_WIDTH = CARD_WIDTH.compact;
 
-const STAT_FONT_SIZE = 14;
+const STAT_FONT_SIZE = FONT_SIZE.body;
 /** Padding the card keeps at its edges; matches `Card`'s own `paddingX`. */
 const CARD_PADDING_X = 25;
 /** How far a stat row is translated into the card; see `createTextNode`. */
 const STAT_ROW_X = 25;
 /** Room the rank ring needs at the right edge, so a value never runs into it. */
 const RANK_GUTTER = 120;
+/** The ring's own `cx`, which its group's translation has to make up for. */
+const RANK_CIRCLE_CX_OFFSET = 10;
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
 const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */
@@ -166,26 +174,22 @@ const getStyles = ({
   progress: number;
 }): Array<CssChild> => [
   rule('.stat', {
-    font: `400 ${STAT_FONT_SIZE}px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif`,
+    font: font('regular', 'body'),
     fill: textColor,
     'font-variant-numeric': 'tabular-nums',
   }),
-  atRule(
-    '@supports(-moz-appearance: auto)',
-    cssComment('Selector detects Firefox'),
-    rule('.stat', { 'font-size': '12px' }),
-  ),
+  firefoxFontSize(['.stat'], 'small'),
   rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
   rule('.rank-text', {
-    font: "700 22px 'Segoe UI', Ubuntu, Sans-Serif",
+    font: font('bold', 'display'),
     fill: textColor,
     animation: 'scaleInAnimation 0.3s ease-in-out forwards',
   }),
-  rule('.rank-percentile-header', { 'font-size': '14px' }),
-  rule('.rank-percentile-text', { 'font-size': '16px' }),
+  rule('.rank-percentile-header', { 'font-size': `${String(FONT_SIZE.body)}px` }),
+  rule('.rank-percentile-text', { 'font-size': `${String(FONT_SIZE.lead)}px` }),
   cssComment('Labels recede so that the values read first.'),
-  rule('.not_bold', { 'font-weight': 400, opacity: 0.75 }),
-  rule('.bold', { 'font-weight': 600 }),
+  rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular, opacity: 0.75 }),
+  rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
   rule('.icon', {
     fill: iconColor,
     opacity: 0.75,
@@ -436,7 +440,7 @@ const renderCard = (
   }
 
   STATS['contribs'] = {
-    icon: icons.contribs,
+    icon: icons.repo,
     label: i18n.t('statcard.contribs'),
     value: contributedTo,
     id: 'contribs',
@@ -444,7 +448,7 @@ const renderCard = (
 
   if (shows('all_time_contribs')) {
     STATS['all_time_contribs'] = {
-      icon: icons.contribs,
+      icon: icons.repo,
       label: i18n.t('statcard.all-time-contribs'),
       value: allTimeContributedTo,
       id: 'all_time_contribs',
@@ -481,29 +485,24 @@ const renderCard = (
         (visibleStats.length > 0 ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle')),
     );
 
-  /*
-    When hide_rank=true, the minimum card width is 270 px + the title length and padding.
-    When hide_rank=false, the minimum card_width is 340 px + the icon width (if show_icons=true).
-    Numbers are picked by looking at existing dimensions on production.
-  */
   const iconWidth = show_icons && visibleStats.length > 0 ? 16 + /* padding */ 1 : 0;
-  const minCardWidth =
-    (hide_rank
-      ? clampValue(50 /* padding */ + calculateTextWidth() * 2, CARD_MIN_WIDTH, Infinity)
-      : visibleStats.length > 0
-        ? RANK_CARD_MIN_WIDTH
-        : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
-  const defaultCardWidth =
-    (hide_rank
-      ? CARD_DEFAULT_WIDTH
-      : visibleStats.length > 0
-        ? RANK_CARD_DEFAULT_WIDTH
-        : RANK_ONLY_CARD_DEFAULT_WIDTH) + iconWidth;
-  const width = card_width
-    ? Number.isNaN(card_width)
-      ? Math.max(defaultCardWidth, minCardWidth)
-      : card_width
-    : Math.max(defaultCardWidth, minCardWidth);
+  // The icons ride inside the step's own slack, so a default card lands on the width grid;
+  // only the minimum, which has no slack, still has to make room for them.
+  const defaultCardWidth = hide_rank
+    ? CARD_DEFAULT_WIDTH
+    : visibleStats.length > 0
+      ? RANK_CARD_DEFAULT_WIDTH
+      : RANK_ONLY_CARD_DEFAULT_WIDTH;
+  // Only a card sized by its own title can outgrow its step: the ranked layouts are fixed,
+  // so their step is also their floor.
+  const fittedWidth = hide_rank
+    ? Math.max(
+        defaultCardWidth,
+        clampValue(50 /* padding */ + calculateTextWidth() * 2, CARD_MIN_WIDTH, Infinity) +
+          iconWidth,
+      )
+    : defaultCardWidth;
+  const width = card_width ? (Number.isNaN(card_width) ? fittedWidth : card_width) : fittedWidth;
 
   // A value ends at the card's inner edge, clear of the rank ring — or right after
   // the longest label, on a card too narrow for that.
@@ -541,6 +540,7 @@ const renderCard = (
   const card = new Card({
     customTitle: custom_title,
     defaultTitle: visibleStats.length > 0 ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle'),
+    titlePrefixIcon: CARD_ICON.stats,
     width,
     height,
     border_radius,
@@ -559,26 +559,15 @@ const renderCard = (
   }
 
   /**
-   * Calculates the right rank circle translation values such that the rank circle
-   * keeps respecting the following padding:
-   *
-   * width > RANK_CARD_DEFAULT_WIDTH: The default right padding of 70 px will be used.
-   * width < RANK_CARD_DEFAULT_WIDTH: The left and right padding will be enlarged
-   *   equally from a certain minimum at RANK_CARD_MIN_WIDTH.
+   * The ring sits centred in the same gutter the values are kept clear of, so the gap
+   * between them holds at every width; a rank-only card has no values, so it centres.
    *
    * @returns Rank circle translation value.
    */
-  const calculateRankXTranslation = (): number => {
-    if (visibleStats.length > 0) {
-      const minXTranslation = RANK_CARD_MIN_WIDTH + iconWidth - 70;
-      if (width > RANK_CARD_DEFAULT_WIDTH) {
-        const xMaxExpansion = minXTranslation + (450 - minCardWidth) / 2;
-        return xMaxExpansion + width - RANK_CARD_DEFAULT_WIDTH;
-      }
-      return minXTranslation + (width - minCardWidth) / 2;
-    }
-    return width / 2 + 20 - 10;
-  };
+  const calculateRankXTranslation = (): number =>
+    visibleStats.length > 0
+      ? width - CARD_PADDING_X - RANK_GUTTER / 2 + RANK_CIRCLE_CX_OFFSET
+      : width / 2 + 20 - 10;
 
   // Conditionally rendered elements
   const rankCircle =
@@ -589,8 +578,8 @@ const renderCard = (
         'data-testid': 'rank-circle',
         transform: `translate(${calculateRankXTranslation()}, ${height / 2 - 50})`,
       },
-      el('circle', { class: 'rank-circle-rim', cx: -10, cy: 8, r: 40 }),
-      el('circle', { class: 'rank-circle', cx: -10, cy: 8, r: 40 }),
+      el('circle', { class: 'rank-circle-rim', cx: -RANK_CIRCLE_CX_OFFSET, cy: 8, r: 40 }),
+      el('circle', { class: 'rank-circle', cx: -RANK_CIRCLE_CX_OFFSET, cy: 8, r: 40 }),
       el('g', { class: 'rank-text' }, rankIcon(rank_icon, rank.level, rank.percentile)),
     );
 
