@@ -6,7 +6,10 @@
     "prepare": "lefthook install",
     "build:packages": "pnpm -r --filter \"./packages/*\" run build",
     "cli": "pnpm run build:packages && node packages/cli/build/index.js",
-    "examples": "pnpm run build:packages && node examples/generate.ts",
+    "docs": "pnpm run build:packages && pnpm --filter ./apps/docs run dev",
+    "docs:sync": "pnpm --filter ./apps/docs exec astro sync",
+    "docs:build": "pnpm --filter ./apps/docs run build",
+    "docs:cards": "pnpm run build:packages && pnpm --filter ./apps/docs run generate-cards",
     "test": "vitest",
     "test:coverage": "vitest --config vitest.config.coverage.ts",
     "format": "oxfmt --write .",
@@ -17,8 +20,8 @@
     "lint:knip": "knip",
     "lint:deps": "node scripts/assert-deduped.ts",
     "lint:publish": "pnpm -r --filter \"./packages/*\" run lint:publish",
-    "typecheck": "pnpm run build:packages && pnpm -r --filter \"./packages/*\" run typecheck && tsc -p tsconfig.scripts.json",
-    "check-all": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run lint:publish && pnpm --filter ./packages/core/ run check-graphql-types && pnpm run lint:knip && pnpm run lint:deps && vitest --run",
+    "typecheck": "pnpm run build:packages && pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run typecheck && tsc -p tsconfig.scripts.json",
+    "check-all": "node scripts/check-all.ts",
     "release": "pnpm run build:packages && changeset publish"
   },
   "devDependencies": {

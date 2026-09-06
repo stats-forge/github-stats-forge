@@ -14,21 +14,29 @@ Scope split: **this file holds the durable rules**; work not yet done lives in
 `.claude/scratch/` (untracked). Rules go here, pending work goes there; don't duplicate
 across the two. Open at the moment: `CORE_DEFERRED_IMPROVEMENTS.md` (follow-ups in
 `packages/core`, each verified as still applicable), `CORE_PACKAGE_SPLIT.md` (whether
-`packages/core` becomes several packages) and `CORE_HTTP_TRANSPORT.md` (whether axios
-gives way to an injected `fetch`).
+`packages/core` becomes several packages), `CORE_HTTP_TRANSPORT.md` (whether axios
+gives way to an injected `fetch`), `DOCS_SITE.md` (an Astro site documenting every card,
+and a wizard that writes the CLI's config file) and `SERVER_DOCKER.md` (an HTTP server
+over the api handlers, shipped as an image).
 
 ## What this is
 
 `github-stats-forge` — a pnpm monorepo holding the library that renders
-GitHub stats as SVG cards. The server and the docs site that used to live here are
-gone: consumers (the GitHub Action, any self-hosted endpoint) import the package.
+GitHub stats as SVG cards, the CLI that writes one to a file, and the site that documents
+both. The server that used to live here is gone: consumers (the GitHub Action, any
+self-hosted endpoint) import the package.
 
 | Path            | What it is                                                                                                |
 | --------------- | --------------------------------------------------------------------------------------------------------- |
 | `packages/core` | The library: fetchers, card renderers, themes, api handlers                                               |
 | `packages/cli`  | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config |
+| `apps/docs`     | The documentation site — Astro + Starlight, every page markdown; **not published**                        |
 | `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json`                                     |
-| `examples/`     | A saved card per file, rendered through the CLI by `generate.ts` into `previews/`                         |
+
+**The workspace is `packages/*` and `apps/*`.** A package under `packages/` is published and
+carries a changeset; an app under `apps/` is not and does not. `build:packages` and
+`lint:publish` stay filtered to `./packages/*` for that reason; the root `typecheck` covers the
+packages and `scripts/`, and the site's own runs in CI's docs job.
 
 `packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
 `api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
@@ -55,16 +63,20 @@ pnpm lint:publish         # attw + publint in each package — guards what gets 
 pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
 pnpm cli --help           # build, then run the CLI (add any of its flags)
-pnpm examples             # build, then redraw examples/previews (add a name for one)
+pnpm docs                 # build, then the docs site's dev server
+pnpm docs:build           # build the docs site (what CI runs)
+pnpm docs:cards           # build, then redraw the docs site's card previews
 pnpm check-all            # every check CI runs, cheapest first, in one command
 ```
 
-`check-all` is the one to reach for before handing work over: it is `format:check`,
-`lint`, `typecheck`, `lint:publish`, `check-graphql-types`, `lint:knip`, `lint:deps`
-and `vitest --run`, ordered so the fastest failure surfaces first. It does not build
-separately, because `typecheck` already does. Keep it in step with
-`.github/workflows/ci.yml` — a check that runs in CI and not here is a check that fails
-after the push instead of before it.
+`check-all` is the one to reach for before handing work over. It is
+`scripts/check-all.ts` — eleven checks ordered so the fastest failure surfaces first, each
+named and timed, stopping at the first failure unless `-k` asks for the whole list. It was an
+`&&` chain in `package.json` until that reached eleven links; a `.sh` was considered and
+rejected, because every other file here is TypeScript and so gets typechecked, linted and
+formatted. It does not build separately, because `typecheck` already does. Keep the list in
+step with `.github/workflows/ci.yml` — a check that runs in CI and not here is a check that
+fails after the push instead of before it.
 
 Per-package: `pnpm exec tsc -p tsconfig.typecheck.json`.
 
@@ -102,6 +114,140 @@ suite. A package that imports another resolves it through the `@stats/source`
 condition, which vitest only applies when it is set under **`ssr.resolve.conditions`**
 as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
 
+## The documentation site
+
+`apps/docs` is Astro + Starlight, served under `base: '/github-stats-forge'` because GitHub Pages
+puts it below the repository name. It is **not published to npm**, so it carries no changeset and
+no `lint:publish`.
+
+- **Every page is markdown, the landing page included.** `.astro` exists for the config, the plugin
+  and the two Starlight overrides, nothing else. A page that wants a component is a page that wants
+  rewriting — this was the whole point of phase 1.
+- **`/` is a landing page and every documentation page lives under `/docs/`.** The tree is
+  `src/content/docs/index.md`, `src/content/docs/docs/**` for the documentation and
+  `src/content/docs/wizard.md` beside it at `/wizard/`, which is why the sidebar entries all read
+  `docs/…`. **The two pages outside the documentation tree carry `template: splash`**, which is
+  what drops Starlight's sidebar and table of contents: the sidebar lists the docs, so it has no
+  business on the landing page or the wizard. Three things follow from that split, each already paid for once:
+  - **The landing page has no hero image.** Astro hands one to sharp, which is not installed and is
+    not worth installing for an icon the header already shows.
+  - **Its call to action is markdown links in a `<div class="hero-actions">`, not `hero.actions`.**
+    Frontmatter never reaches `remark-resolve-links`, so a `hero.actions` link to `/docs/` would
+    have to spell out the base — and the validator rejects it relative. The div is the same trick
+    `card-row` uses, styled by `src/styles/home.css`.
+  - **`routeOf` in `remark-resolve-links` strips `index` at any depth**, not just at the root:
+    `docs/index.md` is served at `/docs/`, and until this moved it resolved that page's own links
+    against `/docs/index/`.
+- **A card example is rendered by the CLI, never hand-drawn and never fetched at build time.**
+  `apps/docs/cards/*.json` holds a saved card without a theme; `pnpm docs:cards` renders each one
+  twice, once per site theme, into `apps/docs/public/cards/<name>-{light,dark}.svg`. Those SVGs are
+  committed, so the build needs no `PAT_1` and CI can run it.
+- **One image in the markdown, two in the page.** `src/plugins/rehype-card-previews.ts` turns
+  `![alt](/cards/<name>.svg)` into the light and dark pair, adds the base path, reads `width` and
+  `height` off the SVG so nothing shifts as it loads, and marks the dark copy `aria-hidden` with an
+  empty `alt` because only one of the two is ever shown. It **throws when the pair is missing**,
+  which is why `docs:build` runs in CI: a page referencing an unrendered card fails the build.
+- **Each fetcher has its own page, and `<!-- api: fetchStats -->` becomes its reference at build
+  time.** `remark-fetcher-reference.ts` expands the marker; `fetcher-reference.ts` reads the
+  summary, the `@returns`, the return type and every option — name, type, whether it is optional,
+  and whatever `/** */` sits on its declaration — through the TypeScript checker. Prose around the
+  marker is hand-written. **Nothing is generated onto disk**, so there is no `--check` and no way
+  to be stale; the build is the check. A fetcher exported from core with **no page fails the
+  build**, naming the file to write — that is how a new one gets documented rather than dropped.
+  - It was a committed generator with a `--check` for one commit, and became a plugin because
+    opening core's project costs 110ms and reading all seven fetchers costs 4ms. At that price,
+    making staleness impossible beats catching it.
+  - **`astro dev` does not pick up an edit to core's doc comments. Restart it, and do not build
+    machinery to avoid that.** Astro re-renders a page when its own markdown's digest changes, and
+    a doc comment in `packages/core` does not touch that, so the content layer keeps serving what
+    it rendered at startup. Live refresh **was** built — a loader wrapping `docsLoader()` that
+    drops the `fetchers/` entries, plus an integration calling `refreshContent` from
+    `astro:server:setup` — and worked, and was deleted on 2026-09-06: 81 lines and two novel
+    concepts to save a restart, on pages whose reference is mostly type signatures. Rebuild it
+    only if that trade has changed. The note lives in `remark-fetcher-reference.ts` too, which is
+    where someone hits the problem.
+    - Three simpler routes fail outright, so don't reach for them either: the store's own mtime
+      always looks newer (every run rewrites it); deleting `data-store.json` under a running
+      server empties the collection, and Starlight then fails on the first slug it looks up; and
+      `server.restart()` never re-runs `astro:config:done`.
+  - **The whole feature is 261 lines to keep 48 option rows honest, 42 of which have no
+    description in core and render as `—`, while 75 hand-written option rows on the card pages
+    have no protection at all.** That imbalance was argued through on 2026-09-06 and the smaller
+    half was cut. Weigh it again before extending this to the cards; a hand-written table with
+    real prose beats a generated one full of dashes.
+  - The extractor caches on the newest mtime under `packages/core/src/fetchers`, so a build opens
+    core's project once.
+  - It rides `typescript/unstable/sync`, unstable by name — the docs build is what notices a
+    TypeScript release moving it. TypeDoc was the obvious alternative and is unusable: its peer
+    range stops at TypeScript 6, and `strictPeerDependencies` turns that into a failed install.
+  - The plugin parses its markdown with `this.parse`, the processor's own parser, so a table in
+    the reference is a table on the page without a markdown-parsing dependency of its own.
+- **The GitHub Action is the recommended way to use the cards, and the site says so without
+  documenting it.** The landing page, the overview, `usage/cli.md`, `usage/library.md` and
+  `usage/in-your-readme.md` each name it and link to
+  `https://github.com/stats-forge/github-stats-forge-action`, which is where its inputs are
+  documented. A page of our own was written on 2026-09-06 and deleted the same day: the action is a
+  sibling repository, so nothing here can check a restatement of its inputs against its `action.yml`
+  and it would drift silently. Link to it; do not copy it.
+- **`customization/themes.md` is generated** by `scripts/generate-themes-page.ts` from core's own
+  theme table, and `check-themes-page` fails on drift, exactly as the GraphQL types do. The
+  generator formats its output through oxfmt's API — same reason as the GraphQL generator — so
+  `pnpm format` leaves it alone and `--check` compares against what the formatter would write.
+  Never hand-edit that page.
+- **Pages link to each other relatively, and `remark-resolve-links.ts` turns those into real URLs
+  before anything else sees them.** `base` is a deployment detail and stays out of the prose;
+  the plugin resolves `../cards/stats/` against the page's own route and prefixes the base, so the
+  browser gets `/github-stats-forge/cards/stats/` and `starlight-links-validator` gets something
+  it can check.
+  - **That plugin is what makes link validation real.** The validator **cannot resolve a relative
+    link** — it skips it — so `errorOnRelativeLinks: false`, which the site ran with until
+    2026-09-06, exempted all 58 internal links while the build still printed "All internal links
+    are valid". A deliberately dead link proved it. The option is back at its default now, and
+    nothing reaches it relative.
+  - Two other routes were tried and do not work: writing the base into every link (rejected — it
+    hardcodes where the site is served into the content), and `./page.md` links, which Astro does
+    not rewrite.
+  - It runs as a **remark** plugin, because Starlight appends its own plugins after the ones on the
+    processor: the validator collects links after this has rewritten them. In rehype it would be
+    too late.
+- **The header carries a top nav, because Starlight has none.** `src/components/SiteTitle.astro`
+  overrides Starlight's own to put "Docs" and "Wizard" beside the title; the wizard is therefore
+  **not** in the sidebar. A section is marked `aria-current="page"` when the pathname starts with
+  its own href, so the landing page marks neither — the title is the link home. The links are
+  centred against the title with `align-self`: `.title-wrapper` is a flex row that stretches its
+  items, which left them riding the top of the header with their underline at its foot.
+- **`SocialIcons` is overridden only to open the links in a new tab.** Both leave the site, and
+  Starlight's own renders them with no `target`. The override is its markup and its styles copied,
+  plus `target="_blank"`, `rel="me noopener"` and "(opens in a new tab)" in the screen-reader label
+  — so re-copy it from `@astrojs/starlight/dist/components/SocialIcons.astro` if Starlight changes
+  that component.
+- **A theme sample is one image, a card preview is two.** The plugin renders
+  `/themes/<name>.svg` once — it already names its theme — and pairs `/cards/<name>.svg`.
+  `SAMPLE_THEMES` in `src/constants.ts` is read by both generators, so the page cannot draw a
+  theme nobody rendered.
+- **The header logo is the repository's own `.github/assets/appIcon.svg`**, referenced from
+  `astro.config.ts` rather than copied. `public/favicon.svg` **is** a copy of it, because a favicon
+  has to be a static file at a stable URL — change one and change the other.
+- **A diagram on the site is a fenced `text` block, not mermaid.** Rendering mermaid costs either
+  a client-side bundle on a docs half that ships no JavaScript, or `@mermaid-js/mermaid-cli` and
+  the Chromium it brings with it. Neither is proportionate to a diagram; the colour-precedence one
+  on `light-and-dark.md` is the shape to copy.
+- **`apps/docs` pins every dependency exactly**, as the rest of the repo does with its dev
+  dependencies. It is private, so nothing resolves a range on a consumer's behalf.
+- **`astro sync` has to have run before anything type-aware does.** `content.config.ts` imports
+  `astro:content`, a virtual module with no types until sync writes `.astro/types.d.ts`, and
+  without them the type-aware rules report `no-unsafe-call` on `defineCollection`. `check-all`
+  starts with `docs:sync` and CI does the same before its Lint step. PR #50 found this: green
+  locally, red on a fresh checkout. When that happens again, delete `apps/docs/.astro` and
+  `packages/*/build` and run it again — that is what CI has.
+- **The site typechecks against core's source, not its build, and so has no
+  `tsconfig.typecheck.json`.** Clearing `customConditions` is how a _published_ package proves a
+  consumer can resolve it; `apps/docs` is not published and not that consumer, and `packages/cli`
+  plus `lint:publish` already make that case. Keeping the `@stats/source` condition means the
+  editor and CI agree, and the whole docs job runs with nothing built.
+- **`.astro/` is `astro sync` output**: gitignored, and ignored by oxlint and oxfmt. Do not lint
+  or format it, and do not commit it.
+
 ## Working agreements
 
 - **Don't commit or open PRs unless asked** — the repo owner usually does that. Leave
@@ -134,21 +280,19 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   Where it does not fit, start the next line after the full stop, colon, dash or comma
   that ends the clause, never mid-sentence, so a later edit touches one line in the diff.
   This governs prose in markdown as much as comments in code: sentence-per-line was
-  applied to `examples/README.md` on 2026-09-02 and corrected the same day —
+  applied to the examples README on 2026-09-02 and corrected the same day —
   the rule is where a break lands, not that every sentence earns one.
   **Every file the repo writes prose into is in scope, a changeset and a commit message
   included** — a changeset summary written on 2026-09-03 wrapped mid-phrase and had to be
   rewrapped, and it lands verbatim in the published `CHANGELOG.md`. The existing
   changesets are the reference: each break falls on a comma, colon or full stop, and a
   long clause is allowed to run past the width rather than be split.
-- **`examples/previews/README.md` lists the cards in the root README's order**, a variant
-  after the card it varies — `CARD_ORDER` in `examples/generate.ts` holds it, so reordering
-  the README's table means reordering that list too.
-- **`examples/previews` is committed, so redraw it when a card's output changes.**
-  `pnpm examples` renders every saved card in `examples/cards` through the built CLI;
-  it needs `PAT_1` in a root `.env`, which is why CI cannot keep the previews current.
-  The SVGs carry live stats and drift on their own — that is expected, and not a reason
-  to regenerate them in an unrelated change.
+- **`apps/docs/public/cards` is committed, so redraw it when a card's output changes.**
+  `pnpm docs:cards` renders every saved card in `apps/docs/cards` through the built CLI, twice
+  each; it needs `PAT_1` in a root `.env`, which is why CI cannot keep the previews current.
+  The SVGs carry live stats and drift on their own — that is expected, and not a reason to
+  regenerate them in an unrelated change.
+  **`examples/` was deleted on 2026-09-05**, when the site took over showing a card of each kind.
 - `.claude/scratch/CORE_DEFERRED_IMPROVEMENTS.md` lists the follow-ups `packages/core`
   still owes. Check it before starting work there, and keep it current as they land.
 
@@ -230,8 +374,9 @@ pnpm is **11.x**. The v11 rename of `onlyBuiltDependencies` to the `allowBuilds`
 the one that bites: the old key stops applying silently, so a package's install scripts
 are skipped until it is listed again.
 
-- **`allowBuilds` holds only packages still in the graph.** It is down to `lefthook`;
-  `@swc/core`, `unrs-resolver` and `esbuild` were removed as each left. Check with
+- **`allowBuilds` holds only packages still in the graph.** It is `lefthook` and — since the docs
+  site landed on 2026-09-05 — `esbuild` again, which astro pulls in and which fetches its platform
+  binary in a postinstall. `@swc/core` and `unrs-resolver` were removed as each left. Check with
   `pnpm why <pkg>` before adding or keeping an entry.
 - **A stale lockfile can hold a package nothing depends on.** `esbuild` survived as an
   optional peer of `vite` long after vite moved to rolldown. Deleting `node_modules` **and**
@@ -446,7 +591,8 @@ because the `typecheck` task does that separately against `tsconfig.typecheck.js
 green build is therefore not evidence the types are sound; run `pnpm typecheck` too. Each
 package's `tsconfig.typecheck.json` exists only to clear `customConditions`, so the check
 runs against built `.d.ts` the way a consumer would resolve them rather than through the
-`@stats/source` condition.
+`@stats/source` condition. **`apps/docs` deliberately has no such config** — it is not published,
+so it typechecks against core's source and needs nothing built.
 
 This came from `packages/core/tsconfig.json` — the config the editor and a bare `tsc`
 pick up — carrying `outDir: "build"` while including `tests`. Any stray `tsc` in the
@@ -525,7 +671,7 @@ name `.ts` (see below) and Node strips the types. The condition is what makes it
 realpath falls outside `node_modules`, so Node does not refuse to strip types there.
 
 From the repo root, `pnpm cli` builds both packages and runs the CLI there,
-so it picks up the root `.env` the way `pnpm examples` does.
+so it picks up the root `.env` the way `pnpm docs:cards` does.
 Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
 
 - **Choices come from core's exports, never a copy.** Every `choices` in `src/cards.ts`

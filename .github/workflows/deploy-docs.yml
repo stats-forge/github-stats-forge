@@ -1,0 +1,57 @@
+name: Deploy docs
+
+# Called by `release.yml` when a release actually published, and runnable on its own so a
+# documentation fix can reach the site without cutting a release.
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: The commit to build the site from
+        type: string
+        required: false
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}'
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  deploy:
+    name: Build and deploy to Pages
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: docs
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    permissions:
+      contents: read # to check out repo (actions/checkout)
+      pages: write # to publish to GitHub Pages (actions/deploy-pages)
+      id-token: write # to verify the deployment originates from this workflow
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The version commit, not whatever `main` has drifted to since the release started.
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+
+      - name: Install Dependencies
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@e3b04865510c657477cc722854b31a3b74c72c09 # v2.2.0
+
+      # The card previews are committed, so nothing here needs a GitHub token.
+      - name: Build the docs site
+        run: pnpm run docs:build
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: apps/docs/build
+
+      - name: Deploy to Pages
+        id: deploy
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

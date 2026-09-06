@@ -1,7 +1,10 @@
 packages:
   - packages/*
+  - apps/*
 
 allowBuilds:
+  # astro's bundler; it fetches its platform binary in a postinstall
+  esbuild: true
   lefthook: true
 
 catalog:

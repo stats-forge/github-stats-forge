@@ -66,6 +66,11 @@ jobs:
       - name: Format
         run: pnpm run format:check
 
+      # `astro:content` is a virtual module, so the type-aware rules see an error type
+      # in `content.config.ts` until astro has written `.astro/types.d.ts`.
+      - name: Sync the docs site's generated types
+        run: pnpm run docs:sync
+
       - name: Lint
         run: pnpm run lint:ci
 
@@ -87,6 +92,35 @@ jobs:
       - name: Lint (packaging and published types)
         run: pnpm run lint:publish
 
+  docs:
+    name: Docs site
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Dependencies
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@e3b04865510c657477cc722854b31a3b74c72c09 # v2.2.0
+
+      - name: Lint (generated theme page)
+        run: pnpm --filter ./apps/docs run check-themes-page
+
+      - name: Typecheck
+        run: pnpm --filter ./apps/docs run typecheck
+
+      # The build is what checks the site: a page referencing a preview nobody rendered, a
+      # dead internal link, or a fetcher reference core no longer backs, each fail it.
+      # That last one also notices a TypeScript release moving the unstable API it reads.
+      - name: Build
+        run: pnpm run docs:build
+
   ci-ok:
     name: CI OK
     runs-on: ubuntu-latest
@@ -94,6 +128,7 @@ jobs:
     needs:
       - build-and-test
       - code-checks
+      - docs
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1

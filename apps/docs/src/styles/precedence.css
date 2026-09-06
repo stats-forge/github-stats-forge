@@ -1,0 +1,38 @@
+/*
+ * The two-stage colour precedence on `light-and-dark.md`. Starlight's gray scale inverts between
+ * themes, so one set of tokens covers both.
+ */
+
+.precedence {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+/*
+ * Starlight puts `margin-top` on any element following a sibling, which would drop the second
+ * panel down its grid cell and leave the two different heights.
+ */
+.precedence > .precedence__stage {
+  margin-top: 0;
+  padding: 0.5rem 1.25rem 1.25rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  background: var(--sl-color-gray-6);
+}
+
+.precedence__title {
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+.precedence__stage :is(ul, ol) {
+  padding-left: 1.25rem;
+}
+
+.precedence__note {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--sl-color-gray-5);
+  font-size: var(--sl-text-sm);
+}
