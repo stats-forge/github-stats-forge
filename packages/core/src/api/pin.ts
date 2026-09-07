@@ -1,6 +1,6 @@
 import * as z from 'zod/mini';
 
-import { renderRepoCard } from '../cards/repo.ts';
+import { renderRepoCard } from '../cards/repo/index.ts';
 import { fetchRepo } from '../fetchers/repo.ts';
 
 import { cardHandler } from './handler.ts';

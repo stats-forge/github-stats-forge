@@ -3,7 +3,7 @@ import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
 import { stats as statsApi } from '../src/api/stats.ts';
-import { renderStatsCard } from '../src/cards/stats.ts';
+import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { CardError } from '../src/common/error.ts';
 import type { StatsData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';

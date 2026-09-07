@@ -3,7 +3,7 @@ import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
 import { pin as pinApi } from '../src/api/pin.ts';
-import { renderRepoCard } from '../src/cards/repo.ts';
+import { renderRepoCard } from '../src/cards/repo/index.ts';
 import type { RepositoryData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 

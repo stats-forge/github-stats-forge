@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { renderGistCard } from '../src/cards/gist.ts';
-import { renderRepoCard } from '../src/cards/repo.ts';
-import { renderStatsCard } from '../src/cards/stats.ts';
-import { renderTopLanguages } from '../src/cards/top-languages.ts';
-import { renderWakatimeCard } from '../src/cards/wakatime.ts';
+import { renderGistCard } from '../src/cards/gist/index.ts';
+import { renderRepoCard } from '../src/cards/repo/index.ts';
+import { renderStatsCard } from '../src/cards/stats/index.ts';
+import { renderTopLanguages } from '../src/cards/top-languages/index.ts';
+import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
 import { renderError } from '../src/common/render.ts';
 import type {
   GistData,

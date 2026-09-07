@@ -2,7 +2,7 @@ import { screen } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
-import { MIN_CARD_WIDTH, renderContributedToCard } from '../src/cards/contributed-to.ts';
+import { MIN_CARD_WIDTH, renderContributedToCard } from '../src/cards/contributed-to/index.ts';
 import type { ContributedToData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -151,5 +151,27 @@ describe('test renderContributedToCard', () => {
     const desc = document.querySelector('desc');
     expect(desc).toHaveTextContent('vitest-dev/vitest: 128 contributions, years: 2022, 2023, 2024');
     expect(desc).toHaveTextContent('top 3 of 37 repositories');
+  });
+
+  it('should agree with the numbers it draws', () => {
+    document.body.innerHTML = renderContributedToCard({
+      ...data,
+      repos: [{ nameWithOwner: 'rollup/plugins', contributions: 1, years: [2023] }],
+      totalRepos: 1,
+    });
+
+    expect(document.querySelector('desc')).toHaveTextContent(
+      'rollup/plugins: 1 contribution, years: 2023',
+    );
+    expect(screen.queryByTestId('footer')).toHaveTextContent('1 repository');
+  });
+
+  it('should drop the years from the accessibility description with the year strip', () => {
+    document.body.innerHTML = renderContributedToCard(data, { hide_years: true });
+
+    expect(document.querySelector('desc')).toHaveTextContent(
+      'vitest-dev/vitest: 128 contributions',
+    );
+    expect(document.querySelector('desc')).not.toHaveTextContent('years:');
   });
 });

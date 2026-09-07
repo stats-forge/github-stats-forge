@@ -5,8 +5,8 @@ import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
 import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
+import { isLocaleAvailable } from '../common/I18n.ts';
 import { parseArray, parseBoolean } from '../common/ops.ts';
-import { isLocaleAvailable } from '../translations.ts';
 
 /**
  * @file The api layer is the trust boundary:

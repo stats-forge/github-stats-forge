@@ -20,7 +20,7 @@ import {
   radiansToDegrees,
   renderTopLanguages,
   trimTopLanguages,
-} from '../src/cards/top-languages.ts';
+} from '../src/cards/top-languages/index.ts';
 import type { TopLangData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 

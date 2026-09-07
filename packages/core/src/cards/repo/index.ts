@@ -1,10 +1,10 @@
-import { CARD_ICON, CARD_WIDTH, FONT_SIZE, FONT_WEIGHT, font } from '../common/brand.ts';
-import { Card } from '../common/Card.ts';
-import { getLightDarkColors } from '../common/color.ts';
-import { kFormatter } from '../common/fmt.ts';
-import { I18n } from '../common/I18n.ts';
-import { icons } from '../common/icons.ts';
-import { buildSearchFilter, clampValue, parseEmojis } from '../common/ops.ts';
+import { CARD_ICON, CARD_WIDTH, FONT_SIZE, FONT_WEIGHT, font } from '../../common/brand.ts';
+import { Card } from '../../common/Card.ts';
+import { getLightDarkColors } from '../../common/color.ts';
+import { kFormatter } from '../../common/fmt.ts';
+import { I18n } from '../../common/I18n.ts';
+import { icons } from '../../common/icons.ts';
+import { buildSearchFilter, clampValue, parseEmojis } from '../../common/ops.ts';
 import {
   NUMBER_FORMATS,
   countWrappedLines,
@@ -16,13 +16,13 @@ import {
   measureText,
   wrappedTextNode,
   wrappedTextStyles,
-} from '../common/render.ts';
-import type { RepositoryData } from '../fetchers/types.ts';
-import type { Child, MarkupElement } from '../markup/index.ts';
-import { el, rule } from '../markup/index.ts';
-import { repoCardLocales } from '../translations.ts';
+} from '../../common/render.ts';
+import type { RepositoryData } from '../../fetchers/types.ts';
+import type { Child, MarkupElement } from '../../markup/index.ts';
+import { el, rule } from '../../markup/index.ts';
+import type { CardOptions, CommonCardOptions } from '../options.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.ts';
+import { repoCardLocales } from './locales.ts';
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = CARD_WIDTH.standard;

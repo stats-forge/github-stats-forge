@@ -1,17 +1,17 @@
-import { CARD_ICON, CARD_WIDTH, FONT_SIZE, firefoxFontSize, font } from '../common/brand.ts';
-import { Card } from '../common/Card.ts';
-import { getLightDarkColors } from '../common/color.ts';
-import { formatYears } from '../common/date.ts';
-import { kFormatter } from '../common/fmt.ts';
-import { I18n } from '../common/I18n.ts';
-import { clampValue } from '../common/ops.ts';
-import { createProgressNode, measureText } from '../common/render.ts';
-import type { ContributedRepo, ContributedToData } from '../fetchers/types.ts';
-import type { Child } from '../markup/index.ts';
-import { atRule, el, rule } from '../markup/index.ts';
-import { contributedToCardLocales } from '../translations.ts';
+import { CARD_ICON, CARD_WIDTH, FONT_SIZE, firefoxFontSize, font } from '../../common/brand.ts';
+import { Card } from '../../common/Card.ts';
+import { getLightDarkColors } from '../../common/color.ts';
+import { formatYears } from '../../common/date.ts';
+import { kFormatter } from '../../common/fmt.ts';
+import { I18n } from '../../common/I18n.ts';
+import { clampValue } from '../../common/ops.ts';
+import { createProgressNode, measureText } from '../../common/render.ts';
+import type { ContributedRepo, ContributedToData } from '../../fetchers/types.ts';
+import type { Child } from '../../markup/index.ts';
+import { atRule, el, rule } from '../../markup/index.ts';
+import type { CardOptions, CommonCardOptions } from '../options.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.ts';
+import { contributedToCardLocales } from './locales.ts';
 
 const CARD_DEFAULT_WIDTH = CARD_WIDTH.wide;
 const MIN_CARD_WIDTH = 340;
@@ -53,8 +53,8 @@ interface ContributedToCardOptions extends CommonCardOptions {
   hide_years: boolean;
 }
 
-/** The card's own translation table, so `t` is checked against the keys it declares. */
-type ContributedToI18n = I18n<ReturnType<typeof contributedToCardLocales>>;
+/** The card's own translations, so `t` is checked against the keys it declares. */
+type ContributedToI18n = I18n<typeof contributedToCardLocales>;
 
 /**
  * The title, naming the account unless that makes it too wide for the card.
@@ -64,8 +64,8 @@ type ContributedToI18n = I18n<ReturnType<typeof contributedToCardLocales>>;
  *
  * @returns The default title, which `custom_title` still overrides.
  */
-const defaultTitleFor = (i18n: ContributedToI18n, contentWidth: number): string => {
-  const named = i18n.t('contributedtocard.title');
+const defaultTitleFor = (i18n: ContributedToI18n, login: string, contentWidth: number): string => {
+  const named = i18n.t('contributedtocard.title', { login });
   return measureText(named, TITLE_FONT_SIZE) <= contentWidth
     ? named
     : i18n.t('contributedtocard.title-unnamed');
@@ -202,7 +202,9 @@ const footerText = ({
   years: Array<number>;
 }): string => {
   const parts = [
-    i18n.t(shown < totalRepos ? 'contributedtocard.footer-top' : 'contributedtocard.footer-all'),
+    shown < totalRepos
+      ? i18n.t('contributedtocard.footer-top', { shown, count: totalRepos })
+      : i18n.t('contributedtocard.footer-all', { count: totalRepos }),
   ];
 
   const [firstYear] = years;
@@ -261,10 +263,7 @@ const renderContributedToCard = (
     }),
   );
 
-  const i18n = new I18n({
-    locale,
-    translations: contributedToCardLocales({ login, shown: repos.length, totalRepos }),
-  });
+  const i18n = new I18n({ locale, translations: contributedToCardLocales });
 
   const footer = footerText({ i18n, shown: repos.length, totalRepos, years });
   const footerY = FIRST_ROW_Y + Math.max(repos.length, 1) * rowHeight + FOOTER_GAP;
@@ -274,7 +273,7 @@ const renderContributedToCard = (
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: defaultTitleFor(i18n, contentWidth - TITLE_ICON_COLUMN),
+    defaultTitle: defaultTitleFor(i18n, login, contentWidth - TITLE_ICON_COLUMN),
     titlePrefixIcon: CARD_ICON.contributedTo,
     width,
     height,
@@ -342,14 +341,18 @@ const renderContributedToCard = (
   card.setAccessibilityLabel({
     title: card.title,
     desc: [
-      ...repos.map((repo) => {
-        const inYears = hide_years
-          ? ''
-          : `, ${i18n.t('contributedtocard.years')}: ${repo.years.join(', ')}`;
-        return `${repo.nameWithOwner}: ${repo.contributions} ${i18n.t(
-          'contributedtocard.contributions',
-        )}${inYears}`;
-      }),
+      ...repos.map((repo) =>
+        hide_years
+          ? i18n.t('contributedtocard.accessibility-repo', {
+              repo: repo.nameWithOwner,
+              count: repo.contributions,
+            })
+          : i18n.t('contributedtocard.accessibility-repo-years', {
+              repo: repo.nameWithOwner,
+              count: repo.contributions,
+              years: repo.years.join(', '),
+            }),
+      ),
       footer,
     ].join('; '),
   });

@@ -1,17 +1,17 @@
-import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../common/brand.ts';
-import { Card } from '../common/Card.ts';
-import { getLightDarkColors, isPrefixedHexColor } from '../common/color.ts';
-import { formatBytes } from '../common/fmt.ts';
-import { I18n } from '../common/I18n.ts';
-import { DEFAULT_LANG_COLOR } from '../common/languageColors.ts';
-import { chunkArray, clampValue, lowercaseTrim } from '../common/ops.ts';
-import { createProgressNode, flexLayout, measureText } from '../common/render.ts';
-import type { Lang, TopLangData } from '../fetchers/types.ts';
-import type { Child, MarkupElement } from '../markup/index.ts';
-import { atRule, el, rule } from '../markup/index.ts';
-import { langCardLocales } from '../translations.ts';
+import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../../common/brand.ts';
+import { Card } from '../../common/Card.ts';
+import { getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
+import { formatBytes } from '../../common/fmt.ts';
+import { I18n } from '../../common/I18n.ts';
+import { DEFAULT_LANG_COLOR } from '../../common/languageColors.ts';
+import { chunkArray, clampValue, lowercaseTrim } from '../../common/ops.ts';
+import { createProgressNode, flexLayout, measureText } from '../../common/render.ts';
+import type { Lang, TopLangData } from '../../fetchers/types.ts';
+import type { Child, MarkupElement } from '../../markup/index.ts';
+import { atRule, el, rule } from '../../markup/index.ts';
+import type { CardOptions, CommonCardOptions } from '../options.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.ts';
+import { langCardLocales } from './locales.ts';
 
 const DEFAULT_CARD_WIDTH = CARD_WIDTH.compact;
 const MIN_CARD_WIDTH = 280;

@@ -41,6 +41,11 @@ packages and `scripts/`, and the site's own runs in CI's docs job.
 `api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
 theme table and `graphql/` for query text and its generated types.
 
+**A card is a folder under `cards/`**, holding its renderer as `index.ts` and its
+translations as `locales.ts`; only `cards/options.ts` sits loose beside them. The tables
+were one `src/translations.ts` until 2026-09-07 — a file no card owned, which every card
+had to be read alongside.
+
 **Every source file is TypeScript.** The generators under `packages/core/scripts/` were
 the last `.js` holdouts and became `.ts` on 2026-09-03, which also put them under
 `packages/core/tsconfig.scripts.json` — so CI typechecks them now.
@@ -726,7 +731,7 @@ Other patterns:
   contributed-to cards had their last English literals put through `I18n` on 2026-09-05 —
   the rule is that the option follows the reading, not that any given card has one.
 - **Colocate card options.** Each card declares `interface XCardOptions extends
-CommonCardOptions {…}` (an interface, not `type &`) in its own file, **not exported** —
+CommonCardOptions {…}` (an interface, not `type &`) in its own `index.ts`, **not exported** —
   knip flags it, and only that card uses it. All six cards do this, so
   `cards/options.ts` holds only the shared base: `CommonCardOptions`, plus the
   `CardOptions<T>` helper below. The `ThemeName` union lives in `themes/index.ts`.
@@ -1048,18 +1053,35 @@ that reaches the SVG without passing through `t` is the bug this rule exists to 
   the keys added before it — `statcard.contributions`, `statcard.all-time-contribs` and
   the five `repocard.*` show-stats among them — each of which threw
   `translation not found for locale` and so failed the whole card for every locale it had
-  not reached. `t` still throws when the key itself is absent, and when it has no `en`.
+  not reached. `t` still throws when the key itself is absent, and when it has no `en` —
+  which `LocaleTable` requires, so only a table assembled at runtime reaches that throw.
 - **A card whose text is translated takes `locale`,** in its options, in its handler's
   schema and in the CLI's option list for it. The three move together.
-- **Interpolation lives in the locale table, not around it.** `statCardLocales` and
-  `contributedToCardLocales` are functions taking the values their strings need, so a
-  plural rule (`repository` / `repositories`) or a possessive is the locale's own business.
-  Compose fragments in the card only where the repo already does — a parenthesised year,
-  a `label: value` pair.
-- **Prefer `label: value` to a preposition** when a card assembles a phrase from a
-  translated word and its data. The accessibility rows read
-  `owner/name: 12 contributions, years: 2023, 2024` rather than `… in 2023, 2024`,
-  because a dangling `in` does not survive translation.
+- **A locale table is data, declared with `defineLocales`.** It was a function of the
+  values its strings interpolate until 2026-09-07 — `statCardLocales({ name, apostrophe })`
+  built 45 keys × 47 locales, some 1200 strings, so a card could read 30 of them. The
+  wording carries `{name}` placeholders instead and `t` substitutes them:
+  `t('statcard.title', { name, apostrophe })`. `defineLocales` is a `<const Table>`
+  identity function, and that is the whole point of it — it keeps each string's literal
+  type, which is what lets `t` reject a call missing a value the wording declares.
+- **The word order is the translation's, and so is which values it uses.** A locale may
+  name fewer placeholders than `en` — most locales of `statcard.title` have no use for the
+  possessive `{apostrophe}` — but never one `en` does not supply, which throws. Nothing
+  checks a `{name}` the way the compiler checked a `${name}`, so `tests/locales.test.ts`
+  walks every table for that and for a locale name outside `AVAILABLE_LOCALES`.
+- **A wording that depends on a number is written as plural forms, not assembled.**
+  `{ one: '{count} repository', other: '{count} repositories' }`; `t` is given a `count`
+  and `Intl.PluralRules` picks the category by the rules of the locale the wording came
+  from, with `other` answering for a category that locale has not written. This is what
+  the card used to do with a `repoWord` ternary, in English's plural rule, for every
+  locale.
+- **A whole phrase is one key, not a `label: value` pair assembled in the card.** The
+  accessibility rows are `'{repo}: {count} contributions, years: {years}'` and
+  `'{desc}. Language: {language}, Stars: {stars}, Forks: {forks}'` — one wording each, so
+  a translation can move the parts around. Composing them in the card was the best the
+  repo could do before interpolation, and left the punctuation and the order in English's
+  hands. A parenthesised year (`wakatimecard.title` plus `(last 7 days)`) is still
+  composed, and is the remaining exception.
 - **The error card's report line is measured, not guessed.** It sits under the message rather than
   beside the title because it no longer fits: at the title's own `600 16px` the inherited URL
   reached 561px inside a 576.5px card and `https://tinyurl.com/stats-forge-bug` reaches 587px.

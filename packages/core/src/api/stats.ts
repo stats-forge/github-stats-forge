@@ -1,6 +1,6 @@
 import * as z from 'zod/mini';
 
-import { renderStatsCard } from '../cards/stats.ts';
+import { renderStatsCard } from '../cards/stats/index.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
 import { fetchStats } from '../fetchers/stats.ts';
 

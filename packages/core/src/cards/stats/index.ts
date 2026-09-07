@@ -5,23 +5,24 @@ import {
   FONT_WEIGHT,
   firefoxFontSize,
   font,
-} from '../common/brand.ts';
-import { Card } from '../common/Card.ts';
-import { getLightDarkColors } from '../common/color.ts';
-import type { CardColors } from '../common/color.ts';
-import type { GitHubDateRange } from '../common/date.ts';
-import { formatRange } from '../common/date.ts';
-import { CardError } from '../common/error.ts';
-import { I18n } from '../common/I18n.ts';
-import { icons, rankIcon } from '../common/icons.ts';
-import { buildSearchFilter, clampValue } from '../common/ops.ts';
-import { NUMBER_FORMATS, createTextNode, flexLayout, measureText } from '../common/render.ts';
-import type { StatsData } from '../fetchers/types.ts';
-import type { Child, CssChild } from '../markup/index.ts';
-import { atRule, cssComment, el, rule } from '../markup/index.ts';
-import { statCardLocales, wakatimeCardLocales } from '../translations.ts';
+} from '../../common/brand.ts';
+import { Card } from '../../common/Card.ts';
+import { getLightDarkColors } from '../../common/color.ts';
+import type { CardColors } from '../../common/color.ts';
+import type { GitHubDateRange } from '../../common/date.ts';
+import { formatRange } from '../../common/date.ts';
+import { CardError } from '../../common/error.ts';
+import { I18n } from '../../common/I18n.ts';
+import { icons, rankIcon } from '../../common/icons.ts';
+import { buildSearchFilter, clampValue } from '../../common/ops.ts';
+import { NUMBER_FORMATS, createTextNode, flexLayout, measureText } from '../../common/render.ts';
+import type { StatsData } from '../../fetchers/types.ts';
+import type { Child, CssChild } from '../../markup/index.ts';
+import { atRule, cssComment, el, rule } from '../../markup/index.ts';
+import type { CardOptions, CommonCardOptions } from '../options.ts';
+import { wakatimeCardLocales } from '../wakatime/locales.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.ts';
+import { statCardLocales } from './locales.ts';
 
 const CARD_MIN_WIDTH = 287;
 const CARD_DEFAULT_WIDTH = CARD_WIDTH.compact;
@@ -215,13 +216,16 @@ const getStyles = ({
   getProgressAnimation({ progress }),
 ];
 
+/** The card's own translations, so `t` is checked against the keys it declares. */
+type StatsI18n = I18n<typeof statCardLocales & typeof wakatimeCardLocales>;
+
 /**
  * @returns What the commit count covers, for the stat's label.
  */
 const getTotalCommitsRangeLabel = (
   include_all_commits: boolean,
   commitsRange: GitHubDateRange | undefined,
-  i18n: I18n,
+  i18n: StatsI18n,
 ): string =>
   include_all_commits
     ? ''
@@ -293,10 +297,7 @@ const renderCard = (
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const i18n = new I18n({
     locale,
-    translations: {
-      ...statCardLocales({ name, apostrophe }),
-      ...wakatimeCardLocales,
-    },
+    translations: { ...statCardLocales, ...wakatimeCardLocales },
   });
 
   // Meta data for creating text nodes with createTextNode function
@@ -468,6 +469,11 @@ const renderCard = (
   }
 
   // check if all used labels are short
+  const defaultTitle =
+    visibleStats.length > 0
+      ? i18n.t('statcard.title', { name, apostrophe })
+      : i18n.t('statcard.ranktitle', { name, apostrophe });
+
   const longLabels = visibleStats.some(([, stat]) => stat.label.length > 18);
 
   // The rank ring sets the floor: 150 beside the stats, 180 when it is the whole card.
@@ -479,11 +485,7 @@ const renderCard = (
   // the lower the user's percentile the better
   const progress = 100 - rank.percentile;
 
-  const calculateTextWidth = (): number =>
-    measureText(
-      custom_title ||
-        (visibleStats.length > 0 ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle')),
-    );
+  const calculateTextWidth = (): number => measureText(custom_title || defaultTitle);
 
   const iconWidth = show_icons && visibleStats.length > 0 ? 16 + /* padding */ 1 : 0;
   // The icons ride inside the step's own slack, so a default card lands on the width grid;
@@ -539,7 +541,7 @@ const renderCard = (
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: visibleStats.length > 0 ? i18n.t('statcard.title') : i18n.t('statcard.ranktitle'),
+    defaultTitle,
     titlePrefixIcon: CARD_ICON.stats,
     width,
     height,
@@ -598,7 +600,7 @@ const renderCard = (
     .join(', ');
 
   card.setAccessibilityLabel({
-    title: `${card.title}, ${i18n.t('statcard.rank')}: ${rank.level}`,
+    title: i18n.t('statcard.accessibility-title', { title: card.title, level: rank.level }),
     desc: labels,
   });
 

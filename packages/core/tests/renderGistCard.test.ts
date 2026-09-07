@@ -3,7 +3,7 @@ import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
 import { gist as gistApi } from '../src/api/gist.ts';
-import { renderGistCard } from '../src/cards/gist.ts';
+import { renderGistCard } from '../src/cards/gist/index.ts';
 import type { GistData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
