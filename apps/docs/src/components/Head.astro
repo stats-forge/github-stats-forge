@@ -1,0 +1,21 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+
+import socialPreview from '../../../../.github/assets/social-preview.png';
+
+/**
+ * Starlight's own head, plus the image a shared link previews with.
+ *
+ * It emits `twitter:card: summary_large_image` and the rest of the Open Graph pair already, but
+ * never an `og:image` — so every link to the site unfurled as text. The repository's own social
+ * preview is imported rather than copied into `public/`, the same trade the header logo makes.
+ */
+
+const image = new URL(socialPreview.src, Astro.site);
+---
+
+<Default><slot /></Default>
+<meta property="og:image" content={image.href} />
+<meta property="og:image:width" content={String(socialPreview.width)} />
+<meta property="og:image:height" content={String(socialPreview.height)} />
+<meta property="og:image:alt" content="GitHub Stats Forge" />

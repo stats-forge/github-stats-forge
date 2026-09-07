@@ -132,7 +132,7 @@ puts it below the repository name. It is **not published to npm**, so it carries
 no `lint:publish`.
 
 - **Every documentation page is markdown, the landing page included.** `.astro` exists for the
-  config, the plugins, the two Starlight overrides and the anvil, nothing else. A documentation page
+  config, the plugins, the three Starlight overrides and the anvil, nothing else. A documentation page
   that wants a component is a page that wants rewriting — this was the whole point of phase 1.
   - **The anvil is the one exception, because it is an application rather than prose.**
     `src/pages/anvil.astro` renders through Starlight's own `<StarlightPage>`, so it keeps the
@@ -242,6 +242,19 @@ no `lint:publish`.
   plus `target="_blank"`, `rel="me noopener"` and "(opens in a new tab)" in the screen-reader label
   — so re-copy it from `@astrojs/starlight/dist/components/SocialIcons.astro` if Starlight changes
   that component.
+- **`Head` is overridden for the one Open Graph tag Starlight omits.** It emits `og:title`,
+  `og:type`, `og:url`, `og:description`, `og:site_name` and `twitter:card: summary_large_image`
+  itself, but never an `og:image`, so a shared link unfurled as text with a card-shaped hole.
+  `src/components/Head.astro` renders Starlight's own and appends the image, its dimensions and its
+  alt text; `<StarlightPage>` uses the same component, so the anvil is covered with it.
+  - **The image is the repository's own social preview, imported rather than copied** — the same
+    trade the header logo makes. A plain ESM import goes through Astro's asset pipeline, which
+    reads a PNG's dimensions without handing it to sharp; `public/` would have meant 216KB
+    duplicated and a second file to keep in step.
+  - **`og:image` has to be absolute**, so the emitted `src` — which already carries the base — is
+    resolved against `Astro.site`. Its 1280×640 is read off the import rather than written down,
+    and a scraper uses it to reserve the space before the image arrives.
+  - **The SVG beside it is not usable here**: scrapers take PNG and JPEG, and none render SVG.
 - **A theme sample is one image, a card preview is two.** The plugin renders
   `/themes/<name>.svg` once — it already names its theme — and pairs `/cards/<name>.svg`.
   `SAMPLE_THEMES` in `src/constants.ts` is read by both generators, so the page cannot draw a
