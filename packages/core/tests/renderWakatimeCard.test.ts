@@ -2,7 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
-import { renderWakatimeCard } from '../src/cards/wakatime.ts';
+import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
 
 import { testConfig } from './_config.ts';
 import { wakaTimeData } from './fetchWakatime.test.ts';

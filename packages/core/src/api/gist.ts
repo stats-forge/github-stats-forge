@@ -1,6 +1,6 @@
 import * as z from 'zod/mini';
 
-import { renderGistCard } from '../cards/gist.ts';
+import { renderGistCard } from '../cards/gist/index.ts';
 import { fetchGist } from '../fetchers/gist.ts';
 
 import { cardHandler } from './handler.ts';

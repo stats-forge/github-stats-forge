@@ -1,6 +1,6 @@
 import * as z from 'zod/mini';
 
-import { renderWakatimeCard } from '../cards/wakatime.ts';
+import { renderWakatimeCard } from '../cards/wakatime/index.ts';
 import { fetchWakatimeStats } from '../fetchers/wakatime.ts';
 
 import { cardHandler } from './handler.ts';

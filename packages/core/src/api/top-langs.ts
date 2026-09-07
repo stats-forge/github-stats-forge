@@ -1,6 +1,6 @@
 import * as z from 'zod/mini';
 
-import { renderTopLanguages } from '../cards/top-languages.ts';
+import { renderTopLanguages } from '../cards/top-languages/index.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
 import { fetchTopLanguages } from '../fetchers/top-languages.ts';
 

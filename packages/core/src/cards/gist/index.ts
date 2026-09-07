@@ -1,11 +1,11 @@
-import { CARD_ICON, CARD_WIDTH, FONT_SIZE, font } from '../common/brand.ts';
-import { Card } from '../common/Card.ts';
-import { getLightDarkColors } from '../common/color.ts';
-import { kFormatter } from '../common/fmt.ts';
-import { I18n } from '../common/I18n.ts';
-import { icons } from '../common/icons.ts';
-import { getLanguageColor } from '../common/languageColors.ts';
-import { parseEmojis } from '../common/ops.ts';
+import { CARD_ICON, CARD_WIDTH, FONT_SIZE, font } from '../../common/brand.ts';
+import { Card } from '../../common/Card.ts';
+import { getLightDarkColors } from '../../common/color.ts';
+import { kFormatter } from '../../common/fmt.ts';
+import { I18n } from '../../common/I18n.ts';
+import { icons } from '../../common/icons.ts';
+import { getLanguageColor } from '../../common/languageColors.ts';
+import { parseEmojis } from '../../common/ops.ts';
 import {
   countWrappedLines,
   wrapTextMultiline,
@@ -15,13 +15,13 @@ import {
   measureText,
   wrappedTextNode,
   wrappedTextStyles,
-} from '../common/render.ts';
-import type { GistData } from '../fetchers/types.ts';
-import type { Child } from '../markup/index.ts';
-import { el, rule } from '../markup/index.ts';
-import { gistCardLocales } from '../translations.ts';
+} from '../../common/render.ts';
+import type { GistData } from '../../fetchers/types.ts';
+import type { Child } from '../../markup/index.ts';
+import { el, rule } from '../../markup/index.ts';
+import type { CardOptions, CommonCardOptions } from '../options.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.ts';
+import { gistCardLocales } from './locales.ts';
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = CARD_WIDTH.standard;
@@ -161,9 +161,12 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   // shows has to be repeated here.
   card.setAccessibilityLabel({
     title: card.title,
-    desc: `${desc}. ${i18n.t('gistcard.language')}: ${languageName}, ${i18n.t(
-      'gistcard.stars',
-    )}: ${totalStars}, ${i18n.t('gistcard.forks')}: ${totalForks}`,
+    desc: i18n.t('gistcard.accessibility-desc', {
+      desc,
+      language: languageName,
+      stars: totalStars,
+      forks: totalForks,
+    }),
   });
 
   return card.render([

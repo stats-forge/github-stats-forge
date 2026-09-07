@@ -1,16 +1,16 @@
-import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../common/brand.ts';
-import { Card } from '../common/Card.ts';
-import { getLightDarkColors, isPrefixedHexColor } from '../common/color.ts';
-import { I18n } from '../common/I18n.ts';
-import { getLanguageColor } from '../common/languageColors.ts';
-import { clampValue, lowercaseTrim } from '../common/ops.ts';
-import { createProgressNode, flexLayout } from '../common/render.ts';
-import type { WakaTimeData, WakaTimeLang } from '../fetchers/types.ts';
-import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
-import { atRule, el, rule } from '../markup/index.ts';
-import { wakatimeCardLocales } from '../translations.ts';
+import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../../common/brand.ts';
+import { Card } from '../../common/Card.ts';
+import { getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
+import { I18n } from '../../common/I18n.ts';
+import { getLanguageColor } from '../../common/languageColors.ts';
+import { clampValue, lowercaseTrim } from '../../common/ops.ts';
+import { createProgressNode, flexLayout } from '../../common/render.ts';
+import type { WakaTimeData, WakaTimeLang } from '../../fetchers/types.ts';
+import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
+import { atRule, el, rule } from '../../markup/index.ts';
+import type { CardOptions, CommonCardOptions } from '../options.ts';
 
-import type { CardOptions, CommonCardOptions } from './options.ts';
+import { wakatimeCardLocales } from './locales.ts';
 
 const DEFAULT_CARD_WIDTH = CARD_WIDTH.wide;
 const MIN_CARD_WIDTH = 250;
