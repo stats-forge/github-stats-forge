@@ -52,7 +52,8 @@ describe('api query schemas', () => {
       const result = await call({
         ...withUser(name),
         cache_seconds: '86400',
-        client: 'wizard',
+        // named after nothing, so it cannot go stale when something is renamed
+        client: 'unknown',
         // a param another endpoint owns
         langs_count: '4',
       });

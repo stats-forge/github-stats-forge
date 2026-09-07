@@ -1,0 +1,348 @@
+/*
+  The anvil, which is a form beside a preview rather than a page of prose.
+  Two columns where there is room, stacked where there is not, with the preview kept in view.
+*/
+
+.anvil {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+  text-align: start;
+}
+
+.anvil-controls-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/*
+  Web Awesome's controls are themed from Starlight's palette, so the anvil looks like the rest of
+  the site and follows the theme switcher without being told.
+
+  **The derived tokens have to be set, not just the base ones.** `themes/default.css` declares
+  `--wa-form-control-value-color: var(--wa-color-text-normal)` on `:where(:root)`, and a `var()`
+  inside a custom property is resolved where that property is computed — on the root, against the
+  light palette. Overriding `--wa-color-text-normal` further down therefore never reaches it, and
+  the checkbox labels came out near-black on a near-black page.
+
+  `native.css` is deliberately not imported: it restyles native elements and would fight Starlight
+  page-wide.
+*/
+.anvil {
+  /* Base tokens, for the parts that read them directly — the dropdown panel and its rows. */
+  --wa-color-surface-default: var(--sl-color-black);
+  --wa-color-surface-raised: var(--sl-color-black);
+  --wa-color-surface-lowered: var(--sl-color-gray-6);
+  --wa-color-surface-border: var(--sl-color-gray-5);
+  --wa-color-text-normal: var(--sl-color-white);
+  --wa-color-text-quiet: var(--sl-color-gray-3);
+  --wa-color-neutral-fill-quiet: var(--sl-color-gray-6);
+  --wa-color-neutral-on-quiet: var(--sl-color-white);
+  --wa-color-neutral-border-loud: var(--sl-color-gray-5);
+  --wa-color-brand-fill-loud: var(--sl-color-accent);
+  /*
+    Literal white, not `--sl-color-white`. That token is the page's highest-contrast *text* colour
+    and inverts with the theme, so in light mode the selected row and the ticked checkbox came out
+    near-black on the accent blue. What sits on the accent fill has to contrast with the fill, which
+    is a saturated blue in both themes.
+  */
+  --wa-color-brand-on-loud: #fff;
+  --wa-color-brand-border-loud: var(--sl-color-accent);
+  /*
+    The *quiet* pair, which the selected segment of a boolean uses. Left unmapped it was Web
+    Awesome's pale blue fill under white text, so the chosen segment's own label vanished.
+    Starlight's `accent-low` / `accent-high` are designed as exactly this pair and flip together.
+  */
+  --wa-color-brand-fill-quiet: var(--sl-color-accent-low);
+  --wa-color-brand-on-quiet: var(--sl-color-accent-high);
+  --wa-color-brand-border-quiet: var(--sl-color-accent);
+  --wa-color-focus: var(--sl-color-accent);
+
+  /* Derived tokens, which the root already resolved against the light palette. */
+  --wa-form-control-value-color: var(--sl-color-white);
+  --wa-form-control-label-color: var(--sl-color-white);
+  --wa-form-control-background-color: var(--sl-color-black);
+  --wa-form-control-border-color: var(--sl-color-gray-5);
+  --wa-form-control-activated-color: var(--sl-color-accent);
+  --wa-form-control-placeholder-color: var(--sl-color-gray-3);
+  --wa-form-control-hint-color: var(--sl-color-gray-3);
+  --wa-form-control-label-font-weight: 600;
+
+  --wa-font-family-body: inherit;
+  --wa-border-radius-m: 0.25rem;
+
+  /* The height of one segment of a boolean, and so of the row that holds the three. */
+  --anvil-segment-height: 2.375rem;
+}
+
+.anvil-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* A `fieldset` for the group's name; its own frame would be a second border inside the pane. */
+.anvil-check-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.anvil-check-group legend {
+  padding: 0;
+  font-size: var(--wa-form-control-label-font-size, inherit);
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+/*
+  A grid, so the boxes line up down the pane instead of forming ragged rows: the values differ a
+  lot in length. The minimum is wide enough for `prs_merged_percentage`, which means one column in
+  the pane's own width and two wherever there is room for two.
+*/
+.anvil-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.15rem 0.9rem;
+  margin-block-start: 0.4rem;
+}
+
+/*
+  A miniature of the card rather than a strip of squares: the ground is the theme's background and
+  the dots are the colors a card draws its title, icons and text with.
+*/
+.anvil-swatch {
+  /* Flex, not grid: `grid-auto-flow: column` laid the three dots out diagonally. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: none;
+  width: 2.2rem;
+  height: 1.15rem;
+  padding-inline: 3px;
+  background: var(--swatch-bg);
+  border: 1px solid var(--swatch-border);
+  border-radius: 0.2rem;
+  /* A pale theme on a pale panel would otherwise lose its edge. */
+  box-shadow: 0 0 0 1px rgb(128 128 128 / 25%);
+}
+
+.anvil-swatch i {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+}
+
+/* Slotted into a row beside the theme's name, which needs air between the two. */
+.anvil-swatch[slot='start'] {
+  margin-inline-end: 0.55rem;
+}
+
+/*
+  The dropdown panel is the same colour as the page, so in light mode it only read as a panel
+  because of its hairline border. `part` is Web Awesome's own customization seam, so the elevation
+  is added there rather than by overriding its internals.
+*/
+wa-select::part(listbox) {
+  border-color: var(--sl-color-gray-5);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+}
+
+/*
+  A boolean's three segments, laid out as equal columns.
+
+  Web Awesome slots them into a wrapping flex row, which stretched the first segment to the row's
+  height and left the other two at their own — so `default` stood 16px taller than `on` and `off`
+  and hung above them. A grid of equal columns sizes all three the same and gives the control the
+  even thirds a segmented button should have. `form-control-input` is the group's own exposed part.
+*/
+.anvil wa-radio-group::part(form-control-input) {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  /* The row is pinned rather than sized by its contents, which is what made the first one tall. */
+  grid-auto-rows: var(--anvil-segment-height);
+  align-items: stretch;
+}
+
+.anvil wa-radio-group wa-radio {
+  height: 100%;
+  min-height: var(--anvil-segment-height);
+}
+
+/*
+  Starlight gives any element that follows a sibling a 1rem top margin, and a component's slotted
+  children are light-DOM siblings of each other — so the second and third segments of a boolean sat
+  16px below the first, and the flex row stretched the first to cover the difference. Every gap in
+  the anvil is set with `gap`, so that inherited margin is removed.
+
+  The `[data-option]` in the middle is there for specificity: Starlight's own rule outranks a single
+  class plus a type selector.
+*/
+.anvil [data-option] :is(wa-radio, wa-option, wa-checkbox, wa-divider, small) {
+  margin-block-start: 0;
+}
+
+/* The folded section holding the options every card shares. */
+.anvil-section {
+  --wa-panel-border-color: var(--sl-color-gray-5);
+
+  font-size: var(--sl-text-sm);
+}
+
+.anvil-section::part(header) {
+  padding: 0.45rem 0.6rem;
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+.anvil-section::part(content) {
+  padding: 0.75rem 0.6rem;
+}
+
+/* A heading between groups of options — Web Awesome's own way of sectioning a select. */
+.anvil-option-group {
+  display: block;
+  padding: 0.4rem 0.6rem 0.2rem;
+  font-size: var(--sl-text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sl-color-gray-3);
+}
+
+/* A card's own icon, lifted out of the card it draws, standing in a dropdown row. */
+.anvil-card-icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  fill: var(--sl-color-text-accent);
+}
+
+.anvil-preview-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  position: sticky;
+  top: calc(var(--sl-nav-height) + 1rem);
+}
+
+/*
+  The card is drawn at its own size, so it is centred rather than stretched.
+  Its own `<style>` lives in a shadow root beneath this element — see `ui.ts` — so nothing here
+  reaches the card and nothing in the card reaches the page.
+*/
+.anvil-preview {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.anvil-status {
+  margin: 0;
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-gray-3);
+}
+
+/* Empty on a successful draw: the badge below already says where the numbers come from. */
+.anvil-status:empty {
+  display: none;
+}
+
+.anvil-status[data-state='error'] {
+  color: var(--sl-color-red-high);
+}
+
+.anvil-output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+.anvil-actions {
+  display: flex;
+  gap: 0.5rem;
+  font-weight: 400;
+}
+
+.anvil-actions button,
+.anvil-actions a {
+  padding: 0.2rem 0.6rem;
+  font: inherit;
+  color: var(--sl-color-white);
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.anvil-output pre {
+  max-height: 14rem;
+  overflow: auto;
+}
+
+.anvil-note {
+  margin: 0;
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-gray-3);
+}
+
+/* The page description, which Starlight writes into the meta but never shows. */
+.anvil-intro {
+  max-width: 80ch;
+  margin-block: 0 1.5rem;
+  color: var(--sl-color-gray-2);
+}
+
+/* The tooltip's anchor: it has to look askable without becoming a banner. */
+.anvil-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-block-end: 1px dotted currentcolor;
+  color: var(--sl-color-gray-2);
+  cursor: help;
+}
+
+.anvil-badge svg {
+  flex: none;
+}
+
+wa-tooltip {
+  --max-width: 24rem;
+}
+
+/*
+ * The close button's own hover colour resolves against Web Awesome's light palette and lands
+ * near-black, which is invisible on a dark toast. At rest it already follows the page, so hover
+ * has to use the same colour rather than the component's.
+ */
+wa-toast-item::part(close-button):hover,
+wa-toast-item::part(close-button):focus-visible {
+  color: var(--sl-color-white);
+}
+
+@media (max-width: 60rem) {
+  .anvil {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .anvil-preview-pane {
+    position: static;
+  }
+}

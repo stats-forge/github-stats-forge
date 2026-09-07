@@ -10,7 +10,7 @@ the rest exist for the cases it does not cover.
 ## GitHub's media feature
 
 [GitHub picks between images in a `<picture>` element](https://github.blog/changelog/2022-05-19-specify-theme-context-for-images-in-markdown-beta/)
-using `prefers-color-scheme`. Render the card twice, once per theme, and let the reader's browser
+using `prefers-color-scheme`. Render the card twice, once per theme, and let the browser
 choose:
 
 ```html
@@ -58,8 +58,8 @@ in a blog post, anywhere an image goes — including the places `<picture>` is s
 The switch follows the **browser or OS** colour scheme, not the theme you picked in GitHub's
 settings. GitHub serves images through
 [an anonymising proxy](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-anonymized-urls),
-so the card never learns which GitHub theme is showing it. For most readers the two agree; for a
-reader who has set them differently, they will not.
+so the card never learns which GitHub theme is showing it. The two usually agree; where they are
+set differently, they will not.
 :::
 
 ### What wins over what
@@ -127,7 +127,7 @@ single-palette card, exactly as before.
 
 Appending
 [`#gh-dark-mode-only` or `#gh-light-mode-only`](https://github.blog/changelog/2021-11-24-specify-theme-context-for-images-in-markdown/)
-to an image shows it only to readers on that GitHub mode:
+to an image shows it only on that GitHub mode:
 
 ```md
 ![My GitHub stats](./cards/stats-dark.svg#gh-dark-mode-only)

@@ -49,7 +49,7 @@ export interface CardKind {
 const THEME_NAMES = Object.keys(themes);
 
 /** Colors and the theme, which every card accepts. */
-const COMMON_OPTIONS: ReadonlyArray<CardOption> = [
+export const COMMON_OPTIONS: ReadonlyArray<CardOption> = [
   {
     name: 'theme',
     label: 'Theme',

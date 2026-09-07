@@ -179,6 +179,18 @@ export default defineConfig({
       // compiler rather than declared.
       files: ['**/*.astro'],
       globals: { Astro: 'readonly' },
+      rules: {
+        // A stylesheet import is how a page asks for its own CSS, and there is nothing to assign.
+        'import/no-unassigned-import': 'off',
+      },
+    },
+    {
+      // Importing a custom element registers it; the side effect *is* the import, and Web Awesome
+      // exports nothing else from those modules.
+      files: ['apps/docs/src/anvil/controls.ts'],
+      rules: {
+        'import/no-unassigned-import': 'off',
+      },
     },
     {
       // The generators and the CLI report to the terminal; that is their output,

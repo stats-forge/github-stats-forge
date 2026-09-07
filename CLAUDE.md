@@ -14,9 +14,8 @@ Scope split: **this file holds the durable rules**; work not yet done lives in
 `.claude/scratch/` (untracked). Rules go here, pending work goes there; don't duplicate
 across the two. Open at the moment: `CORE_DEFERRED_IMPROVEMENTS.md` (follow-ups in
 `packages/core`, each verified as still applicable), `CORE_PACKAGE_SPLIT.md` (whether
-`packages/core` becomes several packages), `CORE_HTTP_TRANSPORT.md` (whether axios
-gives way to an injected `fetch`), `DOCS_SITE.md` (an Astro site documenting every card,
-and a wizard that writes the CLI's config file) and `SERVER_DOCKER.md` (an HTTP server
+`packages/core` becomes several packages), `ANVIL.md` (the docs site's card builder,
+which writes the CLI's config file) and `SERVER_DOCKER.md` (an HTTP server
 over the api handlers, shipped as an image).
 
 ## What this is
@@ -63,14 +62,21 @@ pnpm lint:publish         # attw + publint in each package — guards what gets 
 pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
 pnpm cli --help           # build, then run the CLI (add any of its flags)
-pnpm docs                 # build, then the docs site's dev server
+pnpm run docs             # build, then the docs site's dev server (`run` is required — see below)
 pnpm docs:build           # build the docs site (what CI runs)
 pnpm docs:cards           # build, then redraw the docs site's card previews
+pnpm docs:e2e             # build the site, then run the anvil's browser tests
 pnpm check-all            # every check CI runs, cheapest first, in one command
 ```
 
+**`pnpm run docs` needs the `run`, unlike every other script here.** `docs` is a pnpm builtin
+(`pnpm docs <package-name>`), so bare `pnpm docs` never reaches the script and fails with
+`ERR_PNPM_MISSING_PACKAGE_NAME` — from the repository root, where the script plainly exists. The
+`docs:*` scripts are unaffected, being no one's builtin. Confirmed on pnpm 11 on 2026-09-07, after
+the bare form was documented here and did not work.
+
 `check-all` is the one to reach for before handing work over. It is
-`scripts/check-all.ts` — eleven checks ordered so the fastest failure surfaces first, each
+`scripts/check-all.ts` — thirteen checks ordered so the fastest failure surfaces first, each
 named and timed, stopping at the first failure unless `-k` asks for the whole list. It was an
 `&&` chain in `package.json` until that reached eleven links; a `.sh` was considered and
 rejected, because every other file here is TypeScript and so gets typechecked, linted and
@@ -120,15 +126,25 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
 puts it below the repository name. It is **not published to npm**, so it carries no changeset and
 no `lint:publish`.
 
-- **Every page is markdown, the landing page included.** `.astro` exists for the config, the plugin
-  and the two Starlight overrides, nothing else. A page that wants a component is a page that wants
-  rewriting — this was the whole point of phase 1.
+- **Every documentation page is markdown, the landing page included.** `.astro` exists for the
+  config, the plugins, the two Starlight overrides and the anvil, nothing else. A documentation page
+  that wants a component is a page that wants rewriting — this was the whole point of phase 1.
+  - **The anvil is the one exception, because it is an application rather than prose.**
+    `src/pages/anvil.astro` renders through Starlight's own `<StarlightPage>`, so it keeps the
+    header, the nav and the theme while living outside the content collection — which is what lets
+    it carry a `<script>`. It is also the only page here that ships JavaScript. Two consequences:
+    the remark plugins do not run on it, so its links spell out `BASE` themselves rather than being
+    written relative; and **nothing validates those links** — `starlight-links-validator` collects
+    links through a rehype plugin over the markdown content, so a dead link or a dead `#hash` in
+    `anvil.astro` builds green. Proved on 2026-09-07 by pointing one at a heading that does not
+    exist. Check the anvil's own links by hand, and note that a markdown page linking _to_ `/anvil/`
+    would be reported as "invalid link to custom page" — no docs page does today.
 - **`/` is a landing page and every documentation page lives under `/docs/`.** The tree is
   `src/content/docs/index.md`, `src/content/docs/docs/**` for the documentation and
-  `src/content/docs/wizard.md` beside it at `/wizard/`, which is why the sidebar entries all read
+  `src/pages/anvil.astro` beside it at `/anvil/`, which is why the sidebar entries all read
   `docs/…`. **The two pages outside the documentation tree carry `template: splash`**, which is
   what drops Starlight's sidebar and table of contents: the sidebar lists the docs, so it has no
-  business on the landing page or the wizard. Three things follow from that split, each already paid for once:
+  business on the landing page or the anvil. Three things follow from that split, each already paid for once:
   - **The landing page has no hero image.** Astro hands one to sharp, which is not installed and is
     not worth installing for an icon the header already shows.
   - **Its call to action is markdown links in a `<div class="hero-actions">`, not `hero.actions`.**
@@ -211,7 +227,7 @@ no `lint:publish`.
     processor: the validator collects links after this has rewritten them. In rehype it would be
     too late.
 - **The header carries a top nav, because Starlight has none.** `src/components/SiteTitle.astro`
-  overrides Starlight's own to put "Docs" and "Wizard" beside the title; the wizard is therefore
+  overrides Starlight's own to put "Docs" and "Anvil" beside the title; the anvil is therefore
   **not** in the sidebar. A section is marked `aria-current="page"` when the pathname starts with
   its own href, so the landing page marks neither — the title is the link home. The links are
   centred against the title with `align-self`: `.title-wrapper` is a flex row that stretches its
@@ -232,6 +248,18 @@ no `lint:publish`.
   a client-side bundle on a docs half that ships no JavaScript, or `@mermaid-js/mermaid-cli` and
   the Chromium it brings with it. Neither is proportionate to a diagram; the colour-precedence one
   on `light-and-dark.md` is the shape to copy.
+- **The dev toolbar is off: Astro 7.2.10 answers `504 Outdated Optimize Dep` for its own
+  entrypoint on every page**, the markdown ones included, on a server that has served nothing else.
+  - **The trigger is the anvil's client `<script>` importing a workspace-linked package.** Removing
+    that script clears it; Web Awesome alone is clean; the workspace import alone reproduces it. It
+    fires whether the package resolves to source or build, so **dropping `@stats/source` does not
+    help** — that was tried. Related: withastro/astro#16630, closed, whose remedy does not work.
+  - **A `vite` plugin that pre-bundles the linked packages and drops the toolbar from
+    `optimizeDeps.include` was built, and reverted: it works on two clean starts in three.** The
+    optimizer's behaviour is not deterministic, so it bought a flaky toolbar for thirty lines of
+    config and a `vite` devDependency. Don't rebuild it. `devToolbar: { enabled: false }` is
+    deterministic, and the build never requests the file.
+  - Re-check on an Astro upgrade and turn the toolbar back on if `astro dev` is clean.
 - **`apps/docs` pins every dependency exactly**, as the rest of the repo does with its dev
   dependencies. It is private, so nothing resolves a range on a consumer's behalf.
 - **`astro sync` has to have run before anything type-aware does.** `content.config.ts` imports
@@ -244,9 +272,250 @@ no `lint:publish`.
   `tsconfig.typecheck.json`.** Clearing `customConditions` is how a _published_ package proves a
   consumer can resolve it; `apps/docs` is not published and not that consumer, and `packages/cli`
   plus `lint:publish` already make that case. Keeping the `@stats/source` condition means the
-  editor and CI agree, and the whole docs job runs with nothing built.
+  editor and CI agree. **Typechecking needs nothing built; the site's `astro build` does** — see
+  `docs:build` below.
 - **`.astro/` is `astro sync` output**: gitignored, and ignored by oxlint and oxfmt. Do not lint
   or format it, and do not commit it.
+
+## The anvil
+
+`/anvil/` is the site's card builder: a form over a card's options, the card redrawn beside it, and
+the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, because the sibling
+`ghse` already has one.
+
+- **It draws through core's public `./api` handlers, never through the card renderers.**
+  `CardConfig` takes a `fetch`, and its own doc comment already names the browser as a host, so the
+  page hands it a transport that answers from a recording:
+  `new CardConfig({ pats: [dummy], fetch: createSampleFetch(samples) })`. Three things follow, and
+  they are why a `./cards` export carrying render functions plus fixtures was rejected:
+  - core's public API does not grow, so the page needs no changeset and stays an ordinary consumer
+  - the preview walks the real path — query string, validation, fetch, render — so a rejected option
+    draws **the same error card a reader would really get**, rather than a page-level message
+  - the SVG is byte-identical to what the CLI writes
+- **`samples.json` is recorded, committed, and never hand-edited.**
+  `pnpm --filter ./apps/docs run record-anvil-samples` drives the same six handlers with a `fetch`
+  that reaches the network and keeps what comes back — so a recording cannot be of a request the
+  anvil does not make. It needs `PAT_1` in the root `.env`, the same trade `pnpm docs:cards` makes,
+  and its output goes through oxfmt's API so `pnpm format` leaves it alone.
+  - **`check-anvil-samples` is what guards it, and needs no token, so it runs in CI.**
+    Nothing types the recording against core's GraphQL types — the anvil reads only core's public
+    api — so the guard is behavioural: change a query's shape and the card stops drawing.
+    It is in `check-all` and in CI's docs job. It caught two real gaps while being written.
+- **A request is keyed by what it asks, never by the whole request.** `sample-key.ts` is read by the
+  recorder and the transport both, so the two cannot disagree. A card's variables move with its
+  options, so an exact-match key would miss most of the option space:
+  - a GraphQL request keys on its **operation name**, plus a hash of the query with its range fields
+    collapsed. The name alone is too coarse for the documents built at runtime —
+    `userReposContributedTo` is one name over two selections, and the stats card and the
+    contributed-to card each send one; keyed by name alone they overwrote each other.
+  - **collapse the whole _run_ of range fields, not each field.** Collapsing them one by one leaves
+    N markers, so the hash still moved with the year count and every changed `from` missed.
+  - a REST search keys on its path and its **qualifier names**, with `repo:` and `owner:` dropped —
+    those carry values the reader chooses — and `type:` kept, because `type:pr` and `type:issue` are
+    different figures.
+  - **ranges are aliased by position (`range_0`, `range_1`, …), so one recording answers any
+    length**: `createSampleFetch` re-aliases what it recorded onto however many the request asked
+    for. That is what lets `from` and `to` move over the whole allowed span.
+- **The consequence is stated on the page, not hidden.** Options that change how a card is _drawn_
+  are exact; options that change _what is counted_ leave the sample numbers where they are.
+- **Which themes a card may wear is ported from `ghse`, not invented here.** `src/anvil/themes.ts`
+  follows that project's wizard so both offer the same themes for the same card. Themes come in
+  pairs: `X` for the cards describing a user, `X_repocard` for the ones describing a repository or a
+  gist, and each side offers only its own half — which is also why a card's default theme needs no
+  table, `default` and `default_repocard` being such a pair. The list is then grouped by the
+  background each theme implies: light, the two that read either way (`transparent`,
+  `ambient_gradient`), then dark. `ghse` also excludes nine themes from its picker; that is an
+  editorial choice and has **not** been copied.
+- **A card is drawn into a shadow root, because an inlined SVG's `<style>` is document-wide.**
+  A card carries its own CSS, and inlining the SVG into HTML does not scope it: the stats card
+  defaults `show_icons` off, which emits `.icon { display: none }`, and that hid **every** `svg.icon`
+  on the page — the theme switcher in the site header among them. `attachShadow` is the only thing
+  that keeps a card's styles inside the card, and core has no `:host` rules, so nothing changes
+  appearance by moving there. The card sits under an `.anvil-card` wrapper inside that root, which
+  is what gives it a selectable handle — a card's own icons are `<svg>` too. Playwright's CSS
+  selectors pierce an open shadow root, so the tests needed nothing but the new path.
+- **Copy and download report through a `wa-toast`, and the buttons keep their names.** Copy used to
+  retitle itself to "Copied", which changes a control's accessible name under whoever is pressing
+  it, and download reported nothing at all. Three things follow:
+  - **Do not add `aria-live` to the stack.** Web Awesome mirrors each item's text into its own
+    shared live region — `role="status"`/`aria-live="polite"`, `role="alert"`/`assertive` for a
+    danger, `aria-atomic="true"`, the text set on a double `requestAnimationFrame` so the region is
+    registered first. A second live region would announce everything twice.
+  - **Never pass `icon` to `create()`.** That resolves through `wa-icon`'s default library, which
+    fetches from Font Awesome's CDN and breaks the page's privacy claim. The close button's own
+    icon is `library="system"` and inline, so it costs nothing.
+  - **The close button's hover colour has to be overridden.** The component's own resolves against
+    Web Awesome's light palette and comes out near-black, invisible on a dark toast — while at rest
+    it already follows the page. `::part(close-button):hover` and `:focus-visible` take
+    `--sl-color-white`, and an e2e test asserts hover matches rest.
+  - **The stack lives inside `[data-anvil="root"]`.** `mount` finds every element with
+    `need(root, …)`, so a stack placed after that div threw and took the whole page's JavaScript
+    with it — all 33 tests failed at once.
+- **The anvil's stylesheet is imported by the page, not listed in `customCss`.** `customCss` serves
+  a file on every page in the site; this one is used by one, and Astro inlines it into that page
+  alone. It stays **unscoped** rather than becoming an Astro `<style>` block, because `ui.ts` builds
+  the controls at runtime and Astro's scoping only reaches elements the template itself writes.
+  That import is why `import/no-unassigned-import` is off for `.astro`.
+- **A line break immediately before an element is dropped, not collapsed to a space.** Two links
+  wrapped onto their own line rendered as `eachcard's own page` and `options tothe library`; each
+  needs an explicit `{' '}` ahead of it. There is an e2e test for it, because it is invisible in the
+  source and returns the next time a paragraph is rewrapped.
+- **The sample identity is the site's own, and it seeds the fields rather than replacing them.**
+  Every preview under `public/cards` is drawn from the same account, and `identity` in `cards.ts`
+  reuses it, so a reader sees one set of numbers across the whole site. It is the **starting value**
+  of each card's `required` fields, which the reader then edits.
+  - **The file has to carry the required params, because a file without them is one the CLI
+    rejects.** `toQuery` walked `card.options` alone until 2026-09-07 while `render.ts` merged
+    `card.identity` in behind the form, so the preview drew and the downloaded `card.json` had no
+    `username` at all — valid-looking, and `missing_param` the moment it was used. `toQuery` writes
+    the required params first, and `renderSampleCard` overrides nothing.
+  - **Editing them is safe precisely because a recording is keyed by what a request asks, never by
+    its variables** — `sample-key.ts` drops `repo:` and `owner:` for this reason. So a typed
+    username still resolves, to the recorded account's numbers, and the anvil says so in a note
+    under those fields. That note is the honest half of making the fields editable; don't remove one
+    without the other.
+  - `CARDS` throws when a `required` param has no seed, the same way it throws for a card with no
+    extras at all: the field would open empty and the card would not draw.
+- **The preview is rewritten only when it differs.** `ui.ts` keeps the last markup it wrote — not
+  `previewRoot.innerHTML`, which comes back re-serialised and never matches — and skips the DOM
+  write when the new card is identical. Typing a username otherwise replaced a card with its twin,
+  which reads as "the numbers are yours now"; every option that does change the card still redraws
+  it, and an option that turns it into an error card still does.
+- **A statement that is permanently true is a badge with a tooltip, not a callout.** Starlight's
+  `<Aside type="caution">` was tried for the mock-data notice on 2026-09-07 and rejected as too
+  loud for something that is always the case. It is a `.anvil-badge` anchored by `for` to a
+  `wa-tooltip`, with the essential half — "Mock data" — visible and the detail on hover, so nothing
+  important is hover-only.
+- **The page's description is shown as well as written into its meta.** Starlight's `splash`
+  template renders the title and nothing else, so `description` reached only `<meta>`; it is now a
+  `DESCRIPTION` const used in both places, and `.anvil-intro` puts it under the title.
+- **A successful draw says nothing.** The status line read "Drawn from sample data — nothing you
+  type leaves this page." on every success, which restated the badge directly beneath it and made up
+  most of the text between the card and the file. It is empty on success — `data-state` still says
+  `ok`, which is what the tests read — and `:empty` hides it; on an error it carries the message.
+- **The links out open in a new tab, through `components/NewTabLink.astro`.** Following one loses a
+  half-built card, and the component carries `target="_blank"`, `rel="noopener"` and the `sr-only`
+  "(opens in a new tab)" so no page repeats them. **It is not called `ExternalLink`**: two of its
+  three uses point at this very site, and open away only to preserve the form. `SocialIcons` keeps
+  its own copy of that markup, because it is a Starlight override with `rel="me noopener"`.
+- **The "selected card's page" link follows the card, and the build checks where it points.** The
+  slug lives on each card as `docs` in `cards.ts`, because the pages are named for readers rather
+  than after the card ids — `pin` is `repo-pin`, `top-langs` is `top-languages`. `anvil.astro`
+  checks every slug against the content collection at build time; nothing else stands between a
+  renamed page and a link that 404s, since `ui.ts` sets the href at runtime where the link
+  validator cannot see it.
+- **The option catalog is the CLI's, imported rather than restated.** `packages/cli` exports it at
+  `./cards` — `cards`, `findCard` and `COMMON_OPTIONS` — carrying every option's name, label, kind,
+  hint and choices, and reading its choices off core's `OPTIONS` so no list is copied anywhere. Two
+  forms over the same options are not two lists. What `apps/docs` adds is only what the CLI has no
+  use for: each card's sample identity, which half of every theme pair it wears, and the `maximal`
+  params the recorder needs. That overlay **throws when a card in the catalog has no entry**, so a
+  card added to the CLI is noticed here rather than silently undrawable.
+  - The catalog imports nothing but core's public api, so pulling it into the browser costs a few
+    hundred bytes and no CLI machinery.
+  - A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
+    with choices a group of checkboxes, and everything else a field — numeric where the kind says
+    so. The options every card shares are folded into a `wa-details`, because thirty controls in one
+    column is a wall.
+- **The site bundles `packages/core` and the CLI from source, through `@stats/source`.**
+  `astro.config.ts` sets that condition under **both** `vite.resolve` and `vite.ssr.resolve`, the
+  same trap `packages/cli/vitest.config.ts` documents. Keep both.
+  - **It does not reach the client build, so `docs:build` builds the packages first.** Rolldown
+    resolved neither `@stats-forge/github-stats-forge-core/api` nor the CLI's `./cards` from
+    `src/anvil/cards.ts` on a fresh checkout, whichever came first in the file — the condition is
+    honoured for typechecking, for `ssr`, and for the scripts that pass `--conditions`, but not for
+    the browser bundle. `environments.client.resolve.conditions` does not help either.
+  - So **`docs:build` is `build:packages && astro build`**, which is what `docs` and `docs:cards`
+    always did; `docs:build` was the odd one out and only ever passed locally because `build/`
+    happened to exist. It broke CI's docs job on the first run that had no `build/` — PR #58. When
+    a docs step passes locally and fails in CI, delete `packages/*/build`, `apps/docs/build` and
+    `apps/docs/.astro` and run it again.
+
+### The anvil's controls
+
+Web Awesome (`@awesome.me/webawesome`), not hand-written widgets: a native `<select>` cannot draw a
+theme's colors beside its name, and an accessible listbox written here would be one more such
+implementation to own. They are custom elements, so they drop into the DOM `ui.ts` already builds —
+no framework, and nothing about the page's architecture changes. Shoelace was the alternative and is
+the same author's earlier project, 18 months without a release; a React kit (Radix, shadcn) would
+have meant adding React and rewriting the island.
+
+Five things it costs, each already paid for:
+
+- **Its icons resolve over the network, and this page promises nothing leaves it.** `wa-icon` fetches
+  from Font Awesome's kit CDN, so every icon slot is filled with inline SVG instead — the select's
+  `expand-icon` among them. The e2e suite's request assertion is what keeps that honest.
+- **Set the derived tokens, not just the base ones.** `themes/default.css` declares
+  `--wa-form-control-value-color: var(--wa-color-text-normal)` on `:where(:root)`, and a `var()`
+  inside a custom property is resolved where that property is computed — on the root, against the
+  light palette. Overriding `--wa-color-text-normal` further down never reaches it, and the checkbox
+  labels came out near-black on a near-black page.
+- **What sits on the accent fill must not follow the page.** `--wa-color-brand-on-loud` was mapped to
+  `--sl-color-white`, which is the page's highest-contrast _text_ colour and inverts with the theme;
+  in light mode the selected row and the ticked box went near-black on the accent blue. It is a
+  literal `#fff`, because the fill is a saturated blue either way. Both themes now clear AA.
+- **`native.css` is deliberately not imported.** It restyles native elements and would fight
+  Starlight across the whole page; only `layers.css` and the theme's tokens are.
+- **Sizes are `s`, not `small`.** The long forms are deprecated and warn in the console.
+- **A boolean option needs three states, not two.** On, off, and _not said_ — and the third is not
+  the same as off, because a card's own default may be either: `text_bold` defaults to on for the
+  stats card and off for the repo card. A `wa-switch` both lied about the current state and could
+  not turn the stats card's bold off, since it wrote `true` or nothing and nothing means `true`
+  there. Booleans are a `wa-radio-group` of `default` / `on` / `off`, where `default` writes no param
+  at all — the same convention the selects already use for their empty row.
+- **Map the _quiet_ brand pair too, not just the loud one.** The selected segment of a boolean uses
+  `--wa-color-brand-fill-quiet` / `-on-quiet`; left unmapped it was Web Awesome's pale blue under
+  white text, so the chosen segment's own label vanished. Starlight's `--sl-color-accent-low` and
+  `--sl-color-accent-high` are designed as that pair and flip together.
+
+Its own seams are the ones to reach for: `part` for a component's internals
+(`wa-select::part(listbox)` carries the panel's elevation), and a `<small>` heading plus
+`wa-divider` between groups of options, because there is no option-group component.
+**A control carries `data-option="<param>"`, and that is what the tests find it by** — Web Awesome's
+`label` is a Lit property and is not reflected to an attribute.
+
+### The anvil's browser tests
+
+`apps/docs/e2e/anvil.spec.ts`, Playwright, run by `pnpm docs:e2e` from the root and by CI's docs
+job. **It is the only thing that checks the anvil in a browser**, and the three checks around it
+each stop short of that: `check-anvil-samples` proves each card _can_ be drawn, in Node; the build
+proves the page compiles; neither proves that picking a card rebuilds the controls or that an option
+reaches the renderer.
+
+- **The suite tests the built site, not the dev server**, because the bundle is what a reader gets:
+  the `samples.json` import and core's whole api reach the browser through it.
+- **`reuseExistingServer` is `false`, on purpose.** Reusing whatever is on the port serves the build
+  from _then_, which is how a green suite turned red inside `check-all` right after a rebuild. The
+  cost is that a stray server on 4329 makes the run fail to start rather than testing the wrong
+  thing — which is the better failure.
+- **`e2e/serve.ts` serves it, because `astro preview` cannot.** In Astro 7 preview always
+  daemonizes — the process Playwright starts exits at once and `webServer` gives up with "exited
+  early" — and `--background` being opt-in does not change it. Thirty lines of `node:http` is
+  cheaper than depending on that behaviour.
+- **`@playwright/test` is pinned at 1.62.1, which is not the latest.** 1.63.0 was two days old and
+  `minimumReleaseAge` is three, so pnpm refuses it. Take the newest version older than the
+  cooling-off period rather than adding it to `minimumReleaseAgeExclude` — that list is for a
+  first-party publish waiting out its own rule.
+- **The file is `.spec.ts`, deliberately.** The vitest workspace is `packages/*` so it would not
+  collect it anyway, but oxlint's vitest override is `**/*.{test,bench}.ts`, and a Playwright file
+  under those rules reports against a framework it is not using.
+- **One test asserts the privacy claim.** `sends nothing anywhere while drawing every card` records
+  every request the page makes while cycling all six, and fails on any that leaves the origin. The
+  page tells the reader nothing they type is sent anywhere; this is what makes that true rather than
+  stated.
+- **The privacy test compares origins, not URL prefixes.** It matched
+  `request.url().startsWith(page.url().split('/github-stats-forge')[0])`, which re-read `page.url()`
+  per request and counted the site's own `/_astro/` chunks as offsite the moment a new chunk
+  appeared. `new URL(...).origin`, taken once, is the check.
+- **The clipboard needs permission granting, and the download needs fetching.** A copy test is
+  `context.grantPermissions(['clipboard-read', 'clipboard-write'])` and then
+  `navigator.clipboard.readText()`; the download's bytes are only reachable by `fetch`ing the blob
+  URL off the anchor from inside the page, which is also what proves the href is rebuilt per redraw.
+- Two locator traps, each already paid for:
+  - **The drawn card is `[data-anvil="preview"] > svg`, a direct child.** A card's own icons are
+    `<svg>` too, so a descendant selector matches several and every assertion fails on strict mode.
+  - **`hide_title` does not remove the card's name from its text.** The `<desc>` an assistive reader
+    gets still carries it, so assert on `getByTestId('card-title')` rather than on the card's text.
 
 ## Working agreements
 
@@ -275,6 +544,12 @@ no `lint:publish`.
   plans and pending-work lists, all in one ignored folder instead of scattered across the
   repo root. This file is the exception: `CLAUDE.md` stays at the root, the only project
   path Claude Code loads on its own.
+- **Don't call the person reading the docs "the reader".** It is uncommon phrasing for
+  documentation, and it was doing two different jobs: where the subject is really the user agent it
+  is **the browser** (`the browser's colour scheme`, `wider than the browser window`), and where it
+  is a person it is **you**, **anyone** or **a visitor** (`a visitor to your profile fetches the
+SVG`). Fourteen uses across five pages were rewritten on 2026-09-07. **`screen reader` stays** —
+  it is the standard accessibility term, and `assistive reader` was normalised to it.
 - **Break a line after its punctuation — but only where it has to break.**
   Fill to the print width first: a thought that fits on one line stays on one line.
   Where it does not fit, start the next line after the full stop, colon, dash or comma
@@ -592,7 +867,8 @@ green build is therefore not evidence the types are sound; run `pnpm typecheck` 
 package's `tsconfig.typecheck.json` exists only to clear `customConditions`, so the check
 runs against built `.d.ts` the way a consumer would resolve them rather than through the
 `@stats/source` condition. **`apps/docs` deliberately has no such config** — it is not published,
-so it typechecks against core's source and needs nothing built.
+so it typechecks against core's source and needs nothing built. Its `astro build` does need it,
+which is why `docs:build` builds the packages.
 
 This came from `packages/core/tsconfig.json` — the config the editor and a bare `tsc`
 pick up — carrying `outDir: "build"` while including `tests`. Any stray `tsc` in the
@@ -774,6 +1050,11 @@ that reaches the SVG without passing through `t` is the bug this rule exists to 
   translated word and its data. The accessibility rows read
   `owner/name: 12 contributions, years: 2023, 2024` rather than `… in 2023, 2024`,
   because a dangling `in` does not survive translation.
+- **The error card's report line is measured, not guessed.** It sits under the message rather than
+  beside the title because it no longer fits: at the title's own `600 16px` the inherited URL
+  reached 561px inside a 576.5px card and `https://tinyurl.com/stats-forge-bug` reaches 587px.
+  Re-measure in a canvas before moving it back. It carries `data-testid="report"`, and is omitted
+  for an upstream failure or when `show_repo_link` is off — which had no test until 2026-09-07.
 - **Error card text is the known exception.** `CardError` and `REJECTION_MESSAGES` are
   English, and deliberately outside `I18n`: an error is thrown before — and often
   because — the locale was parsed. Don't quietly translate one; that is its own decision.

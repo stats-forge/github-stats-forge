@@ -8,12 +8,9 @@ import { BASE, CARDS_DIR, THEMES_DIR } from '../constants.ts';
 /**
  * @file One image in the markdown, two in the page.
  *
- * A card is rendered twice, once per site theme, and `styles/card-previews.css` shows whichever
- * copy matches the `data-theme` Starlight writes. Doing it here rather than in each page means no
- * document ever spells the pair out, and a card that gains a light variant needs no edit anywhere.
- *
- * A card that names its own theme — `/themes/<name>.svg` — is left as one image and only gains the
- * base path and its intrinsic size, since there is nothing to switch between.
+ * A card is rendered once per site theme and `styles/card-previews.css` shows the copy matching
+ * Starlight's `data-theme`, so no document spells the pair out. A card naming its own theme —
+ * `/themes/<name>.svg` — stays one image, there being nothing to switch between.
  */
 
 /** A card preview, written as `![alt](/cards/<name>.svg)` — no mode in the name. */
@@ -28,8 +25,7 @@ const PUBLIC_DIR = new URL('../../public/', import.meta.url).pathname;
 const MODES = ['light', 'dark'] as const;
 
 /**
- * The size the browser should reserve, read off the SVG itself so a preview never shifts the
- * page as it loads.
+ * Read off the SVG itself, so a preview never shifts the page as it loads.
  *
  * @throws {Error} When the file a page references was never rendered.
  *
@@ -57,9 +53,7 @@ export const rehypeCardPreviews: RehypePlugin = () => (tree) => {
   type Node = (typeof tree.children)[number];
   type ElementNode = Extract<Node, { tagName: string }>;
 
-  /**
-   * @returns The pair of images, wrapped so CSS can pick one.
-   */
+  /** @returns The pair of images, wrapped so CSS can pick one. */
   const toPreview = (image: ElementNode, name: string): ElementNode => ({
     type: 'element',
     tagName: 'span',
@@ -82,9 +76,7 @@ export const rehypeCardPreviews: RehypePlugin = () => (tree) => {
     }),
   });
 
-  /**
-   * @returns The sample, sized and pointed at the built site.
-   */
+  /** @returns The sample, sized and pointed at the built site. */
   const toSample = (image: ElementNode, name: string): ElementNode => ({
     ...image,
     properties: {

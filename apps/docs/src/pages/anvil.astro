@@ -1,0 +1,136 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { getCollection } from 'astro:content';
+
+import { CARDS } from '../anvil/cards.ts';
+import NewTabLink from '../components/NewTabLink.astro';
+import { BASE } from '../constants.ts';
+
+/*
+ * Imported here rather than listed in `customCss`, so they serve this page alone, and unscoped
+ * because `ui.ts` builds the controls at runtime. Web Awesome's `native.css` is left out: it
+ * restyles native elements and would fight Starlight page-wide.
+ */
+import '@awesome.me/webawesome/dist/styles/layers.css';
+import '@awesome.me/webawesome/dist/styles/themes/default.css';
+import '../styles/anvil.css';
+
+/**
+ * The anvil: a form over a card's options, the card redrawn beside it, and the file the CLI reads.
+ *
+ * The only page here that is not markdown, and the only one that ships JavaScript. It draws in the
+ * browser through core's api handlers against `src/anvil/samples.json`, so it needs no token.
+ *
+ * The remark plugins do not run on an `.astro` page, so the links below carry the base themselves.
+ *
+ * A line break falling immediately before an element is dropped rather than collapsed to a space,
+ * so a link wrapped onto its own line needs an explicit `{' '}` ahead of it or it runs into the
+ * word before it.
+ */
+// The pages are not named after the card ids, and `ui.ts` sets the href where the link validator
+// cannot see it — so this check is all that stands between a renamed page and a 404.
+const docsPages = await getCollection('docs');
+const cardPages = new Set(docsPages.map((entry) => entry.id));
+for (const card of CARDS) {
+  if (!cardPages.has(`docs/cards/${card.docs}`)) {
+    throw new Error(`The anvil links "${card.id}" to docs/cards/${card.docs}, which is not a page`);
+  }
+}
+
+/** Shown under the title as well as written into the page's meta, so the two cannot disagree. */
+const DESCRIPTION =
+  'Hammer a card into shape in the browser, and take away the file the CLI renders it from.';
+
+const [first] = CARDS;
+if (first === undefined) {
+  throw new Error('No cards to draw');
+}
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'The anvil',
+    description: DESCRIPTION,
+    template: 'splash',
+    tableOfContents: false,
+  }}
+>
+  <p class="anvil-intro">{DESCRIPTION}</p>
+
+  <div class="anvil" data-anvil="root">
+    <div class="anvil-controls-pane">
+      <!-- Every control is a Web Awesome element built by `ui.ts`; these are its mount points. -->
+      <div data-anvil="card"></div>
+
+      <div class="anvil-controls" data-anvil="controls"></div>
+
+      <div data-anvil="extra"></div>
+      <p class="anvil-note">
+        {'A query string, for the options this form has no control for yet. Every option is listed under '}
+        <NewTabLink href={`${BASE}/docs/customization/common-options/`}>
+          Customization
+        </NewTabLink> 
+        {'and on the '}
+        <NewTabLink href={`${BASE}/docs/cards/${first.docs}/`} data-anvil="card-docs">
+          selected card's page
+        </NewTabLink>
+        {'.'}
+      </p>
+    </div>
+
+    <div class="anvil-preview-pane">
+      <div class="anvil-preview" data-anvil="preview"></div>
+      <p class="anvil-status" data-anvil="status"></p>
+      <p class="anvil-note">
+        <span class="anvil-badge" id="anvil-mock" tabindex="0">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
+            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
+            ></circle>
+            <path d="M8 7.25v4.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            ></path>
+            <circle cx="8" cy="4.6" r="0.9" fill="currentColor"></circle>
+          </svg>
+          Mock data
+        </span>{' '}
+        — the figures never move, whatever you type.
+      </p>
+      <wa-tooltip for="anvil-mock">
+        Cards are drawn in your browser from saved API responses, so nothing you type is sent anywhere. 
+        Options that change how a card looks are exact; those that change its numbers are not.
+      </wa-tooltip>
+
+      <div class="anvil-output">
+        <div class="anvil-output-head">
+          <span>card.json</span>
+          <span class="anvil-actions">
+            <button type="button" data-anvil="copy">Copy</button>
+            <a data-anvil="download" download="card.json">Download</a>
+          </span>
+        </div>
+        <pre data-anvil="output"></pre>
+        <p class="anvil-note">
+          Render it with 
+          <code>
+            npx @stats-forge/github-stats-forge-cli --config card.json --generate
+          </code>, or pass the same options to
+          {' '}<NewTabLink href={`${BASE}/docs/usage/library/`}>the library</NewTabLink>.
+        </p>
+      </div>
+    </div>
+
+    <wa-toast placement="bottom-end" data-anvil="toast"></wa-toast>
+  </div>
+</StarlightPage>
+
+<script>
+  // The Web Awesome elements in this page's own markup; the rest are built by `controls.ts`.
+  import '@awesome.me/webawesome/dist/components/toast/toast.js';
+  import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
+
+  import { mount } from '../anvil/ui.ts';
+
+  const root = document.querySelector<HTMLElement>('[data-anvil="root"]');
+  if (root !== null) {
+    mount(root);
+  }
+</script>

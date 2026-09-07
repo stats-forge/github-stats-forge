@@ -13,7 +13,7 @@ What survives, and is all you need:
 | ------------------ | -------------------------------------------------------- |
 | `align="center"`   | Floats the image, so the next one sits beside it         |
 | `height` / `width` | Scales the card, which is what makes two of them line up |
-| `<picture>`        | Chooses a file from the reader's colour scheme           |
+| `<picture>`        | Chooses a file from the browser's colour scheme          |
 | `<a>`              | Links the card somewhere                                 |
 
 The examples below reference committed SVGs, as the CLI writes them. The same markup works with
@@ -99,7 +99,7 @@ only centring that works in a README.
 
 ## When it still wraps
 
-Two cards fall onto separate lines when they are wider than the reader's window, which is narrower
+Two cards fall onto separate lines when they are wider than the browser window, which is narrower
 than you think on a phone and inside GitHub's own sidebars. If that matters, render both narrower
 with `card_width`, or accept the wrap: it is the layout degrading, not breaking.
 

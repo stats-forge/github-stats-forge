@@ -20,10 +20,13 @@ const CHECKS: Record<string, Array<string>> = {
   publish: ['run', 'lint:publish'],
   'graphql types': ['--filter', './packages/core', 'run', 'check-graphql-types'],
   'themes page': ['--filter', './apps/docs', 'run', 'check-themes-page'],
+  'anvil samples': ['--filter', './apps/docs', 'run', 'check-anvil-samples'],
   'docs site': ['run', 'docs:build'],
   knip: ['run', 'lint:knip'],
   deps: ['run', 'lint:deps'],
   tests: ['exec', 'vitest', '--run'],
+  // Last, and after `docs site`: it serves the build that check leaves behind.
+  'anvil e2e': ['--filter', './apps/docs', 'run', 'test:e2e'],
 };
 
 /** Runs the rest after a failure, for when the whole list is more useful than the first one. */
