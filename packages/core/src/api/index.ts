@@ -1,5 +1,6 @@
 export { contributedTo } from './contributed-to.ts';
 export { gist } from './gist.ts';
+export { org } from './organization.ts';
 export { pin } from './pin.ts';
 export { stats } from './stats.ts';
 export { topLangs } from './top-langs.ts';

@@ -1,11 +1,11 @@
 import { cards as catalogue } from '@stats-forge/github-stats-forge-cli/cards';
 import type { CardKind } from '@stats-forge/github-stats-forge-cli/cards';
-import { pin, stats } from '@stats-forge/github-stats-forge-core/api';
+import { org, pin, stats } from '@stats-forge/github-stats-forge-core/api';
 
 import type { CardCategory } from './themes.ts';
 
 /**
- * @file The six cards the anvil draws.
+ * @file The seven cards the anvil draws.
  *
  * **The option catalog is the CLI's**, imported rather than restated — two forms over the same
  * options should not be two lists. What is added here is only what the CLI has no use for.
@@ -17,12 +17,15 @@ const SAMPLE_USERNAME = 'marcalexiei';
 /** Wakatime is a different service, so it has its own public sample profile. */
 const SAMPLE_WAKATIME_USERNAME = 'ffflabs';
 
+/** The organization the org card samples: this project's own. */
+const SAMPLE_ORGANIZATION = 'stats-forge';
+
 /** The gist the pin card samples. */
 const SAMPLE_GIST_ID = '1f13e82cb48a9058ebcbf4945f5a1c20';
 
 /** What the anvil knows about a card that the CLI does not need to. */
 interface AnvilExtras {
-  /** Which half of every theme pair this card wears — see `themes.ts`. */
+  /** What the card is about: it groups the picker and picks its theme half — see `themes.ts`. */
   category: CardCategory;
   /**
    * This card's page under `docs/cards/`, linked as the card changes. The names differ from the
@@ -72,6 +75,12 @@ const EXTRAS: Readonly<Record<string, AnvilExtras>> = {
     identity: { username: SAMPLE_USERNAME },
     maximal: { from: '2016' },
   },
+  org: {
+    docs: 'organization',
+    category: 'org',
+    identity: { org: SAMPLE_ORGANIZATION },
+    maximal: { show: org.OPTIONS.show.join(',') },
+  },
   gist: {
     docs: 'gist-pin',
     category: 'repo',
@@ -106,8 +115,30 @@ const CARDS: ReadonlyArray<AnvilCard> = catalogue.map((card) => {
   return { ...card, ...extras };
 });
 
+/** One heading in the card picker, and the cards under it. */
+interface CardGroup {
+  label: string;
+  values: Array<string>;
+}
+
+/** The headings, in the order the picker shows them. */
+const GROUP_LABELS: ReadonlyArray<[CardCategory, string]> = [
+  ['user', 'User'],
+  ['repo', 'Repository or gist'],
+  ['org', 'Organization'],
+];
+
+/**
+ * The cards under the heading each belongs to, keeping the CLI's order within a group and
+ * dropping a heading no card sits under — the shape `themeGroups` hands the same control.
+ */
+const CARD_GROUPS: ReadonlyArray<CardGroup> = GROUP_LABELS.map(([category, label]) => ({
+  label,
+  values: CARDS.filter((card) => card.category === category).map((card) => card.id),
+})).filter((group) => group.values.length > 0);
+
 /** @returns The card with that id, or `undefined`. */
 const findCard = (id: string): AnvilCard | undefined => CARDS.find((card) => card.id === id);
 
-export { CARDS, findCard };
+export { CARD_GROUPS, CARDS, findCard };
 export type { AnvilCard };

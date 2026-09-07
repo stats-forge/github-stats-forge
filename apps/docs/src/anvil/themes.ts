@@ -7,8 +7,12 @@ import { themes } from '@stats-forge/github-stats-forge-core/api';
  * themes for the same card. Neither rule below is derivable from core's theme table alone.
  */
 
-/** A card describing one repository or gist wears the `_repocard` variants; anything else does not. */
-type CardCategory = 'repo' | 'user';
+/**
+ * What a card is about. It groups the card picker, and it decides which half of every theme pair
+ * the card wears: one describing a repository or gist takes the `_repocard` variants, and
+ * anything else — a user's card, an organization's — takes the plain half.
+ */
+type CardCategory = 'org' | 'repo' | 'user';
 
 /** Where a theme sits in the list, and under which heading. */
 type ThemeMode = 'light' | 'mixed' | 'dark';

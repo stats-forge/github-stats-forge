@@ -122,6 +122,28 @@ test('groups the themes by the background each implies', async ({ page }) => {
   await expect(headings).toHaveText(['Light', 'Either', 'Dark']);
 });
 
+test('groups the cards by what each one describes', async ({ page }) => {
+  const picker = dropdown(page, 'card');
+
+  await expect(picker.locator('.anvil-option-group')).toHaveText([
+    'User',
+    'Repository or gist',
+    'Organization',
+  ]);
+
+  // A card sits under its own heading rather than in the order the catalog lists them.
+  const rows = picker.locator('wa-option');
+  await expect(rows).toHaveText([
+    'stats',
+    'top-langs',
+    'contributed-to',
+    'wakatime',
+    'pin',
+    'gist',
+    'org',
+  ]);
+});
+
 test('draws a card on arrival, with no card chosen', async ({ page }) => {
   await expect(drawnCard(page)).toHaveAttribute('width', '500');
   await expect(page.locator('[data-anvil="status"]')).toHaveAttribute('data-state', 'ok');
@@ -141,7 +163,7 @@ test('sends nothing anywhere while drawing every card', async ({ page }) => {
     }
   });
 
-  for (const card of ['top-langs', 'pin', 'contributed-to', 'gist', 'wakatime']) {
+  for (const card of ['top-langs', 'pin', 'org', 'contributed-to', 'gist', 'wakatime']) {
     await setCard(page, card);
     await expect(drawnCard(page)).toBeVisible();
   }

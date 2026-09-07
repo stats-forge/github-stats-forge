@@ -78,13 +78,16 @@ export default defineConfig({
         { label: 'Overview', link: '/docs/' },
         {
           label: 'Cards',
+          // In the anvil's own order: the cards describing a user, then a repository or gist,
+          // then an organization. Not nested — one of those groups would hold a single page.
           items: [
             'docs/cards/stats',
             'docs/cards/top-languages',
             'docs/cards/contributed-to',
+            'docs/cards/wakatime',
             'docs/cards/repo-pin',
             'docs/cards/gist-pin',
-            'docs/cards/wakatime',
+            'docs/cards/organization',
           ],
         },
         {
@@ -110,6 +113,7 @@ export default defineConfig({
             'docs/fetchers/fetch-repo',
             'docs/fetchers/fetch-contributed-to',
             'docs/fetchers/fetch-gist',
+            'docs/fetchers/fetch-organization',
             'docs/fetchers/fetch-wakatime-stats',
             'docs/fetchers/fetch-repo-user-stats',
           ],
