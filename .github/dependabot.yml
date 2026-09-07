@@ -54,3 +54,10 @@ updates:
       prefix: 'ci(deps)'
     cooldown:
       default-days: 7
+    groups:
+      # the upload and the deploy halves of a Pages run are released as a pair
+      pages:
+        patterns:
+          - 'actions/configure-pages'
+          - 'actions/upload-pages-artifact'
+          - 'actions/deploy-pages'
