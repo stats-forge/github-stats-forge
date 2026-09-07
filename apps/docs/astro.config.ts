@@ -49,6 +49,8 @@ export default defineConfig({
         './src/styles/home.css',
       ],
       components: {
+        // Starlight emits every Open Graph tag but the image; this override adds it.
+        Head: './src/components/Head.astro',
         // Starlight has no top navigation; this override puts the two halves beside the title.
         SiteTitle: './src/components/SiteTitle.astro',
         // The same icons, opening in a new tab.
