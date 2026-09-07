@@ -22,15 +22,13 @@ export default defineConfig({
    * `ssr` has to say it too: a condition set only under `resolve` is not applied to the server
    * build, which is the same trap `packages/cli/vitest.config.ts` documents.
    */
-  /*
-   * Off because `astro dev` answers 504 `Outdated Optimize Dep` for its own entrypoint on every
-   * page. Bisected to the anvil's client `<script>` importing a workspace-linked package, so
-   * dropping `@stats/source` does not help. See CLAUDE.md; dev only, the build is unaffected.
-   */
-  devToolbar: { enabled: false },
   vite: {
     resolve: { conditions: ['@stats/source'] },
     ssr: { resolve: { conditions: ['@stats/source'] } },
+    /*
+     * Pending release: https://github.com/withastro/astro/issues/17929.
+     */
+    optimizeDeps: { include: ['zod/mini'] },
   },
   markdown: {
     // Starlight appends its own plugins to whatever processor is configured here.
