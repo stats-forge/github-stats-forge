@@ -1,5 +1,16 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.3.0
+
+### Minor Changes
+
+- [#58](https://github.com/stats-forge/github-stats-forge/pull/58) [`5fa21c7`](https://github.com/stats-forge/github-stats-forge/commit/5fa21c777c5c95cf24173e6ccad01ffcb0114175) - fix(core): point the error card's report link at this project
+
+  The inherited text pointed at a shortener that redirects to the upstream project,
+  so every reported bug went to the wrong repository.
+  It now reads `File an issue at https://tinyurl.com/stats-forge-bug`,
+  on its own line under the message because it no longer fits beside the title.
+
 ## 0.2.0
 
 ### Minor Changes

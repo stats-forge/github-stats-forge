@@ -1,5 +1,20 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.3.0
+
+### Minor Changes
+
+- [#58](https://github.com/stats-forge/github-stats-forge/pull/58) [`5fa21c7`](https://github.com/stats-forge/github-stats-forge/commit/5fa21c777c5c95cf24173e6ccad01ffcb0114175) - feat(cli): export the card catalog
+
+  `./cards` now exposes `cards`, `findCard` and `COMMON_OPTIONS`,
+  so a second UI over the same options reads one list rather than keeping its own.
+  The documentation site's card builder is the first to do it.
+
+### Patch Changes
+
+- Updated dependencies [[`5fa21c7`](https://github.com/stats-forge/github-stats-forge/commit/5fa21c777c5c95cf24173e6ccad01ffcb0114175)]:
+  - @stats-forge/github-stats-forge-core@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
