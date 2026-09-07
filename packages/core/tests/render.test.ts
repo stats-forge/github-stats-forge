@@ -1,6 +1,7 @@
-import { queryByTestId } from '@testing-library/dom';
+import { queryByTestId, screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
+import { TRY_AGAIN_LATER } from '../src/common/error.ts';
 import {
   countWrappedLines,
   renderError,
@@ -117,6 +118,28 @@ describe('Test renderError', () => {
     expect(queryByTestId(document.body, 'message')?.children[1]).toHaveTextContent(
       /Secondary Message/gim,
     );
+  });
+
+  it('points a reader at this project, on its own line', () => {
+    document.body.innerHTML = renderError({ message: 'Nope' });
+    expect(screen.getByTestId('report')).toHaveTextContent(
+      'File an issue at https://tinyurl.com/stats-forge-bug',
+    );
+  });
+
+  it('offers no report line for a failure the reader cannot report', () => {
+    // Upstream's own outages, and whatever the host says not to link from.
+    document.body.innerHTML = renderError({
+      message: 'Nope',
+      secondaryMessage: TRY_AGAIN_LATER,
+    });
+    expect(screen.queryByTestId('report')).not.toBeInTheDocument();
+
+    document.body.innerHTML = renderError({
+      message: 'Nope',
+      renderOptions: { show_repo_link: false },
+    });
+    expect(screen.queryByTestId('report')).not.toBeInTheDocument();
   });
 
   it('should encode error message', () => {

@@ -431,10 +431,15 @@ const renderError = ({
     theme,
   });
 
-  const hint =
+  /*
+   * Its own line, at the small size, because it no longer fits beside the title: the inherited URL
+   * ran to 561px inside a 576.5px card and this one reaches 587px. Measured in a canvas at the
+   * title's own font, so re-measure before putting it back on one line.
+   */
+  const report =
     UPSTREAM_API_ERRORS.has(secondaryMessage) || !show_repo_link
       ? ''
-      : ' file an issue at https://tinyurl.com/github-stats';
+      : 'File an issue at https://tinyurl.com/stats-forge-bug';
 
   return renderMarkup(
     el(
@@ -464,13 +469,15 @@ const renderError = ({
         fill: String(bgColor),
         stroke: borderColor,
       }),
-      el('text', { x: 25, y: 45, class: 'text' }, `Something went wrong!${hint}`),
+      el('text', { x: 25, y: 45, class: 'text' }, 'Something went wrong!'),
       el(
         'text',
         { 'data-testid': 'message', x: 25, y: 55, class: 'text small' },
         el('tspan', { x: 25, dy: 18 }, message),
         el('tspan', { x: 25, dy: 18, class: 'gray' }, secondaryMessage),
       ),
+      report !== '' &&
+        el('text', { 'data-testid': 'report', x: 25, y: 109, class: 'text small gray' }, report),
     ),
   );
 };

@@ -12,6 +12,26 @@ export default defineConfig({
   site: 'https://stats-forge.github.io',
   base: BASE,
   outDir: './build',
+  /*
+   * The anvil bundles `packages/core` and the CLI's card catalog, and it resolves them through
+   * `@stats/source` — their `src/`, not their `build/`. Without this the bundler took the `default`
+   * condition and needed both packages built first, which the docs job in CI does not do; with it,
+   * the whole job still runs with nothing built, and the bundler agrees with what `tsc` and the
+   * editor already resolve.
+   *
+   * `ssr` has to say it too: a condition set only under `resolve` is not applied to the server
+   * build, which is the same trap `packages/cli/vitest.config.ts` documents.
+   */
+  /*
+   * Off because `astro dev` answers 504 `Outdated Optimize Dep` for its own entrypoint on every
+   * page. Bisected to the anvil's client `<script>` importing a workspace-linked package, so
+   * dropping `@stats/source` does not help. See CLAUDE.md; dev only, the build is unaffected.
+   */
+  devToolbar: { enabled: false },
+  vite: {
+    resolve: { conditions: ['@stats/source'] },
+    ssr: { resolve: { conditions: ['@stats/source'] } },
+  },
   markdown: {
     // Starlight appends its own plugins to whatever processor is configured here.
     processor: unified({

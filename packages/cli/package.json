@@ -34,6 +34,10 @@
     ".": {
       "@stats/source": "./src/index.ts",
       "default": "./build/index.js"
+    },
+    "./cards": {
+      "@stats/source": "./src/cards.ts",
+      "default": "./build/cards.js"
     }
   },
   "publishConfig": {

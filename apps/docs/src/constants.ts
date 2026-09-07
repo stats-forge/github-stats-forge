@@ -13,10 +13,7 @@ export type CardMode = keyof typeof CARD_THEMES;
 /** Where a theme sample lives, relative to `public/`; one file, since it names its own theme. */
 export const THEMES_DIR = 'themes';
 
-/**
- * The themes the reference page draws rather than tabulates.
- * Read by the card generator and by the page generator, so the two cannot disagree.
- */
+/** Drawn rather than tabulated. Read by both generators, so the two cannot disagree. */
 export const SAMPLE_THEMES = [
   'default',
   'dark',

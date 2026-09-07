@@ -112,6 +112,11 @@ jobs:
       - name: Lint (generated theme page)
         run: pnpm --filter ./apps/docs run check-themes-page
 
+      # The anvil's recorded samples are the only thing standing between a changed query and a
+      # page that cannot draw. Needs no token, so unlike the recorder it runs here.
+      - name: Lint (anvil samples)
+        run: pnpm --filter ./apps/docs run check-anvil-samples
+
       - name: Typecheck
         run: pnpm --filter ./apps/docs run typecheck
 
@@ -120,6 +125,14 @@ jobs:
       # That last one also notices a TypeScript release moving the unstable API it reads.
       - name: Build
         run: pnpm run docs:build
+
+      # The anvil is the only page here that ships JavaScript, and nothing else checks it in a
+      # browser. It serves the build from the step above.
+      - name: Install Playwright browser
+        run: pnpm --filter ./apps/docs exec playwright install --with-deps chromium
+
+      - name: Test (anvil, end to end)
+        run: pnpm --filter ./apps/docs run test:e2e
 
   ci-ok:
     name: CI OK

@@ -8,12 +8,10 @@ import type { Checker, Symbol as TsSymbol } from 'typescript/unstable/sync';
 /**
  * @file What each fetcher's page says about it, read from the fetcher's own doc comment.
  *
- * Nothing is written to disk: the reference exists only in the built page, so it cannot be stale.
- * Opening core's project costs about 110ms and every fetcher is then read in single-digit
- * milliseconds, so it happens once per build behind the cache below.
+ * Nothing is written to disk, so it cannot be stale. Opening core's project costs ~110ms and each
+ * fetcher then reads in single-digit ms, so it happens once per build behind the cache below.
  *
- * This rides `typescript/unstable/sync`, which is unstable by name. When a TypeScript release
- * moves it, the docs build is what fails.
+ * Rides `typescript/unstable/sync`, unstable by name: the docs build is what notices it moving.
  */
 
 const REPO_ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
@@ -40,11 +38,7 @@ export interface Fetcher {
   returns: string;
 }
 
-/**
- * `SymbolFlags` is a bit set, and reading one is what this says.
- *
- * @returns Whether the flag is set.
- */
+/** @returns Whether the flag is set — `SymbolFlags` is a bit set. */
 // oxlint-disable-next-line no-bitwise -- reading a bit set is the point of this function
 const hasFlag = (flags: number, flag: number): boolean => (flags & flag) !== 0;
 
@@ -52,11 +46,7 @@ const hasFlag = (flags: number, flag: number): boolean => (flags & flag) !== 0;
 const pageFor = (name: string): string =>
   `${name.replaceAll(/(?<!^)(?<upper>[A-Z])/g, '-$<upper>').toLowerCase()}.md`;
 
-/**
- * Reads one fetcher off the checker.
- *
- * @returns What its page needs to describe it.
- */
+/** @returns One fetcher read off the checker, as its page needs it. */
 const read = (checker: Checker, exported: TsSymbol): Fetcher => {
   // The entry point re-exports, so the doc comment hangs off the aliased symbol.
   const symbol = checker.getAliasedSymbol(exported);
@@ -148,9 +138,8 @@ const readAll = (): Map<string, Fetcher> => {
 };
 
 /**
- * The newest edit among the sources the reference is read from.
- * Keying the cache on it means a build opens core's project once, and a page that Astro does
- * re-render reads current doc comments rather than the ones this process started with.
+ * Keying the cache on this opens core's project once per build, while a page Astro does re-render
+ * still reads current doc comments.
  *
  * @returns The most recent modification time, in milliseconds.
  */

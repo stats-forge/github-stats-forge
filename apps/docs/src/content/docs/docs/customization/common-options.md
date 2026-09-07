@@ -40,7 +40,7 @@ The first value is the angle in degrees; everything after it is a stop.
 
 Each color option has a `_light` and a `_dark` twin — `title_color_light`, `bg_color_dark`, and so
 on — and `theme_light` / `theme_dark` do the same for a whole theme. The card then carries both
-palettes and follows the reader's colour scheme.
+palettes and follows the browser's colour scheme.
 
 See [Light and dark mode](../light-and-dark/) for that and the four other ways to handle it,
 and for what wins over what.
@@ -67,7 +67,7 @@ A value that is not a number at all is an error naming the parameter.
 ## Locale
 
 `locale` picks the language a card's own words are drawn in — its title, its labels, its empty
-states and the description an assistive reader gets. See [Locales](../locales/) for the list and
+states and the description a screen reader gets. See [Locales](../locales/) for the list and
 for what happens to a string that has not been translated yet.
 
 Only the cards that draw text take it, which today is all six.
@@ -82,4 +82,4 @@ The stats card additionally takes `number_precision`, the decimals kept when abb
 
 `disable_animations=true` renders the card with its animations stripped.
 Worth setting where the card is embedded somewhere that replays it on every scroll,
-or for a reader who would rather nothing moved.
+or where motion is unwelcome.

@@ -3,7 +3,7 @@ title: Locales
 description: The 47 locales a card's own text can be drawn in, and what happens to an untranslated string.
 ---
 
-Every word a card draws itself — a title, a label, an empty state, and the description an assistive
+Every word a card draws itself — a title, a label, an empty state, and the description a screen
 reader gets — comes from a translation table. `locale` picks which one:
 
 ```text

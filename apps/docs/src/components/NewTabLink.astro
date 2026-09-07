@@ -1,0 +1,13 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+/*
+ * A link that opens in a new tab, announced as one. Not "external": the anvil's own links point at
+ * this site, and open away only so a half-built card survives being read about.
+ */
+type Props = HTMLAttributes<'a'>;
+---
+
+<a {...Astro.props} target="_blank" rel="noopener"
+  ><slot /><span class="sr-only"> (opens in a new tab)</span></a
+>

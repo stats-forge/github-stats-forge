@@ -11,16 +11,11 @@ import { CARD_THEMES, SAMPLE_CARD, SAMPLE_THEMES, THEMES_DIR } from '../src/cons
 import type { CardMode } from '../src/constants.ts';
 
 /**
- * @file Renders every card the documentation shows, once per site theme.
+ * @file Renders every card the documentation shows, once per site theme — through the CLI, the
+ * way anyone else would.
  *
- * Each file in `cards/` is a saved card in the shape the CLI's `--config` loads, minus the theme:
- * a page shows one card, and the two files behind it differ only in which theme drew them.
- * The theme is merged in here rather than kept in two near-identical files per card.
- *
- * The theme reference page draws a handful of themes too. Each of those names its own theme, so it
- * is rendered once into `public/themes/` rather than as a light and dark pair.
- *
- * A preview is therefore made the way any reader would make one — through the CLI.
+ * Each file in `cards/` is a saved card minus the theme, which is merged in here rather than kept
+ * in two near-identical files. A theme sample names its own theme, so it is rendered once.
  */
 
 const DOCS_DIR = fileURLToPath(new URL('..', import.meta.url));
@@ -37,9 +32,7 @@ interface SavedCard {
 }
 
 /**
- * Renders one card in one theme.
- *
- * The CLI runs from the repository root, so it finds the root `.env` on its own.
+ * Runs from the repository root, so the CLI finds the root `.env` on its own.
  *
  * @returns Nothing when it rendered, or why it did not.
  */
@@ -70,11 +63,7 @@ const render = (
   });
 };
 
-/**
- * Sets a non-zero exit code rather than throwing when a card could not be rendered.
- *
- * @returns Nothing; the process exits non-zero when a card could not be rendered.
- */
+/** @returns Nothing; the process exits non-zero when a card could not be rendered. */
 const main = async (): Promise<void> => {
   const { values, positionals } = parseArgs({
     options: {
@@ -110,12 +99,7 @@ const main = async (): Promise<void> => {
   const scratch = await mkdtemp(join(tmpdir(), 'stats-forge-docs-'));
   const failures: Array<string> = [];
 
-  /**
-   * Renders one saved card in one theme.
-   * A failure is collected rather than thrown, so one bad card does not stop the rest.
-   *
-   * @returns Nothing.
-   */
+  /** A failure is collected rather than thrown, so one bad card does not stop the rest. */
   const renderThemed = async (
     saved: SavedCard,
     theme: string,
@@ -135,9 +119,7 @@ const main = async (): Promise<void> => {
     }
   };
 
-  /**
-   * @returns The saved card that file holds.
-   */
+  /** @returns The saved card that file holds. */
   const readCard = async (name: string): Promise<SavedCard> =>
     JSON.parse(await readFile(join(CARDS_DIR, `${name}.json`), 'utf8')) as SavedCard;
 

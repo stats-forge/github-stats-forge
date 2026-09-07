@@ -25,13 +25,13 @@ A directory of saved cards beside a directory of rendered ones keeps the two str
 ```
 
 The JSON is the card you can edit and re-render; the SVG is what the README points at.
-Both belong in the repository — a reader of your profile fetches the SVG, not the CLI.
+Both belong in the repository — a browser fetches the SVG, not the CLI.
 [The action](https://github.com/stats-forge/github-stats-forge-action) keeps its options in the
 workflow instead, so it writes only the SVG.
 
 ## Light and dark
 
-GitHub serves READMEs in whichever theme the reader chose, and a card drawn for one looks wrong in
+GitHub serves READMEs in whichever theme is set, and a card drawn for one looks wrong in
 the other. Render it twice, then let the browser pick:
 
 ```sh
