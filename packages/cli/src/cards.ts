@@ -1,6 +1,7 @@
 import {
   contributedTo,
   gist,
+  org,
   pin,
   stats,
   themes,
@@ -285,6 +286,50 @@ const CARDS: ReadonlyArray<CardKind> = [
       LOCALE_OPTION,
     ],
     render: pin,
+  },
+  {
+    id: 'org',
+    label: 'Organization — an organization and the totals of its public repositories',
+    needsToken: true,
+    required: [{ name: 'org', label: 'GitHub organization', kind: 'text' }],
+    options: [
+      {
+        name: 'show',
+        label: 'Extra stats to show',
+        kind: 'list',
+        choices: org.OPTIONS.show,
+      },
+      {
+        name: 'hide',
+        label: 'Stats to hide',
+        kind: 'list',
+        choices: org.OPTIONS.hide,
+      },
+      { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean' },
+      {
+        name: 'hide_description',
+        label: "Hide the organization's description",
+        kind: 'boolean',
+      },
+      { name: 'custom_title', label: 'Card title', kind: 'text' },
+      { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
+      { name: 'card_width', label: 'Card width', kind: 'number' },
+      { name: 'line_height', label: 'Line height', kind: 'number' },
+      { name: 'text_bold', label: 'Bold stat values', kind: 'boolean' },
+      {
+        name: 'number_format',
+        label: 'Number format',
+        kind: 'choice',
+        choices: org.OPTIONS.number_format,
+      },
+      {
+        name: 'disable_animations',
+        label: 'Disable the animations',
+        kind: 'boolean',
+      },
+      LOCALE_OPTION,
+    ],
+    render: org,
   },
   {
     id: 'contributed-to',

@@ -134,6 +134,9 @@ const WAKATIME_USER_NOT_FOUND = 'Make sure you have a public WakaTime profile';
 /** A GitHub username that resolves to nothing, or to an organization. */
 const USER_NOT_FOUND = 'Make sure the provided username is not an organization';
 
+/** A login that resolves to nothing, or to a user rather than an organization. */
+const ORGANIZATION_NOT_FOUND = 'Make sure the provided organization exists and is not a user';
+
 /** A repository the token cannot see, because it is missing or private. */
 const REPO_NOT_FOUND = 'Make sure the provided username and repository are correct';
 
@@ -146,6 +149,7 @@ export {
   CardError,
   GIST_NOT_FOUND,
   INVALID_AFFILIATION,
+  ORGANIZATION_NOT_FOUND,
   REPO_NOT_FOUND,
   SECONDARY_ERROR_MESSAGES,
   TRY_AGAIN_LATER,

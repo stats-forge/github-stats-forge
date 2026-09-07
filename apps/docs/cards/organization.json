@@ -1,0 +1,7 @@
+{
+  "card": "org",
+  "options": {
+    "org": "vitest-dev",
+    "show": "releases,commits,top_language"
+  }
+}

@@ -1,4 +1,107 @@
 {
+  "getOrganization": {
+    "status": 200,
+    "body": {
+      "data": {
+        "organization": {
+          "login": "stats-forge",
+          "name": "Stats Forge",
+          "description": "Cards for your README: contribution stats, top languages, pinned repositories, gists and WakaTime coding time rendered as SVG.",
+          "createdAt": "2026-08-31T12:14:52Z",
+          "membersWithRole": {
+            "totalCount": 0
+          },
+          "repositories": {
+            "totalCount": 3,
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": "Y3Vyc29yOnYyOpIAzlCovRI="
+            },
+            "nodes": [
+              {
+                "stargazerCount": 1,
+                "forkCount": 0,
+                "primaryLanguage": {
+                  "color": "#3178c6",
+                  "name": "TypeScript"
+                },
+                "watchers": {
+                  "totalCount": 1
+                },
+                "issues": {
+                  "totalCount": 0
+                },
+                "pullRequests": {
+                  "totalCount": 2
+                },
+                "releases": {
+                  "totalCount": 8
+                },
+                "defaultBranchRef": {
+                  "target": {
+                    "history": {
+                      "totalCount": 87
+                    }
+                  }
+                }
+              },
+              {
+                "stargazerCount": 0,
+                "forkCount": 0,
+                "primaryLanguage": {
+                  "color": "#3178c6",
+                  "name": "TypeScript"
+                },
+                "watchers": {
+                  "totalCount": 1
+                },
+                "issues": {
+                  "totalCount": 0
+                },
+                "pullRequests": {
+                  "totalCount": 0
+                },
+                "releases": {
+                  "totalCount": 4
+                },
+                "defaultBranchRef": {
+                  "target": {
+                    "history": {
+                      "totalCount": 22
+                    }
+                  }
+                }
+              },
+              {
+                "stargazerCount": 0,
+                "forkCount": 0,
+                "primaryLanguage": null,
+                "watchers": {
+                  "totalCount": 1
+                },
+                "issues": {
+                  "totalCount": 0
+                },
+                "pullRequests": {
+                  "totalCount": 0
+                },
+                "releases": {
+                  "totalCount": 0
+                },
+                "defaultBranchRef": {
+                  "target": {
+                    "history": {
+                      "totalCount": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
   "getRepo": {
     "status": 200,
     "body": {
@@ -66,7 +169,7 @@
   "search/commits|author": {
     "status": 200,
     "body": {
-      "total_count": 2811,
+      "total_count": 2816,
       "incomplete_results": false,
       "items": [
         {
@@ -1369,6 +1472,34 @@
                     }
                   ]
                 }
+              },
+              {
+                "name": "astro-dev-504",
+                "languages": {
+                  "edges": [
+                    {
+                      "size": 2343,
+                      "node": {
+                        "color": "#f1e05a",
+                        "name": "JavaScript"
+                      }
+                    },
+                    {
+                      "size": 1740,
+                      "node": {
+                        "color": "#89e051",
+                        "name": "Shell"
+                      }
+                    },
+                    {
+                      "size": 321,
+                      "node": {
+                        "color": "#ff5a03",
+                        "name": "Astro"
+                      }
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -1454,9 +1585,9 @@
             }
           },
           "range_12": {
-            "totalCommitContributions": 493,
+            "totalCommitContributions": 498,
             "contributionCalendar": {
-              "totalContributions": 1947
+              "totalContributions": 1962
             }
           }
         }
@@ -1486,22 +1617,22 @@
           "name": "Marco Pasqualetti",
           "login": "marcalexiei",
           "commits": {
-            "totalCommitContributions": 910
+            "totalCommitContributions": 915
           },
           "reviews": {
-            "totalPullRequestReviewContributions": 281
+            "totalPullRequestReviewContributions": 282
           },
           "repositoriesContributedTo": {
-            "totalCount": 90
+            "totalCount": 92
           },
           "pullRequests": {
-            "totalCount": 1065
+            "totalCount": 1069
           },
           "mergedPullRequests": {
-            "totalCount": 989
+            "totalCount": 993
           },
           "openIssues": {
-            "totalCount": 48
+            "totalCount": 49
           },
           "closedIssues": {
             "totalCount": 354
@@ -1521,7 +1652,7 @@
             ]
           },
           "repositories": {
-            "totalCount": 117,
+            "totalCount": 118,
             "nodes": [
               {
                 "name": "eslint-zod",
@@ -1534,6 +1665,10 @@
               {
                 "name": "eslint-plugin-react-import",
                 "stargazerCount": 4
+              },
+              {
+                "name": "astro-dev-504",
+                "stargazerCount": 0
               },
               {
                 "name": "emoji-name-map",
@@ -1918,15 +2053,11 @@
               {
                 "name": "recharts",
                 "stargazerCount": 0
-              },
-              {
-                "name": "bootstrap",
-                "stargazerCount": 0
               }
             ],
             "pageInfo": {
               "hasNextPage": true,
-              "endCursor": "Y3Vyc29yOnYyOpIAziGhgdI="
+              "endCursor": "Y3Vyc29yOnYyOpIAziLisRg="
             }
           }
         }
@@ -4646,7 +4777,7 @@
                   "nameWithOwner": "stats-forge/github-stats-forge"
                 },
                 "contributions": {
-                  "totalCount": 75
+                  "totalCount": 79
                 }
               },
               {
@@ -4747,14 +4878,6 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "JoshuaKGoldberg/sentences-per-line"
-                },
-                "contributions": {
-                  "totalCount": 6
-                }
-              },
-              {
-                "repository": {
                   "nameWithOwner": "michaelfaith/eslint-plugin-package-json"
                 },
                 "contributions": {
@@ -4771,7 +4894,15 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/eslint-config"
+                  "nameWithOwner": "JoshuaKGoldberg/sentences-per-line"
+                },
+                "contributions": {
+                  "totalCount": 6
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/last-war-wiki"
                 },
                 "contributions": {
                   "totalCount": 5
@@ -4779,7 +4910,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/last-war-wiki"
+                  "nameWithOwner": "marcalexiei/eslint-config"
                 },
                 "contributions": {
                   "totalCount": 5
@@ -4803,7 +4934,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/vitest-bench-playground"
+                  "nameWithOwner": "marcalexiei/devtools-wiki"
                 },
                 "contributions": {
                   "totalCount": 3
@@ -4811,7 +4942,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/devtools-wiki"
+                  "nameWithOwner": "marcalexiei/vitest-bench-playground"
                 },
                 "contributions": {
                   "totalCount": 3
@@ -4835,14 +4966,6 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "colinhacks/zod"
-                },
-                "contributions": {
-                  "totalCount": 2
-                }
-              },
-              {
-                "repository": {
                   "nameWithOwner": "marcalexiei/prettier-config"
                 },
                 "contributions": {
@@ -4851,7 +4974,15 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "gajus/eslint-plugin-zod"
+                  "nameWithOwner": "colinhacks/zod"
+                },
+                "contributions": {
+                  "totalCount": 2
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "dmnd/dedent"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -4860,6 +4991,14 @@
               {
                 "repository": {
                   "nameWithOwner": "i18next/i18next"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "gajus/eslint-plugin-zod"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -4876,14 +5015,6 @@
               {
                 "repository": {
                   "nameWithOwner": "eslint-community/eslint-doc-generator"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "dmnd/dedent"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -4924,6 +5055,14 @@
               {
                 "repository": {
                   "nameWithOwner": "webpro-nl/knip"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/astro-dev-504"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -4989,6 +5128,14 @@
               },
               {
                 "repository": {
+                  "nameWithOwner": "stats-organization/github-readme-stats-action"
+                },
+                "contributions": {
+                  "totalCount": 3
+                }
+              },
+              {
+                "repository": {
                   "nameWithOwner": "JoshuaKGoldberg/sentences-per-line"
                 },
                 "contributions": {
@@ -5005,10 +5152,10 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "stats-organization/github-readme-stats-action"
+                  "nameWithOwner": "marcalexiei/eslint-config"
                 },
                 "contributions": {
-                  "totalCount": 3
+                  "totalCount": 2
                 }
               },
               {
@@ -5021,15 +5168,39 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/eslint-config"
+                  "nameWithOwner": "typescript-eslint/ts-api-utils"
                 },
                 "contributions": {
-                  "totalCount": 2
+                  "totalCount": 1
                 }
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/eslint-plugin-react-import"
+                  "nameWithOwner": "eslint-community/eslint-doc-generator"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "vitest-dev/vitest"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "oxc-project/oxc"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/changesets-action-playground-app"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -5038,6 +5209,14 @@
               {
                 "repository": {
                   "nameWithOwner": "npmx-dev/npmx.dev"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/eslint-plugin-react-import"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -5061,30 +5240,6 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/changesets-action-playground-app"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "oxc-project/oxc"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "vitest-dev/vitest"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
                   "nameWithOwner": "webpro-nl/knip"
                 },
                 "contributions": {
@@ -5101,15 +5256,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "eslint-community/eslint-doc-generator"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "typescript-eslint/ts-api-utils"
+                  "nameWithOwner": "withastro/astro"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -5143,6 +5290,14 @@
               },
               {
                 "repository": {
+                  "nameWithOwner": "stats-forge/github-stats-forge"
+                },
+                "contributions": {
+                  "totalCount": 29
+                }
+              },
+              {
+                "repository": {
                   "nameWithOwner": "marcalexiei/marcalexiei"
                 },
                 "contributions": {
@@ -5155,14 +5310,6 @@
                 },
                 "contributions": {
                   "totalCount": 26
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "stats-forge/github-stats-forge"
-                },
-                "contributions": {
-                  "totalCount": 25
                 }
               },
               {
@@ -8681,7 +8828,7 @@
                   "nameWithOwner": "stats-forge/github-stats-forge"
                 },
                 "contributions": {
-                  "totalCount": 75
+                  "totalCount": 79
                 }
               },
               {
@@ -8782,14 +8929,6 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "JoshuaKGoldberg/sentences-per-line"
-                },
-                "contributions": {
-                  "totalCount": 6
-                }
-              },
-              {
-                "repository": {
                   "nameWithOwner": "michaelfaith/eslint-plugin-package-json"
                 },
                 "contributions": {
@@ -8806,7 +8945,15 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/eslint-config"
+                  "nameWithOwner": "JoshuaKGoldberg/sentences-per-line"
+                },
+                "contributions": {
+                  "totalCount": 6
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/last-war-wiki"
                 },
                 "contributions": {
                   "totalCount": 5
@@ -8814,7 +8961,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/last-war-wiki"
+                  "nameWithOwner": "marcalexiei/eslint-config"
                 },
                 "contributions": {
                   "totalCount": 5
@@ -8838,7 +8985,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/vitest-bench-playground"
+                  "nameWithOwner": "marcalexiei/devtools-wiki"
                 },
                 "contributions": {
                   "totalCount": 3
@@ -8846,7 +8993,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/devtools-wiki"
+                  "nameWithOwner": "marcalexiei/vitest-bench-playground"
                 },
                 "contributions": {
                   "totalCount": 3
@@ -8870,14 +9017,6 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "colinhacks/zod"
-                },
-                "contributions": {
-                  "totalCount": 2
-                }
-              },
-              {
-                "repository": {
                   "nameWithOwner": "marcalexiei/prettier-config"
                 },
                 "contributions": {
@@ -8886,7 +9025,15 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "gajus/eslint-plugin-zod"
+                  "nameWithOwner": "colinhacks/zod"
+                },
+                "contributions": {
+                  "totalCount": 2
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "dmnd/dedent"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -8895,6 +9042,14 @@
               {
                 "repository": {
                   "nameWithOwner": "i18next/i18next"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "gajus/eslint-plugin-zod"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -8911,14 +9066,6 @@
               {
                 "repository": {
                   "nameWithOwner": "eslint-community/eslint-doc-generator"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "dmnd/dedent"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -8959,6 +9106,14 @@
               {
                 "repository": {
                   "nameWithOwner": "webpro-nl/knip"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/astro-dev-504"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -9024,6 +9179,14 @@
               },
               {
                 "repository": {
+                  "nameWithOwner": "stats-organization/github-readme-stats-action"
+                },
+                "contributions": {
+                  "totalCount": 3
+                }
+              },
+              {
+                "repository": {
                   "nameWithOwner": "JoshuaKGoldberg/sentences-per-line"
                 },
                 "contributions": {
@@ -9040,10 +9203,10 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "stats-organization/github-readme-stats-action"
+                  "nameWithOwner": "marcalexiei/eslint-config"
                 },
                 "contributions": {
-                  "totalCount": 3
+                  "totalCount": 2
                 }
               },
               {
@@ -9056,15 +9219,39 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/eslint-config"
+                  "nameWithOwner": "typescript-eslint/ts-api-utils"
                 },
                 "contributions": {
-                  "totalCount": 2
+                  "totalCount": 1
                 }
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/eslint-plugin-react-import"
+                  "nameWithOwner": "eslint-community/eslint-doc-generator"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "vitest-dev/vitest"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "oxc-project/oxc"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/changesets-action-playground-app"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -9073,6 +9260,14 @@
               {
                 "repository": {
                   "nameWithOwner": "npmx-dev/npmx.dev"
+                },
+                "contributions": {
+                  "totalCount": 1
+                }
+              },
+              {
+                "repository": {
+                  "nameWithOwner": "marcalexiei/eslint-plugin-react-import"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -9096,30 +9291,6 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "marcalexiei/changesets-action-playground-app"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "oxc-project/oxc"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "vitest-dev/vitest"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
                   "nameWithOwner": "webpro-nl/knip"
                 },
                 "contributions": {
@@ -9136,15 +9307,7 @@
               },
               {
                 "repository": {
-                  "nameWithOwner": "eslint-community/eslint-doc-generator"
-                },
-                "contributions": {
-                  "totalCount": 1
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "typescript-eslint/ts-api-utils"
+                  "nameWithOwner": "withastro/astro"
                 },
                 "contributions": {
                   "totalCount": 1
@@ -9178,6 +9341,14 @@
               },
               {
                 "repository": {
+                  "nameWithOwner": "stats-forge/github-stats-forge"
+                },
+                "contributions": {
+                  "totalCount": 29
+                }
+              },
+              {
+                "repository": {
                   "nameWithOwner": "marcalexiei/marcalexiei"
                 },
                 "contributions": {
@@ -9190,14 +9361,6 @@
                 },
                 "contributions": {
                   "totalCount": 26
-                }
-              },
-              {
-                "repository": {
-                  "nameWithOwner": "stats-forge/github-stats-forge"
-                },
-                "contributions": {
-                  "totalCount": 25
                 }
               },
               {
@@ -9413,6 +9576,11 @@
               "nodes": [
                 {
                   "repository": {
+                    "nameWithOwner": "marcalexiei/astro-dev-504"
+                  }
+                },
+                {
+                  "repository": {
                     "nameWithOwner": "marcalexiei/emoji-name-map"
                   }
                 },
@@ -9484,41 +9652,17 @@
         "writes_only": false,
         "holidays": 313,
         "status": "ok",
-        "total_seconds": 0,
+        "days_minus_holidays": 52,
+        "total_seconds_including_other_language": 199800,
+        "daily_average": 0,
+        "is_up_to_date": true,
+        "percent_calculated": 100,
         "languages": [
           {
             "name": "Other",
             "total_seconds": 199800,
             "ai_coding_seconds": "0.000000",
             "manual_coding_seconds": "0.000000",
-            "percent": 100,
-            "digital": "55:30",
-            "decimal": "55.50",
-            "text": "55 hrs 30 mins",
-            "hours": 55,
-            "minutes": 30
-          }
-        ],
-        "human_readable_daily_average_including_other_language": "1 hr 4 mins",
-        "operating_systems": [
-          {
-            "total_seconds": 199800,
-            "name": "Unknown OS",
-            "ai_coding_seconds": 0,
-            "manual_coding_seconds": 0,
-            "percent": 100,
-            "digital": "55:30",
-            "decimal": "55.50",
-            "text": "55 hrs 30 mins",
-            "hours": 55,
-            "minutes": 30
-          }
-        ],
-        "human_readable_total": "0 secs",
-        "categories": [
-          {
-            "name": "Meeting",
-            "total_seconds": 199800,
             "percent": 100,
             "digital": "55:30",
             "decimal": "55.50",
@@ -9541,18 +9685,42 @@
             "minutes": 30
           }
         ],
-        "is_up_to_date_pending_future": false,
+        "human_readable_total": "0 secs",
         "daily_average_including_other_language": 3842,
-        "human_readable_total_including_other_language": "55 hrs 30 mins",
-        "daily_average": 0,
-        "days_minus_holidays": 52,
+        "total_seconds": 0,
+        "categories": [
+          {
+            "name": "Meeting",
+            "total_seconds": 199800,
+            "percent": 100,
+            "digital": "55:30",
+            "decimal": "55.50",
+            "text": "55 hrs 30 mins",
+            "hours": 55,
+            "minutes": 30
+          }
+        ],
+        "is_up_to_date_pending_future": false,
         "is_already_updating": false,
-        "total_seconds_including_other_language": 199800,
         "human_readable_daily_average": "0 secs",
         "days_including_holidays": 365,
-        "is_up_to_date": true,
         "is_stuck": false,
-        "percent_calculated": 100,
+        "human_readable_daily_average_including_other_language": "1 hr 4 mins",
+        "operating_systems": [
+          {
+            "total_seconds": 199800,
+            "name": "Unknown OS",
+            "ai_coding_seconds": 0,
+            "manual_coding_seconds": 0,
+            "percent": 100,
+            "digital": "55:30",
+            "decimal": "55.50",
+            "text": "55 hrs 30 mins",
+            "hours": 55,
+            "minutes": 30
+          }
+        ],
+        "human_readable_total_including_other_language": "55 hrs 30 mins",
         "is_cached": true,
         "username": "ffflabs",
         "is_including_today": false,

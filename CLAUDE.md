@@ -176,7 +176,7 @@ no `lint:publish`.
   to be stale; the build is the check. A fetcher exported from core with **no page fails the
   build**, naming the file to write — that is how a new one gets documented rather than dropped.
   - It was a committed generator with a `--check` for one commit, and became a plugin because
-    opening core's project costs 110ms and reading all seven fetchers costs 4ms. At that price,
+    opening core's project costs 110ms and reading every fetcher costs 4ms. At that price,
     making staleness impossible beats catching it.
   - **`astro dev` does not pick up an edit to core's doc comments. Restart it, and do not build
     machinery to avoid that.** Astro re-renders a page when its own markdown's digest changes, and
@@ -321,7 +321,7 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
     draws **the same error card a reader would really get**, rather than a page-level message
   - the SVG is byte-identical to what the CLI writes
 - **`samples.json` is recorded, committed, and never hand-edited.**
-  `pnpm --filter ./apps/docs run record-anvil-samples` drives the same six handlers with a `fetch`
+  `pnpm --filter ./apps/docs run record-anvil-samples` drives the same seven handlers with a `fetch`
   that reaches the network and keeps what comes back — so a recording cannot be of a request the
   anvil does not make. It needs `PAT_1` in the root `.env`, the same trade `pnpm docs:cards` makes,
   and its output goes through oxfmt's API so `pnpm format` leaves it alone.
@@ -354,6 +354,20 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   background each theme implies: light, the two that read either way (`transparent`,
   `ambient_gradient`), then dark. `ghse` also excludes nine themes from its picker; that is an
   editorial choice and has **not** been copied.
+- **The cards are listed in one order in three places, and it is the category order.** A user's
+  cards, then a repository's or gist's, then an organization's: the anvil's picker groups by it
+  under headings, the sidebar in `astro.config.ts` follows it flat, and the overview table names
+  each card's subject in a `Describes` column. **The sidebar is deliberately not nested** — one of
+  those groups holds a single page, and Starlight would put an expand level over seven links.
+- **A card's `category` is what the card is about, and one field answers two questions.** `user`,
+  `repo` or `org` in `src/anvil/cards.ts`: it groups the card picker under headings — User,
+  Repository or gist, Organization — and it decides which half of every theme pair the card wears,
+  `repo` taking the `_repocard` variants and everything else the plain half. A gist card is `repo`
+  for both, which is why that heading names the gist as well. `CARD_GROUPS` is built the way
+  `themeGroups` is, so the two dropdowns are one control with two lists: order comes from
+  `GROUP_LABELS`, the cards inside a group keep the CLI's order, and a heading no card sits under
+  is dropped. It was `'repo' | 'user'` and theme-only until 2026-09-07, when the organization card
+  arrived and needed a group of its own.
 - **A card is drawn into a shadow root, because an inlined SVG's `<style>` is document-wide.**
   A card carries its own CSS, and inlining the SVG into HTML does not scope it: the stats card
   defaults `show_icons` off, which emits `.icon { display: none }`, and that hid **every** `svg.icon`
@@ -528,7 +542,7 @@ reaches the renderer.
   collect it anyway, but oxlint's vitest override is `**/*.{test,bench}.ts`, and a Playwright file
   under those rules reports against a framework it is not using.
 - **One test asserts the privacy claim.** `sends nothing anywhere while drawing every card` records
-  every request the page makes while cycling all six, and fails on any that leaves the origin. The
+  every request the page makes while cycling all seven, and fails on any that leaves the origin. The
   page tells the reader nothing they type is sent anywhere; this is what makes that true rather than
   stated.
 - **The privacy test compares origins, not URL prefixes.** It matched
@@ -740,12 +754,12 @@ Other patterns:
   `locale` sat in `CommonCardOptions` and `api/gist.ts` both forwarded and validated it,
   yet the gist card had no translated text and never read it, so `?locale=xx` returned
   "Language not found" for an option that could not have changed the output. It moved to
-  the card options that do read it. It is on all six today, because the gist and
+  the card options that do read it. It is on all seven today, because the gist and
   contributed-to cards had their last English literals put through `I18n` on 2026-09-05 —
   the rule is that the option follows the reading, not that any given card has one.
 - **Colocate card options.** Each card declares `interface XCardOptions extends
 CommonCardOptions {…}` (an interface, not `type &`) in its own `index.ts`, **not exported** —
-  knip flags it, and only that card uses it. All six cards do this, so
+  knip flags it, and only that card uses it. All seven cards do this, so
   `cards/options.ts` holds only the shared base: `CommonCardOptions`, plus the
   `CardOptions<T>` helper below. The `ThemeName` union lives in `themes/index.ts`.
 - **`CommonCardOptions` extends `ColorParams`.** Every card forwards its whole options

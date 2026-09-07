@@ -1,0 +1,57 @@
+fragment OrgRepoInfo on Repository {
+  stargazerCount
+  forkCount
+  primaryLanguage {
+    color
+    name
+  }
+  watchers {
+    totalCount
+  }
+  issues(states: OPEN) {
+    totalCount
+  }
+  pullRequests(states: OPEN) {
+    totalCount
+  }
+  releases {
+    totalCount
+  }
+  defaultBranchRef {
+    target {
+      ... on Commit {
+        history {
+          totalCount
+        }
+      }
+    }
+  }
+}
+
+query getOrganization($login: String!, $after: String) {
+  organization(login: $login) {
+    login
+    name
+    description
+    createdAt
+    membersWithRole {
+      totalCount
+    }
+    repositories(
+      first: 100
+      after: $after
+      privacy: PUBLIC
+      isFork: false
+      orderBy: { field: STARGAZERS, direction: DESC }
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        ...OrgRepoInfo
+      }
+    }
+  }
+}

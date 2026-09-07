@@ -4,7 +4,7 @@ import type { CardOption } from '@stats-forge/github-stats-forge-cli/cards';
 
 import { BASE } from '../constants.ts';
 
-import { CARDS, findCard } from './cards.ts';
+import { CARD_GROUPS, CARDS, findCard } from './cards.ts';
 import type { AnvilCard } from './cards.ts';
 import {
   createCheckGroup,
@@ -305,7 +305,8 @@ const mount = (root: HTMLElement): void => {
   const picker = createSelect({
     label: 'Card',
     option: 'card',
-    values: CARDS.map((card) => card.id),
+    // Grouped by what each card is about, the way the theme picker groups by background.
+    values: CARD_GROUPS,
     value: first.id,
     includeDefault: false,
     onPick: (value) => {

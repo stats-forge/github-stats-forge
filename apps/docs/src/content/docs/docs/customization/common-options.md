@@ -70,7 +70,7 @@ A value that is not a number at all is an error naming the parameter.
 states and the description a screen reader gets. See [Locales](../locales/) for the list and
 for what happens to a string that has not been translated yet.
 
-Only the cards that draw text take it, which today is all six.
+Only the cards that draw text take it, which today is all seven.
 
 ## Numbers
 

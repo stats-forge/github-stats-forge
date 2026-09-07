@@ -24,6 +24,7 @@ which is why that class is exported from this entry point too rather than only f
 | [`fetchRepo`](../fetch-repo/)                     | One repository                                 |
 | [`fetchContributedTo`](../fetch-contributed-to/)  | The repositories they contribute to            |
 | [`fetchGist`](../fetch-gist/)                     | One gist                                       |
+| [`fetchOrganization`](../fetch-organization/)     | One organization, with its repository totals   |
 | [`fetchWakatimeStats`](../fetch-wakatime-stats/)  | Coding time per language                       |
 | [`fetchRepoUserStats`](../fetch-repo-user-stats/) | Their PRs and issues within given repositories |
 
@@ -48,8 +49,8 @@ Each return type is exported alongside its fetcher, so a consumer can name what 
 import type { StatsData, TopLangData } from '@stats-forge/github-stats-forge-core/fetchers';
 ```
 
-`ContributedToData`, `GistData`, `RepositoryData`, `RepoUserStats`, `WakaTimeData`, `Lang` and
-`WakaTimeLang` come from the same place.
+`ContributedToData`, `GistData`, `OrganizationData`, `RepositoryData`, `RepoUserStats`,
+`WakaTimeData`, `Lang` and `WakaTimeLang` come from the same place.
 
 ## Tokens
 
