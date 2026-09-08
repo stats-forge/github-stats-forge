@@ -211,7 +211,8 @@ const renderCard = (
     };
   }
 
-  if (shows('members')) {
+  // A refused member count is `null`, and no row is better than a row reading "0".
+  if (shows('members') && publicMembers !== null) {
     STATS['members'] = {
       icon: icons.people,
       label: t.members(),

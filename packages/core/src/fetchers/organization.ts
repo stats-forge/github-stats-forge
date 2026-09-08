@@ -3,6 +3,7 @@ import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
 import { CardError, ORGANIZATION_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import type { GraphQLResponse } from '../common/http.ts';
+import { logger } from '../common/log.ts';
 import { retryer } from '../common/retryer.ts';
 import { GetOrganizationDocument } from '../graphql/generated/organization.ts';
 import type {
@@ -62,6 +63,19 @@ const topLanguage = (
 };
 
 /**
+ * The member count is the one field here a token can be refused:
+ * it needs the organization `Members` permission, which an app installation token rarely carries.
+ * GitHub answers `FORBIDDEN` on that field alone and still returns the organization,
+ * so the card drops the stat instead of failing whole.
+ *
+ * @returns Whether the member count is all the response was refused.
+ */
+const onlyMembersForbidden = (
+  errors: NonNullable<GraphQLResponse<unknown>['data']['errors']>,
+): boolean =>
+  errors.every((error) => error.type === 'FORBIDDEN' && error.path?.at(-1) === 'membersWithRole');
+
+/**
  * Fetch an organization and the totals of its public repositories.
  *
  * Only public, non-fork repositories are counted, most-starred first,
@@ -88,6 +102,7 @@ const fetchOrganization = async (
   let organization: Organization | undefined;
   let after: string | null = null;
   let pages = 0;
+  let membersForbidden = false;
 
   do {
     // Annotated because the walk feeds its own cursor back in, which TypeScript reads as circular.
@@ -105,7 +120,11 @@ const fetchOrganization = async (
           secondaryMessage: ORGANIZATION_NOT_FOUND,
         });
       }
-      throw graphqlError(res.data.errors, res.statusText, ORGANIZATION_ERROR);
+      if (!onlyMembersForbidden(res.data.errors)) {
+        throw graphqlError(res.data.errors, res.statusText, ORGANIZATION_ERROR);
+      }
+      logger.log(res.data.errors[0]?.message);
+      membersForbidden = true;
     }
 
     organization = res.data.data.organization ?? undefined;
@@ -144,7 +163,7 @@ const fetchOrganization = async (
         ? target.history.totalCount
         : 0;
     }),
-    publicMembers: organization.membersWithRole.totalCount,
+    publicMembers: membersForbidden ? null : organization.membersWithRole.totalCount,
     topLanguage: topLanguage(repos),
     truncated: after !== null,
   };

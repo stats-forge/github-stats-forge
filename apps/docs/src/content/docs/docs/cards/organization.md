@@ -59,3 +59,8 @@ Three of them are worth spelling out:
 - **Members** counts the people whose membership the organization shows publicly.
   Membership is private by default, so it is usually fewer people than the organization has —
   and `0` for an organization whose members are all private.
+  It is also the one stat a token can be refused:
+  reading it needs the organization `Members` permission,
+  which a GitHub App installation token does not carry by default.
+  Where the token lacks it the row is left out and the rest of the card still renders,
+  so `show=members` on such a token draws nothing rather than failing.

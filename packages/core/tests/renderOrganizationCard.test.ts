@@ -72,6 +72,16 @@ describe(renderOrganizationCard, () => {
     expect(screen.getByTestId('created')).toHaveTextContent('2021');
   });
 
+  it('leaves the member row out when the count was refused', () => {
+    document.body.innerHTML = renderOrganizationCard(
+      { ...data, publicMembers: null },
+      { show: ['members', 'commits'] },
+    );
+
+    expect(screen.queryByTestId('members')).not.toBeInTheDocument();
+    expect(screen.getByTestId('commits')).toHaveTextContent('12.4k');
+  });
+
   it('names the language as unspecified when no repository has one', () => {
     document.body.innerHTML = renderOrganizationCard(
       { ...data, topLanguage: null },
