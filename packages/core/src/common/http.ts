@@ -63,7 +63,12 @@ const httpRequest = async <TData>(
 /** Response of a GraphQL call: the envelope the GitHub API wraps results in. */
 type GraphQLResponse<TResult> = HttpResponse<{
   data: TResult;
-  errors?: Array<{ type?: string; message?: string }>;
+  errors?: Array<{
+    type?: string;
+    message?: string;
+    /** The field the error is about, from the operation root: `['organization', 'membersWithRole']`. */
+    path?: Array<string | number>;
+  }>;
 }>;
 
 /**

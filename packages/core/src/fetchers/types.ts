@@ -61,8 +61,9 @@ export interface OrganizationData {
   /**
    * Members GitHub shows publicly.
    * Membership is private by default, so this counts fewer people than the organization has.
+   * `null` when the token may not read them, which is the card's cue to leave the stat out.
    */
-  publicMembers: number;
+  publicMembers: number | null;
   /** The language most of those repositories name as their primary one, `null` when none do. */
   topLanguage: { name: string; color: string | null } | null;
   /** Whether the repository walk stopped at its page cap, leaving the totals short. */

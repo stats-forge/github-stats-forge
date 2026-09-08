@@ -212,6 +212,43 @@ describe(fetchOrganization, () => {
     });
   });
 
+  it('keeps the rest of the card when the token may not read the member count', async () => {
+    const { data } = page({ repos: [repo({ stars: 3 })] });
+
+    mock.onPost('https://api.github.com/graphql').reply(200, {
+      data: { organization: { ...data.organization, membersWithRole: null } },
+      errors: [
+        {
+          type: 'FORBIDDEN',
+          path: ['organization', 'membersWithRole'],
+          message: 'Resource not accessible by integration',
+        },
+      ],
+    });
+
+    await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
+      publicMembers: null,
+      totalStars: 3,
+    });
+  });
+
+  it('rejects a refusal that is not just the member count', async () => {
+    mock.onPost('https://api.github.com/graphql').reply(200, {
+      data: { organization: null },
+      errors: [
+        {
+          type: 'FORBIDDEN',
+          path: ['organization', 'repositories'],
+          message: 'Resource not accessible by integration',
+        },
+      ],
+    });
+
+    await expect(fetchOrganization({ org: 'vitest-dev' }, config)).rejects.toMatchObject({
+      code: 'upstream',
+    });
+  });
+
   it('rejects a login that resolves to a user rather than an organization', async () => {
     mock.onPost('https://api.github.com/graphql').reply(200, {
       data: { organization: null },
