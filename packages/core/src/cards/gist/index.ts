@@ -2,9 +2,9 @@ import { CARD_ICON, CARD_WIDTH, FONT_SIZE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { kFormatter } from '../../common/fmt.ts';
-import { I18n } from '../../common/I18n.ts';
 import { icons } from '../../common/icons.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
+import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import {
   countWrappedLines,
@@ -56,9 +56,9 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
-  const i18n = new I18n({ locale, translations: gistCardLocales });
+  const t = localize(gistCardLocales, locale);
 
-  const desc = parseEmojis(description || i18n.t('gistcard.no-description'));
+  const desc = parseEmojis(description || t.noDescription());
 
   let descriptionLines: number;
   let descriptionSvg: Child;
@@ -108,7 +108,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   const svgStars = iconWithLabel(icons.star, totalStars, 'starsCount', ICON_SIZE);
   const svgForks = iconWithLabel(icons.fork, totalForks, 'forksCount', ICON_SIZE);
 
-  const languageName = language || i18n.t('gistcard.unspecified-language');
+  const languageName = language || t.unspecifiedLanguage();
   const languageColor = getLanguageColor(languageName);
 
   const svgLanguage = createLanguageNode(languageName, languageColor);
@@ -161,7 +161,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   // shows has to be repeated here.
   card.setAccessibilityLabel({
     title: card.title,
-    desc: i18n.t('gistcard.accessibility-desc', {
+    desc: t.accessibilityDesc({
       desc,
       language: languageName,
       stars: totalStars,

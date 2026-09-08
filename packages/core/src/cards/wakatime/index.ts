@@ -1,8 +1,9 @@
 import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
-import { I18n } from '../../common/I18n.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
+import { commonLocales } from '../../common/locales.ts';
+import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
 import { createProgressNode, flexLayout } from '../../common/render.ts';
 import type { WakaTimeData, WakaTimeLang } from '../../fetchers/types.ts';
@@ -288,10 +289,8 @@ const renderCard = (
   languages = languages.slice(0, langs_count);
   recalculatePercentages(languages);
 
-  const i18n = new I18n({
-    locale,
-    translations: wakatimeCardLocales,
-  });
+  const t = localize(wakatimeCardLocales, locale);
+  const commonT = localize(commonLocales, locale);
 
   const lheight = Number.parseInt(String(line_height), 10);
 
@@ -356,9 +355,9 @@ const renderCard = (
         : noCodingActivityNode({
             text: stats.is_coding_activity_visible
               ? stats.is_other_usage_visible
-                ? i18n.t('wakatimecard.nocodingactivity')
-                : i18n.t('wakatimecard.nocodedetails')
-              : i18n.t('wakatimecard.notpublic'),
+                ? t.noCodingActivity()
+                : t.noCodeDetails()
+              : t.notPublic(),
           }),
     ];
   } else {
@@ -380,9 +379,9 @@ const renderCard = (
               noCodingActivityNode({
                 text: stats.is_coding_activity_visible
                   ? stats.is_other_usage_visible
-                    ? i18n.t('wakatimecard.nocodingactivity')
-                    : i18n.t('wakatimecard.nocodedetails')
-                  : i18n.t('wakatimecard.notpublic'),
+                    ? t.noCodingActivity()
+                    : t.noCodeDetails()
+                  : t.notPublic(),
               }),
             ],
       gap: lheight,
@@ -391,14 +390,14 @@ const renderCard = (
   }
 
   // Get title range text
-  let titleText = i18n.t('wakatimecard.title');
+  let titleText = t.title();
   switch (stats.range) {
     case 'last_7_days': {
-      titleText += ` (${i18n.t('wakatimecard.last7days')})`;
+      titleText += ` (${t.last7Days()})`;
       break;
     }
     case 'last_year': {
-      titleText += ` (${i18n.t('wakatimecard.lastyear')})`;
+      titleText += ` (${commonT.lastYear()})`;
       break;
     }
     default: {
@@ -462,7 +461,7 @@ const renderCard = (
         ? filteredLanguages
             .map((lang) => `${lang.name}: ${formatLanguageValue({ display_format, lang })}`)
             .join(', ')
-        : i18n.t('wakatimecard.nocodingactivity'),
+        : t.noCodingActivity(),
   });
 
   return card.render(el('svg', { x: 0, y: 0, width: '100%' }, finalLayout));

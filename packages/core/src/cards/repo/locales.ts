@@ -1,14 +1,14 @@
-import { defineLocales } from '../../common/I18n.ts';
+import { defineLocales } from '../../common/localize.ts';
 
 /** The repo card's labels in the locales they have been translated into. */
 const repoCardLocales = defineLocales({
-  'repocard.no-description': {
+  noDescription: {
     en: 'No description provided',
   },
-  'repocard.unspecified-language': {
+  unspecifiedLanguage: {
     en: 'Unspecified',
   },
-  'repocard.template': {
+  template: {
     en: 'Template',
     ar: 'قالب',
     az: 'Şablon',
@@ -57,7 +57,7 @@ const repoCardLocales = defineLocales({
     no: 'Mal',
     be: 'Шаблон',
   },
-  'repocard.archived': {
+  archived: {
     en: 'Archived',
     ar: 'مُؤرشف',
     az: 'Arxiv',
@@ -106,23 +106,23 @@ const repoCardLocales = defineLocales({
     no: 'Arkivert',
     be: 'Архіваваны',
   },
-  'repocard.prs-authored': {
+  prsAuthored: {
     en: 'my created PRs',
     'zh-tw': '我所創建的拉取請求',
   },
-  'repocard.prs-commented': {
+  prsCommented: {
     en: 'my commented PRs',
     'zh-tw': '我所參與的拉取請求',
   },
-  'repocard.prs-reviewed': {
+  prsReviewed: {
     en: 'my reviewed PRs',
     'zh-tw': '我所審核的拉取請求',
   },
-  'repocard.issues-authored': {
+  issuesAuthored: {
     en: 'my created issues',
     'zh-tw': '我所創建的議題',
   },
-  'repocard.issues-commented': {
+  issuesCommented: {
     en: 'my commented issues',
     'zh-tw': '我所參與的議題',
   },

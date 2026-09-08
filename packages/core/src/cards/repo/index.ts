@@ -2,8 +2,8 @@ import { CARD_ICON, CARD_WIDTH, FONT_SIZE, FONT_WEIGHT, font } from '../../commo
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { kFormatter } from '../../common/fmt.ts';
-import { I18n } from '../../common/I18n.ts';
 import { icons } from '../../common/icons.ts';
+import { localize } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue, parseEmojis } from '../../common/ops.ts';
 import {
   NUMBER_FORMATS,
@@ -137,10 +137,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
         ? CARD_DEFAULT_WIDTH + 30
         : CARD_DEFAULT_WIDTH;
 
-  const i18n = new I18n({
-    locale,
-    translations: repoCardLocales,
-  });
+  const t = localize(repoCardLocales, locale);
 
   // Typed against the exported list, so a stat drawn here cannot be missing from it.
   const shows = (stat: RepoShowStat): boolean => show.includes(stat);
@@ -151,7 +148,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   if (shows('prs_authored')) {
     STATS['prs_authored'] = {
       icon: icons.prs,
-      label: i18n.t('repocard.prs-authored'),
+      label: t.prsAuthored(),
       value: totalPRsAuthored,
       id: 'prs_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -160,7 +157,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   if (shows('prs_commented')) {
     STATS['prs_commented'] = {
       icon: icons.comments,
-      label: i18n.t('repocard.prs-commented'),
+      label: t.prsCommented(),
       value: totalPRsCommented,
       id: 'prs_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -169,7 +166,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   if (shows('prs_reviewed')) {
     STATS['prs_reviewed'] = {
       icon: icons.reviews,
-      label: i18n.t('repocard.prs-reviewed'),
+      label: t.prsReviewed(),
       value: totalPRsReviewed,
       id: 'prs_reviewed',
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -178,7 +175,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   if (shows('issues_authored')) {
     STATS['issues_authored'] = {
       icon: icons.issues,
-      label: i18n.t('repocard.issues-authored'),
+      label: t.issuesAuthored(),
       value: totalIssuesAuthored,
       id: 'issues_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
@@ -187,7 +184,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   if (shows('issues_commented')) {
     STATS['issues_commented'] = {
       icon: icons.discussions_started,
-      label: i18n.t('repocard.issues-commented'),
+      label: t.issuesCommented(),
       value: totalIssuesCommented,
       id: 'issues_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,
@@ -215,9 +212,9 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const extraLHeight = Number.parseInt(String(line_height), 10);
   const lineHeight = 10;
   const header = show_owner ? nameWithOwner : name;
-  const langName = primaryLanguage?.name || i18n.t('repocard.unspecified-language');
+  const langName = primaryLanguage?.name || t.unspecifiedLanguage();
   const langColor = primaryLanguage?.color || '#333';
-  const desc = parseEmojis(description || i18n.t('repocard.no-description'));
+  const desc = parseEmojis(description || t.noDescription());
   const descriptionBoxWidth = card_width - 2 * X_OFFSET;
 
   let descriptionLinesCount: number;
@@ -365,9 +362,9 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
 
   return card.render([
     isTemplate
-      ? getBadgeSVG(i18n.t('repocard.template'), card_width - CARD_DEFAULT_WIDTH)
+      ? getBadgeSVG(t.template(), card_width - CARD_DEFAULT_WIDTH)
       : isArchived
-        ? getBadgeSVG(i18n.t('repocard.archived'), card_width - CARD_DEFAULT_WIDTH)
+        ? getBadgeSVG(t.archived(), card_width - CARD_DEFAULT_WIDTH)
         : undefined,
     descriptionSvg,
     el('g', { transform: `translate(30, ${height - 75 - extraHeight})` }, starAndForkCount),

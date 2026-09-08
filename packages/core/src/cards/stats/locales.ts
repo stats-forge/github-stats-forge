@@ -1,8 +1,8 @@
-import { defineLocales } from '../../common/I18n.ts';
+import { defineLocales } from '../../common/localize.ts';
 
 /** The stats card's labels in the locales they have been translated into. */
 const statCardLocales = defineLocales({
-  'statcard.title': {
+  title: {
     en: `{name}'{apostrophe} GitHub Stats`,
     ar: `{name} إحصائيات جيت هاب`,
     az: `{name}'{apostrophe} Hesabının GitHub Statistikası`,
@@ -51,7 +51,7 @@ const statCardLocales = defineLocales({
     no: `GitHub-statistikk for {name}`,
     be: `Статыстыка GitHub карыстальніка {name}`,
   },
-  'statcard.ranktitle': {
+  rankTitle: {
     en: `{name}'{apostrophe} GitHub Rank`,
     ar: `{name} إحصائيات جيت هاب`,
     az: `{name}'{apostrophe} Hesabının GitHub Statistikası`,
@@ -100,7 +100,7 @@ const statCardLocales = defineLocales({
     no: `GitHub-statistikk for {name}`,
     be: `Рэйтынг GitHub карыстальніка {name}`,
   },
-  'statcard.totalstars': {
+  totalStars: {
     en: 'Total Stars Earned',
     ar: 'مجموع النجوم',
     az: 'Ümumi Ulduz',
@@ -149,7 +149,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall stjerner',
     be: 'Зароблена зорак агулам',
   },
-  'statcard.commits': {
+  commits: {
     en: 'Total Commits',
     ar: 'مجموع المساهمات',
     az: 'Ümumi Commit',
@@ -198,7 +198,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall commits',
     be: 'Агульная колькасць камітаў',
   },
-  'statcard.prs': {
+  prs: {
     en: 'Total PRs',
     ar: 'مجموع طلبات السحب',
     az: 'Ümumi PR',
@@ -247,7 +247,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall PR',
     be: 'Агулам запытаў на змены, PRаў',
   },
-  'statcard.issues': {
+  issues: {
     en: 'Total Issues',
     ar: 'مجموع التحسينات',
     az: 'Ümumi Problem',
@@ -296,7 +296,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall issues',
     be: 'Усяго пытанняў',
   },
-  'statcard.contribs': {
+  contribs: {
     en: 'Contributed to (last year)',
     ar: 'ساهم في (العام الماضي)',
     az: 'Töhfə verdi (ötən il)',
@@ -345,15 +345,15 @@ const statCardLocales = defineLocales({
     no: 'Bidro til (i fjor)',
     be: 'Уклад (за мінулы год)',
   },
-  'statcard.all-time-contribs': {
+  allTimeContribs: {
     en: 'Contributed to (all time)',
   },
   // The title an assistive reader gets in place of the card's own, whose inner text
   // `role="img"` hides.
-  'statcard.accessibility-title': {
+  accessibilityTitle: {
     en: '{title}, Rank: {level}',
   },
-  'statcard.reviews': {
+  reviews: {
     en: 'Total PRs Reviewed',
     ar: 'طلبات السحب التي تم مراجعتها',
     az: 'Nəzərdən Keçirilən Ümumi PR',
@@ -402,7 +402,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall vurderte PR',
     be: 'Агулам разгледжана PR',
   },
-  'statcard.discussions-started': {
+  discussionsStarted: {
     en: 'Total Discussions Started',
     ar: 'مجموع المناقشات التي بدأها',
     az: 'Başladılan Ümumi Müzakirə',
@@ -451,7 +451,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall startede diskusjoner',
     be: 'Агульная колькасць пачатых абмеркаванняў',
   },
-  'statcard.discussions-answered': {
+  discussionsAnswered: {
     en: 'Total Discussions Answered',
     ar: 'مجموع المناقشات المُجابة',
     az: 'Cavablandırılan Ümumi Müzakirə',
@@ -500,31 +500,31 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall besvarte diskusjoner',
     be: 'Усяго адказаў у абмеркаваннях',
   },
-  'statcard.prs-authored': {
+  prsAuthored: {
     en: 'PRs Created',
     'zh-tw': '建立的拉取請求',
   },
-  'statcard.prs-commented': {
+  prsCommented: {
     en: 'PRs Commented',
     'zh-tw': '參與討論的拉取請求',
   },
-  'statcard.prs-reviewed': {
+  prsReviewed: {
     en: 'PRs Reviewed',
     'zh-tw': '審核的拉取請求',
   },
-  'statcard.issues-authored': {
+  issuesAuthored: {
     en: 'Issues Created',
     'zh-tw': '建立的議題',
   },
-  'statcard.issues-commented': {
+  issuesCommented: {
     en: 'Issues Commented',
     'zh-tw': '參與討論的議題',
   },
-  'statcard.contributions': {
+  contributions: {
     en: 'Total Contributions',
     'zh-tw': '總貢獻數量',
   },
-  'statcard.prs-merged': {
+  prsMerged: {
     en: 'Total PRs Merged',
     ar: 'مجموع طلبات السحب المُدمجة',
     az: 'Birləşdirilmiş Ümumi PR',
@@ -572,7 +572,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall sammenslåtte PR',
     be: 'Усяго PR прынята',
   },
-  'statcard.prs-merged-percentage': {
+  prsMergedPercentage: {
     en: 'Merged PRs Percentage',
     ar: 'نسبة طلبات السحب المُدمجة',
     az: 'Birləşdirilmiş PR-ların Faizi',

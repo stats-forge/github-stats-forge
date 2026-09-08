@@ -4,8 +4,8 @@ import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
 import { kFormatter } from '../../common/fmt.ts';
-import { I18n } from '../../common/I18n.ts';
 import { icons } from '../../common/icons.ts';
+import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import {
   NUMBER_FORMATS,
@@ -143,7 +143,7 @@ const renderCard = (
   const shows = (stat: ShowStat): boolean => show.includes(stat);
 
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
-  const i18n = new I18n({ locale, translations: orgCardLocales });
+  const t = localize(orgCardLocales, locale);
 
   /**
    * A total the walk may have stopped short of reads as a lower bound.
@@ -158,37 +158,37 @@ const renderCard = (
   const STATS: Partial<Record<StatId, StatItem>> = {
     repos: {
       icon: icons.repo,
-      label: i18n.t('orgcard.repos'),
+      label: t.repos(),
       value: publicRepos,
       id: 'repos',
     },
     stars: {
       icon: icons.star,
-      label: i18n.t('orgcard.stars'),
+      label: t.stars(),
       value: total(totalStars),
       id: 'stars',
     },
     forks: {
       icon: icons.fork,
-      label: i18n.t('orgcard.forks'),
+      label: t.forks(),
       value: total(totalForks),
       id: 'forks',
     },
     watchers: {
       icon: icons.watchers,
-      label: i18n.t('orgcard.watchers'),
+      label: t.watchers(),
       value: total(totalWatchers),
       id: 'watchers',
     },
     open_issues: {
       icon: icons.issues,
-      label: i18n.t('orgcard.open-issues'),
+      label: t.openIssues(),
       value: total(openIssues),
       id: 'open_issues',
     },
     open_prs: {
       icon: icons.prs,
-      label: i18n.t('orgcard.open-prs'),
+      label: t.openPrs(),
       value: total(openPRs),
       id: 'open_prs',
     },
@@ -197,7 +197,7 @@ const renderCard = (
   if (shows('releases')) {
     STATS['releases'] = {
       icon: icons.tag,
-      label: i18n.t('orgcard.releases'),
+      label: t.releases(),
       value: total(totalReleases),
       id: 'releases',
     };
@@ -205,7 +205,7 @@ const renderCard = (
   if (shows('commits')) {
     STATS['commits'] = {
       icon: icons.commits,
-      label: i18n.t('orgcard.commits'),
+      label: t.commits(),
       value: total(totalCommits),
       id: 'commits',
     };
@@ -214,7 +214,7 @@ const renderCard = (
   if (shows('members')) {
     STATS['members'] = {
       icon: icons.people,
-      label: i18n.t('orgcard.members'),
+      label: t.members(),
       value: publicMembers,
       id: 'members',
     };
@@ -222,8 +222,8 @@ const renderCard = (
   if (shows('top_language')) {
     STATS['top_language'] = {
       icon: icons.code,
-      label: i18n.t('orgcard.top-language'),
-      value: topLanguage?.name ?? i18n.t('orgcard.unspecified-language'),
+      label: t.topLanguage(),
+      value: topLanguage?.name ?? t.unspecifiedLanguage(),
       id: 'top_language',
     };
   }
@@ -231,7 +231,7 @@ const renderCard = (
     const year = new Date(createdAt).getUTCFullYear();
     STATS['created'] = {
       icon: icons.calendar,
-      label: i18n.t('orgcard.created'),
+      label: t.created(),
       value: Number.isNaN(year) ? '—' : String(year),
       id: 'created',
     };
@@ -248,7 +248,7 @@ const renderCard = (
 
   const width = card_width && !Number.isNaN(card_width) ? card_width : CARD_DEFAULT_WIDTH;
 
-  const desc = hide_description ? '' : parseEmojis(description || i18n.t('orgcard.no-description'));
+  const desc = hide_description ? '' : parseEmojis(description || t.noDescription());
   const descriptionLines = desc
     ? wrapTextMultiline(
         desc,
@@ -294,7 +294,7 @@ const renderCard = (
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: i18n.t('orgcard.title', { name, apostrophe }),
+    defaultTitle: t.title({ name, apostrophe }),
     titlePrefixIcon: CARD_ICON.organization,
     width,
     height,
