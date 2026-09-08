@@ -101,18 +101,16 @@ if (first === undefined) {
 
       <div class="anvil-output">
         <div class="anvil-output-head">
-          <span>card.json</span>
+          {/* Written by `ui.ts`, with the `--config` line below it: the name follows the card. */}
+          <span data-anvil="filename"></span>
           <span class="anvil-actions">
             <button type="button" data-anvil="copy">Copy</button>
-            <a data-anvil="download" download="card.json">Download</a>
+            <a data-anvil="download">Download</a>
           </span>
         </div>
         <pre data-anvil="output"></pre>
         <p class="anvil-note">
-          Render it with 
-          <code>
-            npx @stats-forge/github-stats-forge-cli --config card.json --generate
-          </code>, or pass the same options to
+          Render it with <code data-anvil="command"></code>, or pass the same options to
           {' '}<NewTabLink href={`${BASE}/docs/usage/library/`}>the library</NewTabLink>.
         </p>
       </div>

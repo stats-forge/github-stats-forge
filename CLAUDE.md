@@ -376,6 +376,13 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   appearance by moving there. The card sits under an `.anvil-card` wrapper inside that root, which
   is what gives it a selectable handle — a card's own icons are `<svg>` too. Playwright's CSS
   selectors pierce an open shadow root, so the tests needed nothing but the new path.
+- **The file is named `{subject}-{card}-config.json`, and three places have to agree on that name.**
+  The subject is the **last** of the card's required params, so a pin is named after the repository
+  rather than its owner; a typed value is slugged, because it reaches a file name — anything outside
+  `[\w.-]` becomes a dash and the ends are trimmed — and an emptied one leaves `pin-config.json`.
+  `redraw` writes the panel heading, the anchor's `download` and the `--config` line under the file,
+  so none of them can name a file the download does not offer, and the markup seeds none of them.
+  The two toasts read the name at click time rather than closing over it.
 - **Copy and download report through a `wa-toast`, and the buttons keep their names.** Copy used to
   retitle itself to "Copied", which changes a control's accessible name under whoever is pressing
   it, and download reported nothing at all. Three things follow:
