@@ -101,6 +101,23 @@ const toQuery = (state: State): Record<string, string> => {
   return query;
 };
 
+/**
+ * The card's subject names its file — the last of its required params, so a pin is named after the
+ * repository rather than its owner. Anything a file system reads specially is dropped from it.
+ *
+ * @returns The file name, which is also what the `--config` line beneath the file says.
+ */
+const fileName = (state: State): string => {
+  const subject = state.card.required.at(-1);
+  const typed = subject === undefined ? '' : (state.values[subject.name] ?? '');
+  const slug = typed.replaceAll(/[^\w.-]+/g, '-').replaceAll(/^[.-]+|[.-]+$/g, '');
+  return slug === '' ? `${state.card.id}-config.json` : `${slug}-${state.card.id}-config.json`;
+};
+
+/** @returns The command that renders the saved file. */
+const command = (name: string): string =>
+  `npx @stats-forge/github-stats-forge-cli --config ${name} --generate`;
+
 /** @returns A fresh state for that card, keeping nothing from the last one but the theme. */
 const freshState = (card: AnvilCard, theme: string): State => ({
   card,
@@ -122,6 +139,8 @@ const mount = (root: HTMLElement): void => {
   const status = need(root, '[data-anvil="status"]');
   const output = need(root, '[data-anvil="output"]');
   const download = need(root, '[data-anvil="download"]') as HTMLAnchorElement;
+  const fileLabel = need(root, '[data-anvil="filename"]');
+  const commandLine = need(root, '[data-anvil="command"]');
   const copy = need(root, '[data-anvil="copy"]') as HTMLButtonElement;
   const cardDocs = need(root, '[data-anvil="card-docs"]') as HTMLAnchorElement;
   const toast = need(root, '[data-anvil="toast"]') as WaToast;
@@ -159,7 +178,11 @@ const mount = (root: HTMLElement): void => {
   /** Draws the card, and writes the file beside it. */
   const redraw = async (): Promise<void> => {
     const file = savedCard();
+    const name = fileName(state);
     output.textContent = file;
+    fileLabel.textContent = name;
+    commandLine.textContent = command(name);
+    download.download = name;
     download.href = URL.createObjectURL(new Blob([file], { type: 'application/json' }));
 
     const result = await renderSampleCard(state.card.id, toQuery(state));
@@ -327,7 +350,7 @@ const mount = (root: HTMLElement): void => {
   copy.addEventListener('click', () => {
     void navigator.clipboard.writeText(savedCard()).then(
       () => {
-        notify('card.json copied to the clipboard');
+        notify(`${fileName(state)} copied to the clipboard`);
       },
       () => {
         notify('The browser would not give access to the clipboard', 'danger');
@@ -336,7 +359,7 @@ const mount = (root: HTMLElement): void => {
   });
 
   download.addEventListener('click', () => {
-    notify('Saving card.json');
+    notify(`Saving ${fileName(state)}`);
   });
 
   buildControls();

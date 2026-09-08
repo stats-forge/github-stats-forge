@@ -475,7 +475,9 @@ test('both buttons report through a toast that is announced', async ({ context, 
   const download = page.waitForEvent('download');
   await page.locator('[data-anvil="download"]').click();
   await download;
-  await expect(page.locator('wa-toast-item').filter({ hasText: 'Saving card.json' })).toBeVisible();
+  await expect(
+    page.locator('wa-toast-item').filter({ hasText: 'Saving marcalexiei-stats-config.json' }),
+  ).toBeVisible();
 });
 
 test("the toast's close button stays visible while hovered", async ({ context, page }) => {
@@ -566,6 +568,28 @@ test('the file on offer is the file the CLI reads', async ({ page }) => {
   });
 
   const download = page.locator('[data-anvil="download"]');
-  await expect(download).toHaveAttribute('download', 'card.json');
+  await expect(download).toHaveAttribute('download', 'marcalexiei-stats-config.json');
   await expect(download).toHaveAttribute('href', /^blob:/);
+});
+
+test('the file is named after the card and whoever it is for', async ({ page }) => {
+  const download = page.locator('[data-anvil="download"]');
+  const shown = page.locator('[data-anvil="filename"]');
+  const command = page.locator('[data-anvil="command"]');
+
+  await expect(shown).toHaveText('marcalexiei-stats-config.json');
+  await expect(command).toHaveText(
+    'npx @stats-forge/github-stats-forge-cli --config marcalexiei-stats-config.json --generate',
+  );
+
+  // The repository, not its owner: the last required param is what the card is about.
+  await setCard(page, 'pin');
+  await expect(download).toHaveAttribute('download', 'eslint-zod-pin-config.json');
+
+  // A typed subject reaches a file name, so what a file system reads specially is dropped.
+  await field(page, 'repo').fill('../My Repo!');
+  await expect.poll(() => download.getAttribute('download')).toBe('My-Repo-pin-config.json');
+
+  await field(page, 'repo').fill('');
+  await expect.poll(() => download.getAttribute('download')).toBe('pin-config.json');
 });
