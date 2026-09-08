@@ -1,8 +1,8 @@
-import { defineLocales } from '../../common/I18n.ts';
+import { defineLocales } from '../../common/localize.ts';
 
 /** The top-languages card's labels in the locales they have been translated into. */
 const langCardLocales = defineLocales({
-  'langcard.title': {
+  title: {
     en: 'Most Used Languages',
     ar: 'أكثر اللغات استخدامًا',
     az: 'Ən Çox İstifadə Olunan Dillər',
@@ -51,7 +51,7 @@ const langCardLocales = defineLocales({
     no: 'Mest brukte språk',
     be: 'Найбольш ужываныя мовы',
   },
-  'langcard.nodata': {
+  noData: {
     en: 'No languages data.',
     ar: 'لا توجد بيانات للغات.',
     az: 'Dil məlumatı yoxdur.',

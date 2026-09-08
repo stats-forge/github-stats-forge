@@ -1,8 +1,8 @@
-import { defineLocales } from '../../common/I18n.ts';
+import { defineLocales } from '../../common/localize.ts';
 
 /** The wakatime card's labels in the locales they have been translated into. */
 const wakatimeCardLocales = defineLocales({
-  'wakatimecard.title': {
+  title: {
     en: 'WakaTime Stats',
     ar: 'إحصائيات واكا تايم',
     az: 'WakaTime Statistikası',
@@ -51,56 +51,7 @@ const wakatimeCardLocales = defineLocales({
     no: 'WakaTime-statistikk',
     be: 'Статыстыка WakaTime',
   },
-  'wakatimecard.lastyear': {
-    en: 'last year',
-    ar: 'العام الماضي',
-    az: 'Ötən il',
-    ca: "L'any passat",
-    cn: '去年',
-    'zh-tw': '去年',
-    cs: 'Minulý rok',
-    de: 'Letztes Jahr',
-    sw: 'Mwaka uliopita',
-    ur: 'پچھلا سال',
-    bg: 'миналата год.',
-    bn: 'গত বছর',
-    es: 'El año pasado',
-    fa: 'سال گذشته',
-    fi: 'Viime vuosi',
-    fr: "L'année dernière",
-    hi: 'पिछले साल',
-    sa: 'गतवर्षे',
-    hu: 'Tavaly',
-    it: "L'anno scorso",
-    ja: '昨年',
-    kr: '작년',
-    nl: 'Vorig jaar',
-    'pt-pt': 'Ano passado',
-    'pt-br': 'Ano passado',
-    np: 'गत वर्ष',
-    el: 'Πέρυσι',
-    ro: 'Anul trecut',
-    ru: 'За прошлый год',
-    'uk-ua': 'За минулий рік',
-    id: 'Tahun lalu',
-    ml: 'കഴിഞ്ഞ വർഷം',
-    my: 'မနှစ်က',
-    ta: `கடந்த ஆண்டு`,
-    sk: 'Minulý rok',
-    tr: 'Geçen yıl',
-    pl: 'W zeszłym roku',
-    uz: "O'tgan yil",
-    vi: 'Năm ngoái',
-    se: 'Förra året',
-    he: 'שנה שעברה',
-    fil: 'Nakaraang Taon',
-    th: 'ปีที่แล้ว',
-    sr: 'Прошла год.',
-    'sr-latn': 'Prošla god.',
-    no: 'I fjor',
-    be: 'мінулы год',
-  },
-  'wakatimecard.last7days': {
+  last7Days: {
     en: 'last 7 days',
     ar: 'آخر 7 أيام',
     az: 'Son 7 gün',
@@ -149,7 +100,7 @@ const wakatimeCardLocales = defineLocales({
     no: 'Siste 7 dager',
     be: 'апошнія 7 дзён',
   },
-  'wakatimecard.notpublic': {
+  notPublic: {
     en: 'WakaTime user profile not public',
     ar: 'ملف مستخدم واكا تايم شخصي',
     az: 'WakaTime istifadəçi profili ictimai deyil',
@@ -198,7 +149,7 @@ const wakatimeCardLocales = defineLocales({
     no: 'WakaTime brukerprofil ikke offentlig',
     be: 'Профіль карыстальніка WakaTime не публічны',
   },
-  'wakatimecard.nocodedetails': {
+  noCodeDetails: {
     en: "User doesn't publicly share detailed code statistics",
     ar: 'المستخدم لا يشارك المعلومات التفصيلية',
     az: 'İstifadəçi kod statistikalarını ictimai şəkildə paylaşmır',
@@ -247,7 +198,7 @@ const wakatimeCardLocales = defineLocales({
     no: 'Brukeren deler ikke detaljert kodestatistikk offentlig',
     be: 'Карыстальнік не дзеліцца падрабязнай статыстыкай кода публічна',
   },
-  'wakatimecard.nocodingactivity': {
+  noCodingActivity: {
     en: 'No coding activity this week',
     ar: 'لا يوجد نشاط برمجي لهذا الأسبوع',
     az: 'Bu həftə heç bir kodlaşdırma fəaliyyəti olmayıb',

@@ -7,10 +7,12 @@ import { repoCardLocales } from '../src/cards/repo/locales.ts';
 import { statCardLocales } from '../src/cards/stats/locales.ts';
 import { langCardLocales } from '../src/cards/top-languages/locales.ts';
 import { wakatimeCardLocales } from '../src/cards/wakatime/locales.ts';
-import { isLocaleAvailable } from '../src/common/I18n.ts';
-import type { LocaleTable, Phrase } from '../src/common/I18n.ts';
+import { commonLocales } from '../src/common/locales.ts';
+import { isLocaleAvailable } from '../src/common/localize.ts';
+import type { LocaleTable, Phrase } from '../src/common/localize.ts';
 
 const tables: Array<[string, LocaleTable]> = [
+  ['commonLocales', commonLocales],
   ['contributedToCardLocales', contributedToCardLocales],
   ['gistCardLocales', gistCardLocales],
   ['langCardLocales', langCardLocales],

@@ -2,8 +2,8 @@ import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../..
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
 import { formatBytes } from '../../common/fmt.ts';
-import { I18n } from '../../common/I18n.ts';
 import { DEFAULT_LANG_COLOR } from '../../common/languageColors.ts';
+import { localize } from '../../common/localize.ts';
 import { chunkArray, clampValue, lowercaseTrim } from '../../common/ops.ts';
 import { createProgressNode, flexLayout, measureText } from '../../common/render.ts';
 import type { Lang, TopLangData } from '../../fetchers/types.ts';
@@ -821,10 +821,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     stats_format = 'percentages',
   } = options;
 
-  const i18n = new I18n({
-    locale,
-    translations: langCardLocales,
-  });
+  const t = localize(langCardLocales, locale);
 
   const { langs, totalLanguageSize } = trimTopLanguages(topLangs, langs_count, hide);
 
@@ -843,7 +840,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
   if (langs.length === 0) {
     height = COMPACT_LAYOUT_BASE_HEIGHT;
     finalLayout = noLanguagesDataNode({
-      text: i18n.t('langcard.nodata'),
+      text: t.noData(),
       layout,
     });
   } else if (layout === 'pie') {
@@ -875,7 +872,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: i18n.t('langcard.title'),
+    defaultTitle: t.title(),
     titlePrefixIcon: CARD_ICON.topLanguages,
     width,
     height,

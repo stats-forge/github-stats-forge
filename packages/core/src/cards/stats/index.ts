@@ -12,15 +12,16 @@ import type { CardColors } from '../../common/color.ts';
 import type { GitHubDateRange } from '../../common/date.ts';
 import { formatRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
-import { I18n } from '../../common/I18n.ts';
 import { icons, rankIcon } from '../../common/icons.ts';
+import { commonLocales } from '../../common/locales.ts';
+import type { Localized } from '../../common/localize.ts';
+import { localize } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue } from '../../common/ops.ts';
 import { NUMBER_FORMATS, createTextNode, flexLayout, measureText } from '../../common/render.ts';
 import type { StatsData } from '../../fetchers/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { atRule, cssComment, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
-import { wakatimeCardLocales } from '../wakatime/locales.ts';
 
 import { statCardLocales } from './locales.ts';
 
@@ -216,22 +217,19 @@ const getStyles = ({
   getProgressAnimation({ progress }),
 ];
 
-/** The card's own translations, so `t` is checked against the keys it declares. */
-type StatsI18n = I18n<typeof statCardLocales & typeof wakatimeCardLocales>;
-
 /**
  * @returns What the commit count covers, for the stat's label.
  */
 const getTotalCommitsRangeLabel = (
   include_all_commits: boolean,
   commitsRange: GitHubDateRange | undefined,
-  i18n: StatsI18n,
+  commonT: Localized<typeof commonLocales>,
 ): string =>
   include_all_commits
     ? ''
     : commitsRange
       ? ` (${formatRange(commitsRange)})`
-      : ` (${i18n.t('wakatimecard.lastyear')})`;
+      : ` (${commonT.lastYear()})`;
 
 /**
  * Renders the stats card.
@@ -295,16 +293,14 @@ const renderCard = (
   const shows = (stat: ShowStat): boolean => show.includes(stat);
 
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
-  const i18n = new I18n({
-    locale,
-    translations: { ...statCardLocales, ...wakatimeCardLocales },
-  });
+  const t = localize(statCardLocales, locale);
+  const commonT = localize(commonLocales, locale);
 
   // Meta data for creating text nodes with createTextNode function
   const STATS: Partial<Record<StatId, StatItem>> = {
     stars: {
       icon: icons.star,
-      label: i18n.t('statcard.totalstars'),
+      label: t.totalStars(),
       value: totalStars,
       id: 'stars',
     },
@@ -313,7 +309,7 @@ const renderCard = (
   if (shows('contributions')) {
     STATS['contributions'] = {
       icon: icons.contributions,
-      label: i18n.t('statcard.contributions'),
+      label: t.contributions(),
       value: totalContributions,
       id: 'contributions',
     };
@@ -321,17 +317,13 @@ const renderCard = (
 
   STATS['commits'] = {
     icon: icons.commits,
-    label: `${i18n.t('statcard.commits')}${getTotalCommitsRangeLabel(
-      include_all_commits,
-      commitsRange,
-      i18n,
-    )}`,
+    label: `${t.commits()}${getTotalCommitsRangeLabel(include_all_commits, commitsRange, commonT)}`,
     value: totalCommits,
     id: 'commits',
   };
   STATS['prs'] = {
     icon: icons.prs,
-    label: i18n.t('statcard.prs'),
+    label: t.prs(),
     value: totalPRs,
     id: 'prs',
   };
@@ -339,7 +331,7 @@ const renderCard = (
   if (shows('prs_merged')) {
     STATS['prs_merged'] = {
       icon: icons.prs_merged,
-      label: i18n.t('statcard.prs-merged'),
+      label: t.prsMerged(),
       value: totalPRsMerged,
       id: 'prs_merged',
     };
@@ -348,7 +340,7 @@ const renderCard = (
   if (shows('prs_merged_percentage')) {
     STATS['prs_merged_percentage'] = {
       icon: icons.prs_merged_percentage,
-      label: i18n.t('statcard.prs-merged-percentage'),
+      label: t.prsMergedPercentage(),
       value: mergedPRsPercentage.toFixed(
         number_precision !== undefined && Number.isFinite(number_precision)
           ? clampValue(number_precision, 0, 2)
@@ -362,7 +354,7 @@ const renderCard = (
   if (shows('reviews')) {
     STATS['reviews'] = {
       icon: icons.reviews,
-      label: i18n.t('statcard.reviews'),
+      label: t.reviews(),
       value: totalReviews,
       id: 'reviews',
     };
@@ -370,7 +362,7 @@ const renderCard = (
 
   STATS['issues'] = {
     icon: icons.issues,
-    label: i18n.t('statcard.issues'),
+    label: t.issues(),
     value: totalIssues,
     id: 'issues',
   };
@@ -378,7 +370,7 @@ const renderCard = (
   if (shows('discussions_started')) {
     STATS['discussions_started'] = {
       icon: icons.discussions_started,
-      label: i18n.t('statcard.discussions-started'),
+      label: t.discussionsStarted(),
       value: totalDiscussionsStarted,
       id: 'discussions_started',
     };
@@ -386,7 +378,7 @@ const renderCard = (
   if (shows('discussions_answered')) {
     STATS['discussions_answered'] = {
       icon: icons.discussions_answered,
-      label: i18n.t('statcard.discussions-answered'),
+      label: t.discussionsAnswered(),
       value: totalDiscussionsAnswered,
       id: 'discussions_answered',
     };
@@ -397,7 +389,7 @@ const renderCard = (
   if (shows('prs_authored')) {
     STATS['prs_authored'] = {
       icon: icons.prs,
-      label: i18n.t('statcard.prs-authored'),
+      label: t.prsAuthored(),
       value: totalPRsAuthored,
       id: 'prs_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -406,7 +398,7 @@ const renderCard = (
   if (shows('prs_commented')) {
     STATS['prs_commented'] = {
       icon: icons.comments,
-      label: i18n.t('statcard.prs-commented'),
+      label: t.prsCommented(),
       value: totalPRsCommented,
       id: 'prs_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -415,7 +407,7 @@ const renderCard = (
   if (shows('prs_reviewed')) {
     STATS['prs_reviewed'] = {
       icon: icons.reviews,
-      label: i18n.t('statcard.prs-reviewed'),
+      label: t.prsReviewed(),
       value: totalPRsReviewed,
       id: 'prs_reviewed',
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -424,7 +416,7 @@ const renderCard = (
   if (shows('issues_authored')) {
     STATS['issues_authored'] = {
       icon: icons.issues,
-      label: i18n.t('statcard.issues-authored'),
+      label: t.issuesAuthored(),
       value: totalIssuesAuthored,
       id: 'issues_authored',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
@@ -433,7 +425,7 @@ const renderCard = (
   if (shows('issues_commented')) {
     STATS['issues_commented'] = {
       icon: icons.discussions_started,
-      label: i18n.t('statcard.issues-commented'),
+      label: t.issuesCommented(),
       value: totalIssuesCommented,
       id: 'issues_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,
@@ -442,7 +434,7 @@ const renderCard = (
 
   STATS['contribs'] = {
     icon: icons.repo,
-    label: i18n.t('statcard.contribs'),
+    label: t.contribs(),
     value: contributedTo,
     id: 'contribs',
   };
@@ -450,7 +442,7 @@ const renderCard = (
   if (shows('all_time_contribs')) {
     STATS['all_time_contribs'] = {
       icon: icons.repo,
-      label: i18n.t('statcard.all-time-contribs'),
+      label: t.allTimeContribs(),
       value: allTimeContributedTo,
       id: 'all_time_contribs',
     };
@@ -470,9 +462,7 @@ const renderCard = (
 
   // check if all used labels are short
   const defaultTitle =
-    visibleStats.length > 0
-      ? i18n.t('statcard.title', { name, apostrophe })
-      : i18n.t('statcard.ranktitle', { name, apostrophe });
+    visibleStats.length > 0 ? t.title({ name, apostrophe }) : t.rankTitle({ name, apostrophe });
 
   const longLabels = visibleStats.some(([, stat]) => stat.label.length > 18);
 
@@ -589,10 +579,10 @@ const renderCard = (
   const labels = visibleStats
     .map(([key, stat]) => {
       if (key === 'commits') {
-        return `${i18n.t('statcard.commits')} ${getTotalCommitsRangeLabel(
+        return `${t.commits()} ${getTotalCommitsRangeLabel(
           include_all_commits,
           commitsRange,
-          i18n,
+          commonT,
         )} : ${stat.value}`;
       }
       return `${stat.label}: ${stat.value}`;
@@ -600,7 +590,7 @@ const renderCard = (
     .join(', ');
 
   card.setAccessibilityLabel({
-    title: i18n.t('statcard.accessibility-title', { title: card.title, level: rank.level }),
+    title: t.accessibilityTitle({ title: card.title, level: rank.level }),
     desc: labels,
   });
 

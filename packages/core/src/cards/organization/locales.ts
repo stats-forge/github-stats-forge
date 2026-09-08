@@ -1,47 +1,47 @@
-import { defineLocales } from '../../common/I18n.ts';
+import { defineLocales } from '../../common/localize.ts';
 
 /** The organization card's labels in the locales they have been translated into. */
 const orgCardLocales = defineLocales({
-  'orgcard.title': {
+  title: {
     en: `{name}'{apostrophe} GitHub Organization`,
   },
-  'orgcard.no-description': {
+  noDescription: {
     en: 'No description provided',
   },
-  'orgcard.repos': {
+  repos: {
     en: 'Public repositories',
   },
-  'orgcard.stars': {
+  stars: {
     en: 'Total stars',
   },
-  'orgcard.forks': {
+  forks: {
     en: 'Total forks',
   },
-  'orgcard.watchers': {
+  watchers: {
     en: 'Total watchers',
   },
-  'orgcard.open-issues': {
+  openIssues: {
     en: 'Open issues',
   },
-  'orgcard.open-prs': {
+  openPrs: {
     en: 'Open PRs',
   },
-  'orgcard.releases': {
+  releases: {
     en: 'Releases',
   },
-  'orgcard.commits': {
+  commits: {
     en: 'Commits',
   },
-  'orgcard.members': {
+  members: {
     en: 'Public members',
   },
-  'orgcard.top-language': {
+  topLanguage: {
     en: 'Top language',
   },
-  'orgcard.created': {
+  created: {
     en: 'Created',
   },
-  'orgcard.unspecified-language': {
+  unspecifiedLanguage: {
     en: 'Unspecified',
   },
 });

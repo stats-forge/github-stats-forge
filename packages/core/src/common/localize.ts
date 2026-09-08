@@ -2,7 +2,7 @@
  * Every locale a card can be asked for.
  *
  * A key is written in `en` first and translated afterwards, so a card's table need not
- * carry every locale — `I18n#t` falls back. This list is what the api accepts.
+ * carry every locale — a wording falls back to `en`. This list is what the api accepts.
  *
  * @see https://www.andiamo.co.uk/resources/iso-language-codes/ for language codes.
  */
@@ -85,7 +85,7 @@ type Phrase = string | PluralForms;
 type LocaleTable = Record<string, { en: Phrase } & Record<string, Phrase>>;
 
 /**
- * Declares a card's translations, keeping every string's literal type so `I18n#t` knows
+ * Declares a card's translations, keeping every string's literal type so `localize` knows
  * which `{placeholder}` values each key needs.
  *
  * @returns The table it was given.
@@ -108,17 +108,12 @@ type PhraseValues<Written> =
         ? 'count' | PlaceholderNames<Written[keyof Written]>
         : never;
 
-/** The values a key needs, read off its English wording. */
-type KeyValues<Table extends LocaleTable, Key extends keyof Table> = PhraseValues<Table[Key]['en']>;
-
-/** `t`'s trailing argument: absent for a key that interpolates nothing. */
-type ValuesArg<Table extends LocaleTable, Key extends keyof Table> = [
-  KeyValues<Table, Key>,
-] extends [never]
+/** `t`'s trailing argument: absent for a wording that interpolates nothing. */
+type ValuesArg<Written> = [PhraseValues<Written>] extends [never]
   ? []
   : [
       values: {
-        [Name in KeyValues<Table, Key>]: Name extends 'count' ? number : string | number;
+        [Name in PhraseValues<Written>]: Name extends 'count' ? number : string | number;
       },
     ];
 
@@ -182,20 +177,16 @@ const selectPlural = (
 };
 
 /**
- * Reads a key's wording, falling back to English when the locale has no entry for it.
+ * Reads a wording in the locale asked for, falling back to English when that locale has
+ * no entry for it.
  *
  * @returns The wording, and the locale it actually came from.
  */
-const lookUp = (
-  translations: LocaleTable,
+const readPhrase = (
+  phrases: LocaleTable[string],
   key: string,
   locale: string,
 ): { phrase: Phrase; locale: string } => {
-  const phrases = translations[key];
-  if (!phrases) {
-    throw new Error(`${key} Translation string not found`);
-  }
-
   const written = phrases[locale];
   if (written !== undefined) {
     return { phrase: written, locale };
@@ -212,41 +203,49 @@ const lookUp = (
 };
 
 /**
- * I18n translation class.
+ * Draws a key's wording: the locale's own if it has one and English otherwise, in the
+ * plural form its count calls for, with its `{name}` placeholders substituted.
+ *
+ * @returns The wording as the card draws it.
  */
-class I18n<Translations extends LocaleTable> {
-  locale: string;
-  translations: Translations;
+const draw = (
+  phrases: LocaleTable[string],
+  key: string,
+  locale: string,
+  values: ReadValues,
+): string => {
+  const { phrase, locale: from } = readPhrase(phrases, key, locale);
+  const wording = typeof phrase === 'string' ? phrase : selectPlural(phrase, from, key, values);
 
-  constructor({
-    locale,
-    translations,
-  }: {
-    // `| undefined`: card callers forward possibly-undefined query options
-    locale?: string | undefined;
-    translations: Translations;
-  }) {
-    this.locale = locale || FALLBACK_LOCALE;
-    this.translations = translations;
+  return interpolate(wording, key, values);
+};
+
+/**
+ * A card's translations bound to one locale: each key a function of the values its own
+ * wording declares.
+ */
+type Localized<Table extends LocaleTable> = {
+  [Key in keyof Table]: (...args: ValuesArg<Table[Key]['en']>) => string;
+};
+
+/**
+ * Binds a card's translations to one locale, so a card names a wording where it draws it
+ * — `t.title({ login })` — rather than naming a key. That is what lets an editor follow a
+ * wording to where it is written, and why a key carries no card name in front of it.
+ *
+ * @returns One function per key the table declares.
+ */
+const localize = <Table extends LocaleTable>(table: Table, locale?: string): Localized<Table> => {
+  const asked = locale || FALLBACK_LOCALE;
+  const wordings: Record<string, (values?: ReadValues) => string> = {};
+
+  for (const [key, phrases] of Object.entries(table)) {
+    wordings[key] = (values): string => draw(phrases, key, asked, values);
   }
 
-  /**
-   * Get translation, substituting the `{name}` placeholders its wording declares and
-   * falling back to the English string when the locale has no entry for the key.
-   *
-   * @returns Translated string.
-   */
-  t<Key extends keyof Translations & string>(
-    key: Key,
-    ...args: ValuesArg<Translations, Key>
-  ): string {
-    const values: ReadValues = args[0];
-    const { phrase, locale } = lookUp(this.translations, key, this.locale);
-    const written = typeof phrase === 'string' ? phrase : selectPlural(phrase, locale, key, values);
+  // A mapped type over a table known only as a type parameter needs the assertion.
+  return wordings as Localized<Table>;
+};
 
-    return interpolate(written, key, values);
-  }
-}
-
-export { defineLocales, I18n, isLocaleAvailable };
-export type { LocaleTable, Phrase };
+export { defineLocales, isLocaleAvailable, localize };
+export type { LocaleTable, Localized, Phrase };
