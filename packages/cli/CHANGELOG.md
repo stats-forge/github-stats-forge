@@ -1,5 +1,16 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.3.1
+
+### Patch Changes
+
+- [#64](https://github.com/stats-forge/github-stats-forge/pull/64) [`e647e18`](https://github.com/stats-forge/github-stats-forge/commit/e647e18ac26fbbfc04823d1d01fa3b5419e3b3f1) - feat(cli): offer the organization card
+
+  It asks for the organization's login, then the options that card takes.
+
+- Updated dependencies [[`3116862`](https://github.com/stats-forge/github-stats-forge/commit/3116862292b652a16d665003009e2e3f3a9aea17), [`e647e18`](https://github.com/stats-forge/github-stats-forge/commit/e647e18ac26fbbfc04823d1d01fa3b5419e3b3f1), [`f9c9d38`](https://github.com/stats-forge/github-stats-forge/commit/f9c9d38a9eff1f8fa1ffc8786b4cc671eb71c4ae)]:
+  - @stats-forge/github-stats-forge-core@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
