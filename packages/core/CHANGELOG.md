@@ -1,5 +1,42 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.4.0
+
+### Minor Changes
+
+- [#64](https://github.com/stats-forge/github-stats-forge/pull/64) [`e647e18`](https://github.com/stats-forge/github-stats-forge/commit/e647e18ac26fbbfc04823d1d01fa3b5419e3b3f1) - feat(core): add an organization card
+
+  `org` draws an organization's description and what its public repositories add up to:
+  how many there are, the stars, forks and watchers they hold between them,
+  and how many issues and pull requests are open across them.
+  `show` adds releases, commits, public members, the most common language and the founding year.
+
+  `fetchOrganization` is the fetcher behind it, exported with its `OrganizationData`.
+  It reads public, non-fork repositories most-starred first and walks at most five pages of 100,
+  so `truncated` says when the totals it summed are a lower bound.
+
+- [#61](https://github.com/stats-forge/github-stats-forge/pull/61) [`f9c9d38`](https://github.com/stats-forge/github-stats-forge/commit/f9c9d38a9eff1f8fa1ffc8786b4cc671eb71c4ae) - feat(core): interpolate translations, and give each card its own locale table
+
+  A wording carries the values drawn into it as `{name}` placeholders,
+  so word order and the possessive belong to the translation rather than to the card.
+  Where the wording depends on a number it writes a form per plural category,
+  picked by the locale's own rules — which is what makes a single contribution
+  read `1 contribution` rather than `1 contributions`.
+
+  `src/translations.ts` is gone: each card is now a folder holding its renderer and its
+  `locales.ts`, and the tables are plain data instead of functions rebuilt on every render.
+
+### Patch Changes
+
+- [#65](https://github.com/stats-forge/github-stats-forge/pull/65) [`3116862`](https://github.com/stats-forge/github-stats-forge/commit/3116862292b652a16d665003009e2e3f3a9aea17) - refactor(core): draw a card's text through `localize`
+
+  A card binds its locale table to the requested locale once and then names each wording
+  where it draws it — `t.title({ name, apostrophe })`, one function per key, taking exactly
+  the values that key's wording declares. A key carries no card name in front of it any
+  more, since the table it belongs to is named at the top of the card rather than at every
+  call site. The `lastYear` wording, which two cards draw, moves to a table of its own in
+  `common/`, so no card reads another card's translations. The rendered SVG is unchanged.
+
 ## 0.3.0
 
 ### Minor Changes
