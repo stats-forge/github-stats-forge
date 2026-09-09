@@ -1017,6 +1017,25 @@ Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
   language have no such set and stay free text: give a `list` option `choices` only when
   every value it accepts is known. A saved list is split back into its values on read, so
   the boxes reopen ticked.
+- **The option menu is grouped, and an option carries its own section.** `group` on `CardOption` —
+  `data`, `display`, `text` or `colors` — is headed by the labels in `OPTION_GROUPS`: what it
+  counts, what it shows, text and size, colors and border. It is **required**, so a new option
+  cannot go ungrouped; the params a card cannot render without are `CardField`, which has no group
+  because they are asked before the menu opens. A section none of a card's options fall under is
+  dropped, the way the anvil drops a heading no card sits under. The shared options come first in
+  `cards`, so the theme heads the colors section and a card's own color lands behind it.
+- **The three actions carry a heading of their own, so no row in the menu is unheaded.**
+  `Actions` sits above Generate, Save and Quit, ruled to the same width as the option sections
+  beneath it — a `Separator` first in the list, which `bounds.first` then steps past.
+- **The three actions are reached by type-ahead, not by scrolling.** inquirer's `select` jumps to
+  the first row whose name starts with what was typed, so `g`, `s` and `q` reach Generate, Save and
+  Quit from anywhere in a 38-row list, and the help line under the menu says so. Nothing else in
+  the menu starts with those letters — check that before renaming an option.
+  - **`indexMode: 'number'` is not the alternative.** It numbers a row by subtracting the
+    separators rendered _so far on the visible page_, so the numbers shift as a grouped list
+    scrolls. Read `@inquirer/select`'s `renderItem` before reaching for it.
+  - The list is as tall as the terminal (`process.stdout.rows` less the message, the help line and
+    some air), so a grouped stats card — 30 options and five headings — fits one screen.
 - **A saved card file is a query string in JSON**: `{ card, options }` with every option a
   string, so it reads like the URL it stands for and survives hand-editing. An option that
   is not a string is dropped on read, because it could not have come off a query string.

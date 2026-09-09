@@ -21,7 +21,7 @@ import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core
 type OptionKind = 'text' | 'boolean' | 'number' | 'list' | 'choice';
 
 /** One param of one card. */
-export interface CardOption {
+export interface CardField {
   /** Query param the answer is written to. */
   name: string;
   /** What the prompt asks. */
@@ -33,14 +33,33 @@ export interface CardOption {
   hint?: string;
 }
 
+/** Which section of the option menu a param sits in. */
+export type OptionGroup = 'data' | 'display' | 'text' | 'colors';
+
+/**
+ * The menu's sections, in the order it shows them.
+ * A section no option sits under is dropped, so a card that counts nothing has none.
+ */
+export const OPTION_GROUPS: ReadonlyArray<{ group: OptionGroup; label: string }> = [
+  { group: 'data', label: 'What it counts' },
+  { group: 'display', label: 'What it shows' },
+  { group: 'text', label: 'Text and size' },
+  { group: 'colors', label: 'Colors and border' },
+];
+
+/** One optional param of one card. It is required so a new option cannot go ungrouped. */
+export interface CardOption extends CardField {
+  group: OptionGroup;
+}
+
 /** A card, its params, and the core handler that renders it. */
 export interface CardKind {
   id: string;
   label: string;
   /** Whether rendering it calls the GitHub API, and so needs a token. */
   needsToken: boolean;
-  /** Asked first: the card renders nothing without them. */
-  required: ReadonlyArray<CardOption>;
+  /** Asked first, before the menu opens, so no section applies to them. */
+  required: ReadonlyArray<CardField>;
   /** Everything else, navigable in any order. */
   options: ReadonlyArray<CardOption>;
   /** @returns The rendered card, or the rendered error. */
@@ -55,6 +74,7 @@ export const COMMON_OPTIONS: ReadonlyArray<CardOption> = [
     name: 'theme',
     label: 'Theme',
     kind: 'choice',
+    group: 'colors',
     choices: THEME_NAMES,
     hint: 'An unknown name falls back to the default theme',
   },
@@ -62,24 +82,27 @@ export const COMMON_OPTIONS: ReadonlyArray<CardOption> = [
     name: 'title_color',
     label: 'Title color',
     kind: 'text',
+    group: 'colors',
     hint: 'Hex, no #',
   },
-  { name: 'text_color', label: 'Text color', kind: 'text', hint: 'Hex, no #' },
-  { name: 'icon_color', label: 'Icon color', kind: 'text', hint: 'Hex, no #' },
+  { name: 'text_color', label: 'Text color', kind: 'text', group: 'colors', hint: 'Hex, no #' },
+  { name: 'icon_color', label: 'Icon color', kind: 'text', group: 'colors', hint: 'Hex, no #' },
   {
     name: 'bg_color',
     label: 'Background color',
     kind: 'text',
+    group: 'colors',
     hint: 'Hex, no #, or a gradient: angle,color,color',
   },
   {
     name: 'border_color',
     label: 'Border color',
     kind: 'text',
+    group: 'colors',
     hint: 'Hex, no #',
   },
-  { name: 'border_radius', label: 'Border radius', kind: 'number' },
-  { name: 'hide_border', label: 'Hide the border', kind: 'boolean' },
+  { name: 'border_radius', label: 'Border radius', kind: 'number', group: 'colors' },
+  { name: 'hide_border', label: 'Hide the border', kind: 'boolean', group: 'colors' },
 ];
 
 /**
@@ -90,8 +113,8 @@ export const COMMON_OPTIONS: ReadonlyArray<CardOption> = [
 const rangeOptions = (counted: string): ReadonlyArray<CardOption> => {
   const hint = 'A year, a month or a day: 2024, 2024-03, 2024-03-15';
   return [
-    { name: 'from', label: `Count ${counted} from`, kind: 'text', hint },
-    { name: 'to', label: `Count ${counted} up to`, kind: 'text', hint },
+    { name: 'from', label: `Count ${counted} from`, kind: 'text', group: 'data', hint },
+    { name: 'to', label: `Count ${counted} up to`, kind: 'text', group: 'data', hint },
   ];
 };
 
@@ -99,6 +122,7 @@ const LOCALE_OPTION: CardOption = {
   name: 'locale',
   label: 'Locale',
   kind: 'text',
+  group: 'text',
   hint: 'Two-letter code, e.g. es',
 };
 
@@ -113,76 +137,88 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'show',
         label: 'Extra stats to show',
         kind: 'list',
+        group: 'display',
         choices: stats.OPTIONS.show,
       },
       {
         name: 'hide',
         label: 'Stats to hide',
         kind: 'list',
+        group: 'display',
         choices: stats.OPTIONS.hide,
       },
-      { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean' },
-      { name: 'hide_rank', label: 'Hide the rank circle', kind: 'boolean' },
+      { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean', group: 'display' },
+      { name: 'hide_rank', label: 'Hide the rank circle', kind: 'boolean', group: 'display' },
       {
         name: 'rank_icon',
         label: 'Rank indicator',
         kind: 'choice',
+        group: 'display',
         choices: stats.OPTIONS.rank_icon,
       },
       {
         name: 'include_all_commits',
         label: 'Count commits of all time',
         kind: 'boolean',
+        group: 'data',
       },
       ...rangeOptions('commits'),
       {
         name: 'exclude_repo',
         label: 'Repositories to exclude',
         kind: 'list',
+        group: 'data',
       },
       {
         name: 'repo',
         label: 'Repositories the search-based stats are scoped to',
         kind: 'list',
+        group: 'data',
       },
       {
         name: 'owner',
         label: 'Owners the search-based stats are scoped to',
         kind: 'list',
+        group: 'data',
       },
       {
         name: 'role',
         label: 'Owner affiliations to include',
         kind: 'list',
+        group: 'data',
         choices: stats.OPTIONS.role,
       },
       {
         name: 'contribs_include_own_repos',
         label: 'Count contributions to your own repositories',
         kind: 'boolean',
+        group: 'data',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text' },
-      { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
-      { name: 'card_width', label: 'Card width', kind: 'number' },
-      { name: 'line_height', label: 'Line height', kind: 'number' },
-      { name: 'text_bold', label: 'Bold stat values', kind: 'boolean' },
+      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
+      { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
         label: 'Number format',
         kind: 'choice',
+        group: 'text',
         choices: stats.OPTIONS.number_format,
       },
       {
         name: 'number_precision',
         label: 'Decimals kept when abbreviating',
         kind: 'number',
+        group: 'text',
       },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
         kind: 'boolean',
+        group: 'text',
       },
-      { name: 'ring_color', label: 'Rank ring color', kind: 'text' },
+      { name: 'ring_color', label: 'Rank ring color', kind: 'text', group: 'colors' },
       LOCALE_OPTION,
     ],
     render: stats,
@@ -197,51 +233,59 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'layout',
         label: 'Layout',
         kind: 'choice',
+        group: 'display',
         choices: topLangs.OPTIONS.layout,
       },
-      { name: 'langs_count', label: 'Languages to show', kind: 'number' },
-      { name: 'hide', label: 'Languages to hide', kind: 'list' },
-      { name: 'exclude_repo', label: 'Repositories to exclude', kind: 'list' },
+      { name: 'langs_count', label: 'Languages to show', kind: 'number', group: 'data' },
+      { name: 'hide', label: 'Languages to hide', kind: 'list', group: 'data' },
+      { name: 'exclude_repo', label: 'Repositories to exclude', kind: 'list', group: 'data' },
       {
         name: 'size_weight',
         label: "Weight given to a language's size",
         kind: 'number',
+        group: 'data',
       },
       {
         name: 'count_weight',
         label: 'Weight given to its repository count',
         kind: 'number',
+        group: 'data',
       },
       {
         name: 'stats_format',
         label: 'Show values as',
         kind: 'choice',
+        group: 'display',
         choices: topLangs.OPTIONS.stats_format,
       },
       {
         name: 'hide_progress',
         label: 'Hide the progress bars',
         kind: 'boolean',
+        group: 'display',
       },
-      { name: 'hide_values', label: 'Hide the values', kind: 'boolean' },
+      { name: 'hide_values', label: 'Hide the values', kind: 'boolean', group: 'display' },
       {
         name: 'prog_bar_bg_color',
         label: 'Progress bar background color',
         kind: 'text',
+        group: 'colors',
       },
       {
         name: 'role',
         label: 'Owner affiliations to include',
         kind: 'list',
+        group: 'data',
         choices: topLangs.OPTIONS.role,
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text' },
-      { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
-      { name: 'card_width', label: 'Card width', kind: 'number' },
+      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
         kind: 'boolean',
+        group: 'text',
       },
       LOCALE_OPTION,
     ],
@@ -256,31 +300,35 @@ const CARDS: ReadonlyArray<CardKind> = [
       { name: 'repo', label: 'Repository name', kind: 'text' },
     ],
     options: [
-      { name: 'show_owner', label: 'Show the owner', kind: 'boolean' },
+      { name: 'show_owner', label: 'Show the owner', kind: 'boolean', group: 'display' },
       {
         name: 'show',
         label: 'Extra stats to show',
         kind: 'list',
+        group: 'display',
         choices: pin.OPTIONS.show,
       },
-      { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean' },
+      { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean', group: 'display' },
       {
         name: 'description_lines_count',
         label: 'Lines the description wraps to',
         kind: 'number',
+        group: 'text',
       },
       {
         name: 'browser_rendering',
         label: 'Let the browser wrap the description',
         kind: 'boolean',
+        group: 'text',
       },
-      { name: 'card_width', label: 'Card width', kind: 'number' },
-      { name: 'line_height', label: 'Line height', kind: 'number' },
-      { name: 'text_bold', label: 'Bold stat values', kind: 'boolean' },
+      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
+      { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
         label: 'Number format',
         kind: 'choice',
+        group: 'text',
         choices: pin.OPTIONS.number_format,
       },
       LOCALE_OPTION,
@@ -297,35 +345,40 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'show',
         label: 'Extra stats to show',
         kind: 'list',
+        group: 'display',
         choices: org.OPTIONS.show,
       },
       {
         name: 'hide',
         label: 'Stats to hide',
         kind: 'list',
+        group: 'display',
         choices: org.OPTIONS.hide,
       },
-      { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean' },
+      { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean', group: 'display' },
       {
         name: 'hide_description',
         label: "Hide the organization's description",
         kind: 'boolean',
+        group: 'display',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text' },
-      { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
-      { name: 'card_width', label: 'Card width', kind: 'number' },
-      { name: 'line_height', label: 'Line height', kind: 'number' },
-      { name: 'text_bold', label: 'Bold stat values', kind: 'boolean' },
+      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
+      { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
         label: 'Number format',
         kind: 'choice',
+        group: 'text',
         choices: org.OPTIONS.number_format,
       },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
         kind: 'boolean',
+        group: 'text',
       },
       LOCALE_OPTION,
     ],
@@ -337,16 +390,18 @@ const CARDS: ReadonlyArray<CardKind> = [
     needsToken: true,
     required: [{ name: 'username', label: 'GitHub username', kind: 'text' }],
     options: [
-      { name: 'repos_count', label: 'Repositories to show', kind: 'number' },
+      { name: 'repos_count', label: 'Repositories to show', kind: 'number', group: 'data' },
       {
         name: 'include_own_repos',
         label: 'Include your own repositories',
         kind: 'boolean',
+        group: 'data',
       },
       {
         name: 'exclude_repo',
         label: 'Repositories to exclude',
         kind: 'list',
+        group: 'data',
         hint: 'Each one an owner/name, or just the name',
       },
       ...rangeOptions('contributions'),
@@ -354,15 +409,17 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'hide_years',
         label: 'Hide the year marks',
         kind: 'boolean',
+        group: 'display',
         hint: 'One mark per contribution year, filled for the years that repo got one',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text' },
-      { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
-      { name: 'card_width', label: 'Card width', kind: 'number' },
+      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
         kind: 'boolean',
+        group: 'text',
       },
       LOCALE_OPTION,
     ],
@@ -374,11 +431,12 @@ const CARDS: ReadonlyArray<CardKind> = [
     needsToken: true,
     required: [{ name: 'id', label: 'Gist ID', kind: 'text' }],
     options: [
-      { name: 'show_owner', label: 'Show the owner', kind: 'boolean' },
+      { name: 'show_owner', label: 'Show the owner', kind: 'boolean', group: 'display' },
       {
         name: 'browser_rendering',
         label: 'Let the browser wrap the description',
         kind: 'boolean',
+        group: 'text',
       },
       LOCALE_OPTION,
     ],
@@ -394,34 +452,39 @@ const CARDS: ReadonlyArray<CardKind> = [
         name: 'layout',
         label: 'Layout',
         kind: 'choice',
+        group: 'display',
         choices: wakatime.OPTIONS.layout,
       },
       {
         name: 'display_format',
         label: 'Show values as',
         kind: 'choice',
+        group: 'display',
         choices: wakatime.OPTIONS.display_format,
       },
-      { name: 'langs_count', label: 'Languages to show', kind: 'number' },
-      { name: 'hide', label: 'Languages to hide', kind: 'list' },
+      { name: 'langs_count', label: 'Languages to show', kind: 'number', group: 'data' },
+      { name: 'hide', label: 'Languages to hide', kind: 'list', group: 'data' },
       {
         name: 'hide_progress',
         label: 'Hide the progress bars',
         kind: 'boolean',
+        group: 'display',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text' },
-      { name: 'hide_title', label: 'Hide the title', kind: 'boolean' },
-      { name: 'card_width', label: 'Card width', kind: 'number' },
-      { name: 'line_height', label: 'Line height', kind: 'number' },
+      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
         kind: 'boolean',
+        group: 'text',
       },
       {
         name: 'api_domain',
         label: 'WakaTime instance',
         kind: 'text',
+        group: 'data',
         hint: 'Defaults to wakatime.com',
       },
       LOCALE_OPTION,
@@ -430,10 +493,14 @@ const CARDS: ReadonlyArray<CardKind> = [
   },
 ];
 
-/** Every card, with the options every card shares appended to its own. */
+/**
+ * Every card, with the options every card shares beside its own.
+ * The shared ones come first so the theme heads the colors section,
+ * which is where a card's own color options land behind it.
+ */
 export const cards: ReadonlyArray<CardKind> = CARDS.map((card) => ({
   ...card,
-  options: [...card.options, ...COMMON_OPTIONS],
+  options: [...COMMON_OPTIONS, ...card.options],
 }));
 
 /**

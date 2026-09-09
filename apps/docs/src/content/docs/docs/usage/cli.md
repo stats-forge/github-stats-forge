@@ -14,6 +14,29 @@ It is how you settle on a card. To keep one current in a repository afterwards, 
 arrived at to [the GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action), which is the recommended way to draw them
 and takes the same query string.
 
+## The menu
+
+Once the card is picked and the answers it cannot render without are in, every other option sits in
+one list, under the heading that says what it governs:
+
+| Section           | What sits under it                                                          |
+| ----------------- | --------------------------------------------------------------------------- |
+| What it counts    | The date range, the scope and the filters — what the figures are drawn from |
+| What it shows     | Which stats are drawn, the layout, the icons                                |
+| Text and size     | The title, the width, the number format, the locale                         |
+| Colors and border | The theme and every color, a card's own ones included                       |
+
+A section none of a card's options fall under is dropped, so the gist pin counts nothing and has no
+"What it counts".
+
+The three actions sit above those sections under an "Actions" heading of their own, so nothing in
+the menu is unheaded.
+
+Arrow keys move, and typing jumps to the first row whose label starts with what you typed.
+That is what keeps the actions one key away however far down the list you are: `g` reaches
+"Generate the card", `s` "Save these options" and `q` "Quit". An option nothing has answered reads a
+dimmed `—`, so what you have set stands out.
+
 ## A token
 
 Every card but WakaTime reads the GitHub API, which needs a personal access token.

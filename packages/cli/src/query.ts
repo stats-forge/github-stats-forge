@@ -37,15 +37,18 @@ export const toQuery = (answers: ReadonlyMap<string, Answer>): Record<string, st
   return query;
 };
 
+/** What the menu shows for an option nothing has answered. */
+export const UNSET = '—';
+
 /**
  * How an answer reads back in the option menu.
  *
- * @returns The value as the menu shows it.
+ * @returns The value as the menu shows it, or {@link UNSET}.
  */
 export const describeAnswer = (option: CardOption, value: Answer): string => {
   const param = toParam(value);
   if (param === undefined) {
-    return '—';
+    return UNSET;
   }
   return option.kind === 'boolean' ? (value === true ? 'yes' : 'no') : param;
 };

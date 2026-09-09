@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { cards, findCard } from '../src/cards.ts';
+import { cards, findCard, OPTION_GROUPS } from '../src/cards.ts';
 import type { Answer } from '../src/query.ts';
-import { defaultFileName, describeAnswer, toParam, toQuery } from '../src/query.ts';
+import { defaultFileName, describeAnswer, toParam, toQuery, UNSET } from '../src/query.ts';
 
 describe(toParam, () => {
   it('carries a value the way a query string would', () => {
@@ -46,6 +46,7 @@ describe(describeAnswer, () => {
     name: 'show_icons',
     label: 'Show icons',
     kind: 'boolean' as const,
+    group: 'display' as const,
   };
 
   it('reads a boolean back as yes or no', () => {
@@ -54,7 +55,7 @@ describe(describeAnswer, () => {
   });
 
   it('marks an option nothing has answered', () => {
-    expect(describeAnswer(option, undefined)).toBe('—');
+    expect(describeAnswer(option, undefined)).toBe(UNSET);
   });
 });
 
@@ -101,6 +102,15 @@ describe('the card catalog', () => {
     for (const card of cards) {
       for (const option of card.options.filter((entry) => entry.kind === 'choice')) {
         expect(option.choices?.length, `${card.id}.${option.name}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('gives every option a section the menu knows how to head', () => {
+    const headed = new Set(OPTION_GROUPS.map((section) => section.group));
+    for (const card of cards) {
+      for (const option of card.options) {
+        expect(headed, `${card.id}.${option.name}`).toContain(option.group);
       }
     }
   });
