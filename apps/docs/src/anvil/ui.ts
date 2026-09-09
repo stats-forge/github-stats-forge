@@ -1,6 +1,6 @@
 import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import { COMMON_OPTIONS } from '@stats-forge/github-stats-forge-cli/cards';
-import type { CardOption } from '@stats-forge/github-stats-forge-cli/cards';
+import type { CardField } from '@stats-forge/github-stats-forge-cli/cards';
 
 import { BASE } from '../constants.ts';
 
@@ -49,7 +49,7 @@ interface State {
 }
 
 /** @returns Whether the option's values are a closed set the reader picks several of. */
-const isMultiValued = (option: CardOption): boolean =>
+const isMultiValued = (option: CardField): boolean =>
   option.kind === 'list' && option.choices !== undefined;
 
 /** @returns The element, which the page is expected to carry. */
@@ -214,7 +214,7 @@ const mount = (root: HTMLElement): void => {
   };
 
   /** @returns The control for one option, or nothing for the ones the anvil draws itself. */
-  const control = (option: CardOption): Array<HTMLElement> => {
+  const control = (option: CardField): Array<HTMLElement> => {
     const { name, label, kind, choices, hint } = option;
 
     if (name === OWN_CONTROL) {
