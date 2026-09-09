@@ -20,8 +20,8 @@ pnpm run typecheck  # tsc
 ```
 
 Card tests assert on the rendered DOM rather than on snapshots,
-with one snapshot suite for the WakaTime card. If a change to that card's markup was intentional,
-update it:
+with one snapshot suite for the WakaTime card.
+If a change to that card's markup was intentional, update it:
 
 ```bash
 pnpm --filter ./packages/core/ run test:update:snapshot
@@ -42,6 +42,13 @@ CI runs `pnpm --filter ./packages/core/ run check-graphql-types`,
 which fails if the committed types no longer match the queries.
 Never edit the generated files by hand — change the `.graphql` file and regenerate.
 
+## Workflows That Commit
+
+`pnpm install` installs a lefthook `pre-commit` hook that formats, lints and tests.
+A workflow that commits sets `LEFTHOOK: 0` to skip it:
+the lint needs the types `astro sync` writes into `apps/docs/.astro`, which a fresh checkout has not.
+The pull request it opens runs the full CI anyway.
+
 ## Themes Contribution
 
 We have stopped the addition of new themes to decrease maintenance efforts.
@@ -51,11 +58,35 @@ you can use the card [customization options](../packages/core/src/cards/options.
 
 ## Translations Contribution
 
-GitHub Stats Forge supports multiple languages. If we are missing your language,
-you can contribute it!
-The currently supported languages are listed in [packages/core/src/translations.ts](../packages/core/src/translations.ts).
+GitHub Stats Forge supports multiple languages.
+If we are missing your language, you can contribute it!
 
-To contribute your language you need to edit the [packages/core/src/translations.ts](../packages/core/src/translations.ts) file and add a new property to each object where the key is the language code in [ISO 639-1 standard](https://www.andiamo.co.uk/resources/iso-language-codes/) and the value is the translated string.
+Each card owns its wordings in the `locales.ts` beside its renderer —
+[cards/stats/locales.ts](../packages/core/src/cards/stats/locales.ts) and so on,
+with [common/locales.ts](../packages/core/src/common/locales.ts) for the few more than one card draws.
+Add your language code to each key, using the code listed in `AVAILABLE_LOCALES`
+in [common/localize.ts](../packages/core/src/common/localize.ts):
+
+```ts
+title: {
+  en: `{name}'{apostrophe} GitHub Stats`,
+  it: `Statistiche GitHub di {name}`,
+},
+```
+
+A table doesn't need to be complete — a missing wording falls back to `en`,
+so translating one key is still worth a pull request.
+Keep the `{name}` placeholders: you may use fewer than `en` does,
+but never one it does not supply.
+A wording that depends on a number is written as plural forms instead:
+
+```ts
+{ one: '{count} repository', other: '{count} repositories' }
+```
+
+and `Intl.PluralRules` picks the form for your language.
+
+`pnpm run test` checks all of that.
 
 ## Any contributions you make will be under the MIT Software License
 
@@ -67,7 +98,6 @@ Feel free to contact the maintainers if that's a concern.
 
 We use GitHub issues to track public bugs.
 Report a bug by [opening a new issue](https://github.com/stats-forge/github-stats-forge/issues/new/choose).
-If there is already an open issue for your bug in the upstream repo [github-readme-stats](https://github.com/anuraghazra/github-readme-stats/issues) you don't need to report it here.
 
 ## Feature Request
 

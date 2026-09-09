@@ -16,6 +16,10 @@ on:
 
 permissions: {}
 
+# Skips the pre-commit hook — see ../CONTRIBUTING.md, "Workflows That Commit".
+env:
+  LEFTHOOK: 0
+
 jobs:
   update-emoji-map:
     if: github.repository == 'stats-forge/github-stats-forge'

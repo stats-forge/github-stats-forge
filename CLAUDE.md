@@ -296,6 +296,9 @@ no `lint:publish`.
   starts with `docs:sync` and CI does the same before its Lint step. PR #50 found this: green
   locally, red on a fresh checkout. When that happens again, delete `apps/docs/.astro` and
   `packages/*/build` and run it again — that is what CI has.
+  - **A workflow that commits sets `LEFTHOOK: 0`, because the pre-commit hook lints too.** The
+    language-colors run of 2026-09-09 failed on exactly these two errors the first time upstream
+    actually changed. Written up in `.github/CONTRIBUTING.md`, "Workflows That Commit".
 - **The site typechecks against core's source, not its build, and so has no
   `tsconfig.typecheck.json`.** Clearing `customConditions` is how a _published_ package proves a
   consumer can resolve it; `apps/docs` is not published and not that consumer, and `packages/cli`
