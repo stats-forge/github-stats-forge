@@ -26,10 +26,6 @@ export default defineConfig({
      */
     resolve: { conditions: ['@stats/source'] },
     ssr: { resolve: { conditions: ['@stats/source'] } },
-    /*
-     * Pending release: https://github.com/withastro/astro/issues/17929.
-     */
-    optimizeDeps: { include: ['zod/mini'] },
   },
   markdown: {
     // Starlight appends its own plugins to whatever processor is configured here.
