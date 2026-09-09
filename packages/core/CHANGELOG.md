@@ -1,5 +1,28 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.5.0
+
+### Minor Changes
+
+- [#68](https://github.com/stats-forge/github-stats-forge/pull/68) [`a6bfe27`](https://github.com/stats-forge/github-stats-forge/commit/a6bfe27deebfe5ceaaf38e2d566a5cf2fa8016a7) - fix(core)!: keep the organization card when the token may not read members
+
+  `membersWithRole` needs the organization `Members` permission,
+  which a GitHub App installation token does not carry by default.
+  GitHub answers `FORBIDDEN` on that one field and still returns the organization,
+  but the fetcher threw on any `errors` entry,
+  so a token without the permission lost the whole card — including the stats it could read.
+  That refusal is now tolerated: `publicMembers` comes back `null`
+  and the card leaves the member row out, whether or not `show` asked for it.
+  Any other GraphQL error still throws as before.
+
+  `OrganizationData.publicMembers` is therefore `number | null`.
+
+### Patch Changes
+
+- [#75](https://github.com/stats-forge/github-stats-forge/pull/75) [`cdc67b5`](https://github.com/stats-forge/github-stats-forge/commit/cdc67b510419bb2bf364dfe63057d38c16c04e6c) - feat(core): update language colors
+
+  Regenerated from the [upstream linguist languages file](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml).
+
 ## 0.4.0
 
 ### Minor Changes
