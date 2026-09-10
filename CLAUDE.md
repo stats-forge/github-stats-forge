@@ -351,7 +351,11 @@ no `lint:publish`.
   `src/pages/anvil.astro` beside it at `/anvil/`, which is why the sidebar entries all read
   `docs/…`. **The two pages outside the documentation tree carry `template: splash`**, which is
   what drops Starlight's sidebar and table of contents: the sidebar lists the docs, so it has no
-  business on the landing page or the anvil. Three things follow from that split, each already paid for once:
+  business on the landing page or the anvil. Four things follow from that split, each already paid for once:
+  - **A link from the root README has to spell `/docs/` itself, and nothing checks it.**
+    `starlight-links-validator` sees only the site's own pages, so four of the README's five
+    documentation links pointed a level too high and 404ed from the day the tree moved under
+    `/docs/` until 2026-09-10. `/anvil/` is the exception that really does sit at the root.
   - **The landing page has no hero image.** Astro hands one to sharp, which is not installed and is
     not worth installing for an icon the header already shows.
   - **Its call to action is markdown links in a `<div class="hero-actions">`, not `hero.actions`.**

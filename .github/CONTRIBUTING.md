@@ -17,7 +17,11 @@ the tests do not, they run against recorded responses.
 pnpm run test       # unit tests
 pnpm run lint       # oxlint
 pnpm run typecheck  # tsc
+pnpm check-all      # every check CI runs, cheapest failure first
 ```
+
+`check-all` is the one to reach for before opening a pull request:
+it runs the list above and the rest of CI in one command, stopping at the first failure.
 
 Card tests assert on the rendered DOM rather than on snapshots,
 with one snapshot suite for the WakaTime card.
@@ -36,6 +40,16 @@ pnpm server:hosted       # build the documentation site as the image does, then 
 
 Both read `PAT_1` from a `.env` at the repository root; without it every card but WakaTime draws the `no_tokens` error.
 The hosted one serves the built site as a snapshot, so an edit to a page or to the anvil needs the command run again.
+
+## The Documentation Site
+
+```bash
+pnpm run docs     # the site's dev server — the `run` is required, `pnpm docs` is a pnpm builtin
+pnpm docs:cards   # redraw the card previews the pages show
+```
+
+The previews are committed, so redraw them when a card's output changes.
+That needs `PAT_1` in the root `.env`, which is why CI cannot keep them current.
 
 ## GraphQL Queries
 
