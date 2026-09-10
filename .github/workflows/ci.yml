@@ -157,8 +157,6 @@ jobs:
           file: apps/server/Dockerfile
           load: true
           tags: github-stats-forge-server:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       # No build step, so only starting the image proves the sources resolve inside it.
       - name: Run it
