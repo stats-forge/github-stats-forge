@@ -56,16 +56,20 @@ const pick = async (page: Page, option: string, value: string): Promise<void> =>
 };
 
 /**
- * Switches card without the popup: each pick replaces the controls beneath it, so the pane reflows
- * mid-click. The tests that cycle every card are about the page, not the picker.
+ * Sets a dropdown without opening it: picks in a row race the panel's closing animation, and a
+ * card pick replaces the controls beneath it so the pane reflows mid-click. The tests that cycle
+ * through values are about what each one changes, not about the picker — which `pick` covers.
  */
-const setCard = async (page: Page, id: string): Promise<void> => {
-  await dropdown(page, 'card').evaluate((element, value) => {
+const setDropdown = async (page: Page, option: string, value: string): Promise<void> => {
+  await dropdown(page, option).evaluate((element, picked) => {
     const select = element as HTMLElement & { value: string };
-    select.value = value;
+    select.value = picked;
     select.dispatchEvent(new Event('change', { bubbles: true }));
-  }, id);
+  }, value);
 };
+
+/** Switches card, which is the pick that reflows the whole pane. */
+const setCard = (page: Page, id: string): Promise<void> => setDropdown(page, 'card', id);
 
 /** The query box, which is the native input inside the Web Awesome field. */
 const queryBox = (page: Page): Locator => page.locator('wa-input[data-option="extra"] input');
@@ -77,6 +81,15 @@ const field = (page: Page, option: string): Locator =>
 /** The three-way boolean that writes one query param, by the param's own name. */
 const triState = (page: Page, option: string): Locator =>
   page.locator(`wa-radio-group[data-option="${option}"]`);
+
+/** `min-height: 16rem` on the frame, in pixels: the box a card is centred in, whatever its height. */
+const MIN_FRAME = 256;
+
+/** The frame the card is drawn in: it carries which ground is showing, and whether a draw is late. */
+const previewFrame = (page: Page): Locator => page.locator('[data-anvil="frame"]');
+
+/** The preview's own control — which ground the card is stood on. It writes no card option. */
+const backdropBar = (page: Page): Locator => page.locator('wa-radio-group.anvil-backdrop');
 
 /** Sets a tri-state boolean. */
 const setBoolean = async (page: Page, option: string, state: string): Promise<void> => {
@@ -379,7 +392,8 @@ test('emptying a required param draws the error the CLI would report', async ({ 
 test('the source badge explains itself on hover', async ({ page }) => {
   // The badge is the visible half; the tooltip's text is in the DOM either way, so nothing
   // important is hover-only. The strings are the recording's, this build having no server.
-  const badge = page.locator('.anvil-badge');
+  // By id, not by class: the backdrop carries a badge of its own.
+  const badge = page.locator('#anvil-source');
   const tooltip = page.locator('wa-tooltip[for="anvil-source"]');
 
   await expect(badge).toBeVisible();
@@ -571,7 +585,7 @@ test('the source badge is reachable by keyboard', async ({ page }) => {
     tooltip.evaluate((element) => (element as HTMLElement & { open: boolean }).open);
 
   // `tabindex="0"` on the badge exists for exactly this: the detail cannot be hover-only.
-  await page.locator('.anvil-badge').focus();
+  await page.locator('#anvil-source').focus();
   await expect.poll(isOpen).toBe(true);
 });
 
@@ -610,4 +624,167 @@ test('the file is named after the card and whoever it is for', async ({ page }) 
 
   await field(page, 'repo').fill('');
   await expect.poll(() => download.getAttribute('download')).toBe('pin-config.json');
+});
+
+test('stands the card on the ground its own theme implies', async ({ page }) => {
+  // The theme a card wears when none is named is `default`, whose background is all but white.
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+
+  await pick(page, 'theme', 'tokyonight');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+  // The control moves with it, so it never says one thing while the frame shows another.
+  await expect(backdropBar(page)).toHaveJSProperty('value', 'dark');
+
+  await pick(page, 'theme', 'light_github');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+  await expect(backdropBar(page)).toHaveJSProperty('value', 'light');
+});
+
+test('a theme that implies no ground leaves the one showing alone', async ({ page }) => {
+  // `transparent` shows whatever is behind it, so it asks for neither ground — and has no
+  // preference of its own either way, which is why this is asserted from both.
+  await setDropdown(page, 'theme', 'tokyonight');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+
+  await setDropdown(page, 'theme', 'transparent');
+  await expect(drawnCard(page)).toBeVisible();
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+
+  await setDropdown(page, 'theme', 'light_github');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+
+  await setDropdown(page, 'theme', 'transparent');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+});
+
+test("the backdrop is the preview's, and writes nothing into the card", async ({ page }) => {
+  const before = await savedCard(page);
+
+  await backdropBar(page).locator('wa-radio[value="dark"]').click();
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+
+  expect(await savedCard(page)).toEqual(before);
+  // And it carries no `data-option`, which every control that does write a param does.
+  await expect(backdropBar(page)).not.toHaveAttribute('data-option');
+});
+
+test('a background of your own wins over the theme, once it is a colour', async ({ page }) => {
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+
+  // Half a hex names no colour, so the ground holds until there is one to read.
+  await queryBox(page).fill('bg_color=0d');
+  await expect.poll(() => savedParam(page, 'bg_color')).toBe('0d');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+
+  await queryBox(page).fill('bg_color=0d1117');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+});
+
+test('a per-scheme background leaves the ground alone, the card following the browser', async ({
+  page,
+}) => {
+  // With a `_light` or `_dark` background the card carries a `prefers-color-scheme` block, so
+  // neither ground is the one it will be seen on and the page does not choose for you.
+  await queryBox(page).fill('bg_color_dark=0d1117');
+  await expect.poll(() => savedParam(page, 'bg_color_dark')).toBe('0d1117');
+
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+});
+
+test('says nothing about waiting once the card is up', async ({ page }) => {
+  await expect(previewFrame(page)).not.toHaveAttribute('aria-busy');
+  await expect(page.locator('.anvil-busy-chip')).toBeHidden();
+});
+
+test('a redraw from the recording never flashes the indicator', async ({ page }) => {
+  /*
+   * The held pause is what keeps an indicator off a draw that finishes in milliseconds, and a
+   * recorded one always does — so the guard is that nothing appeared at all, rather than that it
+   * appeared and left. Each redraw below is waited on through the card itself, so by the time the
+   * log is read the draw has resolved and its own timer is cancelled or fired.
+   *
+   * The other half — an indicator on a draw that really is slow — needs an instance to be slow,
+   * and this build has none. That is what `data-source` says.
+   */
+  await expect(page.locator('[data-anvil="root"]')).toHaveAttribute('data-source', 'sample');
+
+  const flashes = (): Promise<Array<string>> =>
+    page.evaluate(() => (globalThis as unknown as { busySeen: Array<string> }).busySeen);
+
+  await previewFrame(page).evaluate((element) => {
+    const seen: Array<string> = [];
+    (globalThis as unknown as { busySeen: Array<string> }).busySeen = seen;
+    new MutationObserver(() => {
+      seen.push(element.dataset['busy'] ?? 'gone');
+    }).observe(element, { attributes: true, attributeFilter: ['data-busy'] });
+  });
+
+  await setCard(page, 'top-langs');
+  await expect(drawnCard(page)).toHaveAttribute('width', '300');
+
+  await pick(page, 'layout', 'donut');
+  await expect(drawnCard(page)).toHaveAttribute('width', '400');
+
+  await setCard(page, 'stats');
+  await expect(drawnCard(page)).toHaveAttribute('width', '500');
+
+  expect(await flashes()).toEqual([]);
+});
+
+test('the backdrop says it follows the theme, and gives the detail on hover', async ({ page }) => {
+  const badge = page.locator('#anvil-backdrop-note');
+  const tooltip = page.locator('wa-tooltip[for="anvil-backdrop-note"]');
+
+  // The visible half is the part that keeps the switch moving on its own from being a surprise.
+  await expect(badge).toBeVisible();
+  await expect(badge).toContainText("Follows the card's theme");
+  // The rest is what the tooltip is for: which background it reads, and when it reads none.
+  await expect(tooltip).toContainText('bg_color you name');
+  await expect(tooltip).toContainText('names neither ground');
+
+  const isOpen = (): Promise<boolean> =>
+    tooltip.evaluate((element) => (element as HTMLElement & { open: boolean }).open);
+
+  expect(await isOpen()).toBe(false);
+  await badge.hover();
+  await expect.poll(isOpen).toBe(true);
+
+  // And reachable without a pointer, as the source badge is.
+  await page.keyboard.press('Escape');
+  await badge.focus();
+  await expect.poll(isOpen).toBe(true);
+});
+
+test('the frame holds its size under the shortest card', async ({ page }) => {
+  // It was its own padding until the first card landed — too small a box to hold the indicator
+  // that says one is coming — and it resized on every card switch.
+  const height = (): Promise<number> =>
+    previewFrame(page).evaluate((element) => element.getBoundingClientRect().height);
+
+  expect(await height()).toBeGreaterThanOrEqual(MIN_FRAME);
+
+  await setCard(page, 'gist');
+  await expect(drawnCard(page)).toHaveAttribute('height', '120');
+  expect(await height()).toBeGreaterThanOrEqual(MIN_FRAME);
+});
+
+test('the indicator covers the whole frame it is over', async ({ page }) => {
+  // Starlight's `--sl-content-gap-y` falls on the frame's second child, and a top margin on an
+  // `inset: 0` box moves it down and shrinks it — so the frame's top edge stayed bright mid-draw.
+  const gaps = await previewFrame(page).evaluate((element) => {
+    element.dataset['busy'] = '';
+    const frame = element.getBoundingClientRect();
+    const scrim = element.querySelector('.anvil-busy')?.getBoundingClientRect();
+    return scrim === undefined
+      ? undefined
+      : {
+          top: Math.round(scrim.top - frame.top),
+          bottom: Math.round(frame.bottom - scrim.bottom),
+          left: Math.round(scrim.left - frame.left),
+          right: Math.round(frame.right - scrim.right),
+        };
+  });
+
+  // One pixel on each side, which is the border the padding box does not reach.
+  expect(gaps).toEqual({ top: 1, bottom: 1, left: 1, right: 1 });
 });

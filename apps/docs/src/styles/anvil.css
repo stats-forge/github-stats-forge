@@ -76,6 +76,17 @@
 
   /* The height of one segment of a boolean, and so of the row that holds the three. */
   --anvil-segment-height: 2.375rem;
+
+  /*
+    The two grounds the preview offers, and the ink a spinner takes on each.
+
+    Literals, like `--wa-color-brand-on-loud` above and for the same reason: the ground stands in
+    for the page a card is going to land on, not for this one, so it must not follow the site's
+    theme. These are GitHub's own README grounds and its own link blues — `light_github` and
+    `dark_github` are the themes drawn from the same pair.
+  */
+  --anvil-ground-light: #ffffff;
+  --anvil-ground-dark: #0d1117;
 }
 
 .anvil-controls {
@@ -161,7 +172,7 @@ wa-select::part(listbox) {
   and hung above them. A grid of equal columns sizes all three the same and gives the control the
   even thirds a segmented button should have. `form-control-input` is the group's own exposed part.
 */
-.anvil wa-radio-group::part(form-control-input) {
+.anvil wa-radio-group[data-option]::part(form-control-input) {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
@@ -184,7 +195,9 @@ wa-select::part(listbox) {
   The `[data-option]` in the middle is there for specificity: Starlight's own rule outranks a single
   class plus a type selector.
 */
-.anvil [data-option] :is(wa-radio, wa-option, wa-checkbox, wa-divider, small) {
+.anvil
+  :is([data-option], .anvil-backdrop-row)
+  :is(wa-radio, wa-option, wa-checkbox, wa-divider, small) {
   margin-block-start: 0;
 }
 
@@ -234,18 +247,128 @@ wa-select::part(listbox) {
 }
 
 /*
-  The card is drawn at its own size, so it is centred rather than stretched.
-  Its own `<style>` lives in a shadow root beneath this element — see `ui.ts` — so nothing here
-  reaches the card and nothing in the card reaches the page.
+  The frame the card sits in. Its ground is the one the card's own background asks for — see
+  `backdropFor` in `themes.ts` — so a dark theme is judged against a dark page rather than against
+  this one, which is the comparison that matters.
+
+  `position: relative` because the spinner covers it, and the scrolling is one level in so that a
+  card wider than the pane does not carry the spinner sideways with it.
 */
 .anvil-preview {
-  display: flex;
-  justify-content: center;
-  padding: 1.5rem;
-  background: var(--sl-color-gray-6);
+  position: relative;
+  /* One child, stretched: the scroller has to fill the frame for a short card to sit centred in it. */
+  display: grid;
+  /*
+    Roughly the middle of the seven cards, which run 120 to 285 tall. Without it the frame is its
+    padding until the first card lands — a box too small to hold the indicator that says one is
+    coming — and every card switch resized it.
+  */
+  min-height: 16rem;
+  background: var(--anvil-ground-light);
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.5rem;
+}
+
+.anvil-preview[data-backdrop='dark'] {
+  background: var(--anvil-ground-dark);
+}
+
+/*
+  The card is drawn at its own size, so it is centred rather than stretched.
+  Its own `<style>` lives in a shadow root beneath the element inside this one — see `ui.ts` — so
+  nothing here reaches the card and nothing in the card reaches the page.
+*/
+.anvil-preview-scroll {
+  display: flex;
+  padding: 1.5rem;
   overflow-x: auto;
+}
+
+/*
+  `margin: auto` rather than `justify-content: center`, which centres a flex item by clipping the
+  overflow it cannot reach: a 500px card in a phone-width pane would have lost its left edge.
+*/
+.anvil-preview-scroll > * {
+  margin: auto;
+}
+
+/*
+  `display` rather than `hidden`: a flex overlay would outrank the attribute anyway, so the frame's
+  own state is the single switch and there is no second one to keep in step with it. `none` also
+  stops the spin, which is what a hidden animation should do.
+*/
+.anvil-busy {
+  display: none;
+}
+
+/*
+  A scrim over the card rather than an opacity on it: dimming a dark card on a dark ground changes
+  almost nothing, while darkening the whole frame reads the same on either ground. The card stays
+  visible under it, because it is still the answer to the question before last.
+*/
+.anvil-preview[data-busy] .anvil-busy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*
+    Starlight's `--sl-content-gap-y` again, as on the boolean's segments: this is the frame's second
+    child, and a top margin on an `inset: 0` box moves it down and shrinks it — so the scrim sat
+    16px short of the top edge. Two classes plus the attribute outrank that rule.
+  */
+  margin-block: 0;
+  background: rgb(0 0 0 / 25%);
+  /* Or the frame's own ground shows through at the corners. */
+  border-radius: inherit;
+  /* The card underneath stays selectable, and the frame still scrolls under the pointer. */
+  pointer-events: none;
+}
+
+.anvil-preview[data-backdrop='dark'][data-busy] .anvil-busy {
+  background: rgb(0 0 0 / 45%);
+}
+
+/*
+  The chip is the page's furniture rather than the card's, so — unlike the ground it sits on — it
+  follows the site's own palette and is legible in either theme without a literal of its own.
+*/
+.anvil-busy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-white);
+  background: var(--sl-color-black);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
+}
+
+/* Sized by `font-size`, as the component asks: its geometry is in `em`, so nothing else works. */
+.anvil-busy-chip wa-spinner {
+  font-size: 1rem;
+
+  --track-width: 2px;
+  --track-color: var(--sl-color-gray-5);
+  --indicator-color: var(--sl-color-accent);
+}
+
+/*
+  The label and the two segments on one line, at the head of the preview: `form-control` is the
+  group's own outer part, which stacks them by default.
+*/
+.anvil-backdrop::part(form-control) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.anvil-backdrop::part(form-control-label) {
+  margin: 0;
+  font-size: var(--sl-text-sm);
 }
 
 .anvil-status {
