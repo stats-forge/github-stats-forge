@@ -283,6 +283,12 @@ help, so there is nothing here to re-derive.
   job is gated on `hasChangesets == 'false'` and not on `published`: the server is private, so a
   change to it alone releases nothing to npm and would otherwise never reach GHCR. It then skips
   a version already in the registry, which is what makes that wider gate safe.
+  - **The Pages job is gated on `published`, so a release that touches only the site or the server
+    reaches GHCR and not Pages.** Both are private, so neither publishes to npm and `published`
+    stays `false` — the same fact the image's wider gate exists for. The site then documents a
+    version older than the image carries. `deploy-docs.yml` takes a `workflow_dispatch` for
+    exactly this, falling back to `inputs.ref || github.sha`, so a run from `main` builds `main`;
+    dispatch it, or wait for the next release that publishes a package.
 - **A workflow in this repository calls its sibling with `$/`, not `./`.** That is the documented
   "same repo at the running commit" form, and `release.yml` used it before the image job existed.
   It was changed to `./` on 2026-09-09 by someone who took it for a typo, and changed back.
@@ -602,6 +608,66 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   `GROUP_LABELS`, the cards inside a group keep the CLI's order, and a heading no card sits under
   is dropped. It was `'repo' | 'user'` and theme-only until 2026-09-07, when the organization card
   arrived and needed a group of its own.
+- **The preview stands the card on the ground the card itself asks for, and says so with a
+  control.** `backdropFor` in `themes.ts` answers "which ground" from the effective query —
+  `bg_color` if one is named, else the theme, else the theme the card wears by default — and
+  `data-backdrop` on `[data-anvil="frame"]` is what the stylesheet reads. A dark theme judged
+  against this site's own light panel told you nothing about the README it is going into.
+  - **The two grounds are literals — `#ffffff` and `#0d1117`, GitHub's own.** Same argument as
+    `--wa-color-brand-on-loud` above: the ground stands in for the page the card is going to land
+    on, not for this one, so it must not follow the site's theme switcher.
+  - **`undefined` means hold still, and three things mean `undefined`**: a translucent background
+    (`transparent`'s `ffffff00`, judged by its alpha rather than by a name in `ADAPTIVE_THEMES`), a
+    per-scheme override (`bg_color_dark` and friends put a `prefers-color-scheme` block in the
+    card, so it follows the browser and neither ground is the one it will be seen on), and a theme
+    nobody has heard of. There whichever ground is showing stays showing rather than the page
+    guessing on a reader's behalf.
+  - **The control is the one in the anvil with no `data-option`**, because it is the one that
+    writes nothing into the card: an e2e test asserts both halves of that. It is
+    `createSegments` — the general form `createTriState` was rewritten on top of — and it is
+    found by `wa-radio-group.anvil-backdrop`, which is also why the equal-thirds grid rule is
+    scoped to `wa-radio-group[data-option]`.
+  - **The ground leads and the card catches up.** A pick moves it at once, before the redraw it
+    triggered has finished, so the control never lags behind the form; on a slow instance that
+    means a second of the old card on the new ground, under the scrim that already says it is
+    stale.
+  - **That it follows the theme is said on the page, as a badge with the detail on hover.** A
+    switch that moves on its own is a surprise unless something says it will, and the statement is
+    permanently true — so it is `.anvil-badge` plus a `wa-tooltip`, the trade the source badge
+    already makes, rather than a callout or a hint nobody reads. **The page now carries two badges**,
+    so a locator for either is by id: `#anvil-source` and `#anvil-backdrop-note`. It is markup
+    rather than the group's `hint` slot, which is `aria-labelledby`'s neighbour — slotting it into
+    the label would have folded the explanation into the control's accessible name.
+  - **The frame carries `min-height: 16rem`, and is a grid so the scroller fills it.** The seven
+    cards run 120 to 285 tall, so without it the frame resized on every switch — and before the
+    first card landed it was its own padding, a box too small to hold the indicator saying one was
+    coming. A short card is centred in it by `margin: auto` on the scroller's child, **not**
+    `justify-content: center`, which centres by clipping the overflow it cannot reach: a 500px card
+    in a phone-width pane lost its left edge.
+- **A draw that is _taking_ a while gets an indicator; a draw that is merely happening does not.**
+  `BUSY_PAUSE` is 200ms, and the timer is armed per draw and cancelled by whichever draw is latest
+  — so a recording, which answers in milliseconds, never flickers, and neither does an instance's
+  cache hit. **Timed rather than asked of the source**: `PreviewSource` carries no "slow" flag,
+  because the same source is both.
+  - **It is a chip with the word `Drawing…` in it, not a bare spinner.** A spinner alone sat beside
+    the stats card's own rank ring and read as part of the card, and an opacity on a dark card over
+    a dark ground changes almost nothing — so the overlay is a scrim over the frame plus page-
+    coloured furniture, and the `wa-spinner` inside it is `aria-hidden`, the word and the frame's
+    `aria-busy` being what a screen reader gets.
+  - **The overlay is a sibling of the preview, not inside it**: the card is drawn into a shadow
+    root on that element, which replaces whatever it holds. The scrolling is one level in, so a
+    card wider than the pane does not carry the chip sideways with it.
+  - **`display`, not `hidden`.** A flex overlay outranks the attribute anyway, so the frame's
+    `data-busy` is the single switch — and `display: none` stops the spin, which a hidden
+    animation should do.
+  - **The scrim clears `margin-block` and inherits `border-radius`.** Starlight's
+    `--sl-content-gap-y` falls on the frame's second child, and a top margin on an `inset: 0` box
+    moves it down and shrinks it — so the frame's top edge stayed bright mid-draw. Same rule that
+    the boolean's segments already pay for, in a place it is much harder to see.
+  - **The e2e suite can only assert the half that needs no instance**: that an ordinary recorded
+    redraw never flashes it, through a `MutationObserver` log over `data-busy`. The appearing half
+    was verified by hand against a `SITE_SERVER=true` build with a stubbed slow `/api/**`; there is
+    nothing in this repository that makes a recorded draw slow enough to test it.
 - **A card is drawn into a shadow root, because an inlined SVG's `<style>` is document-wide.**
   A card carries its own CSS, and inlining the SVG into HTML does not scope it: the stats card
   defaults `show_icons` off, which emits `.icon { display: none }`, and that hid **every** `svg.icon`
@@ -834,6 +900,12 @@ reaches the renderer.
     `updateInternalDependencies: patch` bumps it, so removing core's root entry
     patched the CLI without the changeset naming it.
     Confirm with `pnpm exec changeset status` before committing.
+  - **A change to `apps/docs` a visitor would notice carries a changeset on the _server_.**
+    The image ships the documentation site, so an anvil or a page change is a change to what
+    `apps/server` publishes; `heavy-moons-repeat.md` in the 0.1.0 release is already that shape,
+    a server `minor` whose whole content is about the site. It is also the only way such a change
+    is releasable at all — `apps/docs` has no `version` field, so a docs-only tree gives
+    `changeset status` nothing to bump.
   - A pure tooling change that leaves the published output alone can go without one —
     that is the owner's call, so ask rather than assume.
 - **Keep this file current.** When a rule here stops matching the repo, fix it in the

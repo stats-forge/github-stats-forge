@@ -55,6 +55,8 @@ draws from the instance itself, so:
 - the card's own URL sits above the file, already pointing at your instance, with the markdown line
   for a README beside it — the one thing this site cannot produce, since it has no way to know
   where your server lives
+- every redraw is a GitHub call on a cache miss, so the preview says **Drawing…** over the card
+  that is still up rather than leaving you guessing whether anything happened
 
 If no token is configured yet, every card comes back asking for one. A picker beside the card falls
 back to the saved responses so the builder is still usable while you set that up.

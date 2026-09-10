@@ -16,13 +16,15 @@ import {
   createCheckGroup,
   createNote,
   createSection,
+  createSegments,
   createSelect,
   createTextField,
   createTriState,
 } from './controls.ts';
 import { cardUrl, sampleSource, serverSource } from './source.ts';
 import type { PreviewSource } from './source.ts';
-import { themeGroups } from './themes.ts';
+import { backdropFor, themeGroups } from './themes.ts';
+import type { Backdrop } from './themes.ts';
 
 /**
  * Astro's own base rather than `constants.ts`'s `BASE`, which reads an environment this file,
@@ -43,6 +45,22 @@ const TYPING_PAUSE = 250;
 
 /** How long a toast stays up. */
 const TOAST_PAUSE = 3000;
+
+/**
+ * How long a draw may take before the preview says it is waiting.
+ *
+ * Held back rather than shown at once, and timed rather than asked of the source: a recording
+ * finishes in a few milliseconds and so would only ever flicker, while an instance's cache hit is
+ * nearly as quick and its GitHub call is not. What earns a spinner is a draw that is *taking* a
+ * while, whoever started it.
+ */
+const BUSY_PAUSE = 200;
+
+/** The two grounds a card can be previewed on, and the word on each segment. */
+const BACKDROPS: ReadonlyArray<readonly [Backdrop, string]> = [
+  ['light', 'Light'],
+  ['dark', 'Dark'],
+];
 
 interface State {
   card: AnvilCard;
@@ -165,7 +183,9 @@ const mount = (root: HTMLElement): void => {
   const cardPicker = need(root, '[data-anvil="card"]');
   const controls = need(root, '[data-anvil="controls"]');
   const extraHost = need(root, '[data-anvil="extra"]');
+  const frame = need(root, '[data-anvil="frame"]');
   const preview = need(root, '[data-anvil="preview"]');
+  const backdropHost = need(root, '[data-anvil="backdrop"]');
   const status = need(root, '[data-anvil="status"]');
   const output = need(root, '[data-anvil="output"]');
   const download = need(root, '[data-anvil="download"]') as HTMLAnchorElement;
@@ -198,6 +218,42 @@ const mount = (root: HTMLElement): void => {
   // Kept rather than read back: the DOM re-serialises what it parsed, so `innerHTML` never matches.
   let drawn = '';
 
+  /**
+   * The frame carries the state and the stylesheet draws it — a scrim over the card, not in place
+   * of it, the card that is up being still the answer to the question before last.
+   */
+  const showBusy = (waiting: boolean): void => {
+    if (waiting) {
+      frame.dataset['busy'] = '';
+    } else {
+      delete frame.dataset['busy'];
+    }
+    frame.ariaBusy = waiting ? 'true' : null;
+  };
+
+  /**
+   * Which ground the preview shows. Held rather than derived on every draw: a translucent theme
+   * implies neither, and there whichever ground is showing is the one to leave showing.
+   */
+  let backdrop: Backdrop = 'light';
+
+  const setBackdrop = (ground: Backdrop): void => {
+    backdrop = ground;
+    frame.dataset['backdrop'] = ground;
+  };
+
+  const backdropBar = createSegments({
+    label: 'Preview backdrop',
+    values: BACKDROPS,
+    value: backdrop,
+    onPick: (value) => {
+      setBackdrop(value === 'dark' ? 'dark' : 'light');
+    },
+  });
+  // No `data-option`: it is the one control here that writes nothing into the card.
+  backdropBar.className = 'anvil-backdrop';
+  backdropHost.replaceChildren(backdropBar);
+
   const [first] = CARDS;
   if (first === undefined) {
     throw new Error('No cards to draw');
@@ -205,6 +261,16 @@ const mount = (root: HTMLElement): void => {
   let state = freshState(first, '');
   // Node's types reach this project too, so the handle's type is taken from the call.
   let pending: ReturnType<typeof globalThis.setTimeout> | undefined;
+
+  /** Puts the ground the card's own background asks for under it, and holds still where it asks none. */
+  const followBackdrop = (): void => {
+    const implied = backdropFor(toQuery(state), state.card.category);
+    if (implied === undefined || implied === backdrop) {
+      return;
+    }
+    setBackdrop(implied);
+    backdropBar.value = implied;
+  };
 
   // written onto the root by `anvil.astro`, this file having no environment to read
   const servedByInstance = root.dataset['source'] === 'server';
@@ -240,16 +306,26 @@ const mount = (root: HTMLElement): void => {
 
   /** Which draw is the latest; an instance answers a cache hit faster than a miss started before it. */
   let sequence = 0;
+  let busyHold: ReturnType<typeof globalThis.setTimeout> | undefined;
 
   /** Draws the card from whichever source is chosen. */
   const draw = async (): Promise<void> => {
     sequence += 1;
     const own = sequence;
+
+    globalThis.clearTimeout(busyHold);
+    busyHold = globalThis.setTimeout(() => {
+      showBusy(true);
+    }, BUSY_PAUSE);
+
     const shown = await source.draw(state.card.id, toQuery(state));
     if (own !== sequence) {
-      // a newer draw is what the controls now describe
+      // a newer draw is what the controls now describe, and it owns the indicator too
       return;
     }
+
+    globalThis.clearTimeout(busyHold);
+    showBusy(false);
 
     if (shown.content !== undefined) {
       // The wrapper gives the drawn card a stable handle: a card's icons are `<svg>` too.
@@ -273,6 +349,7 @@ const mount = (root: HTMLElement): void => {
   /** Swallows nothing: a thrown render is a bug in the page, not a rejected option. */
   const schedule = (): void => {
     writeFile();
+    followBackdrop();
     globalThis.clearTimeout(pending);
     void draw();
   };
@@ -280,6 +357,8 @@ const mount = (root: HTMLElement): void => {
   /** The same, once typing has stopped: on an instance every redraw is a request against its token. */
   const scheduleTyping = (): void => {
     writeFile();
+    // Never debounced either: a half-typed hex names no ground, so nothing moves until one does.
+    followBackdrop();
     globalThis.clearTimeout(pending);
     pending = globalThis.setTimeout(() => {
       void draw();

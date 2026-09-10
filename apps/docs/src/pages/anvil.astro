@@ -82,7 +82,53 @@ if (first === undefined) {
     </div>
 
     <div class="anvil-preview-pane">
-      <div class="anvil-preview" data-anvil="preview"></div>
+      {/* Which ground the card is shown on. Built by `ui.ts`: it follows the card's own theme. */}
+      <div class="anvil-backdrop-row" data-anvil="backdrop"></div>
+      {/*
+        That it follows the theme is permanently true, so it is a badge with the detail on hover
+        rather than a callout — the same trade the source badge below makes. The visible half is
+        the part you need to not be surprised by the switch moving on its own.
+      */}
+      <p class="anvil-note">
+        <span class="anvil-badge" id="anvil-backdrop-note" tabindex="0">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
+            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
+            ></circle>
+            <path d="M8 7.25v4.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            ></path>
+            <circle cx="8" cy="4.6" r="0.9" fill="currentColor"></circle>
+          </svg>
+          Follows the card's theme
+        </span>
+      </p>
+      <wa-tooltip for="anvil-backdrop-note">
+        The ground comes from the card's own background: a bg_color you name, or the theme's. A
+        translucent theme, or a light and dark pair, names neither ground — there the preview stays
+        where you put it.
+      </wa-tooltip>
+
+      {/*
+        `data-backdrop` is seeded here so the ground is right before the script runs, and is what
+        `ui.ts` writes thereafter. The spinner is a sibling of the preview rather than inside it:
+        the card is drawn into a shadow root on that element, which replaces whatever it holds.
+      */}
+      <div class="anvil-preview" data-anvil="frame" data-backdrop="light">
+        <div class="anvil-preview-scroll">
+          <div data-anvil="preview"></div>
+        </div>
+        {/*
+          A word, not only a spinner: on a dark ground a dimmed card looks much like an undimmed
+          one, and a lone ring beside the stats card's own rank ring reads as part of the card.
+          The spinner is hidden from a screen reader, which has the word and the frame's
+          `aria-busy` already.
+        */}
+        <div class="anvil-busy">
+          <span class="anvil-busy-chip">
+            <wa-spinner aria-hidden="true"></wa-spinner>
+            Drawing…
+          </span>
+        </div>
+      </div>
       <p class="anvil-status" data-anvil="status"></p>
       {/* The caveat is the drawing source's, so `ui.ts` writes all three. */}
       <p class="anvil-note">
@@ -140,6 +186,7 @@ if (first === undefined) {
 
 <script>
   // The Web Awesome elements in this page's own markup; the rest are built by `controls.ts`.
+  import '@awesome.me/webawesome/dist/components/spinner/spinner.js';
   import '@awesome.me/webawesome/dist/components/toast/toast.js';
   import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 

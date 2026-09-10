@@ -1,8 +1,8 @@
 /**
- * @file Which themes a card may wear, and how they are ordered.
+ * @file Which themes a card may wear, how they are ordered, and which ground each implies.
  *
  * Ported from `ghse`'s wizard (`themeBackdrop.ts`, `Theme.tsx`) so both projects offer the same
- * themes for the same card. Neither rule below is derivable from core's theme table alone.
+ * themes for the same card. Neither ordering rule below is derivable from core's theme table alone.
  */
 
 import { themes } from '@stats-forge/github-stats-forge-core/api';
@@ -17,22 +17,24 @@ type CardCategory = 'org' | 'repo' | 'user';
 /** Where a theme sits in the list, and under which heading. */
 type ThemeMode = 'light' | 'mixed' | 'dark';
 
+/** The ground a card is previewed on, where its own background says which one is right. */
+type Backdrop = 'light' | 'dark';
+
 /** Only genuinely mode-agnostic ones: `shadow_*` is transparent but dark-texted, so it is light. */
 const ADAPTIVE_THEMES = new Set(['transparent', 'ambient_gradient']);
 
+/** Below this a background shows the page through it, so it implies no ground of its own. */
+const OPAQUE_ALPHA = 0x80;
+
 const THEME_NAMES = Object.keys(themes);
 
-/** @returns The hex expanded to six digits, or as given when it is not a shorthand. */
+/** @returns The hex expanded from three or four digits, or as given when it is not a shorthand. */
 const expandHex = (hex: string): string =>
-  hex.length === 3 ? [...hex].map((char) => char + char).join('') : hex;
+  hex.length === 3 || hex.length === 4 ? [...hex].map((char) => char + char).join('') : hex;
 
-/** @returns Whether a 3-, 6- or 8-digit hex reads as dark, by perceived luminance. */
+/** @returns Whether a 6- or 8-digit hex reads as dark, by perceived luminance. */
 const isDarkHex = (hex: string): boolean => {
-  const normalized = expandHex(hex);
-  if (normalized.length < 6) {
-    return false;
-  }
-  const channel = (at: number): number => Number.parseInt(normalized.slice(at, at + 2), 16);
+  const channel = (at: number): number => Number.parseInt(hex.slice(at, at + 2), 16);
   const luminance = (0.299 * channel(0) + 0.587 * channel(2) + 0.114 * channel(4)) / 255;
   return luminance < 0.5;
 };
@@ -40,20 +42,32 @@ const isDarkHex = (hex: string): boolean => {
 /**
  * A `bg_color` is a hex or an `angle,color,color…` gradient, judged by its first stop.
  *
- * @returns Whether the background reads as dark.
+ * @returns The ground it implies, or `undefined` when it is not hex, or translucent enough that
+ * whatever is behind it is what shows.
  */
-const isDarkBackground = (bgColor: string): boolean => {
-  const parts = bgColor.split(',');
-  return isDarkHex((parts.length > 1 ? parts[1] : parts[0]) ?? '');
+const groundOf = (bgColor: string): Backdrop | undefined => {
+  const stops = bgColor.split(',');
+  const hex = expandHex((stops.length > 1 ? stops[1] : stops[0]) ?? '');
+  if (!/^[\dA-Fa-f]{6}(?:[\dA-Fa-f]{2})?$/.test(hex)) {
+    return undefined;
+  }
+  if (hex.length === 8 && Number.parseInt(hex.slice(6, 8), 16) < OPAQUE_ALPHA) {
+    return undefined;
+  }
+  return isDarkHex(hex) ? 'dark' : 'light';
 };
+
+/** @returns The theme's `bg_color` as the table holds it — hex, no `#` — or `undefined`. */
+const bgColorOf = (name: string): string | undefined =>
+  (themes[name as keyof typeof themes] as { bg_color: string } | undefined)?.bg_color;
 
 /** @returns Which group a theme is listed under. */
 const themeMode = (name: string): ThemeMode => {
   if (ADAPTIVE_THEMES.has(name)) {
     return 'mixed';
   }
-  const theme = themes[name as keyof typeof themes] as { bg_color: string } | undefined;
-  return theme !== undefined && isDarkBackground(theme.bg_color) ? 'dark' : 'light';
+  const bgColor = bgColorOf(name);
+  return bgColor !== undefined && groundOf(bgColor) === 'dark' ? 'dark' : 'light';
 };
 
 /**
@@ -66,6 +80,47 @@ const themesForCategory = (category: CardCategory): Array<string> =>
   category === 'repo'
     ? THEME_NAMES.filter((name) => !THEME_NAMES.includes(`${name}_repocard`))
     : THEME_NAMES.filter((name) => !name.endsWith('_repocard'));
+
+/** The half of the `default` pair this card wears, which is the theme it draws with when none is named. */
+const defaultThemeFor = (category: CardCategory): string =>
+  category === 'repo' ? 'default_repocard' : 'default';
+
+/**
+ * Any per-scheme background: with one of these the card carries a `prefers-color-scheme` block and
+ * follows the browser, so neither ground is the one it will be seen on.
+ */
+const PER_SCHEME_BACKGROUNDS = ['theme_light', 'theme_dark', 'bg_color_light', 'bg_color_dark'];
+
+/**
+ * Which ground the card should be previewed on: its own `bg_color` if it names one, else its
+ * theme's, else the theme it wears by default.
+ *
+ * @returns The ground, or `undefined` where the background names none — translucent, a per-scheme
+ * override, or a theme nobody has heard of. There whichever ground is showing is left showing,
+ * rather than the page guessing on the reader's behalf.
+ */
+const backdropFor = (
+  query: Readonly<Record<string, string>>,
+  category: CardCategory,
+): Backdrop | undefined => {
+  if (PER_SCHEME_BACKGROUNDS.some((name) => (query[name] ?? '') !== '')) {
+    return undefined;
+  }
+
+  const custom = query['bg_color'] ?? '';
+  if (custom !== '') {
+    return groundOf(custom);
+  }
+
+  const named = query['theme'] ?? '';
+  const name = named === '' ? defaultThemeFor(category) : named;
+  if (ADAPTIVE_THEMES.has(name)) {
+    return undefined;
+  }
+
+  const bgColor = bgColorOf(name);
+  return bgColor === undefined ? undefined : groundOf(bgColor);
+};
 
 /** One heading in the theme list, and the themes under it. */
 interface ThemeGroup {
@@ -90,5 +145,5 @@ const themeGroups = (category: CardCategory): Array<ThemeGroup> => {
   })).filter((group) => group.values.length > 0);
 };
 
-export { themeGroups };
-export type { CardCategory };
+export { backdropFor, themeGroups };
+export type { Backdrop, CardCategory };

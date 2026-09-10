@@ -232,6 +232,46 @@ const createTextField = ({
   return field;
 };
 
+/** @returns A bar of labelled segments, one of them chosen. */
+const createSegments = ({
+  label,
+  values,
+  value,
+  hint,
+  onPick,
+}: {
+  label: string;
+  /** Each segment: the value it writes, and the word on it. */
+  values: ReadonlyArray<readonly [string, string]>;
+  value: string;
+  hint?: string | undefined;
+  onPick: (value: string) => void;
+}): HTMLElementTagNameMap['wa-radio-group'] => {
+  const group = document.createElement('wa-radio-group');
+  group.size = 's';
+  group.label = label;
+  group.orientation = 'horizontal';
+  group.value = value;
+  if (hint !== undefined) {
+    group.hint = hint;
+  }
+
+  for (const [candidate, text] of values) {
+    const radio = document.createElement('wa-radio');
+    radio.appearance = 'button';
+    radio.size = 's';
+    radio.value = candidate;
+    radio.textContent = text;
+    group.append(radio);
+  }
+
+  group.addEventListener('change', () => {
+    onPick(String(group.value ?? ''));
+  });
+
+  return group;
+};
+
 /** `DEFAULT` is a sentinel: a radio group cannot carry the empty value the query uses. */
 const TRI_STATE = [
   ['default', 'default'],
@@ -264,30 +304,16 @@ const createTriState = ({
   value: string;
   onPick: (value: string) => void;
 }): HTMLElement => {
-  const group = document.createElement('wa-radio-group');
-  group.size = 's';
-  group.label = label;
-  group.orientation = 'horizontal';
-  group.value = value === '' ? TRI_DEFAULT : value;
-  group.dataset['option'] = option;
-  if (hint !== undefined) {
-    group.hint = hint;
-  }
-
-  for (const [candidate, text] of TRI_STATE) {
-    const radio = document.createElement('wa-radio');
-    radio.appearance = 'button';
-    radio.size = 's';
-    radio.value = candidate;
-    radio.textContent = text;
-    group.append(radio);
-  }
-
-  group.addEventListener('change', () => {
-    const picked = String(group.value ?? '');
-    onPick(picked === TRI_DEFAULT ? '' : picked);
+  const group = createSegments({
+    label,
+    values: TRI_STATE,
+    value: value === '' ? TRI_DEFAULT : value,
+    hint,
+    onPick: (picked) => {
+      onPick(picked === TRI_DEFAULT ? '' : picked);
+    },
   });
-
+  group.dataset['option'] = option;
   return group;
 };
 
@@ -328,6 +354,7 @@ export {
   createCheckGroup,
   createNote,
   createSection,
+  createSegments,
   createSelect,
   createTextField,
   createTriState,
