@@ -43,6 +43,8 @@ const wakatimeQuery = z.object({
  */
 const renderWakatime = cardHandler(
   wakatimeQuery,
+  // no allowlist: `username` is a WakaTime profile, not a GitHub login (see `apps/server/README.md`)
+  {},
   async (
     {
       username,

@@ -1,10 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
-import type { RehypePlugin } from '@astrojs/markdown-remark';
-
-import { BASE, CARDS_DIR, THEMES_DIR } from '../constants.ts';
-
 /**
  * @file One image in the markdown, two in the page.
  *
@@ -12,6 +5,13 @@ import { BASE, CARDS_DIR, THEMES_DIR } from '../constants.ts';
  * Starlight's `data-theme`, so no document spells the pair out. A card naming its own theme —
  * `/themes/<name>.svg` — stays one image, there being nothing to switch between.
  */
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import type { RehypePlugin } from '@astrojs/markdown-remark';
+
+import { BASE, CARDS_DIR, THEMES_DIR } from '../constants.ts';
 
 /** A card preview, written as `![alt](/cards/<name>.svg)` — no mode in the name. */
 const CARD_SRC = /^\/cards\/(?<name>[\w-]+)\.svg$/;

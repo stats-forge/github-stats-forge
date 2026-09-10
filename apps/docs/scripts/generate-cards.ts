@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+/**
+ * @file Renders every card the documentation shows, once per site theme — through the CLI, the
+ * way anyone else would.
+ *
+ * Each file in `cards/` is a saved card minus the theme, which is merged in here rather than kept
+ * in two near-identical files. A theme sample names its own theme, so it is rendered once.
+ */
+
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
@@ -9,14 +17,6 @@ import { parseArgs } from 'node:util';
 
 import { CARD_THEMES, SAMPLE_CARD, SAMPLE_THEMES, THEMES_DIR } from '../src/constants.ts';
 import type { CardMode } from '../src/constants.ts';
-
-/**
- * @file Renders every card the documentation shows, once per site theme — through the CLI, the
- * way anyone else would.
- *
- * Each file in `cards/` is a saved card minus the theme, which is merged in here rather than kept
- * in two near-identical files. A theme sample names its own theme, so it is rendered once.
- */
 
 const DOCS_DIR = fileURLToPath(new URL('..', import.meta.url));
 const REPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));

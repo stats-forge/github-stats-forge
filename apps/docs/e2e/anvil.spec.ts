@@ -1,12 +1,12 @@
-import { expect, test } from '@playwright/test';
-import type { Locator, Page } from '@playwright/test';
-
 /**
  * @file What the anvil has to keep doing.
  *
  * Every assertion here is one the other checks cannot make: they run in Node, and this is about
  * the page — which control redraws what, and what the browser is asked for while it happens.
  */
+
+import { expect, test } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 /** In the preview's shadow root. The wrapper makes it selectable: a card's icons are `<svg>` too. */
 const drawnCard = (page: Page): Locator => page.locator('[data-anvil="preview"] .anvil-card > svg');
@@ -154,12 +154,18 @@ test('draws a card on arrival, with no card chosen', async ({ page }) => {
 });
 
 test('sends nothing anywhere while drawing every card', async ({ page }) => {
+  // the claim is the recording's, so state which source is drawing before asserting it
+  await expect(page.locator('[data-anvil="root"]')).toHaveAttribute('data-source', 'sample');
+  await expect(page.locator('wa-select[data-option="source"]')).toHaveCount(0);
+
   // By origin, taken once: a URL prefix counted the site's own `/_astro/` chunks as offsite.
   const { origin } = new URL(page.url());
-  const offsite: Array<string> = [];
+  const sent: Array<string> = [];
   page.on('request', (request) => {
-    if (new URL(request.url()).origin !== origin) {
-      offsite.push(request.url());
+    const url = new URL(request.url());
+    // an instance's cards are same-origin, which the origin check alone would miss
+    if (url.origin !== origin || url.pathname.startsWith('/api/')) {
+      sent.push(request.url());
     }
   });
 
@@ -168,7 +174,7 @@ test('sends nothing anywhere while drawing every card', async ({ page }) => {
     await expect(drawnCard(page)).toBeVisible();
   }
 
-  expect(offsite).toEqual([]);
+  expect(sent).toEqual([]);
 });
 
 test('picking a card rebuilds its controls and redraws it', async ({ page }) => {
@@ -235,8 +241,13 @@ test('offers every option the CLI asks for, not only the closed sets', async ({ 
   await expect(field(page, 'custom_title')).toBeVisible();
   await expect(field(page, 'card_width')).toBeVisible();
 
-  // The colours every card shares are folded away rather than absent.
-  await expect(page.locator('wa-details.anvil-section')).toBeVisible();
+  // Sectioned as the CLI's menu is, from the same table; the colours fold away rather than go absent.
+  // `summary` is a Lit property and not reflected, so the heading is found as the button it renders.
+  const sections = page.locator('wa-details.anvil-section');
+  await expect(sections).toHaveCount(4);
+  await expect(sections.first()).toHaveAttribute('open', '');
+  await expect(sections.last().getByRole('button', { name: 'Colors and border' })).toBeVisible();
+  await expect(sections.last()).not.toHaveAttribute('open');
   await expect(field(page, 'title_color')).toBeAttached();
 
   await setCard(page, 'top-langs');
@@ -297,11 +308,13 @@ test("a boolean's three segments are one bar of equal parts", async ({ page }) =
 test("a rejected option draws core's own error card, naming the parameter", async ({ page }) => {
   await queryBox(page).fill('border_radius=abc');
 
+  // The status says what kind of failure in the anvil's words; the card carries core's own message.
   const status = page.locator('[data-anvil="status"]');
   await expect(status).toHaveAttribute('data-state', 'error');
-  await expect(status).toContainText('Invalid number input for parameter "border_radius"');
+  await expect(status).toContainText('"border_radius"');
   // The card is still drawn: the error is the card, not a broken page.
   await expect(drawnCard(page)).toBeVisible();
+  await expect(drawnCard(page)).toContainText('Invalid number input for parameter "border_radius"');
 });
 
 test("a card's own styles stay inside the card", async ({ page }) => {
@@ -338,6 +351,11 @@ test('the required params are in the file, and the reader owns them', async ({ p
   await expect(drawnCard(page).getByTestId('card-title')).not.toContainText('octocat');
 });
 
+test('offers no card URL, there being no instance to answer one', async ({ page }) => {
+  // the panel is in the markup on every build; `ui.ts` unhides it only under a server
+  await expect(page.locator('[data-anvil="url-panel"]')).toBeHidden();
+});
+
 test('a card identified by more than one param gets a field for each', async ({ page }) => {
   await setCard(page, 'pin');
 
@@ -358,11 +376,11 @@ test('emptying a required param draws the error the CLI would report', async ({ 
   expect(await savedParam(page, 'username')).toBeUndefined();
 });
 
-test('the mock-data badge explains itself on hover', async ({ page }) => {
+test('the source badge explains itself on hover', async ({ page }) => {
   // The badge is the visible half; the tooltip's text is in the DOM either way, so nothing
-  // important is hover-only.
+  // important is hover-only. The strings are the recording's, this build having no server.
   const badge = page.locator('.anvil-badge');
-  const tooltip = page.locator('wa-tooltip[for="anvil-mock"]');
+  const tooltip = page.locator('wa-tooltip[for="anvil-source"]');
 
   await expect(badge).toBeVisible();
   await expect(badge).toContainText('Mock data');
@@ -547,8 +565,8 @@ test('the closed theme select shows the theme it is set to', async ({ page }) =>
   await expect(onSelect.locator('i')).toHaveCount(3);
 });
 
-test('the mock-data badge is reachable by keyboard', async ({ page }) => {
-  const tooltip = page.locator('wa-tooltip[for="anvil-mock"]');
+test('the source badge is reachable by keyboard', async ({ page }) => {
+  const tooltip = page.locator('wa-tooltip[for="anvil-source"]');
   const isOpen = (): Promise<boolean> =>
     tooltip.evaluate((element) => (element as HTMLElement & { open: boolean }).open);
 

@@ -1,15 +1,15 @@
-import { cards as catalogue } from '@stats-forge/github-stats-forge-cli/cards';
-import type { CardKind } from '@stats-forge/github-stats-forge-cli/cards';
-import { org, pin, stats } from '@stats-forge/github-stats-forge-core/api';
-
-import type { CardCategory } from './themes.ts';
-
 /**
  * @file The seven cards the anvil draws.
  *
  * **The option catalog is the CLI's**, imported rather than restated — two forms over the same
  * options should not be two lists. What is added here is only what the CLI has no use for.
  */
+
+import { cards as catalogue } from '@stats-forge/github-stats-forge-cli/cards';
+import type { CardKind } from '@stats-forge/github-stats-forge-cli/cards';
+import { org, pin, stats } from '@stats-forge/github-stats-forge-core/api';
+
+import type { CardCategory } from './themes.ts';
 
 /** The account every card but wakatime and gist is sampled from. */
 const SAMPLE_USERNAME = 'marcalexiei';

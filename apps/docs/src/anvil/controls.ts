@@ -1,3 +1,13 @@
+/**
+ * @file The anvil's form controls, from Web Awesome.
+ *
+ * Web Awesome rather than hand-written: a native `<select>` cannot draw a theme's colors beside
+ * its name, and a listbox written here would be one more accessible widget to own.
+ *
+ * Its icons must be overridden — `wa-icon` fetches Font Awesome's kit, and this page promises
+ * nothing leaves it — so every icon slot is inline SVG and the e2e suite guards that.
+ */
+
 import { themeSwatch } from './swatch.ts';
 
 import '@awesome.me/webawesome/dist/components/select/select.js';
@@ -8,16 +18,6 @@ import '@awesome.me/webawesome/dist/components/divider/divider.js';
 import '@awesome.me/webawesome/dist/components/radio-group/radio-group.js';
 import '@awesome.me/webawesome/dist/components/radio/radio.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
-
-/**
- * @file The anvil's form controls, from Web Awesome.
- *
- * Web Awesome rather than hand-written: a native `<select>` cannot draw a theme's colors beside
- * its name, and a listbox written here would be one more accessible widget to own.
- *
- * Its icons must be overridden — `wa-icon` fetches Font Awesome's kit, and this page promises
- * nothing leaves it — so every icon slot is inline SVG and the e2e suite guards that.
- */
 
 /*
  * Not the same as the theme named `default` — the gist card's own default is `default_repocard` —
@@ -299,9 +299,14 @@ const createTriState = ({
  *
  * @returns The section.
  */
-const createSection = (label: string, contents: ReadonlyArray<HTMLElement>): HTMLElement => {
+const createSection = (
+  label: string,
+  contents: ReadonlyArray<HTMLElement>,
+  open: boolean,
+): HTMLElement => {
   const section = document.createElement('wa-details');
   section.summary = label;
+  section.open = open;
   section.className = 'anvil-section';
 
   const inner = document.createElement('div');

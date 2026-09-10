@@ -1,11 +1,11 @@
-import { themes } from '@stats-forge/github-stats-forge-core/api';
-
 /**
  * @file What a theme looks like, at the size of a dropdown row.
  *
  * A miniature of the card rather than a strip of squares: the ground is the theme's background and
  * the dots are its title, icon and text colors, so a pale title on a pale ground reads as one.
  */
+
+import { themes } from '@stats-forge/github-stats-forge-core/api';
 
 /** The three colors drawn on the swatch, in the order a card uses them. */
 const DOTS = ['title_color', 'icon_color', 'text_color'] as const;

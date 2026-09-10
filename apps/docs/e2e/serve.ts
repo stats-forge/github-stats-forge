@@ -1,3 +1,14 @@
+/**
+ * @file Serves the built site to the e2e run, in the foreground.
+ *
+ * `astro preview` always daemonizes in Astro 7, so the process Playwright starts exits at once and
+ * `webServer` gives up with "exited early". Thirty lines is cheaper than depending on that.
+ *
+ * **Keep the table and the guard aligned with `apps/server/src/static.ts`.**
+ * They are a copy rather than an import because the image carries the site,
+ * so the site must not depend on the server; a change to either file belongs in both.
+ */
+
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -6,24 +17,19 @@ import { fileURLToPath } from 'node:url';
 
 import { BASE } from '../src/constants.ts';
 
-/**
- * @file Serves the built site to the e2e run, in the foreground.
- *
- * `astro preview` always daemonizes in Astro 7, so the process Playwright starts exits at once and
- * `webServer` gives up with "exited early". Thirty lines is cheaper than depending on that.
- */
-
 const ROOT = fileURLToPath(new URL('../build', import.meta.url));
 
 const CONTENT_TYPES: Record<string, string> = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
+  '.ico': 'image/x-icon',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
   '.wasm': 'application/wasm',
+  '.webmanifest': 'application/manifest+json',
   '.woff2': 'font/woff2',
   '.xml': 'application/xml',
 };

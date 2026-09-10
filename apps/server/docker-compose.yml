@@ -1,0 +1,33 @@
+# The copy-paste path: a token in a `.env` beside this file, a port, and a restart policy.
+#
+#   echo 'PAT_1=github_pat_...' > .env
+#   docker compose up -d
+#
+# Then a card is at http://localhost:9000/api/stats?username=you,
+# documentation: http://localhost:9000/
+# anvil: http://localhost:9000/anvil/ (card configuration with preview served from the same instance)
+
+services:
+  cards:
+    image: ghcr.io/stats-forge/github-stats-forge-server:latest
+    # to run the image this repository builds instead:
+    #   build:
+    #     context: ../..
+    #     dockerfile: apps/server/Dockerfile
+    restart: unless-stopped
+    ports:
+      - '9000:9000'
+    environment:
+      # every PAT_* is used in turn, so a second token doubles the rate limit — add PAT_2 here
+      PAT_1: ${PAT_1:?set PAT_1 in a .env file beside this one}
+    # Everything else is optional, and `${VAR:-}` would set it to the empty string rather than
+    # leave it unset. Name only what this instance configures:
+    #
+    #   ALLOWLIST / GIST_ALLOWLIST  whose cards it draws; unset draws anyone's. ALLOWLIST does
+    #                               not cover the wakatime card — see the README
+    #   STRICT_HTTP_STATUS=true     answer with the status a failure deserves, rather than 200
+    #   CACHE_SECONDS=0             turn caching off, headers and all, to debug the instance
+    #   CORS_ORIGIN                 the one origin allowed to read a card from script
+    #
+    # The whole table is on the self-hosting page, `docs/usage/self-hosting` in the documentation
+    # this instance serves at http://localhost:9000/docs/usage/self-hosting/

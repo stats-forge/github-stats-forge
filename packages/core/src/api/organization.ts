@@ -40,6 +40,7 @@ const orgQuery = z.object({
  */
 const renderOrg = cardHandler(
   orgQuery,
+  { org: 'username' },
   async (
     {
       org,

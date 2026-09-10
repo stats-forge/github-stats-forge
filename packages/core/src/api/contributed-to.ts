@@ -44,6 +44,7 @@ const contributedToQuery = z
  */
 export const contributedTo = cardHandler(
   contributedToQuery,
+  { username: 'username' },
   async (
     {
       username,

@@ -50,8 +50,9 @@ reason rather than a broken picture.
 | --------------- | --------------------------------------------------- | --------- |
 | `invalid_param` | A parameter is malformed or not renderable          | no        |
 | `missing_param` | A parameter the card cannot render without          | no        |
+| `not_allowed`   | The deployment does not serve that account or gist  | no        |
 | `not_found`     | The user, repository or gist does not exist         | no        |
-| `no_tokens`     | The deployment has no usable GitHub token           | no        |
+| `no_tokens`     | The deployment has no usable GitHub token           | yes       |
 | `rate_limited`  | Every token is rate limited                         | yes       |
 | `upstream`      | GitHub or WakaTime answered with something unusable | yes       |
 
@@ -73,15 +74,22 @@ const config = new CardConfig({
 | Field                 | What it is                                                                 |
 | --------------------- | -------------------------------------------------------------------------- |
 | `pats`                | The tokens to spend, each with the name of the variable it came from       |
-| `usernameAllowlist`   | Who this deployment will draw cards for; omit for anyone                   |
+| `usernameAllowlist`   | The GitHub logins this deployment draws, case-insensitively; omit for any  |
 | `gistAllowlist`       | The same, for gist ids                                                     |
 | `excludeRepositories` | Repositories left out of every card                                        |
 | `fetchMultiPageStars` | How many pages of starred repositories to read; `Infinity` for all         |
 | `fetch`               | The transport every request goes through — swap it to cache, mock or proxy |
 
-`CardConfig.fromEnv(process.env)` builds the same thing from `PAT_1`…, `WHITELIST`,
-`GIST_WHITELIST`, `EXCLUDE_REPO` and `FETCH_MULTI_PAGE_STARS`, for a host that would rather
-configure through the environment.
+`CardConfig.fromEnv(process.env)` builds the same thing from `PAT_1`…, `ALLOWLIST`,
+`GIST_ALLOWLIST`, `EXCLUDE_REPO` and `FETCH_MULTI_PAGE_STARS`, for a host that would rather
+configure through the environment. A `PAT_` variable set to nothing is skipped.
+
+An allowlist is enforced by the api handlers, before anything is fetched, so an identity the
+deployment does not serve fails as `not_allowed` and spends no rate limit. It covers every
+GitHub login — `username` and the organization card's `org` — and the gist card's `id`. It does
+**not** cover the wakatime card, whose `username` is a WakaTime profile rather than a GitHub
+login. Calling a render function directly bypasses the check: it lives at the api layer,
+which is where a query stops being untrusted.
 
 A token is never logged. The name it came from is, so a failing token can be found without its
 value ending up in a log.

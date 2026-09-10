@@ -1,7 +1,4 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
-import { styleText } from 'node:util';
-
 /**
  * @file Every check CI runs, cheapest failure first.
  *
@@ -9,6 +6,9 @@ import { styleText } from 'node:util';
  * readable. Keep it in step with `.github/workflows/ci.yml`: a check that runs there and not
  * here is a check that fails after the push instead of before it.
  */
+
+import { spawnSync } from 'node:child_process';
+import { styleText } from 'node:util';
 
 /** Each check's name, and the pnpm arguments that run it. */
 const CHECKS: Record<string, Array<string>> = {

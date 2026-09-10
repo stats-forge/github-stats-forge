@@ -1,11 +1,11 @@
-import type { CardKind, CardOption } from './cards.ts';
-
 /**
  * @file Answers in, query params out.
  *
  * The core handlers take exactly what a query string carries — strings — so an
  * answer becomes one here, and an unanswered option is simply absent.
  */
+
+import type { CardKind, CardOption } from './cards.ts';
 
 /** What a prompt answered, before it becomes a query param. */
 export type Answer = string | number | boolean | Array<string> | undefined;

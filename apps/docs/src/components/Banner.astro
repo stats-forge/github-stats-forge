@@ -1,0 +1,21 @@
+---
+import Default from '@astrojs/starlight/components/Banner.astro';
+
+import { BASE, SERVED_BY_INSTANCE } from '../constants.ts';
+
+/**
+ * Starlight's banner, on the landing page of an instance and nowhere else.
+ *
+ * Starlight reads a banner off a page's frontmatter, and a markdown page cannot know what is
+ * serving it, so it is written into the route data here instead.
+ */
+
+if (SERVED_BY_INSTANCE && Astro.url.pathname.replace(/\/$/, '') === BASE) {
+  Astro.locals.starlightRoute.entry.data.banner = {
+    content:
+      'You are on a self-hosted instance. It draws cards from its own GitHub tokens, and the anvil draws from it.',
+  };
+}
+---
+
+<Default {...Astro.props}><slot /></Default>

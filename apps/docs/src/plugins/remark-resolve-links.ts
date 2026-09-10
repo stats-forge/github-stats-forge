@@ -1,10 +1,3 @@
-import { relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-import type { RemarkPlugin } from '@astrojs/markdown-remark';
-
-import { BASE } from '../constants.ts';
-
 /**
  * @file Turns a page's relative links into the URLs they mean.
  *
@@ -16,6 +9,13 @@ import { BASE } from '../constants.ts';
  * Running here rather than in rehype is deliberate. Starlight appends its own plugins after the
  * ones configured on the processor, so the validator collects links after this has rewritten them.
  */
+
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import type { RemarkPlugin } from '@astrojs/markdown-remark';
+
+import { BASE } from '../constants.ts';
 
 const CONTENT_DIR = fileURLToPath(new URL('../content/docs/', import.meta.url));
 

@@ -1,4 +1,14 @@
 #!/usr/bin/env node
+/**
+ * @file Records what GitHub answers each card's requests with, once, for the anvil to replay.
+ *
+ * The anvil's own render path with the transport reversed — same handlers, a `fetch` that reaches
+ * the network — so a recording cannot be of a request the anvil does not make.
+ *
+ * Needs `PAT_1` in the root `.env`, so the output is committed and CI runs `check-anvil-samples`
+ * instead. Written through oxfmt, as the other generators are, so `pnpm format` leaves it alone.
+ */
+
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
@@ -10,16 +20,6 @@ import { format } from 'oxfmt';
 import { CARDS } from '../src/anvil/cards.ts';
 import type { Samples } from '../src/anvil/sample-fetch.ts';
 import { sampleKey } from '../src/anvil/sample-key.ts';
-
-/**
- * @file Records what GitHub answers each card's requests with, once, for the anvil to replay.
- *
- * The anvil's own render path with the transport reversed — same handlers, a `fetch` that reaches
- * the network — so a recording cannot be of a request the anvil does not make.
- *
- * Needs `PAT_1` in the root `.env`, so the output is committed and CI runs `check-anvil-samples`
- * instead. Written through oxfmt, as the other generators are, so `pnpm format` leaves it alone.
- */
 
 const OUT = fileURLToPath(new URL('../src/anvil/samples.json', import.meta.url));
 

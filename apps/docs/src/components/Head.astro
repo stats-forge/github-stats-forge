@@ -1,21 +1,54 @@
 ---
 import Default from '@astrojs/starlight/components/Head.astro';
 
-import socialPreview from '../../../../.github/assets/social-preview.png';
+import socialPreview from '../../public/social-preview.png';
+import { BASE, PAGES_BASE, PAGES_SITE, SELF_HOSTED, SERVED_BY_INSTANCE } from '../constants.ts';
 
 /**
  * Starlight's own head, plus the image a shared link previews with.
  *
  * It emits `twitter:card: summary_large_image` and the rest of the Open Graph pair already, but
- * never an `og:image` — so every link to the site unfurled as text. The repository's own social
- * preview is imported rather than copied into `public/`, the same trade the header logo makes.
+ * never an `og:image` — so every link to the site unfurled as text. The image is imported from
+ * `public/` so the pipeline reads its dimensions rather than having them written down.
  */
 
-const image = new URL(socialPreview.src, Astro.site);
+/**
+ * Pages stays the canonical documentation, so every absolute URL points there — with the base,
+ * which Starlight cannot add: it resolves the page's own path against `site`, and on the image
+ * build that path has no base.
+ *
+ * @returns The URL of this build's path on Pages.
+ */
+const onPages = (path: string): string =>
+  new URL(`${PAGES_BASE}${path.slice(BASE.length)}`, PAGES_SITE).href;
+
+const image = onPages(socialPreview.src);
+
+const { head } = Astro.locals.starlightRoute;
+
+if (BASE !== PAGES_BASE) {
+  const canonical = onPages(Astro.url.pathname);
+  for (const { tag, attrs } of head) {
+    if (tag === 'link' && attrs?.['rel'] === 'canonical') {
+      attrs['href'] = canonical;
+    }
+    if (tag === 'meta' && attrs?.['property'] === 'og:url') {
+      attrs['content'] = canonical;
+    }
+  }
+}
+
+// amended in the route data, since the configured site title would put the chip's word there twice
+if (SERVED_BY_INSTANCE) {
+  const title = head.find((tag) => tag.tag === 'title');
+  if (title !== undefined) {
+    title.content = `${title.content ?? ''} (${SELF_HOSTED.toLowerCase()})`;
+  }
+}
 ---
 
 <Default><slot /></Default>
-<meta property="og:image" content={image.href} />
+<meta property="og:image" content={image} />
 <meta property="og:image:width" content={String(socialPreview.width)} />
 <meta property="og:image:height" content={String(socialPreview.height)} />
 <meta property="og:image:alt" content="GitHub Stats Forge" />

@@ -1,7 +1,4 @@
 #!/usr/bin/env node
-import { CARDS } from '../src/anvil/cards.ts';
-import { renderSampleCard } from '../src/anvil/render.ts';
-
 /**
  * @file Fails when a card cannot be drawn from the recorded samples.
  *
@@ -10,6 +7,10 @@ import { renderSampleCard } from '../src/anvil/render.ts';
  *
  * @returns Nothing; the process exits non-zero when a card did not draw.
  */
+
+import { CARDS } from '../src/anvil/cards.ts';
+import { renderSampleCard } from '../src/anvil/render.ts';
+
 const main = async (): Promise<void> => {
   const failures: Array<string> = [];
 

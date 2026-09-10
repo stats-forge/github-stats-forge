@@ -3,26 +3,26 @@ import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 import starlightLinksValidator from 'starlight-links-validator';
 
-import { BASE } from './src/constants.ts';
+import { BASE, PAGES_SITE, SERVED_BY_INSTANCE } from './src/constants.ts';
 import { rehypeCardPreviews } from './src/plugins/rehype-card-previews.ts';
 import { remarkFetcherReference } from './src/plugins/remark-fetcher-reference.ts';
 import { remarkResolveLinks } from './src/plugins/remark-resolve-links.ts';
 
+// one file is both the favicon and the header logo; the amber twin is what an instance wears
+const icon = SERVED_BY_INSTANCE ? 'favicon-self-hosted.svg' : 'favicon.svg';
+
 export default defineConfig({
-  site: 'https://stats-forge.github.io',
-  base: BASE,
+  // Pages stays canonical even when the image serves a copy; `Head.astro` adds the base it lacks
+  site: PAGES_SITE,
+  // `BASE` is empty at the root, which astro spells `/`
+  base: BASE || '/',
   outDir: './build',
-  /*
-   * The anvil bundles `packages/core` and the CLI's card catalog, and it resolves them through
-   * `@stats/source` — their `src/`, not their `build/`. Without this the bundler took the `default`
-   * condition and needed both packages built first, which the docs job in CI does not do; with it,
-   * the whole job still runs with nothing built, and the bundler agrees with what `tsc` and the
-   * editor already resolve.
-   *
-   * `ssr` has to say it too: a condition set only under `resolve` is not applied to the server
-   * build, which is the same trap `packages/cli/vitest.config.ts` documents.
-   */
   vite: {
+    /*
+     * The anvil bundles `packages/core` and the CLI's card catalog from their `src/`, through
+     * `@stats/source`, so the docs job runs with nothing built. `ssr` has to say it too — a
+     * condition set only under `resolve` is not applied to the server build.
+     */
     resolve: { conditions: ['@stats/source'] },
     ssr: { resolve: { conditions: ['@stats/source'] } },
     /*
@@ -41,8 +41,8 @@ export default defineConfig({
     starlight({
       title: 'GitHub Stats Forge',
       description: 'Dynamically generate GitHub stats cards for your READMEs.',
-      // The repository's own icon, not a copy of it: the README shows the same file.
-      logo: { src: '../../.github/assets/appIcon.svg', alt: '' },
+      logo: { src: `./public/${icon}`, alt: '' },
+      favicon: `/${icon}`,
       customCss: [
         './src/styles/card-previews.css',
         './src/styles/precedence.css',
@@ -55,13 +55,10 @@ export default defineConfig({
         SiteTitle: './src/components/SiteTitle.astro',
         // The same icons, opening in a new tab.
         SocialIcons: './src/components/SocialIcons.astro',
+        // Says nothing unless an instance is serving the site.
+        Banner: './src/components/Banner.astro',
       },
-      // The pages link to each other by path, so a rename has to fail the build.
-      plugins: [
-        // At its defaults: `remark-resolve-links` has already turned every relative link into
-        // the URL it means, so there is nothing left for the plugin to skip.
-        starlightLinksValidator(),
-      ],
+      plugins: [starlightLinksValidator()],
       social: [
         {
           icon: 'github',
@@ -102,7 +99,12 @@ export default defineConfig({
         },
         {
           label: 'Using it',
-          items: ['docs/usage/cli', 'docs/usage/in-your-readme', 'docs/usage/library'],
+          items: [
+            'docs/usage/cli',
+            'docs/usage/in-your-readme',
+            'docs/usage/library',
+            'docs/usage/self-hosting',
+          ],
         },
         {
           label: 'Fetchers',

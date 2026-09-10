@@ -1,8 +1,3 @@
-import type { RemarkPlugin } from '@astrojs/markdown-remark';
-
-import type { Fetcher } from './fetcher-reference.ts';
-import { fetchers } from './fetcher-reference.ts';
-
 /**
  * @file `<!-- api: fetchStats -->` becomes that fetcher's reference.
  *
@@ -23,6 +18,11 @@ import { fetchers } from './fetcher-reference.ts';
  * the collection and Starlight then fails on the first slug it looks up; and `server.restart()`
  * never re-runs `astro:config:done`.
  */
+
+import type { RemarkPlugin } from '@astrojs/markdown-remark';
+
+import type { Fetcher } from './fetcher-reference.ts';
+import { fetchers } from './fetcher-reference.ts';
 
 /** The marker a page leaves where its reference goes. */
 const MARKER = /^<!--\s*api:\s*(?<name>\w+)\s*-->$/;

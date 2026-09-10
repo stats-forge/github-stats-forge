@@ -1,16 +1,16 @@
-import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
-import type { ApiResult } from '@stats-forge/github-stats-forge-core/api';
-
-import { findCard } from './cards.ts';
-import { createSampleFetch } from './sample-fetch.ts';
-import samples from './samples.json' with { type: 'json' };
-
 /**
  * @file Draws a card from the recorded samples, through core's public api handlers.
  *
  * Going through `./api` rather than the renderers walks the path a real request walks, so a
  * rejected option produces the very error card the CLI would.
  */
+
+import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
+import type { ApiResult } from '@stats-forge/github-stats-forge-core/api';
+
+import { findCard } from './cards.ts';
+import { createSampleFetch } from './sample-fetch.ts';
+import samples from './samples.json' with { type: 'json' };
 
 /** The deployment the anvil pretends to be: an unused token, and a transport that replays. */
 const sampleConfig = new CardConfig({

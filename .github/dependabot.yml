@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: cron
       cronjob: '45 0 * * 3,6'
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 10
     commit-message:
       prefix: 'build(deps)'
       prefix-development: 'build(deps-dev)'
@@ -44,12 +44,27 @@ updates:
           - 'oxlint-tsgolint'
           - '@marcalexiei/oxlint-config'
 
+  # The server's base image digest: `node:24-alpine` is a moving tag, so a bump arrives as a PR CI has run.
+  - package-ecosystem: docker
+    directory: '/apps/server'
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'build(deps)'
+    cooldown:
+      default-days: 7
+    ignore:
+      # the server's own `engines` and `@types/node` decide which major it runs on
+      - dependency-name: 'node'
+        update-types: ['version-update:semver-major']
+
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
       interval: daily
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 5
     commit-message:
       prefix: 'ci(deps)'
     cooldown:

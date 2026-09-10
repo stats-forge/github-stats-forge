@@ -38,6 +38,9 @@ jobs:
 
     outputs:
       published: ${{ steps.changesets.outputs.published }}
+      # `false` means this run was the release itself. The image is gated on it rather than on
+      # `published`: the server is private, so a change to it alone publishes nothing to npm.
+      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
 
     steps:
       # A GitHub App token, not GITHUB_TOKEN: events from the default token do not
@@ -68,6 +71,18 @@ jobs:
           pr-title: 'chore: release'
           pr-base-branch: main
           publish-script: 'pnpm release'
+
+  # One release, three channels: npm above, the image here, the site below.
+  image:
+    name: Image
+    needs: release
+    if: ${{ needs.release.outputs.hasChangesets == 'false' }}
+    uses: $/.github/workflows/publish-image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      ref: ${{ github.event.workflow_run.head_sha }}
 
   # The site documents what is on npm, so it is published when a release is, and only then.
   docs:

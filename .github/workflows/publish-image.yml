@@ -1,0 +1,102 @@
+name: Publish image
+
+# Called by `release.yml` on the commit a release was cut from, and runnable on its own so an
+# image fix can reach GHCR without cutting one — the same shape as `deploy-docs.yml`.
+# It pushes nothing when the version it reads is already in the registry, so calling it twice
+# costs a lookup rather than a duplicate `latest`.
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: The commit to build the image from
+        type: string
+        required: false
+  workflow_dispatch:
+
+# Suffixed, because in a called workflow `github.workflow` is the caller's name — the one
+# `deploy-docs.yml` resolves to as well, and the two must not queue behind each other.
+concurrency:
+  group: '${{ github.workflow }}-image'
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  publish:
+    name: Build and push to GHCR
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # to check out the repository
+      packages: write # to push the image to GHCR
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The version commit, not whatever `main` has drifted to since the release started.
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+
+      # Changesets versions the server (private: versioned, not published), so one bump drives
+      # npm, the site and the image; a core release bumps it too.
+      - name: Read the version changesets set
+        id: version
+        run: echo "server=$(node -p "require('./apps/server/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a # v4.3.0
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The release job calls this on every push to main with no changesets left, not only on a
+      # version bump, and a re-run by hand must not republish either.
+      - name: Skip a version already in the registry
+        id: published
+        run: |
+          if docker buildx imagetools inspect "$IMAGE:$VERSION" > /dev/null 2>&1; then
+            echo "Already pushed $IMAGE:$VERSION"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}-server
+          VERSION: ${{ steps.version.outputs.server }}
+
+      - name: Collect the tags and labels
+        id: meta
+        if: ${{ steps.published.outputs.exists == 'false' }}
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/${{ github.repository }}-server
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.version.outputs.server }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.server }}
+            type=raw,value=latest
+
+      # Nothing is compiled, so emulating arm64 costs only the base layer. BuildKit attaches the
+      # provenance and SBOM to the manifest itself, so no second action attests anything.
+      - name: Build and push
+        if: ${{ steps.published.outputs.exists == 'false' }}
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: apps/server/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          sbom: true
+          provenance: mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

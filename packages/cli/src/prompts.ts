@@ -1,3 +1,11 @@
+/**
+ * @file The navigation itself.
+ *
+ * A card first, then its required options, then a menu of every other option
+ * under the section it belongs to: pick one, answer it, and land back on the
+ * menu with the answer beside it.
+ */
+
 import { styleText } from 'node:util';
 
 import { checkbox, confirm, input, password, select, Separator } from '@inquirer/prompts';
@@ -6,14 +14,6 @@ import type { CardKind, CardOption } from './cards.ts';
 import { cards, OPTION_GROUPS } from './cards.ts';
 import type { Answer } from './query.ts';
 import { describeAnswer, UNSET } from './query.ts';
-
-/**
- * @file The navigation itself.
- *
- * A card first, then its required options, then a menu of every other option
- * under the section it belongs to: pick one, answer it, and land back on the
- * menu with the answer beside it.
- */
 
 /** @returns The card to render. */
 export const pickCard = (): Promise<CardKind> =>

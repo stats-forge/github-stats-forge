@@ -1,0 +1,25 @@
+{
+  "name": "@stats-forge/github-stats-server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HTTP server that draws the cards, and the container image it ships in",
+  "type": "module",
+  "scripts": {
+    "dev": "node --conditions=@stats/source --env-file-if-exists=../../.env --watch src/index.ts",
+    "start": "node --conditions=@stats/source src/index.ts",
+    "test": "vitest",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@stats-forge/github-stats-forge-core": "workspace:^"
+  },
+  "devDependencies": {
+    "@stats-forge/github-stats-forge-cli": "workspace:^",
+    "@types/node": "24.13.3",
+    "typescript": "7.0.2",
+    "vitest": "catalog:default"
+  },
+  "engines": {
+    "node": "^24 || >=26"
+  }
+}

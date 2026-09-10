@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 
 import { CARDS } from '../anvil/cards.ts';
 import NewTabLink from '../components/NewTabLink.astro';
-import { BASE } from '../constants.ts';
+import { BASE, SERVED_BY_INSTANCE } from '../constants.ts';
 
 /*
  * Imported here rather than listed in `customCss`, so they serve this page alone, and unscoped
@@ -19,7 +19,8 @@ import '../styles/anvil.css';
  * The anvil: a form over a card's options, the card redrawn beside it, and the file the CLI reads.
  *
  * The only page here that is not markdown, and the only one that ships JavaScript. It draws in the
- * browser through core's api handlers against `src/anvil/samples.json`, so it needs no token.
+ * browser through core's api handlers against `src/anvil/samples.json`, so it needs no token —
+ * unless the card server is serving it, which `SITE_SERVER` says and `data-source` passes on.
  *
  * The remark plugins do not run on an `.astro` page, so the links below carry the base themselves.
  *
@@ -57,9 +58,11 @@ if (first === undefined) {
 >
   <p class="anvil-intro">{DESCRIPTION}</p>
 
-  <div class="anvil" data-anvil="root">
+  <!-- `ui.ts` runs in a browser and has no environment, so the source is written onto the page. -->
+  <div class="anvil" data-anvil="root" data-source={SERVED_BY_INSTANCE ? 'server' : 'sample'}>
     <div class="anvil-controls-pane">
       <!-- Every control is a Web Awesome element built by `ui.ts`; these are its mount points. -->
+      <div data-anvil="source"></div>
       <div data-anvil="card"></div>
 
       <div class="anvil-controls" data-anvil="controls"></div>
@@ -70,7 +73,7 @@ if (first === undefined) {
         <NewTabLink href={`${BASE}/docs/customization/common-options/`}>
           Customization
         </NewTabLink> 
-        {'and on the '}
+        {' and on the '}
         <NewTabLink href={`${BASE}/docs/cards/${first.docs}/`} data-anvil="card-docs">
           selected card's page
         </NewTabLink>
@@ -81,8 +84,9 @@ if (first === undefined) {
     <div class="anvil-preview-pane">
       <div class="anvil-preview" data-anvil="preview"></div>
       <p class="anvil-status" data-anvil="status"></p>
+      {/* The caveat is the drawing source's, so `ui.ts` writes all three. */}
       <p class="anvil-note">
-        <span class="anvil-badge" id="anvil-mock" tabindex="0">
+        <span class="anvil-badge" id="anvil-source" tabindex="0">
           <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
             <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
             ></circle>
@@ -90,14 +94,28 @@ if (first === undefined) {
             ></path>
             <circle cx="8" cy="4.6" r="0.9" fill="currentColor"></circle>
           </svg>
-          Mock data
+          <span data-anvil="source-badge"></span>
         </span>{' '}
-        — the figures never move, whatever you type.
+        <span data-anvil="source-aside"></span>
       </p>
-      <wa-tooltip for="anvil-mock">
-        Cards are drawn in your browser from saved API responses, so nothing you type is sent anywhere. 
-        Options that change how a card looks are exact; those that change its numbers are not.
-      </wa-tooltip>
+      <wa-tooltip for="anvil-source" data-anvil="source-detail"></wa-tooltip>
+
+      {/* Shown only on an instance: nothing else knows an address that would answer. */}
+      <div class="anvil-output" data-anvil="url-panel" hidden>
+        <div class="anvil-output-head">
+          <span>Card URL</span>
+          <span class="anvil-actions">
+            <button type="button" data-anvil="copy-url">Copy URL</button>
+            <button type="button" data-anvil="copy-markdown">Copy Markdown</button>
+          </span>
+        </div>
+        <pre data-anvil="url"></pre>
+        <pre data-anvil="markdown"></pre>
+        <p class="anvil-note">
+          This instance draws that card at that address, and the second line is what a README
+          wants. Open the first to see the card on its own.
+        </p>
+      </div>
 
       <div class="anvil-output">
         <div class="anvil-output-head">
