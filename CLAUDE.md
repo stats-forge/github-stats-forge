@@ -268,6 +268,14 @@ help, so there is nothing here to re-derive.
 - **`base` is `--platform=$BUILDPLATFORM`; only `runtime` is multi-arch.** The install and the
   site build produce the same bytes on every architecture, so they run natively once rather than
   under QEMU per target, and a pnpm store cache mount keeps a lockfile change from a cold download.
+  - **That mount is a local benefit, not a CI one.** BuildKit does not export a cache mount with
+    `cache-to`, and `setup-buildx-action` starts a fresh builder each run, so in CI the store is
+    empty every time.
+  - **Neither image job carries a registry cache, since 2026-09-10.** The GitHub Actions cache
+    exported every stage's layers on every run, and CI's build step still measured 98s to 145s
+    across ten runs, warm or cold; a cache scoped per branch seldom hits from a pull request, and
+    the release's would export two architectures of every stage to be read days later, if at all.
+    Measure before reinstating one — that is what condemned this pair.
 - **The two called workflows carry distinct concurrency groups.** In a called workflow
   `github.workflow` is the caller's name, so `publish-image.yml` and `deploy-docs.yml` both
   resolved to `Release` and queued behind each other; the image one is suffixed `-image`.

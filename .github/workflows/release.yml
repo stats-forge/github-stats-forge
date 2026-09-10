@@ -38,9 +38,10 @@ jobs:
 
     outputs:
       published: ${{ steps.changesets.outputs.published }}
+
       # `false` means this run was the release itself. The image is gated on it rather than on
       # `published`: the server is private, so a change to it alone publishes nothing to npm.
-      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
+      hasChangesets: ${{ steps.changesets.outputs['has-changesets'] }}
 
     steps:
       # A GitHub App token, not GITHUB_TOKEN: events from the default token do not
