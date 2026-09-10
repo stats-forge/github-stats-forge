@@ -1,5 +1,32 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.4.0
+
+### Minor Changes
+
+- [#76](https://github.com/stats-forge/github-stats-forge/pull/76) [`971285c`](https://github.com/stats-forge/github-stats-forge/commit/971285c18637da70b136d976607c858bfbbf944e) - feat(cli): group the option menu into sections
+
+  Every option now sits under a heading that says what it governs:
+  what the card counts, what it shows, its text and size, its colors and border.
+  Generate, save and quit carry a heading of their own above them.
+  The list is as tall as the terminal, an unanswered option is dimmed,
+  and typing jumps to a label — `g`, `s` and `q` reach the three actions from anywhere in it.
+
+  `CardOption` carries its section as a required `group`;
+  the params a card cannot render without are `CardField`, which has none.
+
+### Patch Changes
+
+- [#78](https://github.com/stats-forge/github-stats-forge/pull/78) [`0064e34`](https://github.com/stats-forge/github-stats-forge/commit/0064e3411d3e4cb6345d5b4efab94a202c051143) - fix: point the bin at a committed shim, so a clean install can link it
+
+  `bin` named `build/index.js`, which does not exist until the package is built —
+  so pnpm warned on every clean install of the workspace,
+  once for each app that depends on the CLI, and created no bin link.
+  It now names `bin.js`, three committed lines that import the built entry point.
+
+- Updated dependencies [[`0ca9fe1`](https://github.com/stats-forge/github-stats-forge/commit/0ca9fe1b723313d233b2556c8c699b810e08c21d)]:
+  - @stats-forge/github-stats-forge-core@0.6.0
+
 ## 0.3.2
 
 ### Patch Changes
