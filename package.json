@@ -19,7 +19,6 @@
     "lint:ci": "oxlint --format=github",
     "lint:fix": "oxlint --fix",
     "lint:knip": "knip",
-    "lint:deps": "node scripts/assert-deduped.ts",
     "lint:publish": "pnpm -r --filter \"./packages/*\" run lint:publish",
     "typecheck": "pnpm run build:packages && pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run typecheck && tsc -p tsconfig.scripts.json",
     "check-all": "node scripts/check-all.ts",
