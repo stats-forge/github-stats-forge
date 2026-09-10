@@ -23,9 +23,10 @@
     "directory": "packages/cli"
   },
   "bin": {
-    "github-stats-forge": "./build/index.js"
+    "github-stats-forge": "./bin.js"
   },
   "files": [
+    "bin.js",
     "build",
     "src"
   ],

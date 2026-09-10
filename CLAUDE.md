@@ -46,7 +46,8 @@ translations as `locales.ts`; only `cards/options.ts` sits loose beside them. Th
 were one `src/translations.ts` until 2026-09-07 — a file no card owned, which every card
 had to be read alongside.
 
-**Every source file is TypeScript.** The generators under `packages/core/scripts/` were
+**Every source file is TypeScript**, `packages/cli/bin.js` excepted — see "The CLI" for why that
+one cannot be. The generators under `packages/core/scripts/` were
 the last `.js` holdouts and became `.ts` on 2026-09-03, which also put them under
 `packages/core/tsconfig.scripts.json` — so CI typechecks them now.
 
@@ -577,9 +578,12 @@ reaches the renderer.
   Add it to `.changeset/` as part of the same change, not as a follow-up:
   the published `CHANGELOG.md` is generated from these files,
   so a package change shipped without one is invisible to consumers.
-  - **The summary's first line is a conventional commit** — `refactor(core)!: …`,
-    `feat(cli): …`, `ci: …` — because it lands verbatim in the changelog
-    (see the 0.0.2 entry in `packages/core/CHANGELOG.md`).
+  - **The summary's first line is a conventional commit, and it carries no scope** —
+    `refactor!: …`, `feat: …`, `ci: …` — because it lands verbatim in the changelog
+    (see the 0.0.2 entry in `packages/core/CHANGELOG.md`),
+    where it already sits under the package's own name and version.
+    The scope belongs in the commit message, which is read with the whole repository
+    in front of it; the frontmatter is what names the package here.
     Blank line, then the prose.
   - **The packages are pre-1.0, so a breaking change is `minor`**, not `major`:
     changesets would read `major` as 0.0.2 → 1.0.0.
@@ -994,7 +998,7 @@ at the root.
 ## The CLI
 
 `packages/cli` is `@stats-forge/github-stats-forge-cli`, whose `bin` (`github-stats-forge`)
-points at `./build/index.js`, but `pnpm dev` is
+points at `./bin.js`, but `pnpm dev` is
 `node --conditions=@stats/source src/index.ts` — no build step, because relative imports
 name `.ts` (see below) and Node strips the types. The condition is what makes it resolve
 `packages/core/src` rather than core's `build`; pnpm's workspace link is a symlink whose
@@ -1003,6 +1007,13 @@ realpath falls outside `node_modules`, so Node does not refuse to strip types th
 From the repo root, `pnpm cli` builds both packages and runs the CLI there,
 so it picks up the root `.env` the way `pnpm docs:cards` does.
 Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
+
+**`bin.js` is the one committed `.js` file in the repository, and it has to be.** pnpm creates a
+bin link while it installs, before anything is built, so a `bin` naming `build/index.js` fails with
+`ENOENT` on every clean install, once per app depending on the CLI, and leaves the link
+uncreated. The shim exists in the checkout, so the link is always made, and it carries the
+`no-unassigned-import` override its three lines earn. It cannot be TypeScript: Node refuses to
+strip types under `node_modules`, which is where a published consumer's copy lives.
 
 - **Choices come from core's exports, never a copy.** Every `choices` in `src/cards.ts`
   is `<handler>.OPTIONS.<param>` — `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`,

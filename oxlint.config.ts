@@ -222,5 +222,12 @@ export default defineConfig({
         'import/no-unassigned-import': 'off',
       },
     },
+    {
+      // Running the built entry point is all the bin shim does.
+      files: ['packages/cli/bin.js'],
+      rules: {
+        'import/no-unassigned-import': 'off',
+      },
+    },
   ],
 });
