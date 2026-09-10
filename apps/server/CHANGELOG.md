@@ -1,5 +1,14 @@
 # @stats-forge/github-stats-server
 
+## 0.1.1
+
+### Patch Changes
+
+- [#83](https://github.com/stats-forge/github-stats-forge/pull/83) [`313047e`](https://github.com/stats-forge/github-stats-forge/commit/313047ebb9e0d5d475925bec46af67eee983f117) - ci: publish the image, which the release gate had been skipping
+
+  `release.yml` read the changesets action's output as `hasChangesets`,
+  where v2 names it `has-changesets`.
+
 ## 0.1.0
 
 ### Minor Changes
