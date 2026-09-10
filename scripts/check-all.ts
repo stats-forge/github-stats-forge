@@ -23,7 +23,6 @@ const CHECKS: Record<string, Array<string>> = {
   'anvil samples': ['--filter', './apps/docs', 'run', 'check-anvil-samples'],
   'docs site': ['run', 'docs:build'],
   knip: ['run', 'lint:knip'],
-  deps: ['run', 'lint:deps'],
   tests: ['exec', 'vitest', '--run'],
   // Last, and after `docs site`: it serves the build that check leaves behind.
   'anvil e2e': ['--filter', './apps/docs', 'run', 'test:e2e'],

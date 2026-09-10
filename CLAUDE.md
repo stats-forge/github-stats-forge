@@ -30,7 +30,7 @@ self-hosted endpoint) import the package.
 | `packages/core` | The library: fetchers, card renderers, themes, api handlers                                               |
 | `packages/cli`  | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config |
 | `apps/docs`     | The documentation site — Astro + Starlight, every page markdown; **not published**                        |
-| `scripts/`      | Repo-level tooling — `assert-deduped.ts`, via `tsconfig.scripts.json`                                     |
+| `scripts/`      | Repo-level tooling — `check-all.ts`, via `tsconfig.scripts.json`                                          |
 
 **The workspace is `packages/*` and `apps/*`.** A package under `packages/` is published and
 carries a changeset; an app under `apps/` is not and does not. `build:packages` and
@@ -63,7 +63,6 @@ pnpm lint                 # oxlint over the whole workspace
 pnpm lint:ci              # oxlint --format=github (what CI runs, for annotations)
 pnpm lint:fix             # oxlint --fix
 pnpm lint:knip            # unused files/exports/deps
-pnpm lint:deps            # scripts/assert-deduped.ts — fails on duplicated deps
 pnpm lint:publish         # attw + publint in each package — guards what gets published
 pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
@@ -82,7 +81,7 @@ pnpm check-all            # every check CI runs, cheapest first, in one command
 the bare form was documented here and did not work.
 
 `check-all` is the one to reach for before handing work over. It is
-`scripts/check-all.ts` — thirteen checks ordered so the fastest failure surfaces first, each
+`scripts/check-all.ts` — twelve checks ordered so the fastest failure surfaces first, each
 named and timed, stopping at the first failure unless `-k` asks for the whole list. It was an
 `&&` chain in `package.json` until that reached eleven links; a `.sh` was considered and
 rejected, because every other file here is TypeScript and so gets typechecked, linted and
@@ -718,6 +717,21 @@ are skipped until it is listed again.
   first-party config is excluded by exact version in `minimumReleaseAgeExclude` — the
   cooling-off period is there to catch a third-party publish going bad. Pin the version in
   the exclusion; a bare package name would exempt every future publish too.
+- **`overrides` is where a deprecated transitive dependency gets replaced.**
+  `node-fetch` is aliased to `node-fetch-native`, which is the same API with no
+  dependencies: `@lit-labs/ssr` — a `@awesome.me/webawesome` dependency, so reached
+  through the anvil — wants it for one `fetch` on its DOM shim's window, and node-fetch's
+  own blob and formdata shims brought the deprecated `node-domexception` with them.
+  Every published version of that package is deprecated, so a version bump is not the fix.
+  **Neither package's code runs here**, the site importing webawesome's components and never
+  the `@lit-labs/ssr` behind them, so this is a lockfile change and nothing more:
+  six packages left it on 2026-09-10 for the one that replaced them.
+- **Nothing polices an override, and the script that tried was deleted.**
+  `scripts/assert-deduped.ts` failed on a package locked at two versions and on an entry
+  whose override was gone, for a `SINGLE_VERSION` list that held one package —
+  `lightningcss`, whose override had already left `pnpm-workspace.yaml` without the list
+  noticing. It was a CI job and a `check-all` step to guard one line, and went on
+  2026-09-10. Check an override by hand with `pnpm why <pkg>` when you touch one.
 - `strictPeerDependencies` and `engineStrict` are on, so an unmet peer fails the install
   rather than warning.
 

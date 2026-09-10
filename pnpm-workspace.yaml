@@ -2,6 +2,12 @@ packages:
   - packages/*
   - apps/*
 
+overrides:
+  # Only to keep the deprecated node-domexception, and four other shims, out of the lockfile:
+  # no code of either package runs here, the site importing webawesome's components and
+  # never the @lit-labs/ssr behind them.
+  node-fetch: npm:node-fetch-native@^1.6.7
+
 allowBuilds:
   # astro's bundler; it fetches its platform binary in a postinstall
   esbuild: true
