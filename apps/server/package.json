@@ -1,6 +1,6 @@
 {
   "name": "@stats-forge/github-stats-server",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "HTTP server that draws the cards, and the container image it ships in",
   "type": "module",
