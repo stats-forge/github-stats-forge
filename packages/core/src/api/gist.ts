@@ -23,6 +23,7 @@ const gistQuery = z.object({
  */
 export const gist = cardHandler(
   gistQuery,
+  { id: 'gist' },
   async (
     { id, locale, border_radius, show_owner, browser_rendering, hide_border },
     colors,

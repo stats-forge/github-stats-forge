@@ -54,6 +54,16 @@ const result = await stats({ username: 'octocat' }, config);
 
 See [The library](usage/library/).
 
+**From your own server**, which draws a card at the moment someone looks at it:
+
+```sh
+docker run -p 9000:9000 -e PAT_1=github_pat_... ghcr.io/stats-forge/github-stats-forge-server
+```
+
+The image serves every card as an endpoint, and carries this documentation and the card builder
+with it — the builder drawing from your instance, with your real numbers.
+See [Self-hosting](usage/self-hosting/).
+
 ## Customizing one
 
 Every card takes the same [colors, borders and title options](customization/common-options/),

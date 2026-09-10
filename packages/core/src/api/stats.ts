@@ -58,6 +58,7 @@ const statsQuery = z
  */
 const renderStats = cardHandler(
   statsQuery,
+  { username: 'username' },
   async (
     {
       username,

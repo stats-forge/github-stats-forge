@@ -3,6 +3,9 @@ import type { FetchLike } from './http.ts';
 
 type Env = Record<string, string | undefined>;
 
+/** Which list guards an identity. `username` is any GitHub login, an organization's included. */
+type AllowlistKind = 'username' | 'gist';
+
 interface PersonalAccessToken {
   /** Env variable the token came from — the retryer logs this name, never the value. */
   name: string;
@@ -20,10 +23,15 @@ interface CardConfigInit {
 }
 
 /**
- * @returns Parsed string values.
+ * @returns The comma-separated values, trimmed, or `undefined` when the variable is unset or empty.
  */
-const parseCsv = (value: string | undefined): Array<string> | undefined =>
-  value ? value.split(',') : undefined;
+const parseCsv = (value: string | undefined): Array<string> | undefined => {
+  const values = (value ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry !== '');
+  return values.length > 0 ? values : undefined;
+};
 
 /**
  * @returns Page limit: `"true"` means every page, a positive number caps the pages, anything else means one.
@@ -37,12 +45,15 @@ const parseFetchMultiPageStars = (value: string | undefined): number => {
 };
 
 /**
+ * An empty variable is an unset one: `docker compose` writes `PAT_2=` for a token left blank.
+ *
  * @returns Personal access tokens found in the environment.
  */
 const parsePATsFromEnv = (env: Env): Array<PersonalAccessToken> =>
   Object.keys(env)
     .filter((key) => /PAT_\d*$/.exec(key))
-    .map((name) => ({ name, value: env[name] ?? '' }));
+    .map((name) => ({ name, value: env[name] ?? '' }))
+    .filter((pat) => pat.value !== '');
 
 /**
  * Deployment-wide configuration for the card renderers.
@@ -75,17 +86,22 @@ export class CardConfig {
   static fromEnv(env: Env): CardConfig {
     return new CardConfig({
       pats: parsePATsFromEnv(env),
-      usernameAllowlist: parseCsv(env['WHITELIST']),
-      gistAllowlist: parseCsv(env['GIST_WHITELIST']),
+      usernameAllowlist: parseCsv(env['ALLOWLIST']),
+      gistAllowlist: parseCsv(env['GIST_ALLOWLIST']),
       excludeRepositories: parseCsv(env['EXCLUDE_REPO']) ?? [],
       fetchMultiPageStars: parseFetchMultiPageStars(env['FETCH_MULTI_PAGE_STARS']),
     });
   }
 
-  /** @returns Whether this deployment serves the id. */
-  isAllowed(id: string, kind: 'username' | 'gist'): boolean {
+  /**
+   * Matched case-insensitively, as a GitHub login is; an absent list serves anyone.
+   *
+   * @returns Whether this deployment serves the id.
+   */
+  isAllowed(id: string, kind: AllowlistKind): boolean {
     const list = kind === 'gist' ? this.gistAllowlist : this.usernameAllowlist;
-    return list === undefined || list.includes(id);
+    const wanted = id.toLowerCase();
+    return list === undefined || list.some((allowed) => allowed.toLowerCase() === wanted);
   }
 
   /** @returns A copy with `overrides` applied — how a host swaps in a user's PAT per request. */
@@ -102,4 +118,4 @@ export class CardConfig {
   }
 }
 
-export type { PersonalAccessToken, CardConfigInit };
+export type { AllowlistKind, PersonalAccessToken, CardConfigInit };

@@ -1,3 +1,10 @@
+/**
+ * @file What each card accepts, in the order the prompts walk it.
+ *
+ * The core schemas validate these params;
+ * this catalog is what makes them navigable, so it carries the prose and the choices a schema has no room for.
+ */
+
 import {
   contributedTo,
   gist,
@@ -9,13 +16,6 @@ import {
   wakatime,
 } from '@stats-forge/github-stats-forge-core/api';
 import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core/api';
-
-/**
- * @file What each card accepts, in the order the prompts walk it.
- *
- * The core schemas validate these params;
- * this catalog is what makes them navigable, so it carries the prose and the choices a schema has no room for.
- */
 
 /** How a param is asked for, and how the answer becomes a query string value. */
 type OptionKind = 'text' | 'boolean' | 'number' | 'list' | 'choice';

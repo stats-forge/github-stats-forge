@@ -15,27 +15,41 @@ Scope split: **this file holds the durable rules**; work not yet done lives in
 across the two. Open at the moment: `CORE_DEFERRED_IMPROVEMENTS.md` (follow-ups in
 `packages/core`, each verified as still applicable), `CORE_PACKAGE_SPLIT.md` (whether
 `packages/core` becomes several packages), `ANVIL.md` (the docs site's card builder,
-which writes the CLI's config file) and `SERVER_DOCKER.md` (an HTTP server
-over the api handlers, shipped as an image).
+which writes the CLI's config file) and `SERVER_DOCKER.md` — whose phases 1 to 4 landed on
+2026-09-09 as `apps/server`, 6 and 7 on 2026-09-10 and the "Run it yourself" page as
+`usage/self-hosting.md`, leaving `/instance` and live previews still to do.
 
 ## What this is
 
 `github-stats-forge` — a pnpm monorepo holding the library that renders
-GitHub stats as SVG cards, the CLI that writes one to a file, and the site that documents
-both. The server that used to live here is gone: consumers (the GitHub Action, any
-self-hosted endpoint) import the package.
+GitHub stats as SVG cards, the CLI that writes one to a file, the server that serves them over
+HTTP, and the site that documents all three. The Express backend that used to live here is gone
+and nothing was ported from it; `apps/server` is designed from what core exposes today.
 
-| Path            | What it is                                                                                                |
-| --------------- | --------------------------------------------------------------------------------------------------------- |
-| `packages/core` | The library: fetchers, card renderers, themes, api handlers                                               |
-| `packages/cli`  | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config |
-| `apps/docs`     | The documentation site — Astro + Starlight, every page markdown; **not published**                        |
-| `scripts/`      | Repo-level tooling — `check-all.ts`, via `tsconfig.scripts.json`                                          |
+| Path            | What it is                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------- |
+| `packages/core` | The library: fetchers, card renderers, themes, api handlers                                                   |
+| `packages/cli`  | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config     |
+| `apps/server`   | The HTTP server over core's api handlers, and the container image it ships in; **published to GHCR, not npm** |
+| `apps/docs`     | The documentation site — Astro + Starlight, every page markdown; **not published**                            |
+| `scripts/`      | Repo-level tooling — `check-all.ts`, via `tsconfig.scripts.json`                                              |
 
-**The workspace is `packages/*` and `apps/*`.** A package under `packages/` is published and
-carries a changeset; an app under `apps/` is not and does not. `build:packages` and
-`lint:publish` stay filtered to `./packages/*` for that reason; the root `typecheck` covers the
-packages and `scripts/`, and the site's own runs in CI's docs job.
+**The workspace is `packages/*` and `apps/*`, and what a thing publishes to is what decides its
+rules — not which folder it sits in.** A package under `packages/` goes to npm, so it carries a
+changeset and a `lint:publish`. `apps/docs` publishes nothing and carries neither. `apps/server`
+publishes an image, so it **does carry a changeset** and no `lint:publish`: the release that
+publishes to npm publishes the image too, and the version it is tagged with is the one changesets
+set. `build:packages` and `lint:publish` stay filtered to `./packages/*`; the root `typecheck` and
+the root `typecheck` covers the packages, both apps and `scripts/`, and the root `vitest` projects
+the packages and `apps/server` — `scripts/` has no tests.
+
+- **`privatePackages: { version: true, tag: false }` in `.changeset/config.json` is what makes
+  that work**, together with a `version` field on `apps/server/package.json`. `apps/docs` has no
+  `version` field, so changesets leaves it alone — that is the difference between the two apps,
+  and it is deliberate rather than an oversight.
+- **`updateInternalDependencies: patch` means a core release bumps the server too**, so a card
+  change reaches the image without a changeset naming the server. Confirm with
+  `pnpm exec changeset status`.
 
 `packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
 `api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
@@ -67,6 +81,8 @@ pnpm lint:publish         # attw + publint in each package — guards what gets 
 pnpm format               # oxfmt --write . (`format:check` in CI)
 pnpm build:packages       # build packages/*
 pnpm cli --help           # build, then run the CLI (add any of its flags)
+pnpm server:standalone    # the HTTP server against the root .env, watching for edits; cards only
+pnpm server:hosted        # build the site as the image does, then the server with the site attached
 pnpm run docs             # build, then the docs site's dev server (`run` is required — see below)
 pnpm docs:build           # build the docs site (what CI runs)
 pnpm docs:cards           # build, then redraw the docs site's card previews
@@ -125,14 +141,192 @@ suite. A package that imports another resolves it through the `@stats/source`
 condition, which vitest only applies when it is set under **`ssr.resolve.conditions`**
 as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
 
+## The server and its image
+
+`apps/server` is an HTTP server over core's `./api` handlers, shipped as a container image.
+**It owns exactly four things core deliberately does not — routing, HTTP status and headers,
+caching, and the process. Everything else it does is a bug.** `CardConfig.fromEnv` already reads
+the tokens and the allowlists, and `ApiResult` already carries the code and whether a retry could
+help, so there is nothing here to re-derive.
+
+- **There is no build step, and there must not be one.** Node strips the types, every relative
+  import names the `.ts` that exists, and `--conditions=@stats/source` points the core import at
+  `packages/core/src` — pnpm links a workspace package as a symlink whose realpath falls outside
+  `node_modules`, which is what lets node strip types there. So the image runs the sources: what
+  is in the container is what is in the repository, and nothing is compiled or bundled.
+  - It **was** bundled with rolldown for one afternoon on 2026-09-09. Two things killed it: the
+    bundle is a second artifact nobody can diff against the repo, and the config key is
+    `resolve.conditionNames`, not `conditions` — the wrong one is reported as an invalid option
+    and then quietly leaves both workspace packages external, producing a 5 kB file that cannot
+    start. Do not reinstate it.
+- **The core of it is `(request: Request) => Promise<Response>`.** `node.ts` is the only file that
+  knows what an `IncomingMessage` is, which is why `handler.ts` has forty-odd tests and it has
+  two. A whole endpoint is testable with no socket and no token, because `CardConfig` already
+  takes the transport.
+  - **Nothing escapes the adapter.** A handler that throws is answered `500`, because an unhandled
+    rejection is a dead process on Node 24 — and one did: `static.ts` only `stat`s before it
+    reads, so a directory named `index.html` or a `0600` file on a bind mount made `readFile`
+    reject through `route` and out of `void serve(...)`. `static.ts` now answers `undefined` for
+    those, and the adapter's catch is the second line; `tests/node.test.ts` covers the catch.
+- **No framework and no dependency.** `node:http` plus `URL` is the entire surface this needs, and
+  this repository inlined an 87-byte regex rather than carry a dependency. If middleware ever
+  justifies one, Hono speaks `Request`/`Response` and slots in without changing `handler.ts`. Not
+  Express: it wants `req`/`res`, which is the shape this is deliberately not built on.
+- **The server imports core and nothing else.** The CLI's catalog carries the same seven ids, but
+  it carries prompt prose with them and a megabyte of `@inquirer/prompts` behind it, so
+  `routes.ts` spells the table out and `tests/routes.test.ts` asserts twice over that it has not
+  drifted: every card core exports is routed, and every path is named as the CLI names its card.
+  The CLI is a **dev**dependency here for that test alone, which is what keeps it out of the
+  image's `--prod` install.
+- **A failure answers `200` with the drawn error card, and puts the truth in headers.** GitHub's
+  image proxy only displays a `200`, so a `4xx` turns "Invalid username input" into a broken image
+  in a README. `Card-Status`, `Card-Error-Code`, `Card-Error-Param` and `Card-Cache` are what a
+  host branches on — the same argument that made `ApiResult` a union rather than a status string.
+  `STRICT_HTTP_STATUS=true` maps the real codes for a caller that is not a README.
+  - **No `X-` prefix.** RFC 6648 deprecated it in 2012. `X-Content-Type-Options` is the one
+    exception, that being the header's registered name — renaming it would turn it off.
+- **A held answer carries `Age`, and never a restarted `max-age`.** The first shape computed a
+  countdown into `max-age` on a cache hit, which quietly overrode the `cache_seconds` the caller
+  asked for. `Age` is the header that exists for this: a downstream cache subtracts it itself.
+  - **The copy is held for the deployment's default, and `cache_seconds` shapes only the header.**
+    `cacheKey` drops the param, so every caller shares one entry; storing it under the first
+    caller's TTL let a `cache_seconds=86400` README keep everyone on day-old numbers past their own
+    ten-hour `max-age`. `cache_seconds=0` also skips the held copy, so a `no-store` answer is never
+    a `Card-Cache: hit`.
+  - **One render per key at a time.** `createHandler` keeps the in-flight renders in a `Map`, so N
+    requests arriving while a card is drawing share the one GitHub call; without it a hot README's
+    TTL lapsing was N rate-limit points for N identical SVGs.
+  - **`CardCache` is never `undefined`.** `CACHE_SECONDS=0` used to be represented twice — as a
+    `0` and as a missing cache — and the two disagreed on a `?cache_seconds=` override. A TTL of
+    `0` stores nothing, so the number is the one switch.
+- **An empty environment variable is an unset one.** `docker compose` writes `""` for every
+  `${VAR:-}` it has no value for, and an empty `CACHE_SECONDS` read as a number is `0` — which
+  would silently turn caching off on an instance that never asked. `fromEnv` in `config.ts` is
+  that guard, an empty `PAT_2` is dropped from the pool, and `tests/config.test.ts` covers both.
+- **Never log a query value or a token.** A query holds usernames; `PersonalAccessToken` carries
+  the env var's `name` for exactly this reason. One structured JSON line per request on stdout,
+  built from the response's own headers rather than a second return channel out of the handler.
+- **The image carries the documentation site, and `SITE_DIR` is what turns it on.** The static
+  handler is claimed **last**, after `/api/**` and `/healthz`, so nothing the site holds can
+  shadow a card; `/_astro/**` is immutable and everything else keeps 300s. Absent the variable the
+  server draws cards and serves no pages, which is what a deployment wanting only an endpoint gets.
+  - **A site build knows where it will be served from, so `SITE_DIR` and the build have to
+    match.** `SITE_BASE` is the path it is written against — `/github-stats-forge` for Pages, `/`
+    for the image — and pointing `SITE_DIR` at a Pages build serves HTML whose every asset 404s.
+  - **`pnpm server:hosted` is the Dockerfile's site build plus `server:standalone` with
+    `SITE_DIR=../docs/build`**, the path being relative to `apps/server`. Added on 2026-09-10,
+    when the cards-only script answered neither `/` nor `/anvil/`. A shell variable beats the
+    `.env`, node's `--env-file` never overriding one already set, so one `.env` serves both.
+  - `send` in `node.ts` goes through `arrayBuffer`, not `text`, and so does the `Content-Length`
+    a `HEAD` answers with: a PNG round-tripped through a string is a corrupted PNG, and the site
+    has several.
+  - **`toRequest` copies no header across.** Nothing routes on one, so the loop that did was dead
+    work per request; add it back the day a route reads an `Accept` or an `If-None-Match`.
+- **`SITE_SERVER=true` is what tells the anvil there is a server under it.** `anvil.astro` writes
+  it onto the page as `data-source`, because `ui.ts` runs in a browser and has no environment.
+  **Told, not probed**: the alternative is a request for `/healthz` on every load of the anvil on
+  Pages, where there is nothing to find. It is also what recolours the site's icon — see "The
+  documentation site".
+- **`node:24-alpine`, pinned by digest, and there is no lighter official Node image.** Measured
+  from the registries on 2026-09-10: alpine 56 MB compressed, slim 77, the full image 391, and
+  distroless 50. So distroless buys six megabytes for a container with no shell in it, which is
+  not the trade to make on a server someone self-hosts and will want to look inside.
+  - **`bookworm` is the Debian side of the same fork, not a lighter one.** `24-bookworm-slim` is
+    byte-identical to `24-slim` and `24-bookworm` to `24`, so the choice is musl against glibc
+    rather than size. Nothing here needs glibc — the `--prod` install is `zod` and nothing else,
+    with no native addon anywhere — so Alpine stands. Revisit it if a native dependency arrives,
+    or if DNS turns flaky in a cluster: musl's resolver is the usual suspect, and this server
+    resolves `api.github.com` on every cache miss.
+  - **The digest is there because `24-alpine` is a moving tag** — it has floated across Alpine
+    3.20 to 3.24 for this Node major alone, so the OS under the image changed without the
+    Dockerfile doing. **Dependabot maintains it** (`package-ecosystem: docker` on `/apps/server`),
+    so a base bump arrives as a pull request CI has built. Both `FROM` lines carry the same
+    digest; change them together.
+- **The base stage deletes the root `prepare` script, because every `pnpm install` runs it.**
+  It is `lefthook install`, and neither stage can satisfy it: `--prod` leaves lefthook
+  uninstalled, so the shell reports `command not found`, and the site stage has lefthook but no
+  `.git`, so it exits 128. Both failed the image build on 2026-09-10. `ENV LEFTHOOK=0` was there
+  to prevent exactly that and never could — it silences the hook runner, not `lefthook install` —
+  so it went with the fix. `pnpm pkg delete scripts.prepare` leaves each dependency's own
+  postinstall alone, which `--ignore-scripts` would not.
+- **The healthcheck is `src/healthcheck.ts`, not a `node -e` one-liner**, so it is typechecked,
+  linted and formatted with the rest of the server. Two things it needs that the one-liner did not:
+  `agent: false`, because node's global agent holds a socket alive for five seconds and would
+  outlive the check's own three-second timeout; and `process.exitCode` rather than `process.exit`,
+  which `unicorn/no-process-exit` forbids and which is unnecessary once the socket closes. Runs in
+  79ms and verified three ways — `0` against a live server, `1` against a dead port and `1` against
+  one answering `500`.
+  - **`health.ts` is its own module for this**, holding `HEALTH_PATH` and the default port and
+    host. `HEALTH_PATH` sat in `routes.ts`, which imports core's whole api behind the card table:
+    130ms against 35ms for a bare start, every thirty seconds, to learn one string. The defaults
+    moved in on 2026-09-10, when the check read `PORT` raw — an empty one dialled port 80 — and
+    always dialled `127.0.0.1`, which a server bound to a concrete `HOST` never answers.
+- **The image build is the one CI check that is not in `check-all`.** It needs docker, which not
+  every checkout has, and it takes minutes rather than seconds. CI's `image` job builds it, starts
+  it and asks it for a card — which is the only thing that proves the sources resolve inside the
+  container, there being no compile step to fail first.
+- **`base` is `--platform=$BUILDPLATFORM`; only `runtime` is multi-arch.** The install and the
+  site build produce the same bytes on every architecture, so they run natively once rather than
+  under QEMU per target, and a pnpm store cache mount keeps a lockfile change from a cold download.
+- **The two called workflows carry distinct concurrency groups.** In a called workflow
+  `github.workflow` is the caller's name, so `publish-image.yml` and `deploy-docs.yml` both
+  resolved to `Release` and queued behind each other; the image one is suffixed `-image`.
+- **The release publishes to npm, GHCR and Pages, in that order, from one workflow.** The image
+  job is gated on `hasChangesets == 'false'` and not on `published`: the server is private, so a
+  change to it alone releases nothing to npm and would otherwise never reach GHCR. It then skips
+  a version already in the registry, which is what makes that wider gate safe.
+- **A workflow in this repository calls its sibling with `$/`, not `./`.** That is the documented
+  "same repo at the running commit" form, and `release.yml` used it before the image job existed.
+  It was changed to `./` on 2026-09-09 by someone who took it for a typo, and changed back.
+
 ## The documentation site
 
 `apps/docs` is Astro + Starlight, served under `base: '/github-stats-forge'` because GitHub Pages
 puts it below the repository name. It is **not published to npm**, so it carries no changeset and
 no `lint:publish`.
 
+- **The same site is built twice, and `SITE_BASE` plus `SITE_SERVER` are the whole difference.**
+  Pages gets the repository name and no server; the image gets `/` and `SITE_SERVER=true`. Both
+  are read in `src/constants.ts`, **in Node only** — the one script the site ships reads Astro's
+  own `import.meta.env.BASE_URL`, and is told about the server through a `data-source` attribute
+  `anvil.astro` writes onto the page.
+- **Every image the site serves lives in `apps/docs/public/`, and one file is both the favicon and
+  the header logo.** `public/` serves it verbatim at a stable URL, which a favicon needs, and
+  Astro's pipeline emits a hashed copy for `logo.src` and reads the social preview's dimensions
+  off the import — so importing out of `public/` is deliberate here rather than the mistake it
+  usually is. What stays in `.github/assets/` is the **repository's** artwork, `appIcon.svg`
+  because the README shows it; the site no longer reaches across for anything.
+- **A self-hosted instance says so, in four places, and its icon is a committed twin.**
+  The two deployments differ in the way that matters most — one draws cards from a token and the
+  other from nothing — so a visitor has to be able to tell which one they landed on.
+  `public/favicon-self-hosted.svg` is `favicon.svg` with the anvil's bars in amber, and
+  `astro.config.ts` picks between the two on `SERVED_BY_INSTANCE`.
+  - **Committed, not generated.** A build-time generator plus a gitignore entry was written and
+    removed on 2026-09-10: two icons that must agree is the same trade `public/favicon.svg`
+    already makes against `.github/assets/appIcon.svg`, and it does not need machinery. Change one
+    and change the other.
+  - The others are a chip beside the title (`SiteTitle.astro`) whose detail is given up on hover,
+    an amber site title beside it, a `(self-hosted)` suffix on the tab, and a banner on the
+    landing page. **The chip's tooltip is CSS, not `wa-tooltip`** — that is a Web Awesome element
+    and the anvil is the only page here that loads any; the detail is screen-reader-only until
+    hovered or focused, so it is in the accessibility tree either way.
+  - **The chip's tooltip needs Starlight's clip lifted, or it renders and is invisible.**
+    `.title-wrapper` carries `overflow: clip` so a long site title cannot push the header open,
+    and it is 50px tall — the tooltip hangs past that. `:global(.title-wrapper:has(.self-hosted))`
+    sets `overflow: visible`, so the lift reaches only a build whose title is known to fit.
+    Checked at 320, 420 and 1280px: the tooltip clears the header and nothing scrolls sideways.
+  - **Two amber shades, not one.** The header follows the theme, so `#b45309` is what clears AA
+    on a light one and `#f59e0b` on a dark one. The title is Starlight's own element, reached
+    through `:global(.title-wrapper:has(.self-hosted) .site-title)` — keyed off the chip so the
+    rule is inert on a Pages build.
+  - **The tab is amended in the route data, not in the config.** Starlight builds `<title>` from
+    the configured site title, which the chip beside that title would then say twice, so
+    `Head.astro` rewrites the `title` entry of `Astro.locals.starlightRoute.head` instead.
+  - **Starlight has no site-wide banner setting** — it reads one off a page's frontmatter, and a
+    markdown page cannot know what is serving it. `Banner.astro` writes it into the route data on
+    the landing page alone, so it wears Starlight's own styling and appears once.
 - **Every documentation page is markdown, the landing page included.** `.astro` exists for the
-  config, the plugins, the three Starlight overrides and the anvil, nothing else. A documentation page
+  config, the plugins, the four Starlight overrides and the anvil, nothing else. A documentation page
   that wants a component is a page that wants rewriting — this was the whole point of phase 1.
   - **The anvil is the one exception, because it is an application rather than prose.**
     `src/pages/anvil.astro` renders through Starlight's own `<StarlightPage>`, so it keeps the
@@ -247,10 +441,14 @@ no `lint:publish`.
   itself, but never an `og:image`, so a shared link unfurled as text with a card-shaped hole.
   `src/components/Head.astro` renders Starlight's own and appends the image, its dimensions and its
   alt text; `<StarlightPage>` uses the same component, so the anvil is covered with it.
-  - **The image is the repository's own social preview, imported rather than copied** — the same
-    trade the header logo makes. A plain ESM import goes through Astro's asset pipeline, which
-    reads a PNG's dimensions without handing it to sharp; `public/` would have meant 216KB
-    duplicated and a second file to keep in step.
+  - **On the image build, canonical, `og:url` and `og:image` are rewritten to Pages, base
+    included.** Starlight resolves the page's own path against `site`, and on the image that path
+    has no base — so every tag pointed at `https://stats-forge.github.io/docs/…`, a 404. Pages
+    stays canonical, so `Head.astro` puts `PAGES_BASE` back in the route data; `PAGES_SITE` and
+    `PAGES_BASE` live in `constants.ts`.
+  - **The image is `public/social-preview.png`, imported rather than referenced by URL.** A plain
+    ESM import goes through Astro's asset pipeline, which reads a PNG's dimensions without handing
+    it to sharp — so nothing writes 1280×640 down.
   - **`og:image` has to be absolute**, so the emitted `src` — which already carries the base — is
     resolved against `Astro.site`. Its 1280×640 is read off the import rather than written down,
     and a scraper uses it to reserve the space before the image arrives.
@@ -259,9 +457,6 @@ no `lint:publish`.
   `/themes/<name>.svg` once — it already names its theme — and pairs `/cards/<name>.svg`.
   `SAMPLE_THEMES` in `src/constants.ts` is read by both generators, so the page cannot draw a
   theme nobody rendered.
-- **The header logo is the repository's own `.github/assets/appIcon.svg`**, referenced from
-  `astro.config.ts` rather than copied. `public/favicon.svg` **is** a copy of it, because a favicon
-  has to be a static file at a stable URL — change one and change the other.
 - **A diagram on the site is a fenced `text` block, not mermaid.** Rendering mermaid costs either
   a client-side bundle on a docs half that ships no JavaScript, or `@mermaid-js/mermaid-cli` and
   the Chromium it brings with it. Neither is proportionate to a diagram; the colour-precedence one
@@ -314,6 +509,30 @@ no `lint:publish`.
 the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, because the sibling
 `ghse` already has one.
 
+- **A preview comes from a source, and which one it is decides the prose as much as the numbers.**
+  `src/anvil/source.ts` is one interface with two implementations: the recording, which never
+  leaves the browser, and the instance, which draws with its own token and its own allowlists.
+  A source therefore carries its own `badge`, `aside`, `detail` and `identityNote` alongside its
+  `draw`, and `ui.ts` writes whichever is drawing into the page — **"nothing you type is sent
+  anywhere" is true of one of them only**, and it was hardcoded in `anvil.astro` until 2026-09-10.
+  - **The seam returns a `Preview`, not an `ApiResult`.** The page needs the SVG and a line of
+    text, and a card response carries the code and the param and no prose — deliberately: a
+    header holding the message would carry whatever `CardError.from` wrapped, possibly an
+    upstream string, into the one place every proxy logs. So `PROBLEMS` in `source.ts` says what
+    each code means in the anvil's terms, and the error card the reader is looking at says the
+    rest. `content` is `undefined` when the draw never happened, which keeps the last card up.
+  - **Both sources are in the bundle either way**, so an instance with no `PAT_1` configured can
+    fall back to the recording. The picker appears only where there is a choice.
+  - **The instance's cards are at `/api/**` on the origin, never under the base**, the routes
+    being the server's rather than the site's.
+  - **A text field redraws after a pause, not per keystroke.** Free with a recording, a request
+    against the instance's token otherwise. `writeFile` still runs at once, so the saved file and
+    the URL never lag behind what is typed; only `draw` waits.
+  - **The card's URL is offered above the saved file, and only on an instance.** The origin is the
+    one thing a static build cannot know and the browser always does, which is what makes a
+    copy-paste `![](…)` correct rather than illustrative. The panel is in the markup on every
+    build and unhidden by `ui.ts`; `e2e/anvil.spec.ts` asserts it stays hidden where there is no
+    server.
 - **It draws through core's public `./api` handlers, never through the card renderers.**
   `CardConfig` takes a `fetch`, and its own doc comment already names the browser as a host, so the
   page hands it a transport that answers from a recording:
@@ -403,6 +622,12 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   - **The stack lives inside `[data-anvil="root"]`.** `mount` finds every element with
     `need(root, …)`, so a stack placed after that div threw and took the whole page's JavaScript
     with it — all 33 tests failed at once.
+- **Two buttons in a row need their margin cleared; a button and a link do not.** Starlight puts
+  `--sl-content-gap-y` between adjacent elements inside `.sl-markdown-content`, and its exclusion
+  list names `a` but not `button` — so "Copy URL" and "Copy Markdown" sat 16px apart vertically,
+  the second dropped and the first stretched by the flex line to meet it. The rule in `anvil.css`
+  is `.anvil-output-head .anvil-actions > *`, specific enough to outrank it. The Copy/Download
+  pair beside it never showed the bug, `a` being exempt.
 - **The anvil's stylesheet is imported by the page, not listed in `customCss`.** `customCss` serves
   a file on every page in the site; this one is used by one, and Astro inlines it into that page
   alone. It stays **unscoped** rather than becoming an Astro `<style>` block, because `ui.ts` builds
@@ -467,8 +692,9 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
     hundred bytes and no CLI machinery.
   - A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
     with choices a group of checkboxes, and everything else a field — numeric where the kind says
-    so. The options every card shares are folded into a `wa-details`, because thirty controls in one
-    column is a wall.
+    so. The controls are sectioned by each option's `group` under the CLI's `OPTION_GROUPS`, one
+    `wa-details` per group in the CLI's order, so the two forms section alike; only "Colors and
+    border" opens folded, because thirty controls in one column is a wall.
 - **The site bundles `packages/core` and the CLI from source, through `@stats/source`.**
   `astro.config.ts` sets that condition under **both** `vite.resolve` and `vite.ssr.resolve`, the
   same trap `packages/cli/vitest.config.ts` documents. Keep both.
@@ -544,6 +770,11 @@ reaches the renderer.
   daemonizes — the process Playwright starts exits at once and `webServer` gives up with "exited
   early" — and `--background` being opt-in does not change it. Thirty lines of `node:http` is
   cheaper than depending on that behaviour.
+  - **It is a copy of `apps/server/src/static.ts`'s table and guard, on purpose.** Importing them
+    was tried on 2026-09-10 and reverted the same day: the image carries the site, so the site
+    depending on the server is a cycle, even one that only the e2e run walks. The cost is two
+    tables to keep agreed — `.ico` had already drifted once — and the e2e copy serves the Pages
+    build under its base, which the image's handler never sees.
 - **`@playwright/test` is pinned at 1.62.1, which is not the latest.** 1.63.0 was two days old and
   `minimumReleaseAge` is three, so pnpm refuses it. Take the newest version older than the
   cooling-off period rather than adding it to `minimumReleaseAgeExclude` — that list is for a
@@ -551,10 +782,11 @@ reaches the renderer.
 - **The file is `.spec.ts`, deliberately.** The vitest workspace is `packages/*` so it would not
   collect it anyway, but oxlint's vitest override is `**/*.{test,bench}.ts`, and a Playwright file
   under those rules reports against a framework it is not using.
-- **One test asserts the privacy claim.** `sends nothing anywhere while drawing every card` records
-  every request the page makes while cycling all seven, and fails on any that leaves the origin. The
-  page tells the reader nothing they type is sent anywhere; this is what makes that true rather than
-  stated.
+- **One test asserts the privacy claim, and it belongs to the recording rather than to the page.**
+  `sends nothing anywhere while drawing every card` records every request made while cycling all
+  seven and fails on any that leaves the origin — **and on any that reaches `/api/**`**, which an
+  instance's cards do and the origin check alone would miss. It states which source is drawing
+  before asserting it, because the claim is only that source's to make.
 - **The privacy test compares origins, not URL prefixes.** It matched
   `request.url().startsWith(page.url().split('/github-stats-forge')[0])`, which re-read `page.url()`
   per request and counted the site's own `/_astro/` chunks as offsite the moment a new chunk
@@ -631,6 +863,13 @@ SVG`). Fourteen uses across five pages were rewritten on 2026-09-07. **`screen r
 **A comment states the reason, never the behaviour.** Write it, then delete every
 sentence the reader could have got from the code itself; what survives is usually one
 line. A comment that only announces what the next block does is not worth keeping.
+
+**A `@file` block is the first thing in its file, before the imports** — after the shebang, where
+there is one. That is where JSDoc places a file-level tag, and it was true of one file in 41 until
+2026-09-10, when the other 40 moved. Nothing enforces it: oxlint's jsdoc plugin has no rule for
+the tag's position, and a script that checked it was written and removed the same day as more
+machinery than the rule is worth. Put the block first when you write one, and move it when you
+find one below the imports.
 
 **There are no `@param` tags in this repository; `@returns` stays.** 566 `@param` lines
 were deleted on 2026-09-03 across 56 files, because under TypeScript they restated the
@@ -828,12 +1067,29 @@ params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `looseInt
 `rawParam`, `safeParam`, `safeListParam`, `localeParam`, `enumParam(values)`,
 `fromParam`, `toParam`) — none of which takes a message, because the wording is derived
 from the kind and the param name.
-A handler is then `cardHandler(xQuery, async (params, colors, config) => svg)` from `api/handler.ts`:
-it parses the colors, parses the query against the schema, awaits the render,
+A handler is then `cardHandler(xQuery, identities, async (params, colors, config) => svg)` from `api/handler.ts`:
+it parses the colors, parses the query against the schema, checks the allowlists, awaits the render,
 and its two `catch`es are the only place `errorResult` is called.
 Parsing throws, fetching throws, and one place turns whatever was thrown into the answer.
 Six handlers each carried that control flow by hand until 2026-09-05.
 
+- **The allowlists are enforced here, and a card declares which of its params they guard.**
+  `cardHandler`'s second argument maps a param to `'username'` or `'gist'`, the check runs after
+  parsing and **before the render**, and a refusal is `not_allowed` — so an identity a pinned
+  deployment does not serve costs it no rate-limit point. Naming a param the schema does not
+  declare is a compile error, and the map is carried on the handler as `IDENTITIES` the way
+  `OPTIONS` is, which is what lets `tests/allowlist.test.ts` assert every card declares one.
+  - **This existed as `CardConfig.isAllowed` and was called by nothing** from the day it was
+    added until 2026-09-09 — parsed from `ALLOWLIST`, documented on the site and in the server's
+    README, and enforced nowhere, so a deployment configured with it served anyone who asked.
+    A config field that only a method reads, and a method nothing calls, is the shape of that
+    bug; knip does not flag an unused class member.
+  - **`ALLOWLIST` is every GitHub login**, a user's and an organization's alike, GitHub sharing
+    one namespace between them — so the org card's `org` is guarded by the same list as
+    `username`. Matched case-insensitively, because a login is.
+  - **The wakatime card is deliberately unguarded**, its `username` being a WakaTime profile
+    rather than a GitHub login; it declares `{}` with the reason written at the call site, and a
+    test asserts the empty map so that turning it into an oversight takes an edit.
 - **Colors parse first, separately.**
   A rejected color cannot be used to draw its own error card,
   which is why `cardHandler` runs `parseColorParams` as its own pass and renders that error with no `renderOptions`.
@@ -878,8 +1134,10 @@ Six handlers each carried that control flow by hand until 2026-09-05.
   rides along on it. Only the first rejection is reported: the error card has one line.
 - **Everything throws `CardError`** (`common/error.ts`), which carries a `code`, the two
   lines the card draws, and the param at fault. The codes are `invalid_param`,
-  `missing_param`, `not_found`, `no_tokens`, `rate_limited` and `upstream`; `retryable` is
-  derived from the code by one table, so "can a retry help" is answered once rather than at
+  `missing_param`, `not_allowed`, `not_found`, `no_tokens`, `rate_limited` and `upstream`;
+  `retryable` is
+  derived from the code by one table — `no_tokens` is retryable, its remedy being a token on the
+  next start rather than a query change — so "can a retry help" is answered once rather than at
   each throw site. `CardError.from(err)` wraps anything else as `upstream`, **which is
   retryable** — so a permanent failure has to throw a `CardError` to be reported as one.
 - **`ApiResult` is a union, not a status string.** Success is `{ status: "success", content }`;
@@ -890,7 +1148,7 @@ Six handlers each carried that control flow by hand until 2026-09-05.
   enforced in `totalItemsFetcher` — the REST-search path alone — while the api layer let
   through anything in the safe character set, so `?username=-foo` was rejected mid-fetch
   or not at all depending on which request ran first. The shape now lives in
-  `usernameParam`, so the three endpoints taking a GitHub login reject it as
+  `usernameParam`, so the five endpoints taking a GitHub login reject it as
   `invalid_param` once, before any request. The fetcher keeps its own guard —
   `./fetchers` is a public export and that is where the value reaches a URL — but it
   tests the shared pattern rather than a copy.
@@ -1262,6 +1520,13 @@ that reaches the SVG without passing through `t` is the bug this rule exists to 
   that you also access by dot, annotating it would trip
   `noPropertyAccessFromIndexSignature` — use `… satisfies TopLangData` instead, which
   validates against the type while keeping the concrete keys.
+- **A test that provokes a diagnostic silences it, and `vi.spyOn(console, …)` is what does.**
+  `common/log.ts` dispatches to `console` at call time for exactly this; it held the reference it
+  captured at import until 2026-09-10, so the spy in the server's rate-limit test was a no-op and
+  the run printed `PAT_1 Failed due to rate limiting` at whoever ran it. Three tests deliberately
+  provoke one — the rate-limit reply, and the two organization refusals — and each spies with a
+  line saying why. **Run `vitest run --disable-console-intercept` to see what the suite prints**:
+  a pipe hides the `stdout |` blocks, which is why this survived several passes.
 - **The vitest rules oxlint disagrees with are off in one place, with reasons.** A card
   test asserts on every node the card drew, so `max-expects` is off; the `?.` and `??`
   that `noUncheckedIndexedAccess` forces are not "conditionals in tests", so

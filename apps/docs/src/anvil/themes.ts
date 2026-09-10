@@ -1,11 +1,11 @@
-import { themes } from '@stats-forge/github-stats-forge-core/api';
-
 /**
  * @file Which themes a card may wear, and how they are ordered.
  *
  * Ported from `ghse`'s wizard (`themeBackdrop.ts`, `Theme.tsx`) so both projects offer the same
  * themes for the same card. Neither rule below is derivable from core's theme table alone.
  */
+
+import { themes } from '@stats-forge/github-stats-forge-core/api';
 
 /**
  * What a card is about. It groups the card picker, and it decides which half of every theme pair

@@ -1,14 +1,4 @@
 #!/usr/bin/env node
-import { readFile, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { parseArgs } from 'node:util';
-
-import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
-import { themes } from '@stats-forge/github-stats-forge-core/themes';
-import { format } from 'oxfmt';
-
-import { SAMPLE_THEMES, THEMES_DIR } from '../src/constants.ts';
-
 /**
  * @file Writes the theme reference page.
  *
@@ -18,6 +8,16 @@ import { SAMPLE_THEMES, THEMES_DIR } from '../src/constants.ts';
  * The output goes through oxfmt, as the GraphQL generator's does, so `pnpm format` leaves it alone
  * and `--check` compares against what the formatter would have written anyway.
  */
+
+import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
+
+import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
+import { themes } from '@stats-forge/github-stats-forge-core/themes';
+import { format } from 'oxfmt';
+
+import { SAMPLE_THEMES, THEMES_DIR } from '../src/constants.ts';
 
 const PAGE = fileURLToPath(
   new URL('../src/content/docs/docs/customization/themes.md', import.meta.url),

@@ -1,7 +1,3 @@
-import { defineConfig, devices } from '@playwright/test';
-
-import { BASE } from './src/constants.ts';
-
 /**
  * @file End-to-end tests for the anvil, which is the only page here that ships JavaScript.
  *
@@ -14,6 +10,10 @@ import { BASE } from './src/constants.ts';
  * `samples.json` import and core's api both reach the browser through it. `e2e/serve.ts` is what
  * serves it, because `astro preview` daemonizes and so cannot be a `webServer`.
  */
+
+import { defineConfig, devices } from '@playwright/test';
+
+import { BASE } from './src/constants.ts';
 
 const PORT = 4329;
 

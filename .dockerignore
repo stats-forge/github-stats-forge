@@ -1,0 +1,18 @@
+# The build context is the repository root — see apps/server/Dockerfile.
+#
+# The site stage builds `apps/docs`, so its sources, its `public/` and every markdown page under
+# `src/content` have to reach the context. Only what no stage reads is excluded.
+
+**/node_modules
+**/build
+**/.astro
+.git
+.github
+.claude
+.changeset
+.vscode
+
+# playwright's, and the saved cards `pnpm docs:cards` renders from — neither is read by a build
+apps/docs/e2e
+apps/docs/cards
+apps/docs/playwright.config.ts

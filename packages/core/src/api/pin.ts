@@ -40,6 +40,7 @@ const pinQuery = z.object({
  */
 const renderPin = cardHandler(
   pinQuery,
+  { username: 'username' },
   async (
     {
       username,

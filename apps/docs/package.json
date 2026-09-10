@@ -1,5 +1,5 @@
 {
-  "name": "@stats-forge/docs",
+  "name": "@stats-forge/github-stats-docs",
   "private": true,
   "description": "Documentation site for github-stats-forge",
   "type": "module",

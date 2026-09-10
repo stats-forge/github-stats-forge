@@ -1,10 +1,3 @@
-import { readdirSync, statSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-import { API, SignatureKind, SymbolFlags } from 'typescript/unstable/sync';
-import type { Checker, Symbol as TsSymbol } from 'typescript/unstable/sync';
-
 /**
  * @file What each fetcher's page says about it, read from the fetcher's own doc comment.
  *
@@ -13,6 +6,13 @@ import type { Checker, Symbol as TsSymbol } from 'typescript/unstable/sync';
  *
  * Rides `typescript/unstable/sync`, unstable by name: the docs build is what notices it moving.
  */
+
+import { readdirSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { API, SignatureKind, SymbolFlags } from 'typescript/unstable/sync';
+import type { Checker, Symbol as TsSymbol } from 'typescript/unstable/sync';
 
 const REPO_ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const CORE_CONFIG = resolve(REPO_ROOT, 'packages/core/tsconfig.json');

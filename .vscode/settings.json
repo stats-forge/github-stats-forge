@@ -4,5 +4,7 @@
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "[javascript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
   "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[dockercompose]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
   "cSpell.words": ["retryer", "Wakatime"]
 }

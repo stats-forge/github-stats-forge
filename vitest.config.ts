@@ -2,7 +2,11 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    projects: ['packages/core/vitest.config.ts', 'packages/cli/vitest.config.ts'],
+    projects: [
+      'packages/core/vitest.config.ts',
+      'packages/cli/vitest.config.ts',
+      'apps/server/vitest.config.ts',
+    ],
   },
   /*
    * Packages import each other through the `@stats/source` condition, so a test

@@ -1,5 +1,28 @@
-/** Path the site is served under; GitHub Pages puts it below the repository name. */
-export const BASE = '/github-stats-forge';
+/** Where the canonical documentation is: GitHub Pages, below the repository name. */
+export const PAGES_SITE = 'https://stats-forge.github.io';
+export const PAGES_BASE = '/github-stats-forge';
+
+/**
+ * Path the site is served under, without a trailing slash and empty at the root. GitHub Pages
+ * puts it below the repository name; the container image serves it at `/`.
+ *
+ * **Node only**: the one script that runs in a browser reads Astro's `import.meta.env.BASE_URL`.
+ */
+export const BASE = (process.env['SITE_BASE'] ?? PAGES_BASE).replace(/\/+$/, '');
+
+/**
+ * Whether this build will be served by the card server, which is what lets the anvil draw from it.
+ * Told rather than probed, since on Pages there is no server to find. **Node only**, as `BASE` is;
+ * `anvil.astro` writes it into the page.
+ */
+export const SERVED_BY_INSTANCE = process.env['SITE_SERVER'] === 'true';
+
+/** What the header chip and the tab call an instance. */
+export const SELF_HOSTED = 'Self-hosted';
+
+/** The rest of it, which the chip gives up on hover. */
+export const SELF_HOSTED_DETAIL =
+  'Served by a self-hosted instance, from its own GitHub tokens. The documentation is the copy built into the image, so it describes the version that is running.';
 
 /** Where a card preview's two SVGs live, relative to `public/`. */
 export const CARDS_DIR = 'cards';

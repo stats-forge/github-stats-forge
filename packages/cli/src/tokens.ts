@@ -1,8 +1,3 @@
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-
-import type { PersonalAccessToken } from '@stats-forge/github-stats-forge-core/api';
-
 /**
  * @file Where the GitHub token comes from.
  *
@@ -10,6 +5,11 @@ import type { PersonalAccessToken } from '@stats-forge/github-stats-forge-core/a
  * the flag, an env file, then the environment the shell already carries.
  * Whatever is left over is asked for interactively, so a first run needs no setup.
  */
+
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+import type { PersonalAccessToken } from '@stats-forge/github-stats-forge-core/api';
 
 /** The file loaded when `--env-file` is not given. */
 export const DEFAULT_ENV_FILE = '.env';

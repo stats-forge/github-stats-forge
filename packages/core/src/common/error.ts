@@ -1,5 +1,3 @@
-import { OWNER_AFFILIATIONS } from './constants.ts';
-
 /**
  * @file One error type for everything a card render can fail on.
  *
@@ -10,8 +8,13 @@ import { OWNER_AFFILIATIONS } from './constants.ts';
  * so a permanent failure has to throw a `CardError` to be reported as one.
  */
 
+import { OWNER_AFFILIATIONS } from './constants.ts';
+
 /** A general message to ask user to try again later. */
 const TRY_AGAIN_LATER = 'Please try again later';
+
+/** The second line for an identity a pinned deployment does not serve. */
+const NOT_ALLOWED = 'This deployment does not serve that account';
 
 /** Why a request failed. */
 type ErrorCode =
@@ -19,9 +22,11 @@ type ErrorCode =
   | 'invalid_param'
   /** The query is missing a param the endpoint cannot render without. */
   | 'missing_param'
+  /** The query is well-formed, but this deployment is pinned to identities it does not name. */
+  | 'not_allowed'
   /** The user, repository or gist does not exist. */
   | 'not_found'
-  /** The deployment has no usable GitHub token. */
+  /** The deployment has no usable GitHub token — retryable, the fix being a token on the next start. */
   | 'no_tokens'
   /** Every token is rate limited. */
   | 'rate_limited'
@@ -35,8 +40,9 @@ type ErrorCode =
 const RETRYABLE: Record<ErrorCode, boolean> = {
   invalid_param: false,
   missing_param: false,
+  not_allowed: false,
   not_found: false,
-  no_tokens: false,
+  no_tokens: true,
   rate_limited: true,
   upstream: true,
 };
@@ -103,6 +109,20 @@ class CardError extends Error {
       code: 'missing_param',
       secondaryMessage,
       param: params[0],
+    });
+  }
+
+  /**
+   * An identity this deployment is not configured to draw.
+   * Names neither the value nor the list: one is the caller's, the other the operator's.
+   *
+   * @returns The error.
+   */
+  static notAllowed(param: string): CardError {
+    return new CardError('Not allowed', {
+      code: 'not_allowed',
+      secondaryMessage: NOT_ALLOWED,
+      param,
     });
   }
 

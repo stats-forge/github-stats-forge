@@ -27,6 +27,16 @@ If a change to that card's markup was intentional, update it:
 pnpm --filter ./packages/core/ run test:update:snapshot
 ```
 
+## The Server
+
+```bash
+pnpm server:standalone   # the cards alone, against the root .env, restarting on every edit
+pnpm server:hosted       # build the documentation site as the image does, then serve it too
+```
+
+Both read `PAT_1` from a `.env` at the repository root; without it every card but WakaTime draws the `no_tokens` error.
+The hosted one serves the built site as a snapshot, so an edit to a page or to the anvil needs the command run again.
+
 ## GraphQL Queries
 
 The GraphQL queries live in `packages/core/src/graphql/queries/*.graphql`,

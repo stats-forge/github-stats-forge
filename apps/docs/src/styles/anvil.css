@@ -275,12 +275,23 @@ wa-select::part(listbox) {
 
 .anvil-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   font-weight: 400;
 }
 
+/*
+ * Starlight puts `--sl-content-gap-y` between adjacent elements inside `.sl-markdown-content`,
+ * and its exclusion list has `a` in it but not `button` — so two buttons in a row left the second
+ * 16px lower and stretched the first to meet it. Specific enough to outrank that rule.
+ */
+.anvil-output-head .anvil-actions > * {
+  margin-block: 0;
+}
+
 .anvil-actions button,
 .anvil-actions a {
+  white-space: nowrap;
   padding: 0.2rem 0.6rem;
   font: inherit;
   color: var(--sl-color-white);
@@ -294,6 +305,12 @@ wa-select::part(listbox) {
 .anvil-output pre {
   max-height: 14rem;
   overflow: auto;
+}
+
+/* A card URL is one long unbroken token, so it has to be allowed to wrap. */
+[data-anvil='url'] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .anvil-note {

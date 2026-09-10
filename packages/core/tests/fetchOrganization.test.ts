@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CardError } from '../src/common/error.ts';
 import { fetchOrganization } from '../src/fetchers/organization.ts';
@@ -87,6 +87,7 @@ const config = testConfig.with({ fetch: mock.fetch });
 
 afterEach(() => {
   mock.reset();
+  vi.restoreAllMocks();
 });
 
 describe(fetchOrganization, () => {
@@ -213,6 +214,9 @@ describe(fetchOrganization, () => {
   });
 
   it('keeps the rest of the card when the token may not read the member count', async () => {
+    // silences the refusal the fetcher logs
+    vi.spyOn(console, 'log').mockReturnValue();
+
     const { data } = page({ repos: [repo({ stars: 3 })] });
 
     mock.onPost('https://api.github.com/graphql').reply(200, {
@@ -233,6 +237,8 @@ describe(fetchOrganization, () => {
   });
 
   it('rejects a refusal that is not just the member count', async () => {
+    vi.spyOn(console, 'error').mockReturnValue();
+
     mock.onPost('https://api.github.com/graphql').reply(200, {
       data: { organization: null },
       errors: [

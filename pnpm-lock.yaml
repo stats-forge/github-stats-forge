@@ -112,6 +112,25 @@ importers:
         specifier: 4.5.4
         version: 4.5.4
 
+  apps/server:
+    dependencies:
+      '@stats-forge/github-stats-forge-core':
+        specifier: workspace:^
+        version: link:../../packages/core
+    devDependencies:
+      '@stats-forge/github-stats-forge-cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: catalog:default
+        version: 4.1.11(@types/node@24.13.3)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+
   packages/cli:
     dependencies:
       '@inquirer/prompts':

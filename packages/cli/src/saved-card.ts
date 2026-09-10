@@ -1,3 +1,10 @@
+/**
+ * @file A card, written down.
+ *
+ * The file holds what a query string would hold — the card and its options as
+ * strings — so it reads like the URL it stands for, and can be edited by hand.
+ */
+
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -5,13 +12,6 @@ import { resolve } from 'node:path';
 import type { CardKind } from './cards.ts';
 import { findCard } from './cards.ts';
 import type { Answer } from './query.ts';
-
-/**
- * @file A card, written down.
- *
- * The file holds what a query string would hold — the card and its options as
- * strings — so it reads like the URL it stands for, and can be edited by hand.
- */
 
 /** A card and the answers it was rendered from: the shape of the file. */
 interface SavedCard {

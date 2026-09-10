@@ -1,13 +1,3 @@
-import * as z from 'zod/mini';
-
-import type { ColorParams } from '../common/color.ts';
-import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.ts';
-import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import { getWidestRange, parseRangeDate } from '../common/date.ts';
-import { CardError } from '../common/error.ts';
-import { isLocaleAvailable } from '../common/localize.ts';
-import { parseArray, parseBoolean } from '../common/ops.ts';
-
 /**
  * @file The api layer is the trust boundary:
  * a query string arrives as strings, and each endpoint declares what it accepts as a schema over them.
@@ -17,6 +7,16 @@ import { parseArray, parseBoolean } from '../common/ops.ts';
  * `zod/mini` rather than `zod`:
  * this package ships to the browser, and the functional API tree-shakes down to the checks used below.
  */
+
+import * as z from 'zod/mini';
+
+import type { ColorParams } from '../common/color.ts';
+import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.ts';
+import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
+import { getWidestRange, parseRangeDate } from '../common/date.ts';
+import { CardError } from '../common/error.ts';
+import { isLocaleAvailable } from '../common/localize.ts';
+import { parseArray, parseBoolean } from '../common/ops.ts';
 
 /** Every param arrives as a string, or not at all. */
 const rawParam = z.optional(z.string());

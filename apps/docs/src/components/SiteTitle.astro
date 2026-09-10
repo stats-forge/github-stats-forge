@@ -1,8 +1,10 @@
 ---
 import Default from '@astrojs/starlight/components/SiteTitle.astro';
 
+import { SELF_HOSTED, SELF_HOSTED_DETAIL, SERVED_BY_INSTANCE } from '../constants.ts';
+
 /**
- * The site's two halves, beside the title.
+ * The site's two halves, beside the title — and, on an instance, what is serving them.
  *
  * Starlight has no top navigation of its own, so this override adds one. The title itself is the
  * link home, which is why the landing page is not a section here.
@@ -20,6 +22,19 @@ const path = Astro.url.pathname;
 
 <Default {...Astro.props}><slot /></Default>
 
+{
+  /*
+   * The detail is CSS rather than a `wa-tooltip`, which only the anvil loads. Screen-reader-only
+   * until hovered or focused, so it is in the accessibility tree either way.
+   */
+  SERVED_BY_INSTANCE && (
+    <span class="self-hosted" tabindex="0">
+      {SELF_HOSTED}
+      <span class="self-hosted-detail">{SELF_HOSTED_DETAIL}</span>
+    </span>
+  )
+}
+
 <nav class="site-nav" aria-label="Sections">
   {
     sections.map(({ label, href }) => (
@@ -31,6 +46,71 @@ const path = Astro.url.pathname;
 </nav>
 
 <style>
+  /*
+   * Amber, as the instance's icon is. Two shades, because the header follows the theme and each
+   * clears AA on its own side. Set on the wrapper so the title, Starlight's own element beside the
+   * chip, reads the same one. Its `overflow: clip` is lifted here too, or the tooltip below hangs
+   * past the header's 50px and is invisible — only on a build whose title is known to fit.
+   */
+  :global(.title-wrapper:has(.self-hosted)) {
+    --mark: #b45309;
+
+    overflow: visible;
+  }
+
+  :global([data-theme='dark'] .title-wrapper:has(.self-hosted)) {
+    --mark: #f59e0b;
+  }
+
+  :global(.title-wrapper:has(.self-hosted) .site-title) {
+    color: var(--mark);
+  }
+
+  .self-hosted {
+    position: relative;
+    align-self: center;
+    margin-inline-start: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--mark);
+    border-radius: 999px;
+    color: var(--mark);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  /* Read by anyone, seen only on hover or focus. */
+  .self-hosted-detail {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .self-hosted:hover .self-hosted-detail,
+  .self-hosted:focus-visible .self-hosted-detail {
+    top: calc(100% + 0.5rem);
+    inset-inline-start: 0;
+    width: max-content;
+    max-width: min(22rem, 80vw);
+    height: auto;
+    padding: 0.5rem 0.75rem;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    color: var(--sl-color-white);
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.25rem;
+    box-shadow: var(--sl-shadow-md);
+    font-weight: 400;
+    line-height: 1.5;
+    z-index: 1;
+  }
+
   /* `.title-wrapper` is a flex row that stretches its items, so without this the links sit at the
      top of the header and their underline at the very bottom of it, clear of the title. */
   .site-nav {

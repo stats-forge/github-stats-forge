@@ -45,6 +45,7 @@ const topLangsQuery = z.object({
  */
 const renderTopLangs = cardHandler(
   topLangsQuery,
+  { username: 'username' },
   async (
     {
       username,

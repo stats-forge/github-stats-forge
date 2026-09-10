@@ -7,6 +7,8 @@
     "build:packages": "pnpm -r --filter \"./packages/*\" run build",
     "cli": "pnpm run build:packages && node packages/cli/build/index.js",
     "docs": "pnpm run build:packages && pnpm --filter ./apps/docs run dev",
+    "server:standalone": "pnpm --filter ./apps/server run dev",
+    "server:hosted": "SITE_BASE=/ SITE_SERVER=true pnpm run docs:build && SITE_DIR=../docs/build pnpm run server:standalone",
     "docs:sync": "pnpm --filter ./apps/docs exec astro sync",
     "docs:build": "pnpm run build:packages && pnpm --filter ./apps/docs run build",
     "docs:cards": "pnpm run build:packages && pnpm --filter ./apps/docs run generate-cards",
