@@ -2,14 +2,20 @@
   <img src=".github/assets/appIcon.svg" width="100px" alt="GitHub Stats Forge logo" />
   <h1>GitHub Stats Forge</h1>
   <p>Dynamically generate GitHub stats cards for your READMEs.</p>
-  <p><a href="https://stats-forge.github.io/github-stats-forge/"><strong>Documentation</strong></a></p>
+  <p>
+    <a href="https://stats-forge.github.io/github-stats-forge/"><strong>Documentation</strong></a>
+    ·
+    <a href="https://stats-forge.github.io/github-stats-forge/anvil/"><strong>Card builder</strong></a>
+  </p>
 </div>
 
 GitHub Stats Forge renders GitHub stats as SVG cards: your contribution stats, your top languages,
-the repositories you contribute to, pinned repositories, gists and WakaTime coding time.
+the repositories you contribute to, pinned repositories, gists, organizations and WakaTime coding
+time.
 
-This repository is the library those cards are rendered by,
-and the CLI that renders one to a local file. It is what any self-hosted endpoint calls.
+This repository holds the library those cards are rendered by,
+the CLI that renders one to a local file,
+and the HTTP server that serves them, shipped as a container image.
 
 ## Getting a card
 
@@ -26,33 +32,40 @@ own repository rather than at a server that has to be up:
     token: ${{ secrets.STATS_PAT }}
 ```
 
-To settle on a card first, or to draw one locally:
+To settle on a card first,
+[the card builder](https://stats-forge.github.io/github-stats-forge/anvil/) draws one in your
+browser from every option it takes, and hands you the file the CLI reads.
+
+To draw one locally —
+[documented under the CLI](https://stats-forge.github.io/github-stats-forge/docs/usage/cli/):
 
 ```sh
 npx @stats-forge/github-stats-forge-cli
 ```
 
-It asks which card you want and which options it should take, and writes the SVG next to you.
-
-To call it from your own code instead — an action of your own, a server, a browser:
+To call it from your own code —
+[documented under the library](https://stats-forge.github.io/github-stats-forge/docs/usage/library/):
 
 ```sh
 npm install @stats-forge/github-stats-forge-core
 ```
 
-```js
-import { CardConfig, stats } from '@stats-forge/github-stats-forge-core/api';
+To serve them yourself, with your own tokens —
+[documented under self-hosting](https://stats-forge.github.io/github-stats-forge/docs/usage/self-hosting/):
 
-const config = new CardConfig({ pats: [{ name: 'PAT_1', value: process.env.PAT_1 }] });
-const result = await stats({ username: 'octocat' }, config);
+```sh
+docker run -p 9000:9000 -e PAT_1=github_pat_... ghcr.io/stats-forge/github-stats-forge-server
 ```
 
-**Everything else is documented on the site:**
-[the six cards and every option each one takes](https://stats-forge.github.io/github-stats-forge/cards/stats/),
-[the 79 themes](https://stats-forge.github.io/github-stats-forge/customization/themes/),
-[light and dark mode](https://stats-forge.github.io/github-stats-forge/customization/light-and-dark/),
-[putting a card in a README](https://stats-forge.github.io/github-stats-forge/usage/in-your-readme/)
-and [the fetchers](https://stats-forge.github.io/github-stats-forge/fetchers/overview/).
+The image carries the documentation and the card builder with it,
+so an instance documents itself at `http://localhost:9000/`.
+
+**Everything else is on the site:**
+[the seven cards and every option each takes](https://stats-forge.github.io/github-stats-forge/docs/cards/stats/),
+[the 79 themes](https://stats-forge.github.io/github-stats-forge/docs/customization/themes/),
+[light and dark mode](https://stats-forge.github.io/github-stats-forge/docs/customization/light-and-dark/),
+[putting a card in a README](https://stats-forge.github.io/github-stats-forge/docs/usage/in-your-readme/)
+and [the fetchers](https://stats-forge.github.io/github-stats-forge/docs/fetchers/overview/).
 
 ## What is in here
 
@@ -60,23 +73,13 @@ and [the fetchers](https://stats-forge.github.io/github-stats-forge/fetchers/ove
 | -------------------------------- | ------------------------------------------------------------------------------- |
 | [`packages/core`](packages/core) | The library: fetchers, card renderers, themes and the query-string api handlers |
 | [`packages/cli`](packages/cli)   | `github-stats-forge`: renders a card to a local SVG, one prompt at a time       |
-| [`apps/docs`](apps/docs)         | The documentation site, published from every release                            |
+| [`apps/server`](apps/server)     | The HTTP server over those handlers, published to GHCR as a container image     |
+| [`apps/docs`](apps/docs)         | The documentation site and the card builder, published from every release       |
 
-## Development
+## Contributing
 
-Run from the repository root:
-
-```sh
-pnpm test                   # vitest
-pnpm typecheck              # build, then tsc over the packages and the repo scripts
-pnpm lint                   # oxlint
-pnpm build:packages         # build packages/*
-pnpm docs                   # the documentation site's dev server
-pnpm docs:cards             # redraw the site's card previews
-pnpm check-all              # every check CI runs, cheapest first
-```
-
-See [CONTRIBUTING.md](.github/CONTRIBUTING.md) before opening a pull request.
+[CONTRIBUTING.md](.github/CONTRIBUTING.md) has the commands and what to run before opening a
+pull request.
 
 ## Acknowledgements
 
