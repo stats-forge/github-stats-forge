@@ -278,6 +278,15 @@ test('a number field reaches the renderer', async ({ page }) => {
   await expect(drawnCard(page).locator('[data-testid="lang-name"]')).toHaveCount(3);
 });
 
+test('a numeric field steps as coarsely as its param is read', async ({ page }) => {
+  await setCard(page, 'top-langs');
+
+  // core reads a count of languages with parseInt and the weight beside it with parseFloat
+  await expect(field(page, 'langs_count')).toHaveAttribute('step', '1');
+  await expect(field(page, 'size_weight')).toHaveAttribute('step', 'any');
+  await expect(field(page, 'custom_title')).not.toHaveAttribute('step');
+});
+
 test('a boolean can be turned on, turned off, or left to the card', async ({ page }) => {
   // Nothing said: the option is absent from the file, so the card's own default stands.
   const untouched = await savedCard(page);
