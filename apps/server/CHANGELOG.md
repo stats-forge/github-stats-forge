@@ -1,5 +1,14 @@
 # @stats-forge/github-stats-server
 
+## 0.2.1
+
+### Patch Changes
+
+- [#89](https://github.com/stats-forge/github-stats-forge/pull/89) [`8157af8`](https://github.com/stats-forge/github-stats-forge/commit/8157af896ad1f19f0f5a6df7e780cef3a63bab64) - fix: let the anvil's fractional options take a fraction
+
+  Every numeric field carried an implicit step of `1`,
+  so `border_radius`, `size_weight` and `count_weight` refused a typed `4.5`.
+
 ## 0.2.0
 
 ### Minor Changes
