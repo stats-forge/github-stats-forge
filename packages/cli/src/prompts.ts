@@ -8,7 +8,11 @@
 
 import { styleText } from 'node:util';
 
-import { checkbox, confirm, input, password, select, Separator } from '@inquirer/prompts';
+import checkbox from '@inquirer/checkbox';
+import confirm from '@inquirer/confirm';
+import input from '@inquirer/input';
+import password from '@inquirer/password';
+import select, { Separator } from '@inquirer/select';
 
 import type { CardKind, CardOption } from './cards.ts';
 import { cards, OPTION_GROUPS } from './cards.ts';
