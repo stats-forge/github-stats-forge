@@ -11,11 +11,12 @@ import { styleText } from 'node:util';
 import checkbox from '@inquirer/checkbox';
 import confirm from '@inquirer/confirm';
 import input from '@inquirer/input';
+import number from '@inquirer/number';
 import password from '@inquirer/password';
 import select, { Separator } from '@inquirer/select';
 
 import type { CardKind, CardOption } from './cards.ts';
-import { cards, OPTION_GROUPS } from './cards.ts';
+import { cards, numericStep, OPTION_GROUPS } from './cards.ts';
 import type { Answer } from './query.ts';
 import { describeAnswer, UNSET } from './query.ts';
 
@@ -54,6 +55,13 @@ const askOption = async (option: CardOption, current: Answer): Promise<Answer> =
       ...(option.choices ?? []).map((value) => ({ name: value, value })),
     ];
     return select({ message, choices, default: current });
+  }
+
+  const step = numericStep(option.kind);
+  if (step !== undefined) {
+    // parseFloat is the coercion `Card` performs, and a saved option arrives as a string.
+    const seed = current === undefined ? Number.NaN : Number.parseFloat(String(current));
+    return number({ message, step, default: Number.isNaN(seed) ? undefined : seed });
   }
 
   const answer = await input({

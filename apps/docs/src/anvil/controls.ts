@@ -198,7 +198,7 @@ const createTextField = ({
   option,
   placeholder = '',
   hint,
-  numeric = false,
+  step,
   value = '',
   onInput,
 }: {
@@ -207,8 +207,8 @@ const createTextField = ({
   option: string;
   placeholder?: string;
   hint?: string | undefined;
-  /** Whether the value is a number, which gets the numeric keyboard and the spinners. */
-  numeric?: boolean;
+  /** How finely a numeric value moves; absent for one that is not a number. */
+  step?: 1 | 'any' | undefined;
   value?: string;
   onInput: (value: string) => void;
 }): HTMLElementTagNameMap['wa-input'] => {
@@ -220,8 +220,10 @@ const createTextField = ({
   field.spellcheck = false;
   field.autocomplete = 'off';
   field.value = value;
-  if (numeric) {
+  if (step !== undefined) {
+    // The numeric keyboard and the spinners, stepping as coarsely as the param is read.
     field.type = 'number';
+    field.step = step;
   }
   if (hint !== undefined) {
     field.hint = hint;

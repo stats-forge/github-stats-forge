@@ -7,7 +7,7 @@
  */
 
 import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
-import { OPTION_GROUPS } from '@stats-forge/github-stats-forge-cli/cards';
+import { numericStep, OPTION_GROUPS } from '@stats-forge/github-stats-forge-cli/cards';
 import type { CardField } from '@stats-forge/github-stats-forge-cli/cards';
 
 import { CARD_GROUPS, CARDS, findCard } from './cards.ts';
@@ -424,7 +424,7 @@ const mount = (root: HTMLElement): void => {
         label,
         option: name,
         hint: kind === 'list' ? (hint ?? 'Comma separated') : hint,
-        numeric: kind === 'number',
+        step: numericStep(kind),
         value: state.values[name] ?? '',
         onInput: (value) => {
           state.values[name] = value;

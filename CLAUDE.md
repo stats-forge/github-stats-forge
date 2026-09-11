@@ -770,8 +770,9 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
     hundred bytes and no CLI machinery.
   - A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
     A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
-    with choices a group of checkboxes, and everything else a field — numeric where the kind says
-    so. The controls are sectioned by each option's `group` under the CLI's `OPTION_GROUPS`, one
+    with choices a group of checkboxes, and everything else a field — numeric, and stepping as
+    coarsely as core reads the param, where the CLI's `numericStep` says so rather than where this
+    file decides. `e2e/anvil.spec.ts` asserts a count steps by `1` and a weight by `any`. The controls are sectioned by each option's `group` under the CLI's `OPTION_GROUPS`, one
     `wa-details` per group in the CLI's order, so the two forms section alike; only "Colors and
     border" opens folded, because thirty controls in one column is a wall.
 - **The site bundles `packages/core` and the CLI from source, through `@stats/source`.**
@@ -1381,6 +1382,37 @@ Ten packages left the lockfile on 2026-09-11. Two things follow:
 and each prompt is a **default** export, where the meta-package re-exported them as names.
 Dependabot groups them as `inquirer`, because the five share one `@inquirer/core`
 and a lone bump can leave two copies of it in the tree.
+
+**`@inquirer/number` is the one prompt worth taking back out of the ten the meta-package
+carried.** The eighteen numeric options fell through to a plain `input` until 2026-09-11,
+so anything typed reached the query string unchecked. The other four stay gone: `editor`
+has nothing multi-line to edit, `expand` and `rawlist` want a shortlist where the menu has
+38 grouped rows, and `search` would buy substring matching over 79 themes that prefix
+type-ahead already reaches. The narrowing to accept is that `?border_radius=10px` can no
+longer be typed at the prompt, though the api still takes it and a config file holding it
+still seeds as `10`.
+
+**A number is an `integer` or a `number`, and core's own reading is what says which.**
+A param core reads with `looseIntParam` is `parseInt`'d, so the option is `kind: 'integer'`
+— `card_width`, `line_height`, `langs_count`, `repos_count`, `number_precision`,
+`description_lines_count`, fifteen occurrences. One it reads with `numberParam` is
+`parseFloat`'d and stays `kind: 'number'`: only `border_radius`, `size_weight` and
+`count_weight`. **`line_height` is an integer**, which is easy to get wrong — it is a
+`rawParam` at the boundary rather than either helper, and every card `parseInt`s it itself.
+Neither schema is exported from core, so nothing checks this mapping; read
+`packages/core/src/api/*.ts` when adding a numeric option.
+
+- **`numericStep` in `src/cards.ts` is what both forms read, and neither decides for
+  itself.** It answers `1`, `'any'` or `undefined`, which is `<input type="number">`'s
+  vocabulary and happens to be `@inquirer/number`'s too — so the CLI passes it as `step`
+  and the anvil sets it on the field. The anvil branched on `kind === 'number'` of its own
+  accord until this landed, which is exactly how a new kind goes silently unhandled: adding
+  one there would have left every integer field without a numeric keyboard.
+- **The prompt's own `step` defaults to `1` and validates against it**, so a `number`
+  option that forgets `'any'` refuses the fractional value it exists to take.
+- **No `min` or `max`.** The renderer clamps what the schema lets through —
+  `clampValue(langs_count, 1, MAXIMUM_LANGS_COUNT)` — so a silly count is corrected rather
+  than refused, and bounds here would only duplicate that in a second place.
 
 - **Choices come from core's exports, never a copy.** Every `choices` in `src/cards.ts`
   is `<handler>.OPTIONS.<param>` — `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`,

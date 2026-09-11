@@ -18,7 +18,22 @@ import {
 import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
 /** How a param is asked for, and how the answer becomes a query string value. */
-type OptionKind = 'text' | 'boolean' | 'number' | 'list' | 'choice';
+export type OptionKind = 'text' | 'boolean' | 'number' | 'integer' | 'list' | 'choice';
+
+/**
+ * Which kinds are numeric, and how finely each moves.
+ * The split follows core's own: a param it reads with `looseIntParam` is an `integer`,
+ * one it reads with `numberParam` a `number`.
+ */
+const NUMERIC_STEP: Partial<Record<OptionKind, 1 | 'any'>> = { integer: 1, number: 'any' };
+
+/**
+ * Read by both forms over these options, so neither can decide on its own what is numeric.
+ * The vocabulary is `<input type="number">`'s, which `@inquirer/number` happens to share.
+ *
+ * @returns The step the option moves in, or `undefined` when it is not a number at all.
+ */
+export const numericStep = (kind: OptionKind): 1 | 'any' | undefined => NUMERIC_STEP[kind];
 
 /** One param of one card. */
 export interface CardField {
@@ -196,8 +211,8 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
-      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
@@ -209,7 +224,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       {
         name: 'number_precision',
         label: 'Decimals kept when abbreviating',
-        kind: 'number',
+        kind: 'integer',
         group: 'text',
       },
       {
@@ -236,7 +251,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'display',
         choices: topLangs.OPTIONS.layout,
       },
-      { name: 'langs_count', label: 'Languages to show', kind: 'number', group: 'data' },
+      { name: 'langs_count', label: 'Languages to show', kind: 'integer', group: 'data' },
       { name: 'hide', label: 'Languages to hide', kind: 'list', group: 'data' },
       { name: 'exclude_repo', label: 'Repositories to exclude', kind: 'list', group: 'data' },
       {
@@ -280,7 +295,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
-      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
@@ -312,7 +327,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       {
         name: 'description_lines_count',
         label: 'Lines the description wraps to',
-        kind: 'number',
+        kind: 'integer',
         group: 'text',
       },
       {
@@ -321,8 +336,8 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'boolean',
         group: 'text',
       },
-      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
@@ -364,8 +379,8 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
-      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
@@ -390,7 +405,7 @@ const CARDS: ReadonlyArray<CardKind> = [
     needsToken: true,
     required: [{ name: 'username', label: 'GitHub username', kind: 'text' }],
     options: [
-      { name: 'repos_count', label: 'Repositories to show', kind: 'number', group: 'data' },
+      { name: 'repos_count', label: 'Repositories to show', kind: 'integer', group: 'data' },
       {
         name: 'include_own_repos',
         label: 'Include your own repositories',
@@ -414,7 +429,7 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
-      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
@@ -462,7 +477,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'display',
         choices: wakatime.OPTIONS.display_format,
       },
-      { name: 'langs_count', label: 'Languages to show', kind: 'number', group: 'data' },
+      { name: 'langs_count', label: 'Languages to show', kind: 'integer', group: 'data' },
       { name: 'hide', label: 'Languages to hide', kind: 'list', group: 'data' },
       {
         name: 'hide_progress',
@@ -472,8 +487,8 @@ const CARDS: ReadonlyArray<CardKind> = [
       },
       { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
-      { name: 'card_width', label: 'Card width', kind: 'number', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'number', group: 'text' },
+      { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
+      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       {
         name: 'disable_animations',
         label: 'Disable the animations',
