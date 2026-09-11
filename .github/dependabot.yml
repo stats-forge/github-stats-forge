@@ -32,6 +32,10 @@ updates:
       testing-library:
         patterns:
           - '@testing-library/*'
+      # the five prompts share one `@inquirer/core`, so a lone bump can duplicate it
+      inquirer:
+        patterns:
+          - '@inquirer/*'
       # the config declares a peer range on oxfmt, so a lone bump can break it
       oxfmt:
         patterns:

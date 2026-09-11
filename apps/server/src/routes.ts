@@ -2,7 +2,7 @@
  * @file What is served where: one path per card, named after the card, with no aliases.
  *
  * Spelled out rather than read off the CLI's catalog, which carries prompt prose and
- * `@inquirer/prompts` with the same seven ids; `tests/routes.test.ts` keeps the two in step.
+ * inquirer's prompts with the same seven ids; `tests/routes.test.ts` keeps the two in step.
  */
 
 import {

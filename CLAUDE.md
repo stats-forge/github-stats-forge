@@ -173,7 +173,7 @@ help, so there is nothing here to re-derive.
   justifies one, Hono speaks `Request`/`Response` and slots in without changing `handler.ts`. Not
   Express: it wants `req`/`res`, which is the shape this is deliberately not built on.
 - **The server imports core and nothing else.** The CLI's catalog carries the same seven ids, but
-  it carries prompt prose with them and a megabyte of `@inquirer/prompts` behind it, so
+  it carries prompt prose with them and inquirer's five prompt packages behind it, so
   `routes.ts` spells the table out and `tests/routes.test.ts` asserts twice over that it has not
   drifted: every card core exports is routed, and every path is named as the CLI names its card.
   The CLI is a **dev**dependency here for that test alone, which is what keeps it out of the
@@ -769,6 +769,7 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   - The catalog imports nothing but core's public api, so pulling it into the browser costs a few
     hundred bytes and no CLI machinery.
   - A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
+    A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
     with choices a group of checkboxes, and everything else a field — numeric where the kind says
     so. The controls are sectioned by each option's `group` under the CLI's `OPTION_GROUPS`, one
     `wa-details` per group in the CLI's order, so the two forms section alike; only "Colors and
@@ -1370,6 +1371,16 @@ bin link while it installs, before anything is built, so a `bin` naming `build/i
 uncreated. The shim exists in the checkout, so the link is always made, and it carries the
 `no-unassigned-import` override its three lines earn. It cannot be TypeScript: Node refuses to
 strip types under `node_modules`, which is where a published consumer's copy lives.
+
+**The CLI depends on the five inquirer prompts it uses, not on `@inquirer/prompts`.**
+That meta-package pulls all ten, so `editor`, `expand`, `number`, `rawlist` and `search`
+rode into every consumer's install for nothing — and `editor` brought
+`@inquirer/external-editor`, `chardet`, `iconv-lite` and `safer-buffer` with it.
+Ten packages left the lockfile on 2026-09-11. Two things follow:
+`Separator` is imported from `@inquirer/select`, which re-exports it from `@inquirer/core`;
+and each prompt is a **default** export, where the meta-package re-exported them as names.
+Dependabot groups them as `inquirer`, because the five share one `@inquirer/core`
+and a lone bump can leave two copies of it in the tree.
 
 - **Choices come from core's exports, never a copy.** Every `choices` in `src/cards.ts`
   is `<handler>.OPTIONS.<param>` — `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`,
