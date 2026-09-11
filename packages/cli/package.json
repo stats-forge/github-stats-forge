@@ -53,11 +53,11 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
-    "@inquirer/checkbox": "5.2.3",
-    "@inquirer/confirm": "6.3.0",
-    "@inquirer/input": "5.1.4",
-    "@inquirer/password": "5.2.0",
-    "@inquirer/select": "5.2.3",
+    "@inquirer/checkbox": "5.2.4",
+    "@inquirer/confirm": "6.3.1",
+    "@inquirer/input": "5.1.5",
+    "@inquirer/password": "5.2.1",
+    "@inquirer/select": "5.2.4",
     "@stats-forge/github-stats-forge-core": "workspace:^"
   },
   "devDependencies": {
