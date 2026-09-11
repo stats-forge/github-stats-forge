@@ -94,6 +94,32 @@ which is where a query stops being untrusted.
 A token is never logged. The name it came from is, so a failing token can be found without its
 value ending up in a log.
 
+## The options, as data
+
+```sh
+npm install @stats-forge/github-stats-forge-catalog
+```
+
+```js
+import { findCard } from '@stats-forge/github-stats-forge-catalog';
+
+const card = findCard('stats');
+
+for (const option of card.options) {
+  // option.name is the query param, option.label what to call it,
+  // option.kind which control to draw, option.choices what it accepts
+}
+```
+
+A handler takes a query string, so anything that offers those params to somebody — a form, a
+generator, an editor — has to know what each one is called and what it accepts. That list is a
+package of its own: it reads its accepted values off the handlers themselves, so it cannot offer
+a value the api would reject, and it carries core and nothing else. The CLI's prompts and this
+site's card builder are two forms over the same list.
+
+`card.render` is the handler above, so a form can draw what it is building; `card.needsToken`
+says whether that costs a GitHub token.
+
 ## Other entry points
 
 | Import                                          | What it holds                                 |

@@ -7,7 +7,7 @@
 
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
-import { CARD_FILE_VERSION } from '@stats-forge/github-stats-forge-cli/cards';
+import { CARD_FILE_VERSION } from '@stats-forge/github-stats-forge-catalog';
 
 /** In the preview's shadow root. The wrapper makes it selectable: a card's icons are `<svg>` too. */
 const drawnCard = (page: Page): Locator => page.locator('[data-anvil="preview"] .anvil-card > svg');

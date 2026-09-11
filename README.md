@@ -44,8 +44,9 @@ docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-fo
 
 - [Report a bug or ask for a card](https://github.com/stats-forge/github-stats-forge/issues)
 - [CONTRIBUTING.md](.github/CONTRIBUTING.md) has the commands and what to run before opening a pull request
-- The workspace is [`packages/core`](packages/core) (the library), [`packages/cli`](packages/cli),
-  [`apps/server`](apps/server) (published to GHCR as an image),
+- The workspace is [`packages/core`](packages/core) (the library),
+  [`packages/catalog`](packages/catalog) (what each card accepts),
+  [`packages/cli`](packages/cli), [`apps/server`](apps/server) (published to GHCR as an image),
   and [`apps/docs`](apps/docs) (the site and the card builder)
 
 ## Acknowledgements

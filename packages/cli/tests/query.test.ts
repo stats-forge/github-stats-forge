@@ -1,6 +1,6 @@
+import { cards, findCard, OPTION_GROUPS } from '@stats-forge/github-stats-forge-catalog';
 import { describe, expect, it } from 'vitest';
 
-import { cards, findCard, OPTION_GROUPS } from '../src/cards.ts';
 import type { Answer } from '../src/query.ts';
 import {
   defaultFileName,

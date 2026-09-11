@@ -1,4 +1,4 @@
-import { cards } from '@stats-forge/github-stats-forge-cli/cards';
+import { cards } from '@stats-forge/github-stats-forge-catalog';
 import * as api from '@stats-forge/github-stats-forge-core/api';
 import { describe, expect, it } from 'vitest';
 

@@ -9,7 +9,7 @@
  * the anvil's query box.
  */
 
-import type { CardKind, CardOption } from './cards.ts';
+import type { CardKind, CardOption } from '@stats-forge/github-stats-forge-catalog';
 
 /** What a prompt answered, before it becomes a query param. */
 export type Answer = string | number | boolean | Array<string> | undefined;

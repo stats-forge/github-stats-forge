@@ -1,8 +1,10 @@
 /**
- * @file What each card accepts, in the order the prompts walk it.
+ * @file What each card accepts: every option's name, label, kind and accepted values.
  *
  * The core schemas validate these params;
  * this catalog is what makes them navigable, so it carries the prose and the choices a schema has no room for.
+ * It is a package of its own so that reading a card's options costs core and nothing else:
+ * the CLI's prompts and the site's anvil are two forms over this one list.
  */
 
 import {

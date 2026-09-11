@@ -98,7 +98,8 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   `repo` taking the `_repocard` variants and everything else the plain half. A gist card is `repo`
   for both, which is why that heading names the gist as well. `CARD_GROUPS` is built the way
   `themeGroups` is, so the two dropdowns are one control with two lists: order comes from
-  `GROUP_LABELS`, the cards inside a group keep the CLI's order, and a heading no card sits under
+  `GROUP_LABELS`, the cards inside a group keep the catalog's order, and a heading no card sits
+  under
   is dropped. It was `'repo' | 'user'` and theme-only until 2026-09-07, when the organization card
   arrived and needed a group of its own.
 - **The preview stands the card on the ground the card itself asks for, and says so with a
@@ -252,27 +253,28 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   checks every slug against the content collection at build time; nothing else stands between a
   renamed page and a link that 404s, since `ui.ts` sets the href at runtime where the link
   validator cannot see it.
-- **The option catalog is the CLI's, imported rather than restated.** `packages/cli` exports it at
-  `./cards` — `cards`, `findCard` and `COMMON_OPTIONS` — carrying every option's name, label, kind,
-  hint and choices, and reading its choices off core's `OPTIONS` so no list is copied anywhere. Two
-  forms over the same options are not two lists. What `apps/docs` adds is only what the CLI has no
-  use for: each card's sample identity, which half of every theme pair it wears, and the `maximal`
-  params the recorder needs. That overlay **throws when a card in the catalog has no entry**, so a
-  card added to the CLI is noticed here rather than silently undrawable.
+- **The option catalog is `packages/catalog`, imported rather than restated.** It carries every
+  option's name, label, kind, hint and choices, and reads those choices off core's `OPTIONS` so no
+  list is copied anywhere — see that package's own `AGENTS.md`. Two forms over the same options are
+  not two lists. What `apps/docs` adds is only what the catalog has no use for: each card's sample
+  identity, which half of every theme pair it wears, and the `maximal` params the recorder needs.
+  That overlay **throws when a card in the catalog has no entry**, so a card added there is noticed
+  here rather than silently undrawable.
   - The catalog imports nothing but core's public api, so pulling it into the browser costs a few
-    hundred bytes and no CLI machinery.
+    hundred bytes and no CLI machinery. It was the CLI's `./cards` export until 2026-09-13, which
+    is when that stopped meaning inquirer as well.
   - A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
-    A control is chosen by the option's `kind`: `boolean` a `wa-switch`, `choice` a select, a `list`
     with choices a group of checkboxes, and everything else a field — numeric, and stepping as
-    coarsely as core reads the param, where the CLI's `numericStep` says so rather than where this
-    file decides. `e2e/anvil.spec.ts` asserts a count steps by `1` and a weight by `any`. The controls are sectioned by each option's `group` under the CLI's `OPTION_GROUPS`, one
-    `wa-details` per group in the CLI's order, so the two forms section alike; only "Colors and
+    coarsely as core reads the param, where the catalog's `numericStep` says so rather than where
+    this file decides. `e2e/anvil.spec.ts` asserts a count steps by `1` and a weight by `any`.
+  - The controls are sectioned by each option's `group` under the catalog's `OPTION_GROUPS`, one
+    `wa-details` per group in that order, so the two forms section alike; only "Colors and
     border" opens folded, because thirty controls in one column is a wall.
-- **The site bundles `packages/core` and the CLI from source, through `@stats/source`.**
+- **The site bundles `packages/core` and the catalog from source, through `@stats/source`.**
   `astro.config.ts` sets that condition under **both** `vite.resolve` and `vite.ssr.resolve`, the
   same trap `packages/cli/vitest.config.ts` documents. Keep both.
   - **It does not reach the client build, so `docs:build` builds the packages first.** Rolldown
-    resolved neither `@stats-forge/github-stats-forge-core/api` nor the CLI's `./cards` from
+    resolved neither `@stats-forge/github-stats-forge-core/api` nor the catalog from
     `src/anvil/cards.ts` on a fresh checkout, whichever came first in the file — the condition is
     honoured for typechecking, for `ssr`, and for the scripts that pass `--conditions`, but not for
     the browser bundle. `environments.client.resolve.conditions` does not help either.
