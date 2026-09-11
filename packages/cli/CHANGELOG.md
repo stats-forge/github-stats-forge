@@ -1,5 +1,20 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.4.1
+
+### Patch Changes
+
+- [#88](https://github.com/stats-forge/github-stats-forge/pull/88) [`7de50e4`](https://github.com/stats-forge/github-stats-forge/commit/7de50e4a989b84ec23663b7e86234aee9f44ae90) - build: depend on the inquirer prompts used, not on `@inquirer/prompts`
+
+  The meta-package pulled all ten prompts, five of them never imported.
+  Ten packages leave the install, and nothing about the prompts changes.
+
+- [#89](https://github.com/stats-forge/github-stats-forge/pull/89) [`8157af8`](https://github.com/stats-forge/github-stats-forge/commit/8157af896ad1f19f0f5a6df7e780cef3a63bab64) - feat: ask a numeric option as a number, not as text
+
+  The eighteen numeric options fell through to a text prompt,
+  so anything typed reached the query string unchecked.
+  A count refuses a fraction now, and a weight takes one.
+
 ## 0.4.0
 
 ### Minor Changes
