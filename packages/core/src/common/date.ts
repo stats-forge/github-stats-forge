@@ -22,6 +22,14 @@ const RANGE_DATE_PATTERN = /^(?<year>\d{4})(?:-(?<month>\d{2})(?:-(?<day>\d{2}))
 const toGitHubDateTime = (date: Date): string => `${date.toISOString().slice(0, 19)}Z`;
 
 /**
+ * Format a date as a GitHub search qualifier takes it.
+ * A qualifier reads a bare date, not the `DateTime` the GraphQL arguments want.
+ *
+ * @returns e.g. `2024-01-01`.
+ */
+const toSearchDate = (date: Date): string => date.toISOString().slice(0, 10);
+
+/**
  * The full UTC range of a calendar year, both ends inclusive.
  *
  * The end matters to callers that would otherwise leave a range open:
@@ -159,6 +167,7 @@ export {
   toContributionRanges,
   toGitHubDateTime,
   toRange,
+  toSearchDate,
   toYearRanges,
 };
 export type { GitHubDateRange };

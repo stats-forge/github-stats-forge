@@ -1,5 +1,5 @@
 /**
- * @file The seven cards the anvil draws.
+ * @file The eight cards the anvil draws.
  *
  * **The option catalog is the CLI's**, imported rather than restated — two forms over the same
  * options should not be two lists. What is added here is only what the CLI has no use for.
@@ -7,7 +7,7 @@
 
 import { cards as catalogue } from '@stats-forge/github-stats-forge-cli/cards';
 import type { CardKind } from '@stats-forge/github-stats-forge-cli/cards';
-import { org, pin, stats } from '@stats-forge/github-stats-forge-core/api';
+import { org, orgActivity, pin, stats } from '@stats-forge/github-stats-forge-core/api';
 
 import type { CardCategory } from './themes.ts';
 
@@ -80,6 +80,13 @@ const EXTRAS: Readonly<Record<string, AnvilExtras>> = {
     category: 'org',
     identity: { org: SAMPLE_ORGANIZATION },
     maximal: { show: org.OPTIONS.show.join(',') },
+  },
+  'org-activity': {
+    docs: 'organization-activity',
+    category: 'org',
+    identity: { org: SAMPLE_ORGANIZATION },
+    // the commit count is a request of its own, so recording it is what lets `show` reach it
+    maximal: { show: orgActivity.OPTIONS.show.join(',') },
   },
   gist: {
     docs: 'gist-pin',

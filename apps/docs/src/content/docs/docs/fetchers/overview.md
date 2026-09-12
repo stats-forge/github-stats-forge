@@ -25,6 +25,7 @@ which is why that class is exported from this entry point too rather than only f
 | [`fetchContributedTo`](../fetch-contributed-to/)  | The repositories they contribute to            |
 | [`fetchGist`](../fetch-gist/)                     | One gist                                       |
 | [`fetchOrganization`](../fetch-organization/)     | One organization, with its repository totals   |
+| [`fetchOrgActivity`](../fetch-org-activity/)      | What that organization did over a window       |
 | [`fetchWakatimeStats`](../fetch-wakatime-stats/)  | Coding time per language                       |
 | [`fetchRepoUserStats`](../fetch-repo-user-stats/) | Their PRs and issues within given repositories |
 

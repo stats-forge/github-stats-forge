@@ -90,6 +90,7 @@ const ACCENT = {
 const CARD_ICON = {
   contributedTo: icons.prs_merged,
   gist: icons.gist,
+  orgActivity: icons.calendar,
   organization: icons.organization,
   repo: icons.repo,
   stats: icons.pulse,

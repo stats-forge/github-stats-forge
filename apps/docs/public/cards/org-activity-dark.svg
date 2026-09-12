@@ -1,0 +1,134 @@
+<svg width="500" height="195" viewBox="0 0 500 195" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+  <title id="title-id">Vitest&#39;s organization activity (last 30 days)</title>
+  <desc id="desc-id">PRs opened: 257, PRs merged: 162, Issues opened: 81, Issues closed: 63, Commits: 196</desc>
+  <style>
+    .header {
+      font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #fff;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    /* The icon reads against the title rather than with it, so it keeps its own color. */
+    .title-icon {
+      fill: #79ff97;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-accent {
+      fill: #79ff97;
+      animation: fadeInAnimation 0.8s ease-in-out forwards;
+    }
+    .title-band {
+      fill: #fff;
+      opacity: 0.08;
+    }
+    @supports(-moz-appearance: auto) {
+      /* Selector detects Firefox */
+      .header {
+        font-size: 15.5px;
+      }
+    }
+    .stat {
+      font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #9f9f9f;
+      font-variant-numeric: tabular-nums;
+    }
+    .stagger {
+      opacity: 0;
+      animation: fadeInAnimation 0.3s ease-in-out forwards;
+    }
+    .not_bold {
+      font-weight: 400;
+      opacity: 0.75;
+    }
+    .bold {
+      font-weight: 600;
+    }
+    .icon {
+      fill: #79ff97;
+      opacity: 0.75;
+      display: block;
+    }
+    /* Animations */
+    @keyframes scaleInAnimation {
+      from {
+        transform: translate(-5px, 5px) scale(0);
+      }
+      to {
+        transform: translate(-5px, 5px) scale(1);
+      }
+    }
+    @keyframes fadeInAnimation {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+      }
+    }
+  </style>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="499" fill="#151515" stroke-opacity="1" />
+  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h483a8 8 0 0 1 8 8v37.5h-499z" />
+  <g data-testid="card-title" transform="translate(25, 30)">
+    <g>
+      <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+        <path d="M4.75 0a.75.75 0 0 1 .75.75V2h5V.75a.75.75 0 0 1 1.5 0V2h1.25c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 13.25 16H2.75A1.75 1.75 0 0 1 1 14.25V3.75C1 2.784 1.784 2 2.75 2H4V.75A.75.75 0 0 1 4.75 0ZM2.5 7.5v6.75c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25V7.5Zm10.75-4H2.75a.25.25 0 0 0-.25.25V6h11V3.75a.25.25 0 0 0-.25-.25Z" />
+      </svg>
+    </g>
+    <g transform="translate(25, 0)">
+      <text x="0" y="0" class="header" data-testid="header">Vitest&#39;s organization activity (last 30 days)</text>
+    </g>
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
+  </g>
+  <g data-testid="main-card-body" transform="translate(0, 55)">
+    <g>
+      <g class="stagger" style="animation-delay: 120ms" transform="translate(25, 0)">
+        <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+          <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z" />
+        </svg>
+        <text class="stat not_bold" x="25" y="12.5">PRs opened:</text>
+        <text class="stat bold" x="450" text-anchor="end" y="12.5" data-testid="prs_opened">257</text>
+      </g>
+    </g>
+    <g transform="translate(0, 25)">
+      <g class="stagger" style="animation-delay: 160ms" transform="translate(25, 0)">
+        <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+          <path fill-rule="evenodd" d="M5.45 5.154A4.25 4.25 0 0 0 9.25 7.5h1.378a2.251 2.251 0 1 1 0 1.5H9.25A5.734 5.734 0 0 1 5 7.123v3.505a2.25 2.25 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.95-.218ZM4.25 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm8.5-4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM5 3.25a.75.75 0 1 0 0 .005V3.25Z" />
+        </svg>
+        <text class="stat not_bold" x="25" y="12.5">PRs merged:</text>
+        <text class="stat bold" x="450" text-anchor="end" y="12.5" data-testid="prs_merged">162</text>
+      </g>
+    </g>
+    <g transform="translate(0, 50)">
+      <g class="stagger" style="animation-delay: 200ms" transform="translate(25, 0)">
+        <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+          <path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm9 3a1 1 0 11-2 0 1 1 0 012 0zm-.25-6.25a.75.75 0 00-1.5 0v3.5a.75.75 0 001.5 0v-3.5z" />
+        </svg>
+        <text class="stat not_bold" x="25" y="12.5">Issues opened:</text>
+        <text class="stat bold" x="450" text-anchor="end" y="12.5" data-testid="issues_opened">81</text>
+      </g>
+    </g>
+    <g transform="translate(0, 75)">
+      <g class="stagger" style="animation-delay: 240ms" transform="translate(25, 0)">
+        <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+          <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+        </svg>
+        <text class="stat not_bold" x="25" y="12.5">Issues closed:</text>
+        <text class="stat bold" x="450" text-anchor="end" y="12.5" data-testid="issues_closed">63</text>
+      </g>
+    </g>
+    <g transform="translate(0, 100)">
+      <g class="stagger" style="animation-delay: 280ms" transform="translate(25, 0)">
+        <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+          <path fill-rule="evenodd" d="M1.643 3.143L.427 1.927A.25.25 0 000 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 00.177-.427L2.715 4.215a6.5 6.5 0 11-1.18 4.458.75.75 0 10-1.493.154 8.001 8.001 0 101.6-5.684zM7.75 4a.75.75 0 01.75.75v2.992l2.028.812a.75.75 0 01-.557 1.392l-2.5-1A.75.75 0 017 8.25v-3.5A.75.75 0 017.75 4z" />
+        </svg>
+        <text class="stat not_bold" x="25" y="12.5">Commits:</text>
+        <text class="stat bold" x="450" text-anchor="end" y="12.5" data-testid="commits">196</text>
+      </g>
+    </g>
+  </g>
+</svg>

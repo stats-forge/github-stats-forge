@@ -154,6 +154,7 @@ test('groups the cards by what each one describes', async ({ page }) => {
     'pin',
     'gist',
     'org',
+    'org-activity',
   ]);
 });
 

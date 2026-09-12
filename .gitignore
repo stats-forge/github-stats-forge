@@ -24,5 +24,6 @@ test-results
 !.vscode/settings.json
 *.code-workspace
 
-# Agent scratch
-.claude/
+# Agent scratch — everything but the skills, which are repo tooling and are committed
+.claude/*
+!.claude/skills/

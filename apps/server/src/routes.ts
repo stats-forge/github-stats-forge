@@ -2,13 +2,14 @@
  * @file What is served where: one path per card, named after the card, with no aliases.
  *
  * Spelled out rather than read off the CLI's catalog, which carries prompt prose and
- * inquirer's prompts with the same seven ids; `tests/routes.test.ts` keeps the two in step.
+ * inquirer's prompts with the same eight ids; `tests/routes.test.ts` keeps the two in step.
  */
 
 import {
   contributedTo,
   gist,
   org,
+  orgActivity,
   pin,
   stats,
   topLangs,
@@ -25,6 +26,7 @@ const CARD_ROUTES: ReadonlyMap<string, CardHandler> = new Map([
   ['/api/top-langs', topLangs],
   ['/api/pin', pin],
   ['/api/org', org],
+  ['/api/org-activity', orgActivity],
   ['/api/contributed-to', contributedTo],
   ['/api/gist', gist],
   ['/api/wakatime', wakatime],

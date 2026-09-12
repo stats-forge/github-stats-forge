@@ -35,9 +35,10 @@ organization. The anvil and the sidebar group them the same way.
 
 ### Organization
 
-| Card                                | Handler | What it shows                                    |
-| ----------------------------------- | ------- | ------------------------------------------------ |
-| [Organization](cards/organization/) | `org`   | Its public repositories, and what they add up to |
+| Card                                                  | Handler       | What it shows                                    |
+| ----------------------------------------------------- | ------------- | ------------------------------------------------ |
+| [Organization](cards/organization/)                   | `org`         | Its public repositories, and what they add up to |
+| [Organization activity](cards/organization-activity/) | `orgActivity` | PRs, issues and commits over a rolling window    |
 
 ## Getting a card
 
