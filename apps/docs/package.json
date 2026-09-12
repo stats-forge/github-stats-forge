@@ -27,7 +27,7 @@
     "@stats-forge/github-stats-forge-cli": "workspace:^",
     "@stats-forge/github-stats-forge-core": "workspace:^",
     "@types/node": "24.13.3",
-    "oxfmt": "0.65.0",
+    "oxfmt": "0.66.0",
     "starlight-links-validator": "0.26.0",
     "typescript": "7.0.2",
     "zod": "4.5.4"
