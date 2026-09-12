@@ -47,6 +47,11 @@ updates:
           - 'oxlint'
           - 'oxlint-tsgolint'
           - '@marcalexiei/oxlint-config'
+      astro:
+        patterns:
+          - 'astro'
+          - '@astrojs/*'
+          - 'starlight-*'
 
   # The server's base image digest: `node:24-alpine` is a moving tag, so a bump arrives as a PR CI has run.
   - package-ecosystem: docker
