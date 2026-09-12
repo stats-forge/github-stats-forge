@@ -5,6 +5,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 
 import { BASE, PAGES_SITE, SERVED_BY_INSTANCE } from './src/constants.ts';
 import { rehypeCardPreviews } from './src/plugins/rehype-card-previews.ts';
+import { remarkCliDemo } from './src/plugins/remark-cli-demo.ts';
 import { remarkFetcherReference } from './src/plugins/remark-fetcher-reference.ts';
 import { remarkResolveLinks } from './src/plugins/remark-resolve-links.ts';
 
@@ -33,7 +34,7 @@ export default defineConfig({
   markdown: {
     // Starlight appends its own plugins to whatever processor is configured here.
     processor: unified({
-      remarkPlugins: [remarkFetcherReference, remarkResolveLinks],
+      remarkPlugins: [remarkCliDemo, remarkFetcherReference, remarkResolveLinks],
       rehypePlugins: [rehypeCardPreviews],
     }),
   },
@@ -45,6 +46,7 @@ export default defineConfig({
       favicon: `/${icon}`,
       customCss: [
         './src/styles/card-previews.css',
+        './src/styles/cli-demo.css',
         './src/styles/precedence.css',
         './src/styles/home.css',
       ],

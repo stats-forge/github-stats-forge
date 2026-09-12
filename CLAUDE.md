@@ -380,6 +380,39 @@ no `lint:publish`.
   `height` off the SVG so nothing shifts as it loads, and marks the dark copy `aria-hidden` with an
   empty `alt` because only one of the two is ever shown. It **throws when the pair is missing**,
   which is why `docs:build` runs in CI: a page referencing an unrendered card fails the build.
+- **`<!-- demo: cli -->` on `usage/cli.md` is a recorded screen capture, not a re-enactment.**
+  `public/cli-demo.mp4` is a real session — the stats card open above the terminal in an editor,
+  the menu picking a theme, the card redrawn when it is generated — and
+  `src/plugins/remark-cli-demo.ts` places it. A **CSS replay of the same session was built first
+  and thrown away on 2026-09-12**: seven hand-transcribed terminal frames stepped by keyframes,
+  faithful to the real output and still a simulation of a thing we can simply record. Don't
+  rebuild it.
+  - **It is a plugin rather than raw HTML in the markdown**, because the src has to carry `BASE`;
+    a deployment detail stays out of the prose, the same reason `remark-resolve-links` exists.
+  - **`.mp4`, `.jpg` and `.jpeg` had to be added to both static tables** —
+    `apps/server/src/static.ts` and `e2e/serve.ts`. They answer an unknown extension
+    `application/octet-stream`, and `x-content-type-options: nosniff` then makes the browser
+    **refuse** the file rather than merely mislabel it, so the video and its poster would both
+    have been dead in the image while working on Pages. Adding the video and forgetting its
+    poster is exactly how half of this gets missed — check every extension a change introduces
+    against that table, and against its copy.
+  - **It is not autoplayed.** It runs 44 seconds, and an `autoplay` attribute cannot be withdrawn
+    for `prefers-reduced-motion` without shipping JavaScript to a page that has none — so it
+    carries `controls`, a `poster` and `preload="metadata"` instead.
+  - **The `width` and `height` are written down** rather than read off the file: nothing here
+    decodes an mp4, and without them the box resizes as the metadata lands.
+  - **The editor's panel tab bar was painted out of the recording, not hidden with CSS.** A strip
+    of `#1b1b1b` covers rows 774 to 868 — the separator, the tab row and the active tab's bottom
+    edge — because an overlay on the page would peel away the moment anyone went fullscreen, which
+    is how a 2692px capture actually gets watched. Done with AVFoundation from a throwaway Swift
+    tool, `swiftc` being on every mac with the developer tools and ffmpeg not being installed
+    here; the re-encode at 700 kbps also took the file from 2.9 MB to 1.7 MB. **Re-cut the poster
+    whenever the video changes** — it is a frame of it, and a stale one shows the furniture that
+    was just removed.
+  - **Measure such a band, never eyeball it.** Chromium decodes the mp4 that Playwright's own
+    bundled ffmpeg will not, so a throwaway script drew frames to a canvas and scanned rows: the
+    bar sat at 808–839 in every frame of the 44 seconds, and a first pass that stopped at 842 left
+    a lit sliver of the active tab behind.
 - **Each fetcher has its own page, and `<!-- api: fetchStats -->` becomes its reference at build
   time.** `remark-fetcher-reference.ts` expands the marker; `fetcher-reference.ts` reads the
   summary, the `@returns`, the return type and every option — name, type, whether it is optional,
