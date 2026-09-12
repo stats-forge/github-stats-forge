@@ -797,3 +797,28 @@ test('the indicator covers the whole frame it is over', async ({ page }) => {
   // One pixel on each side, which is the border the padding box does not reach.
   expect(gaps).toEqual({ top: 1, bottom: 1, left: 1, right: 1 });
 });
+
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 390, height: 800 } });
+
+  test('the header still carries the way off this page', async ({ page }) => {
+    /*
+     * The anvil is a splash page, so it has no sidebar and Starlight renders no menu button for
+     * it: with the header's own links hidden, as they were until 2026-09-12, this page was
+     * reachable from nowhere and led nowhere but home.
+     */
+    const nav = page.getByRole('navigation', { name: 'Sections' });
+    await expect(nav.getByRole('link', { name: 'Docs' })).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Anvil' })).toBeVisible();
+
+    // A row of its own, under the title rather than beside it.
+    const title = await page.locator('.site-title').boundingBox();
+    const links = await nav.boundingBox();
+    expect(links?.y).toBeGreaterThanOrEqual((title?.y ?? 0) + (title?.height ?? 0));
+
+    // The header is taller for that row, and the page's own padding has to follow it.
+    const header = await page.locator('header.header').boundingBox();
+    const heading = await page.getByRole('heading', { level: 1 }).boundingBox();
+    expect(heading?.y).toBeGreaterThanOrEqual((header?.y ?? 0) + (header?.height ?? 0));
+  });
+});

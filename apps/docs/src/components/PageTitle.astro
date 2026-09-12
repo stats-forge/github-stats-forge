@@ -1,0 +1,83 @@
+---
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+
+/**
+ * The section a page sits in, above its own title.
+ *
+ * Read out of the sidebar rather than off the path, so the trail is the nav's own words and cannot
+ * drift from them. Only a page inside a nested group gets one — the cards, whose titles dropped the
+ * word "card" once the sidebar grouped them and where "Stats" alone no longer says what it is.
+ */
+
+type Entry = StarlightRouteData['sidebar'][number];
+
+/** @returns The labels of the groups above the current page, outermost first. */
+const trailTo = (entries: ReadonlyArray<Entry>, above: Array<string>): Array<string> | undefined => {
+  for (const entry of entries) {
+    if (entry.type === 'link') {
+      if (entry.isCurrent) {
+        return above;
+      }
+    } else {
+      const found = trailTo(entry.entries, [...above, entry.label]);
+      if (found !== undefined) {
+        return found;
+      }
+    }
+  }
+  return undefined;
+};
+
+const trail = trailTo(Astro.locals.starlightRoute.sidebar, []) ?? [];
+---
+
+{
+  trail.length > 1 && (
+    <nav class="trail" aria-label="Breadcrumb">
+      <ol>
+        {trail.map((label, index) => (
+          <li>
+            {index > 0 && (
+              <span class="sep" aria-hidden="true">
+                /
+              </span>
+            )}
+            {label}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+<Default {...Astro.props}><slot /></Default>
+
+<style>
+  /* Starlight's own `h1` carries `margin-top: 1rem`, so the trail sits on that air rather than
+     adding to it. */
+  .trail {
+    margin-block-start: 1rem;
+    margin-block-end: -0.75rem;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-sm);
+  }
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .sep {
+    color: var(--sl-color-gray-4);
+  }
+</style>

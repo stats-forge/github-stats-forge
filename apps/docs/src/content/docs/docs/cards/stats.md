@@ -1,5 +1,5 @@
 ---
-title: Stats card
+title: Stats
 description: Commits, pull requests, issues, reviews, stars and a rank, for one GitHub user.
 ---
 

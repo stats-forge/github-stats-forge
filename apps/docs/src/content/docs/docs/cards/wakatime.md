@@ -1,5 +1,5 @@
 ---
-title: WakaTime card
+title: WakaTime
 description: Coding time per language, read from a WakaTime profile.
 ---
 

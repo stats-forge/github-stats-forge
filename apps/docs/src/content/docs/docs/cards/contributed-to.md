@@ -1,5 +1,5 @@
 ---
-title: Contributed to card
+title: Contributed to
 description: The repositories you contribute to, ranked, and the years you contributed in.
 ---
 
