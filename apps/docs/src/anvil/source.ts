@@ -69,7 +69,7 @@ const sampleSource: PreviewSource = {
   badge: 'Mock data',
   aside: '— the figures never move, whatever you type.',
   detail:
-    'Cards are drawn in your browser from saved API responses, so nothing you type is sent anywhere. Options that change how a card looks are exact; those that change its numbers are not.',
+    "Cards are drawn in your browser from saved API responses, so nothing you type is sent anywhere. The look of the card is exact; the numbers are always the sample account's.",
   identityNote:
     'These go into the saved file, so the card renders as yours. The preview draws the recorded account whatever you type.',
   draw: async (cardId, options) => {
@@ -91,7 +91,7 @@ const serverSource: PreviewSource = {
   badge: 'Live data',
   aside: '— drawn by the instance serving this page.',
   detail:
-    'Cards are drawn by the server this page came from, with its GitHub token and its allowlists, so what you type is sent to it and the figures are real. Each redraw spends a request against that token.',
+    'Cards are drawn by the server that serves this page, using its own GitHub token, so what you type is sent to it and the numbers are real. Each redraw costs a request against that token.',
   identityNote:
     'These go into the saved file, and into the preview: the card beside them is drawn for whoever you name.',
   draw: async (cardId, options) => {
