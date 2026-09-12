@@ -32,16 +32,16 @@ updates:
       testing-library:
         patterns:
           - '@testing-library/*'
-      # the five prompts share one `@inquirer/core`, so a lone bump can duplicate it
+      changesets:
+        patterns:
+          - '@changesets/*'
       inquirer:
         patterns:
           - '@inquirer/*'
-      # the config declares a peer range on oxfmt, so a lone bump can break it
       oxfmt:
         patterns:
           - 'oxfmt'
           - '@marcalexiei/oxfmt-config'
-      # same for oxlint, whose config also pins `oxlint-tsgolint`
       oxlint:
         patterns:
           - 'oxlint'
