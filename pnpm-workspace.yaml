@@ -14,9 +14,9 @@ allowBuilds:
   lefthook: true
 
 catalog:
-  '@vitest/coverage-v8': 4.1.11
+  '@vitest/coverage-v8': 5.0.0
   jsdom: 30.0.1
-  vitest: 4.1.11
+  vitest: 5.0.0
 
 # Deliberately stricter than pnpm's 1440 default (3 days vs 1)
 minimumReleaseAge: 4320
