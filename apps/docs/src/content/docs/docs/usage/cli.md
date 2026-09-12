@@ -10,6 +10,8 @@ npx @stats-forge/github-stats-forge-cli
 The CLI asks which card you want, asks for the options that card needs, renders it, and leaves the
 menu open so you can change one thing and look again. Every card on this site was made with it.
 
+<!-- demo: cli -->
+
 It is how you settle on a card. To keep one current in a repository afterwards, hand the options you
 arrived at to [the GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action), which is the recommended way to draw them
 and takes the same query string.

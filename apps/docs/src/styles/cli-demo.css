@@ -1,0 +1,26 @@
+/* The recorded CLI session on `usage/cli.md`, placed by `plugins/remark-cli-demo.ts`. */
+
+.cli-demo {
+  margin-block: 1.5rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* The recording is 2692x1716; the attributes hold that ratio so nothing shifts as it loads. */
+.cli-demo .cli-demo__video {
+  display: block;
+  margin: 0;
+  width: 100%;
+  height: auto;
+  background: var(--sl-color-black);
+}
+
+.cli-demo__caption {
+  padding: 0.625rem 0.875rem;
+  border-top: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-bg);
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-xs);
+  line-height: 1.5;
+}
