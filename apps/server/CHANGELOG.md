@@ -1,5 +1,11 @@
 # @stats-forge/github-stats-server
 
+## 0.3.1
+
+### Patch Changes
+
+- [#103](https://github.com/stats-forge/github-stats-forge/pull/103) [`329af1d`](https://github.com/stats-forge/github-stats-forge/commit/329af1d8ae6a435de4c70aa82183154f5d02df65) - docs(anvil): plainer wording in the backdrop and source tooltips
+
 ## 0.3.0
 
 ### Minor Changes
