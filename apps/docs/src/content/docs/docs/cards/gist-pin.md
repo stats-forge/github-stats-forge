@@ -1,5 +1,5 @@
 ---
-title: Gist pin card
+title: Gist pin
 description: One gist, drawn as a card.
 ---
 

@@ -482,6 +482,21 @@ no `lint:publish`.
   its own href, so the landing page marks neither — the title is the link home. The links are
   centred against the title with `align-self`: `.title-wrapper` is a flex row that stretches its
   items, which left them riding the top of the header with their underline at its foot.
+  - **On a phone they take a row of their own; they must not be hidden there.** They were, under
+    50rem, and the sidebar does not stand in for them: Starlight renders the menu button only for a
+    page that has a sidebar, and both splash pages have none — so `/anvil/` was reachable from
+    nowhere and led nowhere but home. `e2e/anvil.spec.ts` asserts it at 390px.
+  - **Raising `--sl-nav-height` is what makes room for that row, and two things ride on it.** The
+    logo's height is `calc(var(--sl-nav-height) - 2 * var(--sl-nav-pad-y))`, so it grows with the
+    header unless it is pinned back to the 2rem the one-row header gave it; the menu and search
+    buttons then centre themselves across both rows, 13px below the title, and are held on the
+    first. Everything else follows the variable on its own — the content's top padding, and the
+    mobile menu panel's own top.
+- **`PageTitle` is overridden to put a section trail above a card page's title.** Starlight has no
+  breadcrumb component, and this one is four overrides' worth of nothing anywhere else: it renders
+  the labels of the groups a page sits under, taken from `Astro.locals.starlightRoute.sidebar`, and
+  renders nothing at all where that is one group deep. It is the seam every page without a hero
+  goes through — the anvil included, which is not in the sidebar and so gets no trail.
 - **`SocialIcons` is overridden only to open the links in a new tab.** Both leave the site, and
   Starlight's own renders them with no `target`. The override is its markup and its styles copied,
   plus `target="_blank"`, `rel="me noopener"` and "(opens in a new tab)" in the screen-reader label
@@ -627,11 +642,23 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   background each theme implies: light, the two that read either way (`transparent`,
   `ambient_gradient`), then dark. `ghse` also excludes nine themes from its picker; that is an
   editorial choice and has **not** been copied.
-- **The cards are listed in one order in three places, and it is the category order.** A user's
-  cards, then a repository's or gist's, then an organization's: the anvil's picker groups by it
-  under headings, the sidebar in `astro.config.ts` follows it flat, and the overview table names
-  each card's subject in a `Describes` column. **The sidebar is deliberately not nested** — one of
-  those groups holds a single page, and Starlight would put an expand level over seven links.
+- **The cards are divided the same way in three places, and it is the category order.** A user's
+  cards, then a repository's or gist's, then an organization's, under the same three headings: the
+  anvil's picker groups by it, the sidebar in `astro.config.ts` nests a group per category, and the
+  overview page carries a table under each. The overview had one table and a `Describes` column,
+  and the sidebar was flat, until 2026-09-12 — the argument for the flat list was that a group held
+  a single page, which a second organization card ends.
+  - **A card page's title is the card's name and no longer ends in "card".** Seven titles read
+    "Stats card" under a sidebar heading that already says Cards, and "Stats" is what the CLI's own
+    menu, the anvil's picker and the overview table call it. `src/components/PageTitle.astro` puts
+    the trail — `Cards / User` — above the title in its place, and **reads it out of the sidebar**
+    rather than off the path, so it is the nav's own words. A page in a group that is not nested
+    gets none, which today means the cards have one and nothing else does.
+  - **`Fetchers` is the one sidebar group that opens folded.** It is reference for a library
+    consumer rather than for someone putting a card in a README, and it is nine of the sidebar's
+    twenty-six links — folded, the cards and their three headings fit one screen. Cards and
+    fetchers stay **separate sections**: the split is by audience, not by subject, and they are not
+    one-to-one either — `fetchRepoUserStats` draws no card, and `fetchRepo` backs the pin card.
 - **A card's `category` is what the card is about, and one field answers two questions.** `user`,
   `repo` or `org` in `src/anvil/cards.ts`: it groups the card picker under headings — User,
   Repository or gist, Organization — and it decides which half of every theme pair the card wears,

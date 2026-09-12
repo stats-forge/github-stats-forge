@@ -49,6 +49,8 @@ export default defineConfig({
       components: {
         // Starlight emits every Open Graph tag but the image; this override adds it.
         Head: './src/components/Head.astro',
+        // The section a card page sits in, above its title — Starlight has no breadcrumb.
+        PageTitle: './src/components/PageTitle.astro',
         // Starlight has no top navigation; this override puts the two halves beside the title.
         SiteTitle: './src/components/SiteTitle.astro',
         // The same icons, opening in a new tab.
@@ -73,16 +75,26 @@ export default defineConfig({
         { label: 'Overview', link: '/docs/' },
         {
           label: 'Cards',
-          // In the anvil's own order: the cards describing a user, then a repository or gist,
-          // then an organization. Not nested — one of those groups would hold a single page.
+          // The anvil's own headings, in its order: what the card is about. A group is left
+          // expanded, which is Starlight's default, so the categories cost indentation and no click.
           items: [
-            'docs/cards/stats',
-            'docs/cards/top-languages',
-            'docs/cards/contributed-to',
-            'docs/cards/wakatime',
-            'docs/cards/repo-pin',
-            'docs/cards/gist-pin',
-            'docs/cards/organization',
+            {
+              label: 'User',
+              items: [
+                'docs/cards/stats',
+                'docs/cards/top-languages',
+                'docs/cards/contributed-to',
+                'docs/cards/wakatime',
+              ],
+            },
+            {
+              label: 'Repository or gist',
+              items: ['docs/cards/repo-pin', 'docs/cards/gist-pin'],
+            },
+            {
+              label: 'Organization',
+              items: ['docs/cards/organization'],
+            },
           ],
         },
         {
@@ -106,6 +118,9 @@ export default defineConfig({
         },
         {
           label: 'Fetchers',
+          // Reference for a library consumer, not for someone putting a card in a README — and
+          // nine of the sidebar's twenty-six links. Folded, so the cards stay in one screen.
+          collapsed: true,
           items: [
             'docs/fetchers/overview',
             'docs/fetchers/fetch-stats',

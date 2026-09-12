@@ -19,7 +19,7 @@ const result = await stats({ username: 'octocat', show_icons: 'true' }, config);
 
 A handler takes the query params its card accepts — as strings, the way a query string carries
 them — and the configuration for the deployment. The handlers are `stats`, `topLangs`, `pin`,
-`contributedTo`, `gist` and `wakatime`.
+`contributedTo`, `gist`, `org` and `wakatime`.
 
 Nothing in the library reads `process.env`. The host builds the configuration and passes it in,
 which is what lets the same code run in an action, on a server and in a browser.
