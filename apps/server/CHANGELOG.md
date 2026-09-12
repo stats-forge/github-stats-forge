@@ -1,5 +1,20 @@
 # @stats-forge/github-stats-server
 
+## 0.3.0
+
+### Minor Changes
+
+- [#98](https://github.com/stats-forge/github-stats-forge/pull/98) [`9cba9c8`](https://github.com/stats-forge/github-stats-forge/commit/9cba9c88fe66ad079c296fe70a57eb83d98ccc96) - feat: show a recorded CLI session on the CLI page
+
+  The page now opens with a screen capture of the card being built:
+  the stats card open above the terminal,
+  the menu picking a theme,
+  and the card redrawn when it is generated.
+
+  `.mp4` joins the static handler's content types,
+  which answered an unknown extension `application/octet-stream` —
+  and under `nosniff` the browser refuses that rather than mislabelling it.
+
 ## 0.2.1
 
 ### Patch Changes
