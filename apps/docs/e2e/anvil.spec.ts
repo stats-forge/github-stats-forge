@@ -408,7 +408,7 @@ test('the source badge explains itself on hover', async ({ page }) => {
   await expect(badge).toBeVisible();
   await expect(badge).toContainText('Mock data');
   await expect(tooltip).toContainText('nothing you type is sent anywhere');
-  await expect(tooltip).toContainText('change its numbers are not');
+  await expect(tooltip).toContainText('the numbers are always the sample');
   // The visible half stays one clause; the rest is what the tooltip is for.
   await expect(page.locator('.anvil-note').filter({ hasText: 'Mock data' })).toContainText(
     'the figures never move, whatever you type',
@@ -748,8 +748,8 @@ test('the backdrop says it follows the theme, and gives the detail on hover', as
   await expect(badge).toBeVisible();
   await expect(badge).toContainText("Follows the card's theme");
   // The rest is what the tooltip is for: which background it reads, and when it reads none.
-  await expect(tooltip).toContainText('bg_color you name');
-  await expect(tooltip).toContainText('names neither ground');
+  await expect(tooltip).toContainText('the bg_color you set');
+  await expect(tooltip).toContainText('names neither');
 
   const isOpen = (): Promise<boolean> =>
     tooltip.evaluate((element) => (element as HTMLElement & { open: boolean }).open);
