@@ -190,3 +190,12 @@ dev-only — no codegen dependency reaches consumers. It is covered by
 `packages/core/tsconfig.scripts.json`, so `pnpm typecheck` checks it like any other
 source file. The repo-root `scripts/` is covered the same way, by `tsconfig.scripts.json`
 at the root.
+
+**`graphql` is held at 16 — 17 cannot generate these types.** v17 enforces that an
+implementation field is not deprecated where the interface field it satisfies isn't, and
+GitHub's published SDL breaks it on five fields across `TeamDiscussion` and
+`TeamDiscussionComment`. The generator's `buildSchema(…, { assumeValidSDL: true })` does
+not help: codegen runs `assertValidSchema` of its own inside `validateGraphQlDocuments`,
+so `check-graphql-types` fails before writing anything. `@octokit/graphql-schema` also
+depends on graphql `^16.0.0`, so 17 puts two copies in the lockfile for no gain. Tried and
+reverted on 2026-09-13; retry only once GitHub's SDL is clean or octokit moves to 17.
