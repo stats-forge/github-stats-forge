@@ -1,6 +1,5 @@
 ---
-'@stats-forge/github-stats-forge-cli': minor
-'@stats-forge/github-stats-server': minor
+'@stats-forge/github-stats-forge-cli': patch
 ---
 
 feat!: read and write the card's query string, and flatten the saved card file

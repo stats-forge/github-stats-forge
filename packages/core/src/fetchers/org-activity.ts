@@ -2,13 +2,14 @@ import type { CardConfig } from '../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
 import type { GitHubDateRange } from '../common/date.ts';
 import { toSearchDate } from '../common/date.ts';
-import { CardError, ORGANIZATION_NOT_FOUND } from '../common/error.ts';
+import { CardError, ISSUES_FORBIDDEN, ORGANIZATION_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, HttpResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
 import { clampValue } from '../common/ops.ts';
 import { retryer } from '../common/retryer.ts';
 import { GetOrganizationActivityDocument } from '../graphql/generated/org-activity.ts';
+import type { GetOrganizationActivityQuery } from '../graphql/generated/org-activity.ts';
 
 import { graphqlError } from './graphql-error.ts';
 import type { OrgActivityData } from './types.ts';
@@ -38,6 +39,20 @@ const lastDays = (days: number): GitHubDateRange => {
   const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   return { from: new Date(to.getTime() - (days - 1) * MS_PER_DAY), to };
 };
+
+/**
+ * Whether the issue searches were answered with something other than issues.
+ *
+ * This is the one refusal GitHub does not report: a token that may not read issues — an app
+ * installation token without the `Issues` permission — is answered with the pull requests the
+ * same window holds, so both counts arrive looking exactly like the pull request rows rather
+ * than erroring. Asking each search for one node is what tells the two apart, and costs nothing:
+ * the request is still a single rate-limit point.
+ *
+ * @returns Whether either count is a pull request count wearing an issue's label.
+ */
+const issuesRefused = (...searches: Array<GetOrganizationActivityQuery['issuesOpened']>): boolean =>
+  searches.some((search) => search.issueCount > 0 && search.nodes?.[0]?.__typename !== 'Issue');
 
 /**
  * Commits authored in the window, which the GraphQL API cannot search for.
@@ -78,11 +93,18 @@ const fetchOrgActivity = async (
     org,
     days,
     include_commits = false,
+    require_issues = true,
   }: {
     org: string | undefined;
     /** Days the window covers; out of range or unparsed, the default stands. */
     days?: number | undefined;
     include_commits?: boolean | undefined;
+    /**
+     * Whether refused issue counts fail the whole fetch rather than dropping the two stats.
+     * The card draws both rows unless `hide` names them, so a caller that wants neither
+     * turns this off and gets the rest of the card from a token that may not read issues.
+     */
+    require_issues?: boolean | undefined;
   },
   config: CardConfig,
 ): Promise<OrgActivityData> => {
@@ -136,6 +158,16 @@ const fetchOrgActivity = async (
     });
   }
 
+  const issuesUnavailable = issuesRefused(data.issuesOpened, data.issuesClosed);
+  if (issuesUnavailable) {
+    if (require_issues) {
+      throw CardError.forbidden(ISSUES_FORBIDDEN);
+    }
+    logger.error(
+      `Issue counts dropped: this token may not read issues, so GitHub answered the issue searches for ${org} with pull requests. Grant the token read access to issues to draw those two rows.`,
+    );
+  }
+
   let commits: number | null = null;
   if (include_commits) {
     const commitRes = await retryer(fetchCommitCount, { org, range }, config);
@@ -155,8 +187,8 @@ const fetchOrgActivity = async (
     days: window,
     prsOpened: data.prsOpened.issueCount,
     prsMerged: data.prsMerged.issueCount,
-    issuesOpened: data.issuesOpened.issueCount,
-    issuesClosed: data.issuesClosed.issueCount,
+    issuesOpened: issuesUnavailable ? null : data.issuesOpened.issueCount,
+    issuesClosed: issuesUnavailable ? null : data.issuesClosed.issueCount,
     discussionsOpened: data.discussions.discussionCount,
     commits,
   };

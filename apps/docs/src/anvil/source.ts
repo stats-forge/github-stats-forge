@@ -36,6 +36,7 @@ interface PreviewSource {
  * proxy logs; the card says the rest.
  */
 const PROBLEMS: Record<ErrorCode, string> = {
+  forbidden: 'The token may not read that stat',
   invalid_param: 'That value cannot be drawn',
   missing_param: 'The card cannot be drawn without this',
   not_allowed: 'This deployment does not serve that account',

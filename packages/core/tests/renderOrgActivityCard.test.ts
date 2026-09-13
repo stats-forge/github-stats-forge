@@ -50,6 +50,19 @@ describe('test renderOrgActivityCard', () => {
     expect(screen.queryByTestId('issues_closed')).not.toBeInTheDocument();
   });
 
+  it('should leave out the issue rows a token was refused', () => {
+    document.body.innerHTML = renderOrgActivityCard({
+      ...data,
+      issuesOpened: null,
+      issuesClosed: null,
+    });
+
+    expect(screen.queryByTestId('issues_opened')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('issues_closed')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('prs_opened')).toHaveTextContent('267');
+    expect(screen.queryByTestId('prs_merged')).toHaveTextContent('169');
+  });
+
   it('should leave out a commit count nobody fetched, even when `show` names it', () => {
     document.body.innerHTML = renderOrgActivityCard(
       { ...data, commits: null },

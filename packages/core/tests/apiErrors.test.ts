@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { gist as gistApi } from '../src/api/gist.ts';
+import { orgActivity as orgActivityApi } from '../src/api/org-activity.ts';
+import { org as orgApi } from '../src/api/organization.ts';
 import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
@@ -124,5 +126,87 @@ describe('api errors', () => {
     expect(result.status === 'error' && result.error.message).toBe('Something went wrong');
     // the error card html-escapes the quotes around the parameter name
     expect(result.content).toContain('Invalid date input for parameter &#34;from&#34;');
+  });
+});
+
+describe('a stat the token may not read', () => {
+  const GRAPHQL = 'https://api.github.com/graphql';
+
+  /** The organization activity answer a token refused issues gets: pull requests under both labels. */
+  const issuesAnsweredWithPRs = {
+    data: {
+      organization: { login: 'vitest-dev', name: 'Vitest' },
+      prsOpened: { issueCount: 157 },
+      prsMerged: { issueCount: 115 },
+      issuesOpened: { issueCount: 157, nodes: [{ __typename: 'PullRequest' }] },
+      issuesClosed: { issueCount: 157, nodes: [{ __typename: 'PullRequest' }] },
+      discussions: { discussionCount: 4 },
+    },
+  };
+
+  /** The organization answer a token refused the member count gets: the org, and one field's error. */
+  const membersRefused = {
+    data: {
+      organization: {
+        login: 'vitest-dev',
+        name: 'Vitest',
+        description: null,
+        createdAt: '2021-12-08T09:47:15Z',
+        membersWithRole: null,
+        repositories: {
+          totalCount: 0,
+          pageInfo: { hasNextPage: false, endCursor: null },
+          nodes: [],
+        },
+      },
+    },
+    errors: [
+      {
+        type: 'FORBIDDEN',
+        path: ['organization', 'membersWithRole'],
+        message: 'Resource not accessible by integration',
+      },
+    ],
+  };
+
+  it('refuses the activity card, which draws both issue rows by default', async () => {
+    mock.onPost(GRAPHQL).reply(200, issuesAnsweredWithPRs);
+
+    const result = await orgActivityApi({ org: 'vitest-dev' }, config);
+
+    expect(result).toMatchObject({
+      status: 'error',
+      // the retryer starts at a random token, so another may be permitted
+      retryable: true,
+      error: { code: 'forbidden' },
+    });
+  });
+
+  it('draws the activity card for a query that hides both issue rows', async () => {
+    mock.onPost(GRAPHQL).reply(200, issuesAnsweredWithPRs);
+
+    const result = await orgActivityApi(
+      { org: 'vitest-dev', hide: 'issues_opened,issues_closed' },
+      config,
+    );
+
+    expect(result).toMatchObject({ status: 'success' });
+  });
+
+  it('refuses the organization card only when `show` asks for the member count', async () => {
+    mock.onPost(GRAPHQL).reply(200, membersRefused);
+
+    await expect(orgApi({ org: 'vitest-dev', show: 'members' }, config)).resolves.toMatchObject({
+      status: 'error',
+      error: { code: 'forbidden' },
+    });
+  });
+
+  it('draws the organization card for a query that never asked for members', async () => {
+    mock.onPost(GRAPHQL).reply(200, membersRefused);
+
+    await expect(orgApi({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
+      status: 'success',
+    });
   });
 });

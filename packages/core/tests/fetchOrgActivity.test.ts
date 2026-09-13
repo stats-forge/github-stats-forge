@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CardError } from '../src/common/error.ts';
+import { CardError, ISSUES_FORBIDDEN } from '../src/common/error.ts';
 import { fetchOrgActivity } from '../src/fetchers/org-activity.ts';
 import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-activity.ts';
 
@@ -22,6 +22,8 @@ const answer = ({
   issuesClosed = 0,
   discussions = 0,
   name = 'Vitest',
+  /** What the issue searches matched — `PullRequest` is how a token refused issues is answered. */
+  issueNode = 'Issue',
 }: {
   prsOpened?: number;
   prsMerged?: number;
@@ -29,13 +31,20 @@ const answer = ({
   issuesClosed?: number;
   discussions?: number;
   name?: string | null;
+  issueNode?: 'Issue' | 'PullRequest';
 } = {}): { data: GetOrganizationActivityQuery } => ({
   data: {
     organization: { login: 'vitest-dev', name },
     prsOpened: { issueCount: prsOpened },
     prsMerged: { issueCount: prsMerged },
-    issuesOpened: { issueCount: issuesOpened },
-    issuesClosed: { issueCount: issuesClosed },
+    issuesOpened: {
+      issueCount: issuesOpened,
+      nodes: issuesOpened > 0 ? [{ __typename: issueNode }] : [],
+    },
+    issuesClosed: {
+      issueCount: issuesClosed,
+      nodes: issuesClosed > 0 ? [{ __typename: issueNode }] : [],
+    },
     discussions: { discussionCount: discussions },
   },
 });
@@ -155,6 +164,58 @@ describe(fetchOrgActivity, () => {
 
     expect(data.commits).toBeNull();
     expect(data.prsOpened).toBe(12);
+  });
+
+  it('refuses the card when the issue searches answer with pull requests', async () => {
+    mock.onPost(GRAPHQL).reply(
+      200,
+      answer({
+        prsOpened: 157,
+        prsMerged: 115,
+        issuesOpened: 157,
+        issuesClosed: 157,
+        issueNode: 'PullRequest',
+      }),
+    );
+
+    await expect(fetchOrgActivity({ org: 'vitest-dev' }, config)).rejects.toMatchObject({
+      code: 'forbidden',
+      secondaryMessage: ISSUES_FORBIDDEN,
+    });
+  });
+
+  it('drops both issue counts instead, for a caller that wants neither row', async () => {
+    // silences the refusal the fetcher reports, and is what asserts on it
+    const logged = vi.spyOn(console, 'error').mockReturnValue();
+
+    mock.onPost(GRAPHQL).reply(
+      200,
+      answer({
+        prsOpened: 157,
+        prsMerged: 115,
+        issuesOpened: 157,
+        issuesClosed: 157,
+        issueNode: 'PullRequest',
+      }),
+    );
+
+    const data = await fetchOrgActivity({ org: 'vitest-dev', require_issues: false }, config);
+
+    expect(data.issuesOpened).toBeNull();
+    expect(data.issuesClosed).toBeNull();
+    // the pull request rows are answered honestly by the same token, so they stay
+    expect(data.prsOpened).toBe(157);
+    expect(data.prsMerged).toBe(115);
+    expect(logged).toHaveBeenCalledWith(expect.stringContaining('may not read issues'));
+  });
+
+  it('keeps an issue count of zero, which has no node to check', async () => {
+    mock.onPost(GRAPHQL).reply(200, answer({ issuesOpened: 4, issuesClosed: 0 }));
+
+    await expect(fetchOrgActivity({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
+      issuesOpened: 4,
+      issuesClosed: 0,
+    });
   });
 
   it('falls back to the login when the organization has no display name', async () => {

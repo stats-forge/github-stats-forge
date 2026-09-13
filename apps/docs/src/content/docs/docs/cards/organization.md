@@ -9,6 +9,11 @@ and how much is open across them.
 Releases, commits, public members, the most common language and the founding year are there for
 the asking.
 
+:::note
+`show=members` needs the organization **Members** permission; the public totals need nothing
+extra. See [the token it needs](#the-token-it-needs).
+:::
+
 ![The organization card](/cards/organization.svg)
 
 ```text
@@ -39,6 +44,21 @@ the asking.
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.
 
+## The token it needs
+
+Organization data is granted separately from personal data, so a token that draws your stats
+card need not draw this one.
+
+| Token                   | What it needs                                                      |
+| ----------------------- | ------------------------------------------------------------------ |
+| Classic PAT             | nothing for the public totals; `read:org` for `show=members`       |
+| Fine-grained PAT        | the **organization** as its resource owner, which the org approves |
+| GitHub App installation | the app installed on the organization                              |
+| Actions `GITHUB_TOKEN`  | repository-scoped, so it cannot read the member count              |
+
+`show=members` is refused without the organization `Members` permission. Private repositories
+are counted only by a token that can see them.
+
 ## What the totals count
 
 Every total but the repository count is summed over the organization's **public, non-fork
@@ -62,5 +82,6 @@ Three of them are worth spelling out:
   It is also the one stat a token can be refused:
   reading it needs the organization `Members` permission,
   which a GitHub App installation token does not carry by default.
-  Where the token lacks it the row is left out and the rest of the card still renders,
-  so `show=members` on such a token draws nothing rather than failing.
+  Asking for the row a token cannot read — `show=members` — draws an error saying so,
+  rather than a card quietly missing the stat you asked for.
+  Drop `members` from `show` and the rest of the card renders from the same token.

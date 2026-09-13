@@ -83,11 +83,12 @@ Six handlers each carried that control flow by hand until 2026-09-05.
   hands zod the message function. Nothing reads a kind back off an issue, so no metadata
   rides along on it. Only the first rejection is reported: the error card has one line.
 - **Everything throws `CardError`** (`common/error.ts`), which carries a `code`, the two
-  lines the card draws, and the param at fault. The codes are `invalid_param`,
+  lines the card draws, and the param at fault. The codes are `forbidden`, `invalid_param`,
   `missing_param`, `not_allowed`, `not_found`, `no_tokens`, `rate_limited` and `upstream`;
   `retryable` is
   derived from the code by one table — `no_tokens` is retryable, its remedy being a token on the
-  next start rather than a query change — so "can a retry help" is answered once rather than at
+  next start rather than a query change, and so is `forbidden`, the retryer starting at a random
+  token so the next request may pick one that is permitted — so "can a retry help" is answered once rather than at
   each throw site. `CardError.from(err)` wraps anything else as `upstream`, **which is
   retryable** — so a permanent failure has to throw a `CardError` to be reported as one.
 - **`ApiResult` is a union, not a status string.** Success is `{ status: "success", content }`;
@@ -178,6 +179,32 @@ rather than a document assembled per `show` — the shape of the card cannot cha
 A search qualifier reads a **date**, not the `DateTime` the GraphQL arguments take, which is what
 `toSearchDate` in `common/date.ts` is for.
 
+- **A token refused issues is answered with pull requests, not with an error.** `is:pr` applies
+  for such a token and `is:issue` does not, so `org:x is:issue created:…` returns the window's
+  pull requests and the count arrives looking like a real one. It drew a profile card reading
+  `Issues opened: 157, Issues closed: 157` beside `PRs opened: 157` on 2026-09-13 — the org has
+  two issues, both open — because the workflow authenticated with an app installation token
+  carrying no `Issues` permission. Nothing in the response says so: the fix is to ask each issue
+  search for `nodes { __typename }` and check it matched an `Issue`, which keeps the request at
+  `cost: 1`. **A search whose result a permission can change is not self-describing — ask it what
+  it matched.**
+- **A stat the query asked for and the token may not read is an error, not a missing row.**
+  Silently dropping it answers a question nobody asked: `show=members` on a token without the
+  organization `Members` permission drew a members-less card that looked like a rendering bug, and
+  a dropped issue row looks like a quiet organization. Both are now `CardError.forbidden`, whose
+  second line names the permission **and the option that drops the stat instead**, so the refusal
+  is escapable without reading this file. Decided on 2026-09-13.
+  - **The api layer decides whether the stat was asked for, and tells the fetcher.**
+    `show.includes('members')` becomes `require_members`, and `hide` naming both issue rows
+    becomes `require_issues: false` — the same shape as `include_commits`, which already rode
+    down from `show`. A fetcher cannot read `show` or `hide`, and should not learn to: it is
+    handed the one boolean its own refusal turns on.
+  - **A stat drawn by default is asked for by default.** The activity card draws both issue
+    rows unless `hide` names them, so a refusal is fatal unless **both** are hidden — hiding one
+    still leaves a row that would carry the wrong number. The members row is the other way
+    round: it is `show`-gated, so a refusal is fatal only when `show` names it.
+  - **Log the refusal once, not once per page.** `fetchOrganization` walks up to five pages and
+    the member refusal arrives on each, so the log sits behind the flag it sets.
 - **Commits are the one figure that has no GraphQL search index.** `search(type: ISSUE)` covers
   issues and pull requests and `type: DISCUSSION` the discussions, but commits are REST only —
   a second request, against the search API's much smaller allowance. That is why the activity
