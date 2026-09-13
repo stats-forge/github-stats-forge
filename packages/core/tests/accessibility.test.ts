@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { renderGistCard } from '../src/cards/gist/index.ts';
+import { renderOrgActivityCard } from '../src/cards/org-activity/index.ts';
 import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { renderTopLanguages } from '../src/cards/top-languages/index.ts';
@@ -8,6 +9,7 @@ import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
 import { renderError } from '../src/common/render.ts';
 import type {
   GistData,
+  OrgActivityData,
   RepositoryData,
   StatsData,
   TopLangData,
@@ -87,10 +89,24 @@ const wakatimeData: Partial<WakaTimeData> = {
   human_readable_total: '10 hrs',
 };
 
+const orgActivityData: OrgActivityData = {
+  login: 'vitest-dev',
+  name: 'Vitest',
+  range: { from: new Date('2026-08-14T00:00:00Z'), to: new Date('2026-09-12T00:00:00Z') },
+  days: 30,
+  prsOpened: 267,
+  prsMerged: 169,
+  issuesOpened: 82,
+  issuesClosed: 66,
+  discussionsOpened: 9,
+  commits: 204,
+};
+
 /** Every card, rendered with data that exercises its labels. */
 const cards = {
   gist: (): string => renderGistCard(gistData),
   repo: (): string => renderRepoCard(repoData),
+  'org-activity': (): string => renderOrgActivityCard(orgActivityData),
   stats: (): string => renderStatsCard(statsData),
   'top-languages': (): string => renderTopLanguages(topLangs),
   wakatime: (): string => renderWakatimeCard(wakatimeData),

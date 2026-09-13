@@ -1,5 +1,6 @@
 export { fetchContributedTo } from './contributed-to.ts';
 export { fetchGist } from './gist.ts';
+export { fetchOrgActivity } from './org-activity.ts';
 export { fetchOrganization } from './organization.ts';
 export { fetchRepo } from './repo.ts';
 export { fetchRepoUserStats, fetchStats } from './stats.ts';
@@ -11,6 +12,7 @@ export type {
   ContributedToData,
   GistData,
   Lang,
+  OrgActivityData,
   OrganizationData,
   RepoUserStats,
   RepositoryData,

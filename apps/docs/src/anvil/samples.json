@@ -102,6 +102,32 @@
       }
     }
   },
+  "getOrganizationActivity": {
+    "status": 200,
+    "body": {
+      "data": {
+        "organization": {
+          "login": "stats-forge",
+          "name": "Stats Forge"
+        },
+        "prsOpened": {
+          "issueCount": 122
+        },
+        "prsMerged": {
+          "issueCount": 84
+        },
+        "issuesOpened": {
+          "issueCount": 2
+        },
+        "issuesClosed": {
+          "issueCount": 0
+        },
+        "discussions": {
+          "discussionCount": 0
+        }
+      }
+    }
+  },
   "getRepo": {
     "status": 200,
     "body": {
@@ -313,6 +339,153 @@
             "labels_url": "https://api.github.com/repos/gionkunz/chartist-plugin-threshold/labels{/name}",
             "releases_url": "https://api.github.com/repos/gionkunz/chartist-plugin-threshold/releases{/id}",
             "deployments_url": "https://api.github.com/repos/gionkunz/chartist-plugin-threshold/deployments"
+          },
+          "score": 1
+        }
+      ]
+    }
+  },
+  "search/commits|author-date,org": {
+    "status": 200,
+    "body": {
+      "total_count": 148,
+      "incomplete_results": false,
+      "items": [
+        {
+          "url": "https://api.github.com/repos/stats-forge/.github/commits/6a690fc7c41b9dbb7712047234a4ccbf13d9721b",
+          "sha": "6a690fc7c41b9dbb7712047234a4ccbf13d9721b",
+          "node_id": "MDY6Q29tbWl0MTM1MzIzNTczMDo2YTY5MGZjN2M0MWI5ZGJiNzcxMjA0NzIzNGE0Y2NiZjEzZDk3MjFi",
+          "html_url": "https://github.com/stats-forge/.github/commit/6a690fc7c41b9dbb7712047234a4ccbf13d9721b",
+          "comments_url": "https://api.github.com/repos/stats-forge/.github/commits/6a690fc7c41b9dbb7712047234a4ccbf13d9721b/comments",
+          "commit": {
+            "url": "https://api.github.com/repos/stats-forge/.github/git/commits/6a690fc7c41b9dbb7712047234a4ccbf13d9721b",
+            "author": {
+              "date": "2026-09-01T08:57:33.000+02:00",
+              "name": "Marco Pasqualetti",
+              "email": "marco.pasqualetti@live.com"
+            },
+            "committer": {
+              "date": "2026-09-01T09:00:49.000+02:00",
+              "name": "Marco Pasqualetti",
+              "email": "marco.pasqualetti@live.com"
+            },
+            "message": "feat: initial commit",
+            "tree": {
+              "url": "https://api.github.com/repos/stats-forge/.github/git/trees/8e061869c02a9a327428f2c0e5f9b46cfdc0a373",
+              "sha": "8e061869c02a9a327428f2c0e5f9b46cfdc0a373"
+            },
+            "comment_count": 0
+          },
+          "author": {
+            "login": "marcalexiei",
+            "id": 24919330,
+            "node_id": "MDQ6VXNlcjI0OTE5MzMw",
+            "avatar_url": "https://avatars.githubusercontent.com/u/24919330?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/marcalexiei",
+            "html_url": "https://github.com/marcalexiei",
+            "followers_url": "https://api.github.com/users/marcalexiei/followers",
+            "following_url": "https://api.github.com/users/marcalexiei/following{/other_user}",
+            "gists_url": "https://api.github.com/users/marcalexiei/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/marcalexiei/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/marcalexiei/subscriptions",
+            "organizations_url": "https://api.github.com/users/marcalexiei/orgs",
+            "repos_url": "https://api.github.com/users/marcalexiei/repos",
+            "events_url": "https://api.github.com/users/marcalexiei/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/marcalexiei/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "committer": {
+            "login": "marcalexiei",
+            "id": 24919330,
+            "node_id": "MDQ6VXNlcjI0OTE5MzMw",
+            "avatar_url": "https://avatars.githubusercontent.com/u/24919330?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/marcalexiei",
+            "html_url": "https://github.com/marcalexiei",
+            "followers_url": "https://api.github.com/users/marcalexiei/followers",
+            "following_url": "https://api.github.com/users/marcalexiei/following{/other_user}",
+            "gists_url": "https://api.github.com/users/marcalexiei/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/marcalexiei/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/marcalexiei/subscriptions",
+            "organizations_url": "https://api.github.com/users/marcalexiei/orgs",
+            "repos_url": "https://api.github.com/users/marcalexiei/repos",
+            "events_url": "https://api.github.com/users/marcalexiei/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/marcalexiei/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "parents": [],
+          "repository": {
+            "id": 1353235730,
+            "node_id": "R_kgDOUKi9Eg",
+            "name": ".github",
+            "full_name": "stats-forge/.github",
+            "private": false,
+            "owner": {
+              "login": "stats-forge",
+              "id": 323154876,
+              "node_id": "O_kgDOE0LzvA",
+              "avatar_url": "https://avatars.githubusercontent.com/u/323154876?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/stats-forge",
+              "html_url": "https://github.com/stats-forge",
+              "followers_url": "https://api.github.com/users/stats-forge/followers",
+              "following_url": "https://api.github.com/users/stats-forge/following{/other_user}",
+              "gists_url": "https://api.github.com/users/stats-forge/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/stats-forge/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/stats-forge/subscriptions",
+              "organizations_url": "https://api.github.com/users/stats-forge/orgs",
+              "repos_url": "https://api.github.com/users/stats-forge/repos",
+              "events_url": "https://api.github.com/users/stats-forge/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/stats-forge/received_events",
+              "type": "Organization",
+              "user_view_type": "public",
+              "site_admin": false
+            },
+            "html_url": "https://github.com/stats-forge/.github",
+            "description": null,
+            "fork": false,
+            "url": "https://api.github.com/repos/stats-forge/.github",
+            "forks_url": "https://api.github.com/repos/stats-forge/.github/forks",
+            "keys_url": "https://api.github.com/repos/stats-forge/.github/keys{/key_id}",
+            "collaborators_url": "https://api.github.com/repos/stats-forge/.github/collaborators{/collaborator}",
+            "teams_url": "https://api.github.com/repos/stats-forge/.github/teams",
+            "hooks_url": "https://api.github.com/repos/stats-forge/.github/hooks",
+            "issue_events_url": "https://api.github.com/repos/stats-forge/.github/issues/events{/number}",
+            "events_url": "https://api.github.com/repos/stats-forge/.github/events",
+            "assignees_url": "https://api.github.com/repos/stats-forge/.github/assignees{/user}",
+            "branches_url": "https://api.github.com/repos/stats-forge/.github/branches{/branch}",
+            "tags_url": "https://api.github.com/repos/stats-forge/.github/tags",
+            "blobs_url": "https://api.github.com/repos/stats-forge/.github/git/blobs{/sha}",
+            "git_tags_url": "https://api.github.com/repos/stats-forge/.github/git/tags{/sha}",
+            "git_refs_url": "https://api.github.com/repos/stats-forge/.github/git/refs{/sha}",
+            "trees_url": "https://api.github.com/repos/stats-forge/.github/git/trees{/sha}",
+            "statuses_url": "https://api.github.com/repos/stats-forge/.github/statuses/{sha}",
+            "languages_url": "https://api.github.com/repos/stats-forge/.github/languages",
+            "stargazers_url": "https://api.github.com/repos/stats-forge/.github/stargazers",
+            "contributors_url": "https://api.github.com/repos/stats-forge/.github/contributors",
+            "subscribers_url": "https://api.github.com/repos/stats-forge/.github/subscribers",
+            "subscription_url": "https://api.github.com/repos/stats-forge/.github/subscription",
+            "commits_url": "https://api.github.com/repos/stats-forge/.github/commits{/sha}",
+            "git_commits_url": "https://api.github.com/repos/stats-forge/.github/git/commits{/sha}",
+            "comments_url": "https://api.github.com/repos/stats-forge/.github/comments{/number}",
+            "issue_comment_url": "https://api.github.com/repos/stats-forge/.github/issues/comments{/number}",
+            "contents_url": "https://api.github.com/repos/stats-forge/.github/contents/{+path}",
+            "compare_url": "https://api.github.com/repos/stats-forge/.github/compare/{base}...{head}",
+            "merges_url": "https://api.github.com/repos/stats-forge/.github/merges",
+            "archive_url": "https://api.github.com/repos/stats-forge/.github/{archive_format}{/ref}",
+            "downloads_url": "https://api.github.com/repos/stats-forge/.github/downloads",
+            "issues_url": "https://api.github.com/repos/stats-forge/.github/issues{/number}",
+            "pulls_url": "https://api.github.com/repos/stats-forge/.github/pulls{/number}",
+            "milestones_url": "https://api.github.com/repos/stats-forge/.github/milestones{/number}",
+            "notifications_url": "https://api.github.com/repos/stats-forge/.github/notifications{?since,all,participating}",
+            "labels_url": "https://api.github.com/repos/stats-forge/.github/labels{/name}",
+            "releases_url": "https://api.github.com/repos/stats-forge/.github/releases{/id}",
+            "deployments_url": "https://api.github.com/repos/stats-forge/.github/deployments"
           },
           "score": 1
         }

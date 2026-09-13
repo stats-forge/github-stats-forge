@@ -27,6 +27,7 @@ One path per card, named after the card.
 | `/api/top-langs`      | most-used languages          |
 | `/api/pin`            | one repository or gist       |
 | `/api/org`            | an organization              |
+| `/api/org-activity`   | its PRs, issues and commits  |
 | `/api/contributed-to` | repositories contributed to  |
 | `/api/gist`           | one gist                     |
 | `/api/wakatime`       | WakaTime coding time         |

@@ -93,7 +93,7 @@ export default defineConfig({
             },
             {
               label: 'Organization',
-              items: ['docs/cards/organization'],
+              items: ['docs/cards/organization', 'docs/cards/organization-activity'],
             },
           ],
         },
@@ -119,7 +119,7 @@ export default defineConfig({
         {
           label: 'Fetchers',
           // Reference for a library consumer, not for someone putting a card in a README — and
-          // nine of the sidebar's twenty-six links. Folded, so the cards stay in one screen.
+          // ten of the sidebar's twenty-eight links. Folded, so the cards stay in one screen.
           collapsed: true,
           items: [
             'docs/fetchers/overview',
@@ -129,6 +129,7 @@ export default defineConfig({
             'docs/fetchers/fetch-contributed-to',
             'docs/fetchers/fetch-gist',
             'docs/fetchers/fetch-organization',
+            'docs/fetchers/fetch-org-activity',
             'docs/fetchers/fetch-wakatime-stats',
             'docs/fetchers/fetch-repo-user-stats',
           ],

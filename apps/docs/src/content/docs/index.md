@@ -26,8 +26,9 @@ hero:
 
 Contribution stats, the languages you write most, the repositories you contribute to and WakaTime
 coding time describe a person; a pinned repository and a pinned gist describe one thing they own;
-the organization card describes a whole account. Every one takes the same colours, borders and
-[79 themes](docs/customization/themes/), and each has a light and a dark version.
+and two organization cards describe a whole account — what it owns, and what it has been doing
+lately. Every one takes the same colours, borders and [79 themes](docs/customization/themes/), and
+each has a light and a dark version.
 [See them all](docs/).
 
 ## Four ways to draw one
