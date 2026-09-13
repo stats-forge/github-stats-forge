@@ -6,7 +6,7 @@
 # exists, so the image runs the sources; `--conditions=@stats/source` points the core import at
 # `packages/core/src`.
 
-# Pinned by digest, because `24-alpine` is a moving tag; Dependabot maintains it.
+# Pinned by digest, because `24-alpine` is a moving tag; Renovate maintains it.
 # `$BUILDPLATFORM`: the install and the site build produce the same bytes on every architecture,
 # so they run natively once rather than under QEMU per target; only `runtime` is multi-arch.
 FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:50c8e8ca1d27439048670df5883f32d57cf81cff6233222c893fd0d9884cbd81 AS base

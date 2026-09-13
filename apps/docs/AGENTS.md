@@ -164,6 +164,13 @@ no `lint:publish`.
   documented. A page of our own was written on 2026-09-06 and deleted the same day: the action is a
   sibling repository, so nothing here can check a restatement of its inputs against its `action.yml`
   and it would drift silently. Link to it; do not copy it.
+  - **Every `uses:` in an example is pinned by SHA with the release tag as its comment** — ours
+    on `usage/cli.md`, and the two `actions/*` steps in `usage/in-your-readme.md` — as the action's
+    own README is, and as the hardening this documentation recommends. Renovate moves them: a `customManagers` entry in
+    `.github/renovate.json5` reads that shape out of `src/content/docs/**/*.md` and opens a PR,
+    with a `postUpgradeTasks` command writing the server changeset the page change needs. Write
+    any new example as `uses: <owner>/<repo>@<sha> # vX.Y.Z` under `src/content/docs`, which is
+    the shape and the tree the manager's regex covers.
 - **`customization/themes.md` is generated** by `scripts/generate-themes-page.ts` from core's own
   theme table, and `check-themes-page` fails on drift, exactly as the GraphQL types do. The
   generator formats its output through oxfmt's API — same reason as the GraphQL generator — so

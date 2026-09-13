@@ -300,6 +300,38 @@ reported all 49 shared rules twice.
 
 ## Dependencies and pnpm
 
+**Renovate keeps the dependencies current, and Dependabot is gone as of 2026-09-13.**
+`.github/renovate.json5` reproduces what `.github/dependabot.yml` did — the same groups,
+the same `build(deps)` / `build(deps-dev)` / `ci(deps)` prefixes, the same seven-day
+cooldown, the same two held-back majors — and adds the one thing Dependabot cannot do:
+`customManagers` read the version pins out of the documentation's markdown. Dependabot
+only fetches the manifests of the ecosystems it supports, and its `github_actions`
+file-fetcher says so in as many words ("Repo must contain a .github/workflows directory
+with YAML files or an action.yml file"), so the `uses:` example on the CLI page needed a
+workflow of its own to move it. That workflow, `update-action-pin.yml`, was written and then
+replaced by the custom manager before either reached `main` — which is why the history holds
+no trace of it.
+
+- **It runs self-hosted, from `.github/workflows/renovate.yml`, and that is not incidental.**
+  `postUpgradeTasks` — which writes the server changeset a documentation page change needs —
+  is a self-hosted-only option; the Mend app cannot run one. The allowlist for it is
+  `RENOVATE_ALLOWED_COMMANDS` in the workflow, and the one command is
+  `.github/scripts/renovate-changeset.sh`.
+- **The workflow's cron is the heartbeat, the config's `schedule` is the gate.** Renovate
+  only evaluates a schedule while it is running, so a per-manager window has to contain the
+  time the workflow fires. The workflow runs daily; npm is `* * * * 3,6` and the base image
+  `* * * * 1` — day-wide, because a scheduled run on GitHub is delayed under load, and an
+  hour-wide window would silently skip a week. **Renovate's cron takes no minutes field**;
+  `*` is the only accepted value there.
+- **Check a config change with `renovate-config-validator`, and run nothing else against this
+  checkout.** `RENOVATE_PLATFORM=local` resolves real updates and is the only way to see what the
+  custom managers extract, but it stages the whole tree, reverts the tracked files it touches and
+  removes untracked ones — it ate an uncommitted pin and its changeset on 2026-09-13. Copy the
+  repository somewhere else and run it there.
+- **A group is `matchPackageNames` with globs, and order decides.** The held-back rules sit
+  after the groups, because a later `packageRules` entry wins — `@types/node` majors would
+  otherwise be re-enabled by the `typescript` group above them.
+
 pnpm is **12.x**, since 2026-09-13. Two renames bite, because each stops applying
 silently rather than failing: v11's `onlyBuiltDependencies` → the `allowBuilds` map, which
 skips a package's install scripts until it is listed again, and v12's `--frozen-lockfile false`
