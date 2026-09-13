@@ -87,14 +87,18 @@ Every card except WakaTime reads the GitHub API, so it needs a personal access t
 from any of these, in this order:
 
 ```sh
-github-stats-forge --pat ghp_yourtoken      # the flag wins
-echo "PAT_1=ghp_yourtoken" > .env    # read from ./.env by default
-export PAT_1=ghp_yourtoken           # or straight from the environment
+github-stats-forge --pat "$token"                  # the flag wins
+printf 'PAT_1=%s\n' "$token" > .env                # read from ./.env by default
+export PAT_1="$(pass github/cards)"                # or straight from the environment
 ```
 
 `PAT_1`, `PAT_2`, … are the names core reads, so an env file you already use with a
 self-hosted instance works unchanged. With none of them set, the CLI asks for the
 token and hides what you type.
+
+> [!WARNING]
+> A token spelled out on the command line lands in your shell history.
+> The env file, the environment and the prompt do not.
 
 ## Options
 

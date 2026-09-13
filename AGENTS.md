@@ -202,6 +202,12 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   is a person it is **you**, **anyone** or **a visitor** (`a visitor to your profile fetches the
 SVG`). Fourteen uses across five pages were rewritten on 2026-09-07. **`screen reader` stays** —
   it is the standard accessibility term, and `assistive reader` was normalised to it.
+- **A token never appears in a command the documentation tells someone to run.**
+  `-e PAT_1=github_pat_...` puts it in the shell history and in `docker inspect`,
+  and four pages carried it until 2026-09-13. The examples show `--env-file cards.env`,
+  a pass-through `-e PAT_1`, or a secret manager instead; the self-hosting page's
+  "Where the token lives" is the long form, and anything new links there rather than
+  restating it. The same goes for the CLI's `--pat`, hence `--pat "$token"`.
 - **`apps/docs/public/cards` is committed, so redraw it when a card's output changes.**
   `pnpm docs:cards` renders every saved card in `apps/docs/cards` through the built CLI, twice
   each; it needs `PAT_1` in a root `.env`, which is why CI cannot keep the previews current.
