@@ -1,5 +1,22 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.7.0
+
+### Minor Changes
+
+- [#106](https://github.com/stats-forge/github-stats-forge/pull/106) [`10ac5b6`](https://github.com/stats-forge/github-stats-forge/commit/10ac5b6a2b08e20446f2dd08f73325bd4a14f12a) - feat: add the organization activity card
+
+  What an organization did over a window:
+  pull requests opened and merged, issues opened and closed,
+  and — behind `show` — discussions opened and commits authored.
+  `days` sets the window, which ends today and defaults to 30.
+
+### Patch Changes
+
+- [#108](https://github.com/stats-forge/github-stats-forge/pull/108) [`c2bf350`](https://github.com/stats-forge/github-stats-forge/commit/c2bf350a566d83def0a9d1c25c79aeda7c9f6ea8) - fix: only read PAT_1, PAT_2, ... as tokens, in name order
+
+  The pattern was unanchored, so any variable ending in `PAT_` and digits (e.g., `AZURE_PAT_1`) in a shared env file or a compose stack was picked up and sent to GitHub as a bearer token.
+
 ## 0.6.0
 
 ### Minor Changes

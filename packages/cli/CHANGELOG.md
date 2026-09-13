@@ -1,5 +1,27 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.5.0
+
+### Minor Changes
+
+- [#106](https://github.com/stats-forge/github-stats-forge/pull/106) [`10ac5b6`](https://github.com/stats-forge/github-stats-forge/commit/10ac5b6a2b08e20446f2dd08f73325bd4a14f12a) - feat: add the organization activity card
+
+  What an organization did over a window:
+  pull requests opened and merged, issues opened and closed,
+  and — behind `show` — discussions opened and commits authored.
+  `days` sets the window, which ends today and defaults to 30.
+
+### Patch Changes
+
+- [#107](https://github.com/stats-forge/github-stats-forge/pull/107) [`68574ab`](https://github.com/stats-forge/github-stats-forge/commit/68574abf7f89d4f848b0fe648bf66d44aebcf35f) - docs: keep the GitHub token off the command line
+
+  Every `docker run` example uses `--env-file` instead of `-e PAT_1=github_pat_...`,
+  and self-hosting gained a "Where the token lives" section: env files, Compose,
+  a secret manager and a KMS-backed Kubernetes Secret.
+
+- Updated dependencies [[`c2bf350`](https://github.com/stats-forge/github-stats-forge/commit/c2bf350a566d83def0a9d1c25c79aeda7c9f6ea8), [`10ac5b6`](https://github.com/stats-forge/github-stats-forge/commit/10ac5b6a2b08e20446f2dd08f73325bd4a14f12a)]:
+  - @stats-forge/github-stats-forge-core@0.7.0
+
 ## 0.4.1
 
 ### Patch Changes
