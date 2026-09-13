@@ -73,12 +73,12 @@ See [The library](usage/library/).
 **From your own server**, which draws a card at the moment someone looks at it:
 
 ```sh
-docker run -p 9000:9000 -e PAT_1=github_pat_... ghcr.io/stats-forge/github-stats-forge-server
+docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server
 ```
 
 The image serves every card as an endpoint, and carries this documentation and the card builder
-with it — the builder drawing from your instance, with your real numbers.
-See [Self-hosting](usage/self-hosting/).
+with it — the builder drawing from your instance, with your real numbers. `cards.env` is where
+the token goes, keeping it out of your shell history. See [Self-hosting](usage/self-hosting/).
 
 ## Customizing one
 

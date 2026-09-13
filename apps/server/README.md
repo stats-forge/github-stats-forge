@@ -8,12 +8,17 @@ Everything else it does is a bug.
 ## Running it
 
 ```sh
-docker run -p 9000:9000 -e PAT_1=github_pat_... ghcr.io/stats-forge/github-stats-forge-server
+docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server
 ```
 
 Then a card is at `http://localhost:9000/api/stats?username=you`,
 the documentation is at `/` and the card builder at `/anvil/`, drawing from this instance —
 and `docker-compose.yml` beside this file is the copy-paste version.
+
+`cards.env` holds `PAT_1=` and a token.
+**Never `-e PAT_1=github_pat_...`** — that leaves it in the shell history and in `docker inspect`.
+[Where the token lives](https://stats-forge.github.io/github-stats-forge/docs/usage/self-hosting/#where-the-token-lives)
+has the env file, `op run` and the Kubernetes forms.
 
 From a checkout, `pnpm server:standalone` runs the same server against the repository root's `.env`,
 cards only; `pnpm server:hosted` first builds the site the way the image does and serves it too.

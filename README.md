@@ -9,88 +9,50 @@
   </p>
 </div>
 
-GitHub Stats Forge renders GitHub stats as SVG cards: your contribution stats, your top languages,
-the repositories you contribute to, pinned repositories, gists, organizations and WakaTime coding
-time.
+[GitHub Stats Forge](https://stats-forge.github.io/github-stats-forge/) renders GitHub stats as SVG cards:
+contribution stats, top languages, repositories contributed to, pinned repositories, gists,
+organizations and what they did lately, and WakaTime coding time.
+This repository holds the library that renders them, the CLI that writes one to a file,
+and the HTTP server that serves them as a container image.
+Settle on a card in [the card builder](https://stats-forge.github.io/github-stats-forge/anvil/),
+which draws one in your browser from every option it takes.
 
-This repository holds the library those cards are rendered by,
-the CLI that renders one to a local file,
-and the HTTP server that serves them, shipped as a container image.
+## Installing
 
-## Getting a card
-
-**The recommended way is [the GitHub Action](https://github.com/stats-forge/github-stats-forge-action)**,
-which renders your cards in a workflow and commits the SVGs, so your README points at files in your
-own repository rather than at a server that has to be up:
-
-```yaml
-- uses: stats-forge/github-stats-forge-action@v0
-  with:
-    card: stats
-    options: '?username=octocat&show_icons=true&theme=dark'
-    path: profile/stats.svg
-    token: ${{ secrets.STATS_PAT }}
-```
-
-To settle on a card first,
-[the card builder](https://stats-forge.github.io/github-stats-forge/anvil/) draws one in your
-browser from every option it takes, and hands you the file the CLI reads.
-
-To draw one locally —
-[documented under the CLI](https://stats-forge.github.io/github-stats-forge/docs/usage/cli/):
+The recommended way is [the GitHub Action](https://github.com/stats-forge/github-stats-forge-action):
+it renders your cards in a workflow and commits the SVGs,
+so your README points at files in your own repository rather than at a server that has to be up.
+The three other ways in:
 
 ```sh
-npx @stats-forge/github-stats-forge-cli
+npx @stats-forge/github-stats-forge-cli           # draw one locally, to an SVG file
+npm install @stats-forge/github-stats-forge-core  # call it from your own code
+
+# serve them yourself; cards.env holds the GitHub token
+docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server
 ```
 
-To call it from your own code —
-[documented under the library](https://stats-forge.github.io/github-stats-forge/docs/usage/library/):
+## Documentation
 
-```sh
-npm install @stats-forge/github-stats-forge-core
-```
+- [The eight cards](https://stats-forge.github.io/github-stats-forge/docs/cards/stats/) and every option each takes
+- [Common options](https://stats-forge.github.io/github-stats-forge/docs/customization/common-options/), [79 themes](https://stats-forge.github.io/github-stats-forge/docs/customization/themes/) and [light and dark mode](https://stats-forge.github.io/github-stats-forge/docs/customization/light-and-dark/)
+- [Putting a card in a README](https://stats-forge.github.io/github-stats-forge/docs/usage/in-your-readme/)
+- [The CLI](https://stats-forge.github.io/github-stats-forge/docs/usage/cli/), [the library](https://stats-forge.github.io/github-stats-forge/docs/usage/library/) and [self-hosting](https://stats-forge.github.io/github-stats-forge/docs/usage/self-hosting/)
+- [The fetchers](https://stats-forge.github.io/github-stats-forge/docs/fetchers/overview/) behind the cards
 
-To serve them yourself, with your own tokens —
-[documented under self-hosting](https://stats-forge.github.io/github-stats-forge/docs/usage/self-hosting/):
+## Contribute
 
-```sh
-docker run -p 9000:9000 -e PAT_1=github_pat_... ghcr.io/stats-forge/github-stats-forge-server
-```
-
-The image carries the documentation and the card builder with it,
-so an instance documents itself at `http://localhost:9000/`.
-
-**Everything else is on the site:**
-[the seven cards and every option each takes](https://stats-forge.github.io/github-stats-forge/docs/cards/stats/),
-[the 79 themes](https://stats-forge.github.io/github-stats-forge/docs/customization/themes/),
-[light and dark mode](https://stats-forge.github.io/github-stats-forge/docs/customization/light-and-dark/),
-[putting a card in a README](https://stats-forge.github.io/github-stats-forge/docs/usage/in-your-readme/)
-and [the fetchers](https://stats-forge.github.io/github-stats-forge/docs/fetchers/overview/).
-
-## What is in here
-
-| Path                             | What it is                                                                      |
-| -------------------------------- | ------------------------------------------------------------------------------- |
-| [`packages/core`](packages/core) | The library: fetchers, card renderers, themes and the query-string api handlers |
-| [`packages/cli`](packages/cli)   | `github-stats-forge`: renders a card to a local SVG, one prompt at a time       |
-| [`apps/server`](apps/server)     | The HTTP server over those handlers, published to GHCR as a container image     |
-| [`apps/docs`](apps/docs)         | The documentation site and the card builder, published from every release       |
-
-## Contributing
-
-[CONTRIBUTING.md](.github/CONTRIBUTING.md) has the commands and what to run before opening a
-pull request.
+- [Report a bug or ask for a card](https://github.com/stats-forge/github-stats-forge/issues)
+- [CONTRIBUTING.md](.github/CONTRIBUTING.md) has the commands and what to run before opening a pull request
+- The workspace is [`packages/core`](packages/core) (the library), [`packages/cli`](packages/cli),
+  [`apps/server`](apps/server) (published to GHCR as an image),
+  and [`apps/docs`](apps/docs) (the site and the card builder)
 
 ## Acknowledgements
 
 This repository continues the work of [github-stats-extended](https://github.com/stats-organization/github-stats-extended),
 which is itself based on [github-readme-stats](https://github.com/anuraghazra/github-readme-stats).
-
-Big thanks to
-
-- [@anuraghazra](https://github.com/anuraghazra)
-- [@avgupta456](https://github.com/avgupta456)
-- [@rickstaa](https://github.com/rickstaa)
-- [@qwerty541](https://github.com/qwerty541)
-- [@martin-mfg](https://github.com/martin-mfg)
-- Everyone else who worked on these projects! ❤️
+Big thanks to [@anuraghazra](https://github.com/anuraghazra), [@avgupta456](https://github.com/avgupta456),
+[@rickstaa](https://github.com/rickstaa), [@qwerty541](https://github.com/qwerty541),
+[@martin-mfg](https://github.com/martin-mfg),
+and everyone else who worked on these projects! ❤️

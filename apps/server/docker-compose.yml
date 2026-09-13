@@ -1,7 +1,11 @@
 # The copy-paste path: a token in a `.env` beside this file, a port, and a restart policy.
+# The token goes in the file, never on the command line, where it would land in the shell history:
 #
-#   echo 'PAT_1=github_pat_...' > .env
+#   umask 077
+#   printf 'PAT_1=%s\n' "$token" > .env
 #   docker compose up -d
+#
+# `docs/usage/self-hosting` has the password manager, KMS and Kubernetes forms.
 #
 # Then a card is at http://localhost:9000/api/stats?username=you,
 # documentation: http://localhost:9000/

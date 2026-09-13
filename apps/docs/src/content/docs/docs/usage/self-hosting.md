@@ -4,12 +4,16 @@ description: Run the cards on your own server, from a container image, with your
 ---
 
 ```sh
-docker run -p 9000:9000 -e PAT_1=github_pat_... ghcr.io/stats-forge/github-stats-forge-server
+docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server
 ```
 
 That is a card server. A card is then at
 `http://localhost:9000/api/stats?username=you`, and anything that displays an image can point at
 it — a README, a profile page, a dashboard.
+
+`cards.env` holds one line, `PAT_1=` and a GitHub token — a file rather than `-e PAT_1=...`,
+which would leave the token in your shell history.
+[Where the token lives](#where-the-token-lives) has the rest.
 
 It is worth running when the [GitHub Action](https://github.com/stats-forge/github-stats-forge-action) is not the right shape: when
 the numbers should be current at the moment someone looks rather than at the moment a workflow last
@@ -108,15 +112,93 @@ Everything but `PAT_1` is optional.
 A classic token with no scopes at all is enough, the same one the CLI takes — the cards read
 public data only.
 
+## Where the token lives
+
+`-e PAT_1=github_pat_...` leaks it: the value lands in your shell history, in the host's process list,
+and in `docker inspect`. The server reads the environment and nothing else — no config file,
+no `PAT_1_FILE` — so every form below gets the token there without putting it in an argument.
+It is read once, at startup, so a rotated token is a restart.
+
+### An env file
+
+```sh
+umask 077                                   # not world-readable
+printf 'PAT_1=%s\n' "$token" > cards.env
+docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server
+```
+
+`--env-file` reads `NAME=value` literally — nothing is expanded, and quotes become part of the
+value. `PAT_2` on its own line doubles the rate limit. Keep the file out of version control.
+
+### A token already in the environment
+
+`-e NAME` with no `=` passes through what the shell already holds:
+
+```sh
+export PAT_1="$(pass github/cards)"
+docker run -p 9000:9000 -e PAT_1 ghcr.io/stats-forge/github-stats-forge-server
+```
+
+### Docker Compose
+
+Compose interpolates from a `.env` beside it, so the YAML names the token and the file holds it:
+
+```yaml
+services:
+  cards:
+    image: ghcr.io/stats-forge/github-stats-forge-server:latest
+    ports:
+      - '9000:9000'
+    environment:
+      PAT_1: ${PAT_1:?set PAT_1 in a .env file beside this one}
+```
+
+`:?` makes a missing token a startup failure rather than an instance that draws `no_tokens` on
+every card. `docker-compose.yml` in the repository is this file.
+
+### From a secret manager
+
+The file holds a reference, the manager resolves it, and the token never reaches disk:
+
+```sh
+# cards.env holds: PAT_1=op://Private/github-cards/credential
+op run --env-file cards.env -- \
+  docker run -p 9000:9000 -e PAT_1 ghcr.io/stats-forge/github-stats-forge-server
+```
+
+One that only prints a value goes through a shell assignment, which keeps it out of the arguments:
+
+```sh
+PAT_1="$(aws secretsmanager get-secret-value \
+  --secret-id github-cards --query SecretString --output text)" \
+  docker run -p 9000:9000 -e PAT_1 ghcr.io/stats-forge/github-stats-forge-server
+```
+
+`gcloud secrets versions access latest --secret=github-cards`,
+`az keyvault secret show --name github-cards --query value -o tsv` and
+`vault kv get -field=token secret/github-cards` substitute in unchanged.
+
+### Kubernetes
+
+`envFrom` puts a whole Secret into the environment, so the manifest never names the token:
+
+```yaml
+envFrom:
+  - secretRef:
+      name: github-cards
+```
+
+What makes it KMS-backed is where that Secret comes from:
+the External Secrets Operator or the Secrets Store CSI Driver syncs it from AWS Secrets Manager, Google Secret Manager, Azure Key Vault or Vault.
+
 ## Caching
 
-A card is held for ten hours by default, a failure that might fix itself for ten minutes, and one
-that will not for an hour. So a README seen a thousand times costs one GitHub request rather than a
-thousand, and the instance stays inside its rate limit without anything being configured.
+A card is held for ten hours by default, a failure that might fix itself for ten minutes, and one that will not for an hour.
+So a README seen a thousand times costs one GitHub request rather than a thousand,
+and the instance stays inside its rate limit without anything being configured.
 
-`?cache_seconds=1800` on a card asks for a shorter life, within the four-hour to twenty-four-hour
-range a card is clamped to. `CACHE_SECONDS=0` turns the whole thing off, headers and all, which is
-what makes an instance debuggable while you are setting it up.
+`?cache_seconds=1800` on a card asks for a shorter life, within the four-hour to twenty-four-hour range a card is clamped to.
+`CACHE_SECONDS=0` turns the whole thing off, headers and all, which is what makes an instance debuggable while you are setting it up.
 
 ## In a README
 
@@ -126,5 +208,5 @@ The URL is the card, so an image is all it takes:
 ![your stats](https://cards.example.com/api/stats?username=you&theme=tokyonight)
 ```
 
-Everything on [In your README](../in-your-readme/) applies unchanged — the two-image light and dark
-trick, the alignment, the alt text. The only difference is where the bytes come from.
+Everything on [In your README](../in-your-readme/) applies unchanged — the two-image light and dark trick, the alignment, the alt text.
+The only difference is where the bytes come from.
