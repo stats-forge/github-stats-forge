@@ -46,12 +46,14 @@ const parseFetchMultiPageStars = (value: string | undefined): number => {
 
 /**
  * An empty variable is an unset one: `docker compose` writes `PAT_2=` for a token left blank.
+ * The pattern is anchored so a neighbour's `AZURE_PAT_1` is never sent to GitHub as a token.
  *
- * @returns Personal access tokens found in the environment.
+ * @returns Personal access tokens found in the environment, in name order.
  */
 const parsePATsFromEnv = (env: Env): Array<PersonalAccessToken> =>
   Object.keys(env)
-    .filter((key) => /PAT_\d*$/.exec(key))
+    .filter((key) => /^PAT_\d+$/.test(key))
+    .toSorted()
     .map((name) => ({ name, value: env[name] ?? '' }))
     .filter((pat) => pat.value !== '');
 
