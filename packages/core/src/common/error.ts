@@ -18,6 +18,8 @@ const NOT_ALLOWED = 'This deployment does not serve that account';
 
 /** Why a request failed. */
 type ErrorCode =
+  /** The token may not read a stat the query asked for. */
+  | 'forbidden'
   /** The query is wrong: a param is malformed, unsafe, or not renderable. */
   | 'invalid_param'
   /** The query is missing a param the endpoint cannot render without. */
@@ -38,6 +40,8 @@ type ErrorCode =
  * A host reads this to decide between caching the failure and retrying it.
  */
 const RETRYABLE: Record<ErrorCode, boolean> = {
+  // the retryer starts at a random token, so the next request may pick one that is permitted
+  forbidden: true,
   invalid_param: false,
   missing_param: false,
   not_allowed: false,
@@ -82,6 +86,19 @@ class CardError extends Error {
   /** Whether repeating the request could produce a different answer. */
   get retryable(): boolean {
     return RETRYABLE[this.code];
+  }
+
+  /**
+   * A stat the token may not read and the query asked for.
+   * `secondaryMessage` names the permission, and the option that drops the stat instead.
+   *
+   * @returns The error.
+   */
+  static forbidden(secondaryMessage: string): CardError {
+    return new CardError('Missing token permission', {
+      code: 'forbidden',
+      secondaryMessage,
+    });
   }
 
   /**
@@ -154,6 +171,14 @@ const WAKATIME_USER_NOT_FOUND = 'Make sure you have a public WakaTime profile';
 /** A GitHub username that resolves to nothing, or to an organization. */
 const USER_NOT_FOUND = 'Make sure the provided username is not an organization';
 
+/** The organization `Members` permission, which the member count needs. */
+const MEMBERS_FORBIDDEN =
+  'The token needs the organization "Members" permission, or drop "show=members"';
+
+/** Read access to issues, which the two issue counts need. */
+const ISSUES_FORBIDDEN =
+  'The token needs read access to issues, or hide "issues_opened" and "issues_closed"';
+
 /** A login that resolves to nothing, or to a user rather than an organization. */
 const ORGANIZATION_NOT_FOUND = 'Make sure the provided organization exists and is not a user';
 
@@ -169,6 +194,8 @@ export {
   CardError,
   GIST_NOT_FOUND,
   INVALID_AFFILIATION,
+  ISSUES_FORBIDDEN,
+  MEMBERS_FORBIDDEN,
   ORGANIZATION_NOT_FOUND,
   REPO_NOT_FOUND,
   SECONDARY_ERROR_MESSAGES,

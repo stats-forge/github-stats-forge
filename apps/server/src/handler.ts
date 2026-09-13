@@ -37,6 +37,8 @@ const CARD_CSP = "default-src 'none'; style-src 'unsafe-inline'";
 
 /** What a failure deserves under `STRICT_HTTP_STATUS`. */
 const STRICT_STATUS: Record<ErrorCode, number> = {
+  // the token is authenticated and not permitted, which is what GitHub itself said
+  forbidden: 403,
   invalid_param: 400,
   missing_param: 400,
   not_allowed: 403,

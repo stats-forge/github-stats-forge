@@ -16,11 +16,17 @@ query getOrganizationActivity(
   prsMerged: search(query: $prsMerged, type: ISSUE) {
     issueCount
   }
-  issuesOpened: search(query: $issuesOpened, type: ISSUE) {
+  issuesOpened: search(query: $issuesOpened, type: ISSUE, first: 1) {
     issueCount
+    nodes {
+      __typename
+    }
   }
-  issuesClosed: search(query: $issuesClosed, type: ISSUE) {
+  issuesClosed: search(query: $issuesClosed, type: ISSUE, first: 1) {
     issueCount
+    nodes {
+      __typename
+    }
   }
   discussions: search(query: $discussions, type: DISCUSSION) {
     discussionCount

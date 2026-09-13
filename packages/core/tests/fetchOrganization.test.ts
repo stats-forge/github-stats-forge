@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CardError } from '../src/common/error.ts';
+import { CardError, MEMBERS_FORBIDDEN } from '../src/common/error.ts';
 import { fetchOrganization } from '../src/fetchers/organization.ts';
 import type {
   GetOrganizationQuery,
@@ -213,9 +213,28 @@ describe(fetchOrganization, () => {
     });
   });
 
+  it('refuses the card when the query asked for a member count the token may not read', async () => {
+    const { data } = page({ repos: [repo({ stars: 3 })] });
+
+    mock.onPost('https://api.github.com/graphql').reply(200, {
+      data: { organization: { ...data.organization, membersWithRole: null } },
+      errors: [
+        {
+          type: 'FORBIDDEN',
+          path: ['organization', 'membersWithRole'],
+          message: 'Resource not accessible by integration',
+        },
+      ],
+    });
+
+    await expect(
+      fetchOrganization({ org: 'vitest-dev', require_members: true }, config),
+    ).rejects.toMatchObject({ code: 'forbidden', secondaryMessage: MEMBERS_FORBIDDEN });
+  });
+
   it('keeps the rest of the card when the token may not read the member count', async () => {
-    // silences the refusal the fetcher logs
-    vi.spyOn(console, 'log').mockReturnValue();
+    // silences the refusal the fetcher logs, and is what asserts on it
+    const logged = vi.spyOn(console, 'error').mockReturnValue();
 
     const { data } = page({ repos: [repo({ stars: 3 })] });
 
@@ -234,6 +253,9 @@ describe(fetchOrganization, () => {
       publicMembers: null,
       totalStars: 3,
     });
+    expect(logged).toHaveBeenCalledWith(
+      expect.stringContaining('may not read the members of vitest-dev'),
+    );
   });
 
   it('rejects a refusal that is not just the member count', async () => {

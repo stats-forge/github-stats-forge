@@ -1,6 +1,6 @@
 import type { CardConfig } from '../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import { CardError, ORGANIZATION_NOT_FOUND } from '../common/error.ts';
+import { CardError, MEMBERS_FORBIDDEN, ORGANIZATION_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import type { GraphQLResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
@@ -84,7 +84,18 @@ const onlyMembersForbidden = (
  * @returns The organization data.
  */
 const fetchOrganization = async (
-  { org }: { org: string | undefined },
+  {
+    org,
+    require_members = false,
+  }: {
+    org: string | undefined;
+    /**
+     * Whether a refused member count fails the whole fetch rather than dropping the stat.
+     * The card draws the row only under `show=members`, so only that query has anything
+     * to be told; without it a refusal is the operator's business and not the caller's.
+     */
+    require_members?: boolean | undefined;
+  },
   config: CardConfig,
 ): Promise<OrganizationData> => {
   if (!org) {
@@ -123,7 +134,15 @@ const fetchOrganization = async (
       if (!onlyMembersForbidden(res.data.errors)) {
         throw graphqlError(res.data.errors, res.statusText, ORGANIZATION_ERROR);
       }
-      logger.log(res.data.errors[0]?.message);
+      if (require_members) {
+        throw CardError.forbidden(MEMBERS_FORBIDDEN);
+      }
+      // the walk can page five times, and one refusal is worth saying once
+      if (!membersForbidden) {
+        logger.error(
+          `Member count dropped: this token may not read the members of ${org}. Grant it the organization \`Members\` permission to draw that row. GitHub said: ${res.data.errors[0]?.message ?? 'Forbidden'}`,
+        );
+      }
       membersForbidden = true;
     }
 

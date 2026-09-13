@@ -111,16 +111,22 @@
           "name": "Stats Forge"
         },
         "prsOpened": {
-          "issueCount": 122
+          "issueCount": 160
         },
         "prsMerged": {
-          "issueCount": 84
+          "issueCount": 117
         },
         "issuesOpened": {
-          "issueCount": 2
+          "issueCount": 2,
+          "nodes": [
+            {
+              "__typename": "Issue"
+            }
+          ]
         },
         "issuesClosed": {
-          "issueCount": 0
+          "issueCount": 0,
+          "nodes": []
         },
         "discussions": {
           "discussionCount": 0

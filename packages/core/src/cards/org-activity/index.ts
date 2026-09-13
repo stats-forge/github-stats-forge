@@ -33,7 +33,7 @@ const TITLE_ICON_COLUMN = 25;
 const SHOW_STATS = ['discussions', 'commits'] as const;
 type ShowStat = (typeof SHOW_STATS)[number];
 
-/** Stats the card always draws, and so the ones `hide` has anything to remove. */
+/** Stats `show` does not gate, and so the ones `hide` has anything to remove. */
 const HIDE_STATS = ['prs_opened', 'prs_merged', 'issues_opened', 'issues_closed'] as const;
 type HideStat = (typeof HIDE_STATS)[number];
 
@@ -163,19 +163,26 @@ const renderCard = (
       value: prsMerged,
       id: 'prs_merged',
     },
-    issues_opened: {
+  };
+
+  // A refused issue count is `null`, and no row is better than one carrying the PR count.
+  if (issuesOpened !== null) {
+    STATS['issues_opened'] = {
       icon: icons.issues,
       label: t.issuesOpened(),
       value: issuesOpened,
       id: 'issues_opened',
-    },
-    issues_closed: {
+    };
+  }
+
+  if (issuesClosed !== null) {
+    STATS['issues_closed'] = {
       icon: icons.discussions_answered,
       label: t.issuesClosed(),
       value: issuesClosed,
       id: 'issues_closed',
-    },
-  };
+    };
+  }
 
   if (shows('discussions')) {
     STATS['discussions'] = {

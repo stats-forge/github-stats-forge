@@ -64,7 +64,14 @@ const renderOrgActivity = cardHandler(
   ) => {
     // the commit count is a REST search of its own, so it is fetched only for a card that draws it
     const data = await fetchOrgActivity(
-      { org, days, include_commits: show.includes('commits') },
+      {
+        org,
+        days,
+        include_commits: show.includes('commits'),
+        // both rows are drawn unless hidden, so hiding both is how a query says it wants
+        // the card from a token that may not read issues
+        require_issues: !hide.includes('issues_opened') || !hide.includes('issues_closed'),
+      },
       config,
     );
 

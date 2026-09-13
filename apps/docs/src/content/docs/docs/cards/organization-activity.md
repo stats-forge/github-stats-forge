@@ -8,6 +8,11 @@ and — for the asking — discussions opened and commits authored.
 The window is an option and the title says what it is, so the card reads as a rolling report
 rather than a total that only ever grows.
 
+:::caution
+Without a token that can read **issues**, the card draws the pull request count instead.
+See [the token it needs](#the-token-it-needs).
+:::
+
 ![The organization activity card](/cards/org-activity.svg)
 
 ```text
@@ -60,6 +65,28 @@ so they do not add up, and none of them is a subset of another:
 
 A pull request opened in March and merged in April is counted by neither figure of a window
 covering only May, and by both figures of one covering both months.
+
+## The token it needs
+
+Organization data is granted separately from personal data, so a token that draws your stats
+card need not draw this one.
+
+| Token                   | What it needs                                                       |
+| ----------------------- | ------------------------------------------------------------------- |
+| Classic PAT             | the `repo` scope                                                    |
+| Fine-grained PAT        | the **organization** as its resource owner, with `Issues: Read`     |
+| GitHub App installation | the app installed on the organization, with the `Issues` permission |
+| Actions `GITHUB_TOKEN`  | `issues: read` in the workflow's `permissions:` block               |
+
+A token refused issues is not told so: GitHub answers the searches with pull requests, so both
+issue rows would carry the pull request count. The card checks what the search matched and draws
+an error instead.
+
+Hide both rows to draw the rest of the card from such a token:
+
+```text
+?org=ORG_NAME&hide=issues_opened,issues_closed
+```
 
 ## Commits cost an extra request
 
