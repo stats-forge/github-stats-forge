@@ -1,8 +1,7 @@
 {
+  "version": 1,
   "card": "wakatime",
-  "options": {
-    "username": "ffflabs",
-    "layout": "compact",
-    "langs_count": "6"
-  }
+  "username": "ffflabs",
+  "layout": "compact",
+  "langs_count": "6"
 }

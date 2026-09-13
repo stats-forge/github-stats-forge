@@ -52,12 +52,11 @@ github-stats-forge --config my-stats.json      # picks up where the file left of
 
 ```json
 {
+  "version": 1,
   "card": "stats",
-  "options": {
-    "username": "anuraghazra",
-    "theme": "tokyonight",
-    "show_icons": "true"
-  }
+  "username": "anuraghazra",
+  "theme": "tokyonight",
+  "show_icons": "true"
 }
 ```
 
@@ -76,6 +75,19 @@ Nothing is asked, so this is the form for a script or a scheduled job — refres
 card on a cron, or regenerate a directory of them. It exits non-zero if the card
 could not be rendered, and needs its token from `--pat`, an env file or the
 environment, since there is nobody to ask.
+
+Every other way of drawing a card takes a query string — [the action](https://github.com/stats-forge/github-stats-forge-action)'s
+`options` input, a hosted card URL — and the CLI reads and writes the same thing:
+
+```sh
+github-stats-forge --config my-stats.json --print-query
+# ?username=anuraghazra&theme=tokyonight&show_icons=true
+```
+
+Paste that into a workflow, or paste one back in with `--options` to change one thing.
+`--options` takes a bare query string, one with its `?`, or a whole card URL, and layers
+over `--config` when both are given. `--print-query` renders nothing, so it needs neither
+a token nor a terminal; `Print the query` in the menu does the same while you are tuning.
 
 While it fetches, a spinner runs on stderr — so `github-stats-forge > card.svg` still
 pipes only the card, and a CI log gets one line instead of an animation.

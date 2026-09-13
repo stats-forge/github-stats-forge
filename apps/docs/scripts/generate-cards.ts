@@ -25,10 +25,10 @@ const OUT_DIR = join(DOCS_DIR, 'public', 'cards');
 const THEMES_OUT_DIR = join(DOCS_DIR, 'public', THEMES_DIR);
 const CLI = join(REPO_ROOT, 'packages', 'cli', 'build', 'index.js');
 
-/** A saved card, as the files in `cards/` hold it. */
-interface SavedCard {
+/** A saved card, as the files in `cards/` hold it: every option on the root. */
+interface SavedCard extends Record<string, string | number> {
+  version: number;
   card: string;
-  options: Record<string, string>;
 }
 
 /**
@@ -107,11 +107,7 @@ const main = async (): Promise<void> => {
     label: string,
   ): Promise<void> => {
     const config = join(scratch, `${label.replaceAll(/\W/g, '-')}.json`);
-    await writeFile(
-      config,
-      JSON.stringify({ ...saved, options: { ...saved.options, theme } }),
-      'utf8',
-    );
+    await writeFile(config, JSON.stringify({ ...saved, theme }), 'utf8');
 
     const error = await render(config, out, passthrough);
     if (error !== undefined) {

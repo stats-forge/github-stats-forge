@@ -63,7 +63,9 @@ which matters for the stats card, whose extra stats each cost a request.
 | `-c, --card <id>`   | Skip the first prompt: `stats`, `top-langs`, `pin`, `contributed-to`, `gist`, `wakatime` |
 | `-o, --out <file>`  | Where to write the SVG; the default is named after the card and its subject              |
 | `--config <file>`   | A saved card to load, and where "Save these options" writes                              |
+| `--options <query>` | Options as a query string, layered over `--config`                                       |
 | `-g, --generate`    | Render what `--config` holds and exit, without opening the menu                          |
+| `--print-query`     | Print the options as a query string and exit, without rendering                          |
 | `--pat <token>`     | A GitHub token; repeat the flag for several                                              |
 | `--env-file <file>` | Which env file to read `PAT_1`, `PAT_2`, … from                                          |
 | `-h, --help`        | The same list, from the tool                                                             |
@@ -74,23 +76,71 @@ The menu can write what you answered to a file:
 
 ```json
 {
+  "version": 1,
   "card": "stats",
-  "options": {
-    "username": "octocat",
-    "show_icons": "true",
-    "theme": "tokyonight"
-  }
+  "username": "octocat",
+  "show_icons": "true",
+  "theme": "tokyonight"
 }
 ```
 
 It is a query string in JSON — every value a string, exactly as the endpoint receives it — so it
-reads like the URL it stands for and survives being edited by hand.
+reads like the URL it stands for and survives being edited by hand. `card` says which card the
+options belong to, and `version` which shape of the file it is; those two are the only keys that
+are not options.
+
+`version` is what lets the format change later without a file becoming a guess: a file naming a
+higher number than the CLI knows is refused with a message saying so, rather than rendered from
+options it might have read wrong. A file without one is read as version 1.
 
 Load it again with `--config`, and the menu opens on those answers.
 Add `--generate` and it renders and exits, which is what a script or a scheduled job wants:
 
 ```sh
 npx @stats-forge/github-stats-forge-cli --config card.json --generate --out stats.svg
+```
+
+## The query string
+
+Every other way of drawing a card takes a query string: [the action](https://github.com/stats-forge/github-stats-forge-action)'s
+`options` input, a hosted image URL, the card builder's query box. The CLI reads and writes the
+same thing, so a card you settle on here goes straight into a workflow:
+
+```sh
+npx @stats-forge/github-stats-forge-cli --config card.json --print-query
+```
+
+```text
+?username=octocat&show_icons=true&theme=tokyonight
+```
+
+Paste that into the action and it draws the card you just tuned:
+
+```yaml
+- uses: stats-forge/github-stats-forge-action@v0
+  with:
+    card: stats
+    options: '?username=octocat&show_icons=true&theme=tokyonight'
+    path: profile/stats.svg
+```
+
+`--print-query` renders nothing, so it needs no token and no terminal — it works in a script.
+"Print the query" in the menu does the same for the card you are tuning, and leaves the menu open.
+
+It reads the same form back. `--options` takes a bare query string, one with its `?`, or a whole
+card URL to take the query off, so you can bring a card back out of a workflow or a README to
+change one thing:
+
+```sh
+npx @stats-forge/github-stats-forge-cli --card stats \
+  --options '?username=octocat&show_icons=true&theme=tokyonight'
+```
+
+Given both, `--options` layers over `--config` rather than replacing it, so one saved card plus one
+option is a whole variant:
+
+```sh
+npx @stats-forge/github-stats-forge-cli --config card.json --options '?theme=dark' --print-query
 ```
 
 ## In a README

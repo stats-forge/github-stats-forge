@@ -1,7 +1,6 @@
 {
+  "version": 1,
   "card": "stats",
-  "options": {
-    "username": "marcalexiei",
-    "show_icons": "true"
-  }
+  "username": "marcalexiei",
+  "show_icons": "true"
 }

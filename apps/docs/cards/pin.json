@@ -1,8 +1,7 @@
 {
+  "version": 1,
   "card": "pin",
-  "options": {
-    "username": "marcalexiei",
-    "repo": "eslint-zod",
-    "show_owner": "true"
-  }
+  "username": "marcalexiei",
+  "repo": "eslint-zod",
+  "show_owner": "true"
 }

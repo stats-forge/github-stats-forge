@@ -1,8 +1,7 @@
 {
+  "version": 1,
   "card": "org-activity",
-  "options": {
-    "org": "vitest-dev",
-    "days": "30",
-    "show": "commits"
-  }
+  "org": "vitest-dev",
+  "days": "30",
+  "show": "commits"
 }

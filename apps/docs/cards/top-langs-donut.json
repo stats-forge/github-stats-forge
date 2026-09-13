@@ -1,8 +1,7 @@
 {
+  "version": 1,
   "card": "top-langs",
-  "options": {
-    "username": "marcalexiei",
-    "layout": "donut",
-    "langs_count": "6"
-  }
+  "username": "marcalexiei",
+  "layout": "donut",
+  "langs_count": "6"
 }
