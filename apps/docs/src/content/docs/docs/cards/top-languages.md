@@ -1,5 +1,5 @@
 ---
-title: Top languages card
+title: Top languages
 description: The languages you write most, by bytes of code or by repository count.
 ---
 

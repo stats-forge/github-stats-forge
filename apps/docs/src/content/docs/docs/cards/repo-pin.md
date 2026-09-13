@@ -1,5 +1,5 @@
 ---
-title: Repository pin card
+title: Repository pin
 description: One repository, drawn as a card, so a profile can pin more than six.
 ---
 

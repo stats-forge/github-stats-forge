@@ -14,15 +14,30 @@ so what you see is what the tool produces — not a screenshot.
 
 ## The cards
 
-| Card                                    | Describes       | Handler         | What it shows                                                  |
-| --------------------------------------- | --------------- | --------------- | -------------------------------------------------------------- |
-| [Stats](cards/stats/)                   | A user          | `stats`         | Commits, PRs, issues, reviews, stars and a rank                |
-| [Top languages](cards/top-languages/)   | A user          | `topLangs`      | The languages you write most, by size or repository count      |
-| [Contributed to](cards/contributed-to/) | A user          | `contributedTo` | The repositories you contribute to, ranked, and in which years |
-| [WakaTime](cards/wakatime/)             | A user          | `wakatime`      | Coding time per language                                       |
-| [Repository pin](cards/repo-pin/)       | One repository  | `pin`           | One repository, so a profile can pin more than six             |
-| [Gist pin](cards/gist-pin/)             | One gist        | `gist`          | One gist                                                       |
-| [Organization](cards/organization/)     | An organization | `org`           | Its public repositories, and what they add up to               |
+Which card you want starts with what it is about — a person, one repository or gist, or a whole
+organization. The anvil and the sidebar group them the same way.
+
+### User
+
+| Card                                    | Handler         | What it shows                                                  |
+| --------------------------------------- | --------------- | -------------------------------------------------------------- |
+| [Stats](cards/stats/)                   | `stats`         | Commits, PRs, issues, reviews, stars and a rank                |
+| [Top languages](cards/top-languages/)   | `topLangs`      | The languages you write most, by size or repository count      |
+| [Contributed to](cards/contributed-to/) | `contributedTo` | The repositories you contribute to, ranked, and in which years |
+| [WakaTime](cards/wakatime/)             | `wakatime`      | Coding time per language                                       |
+
+### Repository or gist
+
+| Card                              | Handler | What it shows                                      |
+| --------------------------------- | ------- | -------------------------------------------------- |
+| [Repository pin](cards/repo-pin/) | `pin`   | One repository, so a profile can pin more than six |
+| [Gist pin](cards/gist-pin/)       | `gist`  | One gist                                           |
+
+### Organization
+
+| Card                                | Handler | What it shows                                    |
+| ----------------------------------- | ------- | ------------------------------------------------ |
+| [Organization](cards/organization/) | `org`   | Its public repositories, and what they add up to |
 
 ## Getting a card
 

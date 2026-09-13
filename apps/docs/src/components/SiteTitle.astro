@@ -140,10 +140,43 @@ const path = Astro.url.pathname;
     border-bottom-color: var(--sl-color-text-accent);
   }
 
-  /* The header is tight on a phone; the sidebar still reaches every page. */
+  /*
+   * A phone has no room beside the title, and hiding the links there strands the anvil: it is a
+   * splash page, so it has no sidebar, and Starlight renders the menu button only for a page that
+   * has one. The links take a row of their own, and the header grows by exactly that row.
+   */
   @media (max-width: 50rem) {
+    :global(:root) {
+      --sl-nav-height: 5.25rem;
+    }
+
+    /* Starlight sizes the logo off the nav height, so pin it to what the one-row header gave it. */
+    :global(.title-wrapper .site-title img) {
+      height: 2rem;
+    }
+
+    /* The menu button centres itself in the header, which is now two rows; hold it on the first. */
+    :global(.sl-menu-button) {
+      top: calc((3.5rem - var(--sl-menu-button-size)) / 2);
+    }
+
+    /* So does the search button, 13px below the title it should sit beside. A box the height of
+       the first row centres it there whatever height Starlight gives the button itself. */
+    :global(.header > .sl-flex:not(.title-wrapper)) {
+      align-self: start;
+      align-items: center;
+      height: calc(3.5rem - 2 * var(--sl-nav-pad-y));
+    }
+
+    :global(.title-wrapper) {
+      flex-wrap: wrap;
+      align-content: center;
+    }
+
     .site-nav {
-      display: none;
+      flex-basis: 100%;
+      margin-inline-start: 0;
+      font-size: var(--sl-text-sm);
     }
   }
 </style>

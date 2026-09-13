@@ -1,5 +1,5 @@
 ---
-title: Organization card
+title: Organization
 description: An organization, and the totals of its public repositories.
 ---
 
