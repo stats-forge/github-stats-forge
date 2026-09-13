@@ -100,7 +100,7 @@ help, so there is nothing here to re-derive.
     resolves `api.github.com` on every cache miss.
   - **The digest is there because `24-alpine` is a moving tag** — it has floated across Alpine
     3.20 to 3.24 for this Node major alone, so the OS under the image changed without the
-    Dockerfile doing. **Dependabot maintains it** (`package-ecosystem: docker` on `/apps/server`),
+    Dockerfile doing. **Renovate maintains it** (its `dockerfile` manager, Mondays),
     so a base bump arrives as a pull request CI has built. Both `FROM` lines carry the same
     digest; change them together.
 - **The base stage deletes the root `prepare` script, because every `pnpm install` runs it.**

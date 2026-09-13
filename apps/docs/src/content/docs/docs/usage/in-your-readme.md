@@ -106,9 +106,9 @@ jobs:
   cards:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
 
@@ -127,6 +127,10 @@ jobs:
           git diff --quiet --cached || git commit -m 'chore: refresh cards'
           git push
 ```
+
+The two `actions/*` steps name a commit rather than a tag, with the release alongside as a
+comment. A tag can be moved to point at other code, so a pin is what GitHub's hardening guide
+asks for; take a newer one from each action's releases page when you copy this.
 
 `CARDS_TOKEN` is a personal access token with no scopes — the cards read public data only.
 The workflow's own `GITHUB_TOKEN` cannot be used for the rendering: it is scoped to this

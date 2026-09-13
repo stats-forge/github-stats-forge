@@ -29,7 +29,7 @@ rode into every consumer's install for nothing — and `editor` brought
 Ten packages left the lockfile on 2026-09-11. Two things follow:
 `Separator` is imported from `@inquirer/select`, which re-exports it from `@inquirer/core`;
 and each prompt is a **default** export, where the meta-package re-exported them as names.
-Dependabot groups them as `inquirer`, because the five share one `@inquirer/core`
+Renovate groups them as `inquirer`, because the five share one `@inquirer/core`
 and a lone bump can leave two copies of it in the tree.
 
 **`@inquirer/number` is the one prompt worth taking back out of the ten the meta-package

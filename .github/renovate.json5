@@ -1,0 +1,110 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+
+  // Replaced `.github/dependabot.yml` on 2026-09-13:
+  // Dependabot reads only its ecosystems' manifests, never markdown, so the documentation's `uses:` pins were out of its reach.
+  extends: ['config:recommended', 'helpers:pinGitHubActionDigests'],
+
+  timezone: 'Etc/UTC',
+
+  // Not `auto`, which drops the prefixes when it scores the recent history low.
+  semanticCommits: 'enabled',
+
+  // Dependabot's `cooldown`; pnpm's own `minimumReleaseAge` guards the install instead.
+  minimumReleaseAge: '7 days',
+
+  // Dependabot counted per ecosystem, Renovate per repository.
+  // The hourly default of 2 would dribble a grouped update out over hours.
+  prConcurrentLimit: 10,
+  prHourlyLimit: 0,
+
+  packageRules: [
+    // Commit prefixes.
+    // Written out rather than `:semanticCommitTypeAll(build)`,
+    // which loses to `:semanticPrefixFixDepsChoreOthers` inside `config:recommended`.
+    // Scope defaults to `deps`.
+    { matchPackageNames: ['*'], semanticCommitType: 'build' },
+    // Catalog entries are not `devDependencies`.
+    { matchDepTypes: ['devDependencies', 'pnpm.catalog.default'], semanticCommitScope: 'deps-dev' },
+    { matchManagers: ['github-actions'], semanticCommitType: 'ci' },
+
+    // Schedules. The workflow runs daily, so these pick the days it may act on.
+    // Renovate's cron takes no minutes field, and a day-wide window absorbs GitHub's delay on a scheduled run.
+    { matchManagers: ['npm'], schedule: ['* * * * 3,6'] },
+    { matchManagers: ['dockerfile'], schedule: ['* * * * 1'] },
+
+    // Groups.
+    { matchPackageNames: ['vitest', '@vitest/*'], groupName: 'vitest' },
+    { matchPackageNames: ['typescript', '@types/*'], groupName: 'typescript' },
+    {
+      matchPackageNames: ['graphql', '@graphql-codegen/*', '@octokit/graphql-schema'],
+      groupName: 'graphql',
+    },
+    { matchPackageNames: ['@testing-library/*'], groupName: 'testing-library' },
+    { matchPackageNames: ['@changesets/*'], groupName: 'changesets' },
+    // A lone bump can leave two copies of the `@inquirer/core` the five share.
+    { matchPackageNames: ['@inquirer/*'], groupName: 'inquirer' },
+    { matchPackageNames: ['oxfmt', '@marcalexiei/oxfmt-config'], groupName: 'oxfmt' },
+    {
+      matchPackageNames: ['oxlint', 'oxlint-tsgolint', '@marcalexiei/oxlint-config'],
+      groupName: 'oxlint',
+    },
+    { matchPackageNames: ['astro', '@astrojs/*', 'starlight-*'], groupName: 'astro' },
+    // The upload and the deploy halves of a Pages run are released as a pair.
+    {
+      matchPackageNames: [
+        'actions/configure-pages',
+        'actions/upload-pages-artifact',
+        'actions/deploy-pages',
+      ],
+      groupName: 'pages',
+    },
+
+    // Held back, after the groups so a group cannot re-enable them.
+    { matchPackageNames: ['@types/node'], matchUpdateTypes: ['major'], enabled: false },
+    // The server's own `engines` and `@types/node` decide which major it runs on.
+    {
+      matchManagers: ['dockerfile'],
+      matchPackageNames: ['node'],
+      matchUpdateTypes: ['major'],
+      enabled: false,
+    },
+
+    // The documentation's own pins.
+    {
+      matchManagers: ['custom.regex'],
+      semanticCommitType: 'docs',
+      semanticCommitScope: null,
+      commitMessageTopic: 'the {{{depName}}} example',
+      commitMessageAction: 'pin',
+    },
+    {
+      // The image ships the site, so a line a visitor reads needs a changeset.
+      // Renovate has no changesets manager, and `postUpgradeTasks` is why this runs self-hosted.
+      matchManagers: ['custom.regex'],
+      matchFileNames: ['apps/docs/**'],
+      postUpgradeTasks: {
+        commands: [
+          '.github/scripts/renovate-changeset.sh {{{depNameSanitized}}} {{{depName}}} {{{newValue}}}',
+        ],
+        fileFilters: ['.changeset/*.md'],
+        executionMode: 'update',
+      },
+      automerge: true,
+    },
+  ],
+
+  customManagers: [
+    // `uses: owner/repo@<sha> # vX.Y.Z`, the only shape an example is written in: a bare tag
+    // can be moved to point at other code, so the documentation never shows one.
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/^apps/docs/src/content/docs/.*\\.md$/', '/(^|/)README\\.md$/'],
+      matchStrings: [
+        'uses: (?<depName>[\\w.-]+/[\\w.-]+)@(?<currentDigest>[a-f0-9]{40}) +# (?<currentValue>v\\S+)',
+      ],
+      datasourceTemplate: 'github-tags',
+      versioningTemplate: 'github-actions',
+    },
+  ],
+}
