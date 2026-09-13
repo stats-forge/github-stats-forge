@@ -109,9 +109,11 @@ pnpm check-all            # every check CI runs, cheapest first, in one command
 
 **`pnpm run docs` needs the `run`, unlike every other script here.** `docs` is a pnpm builtin
 (`pnpm docs <package-name>`), so bare `pnpm docs` never reaches the script and fails with
-`ERR_PNPM_MISSING_PACKAGE_NAME` — from the repository root, where the script plainly exists. The
+`Usage: pnpm docs <PACKAGE>` — from the repository root, where the script plainly exists. The
 `docs:*` scripts are unaffected, being no one's builtin. Confirmed on pnpm 11 on 2026-09-07, after
-the bare form was documented here and did not work.
+the bare form was documented here and did not work, and again on pnpm 12 on 2026-09-13 — which
+reports it as a missing argument rather than the v11 `ERR_PNPM_MISSING_PACKAGE_NAME`, and still
+exits 0.
 
 `check-all` is the one to reach for before handing work over. It is
 `scripts/check-all.ts` — twelve checks ordered so the fastest failure surfaces first, each
@@ -298,9 +300,12 @@ reported all 49 shared rules twice.
 
 ## Dependencies and pnpm
 
-pnpm is **11.x**. The v11 rename of `onlyBuiltDependencies` to the `allowBuilds` map is
-the one that bites: the old key stops applying silently, so a package's install scripts
-are skipped until it is listed again.
+pnpm is **12.x**, since 2026-09-13. Two renames bite, because each stops applying
+silently rather than failing: v11's `onlyBuiltDependencies` → the `allowBuilds` map, which
+skips a package's install scripts until it is listed again, and v12's `--frozen-lockfile false`
+→ `--no-frozen-lockfile`. **v12 also rejects an unrecognized key in `pnpm-workspace.yaml`**
+with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS`, so a typo there now fails the install
+instead of being ignored — which is what makes the renames survivable.
 
 - **`allowBuilds` holds only packages still in the graph.** It is `lefthook` and — since the docs
   site landed on 2026-09-05 — `esbuild` again, which astro pulls in and which fetches its platform
