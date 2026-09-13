@@ -1,5 +1,43 @@
 # @stats-forge/github-stats-server
 
+## 0.4.0
+
+### Minor Changes
+
+- [#106](https://github.com/stats-forge/github-stats-forge/pull/106) [`10ac5b6`](https://github.com/stats-forge/github-stats-forge/commit/10ac5b6a2b08e20446f2dd08f73325bd4a14f12a) - feat: add the organization activity card
+
+  What an organization did over a window:
+  pull requests opened and merged, issues opened and closed,
+  and — behind `show` — discussions opened and commits authored.
+  `days` sets the window, which ends today and defaults to 30.
+
+- [#107](https://github.com/stats-forge/github-stats-forge/pull/107) [`68574ab`](https://github.com/stats-forge/github-stats-forge/commit/68574abf7f89d4f848b0fe648bf66d44aebcf35f) - docs: keep the GitHub token off the command line
+
+  Every `docker run` example uses `--env-file` instead of `-e PAT_1=github_pat_...`,
+  and self-hosting gained a "Where the token lives" section: env files, Compose,
+  a secret manager and a KMS-backed Kubernetes Secret.
+
+### Patch Changes
+
+- [#105](https://github.com/stats-forge/github-stats-forge/pull/105) [`d2edb5c`](https://github.com/stats-forge/github-stats-forge/commit/d2edb5ce317ebb9bd38d369b8b2e31a4d2a186f0) - docs: group the cards by subject, and say where a page sits
+
+  The sidebar and the overview page divide them the way the anvil's picker does:
+  a user's, a repository's or gist's, then an organization's.
+  A card page is titled with the card's own name,
+  above a `Cards / User` trail taken from the sidebar.
+
+- [#103](https://github.com/stats-forge/github-stats-forge/pull/103) [`329af1d`](https://github.com/stats-forge/github-stats-forge/commit/329af1d8ae6a435de4c70aa82183154f5d02df65) - docs(anvil): plainer wording in the backdrop and source tooltips
+
+- [#105](https://github.com/stats-forge/github-stats-forge/pull/105) [`d2edb5c`](https://github.com/stats-forge/github-stats-forge/commit/d2edb5ce317ebb9bd38d369b8b2e31a4d2a186f0) - fix: reach the docs and the anvil from a phone
+
+  The header's two links were hidden under 50rem,
+  where a splash page has no sidebar and so no menu button —
+  which left the anvil reachable from nowhere.
+  They take a row of their own there now.
+
+- Updated dependencies [[`c2bf350`](https://github.com/stats-forge/github-stats-forge/commit/c2bf350a566d83def0a9d1c25c79aeda7c9f6ea8), [`10ac5b6`](https://github.com/stats-forge/github-stats-forge/commit/10ac5b6a2b08e20446f2dd08f73325bd4a14f12a)]:
+  - @stats-forge/github-stats-forge-core@0.7.0
+
 ## 0.3.0
 
 ### Minor Changes
