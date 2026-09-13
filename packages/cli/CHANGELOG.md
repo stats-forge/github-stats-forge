@@ -1,5 +1,22 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.5.1
+
+### Patch Changes
+
+- [#111](https://github.com/stats-forge/github-stats-forge/pull/111) [`b445f12`](https://github.com/stats-forge/github-stats-forge/commit/b445f12bd7f7c8c4bf1fb0aea1781e86419efd7e) - feat!: read and write the card's query string, and flatten the saved card file
+
+  `--print-query` and a new `Print the query` action write the options as a query string, which is what the action's `options` input and a hosted card URL both take.
+  `--options` reads the same form back — bare, with its `?`, or as a whole card URL — and layers over `--config`.
+
+  A saved card no longer nests its options under `options`:
+  every one sits beside `card`, which names the card they belong to, and a `version` says which shape of the file it is.
+
+  Files written by earlier versions are not read. If you were relying on files just remove the options wrapper.
+
+- Updated dependencies [[`218932a`](https://github.com/stats-forge/github-stats-forge/commit/218932ab922c6f41a337ca2ede926530ebbc968a)]:
+  - @stats-forge/github-stats-forge-core@0.7.1
+
 ## 0.5.0
 
 ### Minor Changes
