@@ -1,5 +1,18 @@
 # @stats-forge/github-stats-server
 
+## 0.4.1
+
+### Patch Changes
+
+- [#113](https://github.com/stats-forge/github-stats-forge/pull/113) [`218932a`](https://github.com/stats-forge/github-stats-forge/commit/218932ab922c6f41a337ca2ede926530ebbc968a) - docs: say what token the two organization cards need
+
+  Organization data is granted separately from personal data, so the token that draws a stats
+  card is not automatically one that draws an organization card. Both pages now carry the
+  grant each kind of token needs, rather than leaving it to be discovered from an error.
+
+- Updated dependencies [[`218932a`](https://github.com/stats-forge/github-stats-forge/commit/218932ab922c6f41a337ca2ede926530ebbc968a)]:
+  - @stats-forge/github-stats-forge-core@0.7.1
+
 ## 0.4.0
 
 ### Minor Changes
