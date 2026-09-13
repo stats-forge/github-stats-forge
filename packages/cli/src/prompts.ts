@@ -18,7 +18,7 @@ import select, { Separator } from '@inquirer/select';
 import type { CardKind, CardOption } from './cards.ts';
 import { cards, numericStep, OPTION_GROUPS } from './cards.ts';
 import type { Answer } from './query.ts';
-import { describeAnswer, UNSET } from './query.ts';
+import { describeAnswer, toParam, UNSET } from './query.ts';
 
 /** @returns The card to render. */
 export const pickCard = (): Promise<CardKind> =>
@@ -72,7 +72,7 @@ const askOption = async (option: CardOption, current: Answer): Promise<Answer> =
 };
 
 /** How a trip through the option menu ended. */
-export type MenuChoice = 'generate' | 'save' | 'quit';
+export type MenuChoice = 'generate' | 'save' | 'print' | 'quit';
 
 /** Rows the list may use: the terminal, less the message, the help line and some air. */
 const menuHeight = (): number =>
@@ -88,14 +88,14 @@ const heading = (label: string, width: number): Separator =>
 
 /**
  * Typing jumps to the first row whose label starts with what was typed, which is
- * what keeps the three actions one key away however far down the list the cursor sits.
+ * what keeps the four actions one key away however far down the list the cursor sits.
  *
  * @returns The line under the list.
  */
 const keysHelpTip = (keys: ReadonlyArray<[key: string, action: string]>): string => {
   const all: ReadonlyArray<[string, string]> = [
     ...keys,
-    ['type', 'to jump — g generate, s save, q quit'],
+    ['type', 'to jump — g generate, s save, p print, q quit'],
   ];
   return all
     .map(([key, action]) => `${styleText('bold', key)} ${styleText('dim', action)}`)
@@ -162,6 +162,7 @@ export const navigateOptions = async (
         heading('Actions', width),
         { name: 'Generate the card', value: 'generate' as const },
         { name: 'Save these options', value: 'save' as const },
+        { name: 'Print the query', value: 'print' as const },
         { name: 'Quit', value: 'quit' as const },
         ...sections,
       ],
@@ -169,7 +170,7 @@ export const navigateOptions = async (
 
     menu.cursor = choice;
 
-    if (choice === 'generate' || choice === 'save' || choice === 'quit') {
+    if (choice === 'generate' || choice === 'save' || choice === 'print' || choice === 'quit') {
       return choice;
     }
 
@@ -183,13 +184,20 @@ export const navigateOptions = async (
 };
 
 /**
- * Asks for the options the card cannot render without.
+ * Asks for the options the card cannot render without, skipping any a saved card or
+ * a pasted query already answered — so `--options 'theme=dark'` still asks the username.
  *
- * @returns The answers, one per required param.
+ * @returns The answers, `seeded` included.
  */
-export const askRequired = async (card: CardKind): Promise<Map<string, Answer>> => {
-  const answers = new Map<string, Answer>();
+export const askRequired = async (
+  card: CardKind,
+  seeded: ReadonlyMap<string, Answer>,
+): Promise<Map<string, Answer>> => {
+  const answers = new Map(seeded);
   for (const option of card.required) {
+    if (toParam(answers.get(option.name)) !== undefined) {
+      continue;
+    }
     answers.set(
       option.name,
       await input({

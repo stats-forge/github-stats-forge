@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import { cards, findCard, OPTION_GROUPS } from '../src/cards.ts';
 import type { Answer } from '../src/query.ts';
-import { defaultFileName, describeAnswer, toParam, toQuery, UNSET } from '../src/query.ts';
+import {
+  defaultFileName,
+  describeAnswer,
+  fromQueryString,
+  toParam,
+  toQuery,
+  toQueryString,
+  UNSET,
+} from '../src/query.ts';
 
 describe(toParam, () => {
   it('carries a value the way a query string would', () => {
@@ -117,5 +125,52 @@ describe('the card catalog', () => {
 
   it('answers to an unknown card with nothing', () => {
     expect(findCard('not-a-card')).toBeUndefined();
+  });
+});
+
+describe(toQueryString, () => {
+  it('writes the query with the leading ? the action and a card URL both carry', () => {
+    expect(toQueryString({ username: 'anuraghazra', theme: 'dark' })).toBe(
+      '?username=anuraghazra&theme=dark',
+    );
+  });
+
+  it('encodes what a query string cannot carry raw', () => {
+    expect(toQueryString({ custom_title: 'My Stats & More' })).toBe(
+      '?custom_title=My+Stats+%26+More',
+    );
+  });
+
+  it('answers a bare ? when nothing is set, rather than an empty line', () => {
+    expect(toQueryString({})).toBe('?');
+  });
+});
+
+describe(fromQueryString, () => {
+  it('reads back what toQueryString wrote', () => {
+    const query = { username: 'anuraghazra', theme: 'dark', custom_title: 'My Stats & More' };
+
+    expect(fromQueryString(toQueryString(query))).toStrictEqual(query);
+  });
+
+  it('takes a query string with or without its ?', () => {
+    expect(fromQueryString('username=octocat')).toStrictEqual({ username: 'octocat' });
+    expect(fromQueryString('?username=octocat')).toStrictEqual({ username: 'octocat' });
+  });
+
+  it('takes the query off a whole card URL, which is what gets pasted', () => {
+    expect(
+      fromQueryString('https://cards.example.com/api?username=octocat&theme=dark'),
+    ).toStrictEqual({ username: 'octocat', theme: 'dark' });
+  });
+
+  it('joins a repeated key, as every list param already reaches a card', () => {
+    expect(fromQueryString('?hide=stars&hide=issues')).toStrictEqual({ hide: 'stars,issues' });
+  });
+
+  it('carries nothing when it was given nothing', () => {
+    expect(fromQueryString('')).toStrictEqual({});
+    expect(fromQueryString('   ')).toStrictEqual({});
+    expect(fromQueryString('?')).toStrictEqual({});
   });
 });

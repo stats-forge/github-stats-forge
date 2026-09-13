@@ -42,12 +42,11 @@ rendered from options that name both:
 
 ```json
 {
+  "version": 1,
   "card": "stats",
-  "options": {
-    "username": "octocat",
-    "theme_light": "light_github",
-    "theme_dark": "dark_github"
-  }
+  "username": "octocat",
+  "theme_light": "light_github",
+  "theme_dark": "dark_github"
 }
 ```
 

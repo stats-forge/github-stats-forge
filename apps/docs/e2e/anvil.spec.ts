@@ -7,14 +7,18 @@
 
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
+import { CARD_FILE_VERSION } from '@stats-forge/github-stats-forge-cli/cards';
 
 /** In the preview's shadow root. The wrapper makes it selectable: a card's icons are `<svg>` too. */
 const drawnCard = (page: Page): Locator => page.locator('[data-anvil="preview"] .anvil-card > svg');
 
-/** A saved card, as the page writes it out and as the CLI's `--config` reads it. */
-interface SavedCard {
+/**
+ * A saved card, as the page writes it out and as the CLI's `--config` reads it:
+ * every option on the root, with `card` naming which one they belong to.
+ */
+interface SavedCard extends Record<string, string | number> {
+  version: number;
   card: string;
-  options: Record<string, string>;
 }
 
 /** The saved-card file the page is offering. */
@@ -26,15 +30,29 @@ const savedCard = async (page: Page): Promise<SavedCard> => {
 /** Seeded on every card, so a test about what a control wrote asserts without them. */
 const IDENTITY_PARAMS = new Set(['username', 'repo', 'id']);
 
+/** The envelope keys, which are not options and so are never what a control wrote. */
+const ENVELOPE_KEYS = new Set(['version', 'card']);
+
+/**
+ * The options, without the envelope: `version` is a number, and every option is a string.
+ *
+ * @returns The card's options, as the endpoint would receive them.
+ */
+const options = (saved: SavedCard): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(saved).filter(
+      (entry): entry is [string, string] =>
+        !ENVELOPE_KEYS.has(entry[0]) && typeof entry[1] === 'string',
+    ),
+  );
+
 /** @returns One param of the saved card, so it can be polled while the page catches up. */
-const savedParam = async (page: Page, name: string): Promise<string | undefined> => {
-  const saved = await savedCard(page);
-  return saved.options[name];
-};
+const savedParam = async (page: Page, name: string): Promise<string | undefined> =>
+  options(await savedCard(page))[name];
 
 /** @returns The saved options, minus the identity every card carries. */
 const chosen = (saved: SavedCard): Record<string, string> =>
-  Object.fromEntries(Object.entries(saved.options).filter(([name]) => !IDENTITY_PARAMS.has(name)));
+  Object.fromEntries(Object.entries(options(saved)).filter(([name]) => !IDENTITY_PARAMS.has(name)));
 
 /** By `data-option`: Web Awesome's `label` is a Lit property and is not reflected. */
 const dropdown = (page: Page, option: string): Locator =>
@@ -605,8 +623,11 @@ test('the file on offer is the file the CLI reads', async ({ page }) => {
 
   const saved = await savedCard(page);
   expect(saved).toEqual({
+    version: CARD_FILE_VERSION,
     card: 'stats',
-    options: { username: 'marcalexiei', theme: 'dark', rank_icon: 'percentile' },
+    username: 'marcalexiei',
+    theme: 'dark',
+    rank_icon: 'percentile',
   });
 
   const download = page.locator('[data-anvil="download"]');

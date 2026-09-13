@@ -18,6 +18,12 @@ import {
 } from '@stats-forge/github-stats-forge-core/api';
 import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
+/**
+ * The saved card file format, so a later change to it can be migrated rather than guessed at.
+ * A file naming a higher number was written by a newer CLI and is refused.
+ */
+export const CARD_FILE_VERSION = 1;
+
 /** How a param is asked for, and how the answer becomes a query string value. */
 export type OptionKind = 'text' | 'boolean' | 'number' | 'integer' | 'list' | 'choice';
 

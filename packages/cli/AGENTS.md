@@ -83,23 +83,62 @@ Neither schema is exported from core, so nothing checks this mapping; read
   because they are asked before the menu opens. A section none of a card's options fall under is
   dropped, the way the anvil drops a heading no card sits under. The shared options come first in
   `cards`, so the theme heads the colors section and a card's own color lands behind it.
-- **The three actions carry a heading of their own, so no row in the menu is unheaded.**
-  `Actions` sits above Generate, Save and Quit, ruled to the same width as the option sections
-  beneath it — a `Separator` first in the list, which `bounds.first` then steps past.
-- **The three actions are reached by type-ahead, not by scrolling.** inquirer's `select` jumps to
-  the first row whose name starts with what was typed, so `g`, `s` and `q` reach Generate, Save and
-  Quit from anywhere in a 38-row list, and the help line under the menu says so. Nothing else in
-  the menu starts with those letters — check that before renaming an option.
+- **The four actions carry a heading of their own, so no row in the menu is unheaded.**
+  `Actions` sits above Generate, Save, Print and Quit, ruled to the same width as the option
+  sections beneath it — a `Separator` first in the list, which `bounds.first` then steps past.
+- **The four actions are reached by type-ahead, not by scrolling.** inquirer's `select` jumps to
+  the first row whose name starts with what was typed, so `g`, `s`, `p` and `q` reach Generate,
+  Save, Print and Quit from anywhere in a 38-row list, and the help line under the menu says so.
+  The actions sit first, so they win the letter even where an option shares it — `Save these
+options` beats `Show the stat icons` — but keep it that way: an action added below the sections
+  would lose.
   - **`indexMode: 'number'` is not the alternative.** It numbers a row by subtracting the
     separators rendered _so far on the visible page_, so the numbers shift as a grouped list
     scrolls. Read `@inquirer/select`'s `renderItem` before reaching for it.
   - The list is as tall as the terminal (`process.stdout.rows` less the message, the help line and
     some air), so a grouped stats card — 30 options and five headings — fits one screen.
-- **A saved card file is a query string in JSON**: `{ card, options }` with every option a
+- **A saved card file is a query string in JSON**: every option on the root, each one a
   string, so it reads like the URL it stands for and survives hand-editing. An option that
   is not a string is dropped on read, because it could not have come off a query string.
-  The key is `options`, not `params`, to match what the menu calls them and what a render
-  function takes; `params` stays the word for the query on its way to a handler.
+  `card` discriminates them and `version` says which shape of the file it is, which makes
+  those two names reserved — an option called either could not be addressed. The options sat
+  under their own `options` key until 2026-09-13 and nothing reads that shape now. `params` stays
+  the word for the query on its way to a handler.
+- **`CARD_FILE_VERSION` is what makes the next format change survivable**, and it is the
+  reason an unreadable file is an error rather than a surprise: a file naming a higher number
+  was written by a newer build, so it is refused instead of rendered from options that may
+  have been read wrong. An absent version is read as 1, there having been no format before
+  it. Bump it in the same change that changes the shape, and give the reader the migration.
+- **`CARD_FILE_VERSION` lives in `src/cards.ts`, not beside the writer**, because the anvil
+  writes this file too and imports that entry — `src/index.ts` runs `main()` on import, so
+  the browser cannot reach a constant declared there.
+- **A JSON Schema for this file was built and removed on 2026-09-13**, as more machinery than
+  the format then earned. Two findings worth keeping if it comes back: core's zod schemas
+  cannot generate it — every param is a refine over a string, which `z.toJSONSchema` renders
+  as a bare `{ "type": "string" }`, losing every enum, every pattern and
+  `additionalProperties` — so the CLI catalog is the only thing that can; and the generated
+  file has to go through oxfmt, since `pnpm format` formats JSON and would otherwise fight it.
+- **The query string is the interchange format, and the CLI speaks it both ways.**
+  `--print-query` and the menu's Print write it; `--options` reads it. That is what the action's
+  `options` input, a hosted card URL and the anvil's query box all carry, so a card tuned here
+  pastes straight into a workflow and back out again. `toQueryString` writes the leading `?`
+  because that is how all three are written; `fromQueryString` takes it with or without, and takes
+  a whole card URL too, since a URL is what gets copied. A repeated key joins on commas, matching
+  how every list param already reaches a card.
+  - **`--options` layers over `--config`**, so one saved card plus one option is a variant rather
+    than a second file. `--print-query` prints that merge.
+  - **Printing renders nothing, so it asks for no token and needs no terminal.** Both guards in
+    `main` are written to let it through; a change to either has to keep that true, or
+    `--print-query` stops working in the scripts it exists for.
+  - **A saved card or a pasted query seeds the menu, and `askRequired` then asks only for what is
+    still missing** — `--card stats --options 'theme=dark'` must still ask the username.
+- **An action considered and rejected on 2026-09-13: a `config` input on the GitHub action**,
+  reading this same saved-card file. It was built, reviewed and green, then dropped: it put a
+  second `CARD_FILE_VERSION` in a repository that cannot see this one, and made the action's
+  release depend on the CLI's. The query string does the same job with no coupling, at the cost of
+  a workflow holding a snapshot you re-paste when the card changes. The patch is not kept; rebuild
+  it from this note if the tradeoff ever reverses.
+
 - **stdout carries the result; everything else goes to stderr** — the spinner, the error
   report, the status line. The spinner degrades to a single printed line when stderr is
   not a TTY.

@@ -7,7 +7,11 @@
  */
 
 import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
-import { numericStep, OPTION_GROUPS } from '@stats-forge/github-stats-forge-cli/cards';
+import {
+  CARD_FILE_VERSION,
+  numericStep,
+  OPTION_GROUPS,
+} from '@stats-forge/github-stats-forge-cli/cards';
 import type { CardField } from '@stats-forge/github-stats-forge-cli/cards';
 
 import { CARD_GROUPS, CARDS, findCard } from './cards.ts';
@@ -281,7 +285,7 @@ const mount = (root: HTMLElement): void => {
 
   /** The saved-card file the current state stands for. */
   const savedCard = (): string =>
-    `${JSON.stringify({ card: state.card.id, options: toQuery(state) }, undefined, 2)}\n`;
+    `${JSON.stringify({ version: CARD_FILE_VERSION, card: state.card.id, ...toQuery(state) }, undefined, 2)}\n`;
 
   /** Writes the file beside the card. Never debounced: it is what a copy button reads. */
   const writeFile = (): void => {

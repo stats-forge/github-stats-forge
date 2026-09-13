@@ -1,8 +1,7 @@
 {
+  "version": 1,
   "card": "top-langs",
-  "options": {
-    "username": "marcalexiei",
-    "layout": "compact",
-    "langs_count": "8"
-  }
+  "username": "marcalexiei",
+  "layout": "compact",
+  "langs_count": "8"
 }

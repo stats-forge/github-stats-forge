@@ -9,7 +9,7 @@ import type { CardKind } from './cards.ts';
 import { cards, findCard } from './cards.ts';
 import type { Menu } from './prompts.ts';
 import { askRequired, askSavePath, askToken, navigateOptions, pickCard } from './prompts.ts';
-import { defaultFileName, toQuery } from './query.ts';
+import { defaultFileName, fromQueryString, toQuery, toQueryString } from './query.ts';
 import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from './saved-card.ts';
 import { withSpinner } from './spinner.ts';
 import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.ts';
@@ -23,7 +23,9 @@ Options
   -c, --card <id>       Skip the card prompt: ${cards.map((card) => card.id).join(', ')}
   -o, --out <file>      Where to write the card (default: named after the card)
       --config <file>   Options to load, and where "Save these options" writes
+      --options <query> Options as a query string, as the action and a card URL carry them
   -g, --generate        Render what --config holds and exit, without the menu
+      --print-query     Print the options as a query string and exit, without rendering
       --pat <token>     GitHub token; repeat for several
       --env-file <file> Env file to read PAT_1, PAT_2, … from (default: ${DEFAULT_ENV_FILE})
   -h, --help            Show this
@@ -37,7 +39,9 @@ interface Flags {
   card?: string;
   out?: string;
   config?: string;
+  options?: string;
   generate: boolean;
+  'print-query': boolean;
   pat: Array<string>;
   'env-file'?: string;
   help: boolean;
@@ -53,7 +57,9 @@ const readFlags = (): Flags =>
       card: { type: 'string', short: 'c' },
       out: { type: 'string', short: 'o' },
       config: { type: 'string' },
+      options: { type: 'string' },
       generate: { type: 'boolean', short: 'g', default: false },
+      'print-query': { type: 'boolean', default: false },
       pat: { type: 'string', multiple: true, default: [] },
       'env-file': { type: 'string' },
       help: { type: 'boolean', short: 'h', default: false },
@@ -132,6 +138,10 @@ const main = async (): Promise<void> => {
       ? await readSavedCard(flags.config)
       : undefined;
 
+  // A pasted query refines a saved card rather than replacing it, so one file
+  // plus one option is a whole variant.
+  const pasted = fromQueryString(flags.options ?? '');
+
   if (flags.generate && !saved) {
     throw new Error('--generate renders a saved card, so it needs --config pointing at one.');
   }
@@ -141,7 +151,7 @@ const main = async (): Promise<void> => {
    * Without a terminal the prompt would hang on a stdin that never answers,
    * so say what to pass instead.
    */
-  if (!flags.generate && !process.stdin.isTTY) {
+  if (!flags.generate && !flags['print-query'] && !process.stdin.isTTY) {
     throw new Error(
       'github-stats-forge asks questions, so it needs a terminal. Render a saved card instead: --config <file> --generate',
     );
@@ -160,6 +170,12 @@ const main = async (): Promise<void> => {
         .map((known) => known.id)
         .join(', ')}`,
     );
+  }
+
+  // Nothing is fetched to print a query, so no token is asked for or needed.
+  if (flags['print-query']) {
+    process.stdout.write(`${toQueryString({ ...saved?.options, ...pasted })}\n`);
+    return;
   }
 
   let tokens = resolveTokens(flags.pat, process.env);
@@ -182,7 +198,7 @@ const main = async (): Promise<void> => {
 
   // `--generate` renders what the file holds and stops: no menu, nothing to answer.
   if (saved && flags.generate) {
-    const outcome = await renderAndWrite(card, saved.options, config, flags.out);
+    const outcome = await renderAndWrite(card, { ...saved.options, ...pasted }, config, flags.out);
     if ('failed' in outcome) {
       process.exitCode = 1;
     }
@@ -190,7 +206,7 @@ const main = async (): Promise<void> => {
   }
 
   const menu: Menu = {
-    answers: saved ? toAnswers(card, saved.options) : await askRequired(card),
+    answers: await askRequired(card, toAnswers(card, { ...saved?.options, ...pasted })),
   };
   let savePath = flags.config;
 
@@ -209,6 +225,13 @@ const main = async (): Promise<void> => {
     }
 
     const query = toQuery(menu.answers);
+
+    if (action === 'print') {
+      // The query is the result, so it goes to stdout on its own line, ready to pipe or copy.
+      process.stdout.write(`${toQueryString(query)}\n`);
+      status = 'printed the query — paste it into the action, or a card URL';
+      continue;
+    }
 
     if (action === 'save') {
       const path =

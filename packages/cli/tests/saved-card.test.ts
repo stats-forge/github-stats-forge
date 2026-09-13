@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import type { CardKind } from '../src/cards.ts';
-import { findCard } from '../src/cards.ts';
+import { CARD_FILE_VERSION, findCard } from '../src/cards.ts';
 import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from '../src/saved-card.ts';
 
 const dir = (): string => mkdtempSync(join(tmpdir(), 'stats-forge-saved-'));
@@ -23,7 +23,7 @@ const card = (name: string): CardKind => {
 };
 
 describe(writeSavedCard, () => {
-  it('writes the card and its options as a query string would carry them', async () => {
+  it('writes the card and its options on the root, as a query string would carry them', async () => {
     const file = join(dir(), 'card.json');
 
     await writeSavedCard(file, card('stats'), {
@@ -32,8 +32,10 @@ describe(writeSavedCard, () => {
     });
 
     expect(JSON.parse(await readFile(file, 'utf8'))).toStrictEqual({
+      version: CARD_FILE_VERSION,
       card: 'stats',
-      options: { username: 'anuraghazra', show_icons: 'true' },
+      username: 'anuraghazra',
+      show_icons: 'true',
     });
   });
 });
@@ -57,7 +59,7 @@ describe(readSavedCard, () => {
 
   it('reads a file written by hand', async () => {
     const file = join(dir(), 'by-hand.json');
-    writeFileSync(file, '{ "card": "gist", "options": { "id": "abc123" } }');
+    writeFileSync(file, '{ "version": 1, "card": "gist", "id": "abc123" }');
 
     await expect(readSavedCard(file)).resolves.toMatchObject({
       options: { id: 'abc123' },
@@ -73,17 +75,55 @@ describe(readSavedCard, () => {
 
   it('says so when the card is not one this version renders', async () => {
     const file = join(dir(), 'unknown.json');
-    writeFileSync(file, '{ "card": "sparklines", "options": {} }');
+    writeFileSync(file, '{ "version": 1, "card": "sparklines" }');
 
     await expect(readSavedCard(file)).rejects.toThrow(/names no card/);
   });
 
-  it('drops an option that could not have come off a query string', async () => {
-    const file = join(dir(), 'odd.json');
+  it('does not read the envelope keys back as options', async () => {
+    const file = join(dir(), 'envelope.json');
+    writeFileSync(file, '{ "version": 1, "card": "gist", "id": "abc123" }');
+
+    const loaded = await readSavedCard(file);
+
+    expect(loaded.options).toStrictEqual({ id: 'abc123' });
+  });
+
+  it('reads a file that names no version, there having been no format before it', async () => {
+    const file = join(dir(), 'unversioned.json');
+    writeFileSync(file, '{ "card": "gist", "id": "abc123" }');
+
+    await expect(readSavedCard(file)).resolves.toMatchObject({
+      options: { id: 'abc123' },
+    });
+  });
+
+  it.each([
+    ['text', '"1"'],
+    ['null, which is not the same as absent', 'null'],
+    ['zero', '0'],
+    ['negative', '-3'],
+    ['fractional', '0.5'],
+  ])('refuses a version that is %s, rather than reading it as the first', async (_what, value) => {
+    const file = join(dir(), 'malformed.json');
+    writeFileSync(file, `{ "version": ${value}, "card": "gist", "id": "abc123" }`);
+
+    await expect(readSavedCard(file)).rejects.toThrow(/not a whole number from 1/);
+  });
+
+  it('refuses a file written by a newer build rather than guessing at it', async () => {
+    const file = join(dir(), 'newer.json');
     writeFileSync(
       file,
-      '{ "card": "stats", "options": { "username": "x", "hide": ["a"], "card_width": 400 } }',
+      `{ "version": ${String(CARD_FILE_VERSION + 1)}, "card": "gist", "id": "x" }`,
     );
+
+    await expect(readSavedCard(file)).rejects.toThrow(/Update the CLI/);
+  });
+
+  it('drops an option that could not have come off a query string', async () => {
+    const file = join(dir(), 'odd.json');
+    writeFileSync(file, '{ "card": "stats", "username": "x", "hide": ["a"], "card_width": 400 }');
 
     await expect(readSavedCard(file)).resolves.toMatchObject({
       options: { username: 'x' },
