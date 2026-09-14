@@ -1,5 +1,24 @@
 # @stats-forge/github-stats-server
 
+## 0.4.2
+
+### Patch Changes
+
+- [#117](https://github.com/stats-forge/github-stats-forge/pull/117) [`c2164b0`](https://github.com/stats-forge/github-stats-forge/commit/c2164b0571503c3bff2645faf2670ce3587d8857) - docs: pin the actions/setup-node example to v7.0.0
+
+- [#120](https://github.com/stats-forge/github-stats-forge/pull/120) [`ccc3e35`](https://github.com/stats-forge/github-stats-forge/commit/ccc3e35b41660abcd015ca15688a784f61abce1d) - docs: say what `role` actually scopes on the stats card
+
+  It filters the repository list behind the stars total alone, not every stat, and the
+  stars it widens still count towards the rank even under `hide=stars`.
+
+- [#114](https://github.com/stats-forge/github-stats-forge/pull/114) [`51cafd6`](https://github.com/stats-forge/github-stats-forge/commit/51cafd6f2d311ccc12327c5acff186a494f607ec) - docs: pin every workflow example by SHA
+
+  The `uses:` lines on the CLI and README pages name the commit each release was cut
+  from, the way the action's own README does, and Renovate now moves them.
+
+- Updated dependencies [[`30d12da`](https://github.com/stats-forge/github-stats-forge/commit/30d12da3d4c0de6b7e02d246a335ae81036e1839), [`1cfce65`](https://github.com/stats-forge/github-stats-forge/commit/1cfce655777e387bbbff8751f25cc23e1c26a5e5)]:
+  - @stats-forge/github-stats-forge-core@0.8.0
+
 ## 0.4.1
 
 ### Patch Changes

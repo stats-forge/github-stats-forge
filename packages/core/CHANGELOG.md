@@ -1,5 +1,25 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.8.0
+
+### Minor Changes
+
+- [#123](https://github.com/stats-forge/github-stats-forge/pull/123) [`30d12da`](https://github.com/stats-forge/github-stats-forge/commit/30d12da3d4c0de6b7e02d246a335ae81036e1839) - fix!: hold the padding under a card's last row at 18px
+
+  Six cards sized themselves as `45 + (n + 1) * lheight`, so the spare row landed under the
+  last one as bottom padding and grew with `line_height` — 24px on the stats, organization
+  and activity cards, 22px on wakatime and 33px on top-languages, against a uniform 17px
+  above the title. Height is now content plus `CARD_STYLE.padding.bottom`, and the measures
+  `brand.ts` exports are one `CARD_STYLE` const read with dot notation.
+
+### Patch Changes
+
+- [#121](https://github.com/stats-forge/github-stats-forge/pull/121) [`1cfce65`](https://github.com/stats-forge/github-stats-forge/commit/1cfce655777e387bbbff8751f25cc23e1c26a5e5) - fix: recover from the transient errors the all-time contributions walk provokes
+
+  A gateway timeout or `RESOURCE_LIMITS_EXCEEDED` now halves the request instead of failing the
+  card, an empty body is retried rather than read through — which threw a `TypeError` — and a
+  chunk leaves the queue only once it has resolved, so no range already counted is lost.
+
 ## 0.7.1
 
 ### Patch Changes
