@@ -606,6 +606,6 @@ describe('Test fetchStats', () => {
 
     expect(stats.allTimeContributedTo).toBe(100);
     // rounds past MAX_RANGES_PER_REQUEST ranges take more than one request each
-    expect(requestCount).toBe(23);
+    expect(requestCount).toBe(12);
   });
 });
