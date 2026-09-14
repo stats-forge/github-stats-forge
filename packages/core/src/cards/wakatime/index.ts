@@ -1,4 +1,4 @@
-import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
@@ -13,10 +13,15 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { wakatimeCardLocales } from './locales.ts';
 
-const DEFAULT_CARD_WIDTH = CARD_WIDTH.wide;
+const DEFAULT_CARD_WIDTH = CARD_STYLE.width.wide;
 const MIN_CARD_WIDTH = 250;
 const COMPACT_LAYOUT_MIN_WIDTH = 400;
 const DEFAULT_LINE_HEIGHT = 25;
+/**
+ * The compact layout's own floor: the body offset, one row of ink and `CARD_STYLE.padding.bottom`,
+ * with the rows themselves added on top.
+ */
+const COMPACT_LAYOUT_BASE_HEIGHT = 86;
 const PROGRESSBAR_PADDING = 130;
 const HIDDEN_PROGRESSBAR_PADDING = 170;
 const COMPACT_LAYOUT_PROGRESSBAR_PADDING = 25;
@@ -223,8 +228,8 @@ const getStyles = ({ textColor }: { textColor: string }): Array<CssChild> => {
     }),
     firefoxFontSize(['.stat'], 'small'),
     rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
-    rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular }),
-    rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
+    rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular }),
+    rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   ];
 };
 
@@ -303,14 +308,21 @@ const renderCard = (
     .slice(0, langsCount);
 
   // A short language list would otherwise draw a stub card, so 150 is the floor.
-  let height = Math.max(45 + (filteredLanguages.length + 1) * lheight, 150);
+  let height = Math.max(
+    CARD_STYLE.padding.bodyOffsetY +
+      Math.max(filteredLanguages.length - 1, 0) * lheight +
+      CARD_STYLE.statRowInk +
+      CARD_STYLE.padding.bottom,
+    150,
+  );
 
   let finalLayout: Child;
 
   // RENDER COMPACT LAYOUT
   if (layout === 'compact') {
     const width = normalizedWidth - 5;
-    height = 90 + Math.round(filteredLanguages.length / 2) * DEFAULT_LINE_HEIGHT;
+    height =
+      COMPACT_LAYOUT_BASE_HEIGHT + Math.round(filteredLanguages.length / 2) * DEFAULT_LINE_HEIGHT;
 
     // progressOffset holds the previous language's width and used to offset the next language
     // so that we can stack them one after another, like this: [--][----][---]

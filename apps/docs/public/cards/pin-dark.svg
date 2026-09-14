@@ -119,7 +119,7 @@
           </svg>
         </g>
         <g transform="translate(20, 0)">
-          <text data-testid="stargazers" class="gray">78</text>
+          <text data-testid="stargazers" class="gray">79</text>
         </g>
       </g>
       <g transform="translate(134.45999937057493, 0)">
@@ -129,7 +129,7 @@
           </svg>
         </g>
         <g transform="translate(20, 0)">
-          <text data-testid="forkcount" class="gray">10</text>
+          <text data-testid="forkcount" class="gray">12</text>
         </g>
       </g>
     </g>

@@ -1,4 +1,4 @@
-import { CARD_ICON, CARD_WIDTH, FONT_SIZE, FONT_WEIGHT, font } from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
@@ -21,16 +21,14 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { orgCardLocales } from './locales.ts';
 
-const CARD_DEFAULT_WIDTH = CARD_WIDTH.standard;
-/** Padding the card keeps at its edges; matches `Card`'s own `paddingX`. */
-const CARD_PADDING_X = 25;
+const CARD_DEFAULT_WIDTH = CARD_STYLE.width.standard;
 /** How far a stat row is translated into the card; see `createTextNode`. */
 const STAT_ROW_X = 25;
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
 const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */
 const LABEL_VALUE_GAP = 16;
-const DESCRIPTION_FONT_SIZE = FONT_SIZE.meta;
+const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
 const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 2;
 /** Air between the description and the first stat row. */
@@ -88,8 +86,8 @@ const getStyles = ({
   }),
   rule('.description', { font: font('regular', 'meta'), fill: textColor, opacity: 0.9 }),
   rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
-  rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular, opacity: 0.75 }),
-  rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
+  rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular, opacity: 0.75 }),
+  rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   rule('.icon', { fill: iconColor, opacity: 0.75, display: show_icons ? 'block' : 'none' }),
 ];
 
@@ -253,7 +251,7 @@ const renderCard = (
   const descriptionLines = desc
     ? wrapTextMultiline(
         desc,
-        width - 2 * CARD_PADDING_X,
+        width - 2 * CARD_STYLE.padding.x,
         DESCRIPTION_FONT_SIZE,
         DESCRIPTION_MAX_LINES,
       )
@@ -263,16 +261,21 @@ const renderCard = (
       ? descriptionLines.length * DESCRIPTION_LINE_HEIGHT_PX + DESCRIPTION_GAP
       : 0;
 
-  const height = 45 + (visibleStats.length + 1) * lheight + statsTop;
+  const height =
+    CARD_STYLE.padding.bodyOffsetY +
+    statsTop +
+    Math.max(visibleStats.length - 1, 0) * lheight +
+    CARD_STYLE.statRowInk +
+    CARD_STYLE.padding.bottom;
 
   // A value ends at the card's inner edge — or right after the longest label,
   // on a card too narrow for that.
   const widestLabel = Math.max(
-    ...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, FONT_SIZE.body)),
+    ...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, CARD_STYLE.fontSize.body)),
   );
   const valueAnchorX = Math.round(
     Math.max(
-      width - CARD_PADDING_X - STAT_ROW_X,
+      width - CARD_STYLE.padding.x - STAT_ROW_X,
       (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP,
     ),
   );
@@ -329,8 +332,8 @@ const renderCard = (
     descriptionLines.length > 0 &&
     el(
       'text',
-      { class: 'description', 'data-testid': 'description', x: CARD_PADDING_X, y: -5 },
-      descriptionLines.map((line) => el('tspan', { dy: '1.2em', x: CARD_PADDING_X }, line)),
+      { class: 'description', 'data-testid': 'description', x: CARD_STYLE.padding.x, y: -5 },
+      descriptionLines.map((line) => el('tspan', { dy: '1.2em', x: CARD_STYLE.padding.x }, line)),
     );
 
   return card.render([

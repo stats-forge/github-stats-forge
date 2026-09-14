@@ -1,4 +1,4 @@
-import { CARD_ICON, CARD_WIDTH, FONT_SIZE, FONT_WEIGHT, font } from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
@@ -15,9 +15,7 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 import { orgActivityCardLocales } from './locales.ts';
 
 // the title names the organization and says it is one, which `standard` cannot hold
-const CARD_DEFAULT_WIDTH = CARD_WIDTH.wide;
-/** Padding the card keeps at its edges; matches `Card`'s own `paddingX`. */
-const CARD_PADDING_X = 25;
+const CARD_DEFAULT_WIDTH = CARD_STYLE.width.wide;
 /** How far a stat row is translated into the card; see `createTextNode`. */
 const STAT_ROW_X = 25;
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
@@ -25,7 +23,7 @@ const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */
 const LABEL_VALUE_GAP = 16;
 
-const TITLE_FONT_SIZE = FONT_SIZE.title;
+const TITLE_FONT_SIZE = CARD_STYLE.fontSize.title;
 /** What `Card`'s title layout reserves for the prefix icon, so the title text starts past it. */
 const TITLE_ICON_COLUMN = 25;
 
@@ -101,8 +99,8 @@ const getStyles = ({
     'font-variant-numeric': 'tabular-nums',
   }),
   rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
-  rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular, opacity: 0.75 }),
-  rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
+  rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular, opacity: 0.75 }),
+  rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   rule('.icon', { fill: iconColor, opacity: 0.75, display: show_icons ? 'block' : 'none' }),
 ];
 
@@ -214,16 +212,20 @@ const renderCard = (
 
   const width = card_width && !Number.isNaN(card_width) ? card_width : CARD_DEFAULT_WIDTH;
 
-  const height = 45 + (visibleStats.length + 1) * lheight;
+  const height =
+    CARD_STYLE.padding.bodyOffsetY +
+    Math.max(visibleStats.length - 1, 0) * lheight +
+    CARD_STYLE.statRowInk +
+    CARD_STYLE.padding.bottom;
 
   // A value ends at the card's inner edge — or right after the longest label,
   // on a card too narrow for that.
   const widestLabel = Math.max(
-    ...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, FONT_SIZE.body)),
+    ...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, CARD_STYLE.fontSize.body)),
   );
   const valueAnchorX = Math.round(
     Math.max(
-      width - CARD_PADDING_X - STAT_ROW_X,
+      width - CARD_STYLE.padding.x - STAT_ROW_X,
       (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP,
     ),
   );
@@ -246,7 +248,12 @@ const renderCard = (
 
   const card = new Card({
     customTitle: custom_title,
-    defaultTitle: defaultTitleFor(t, name, days, width - 2 * CARD_PADDING_X - TITLE_ICON_COLUMN),
+    defaultTitle: defaultTitleFor(
+      t,
+      name,
+      days,
+      width - 2 * CARD_STYLE.padding.x - TITLE_ICON_COLUMN,
+    ),
     titlePrefixIcon: CARD_ICON.orgActivity,
     width,
     height,
