@@ -39,7 +39,7 @@ describe('Test renderStatsCard', () => {
 
     expect(document.querySelector('.header')).toHaveTextContent("Anurag Hazra's GitHub Stats");
 
-    expect(document.querySelector('svg')).toHaveAttribute('height', '195');
+    expect(document.querySelector('svg')).toHaveAttribute('height', '189');
     expect(screen.getByTestId('stars')).toHaveTextContent('100');
     expect(screen.getByTestId('commits')).toHaveTextContent('200');
     expect(screen.getByTestId('issues')).toHaveTextContent('300');
@@ -99,7 +99,7 @@ describe('Test renderStatsCard', () => {
       ],
     });
 
-    expect(document.querySelector('svg')).toHaveAttribute('height', '320');
+    expect(document.querySelector('svg')).toHaveAttribute('height', '314');
 
     expect(screen.queryByTestId('stars')).toBeInTheDocument();
     expect(screen.queryByTestId('commits')).toBeInTheDocument();

@@ -1,7 +1,7 @@
 import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
 import { atRule, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
 
-import { ACCENT, firefoxFontSize, font, TITLE_BAND, TITLE_FIREFOX_SIZE } from './brand.ts';
+import { CARD_STYLE, firefoxFontSize, font } from './brand.ts';
 import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.ts';
 import type { CardColors } from './color.ts';
 import { flexLayout } from './render.ts';
@@ -183,10 +183,10 @@ class Card {
         'data-testid': 'title-accent',
         class: 'title-accent',
         x: 0,
-        y: ACCENT.y,
-        width: ACCENT.width,
-        height: ACCENT.height,
-        rx: ACCENT.height / 2,
+        y: CARD_STYLE.accent.y,
+        width: CARD_STYLE.accent.width,
+        height: CARD_STYLE.accent.height,
+        rx: CARD_STYLE.accent.height / 2,
       }),
     );
   }
@@ -203,7 +203,7 @@ class Card {
    * @returns The rendered title band.
    */
   private renderTitleBand(): MarkupElement {
-    const height = this.bodyOffset - TITLE_BAND.gap;
+    const height = this.bodyOffset - CARD_STYLE.band.gap;
     const innerWidth = this.width - 1;
     const r = Math.min(this.border_radius, height, innerWidth / 2);
 
@@ -316,8 +316,11 @@ class Card {
             fill: this.colors.light.iconColor,
             animation: 'fadeInAnimation 0.8s ease-in-out forwards',
           }),
-          rule('.title-band', { fill: this.colors.light.titleColor, opacity: TITLE_BAND.opacity }),
-          firefoxFontSize(['.header'], TITLE_FIREFOX_SIZE),
+          rule('.title-band', {
+            fill: this.colors.light.titleColor,
+            opacity: CARD_STYLE.band.opacity,
+          }),
+          firefoxFontSize(['.header'], CARD_STYLE.titleFirefoxSize),
           this.css,
           this.renderDarkMediaBlock(),
           getAnimations(),

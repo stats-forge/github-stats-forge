@@ -1,4 +1,4 @@
-import { CARD_ICON, CARD_WIDTH, FONT_WEIGHT, firefoxFontSize, font } from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
 import { formatBytes } from '../../common/fmt.ts';
@@ -13,10 +13,16 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { langCardLocales } from './locales.ts';
 
-const DEFAULT_CARD_WIDTH = CARD_WIDTH.compact;
+const DEFAULT_CARD_WIDTH = CARD_STYLE.width.compact;
 const MIN_CARD_WIDTH = 280;
-const CARD_PADDING = 25;
-const COMPACT_LAYOUT_BASE_HEIGHT = 90;
+/**
+ * The compact layout's own floor: the body offset, one row of ink and `CARD_STYLE.padding.bottom`,
+ * with the rows themselves added on top.
+ */
+const COMPACT_LAYOUT_BASE_HEIGHT = 86;
+const NORMAL_LAYOUT_ROW_GAP = 40;
+/** How far a normal-layout row's ink reaches below its own top: the value's baseline, plus descenders. */
+const NORMAL_LAYOUT_ROW_INK = 37;
 const MAXIMUM_LANGS_COUNT = 20;
 
 const NORMAL_LAYOUT_DEFAULT_LANGS_COUNT = 5;
@@ -136,7 +142,11 @@ const calculateCompactLayoutHeight = (totalLangs: number): number =>
  *
  * @returns Card height.
  */
-const calculateNormalLayoutHeight = (totalLangs: number): number => 45 + (totalLangs + 1) * 40;
+const calculateNormalLayoutHeight = (totalLangs: number): number =>
+  CARD_STYLE.padding.bodyOffsetY +
+  Math.max(totalLangs - 1, 0) * NORMAL_LAYOUT_ROW_GAP +
+  NORMAL_LAYOUT_ROW_INK +
+  CARD_STYLE.padding.bottom;
 
 /**
  * Calculates height for the donut layout.
@@ -249,7 +259,7 @@ const createProgressTextNode = ({
   index: number;
 }): MarkupElement => {
   const staggerDelay = (index + 3) * 150;
-  const paddingRight = hideValues ? CARD_PADDING * 2 : 95;
+  const paddingRight = hideValues ? CARD_STYLE.padding.x * 2 : 95;
   const progressTextX = width - paddingRight + 10;
   const progressWidth = width - paddingRight;
 
@@ -404,7 +414,7 @@ const renderNormalLayout = (
         index,
       }),
     ),
-    gap: 40,
+    gap: NORMAL_LAYOUT_ROW_GAP,
     direction: 'column',
   });
 
@@ -533,7 +543,7 @@ const renderDonutVerticalLayout = (
       { transform: 'translate(0, 220)' },
       el(
         'svg',
-        { 'data-testid': 'lang-names', x: CARD_PADDING },
+        { 'data-testid': 'lang-names', x: CARD_STYLE.padding.x },
         createLanguageTextNode({
           langs,
           totalSize: totalLanguageSize,
@@ -637,7 +647,7 @@ const renderPieLayout = (
       { transform: 'translate(0, 220)' },
       el(
         'svg',
-        { 'data-testid': 'lang-names', x: CARD_PADDING },
+        { 'data-testid': 'lang-names', x: CARD_STYLE.padding.x },
         createLanguageTextNode({
           langs,
           totalSize: totalLanguageSize,
@@ -765,7 +775,7 @@ const noLanguagesDataNode = ({
   el(
     'text',
     {
-      x: layout === 'pie' || layout === 'donut-vertical' ? CARD_PADDING : 0,
+      x: layout === 'pie' || layout === 'donut-vertical' ? CARD_STYLE.padding.x : 0,
       y: 11,
       class: 'stat bold',
     },
@@ -864,7 +874,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     height = calculateDonutLayoutHeight(langs.length);
     // A donut defaults a step wider so the chart has its room; a width asked for
     // explicitly keeps the extra it has always been given instead of being snapped.
-    width = width === DEFAULT_CARD_WIDTH ? CARD_WIDTH.standard : width + DONUT_EXTRA_WIDTH;
+    width = width === DEFAULT_CARD_WIDTH ? CARD_STYLE.width.standard : width + DONUT_EXTRA_WIDTH;
     finalLayout = renderDonutLayout(langs, width, totalLanguageSize, stats_format, hide_values);
   } else {
     finalLayout = renderNormalLayout(langs, width, totalLanguageSize, stats_format, hide_values);
@@ -905,7 +915,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
         fill: textColor,
       }),
       firefoxFontSize(['.stat'], 'small'),
-      rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
+      rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
       rule('.lang-name', { font: font('regular', 'micro'), fill: textColor }),
       rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
       rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out forwards' }),
@@ -932,7 +942,9 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     return card.render(finalLayout);
   }
 
-  return card.render(el('svg', { 'data-testid': 'lang-items', x: CARD_PADDING }, finalLayout));
+  return card.render(
+    el('svg', { 'data-testid': 'lang-items', x: CARD_STYLE.padding.x }, finalLayout),
+  );
 };
 
 /**

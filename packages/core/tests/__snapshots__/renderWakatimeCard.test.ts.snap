@@ -149,7 +149,7 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
 `;
 
 exports[`Test Render WakaTime Card > should render correctly with compact layout 1`] = `
-"<svg width="500" height="115" viewBox="0 0 500 115" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+"<svg width="500" height="111" viewBox="0 0 500 111" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">WakaTime Stats (last 7 days)</title>
   <desc id="desc-id">Other: 19 mins, TypeScript: 1 min</desc>
   <style>
@@ -286,7 +286,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
 `;
 
 exports[`Test Render WakaTime Card > should render correctly with compact layout when langs_count is set 1`] = `
-"<svg width="500" height="115" viewBox="0 0 500 115" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+"<svg width="500" height="111" viewBox="0 0 500 111" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">WakaTime Stats (last 7 days)</title>
   <desc id="desc-id">Other: 19 mins, TypeScript: 1 min</desc>
   <style>

@@ -184,31 +184,31 @@ describe('Test renderTopLanguages helper functions', () => {
   });
 
   it('calculateCompactLayoutHeight', () => {
-    expect(calculateCompactLayoutHeight(0)).toBe(90);
-    expect(calculateCompactLayoutHeight(1)).toBe(115);
-    expect(calculateCompactLayoutHeight(2)).toBe(115);
-    expect(calculateCompactLayoutHeight(3)).toBe(140);
-    expect(calculateCompactLayoutHeight(4)).toBe(140);
-    expect(calculateCompactLayoutHeight(5)).toBe(165);
-    expect(calculateCompactLayoutHeight(6)).toBe(165);
-    expect(calculateCompactLayoutHeight(7)).toBe(190);
-    expect(calculateCompactLayoutHeight(8)).toBe(190);
-    expect(calculateCompactLayoutHeight(9)).toBe(215);
-    expect(calculateCompactLayoutHeight(10)).toBe(215);
+    expect(calculateCompactLayoutHeight(0)).toBe(86);
+    expect(calculateCompactLayoutHeight(1)).toBe(111);
+    expect(calculateCompactLayoutHeight(2)).toBe(111);
+    expect(calculateCompactLayoutHeight(3)).toBe(136);
+    expect(calculateCompactLayoutHeight(4)).toBe(136);
+    expect(calculateCompactLayoutHeight(5)).toBe(161);
+    expect(calculateCompactLayoutHeight(6)).toBe(161);
+    expect(calculateCompactLayoutHeight(7)).toBe(186);
+    expect(calculateCompactLayoutHeight(8)).toBe(186);
+    expect(calculateCompactLayoutHeight(9)).toBe(211);
+    expect(calculateCompactLayoutHeight(10)).toBe(211);
   });
 
   it('calculateNormalLayoutHeight', () => {
-    expect(calculateNormalLayoutHeight(0)).toBe(85);
-    expect(calculateNormalLayoutHeight(1)).toBe(125);
-    expect(calculateNormalLayoutHeight(2)).toBe(165);
-    expect(calculateNormalLayoutHeight(3)).toBe(205);
-    expect(calculateNormalLayoutHeight(4)).toBe(245);
-    expect(calculateNormalLayoutHeight(5)).toBe(285);
-    expect(calculateNormalLayoutHeight(6)).toBe(325);
-    expect(calculateNormalLayoutHeight(7)).toBe(365);
-    expect(calculateNormalLayoutHeight(8)).toBe(405);
-    expect(calculateNormalLayoutHeight(9)).toBe(445);
-    expect(calculateNormalLayoutHeight(10)).toBe(485);
+    expect(calculateNormalLayoutHeight(0)).toBe(110);
+    expect(calculateNormalLayoutHeight(1)).toBe(110);
+    expect(calculateNormalLayoutHeight(2)).toBe(150);
+    expect(calculateNormalLayoutHeight(3)).toBe(190);
+    expect(calculateNormalLayoutHeight(4)).toBe(230);
+    expect(calculateNormalLayoutHeight(5)).toBe(270);
+    expect(calculateNormalLayoutHeight(6)).toBe(310);
+    expect(calculateNormalLayoutHeight(7)).toBe(350);
+    expect(calculateNormalLayoutHeight(8)).toBe(390);
+    expect(calculateNormalLayoutHeight(9)).toBe(430);
+    expect(calculateNormalLayoutHeight(10)).toBe(470);
   });
 
   it('calculateDonutLayoutHeight', () => {
@@ -354,7 +354,7 @@ describe('Test renderTopLanguages', () => {
 
   it('should resize the height correctly depending on langs', () => {
     document.body.innerHTML = renderTopLanguages(langs, {});
-    expect(document.querySelector('svg')).toHaveAttribute('height', '205');
+    expect(document.querySelector('svg')).toHaveAttribute('height', '190');
 
     document.body.innerHTML = renderTopLanguages(
       {
@@ -368,7 +368,7 @@ describe('Test renderTopLanguages', () => {
       },
       {},
     );
-    expect(document.querySelector('svg')).toHaveAttribute('height', '245');
+    expect(document.querySelector('svg')).toHaveAttribute('height', '230');
   });
 
   it('should render with custom width set', () => {

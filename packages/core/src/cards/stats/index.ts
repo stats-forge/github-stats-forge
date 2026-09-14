@@ -1,11 +1,4 @@
-import {
-  CARD_ICON,
-  CARD_WIDTH,
-  FONT_SIZE,
-  FONT_WEIGHT,
-  firefoxFontSize,
-  font,
-} from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
@@ -26,13 +19,11 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 import { statCardLocales } from './locales.ts';
 
 const CARD_MIN_WIDTH = 287;
-const CARD_DEFAULT_WIDTH = CARD_WIDTH.compact;
-const RANK_CARD_DEFAULT_WIDTH = CARD_WIDTH.wide;
-const RANK_ONLY_CARD_DEFAULT_WIDTH = CARD_WIDTH.compact;
+const CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
+const RANK_CARD_DEFAULT_WIDTH = CARD_STYLE.width.wide;
+const RANK_ONLY_CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
 
-const STAT_FONT_SIZE = FONT_SIZE.body;
-/** Padding the card keeps at its edges; matches `Card`'s own `paddingX`. */
-const CARD_PADDING_X = 25;
+const STAT_FONT_SIZE = CARD_STYLE.fontSize.body;
 /** How far a stat row is translated into the card; see `createTextNode`. */
 const STAT_ROW_X = 25;
 /** Room the rank ring needs at the right edge, so a value never runs into it. */
@@ -187,11 +178,11 @@ const getStyles = ({
     fill: textColor,
     animation: 'scaleInAnimation 0.3s ease-in-out forwards',
   }),
-  rule('.rank-percentile-header', { 'font-size': `${String(FONT_SIZE.body)}px` }),
-  rule('.rank-percentile-text', { 'font-size': `${String(FONT_SIZE.lead)}px` }),
+  rule('.rank-percentile-header', { 'font-size': `${String(CARD_STYLE.fontSize.body)}px` }),
+  rule('.rank-percentile-text', { 'font-size': `${String(CARD_STYLE.fontSize.lead)}px` }),
   cssComment('Labels recede so that the values read first.'),
-  rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular, opacity: 0.75 }),
-  rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
+  rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular, opacity: 0.75 }),
+  rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   rule('.icon', {
     fill: iconColor,
     opacity: 0.75,
@@ -468,7 +459,10 @@ const renderCard = (
 
   // The rank ring sets the floor: 150 beside the stats, 180 when it is the whole card.
   const height = Math.max(
-    45 + (visibleStats.length + 1) * lheight,
+    CARD_STYLE.padding.bodyOffsetY +
+      Math.max(visibleStats.length - 1, 0) * lheight +
+      CARD_STYLE.statRowInk +
+      CARD_STYLE.padding.bottom,
     hide_rank ? 0 : visibleStats.length > 0 ? 150 : 180,
   );
 
@@ -504,7 +498,7 @@ const renderCard = (
       : 0;
   const valueAnchorX = Math.round(
     Math.max(
-      width - CARD_PADDING_X - STAT_ROW_X - (hide_rank ? 0 : RANK_GUTTER),
+      width - CARD_STYLE.padding.x - STAT_ROW_X - (hide_rank ? 0 : RANK_GUTTER),
       (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP,
     ),
   );
@@ -558,7 +552,7 @@ const renderCard = (
    */
   const calculateRankXTranslation = (): number =>
     visibleStats.length > 0
-      ? width - CARD_PADDING_X - RANK_GUTTER / 2 + RANK_CIRCLE_CX_OFFSET
+      ? width - CARD_STYLE.padding.x - RANK_GUTTER / 2 + RANK_CIRCLE_CX_OFFSET
       : width / 2 + 20 - 10;
 
   // Conditionally rendered elements

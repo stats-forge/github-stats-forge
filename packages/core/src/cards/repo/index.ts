@@ -1,4 +1,4 @@
-import { CARD_ICON, CARD_WIDTH, FONT_SIZE, FONT_WEIGHT, font } from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { kFormatter } from '../../common/fmt.ts';
@@ -25,9 +25,9 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 import { repoCardLocales } from './locales.ts';
 
 const ICON_SIZE = 16;
-const CARD_DEFAULT_WIDTH = CARD_WIDTH.standard;
+const CARD_DEFAULT_WIDTH = CARD_STYLE.width.standard;
 const X_OFFSET = 25;
-const DESCRIPTION_FONT_SIZE = FONT_SIZE.meta;
+const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
 const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 3;
 
@@ -329,8 +329,8 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
         opacity: 0,
         animation: 'fadeInAnimation 0.3s ease-in-out forwards',
       }),
-      rule('.not_bold', { 'font-weight': FONT_WEIGHT.regular }),
-      rule('.bold', { 'font-weight': FONT_WEIGHT.semibold }),
+      rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular }),
+      rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
       rule('.icon', { fill: iconColor, display: 'block' }),
     ],
     dark: ({ textColor, iconColor }) => [

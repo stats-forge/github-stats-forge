@@ -1,4 +1,4 @@
-import { CARD_ICON, CARD_WIDTH, FONT_SIZE, firefoxFontSize, font } from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { formatYears } from '../../common/date.ts';
@@ -14,15 +14,13 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { contributedToCardLocales } from './locales.ts';
 
-const CARD_DEFAULT_WIDTH = CARD_WIDTH.wide;
+const CARD_DEFAULT_WIDTH = CARD_STYLE.width.wide;
 const MIN_CARD_WIDTH = 340;
-/** Padding the card keeps at its edges; matches `Card`'s own `paddingX`. */
-const CARD_PADDING = 25;
 
-const TITLE_FONT_SIZE = FONT_SIZE.title;
+const TITLE_FONT_SIZE = CARD_STYLE.fontSize.title;
 /** What `Card`'s title layout reserves for the prefix icon, so the title text starts past it. */
 const TITLE_ICON_COLUMN = 25;
-const NAME_FONT_SIZE = FONT_SIZE.meta;
+const NAME_FONT_SIZE = CARD_STYLE.fontSize.meta;
 
 /** Room kept at the right edge for the contribution count. */
 const COUNT_WIDTH = 46;
@@ -41,9 +39,6 @@ const YEAR_MARK_GAP = 3;
 
 /** Gap between the last row and the footer's own baseline. */
 const FOOTER_GAP = 12;
-/** Where `Card` puts the body while the title is shown; `setHideTitle` adjusts the height by the same 30. */
-const BODY_OFFSET_Y = 55;
-const BOTTOM_PADDING = 18;
 
 interface ContributedToCardOptions extends CommonCardOptions {
   locale: string;
@@ -244,7 +239,7 @@ const renderContributedToCard = (
     card_width && !Number.isNaN(card_width)
       ? clampValue(card_width, MIN_CARD_WIDTH, Number.MAX_SAFE_INTEGER)
       : CARD_DEFAULT_WIDTH;
-  const contentWidth = width - 2 * CARD_PADDING;
+  const contentWidth = width - 2 * CARD_STYLE.padding.x;
   const nameWidth = contentWidth - COUNT_WIDTH - BAR_WIDTH - 2 * COLUMN_GAP;
 
   const rowHeight = years.length > 0 ? ROW_HEIGHT : ROW_HEIGHT_NO_YEARS;
@@ -267,7 +262,7 @@ const renderContributedToCard = (
 
   const footer = footerText({ t, shown: repos.length, totalRepos, years });
   const footerY = FIRST_ROW_Y + Math.max(repos.length, 1) * rowHeight + FOOTER_GAP;
-  const height = BODY_OFFSET_Y + footerY + BOTTOM_PADDING;
+  const height = CARD_STYLE.padding.bodyOffsetY + footerY + CARD_STYLE.padding.bottom;
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
@@ -360,7 +355,7 @@ const renderContributedToCard = (
   return card.render(
     el(
       'g',
-      { 'data-testid': 'contributed-to-body', transform: `translate(${CARD_PADDING}, 0)` },
+      { 'data-testid': 'contributed-to-body', transform: `translate(${CARD_STYLE.padding.x}, 0)` },
       repos.length === 0
         ? el(
             'text',
