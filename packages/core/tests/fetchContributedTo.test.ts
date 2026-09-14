@@ -195,6 +195,98 @@ describe('test fetchContributedTo', () => {
     expect(data.totalRepos).toBe(0);
   });
 
+  /**
+   * Answers the years query, then every range query with one contribution per range —
+   * so the total is the same however the ranges were chunked — after `failures` have been served.
+   *
+   * @returns How many range queries were sent.
+   */
+  const mockRangesAfter = (failures: Array<[number, unknown?]>): (() => number) => {
+    let rangeQueries = 0;
+    mock.reset();
+    mock.onPost('https://api.github.com/graphql').reply((request) => {
+      const { query } = JSON.parse(request.data ?? '{}') as { query: string };
+      if (!query.includes('userReposContributedTo')) {
+        return [200, years];
+      }
+
+      const failure = failures[rangeQueries];
+      rangeQueries += 1;
+      if (failure) {
+        return failure;
+      }
+
+      const ranges: Record<string, unknown> = {};
+      for (let i = 0; i < (query.match(/range_\d+:/g) ?? []).length; i += 1) {
+        ranges[`range_${i}`] = {
+          commitContributionsByRepository: [
+            { repository: { nameWithOwner: 'org/repo1' }, contributions: { totalCount: 1 } },
+          ],
+          issueContributionsByRepository: [],
+          pullRequestContributionsByRepository: [],
+        };
+      }
+      return [200, { data: { user: ranges } }];
+    });
+    return () => rangeQueries;
+  };
+
+  it('should halve the request after GitHub refuses it for its size', async () => {
+    const rangeQueries = mockRangesAfter([
+      [200, { errors: [{ type: 'RESOURCE_LIMITS_EXCEEDED', message: 'Query is too complex.' }] }],
+    ]);
+
+    const data = await fetchContributedTo({ username: 'anuraghazra' }, config);
+
+    // both years answered one at a time after the refusal, so neither is lost nor counted twice
+    expect(rangeQueries()).toBe(3);
+    expect(data.repos[0]).toMatchObject({ nameWithOwner: 'org/repo1', contributions: 2 });
+  });
+
+  it('should halve the request after a gateway timeout', async () => {
+    const rangeQueries = mockRangesAfter([[504]]);
+
+    const data = await fetchContributedTo({ username: 'anuraghazra' }, config);
+
+    expect(rangeQueries()).toBe(3);
+    expect(data.repos[0]).toMatchObject({ contributions: 2 });
+  });
+
+  it('should retry an empty response rather than reading through it', async () => {
+    // an empty body parses as text, so the envelope is a string the walk must not index into
+    const rangeQueries = mockRangesAfter([[200], [200]]);
+
+    const data = await fetchContributedTo({ username: 'anuraghazra' }, config);
+
+    // the two empty bodies, then the request that answered both ranges at once
+    expect(rangeQueries()).toBe(3);
+    expect(data.repos[0]).toMatchObject({ contributions: 2 });
+  });
+
+  it('should give up after four empty responses', async () => {
+    const rangeQueries = mockRangesAfter([[200], [200], [200], [200]]);
+
+    await expect(fetchContributedTo({ username: 'anuraghazra' }, config)).rejects.toThrow(
+      'repository contributions data',
+    );
+    expect(rangeQueries()).toBe(4);
+  });
+
+  it('should report a refusal it cannot shrink any further', async () => {
+    const rangeQueries = mockRangesAfter(
+      Array.from({ length: 4 }, () => [
+        200,
+        { errors: [{ type: 'RESOURCE_LIMITS_EXCEEDED', message: 'Query is too complex.' }] },
+      ]),
+    );
+
+    await expect(fetchContributedTo({ username: 'anuraghazra' }, config)).rejects.toThrow(
+      'Query is too complex.',
+    );
+    // the pair, then a single range it cannot halve
+    expect(rangeQueries()).toBe(2);
+  });
+
   it('should report a missing username as a missing param', async () => {
     await expect(fetchContributedTo({ username: undefined }, config)).rejects.toThrow(
       'Missing params',
