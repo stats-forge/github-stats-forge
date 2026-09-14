@@ -498,6 +498,17 @@ There are no TypeScript project references anywhere, so don't reach for `composi
 
 - Vitest. In `packages/core` the card tests assert on the rendered DOM, not on snapshots —
   the one exception is `tests/__snapshots__/renderWakatimeCard.test.ts.snap`.
+- **`packages/core` runs on `pool: 'vmThreads'`, and `isolate: false` is not an option.**
+  Building jsdom per file was 63% of the suite's tracked time; `vmThreads` builds it once per
+  worker and keeps per-file isolation, taking the workspace run from ~5.1s to ~2.4s.
+  `isolate: false` is faster still and fails half the time — always the same three
+  `fetchTopLanguages` error tests, which share module state once files stop being isolated.
+  Measured over eight runs of each on 2026-09-14; don't re-litigate it without re-measuring.
+  Coverage is identical under both pools, so `test:coverage` reads the same either way.
+  **`fsModuleCache: true` was measured the same day and left out**: it silences the transform
+  hint the cli project prints and writes `node_modules/.vite/vitest`, but four consecutive
+  warm runs came in at 2.38s against 2.41s without it — the transforms are not on the critical
+  path, and CI never sees a warm cache anyway.
 - **Snapshots are byte-exact.** Template-literal contents in card renderers include
   their whitespace verbatim, and the formatter will reflow a multi-line `${cond ? a : b}`
   interpolation onto its own line, injecting a newline and indent into the SVG. Hoist
