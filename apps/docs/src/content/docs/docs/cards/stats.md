@@ -67,7 +67,7 @@ for none.
 | `exclude_repo`               | repository names                             | Repositories to leave out of the totals                 |
 | `repo`                       | `owner/name` or `name`                       | Scope the search-based stats to these repositories      |
 | `owner`                      | logins                                       | Scope the search-based stats to these owners            |
-| `role`                       | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER` | Which repositories count towards the stats              |
+| `role`                       | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER` | Which repositories count towards the stars and the rank |
 | `contribs_include_own_repos` | `true` `false`                               | Count contributions to your own repositories            |
 | `number_format`              | `short` `long`                               | `1.5k` or `1500`                                        |
 | `number_precision`           | a number                                     | Decimals kept when abbreviating                         |
@@ -77,6 +77,22 @@ for none.
 
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.
+
+## What `role` covers
+
+`role` filters the repository list GitHub answers with, and that list is used for the stars
+total alone. Commits, pull requests, reviews, issues, discussions and repositories
+contributed to are counted across the whole of GitHub whatever `role` says. The default is
+`OWNER` — the repositories you own.
+
+```text
+?username=octocat&role=OWNER,ORGANIZATION_MEMBER
+```
+
+Widening it moves two numbers rather than one: the stars, and the rank they feed into.
+Adding `ORGANIZATION_MEMBER` counts the stars of every repository in every organization you
+belong to, which is usually a far larger total than your own. `hide=stars` takes the line
+off the card, but the stars still count towards the rank.
 
 ## The range
 
