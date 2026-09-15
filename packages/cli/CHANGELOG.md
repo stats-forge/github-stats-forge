@@ -1,5 +1,20 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.6.0
+
+### Minor Changes
+
+- [#126](https://github.com/stats-forge/github-stats-forge/pull/126) [`f255874`](https://github.com/stats-forge/github-stats-forge/commit/f2558741b3b191c972715775cbfec07494966677) - feat!: move the card catalog to `@stats-forge/github-stats-forge-catalog`
+
+  The `./cards` export is gone: `cards`, `findCard`, `COMMON_OPTIONS`, `OPTION_GROUPS`
+  and `numericStep` come from that package now.
+  Nothing about the prompts changes.
+
+### Patch Changes
+
+- Updated dependencies [[`f255874`](https://github.com/stats-forge/github-stats-forge/commit/f2558741b3b191c972715775cbfec07494966677)]:
+  - @stats-forge/github-stats-forge-catalog@0.1.0
+
 ## 0.5.2
 
 ### Patch Changes
