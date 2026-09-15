@@ -248,9 +248,9 @@ importers:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
-      '@stats-forge/github-stats-forge-cli':
+      '@stats-forge/github-stats-forge-catalog':
         specifier: workspace:^
-        version: link:../../packages/cli
+        version: link:../../packages/catalog
       '@stats-forge/github-stats-forge-core':
         specifier: workspace:^
         version: link:../../packages/core
@@ -276,15 +276,25 @@ importers:
         specifier: workspace:^
         version: link:../../packages/core
     devDependencies:
-      '@stats-forge/github-stats-forge-cli':
+      '@stats-forge/github-stats-forge-catalog':
         specifier: workspace:^
-        version: link:../../packages/cli
+        version: link:../../packages/catalog
       '@types/node':
         specifier: 24.13.3
         version: 24.13.3
       typescript:
         specifier: 7.0.2
         version: 7.0.2
+      vitest:
+        specifier: catalog:default
+        version: 5.0.0(@types/node@24.13.3)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+
+  packages/catalog:
+    dependencies:
+      '@stats-forge/github-stats-forge-core':
+        specifier: workspace:^
+        version: link:../core
+    devDependencies:
       vitest:
         specifier: catalog:default
         version: 5.0.0(@types/node@24.13.3)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
@@ -309,6 +319,9 @@ importers:
       '@inquirer/select':
         specifier: 5.2.4
         version: 5.2.4(@types/node@24.13.3)
+      '@stats-forge/github-stats-forge-catalog':
+        specifier: workspace:^
+        version: link:../catalog
       '@stats-forge/github-stats-forge-core':
         specifier: workspace:^
         version: link:../core

@@ -24,7 +24,7 @@
     "@awesome.me/webawesome": "3.12.0",
     "@marcalexiei/oxfmt-config": "1.3.0",
     "@playwright/test": "1.63.0",
-    "@stats-forge/github-stats-forge-cli": "workspace:^",
+    "@stats-forge/github-stats-forge-catalog": "workspace:^",
     "@stats-forge/github-stats-forge-core": "workspace:^",
     "@types/node": "24.13.3",
     "oxfmt": "0.67.0",

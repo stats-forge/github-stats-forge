@@ -23,6 +23,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 RUN pnpm pkg delete scripts.prepare
 
 COPY packages/core/package.json packages/core/
+COPY packages/catalog/package.json packages/catalog/
 COPY packages/cli/package.json packages/cli/
 COPY apps/docs/package.json apps/docs/
 COPY apps/server/package.json apps/server/
@@ -46,6 +47,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   pnpm install --frozen-lockfile --filter "@stats-forge/github-stats-docs..."
 COPY tsconfig.base.json ./
 COPY packages/core packages/core
+COPY packages/catalog packages/catalog
 COPY packages/cli packages/cli
 COPY apps/docs apps/docs
 

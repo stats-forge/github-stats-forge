@@ -3,10 +3,10 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
+import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
+import { cards, findCard } from '@stats-forge/github-stats-forge-catalog';
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
-import type { CardKind } from './cards.ts';
-import { cards, findCard } from './cards.ts';
 import type { Menu } from './prompts.ts';
 import { askRequired, askSavePath, askToken, navigateOptions, pickCard } from './prompts.ts';
 import { defaultFileName, fromQueryString, toQuery, toQueryString } from './query.ts';

@@ -3,10 +3,10 @@ import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
+import { CARD_FILE_VERSION, findCard } from '@stats-forge/github-stats-forge-catalog';
 import { describe, expect, it } from 'vitest';
 
-import type { CardKind } from '../src/cards.ts';
-import { CARD_FILE_VERSION, findCard } from '../src/cards.ts';
 import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from '../src/saved-card.ts';
 
 const dir = (): string => mkdtempSync(join(tmpdir(), 'stats-forge-saved-'));

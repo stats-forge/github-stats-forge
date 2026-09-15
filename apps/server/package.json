@@ -14,7 +14,7 @@
     "@stats-forge/github-stats-forge-core": "workspace:^"
   },
   "devDependencies": {
-    "@stats-forge/github-stats-forge-cli": "workspace:^",
+    "@stats-forge/github-stats-forge-catalog": "workspace:^",
     "@types/node": "24.13.3",
     "typescript": "7.0.2",
     "vitest": "catalog:default"

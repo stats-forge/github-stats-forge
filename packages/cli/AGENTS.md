@@ -41,35 +41,9 @@ type-ahead already reaches. The narrowing to accept is that `?border_radius=10px
 longer be typed at the prompt, though the api still takes it and a config file holding it
 still seeds as `10`.
 
-**A number is an `integer` or a `number`, and core's own reading is what says which.**
-A param core reads with `looseIntParam` is `parseInt`'d, so the option is `kind: 'integer'`
-— `card_width`, `line_height`, `langs_count`, `repos_count`, `number_precision`,
-`description_lines_count`, fifteen occurrences. One it reads with `numberParam` is
-`parseFloat`'d and stays `kind: 'number'`: only `border_radius`, `size_weight` and
-`count_weight`. **`line_height` is an integer**, which is easy to get wrong — it is a
-`rawParam` at the boundary rather than either helper, and every card `parseInt`s it itself.
-Neither schema is exported from core, so nothing checks this mapping; read
-`packages/core/src/api/*.ts` when adding a numeric option.
-
-- **`numericStep` in `src/cards.ts` is what both forms read, and neither decides for
-  itself.** It answers `1`, `'any'` or `undefined`, which is `<input type="number">`'s
-  vocabulary and happens to be `@inquirer/number`'s too — so the CLI passes it as `step`
-  and the anvil sets it on the field. The anvil branched on `kind === 'number'` of its own
-  accord until this landed, which is exactly how a new kind goes silently unhandled: adding
-  one there would have left every integer field without a numeric keyboard.
 - **The prompt's own `step` defaults to `1` and validates against it**, so a `number`
-  option that forgets `'any'` refuses the fractional value it exists to take.
-- **No `min` or `max`.** The renderer clamps what the schema lets through —
-  `clampValue(langs_count, 1, MAXIMUM_LANGS_COUNT)` — so a silly count is corrected rather
-  than refused, and bounds here would only duplicate that in a second place.
-
-- **Choices come from core's exports, never a copy.** Every `choices` in `src/cards.ts`
-  is `<handler>.OPTIONS.<param>` — `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`,
-  `pin.OPTIONS.number_format` — with `Object.keys(themes)` the one exception, so a prompt
-  cannot offer a value the schema would reject and the option's `name` and its `choices`
-  key read the same. **No `choices` array is written out here**: a literal in this file is
-  a copy that drifts, which is exactly what `['short', 'long']` did in two card entries
-  until 2026-09-05.
+  option that forgets `'any'` refuses the fractional value it exists to take. The kinds themselves,
+  and the step each one moves in, are the catalog's.
 - **A `list` option with `choices` is a checkbox, not a line of commas.** `show`, `hide`
   and `role` name a closed set, so the prompt offers it and the answer is an
   `Array<string>` that `toParam` joins back. The lists whose values are a repository or a
@@ -109,9 +83,6 @@ options` beats `Show the stat icons` — but keep it that way: an action added b
   was written by a newer build, so it is refused instead of rendered from options that may
   have been read wrong. An absent version is read as 1, there having been no format before
   it. Bump it in the same change that changes the shape, and give the reader the migration.
-- **`CARD_FILE_VERSION` lives in `src/cards.ts`, not beside the writer**, because the anvil
-  writes this file too and imports that entry — `src/index.ts` runs `main()` on import, so
-  the browser cannot reach a constant declared there.
 - **A JSON Schema for this file was built and removed on 2026-09-13**, as more machinery than
   the format then earned. Two findings worth keeping if it comes back: core's zod schemas
   cannot generate it — every param is a refine over a string, which `z.toJSONSchema` renders
@@ -137,7 +108,8 @@ options` beats `Show the stat icons` — but keep it that way: an action added b
   second `CARD_FILE_VERSION` in a repository that cannot see this one, and made the action's
   release depend on the CLI's. The query string does the same job with no coupling, at the cost of
   a workflow holding a snapshot you re-paste when the card changes. The patch is not kept; rebuild
-  it from this note if the tradeoff ever reverses.
+  it from this note if the tradeoff ever reverses — and note that half of it already has, the
+  catalog now publishing `CARD_FILE_VERSION` where a sibling repository can read it.
 
 - **stdout carries the result; everything else goes to stderr** — the spinner, the error
   report, the status line. The spinner degrades to a single printed line when stderr is

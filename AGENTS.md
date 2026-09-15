@@ -22,17 +22,19 @@ which writes the CLI's config file) and `SERVER_DOCKER.md` — whose phases 1 to
 ## What this is
 
 `github-stats-forge` — a pnpm monorepo holding the library that renders
-GitHub stats as SVG cards, the CLI that writes one to a file, the server that serves them over
-HTTP, and the site that documents all three. The Express backend that used to live here is gone
-and nothing was ported from it; `apps/server` is designed from what core exposes today.
+GitHub stats as SVG cards, the catalog of what each card accepts, the CLI that writes one to a
+file, the server that serves them over HTTP, and the site that documents them all.
+The Express backend that used to live here is gone and nothing was ported from it;
+`apps/server` is designed from what core exposes today.
 
-| Path            | What it is                                                                                                    |
-| --------------- | ------------------------------------------------------------------------------------------------------------- |
-| `packages/core` | The library: fetchers, card renderers, themes, api handlers                                                   |
-| `packages/cli`  | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config     |
-| `apps/server`   | The HTTP server over core's api handlers, and the container image it ships in; **published to GHCR, not npm** |
-| `apps/docs`     | The documentation site — Astro + Starlight, every page markdown; **not published**                            |
-| `scripts/`      | Repo-level tooling — `check-all.ts`, via `tsconfig.scripts.json`                                              |
+| Path               | What it is                                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `packages/core`    | The library: fetchers, card renderers, themes, api handlers                                                   |
+| `packages/catalog` | What each card accepts: every option's param, label, kind and accepted values                                 |
+| `packages/cli`     | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config     |
+| `apps/server`      | The HTTP server over core's api handlers, and the container image it ships in; **published to GHCR, not npm** |
+| `apps/docs`        | The documentation site — Astro + Starlight, every page markdown; **not published**                            |
+| `scripts/`         | Repo-level tooling — `check-all.ts`, via `tsconfig.scripts.json`                                              |
 
 **The workspace is `packages/*` and `apps/*`, and what a thing publishes to is what decides its
 rules — not which folder it sits in.** A package under `packages/` goes to npm, so it carries a
@@ -58,6 +60,7 @@ these hold the rest, and load when work touches their tree:
 | ----------------------------------- | -------------------------------------------------------------------- |
 | `packages/core/AGENTS.md`           | The api layer as the trust boundary, and the generated GraphQL types |
 | `packages/core/src/cards/AGENTS.md` | Card branding, card text and translations                            |
+| `packages/catalog/AGENTS.md`        | The catalog of what each card accepts                                |
 | `packages/cli/AGENTS.md`            | The CLI                                                              |
 | `apps/server/AGENTS.md`             | The server and the container image it ships in                       |
 | `apps/docs/AGENTS.md`               | The documentation site                                               |
@@ -143,7 +146,7 @@ tasks, and its own startup cost more than the `tsc` builds it ordered — 2.0s c
 1.3s for plain `pnpm -r`, with a warm cache hit at 0.6s saving under a second. CI never
 collected even that: there was no `actions/cache` step and no remote cache, so all four
 matrix jobs paid the cold-run penalty. It also cost the poisoned-cache session recorded
-under "tsconfig layout and emit". Don't reinstate a runner for two packages; if the
+under "tsconfig layout and emit". Don't reinstate a runner for three packages; if the
 package split lands, measure again rather than assume.
 
 GraphQL types are generated, so run these from the repo root after touching any
@@ -194,7 +197,7 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   they are true, and a stale rule is worse than no rule.
 - **Every untracked working file lives in `.claude/scratch/`** — review replies, design
   plans and pending-work lists, all in one ignored folder instead of scattered across the
-  repo root. The rule files are the exception: `AGENTS.md` at the root and in the six
+  repo root. The rule files are the exception: `AGENTS.md` at the root and in the seven
   directories listed above, each with a one-line `CLAUDE.md` beside it that imports it —
   Claude Code discovers `CLAUDE.md` and not `AGENTS.md`, verified on 2.1.263, so the stub
   is what keeps the agnostic name working rather than silently dropping every rule.
@@ -372,7 +375,8 @@ instead of being ignored — which is what makes the renames survivable.
 
 ## TypeScript conventions
 
-`packages/core` and `packages/cli` are `.ts` throughout, source, tests and scripts alike.
+`packages/core`, `packages/catalog` and `packages/cli` are `.ts` throughout, source, tests
+and scripts alike.
 TypeScript is **7.x**; the type-aware linter tracks the same major, so `tsc` and
 `oxlint-tsgolint` agree on semantics.
 

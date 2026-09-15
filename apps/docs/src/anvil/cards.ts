@@ -1,12 +1,13 @@
 /**
  * @file The eight cards the anvil draws.
  *
- * **The option catalog is the CLI's**, imported rather than restated — two forms over the same
- * options should not be two lists. What is added here is only what the CLI has no use for.
+ * **The option catalog is `@stats-forge/github-stats-forge-catalog`**, imported rather than
+ * restated — two forms over the same options should not be two lists. What is added here is only
+ * what the catalog has no use for.
  */
 
-import { cards as catalogue } from '@stats-forge/github-stats-forge-cli/cards';
-import type { CardKind } from '@stats-forge/github-stats-forge-cli/cards';
+import { cards as catalogue } from '@stats-forge/github-stats-forge-catalog';
+import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
 import { org, orgActivity, pin, stats } from '@stats-forge/github-stats-forge-core/api';
 
 import type { CardCategory } from './themes.ts';

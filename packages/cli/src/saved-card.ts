@@ -11,8 +11,9 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import type { CardKind } from './cards.ts';
-import { CARD_FILE_VERSION, findCard } from './cards.ts';
+import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
+import { CARD_FILE_VERSION, findCard } from '@stats-forge/github-stats-forge-catalog';
+
 import type { Answer } from './query.ts';
 
 /** Envelope keys, so a card's own options can never be named these. */

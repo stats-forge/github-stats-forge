@@ -33,12 +33,12 @@ help, so there is nothing here to re-derive.
   this repository inlined an 87-byte regex rather than carry a dependency. If middleware ever
   justifies one, Hono speaks `Request`/`Response` and slots in without changing `handler.ts`. Not
   Express: it wants `req`/`res`, which is the shape this is deliberately not built on.
-- **The server imports core and nothing else.** The CLI's catalog carries the same eight ids, but
-  it carries prompt prose with them and inquirer's five prompt packages behind it, so
-  `routes.ts` spells the table out and `tests/routes.test.ts` asserts twice over that it has not
-  drifted: every card core exports is routed, and every path is named as the CLI names its card.
-  The CLI is a **dev**dependency here for that test alone, which is what keeps it out of the
-  image's `--prod` install.
+- **The server imports core and nothing else.** `packages/catalog` carries the same eight ids, but
+  it carries a form's vocabulary with them — a label, a hint and a control per option — which a
+  route table has no use for, so `routes.ts` spells the table out and `tests/routes.test.ts`
+  asserts twice over that it has not drifted: every card core exports is routed, and every path is
+  named as the catalog names its card. The catalog is a **dev**dependency here for that test
+  alone, which is what keeps it out of the image's `--prod` install.
 - **A failure answers `200` with the drawn error card, and puts the truth in headers.** GitHub's
   image proxy only displays a `200`, so a `4xx` turns "Invalid username input" into a broken image
   in a README. `Card-Status`, `Card-Error-Code`, `Card-Error-Param` and `Card-Cache` are what a

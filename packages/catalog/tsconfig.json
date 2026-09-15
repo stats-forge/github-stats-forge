@@ -1,0 +1,20 @@
+{
+  "extends": ["../../tsconfig.base.json"],
+  "include": [
+    "src",
+    "tests",
+    "vitest.config.ts",
+
+    /*
+     * The `@stats/source` condition points imports of core at its TypeScript,
+     * which carries `declare module` shims for its two untyped dependencies.
+     * `tsconfig.typecheck.json` clears the condition and reads the built types instead,
+     * so this only matters to the editor and to a bare `tsc`.
+     */
+    "../core/src/_*.d.ts"
+  ],
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
+  }
+}

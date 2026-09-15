@@ -11,8 +11,8 @@ import {
   CARD_FILE_VERSION,
   numericStep,
   OPTION_GROUPS,
-} from '@stats-forge/github-stats-forge-cli/cards';
-import type { CardField } from '@stats-forge/github-stats-forge-cli/cards';
+} from '@stats-forge/github-stats-forge-catalog';
+import type { CardField } from '@stats-forge/github-stats-forge-catalog';
 
 import { CARD_GROUPS, CARDS, findCard } from './cards.ts';
 import type { AnvilCard } from './cards.ts';

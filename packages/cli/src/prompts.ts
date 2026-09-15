@@ -14,9 +14,9 @@ import input from '@inquirer/input';
 import number from '@inquirer/number';
 import password from '@inquirer/password';
 import select, { Separator } from '@inquirer/select';
+import type { CardKind, CardOption } from '@stats-forge/github-stats-forge-catalog';
+import { cards, numericStep, OPTION_GROUPS } from '@stats-forge/github-stats-forge-catalog';
 
-import type { CardKind, CardOption } from './cards.ts';
-import { cards, numericStep, OPTION_GROUPS } from './cards.ts';
 import type { Answer } from './query.ts';
 import { describeAnswer, toParam, UNSET } from './query.ts';
 
