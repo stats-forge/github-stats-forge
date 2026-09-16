@@ -331,6 +331,10 @@ no trace of it.
   `* * * * 1` — day-wide, because a scheduled run on GitHub is delayed under load, and an
   hour-wide window would silently skip a week. **Renovate's cron takes no minutes field**;
   `*` is the only accepted value there.
+- **A dev dependency automerges once `CI OK` is green, and nothing else does.**
+  `devDependencies` and the catalog, on a minor, patch, pin or digest; a major and every
+  `dependencies` bump stay manual, the latter because it needs a changeset Renovate does not
+  write. `automergeStrategy` is `squash`, because `main`'s ruleset allows no other method.
 - **Check a config change with `renovate-config-validator`, and run nothing else against this
   checkout.** `RENOVATE_PLATFORM=local` resolves real updates and is the only way to see what the
   custom managers extract, but it stages the whole tree, reverts the tracked files it touches and

@@ -18,6 +18,9 @@
   prConcurrentLimit: 10,
   prHourlyLimit: 0,
 
+  // `main`'s ruleset allows squash alone, so `auto` has nothing to decide.
+  automergeStrategy: 'squash',
+
   packageRules: [
     // Commit prefixes.
     // Written out rather than `:semanticCommitTypeAll(build)`,
@@ -68,6 +71,14 @@
       matchPackageNames: ['node'],
       matchUpdateTypes: ['major'],
       enabled: false,
+    },
+
+    // Automerged behind `CI OK`: neither reaches the published output, the catalog holding test
+    // tooling only. A major stays manual, and a `dependencies` bump needs a changeset anyway.
+    {
+      matchDepTypes: ['devDependencies', 'pnpm.catalog.default'],
+      matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
+      automerge: true,
     },
 
     // The documentation's own pins.
