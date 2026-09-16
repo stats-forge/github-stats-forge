@@ -39,8 +39,8 @@ jobs:
           ref: ${{ inputs.ref || github.sha }}
           persist-credentials: false
 
-      # Changesets versions the server (private: versioned, not published), so one bump drives
-      # npm, the site and the image; a core release bumps it too.
+      # Changesets versions and tags the server (private, so never published to npm), and a core
+      # release bumps it too — this reads the version that tag was cut at.
       - name: Read the version changesets set
         id: version
         run: echo "server=$(node -p "require('./apps/server/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -58,8 +58,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # The release job calls this on every push to main with no changesets left, not only on a
-      # version bump, and a re-run by hand must not republish either.
+      # A `workflow_dispatch` run, or a re-run of a release, must not republish a version.
       - name: Skip a version already in the registry
         id: published
         run: |

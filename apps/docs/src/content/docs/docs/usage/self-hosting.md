@@ -191,6 +191,19 @@ envFrom:
 What makes it KMS-backed is where that Secret comes from:
 the External Secrets Operator or the Secrets Store CSI Driver syncs it from AWS Secrets Manager, Google Secret Manager, Azure Key Vault or Vault.
 
+## Which version you run
+
+The image with no tag is `latest`, which moves with every release. Each release also publishes an
+exact version and a `major.minor` that follows its patches, so an instance can sit where you put it:
+
+```sh
+docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server:0.4
+```
+
+The versions are the ones on the
+[releases page](https://github.com/stats-forge/github-stats-forge/releases), each carrying the
+changelog entry for what moved in it.
+
 ## Caching
 
 A card is held for ten hours by default, a failure that might fix itself for ten minutes, and one that will not for an hour.
