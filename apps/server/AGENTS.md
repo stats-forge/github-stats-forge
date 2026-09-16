@@ -141,15 +141,17 @@ help, so there is nothing here to re-derive.
   `github.workflow` is the caller's name, so `publish-image.yml` and `deploy-docs.yml` both
   resolved to `Release` and queued behind each other; the image one is suffixed `-image`.
 - **The release publishes to npm, GHCR and Pages, in that order, from one workflow.** The image
-  job is gated on `hasChangesets == 'false'` and not on `published`: the server is private, so a
-  change to it alone releases nothing to npm and would otherwise never reach GHCR. It then skips
-  a version already in the registry, which is what makes that wider gate safe.
-  - **The Pages job is gated on `published`, so a release that touches only the site or the server
-    reaches GHCR and not Pages.** Both are private, so neither publishes to npm and `published`
-    stays `false` — the same fact the image's wider gate exists for. The site then documents a
-    version older than the image carries. `deploy-docs.yml` takes a `workflow_dispatch` for
-    exactly this, falling back to `inputs.ref || github.sha`, so a run from `main` builds `main`;
-    dispatch it, or wait for the next release that publishes a package.
+  job is gated on the server's own entry in `published-packages`, which it has because
+  `privatePackages.tag` tags it like any published package; `publish-image.yml` then skips a
+  version already in the registry, which is what stops a `workflow_dispatch` or a re-run
+  republishing one.
+  - **Tagging the server is what lets Pages go out with a server release.** The image gate was
+    `hasChangesets == 'false'` until 2026-09-16, because a private package published nothing and
+    left `published` at `false` — so a release touching only the site or the server reached GHCR
+    and never Pages, and the site went on documenting a version older than the image carried. The
+    tag sets `published`, so one gate now serves both. `deploy-docs.yml` keeps its
+    `workflow_dispatch` for a build from `main` between releases, falling back to
+    `inputs.ref || github.sha`.
 - **A workflow in this repository calls its sibling with `$/`, not `./`.** That is the documented
   "same repo at the running commit" form, and `release.yml` used it before the image job existed.
   It was changed to `./` on 2026-09-09 by someone who took it for a typo, and changed back.

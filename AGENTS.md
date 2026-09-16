@@ -45,10 +45,15 @@ set. `build:packages` and `lint:publish` stay filtered to `./packages/*`; the ro
 the root `typecheck` covers the packages, both apps and `scripts/`, and the root `vitest` projects
 the packages and `apps/server` — `scripts/` has no tests.
 
-- **`privatePackages: { version: true, tag: false }` in `.changeset/config.json` is what makes
+- **`privatePackages: { version: true, tag: true }` in `.changeset/config.json` is what makes
   that work**, together with a `version` field on `apps/server/package.json`. `apps/docs` has no
   `version` field, so changesets leaves it alone — that is the difference between the two apps,
   and it is deliberate rather than an oversight.
+  - **`tag: true` cannot leak a private package onto npm.** `getUnpublishedPackages` drops every
+    `private` package before the publish queue is built, whatever the flag says; the flag adds the
+    git tag, and with it the GitHub release the action cuts from that package's changelog and its
+    entry in `published-packages`. It was `false` until 2026-09-16, which left the image the one
+    artifact released with no tag and no release to its name.
 - **`updateInternalDependencies: patch` means a core release bumps the server too**, so a card
   change reaches the image without a changeset naming the server. Confirm with
   `pnpm exec changeset status`.
