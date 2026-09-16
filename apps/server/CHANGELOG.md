@@ -1,5 +1,14 @@
 # @stats-forge/github-stats-server
 
+## 0.4.4
+
+### Patch Changes
+
+- [#135](https://github.com/stats-forge/github-stats-forge/pull/135) [`e6cec1a`](https://github.com/stats-forge/github-stats-forge/commit/e6cec1afec914cc1109b2fce4d2740bc852389bd) - ci: name the image on the server's release
+
+  A release now ends with the image reference that version publishes as, rather than leaving it to
+  be inferred from the tag.
+
 ## 0.4.3
 
 ### Patch Changes
