@@ -14,9 +14,7 @@
     },
     "apps/docs": {
       // playwright.config.ts names it in a `command`, so nothing imports it
-      "entry": ["e2e/serve.ts"],
-      // named in `vite.optimizeDeps.include`, not imported — see astro.config.ts
-      "ignoreDependencies": ["zod"]
+      "entry": ["e2e/serve.ts"]
     }
   }
 }

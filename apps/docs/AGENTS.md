@@ -243,28 +243,24 @@ no `lint:publish`.
   a client-side bundle on a docs half that ships no JavaScript, or `@mermaid-js/mermaid-cli` and
   the Chromium it brings with it. Neither is proportionate to a diagram; the colour-precedence one
   on `light-and-dark.md` is the shape to copy.
-- **`vite.optimizeDeps.include` names `zod/mini`, and `astro dev` needs it.** Vite's startup dep
-  scan does not follow into a workspace-linked package, so core's only runtime dependency was
-  discovered at the first request instead. The optimizer then re-ran mid-serve and stranded every
-  already-served module at a superseded `?v=` hash — Astro's dev-toolbar entrypoint among them,
-  which answered `504 Outdated Optimize Dep` on every page of the site, the markdown ones included.
-  - **`zod` is a direct devDependency of `apps/docs` for this**, even though nothing here imports
-    it: an `include` naming a package that does not resolve from the app is **silently dropped**.
-    `knip.jsonc` lists it under `ignoreDependencies` for the same reason.
+- **A 504 `Outdated Optimize Dep` on every page was an `astro dev` bug, fixed in astro 7.3.2.**
+  Vite's startup dep scan did not follow into a workspace-linked package, so core's `zod` was
+  discovered at the first request instead; the optimizer then re-ran mid-serve and stranded every
+  already-served module at a superseded `?v=` hash, Astro's dev-toolbar entrypoint among them. The
+  workaround was a `vite.optimizeDeps.include` naming `zod/mini`, a `zod` devDependency here and a
+  `knip.jsonc` entry — the first two gone with the update on 2026-09-12, the dependency on
+  2026-09-17. Upstream:
+  [withastro/astro#17929](https://github.com/withastro/astro/issues/17929), filed from
+  `~/development/astro-devtoolbar-504`; `.astro` files were missing from the client
+  `optimizeDeps.entries`, so `<script>` imports were never scanned at startup. Two things to know
+  if it comes back:
   - **A warm `node_modules/.vite` hides it**, because nothing is discovered late and nothing
-    re-optimizes. Clear it before concluding anything about this — a `devToolbar: { enabled: false }`
+    re-optimizes. Clear it before concluding anything — a `devToolbar: { enabled: false }`
     workaround and a `configEnvironment` plugin were both adopted and reverted on 2026-09-07 partly
     because cold-versus-warm runs read as flakiness.
   - **Measure it through a browser, not `curl`.** The optimizer only discovers a client dependency
     once the module importing it is requested, so fetching a page's HTML never triggers it and
     always answers 200. That mismeasurement cost six failed attempts at a minimal reproduction.
-  - **Upstream: [withastro/astro#17929](https://github.com/withastro/astro/issues/17929)**, filed
-    from `~/development/astro-devtoolbar-504`. Root cause: `.astro` files are missing from the
-    client `optimizeDeps.entries`, so `<script>` imports are never scanned at startup. The proposed
-    one-line fix (`pkg.pr.new/astro@da57267`) was verified here against the real trigger with the
-    workaround removed: entrypoint 200, zero failed requests, cold. **When a release carries it,
-    delete the `zod/mini` include, the `zod` devDependency and the `knip.jsonc` entry.** Related,
-    closed: withastro/astro#16630.
 - **`apps/docs` pins every dependency exactly**, as the rest of the repo does with its dev
   dependencies. It is private, so nothing resolves a range on a consumer's behalf.
 - **`astro sync` has to have run before anything type-aware does.** `content.config.ts` imports
