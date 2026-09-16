@@ -119,7 +119,19 @@ jobs:
             exit 0
           fi
 
-          printf '%s\n\n---\n\nThis release ships as `%s`.\n' "$body" "$reference" > notes.md
+          # The bare reference in a fenced block: it pastes into a compose `image:` as readily as
+          # into a `docker run`, and GitHub puts a copy button on a block but not on inline code.
+          cat > notes.md <<EOF
+          $body
+
+          ---
+
+          This release ships as a container image:
+
+          \`\`\`
+          $reference
+          \`\`\`
+          EOF
           gh release edit "$tag" --notes-file notes.md
 
   # The site documents every released package, the server included, so it goes out with a release.
