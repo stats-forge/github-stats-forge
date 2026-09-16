@@ -152,6 +152,11 @@ help, so there is nothing here to re-derive.
     tag sets `published`, so one gate now serves both. `deploy-docs.yml` keeps its
     `workflow_dispatch` for a build from `main` between releases, falling back to
     `inputs.ref || github.sha`.
+  - **The `annotate` job is what names the image on the release.** Changesets writes the changelog
+    and stops there, so the release for a version said nothing about the artifact it corresponds
+    to. It reads the version out of `published-packages` rather than the checkout, needs `image`
+    so the reference it appends already resolves, and re-reads the body first so a re-run does not
+    append it twice.
 - **A workflow in this repository calls its sibling with `$/`, not `./`.** That is the documented
   "same repo at the running commit" form, and `release.yml` used it before the image job existed.
   It was changed to `./` on 2026-09-09 by someone who took it for a typo, and changed back.
