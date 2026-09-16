@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@stats-forge/github-stats-forge-catalog": "workspace:^",
-    "@types/node": "24.13.3",
+    "@types/node": "24.13.4",
     "typescript": "7.0.2",
     "vitest": "catalog:default"
   },
