@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/knip/schema.json",
   "vitest": {
-    "entry": ["tests/**/*.{test,test-d,bench}.{js,ts}"]
+    "entry": ["tests/**/*.{spec,spec-d,bench}.{js,ts}"]
   },
   "workspaces": {
     "packages/core": {

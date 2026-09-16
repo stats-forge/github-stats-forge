@@ -8,7 +8,7 @@ description: Add a new card to github-stats-forge, end to end — GraphQL query,
 A card is not one file. It is a renderer plus a fetcher plus a handler, and then a dozen
 other files that each hold their own copy of "every card there is".
 
-**Four of those copies are guarded and the rest are not.** `tests/routes.test.ts` fails if the
+**Four of those copies are guarded and the rest are not.** `tests/routes.spec.ts` fails if the
 server does not route the card, the anvil throws if it has no `EXTRAS` entry, the docs build
 fails if the fetcher has no page, and `e2e/anvil.spec.ts` fails if the card picker's list is
 short. Everything else — the CLI catalog, the sidebar, the four documentation tables — is
@@ -100,12 +100,12 @@ re-recording.
 
 ## 6. The tests
 
-19. `packages/core/tests/fetch<Name>.test.ts` — `FetchMock` plus `testConfig`. If the fetcher
+19. `packages/core/tests/fetch<Name>.spec.ts` — `FetchMock` plus `testConfig`. If the fetcher
     reads the clock, `vi.setSystemTime` is what makes its requests assertable.
-20. `packages/core/tests/render<Name>Card.test.ts` — assert on the DOM with jest-dom matchers.
+20. `packages/core/tests/render<Name>Card.spec.ts` — assert on the DOM with jest-dom matchers.
     Never `expect(queryByTestId(…)).toBeDefined()`; `null` is defined.
-21. `packages/core/tests/locales.test.ts` — add the table to the list it walks.
-22. `packages/core/tests/accessibility.test.ts` — add the card to its `cards` map.
+21. `packages/core/tests/locales.spec.ts` — add the table to the list it walks.
+22. `packages/core/tests/accessibility.spec.ts` — add the card to its `cards` map.
 23. `apps/docs/e2e/anvil.spec.ts` — the card-picker assertion spells out every id in order.
     **This one fails only in `pnpm docs:e2e`**, at the end of `check-all`.
 

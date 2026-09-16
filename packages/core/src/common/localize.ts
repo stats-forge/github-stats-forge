@@ -80,7 +80,7 @@ type Phrase = string | PluralForms;
  * A card's translations: a key, then that key's wording per locale.
  *
  * `en` is required because it is what every other locale falls back to; the rest are
- * checked against {@link AVAILABLE_LOCALES} by `tests/locales.test.ts`.
+ * checked against {@link AVAILABLE_LOCALES} by `tests/locales.spec.ts`.
  */
 type LocaleTable = Record<string, { en: Phrase } & Record<string, Phrase>>;
 
@@ -193,7 +193,7 @@ const readPhrase = (
   }
 
   // The english wording the type requires can still be missing at runtime: a card can pass
-  // a table it built, and `i18n.test.ts` covers exactly that.
+  // a table it built, and `tests/localize.spec.ts` covers exactly that.
   const english = phrases[FALLBACK_LOCALE];
   // oxlint-disable-next-line typescript/no-unnecessary-condition
   if (english === undefined) {

@@ -60,7 +60,7 @@ const cardHandler = <TSchema extends z.ZodMiniType>(
     }
   };
 
-  // carried like `OPTIONS`, so `tests/allowlist.test.ts` can assert every card declares one
+  // carried like `OPTIONS`, so `tests/allowlist.spec.ts` can assert every card declares one
   return Object.assign(handler, { IDENTITIES: identities });
 };
 

@@ -5,7 +5,7 @@ export default defineProject({
     // jsdom costs more than the tests it hosts; vmThreads builds it once per worker, isolation intact
     pool: 'vmThreads',
     environment: 'jsdom',
-    include: ['./tests/*.test.{ts,js}'],
+    include: ['./tests/*.spec.{ts,js}'],
     setupFiles: ['./tests/_setup.ts'],
   },
 });

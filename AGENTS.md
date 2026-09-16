@@ -273,7 +273,7 @@ one, which is a bigger decision than a lint rule should make on its own.
 
 **oxlint replaced eslint on 2026-09-03.** `oxlint.config.ts` at the root extends
 `@marcalexiei/oxlint-config` (`base` + `typescript`, and `vitest` in an override for
-`**/*.{test,bench}.ts`), and runs **type-aware** via `oxlint-tsgolint`. `oxfmt`
+`**/*.{spec,test,bench}.ts`), and runs **type-aware** via `oxlint-tsgolint`. `oxfmt`
 formats, configured from `@marcalexiei/oxfmt-config`.
 
 Both configs are the repo owner's own packages, developed in a sibling checkout of
@@ -501,7 +501,15 @@ There are no TypeScript project references anywhere, so don't reach for `composi
 ## Testing
 
 - Vitest. In `packages/core` the card tests assert on the rendered DOM, not on snapshots —
-  the one exception is `tests/__snapshots__/renderWakatimeCard.test.ts.snap`.
+  the one exception is `tests/__snapshots__/renderWakatimeCard.spec.ts.snap`.
+- **A suite is `*.spec.ts`, which is the shared config's convention rather than this repo's.**
+  `vitest/consistent-test-filename` comes from `@marcalexiei/oxlint-config/vitest` asking for
+  `.spec`; a local override asked for `.test` instead, and 48 files were renamed on 2026-09-15 to
+  drop it. An override that only restates a preference is one the shared config should own.
+  - **The one type test follows it too, as `fetchRepo.types.spec-d.ts`** — which vitest's own
+    `typecheck.include` default (`*.test-d.*`) would not collect. Nothing here runs `--typecheck`:
+    `expectTypeOf` fails the build through `tsc`, which covers `tests/` already. Enabling vitest's
+    typecheck later means setting `typecheck.include` alongside it.
 - **`packages/core` runs on `pool: 'vmThreads'`, and `isolate: false` is not an option.**
   Building jsdom per file was 63% of the suite's tracked time; `vmThreads` builds it once per
   worker and keeps per-file isolation, taking the workspace run from ~5.1s to ~2.4s.
@@ -524,7 +532,7 @@ There are no TypeScript project references anywhere, so don't reach for `composi
   They fail loudly on a missing element and print the node. In particular **never write
   `expect(queryByTestId(…)).toBeDefined()`** — `queryBy*` returns `null` when absent, and
   `null` _is_ defined, so the assertion can never fail. Use `toBeInTheDocument()` /
-  `not.toBeInTheDocument()`. Converting the ~15 such no-ops in `renderStatsCard.test.ts`
+  `not.toBeInTheDocument()`. Converting the ~15 such no-ops in `renderStatsCard.spec.ts`
   immediately exposed one asserting on `rank-percentile-text`, which is a CSS class and
   was never a test id. For array-index existence (`langNames[2]`), assert
   `toHaveLength(n)` on the `queryAllBy*` result instead — `toBeInTheDocument()` rejects
