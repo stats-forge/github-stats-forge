@@ -354,9 +354,11 @@ reaches the renderer.
   `minimumReleaseAge` is three, so pnpm refuses it. Take the newest version older than the
   cooling-off period rather than adding it to `minimumReleaseAgeExclude` — that list is for a
   first-party publish waiting out its own rule.
-- **The file is `.spec.ts`, deliberately.** The vitest workspace is `packages/*` so it would not
-  collect it anyway, but oxlint's vitest override is `**/*.{test,bench}.ts`, and a Playwright file
-  under those rules reports against a framework it is not using.
+- **`excludeFiles: ['apps/docs/e2e/**']` in `oxlint.config.ts` is what keeps vitest's rules off
+  it.** The suites here are named `.spec.ts` too, since 2026-09-15, so the override's own glob no
+  longer separates the two — and a Playwright file under vitest's rules reports against a framework
+  it is not using. The vitest workspace is `packages/*` and `apps/server`, so nothing collects it
+  as a unit test either way.
 - **One test asserts the privacy claim, and it belongs to the recording rather than to the page.**
   `sends nothing anywhere while drawing every card` records every request made while cycling all
   eight and fails on any that leaves the origin — **and on any that reaches `/api/**`**, which an

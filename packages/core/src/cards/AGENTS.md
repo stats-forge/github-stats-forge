@@ -143,7 +143,7 @@ that reaches the SVG without passing through `t` is the bug this rule exists to 
 - **The word order is the translation's, and so is which values it uses.** A locale may
   name fewer placeholders than `en` — most locales of the stats card's `title` have no use for the
   possessive `{apostrophe}` — but never one `en` does not supply, which throws. Nothing
-  checks a `{name}` the way the compiler checked a `${name}`, so `tests/locales.test.ts`
+  checks a `{name}` the way the compiler checked a `${name}`, so `tests/locales.spec.ts`
   walks every table for that and for a locale name outside `AVAILABLE_LOCALES`.
 - **A wording that depends on a number is written as plural forms, not assembled.**
   `{ one: '{count} repository', other: '{count} repositories' }`; `t` is given a `count`

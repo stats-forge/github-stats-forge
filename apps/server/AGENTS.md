@@ -28,14 +28,14 @@ help, so there is nothing here to re-derive.
     rejection is a dead process on Node 24 — and one did: `static.ts` only `stat`s before it
     reads, so a directory named `index.html` or a `0600` file on a bind mount made `readFile`
     reject through `route` and out of `void serve(...)`. `static.ts` now answers `undefined` for
-    those, and the adapter's catch is the second line; `tests/node.test.ts` covers the catch.
+    those, and the adapter's catch is the second line; `tests/node.spec.ts` covers the catch.
 - **No framework and no dependency.** `node:http` plus `URL` is the entire surface this needs, and
   this repository inlined an 87-byte regex rather than carry a dependency. If middleware ever
   justifies one, Hono speaks `Request`/`Response` and slots in without changing `handler.ts`. Not
   Express: it wants `req`/`res`, which is the shape this is deliberately not built on.
 - **The server imports core and nothing else.** `packages/catalog` carries the same eight ids, but
   it carries a form's vocabulary with them — a label, a hint and a control per option — which a
-  route table has no use for, so `routes.ts` spells the table out and `tests/routes.test.ts`
+  route table has no use for, so `routes.ts` spells the table out and `tests/routes.spec.ts`
   asserts twice over that it has not drifted: every card core exports is routed, and every path is
   named as the catalog names its card. The catalog is a **dev**dependency here for that test
   alone, which is what keeps it out of the image's `--prod` install.
@@ -63,7 +63,7 @@ help, so there is nothing here to re-derive.
 - **An empty environment variable is an unset one.** `docker compose` writes `""` for every
   `${VAR:-}` it has no value for, and an empty `CACHE_SECONDS` read as a number is `0` — which
   would silently turn caching off on an instance that never asked. `fromEnv` in `config.ts` is
-  that guard, an empty `PAT_2` is dropped from the pool, and `tests/config.test.ts` covers both.
+  that guard, an empty `PAT_2` is dropped from the pool, and `tests/config.spec.ts` covers both.
 - **Never log a query value or a token.** A query holds usernames; `PersonalAccessToken` carries
   the env var's `name` for exactly this reason. One structured JSON line per request on stdout,
   built from the response's own headers rather than a second return channel out of the handler.

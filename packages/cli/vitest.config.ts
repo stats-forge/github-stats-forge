@@ -2,7 +2,7 @@ import { defineProject } from 'vitest/config';
 
 export default defineProject({
   test: {
-    include: ['./tests/*.test.ts'],
+    include: ['./tests/*.spec.ts'],
   },
   /*
    * Read core's TypeScript rather than its build, so a stale `build/` cannot

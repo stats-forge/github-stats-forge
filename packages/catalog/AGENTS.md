@@ -48,6 +48,6 @@ Neither schema is exported from core, so nothing checks this mapping; read
   saved card file, so the number that versions it belongs to the list they share. It was in the
   CLI's `./cards` for the same reason before this package existed: `src/index.ts` runs `main()` on
   import, so the browser cannot reach a constant declared there.
-- **`tests/catalog.test.ts` holds the invariants a published list owes**: one entry per card, no
+- **`tests/catalog.spec.ts` holds the invariants a published list owes**: one entry per card, no
   param asked twice once the shared options sit in front of a card's own, no empty `choices`, and
   a step that follows the kind. What each form then does with them is that form's own test.

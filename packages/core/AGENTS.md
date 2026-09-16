@@ -28,7 +28,7 @@ Six handlers each carried that control flow by hand until 2026-09-05.
   parsing and **before the render**, and a refusal is `not_allowed` — so an identity a pinned
   deployment does not serve costs it no rate-limit point. Naming a param the schema does not
   declare is a compile error, and the map is carried on the handler as `IDENTITIES` the way
-  `OPTIONS` is, which is what lets `tests/allowlist.test.ts` assert every card declares one.
+  `OPTIONS` is, which is what lets `tests/allowlist.spec.ts` assert every card declares one.
   - **This existed as `CardConfig.isAllowed` and was called by nothing** from the day it was
     added until 2026-09-09 — parsed from `ALLOWLIST`, documented on the site and in the server's
     README, and enforced nowhere, so a deployment configured with it served anyone who asked.

@@ -111,7 +111,11 @@ export default defineConfig({
 
   overrides: [
     {
-      files: ['**/*.{test,bench}.ts'],
+      // `test` is in the glob so that a misnamed suite reaches `consistent-test-filename`,
+      // which is what asks for `.spec`.
+      files: ['**/*.{spec,test,bench}.ts'],
+      // Playwright names its files the same way, and vitest's rules do not describe it.
+      excludeFiles: ['apps/docs/e2e/**'],
       ...vitestConfig,
       // Enabling `jest` alongside `vitest` reports every shared rule twice.
       plugins: ['vitest'],
@@ -145,15 +149,6 @@ export default defineConfig({
               'assertType',
               'expectNoScript',
             ],
-          },
-        ],
-
-        // The suites are named `*.test.ts`, not `*.spec.ts`.
-        'vitest/consistent-test-filename': [
-          'error',
-          {
-            pattern: String.raw`.*\.test\.[tj]sx?$`,
-            allTestPattern: String.raw`.*\.(test|spec)\.[tj]sx?$`,
           },
         ],
       },
