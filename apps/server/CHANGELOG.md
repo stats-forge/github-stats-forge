@@ -1,5 +1,15 @@
 # @stats-forge/github-stats-server
 
+## 0.4.3
+
+### Patch Changes
+
+- [#133](https://github.com/stats-forge/github-stats-forge/pull/133) [`299b2ea`](https://github.com/stats-forge/github-stats-forge/commit/299b2ea058c6f2da7b60db8e6ea4f2320a8a2608) - ci: tag and release the server like any other package
+
+  Each version now gets a git tag and a GitHub release carrying its changelog entry, and the image
+  publishes off that release rather than off any push to `main` with no changesets left.
+  The self-hosting page says which image tags that leaves you to pin to.
+
 ## 0.4.2
 
 ### Patch Changes
