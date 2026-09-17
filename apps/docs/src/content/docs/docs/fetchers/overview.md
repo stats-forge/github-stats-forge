@@ -59,5 +59,12 @@ import type { StatsData, TopLangData } from '@stats-forge/github-stats-forge-cor
 next when one is rate limited, and it is what the fetchers already run inside — you need it only
 if you are writing a fetcher of your own.
 
+:::note
+A request that never reached GitHub is retried with the same token after 100ms, 1s and 3s, and
+fails as `upstream` only once those are spent — so a brief network problem costs a card a few
+seconds rather than the whole render. A request a transport of your own aborted is never retried:
+your timeout is the budget, and retrying inside it would spend it several times over.
+:::
+
 A token is never logged; the name of the variable it came from is, so a failing token can be found
 without its value reaching a log.

@@ -32,7 +32,7 @@ type ErrorCode =
   | 'no_tokens'
   /** Every token is rate limited. */
   | 'rate_limited'
-  /** GitHub or WakaTime answered with something unusable. */
+  /** GitHub or WakaTime answered with something unusable, or could not be reached at all. */
   | 'upstream';
 
 /**
@@ -67,6 +67,8 @@ interface CardErrorInit {
   secondaryMessage?: string | undefined;
   /** The first param at fault, when the failure names one. */
   param?: string | undefined;
+  /** What this failure was raised from. Kept for logs; the card never draws it. */
+  cause?: unknown;
 }
 
 /** Everything this package throws. */
@@ -76,7 +78,8 @@ class CardError extends Error {
   readonly param: string | undefined;
 
   constructor(message: string, init: CardErrorInit) {
-    super(message);
+    // `cause` is installed by its presence, so an absent one must not be passed as undefined
+    super(message, init.cause === undefined ? undefined : { cause: init.cause });
     this.name = 'CardError';
     this.code = init.code;
     this.param = init.param;

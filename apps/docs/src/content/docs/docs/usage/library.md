@@ -46,15 +46,15 @@ reason rather than a broken picture.
 
 ### Error codes
 
-| Code            | What happened                                       | Retryable |
-| --------------- | --------------------------------------------------- | --------- |
-| `invalid_param` | A parameter is malformed or not renderable          | no        |
-| `missing_param` | A parameter the card cannot render without          | no        |
-| `not_allowed`   | The deployment does not serve that account or gist  | no        |
-| `not_found`     | The user, repository or gist does not exist         | no        |
-| `no_tokens`     | The deployment has no usable GitHub token           | yes       |
-| `rate_limited`  | Every token is rate limited                         | yes       |
-| `upstream`      | GitHub or WakaTime answered with something unusable | yes       |
+| Code            | What happened                                      | Retryable |
+| --------------- | -------------------------------------------------- | --------- |
+| `invalid_param` | A parameter is malformed or not renderable         | no        |
+| `missing_param` | A parameter the card cannot render without         | no        |
+| `not_allowed`   | The deployment does not serve that account or gist | no        |
+| `not_found`     | The user, repository or gist does not exist        | no        |
+| `no_tokens`     | The deployment has no usable GitHub token          | yes       |
+| `rate_limited`  | Every token is rate limited                        | yes       |
+| `upstream`      | GitHub or WakaTime failed to answer usably         | yes       |
 
 A host branches on the code rather than on the message, and uses `retryable` to decide between
 caching the failure and trying again.
