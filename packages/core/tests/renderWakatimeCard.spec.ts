@@ -28,6 +28,23 @@ describe('Test Render WakaTime Card', () => {
     expect(card).toMatchSnapshot();
   });
 
+  it('should keep the compact layout progress bar centered', () => {
+    const card_width = 600;
+    // `renderWakatimeCard` rewrites the percentages in place, so the shared fixture is copied
+    document.body.innerHTML = renderWakatimeCard(structuredClone(wakaTimeData.data), {
+      layout: 'compact',
+      card_width,
+    });
+
+    // the track keeps the card's own padding on both sides
+    const track = document.querySelector('#rect-mask rect');
+    expect(track).toHaveAttribute('x', '25');
+    expect(track).toHaveAttribute('width', String(card_width - 50));
+
+    // and the stacked segments start where it does, rather than under its left edge
+    expect(screen.getAllByTestId('lang-progress')[0]).toHaveAttribute('x', '25');
+  });
+
   it('should hide languages when hide is passed', () => {
     document.body.innerHTML = renderWakatimeCard(wakaTimeData.data, {
       hide: ['YAML', 'Other'],
