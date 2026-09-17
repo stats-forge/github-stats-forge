@@ -13,6 +13,24 @@ interface ResponseErrors {
   message?: string;
 }
 
+/** Delays before each retry of a transport failure, in milliseconds. */
+const TRANSIENT_RETRY_DELAYS_MS = [100, 1000, 3000];
+
+// not `node:timers/promises`: the anvil runs this library in a browser
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+/**
+ * Whether a request was given up on rather than failing on its own:
+ * a host's `AbortSignal.timeout`, or a caller cancelling.
+ *
+ * @returns Whether it was aborted.
+ */
+const isAborted = (error: unknown): boolean =>
+  error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError');
+
 /**
  * Returns a random integer from 0 (inclusive) to `max` (exclusive).
  *
@@ -40,7 +58,10 @@ type FetcherFunction<TData = unknown, TVariables = Record<string, unknown>> = (
 ) => Promise<FetcherResponse<TData>>;
 
 /**
- * Try to execute the fetcher function until it succeeds or the max number of retries is reached.
+ * Try to execute the fetcher function until it succeeds or retries are exhausted.
+ *
+ * A rate limited or rejected token moves to the next PAT at once; a transport failure
+ * is retried with the same one after the delays in {@link TRANSIENT_RETRY_DELAYS_MS}.
  *
  * @returns The response from the fetcher function.
  */
@@ -55,18 +76,38 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
     throw new CardError('No GitHub API tokens found', { code: 'no_tokens' });
   }
   const startPAT = getRandomInt(PATs.length);
+  let transientFailures = 0;
 
-  for (let retries = 0; retries < PATs.length; retries += 1) {
-    const currentPAT = PATs[(startPAT + retries) % PATs.length];
+  for (let attempt = 0; attempt - transientFailures < PATs.length; attempt += 1) {
+    // a transport failure is not the token's fault, so it does not spend a turn of the rotation
+    const patsTried = attempt - transientFailures;
+    const currentPAT = PATs[(startPAT + patsTried) % PATs.length];
     if (!currentPAT) {
       continue;
     }
 
-    // a non-2xx comes back as a response, so only a transport failure throws — and that is fatal
-    const response = await fetcher(variables, currentPAT.value, {
-      fetch: config.fetch,
-      retries,
-    });
+    let response: FetcherResponse<TData>;
+    try {
+      // a non-2xx comes back as a response, so only a transport failure throws
+      response = await fetcher(variables, currentPAT.value, {
+        fetch: config.fetch,
+        retries: attempt,
+      });
+    } catch (error) {
+      // a `CardError` has already said what went wrong, and an abort is the host spending a budget
+      // of its own — retrying either one answers a question nobody asked
+      if (error instanceof CardError || isAborted(error)) {
+        throw error;
+      }
+      // the budget doubles as the delay table: out of delays is out of retries
+      const delay = TRANSIENT_RETRY_DELAYS_MS[transientFailures];
+      if (delay === undefined) {
+        throw new CardError('Could not reach GitHub', { code: 'upstream', cause: error });
+      }
+      await sleep(delay);
+      transientFailures += 1;
+      continue;
+    }
 
     // react on both type and message-based rate-limit signals.
     // https://github.com/anuraghazra/github-readme-stats/issues/4425
