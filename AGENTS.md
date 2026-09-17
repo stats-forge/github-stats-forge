@@ -321,10 +321,15 @@ replaced by the custom manager before either reached `main` — which is why the
 no trace of it.
 
 - **It runs self-hosted, from `.github/workflows/renovate.yml`, and that is not incidental.**
-  `postUpgradeTasks` — which writes the server changeset a documentation page change needs —
-  is a self-hosted-only option; the Mend app cannot run one. The allowlist for it is
+  `postUpgradeTasks` — which writes the changeset a documentation pin and a runtime dependency
+  bump each need — is a self-hosted-only option; the Mend app cannot run one. The allowlist for it is
   `RENOVATE_ALLOWED_COMMANDS` in the workflow, and the one command is
   `.github/scripts/renovate-changeset.sh`.
+- **A `dependencies` bump in `packages/*` writes its own changeset, and nothing else does.**
+  `.github/scripts/renovate-changeset.sh <slug> <package dir> <summary>` reads the package's name
+  from its `package.json` and files a `patch` against it, so the entry names whichever package
+  carries the dependency. A dev dependency reaches no consumer and gets none; a grouped bump
+  writes one entry per dependency, which is why the `@inquirer/*` group lands five.
 - **The workflow's cron is the heartbeat, the config's `schedule` is the gate.** Renovate
   only evaluates a schedule while it is running, so a per-manager window has to contain the
   time the workflow fires. The workflow runs daily; npm is `* * * * 3,6` and the base image

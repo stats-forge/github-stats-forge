@@ -81,6 +81,22 @@
       automerge: true,
     },
 
+    // A runtime dependency is installed alongside the package, so its bump is that package's
+    // release; `updateInternalDependencies: patch` carries it to the dependents. Dev dependencies
+    // reach no consumer and get none.
+    {
+      matchManagers: ['npm'],
+      matchDepTypes: ['dependencies'],
+      matchFileNames: ['packages/*/package.json'],
+      postUpgradeTasks: {
+        commands: [
+          '.github/scripts/renovate-changeset.sh {{{depNameSanitized}}} {{{packageFileDir}}} "build: update {{{depName}}} to {{{newValue}}}"',
+        ],
+        fileFilters: ['.changeset/*.md'],
+        executionMode: 'update',
+      },
+    },
+
     // The documentation's own pins.
     {
       matchManagers: ['custom.regex'],
@@ -96,7 +112,7 @@
       matchFileNames: ['apps/docs/**'],
       postUpgradeTasks: {
         commands: [
-          '.github/scripts/renovate-changeset.sh {{{depNameSanitized}}} {{{depName}}} {{{newValue}}}',
+          '.github/scripts/renovate-changeset.sh {{{depNameSanitized}}} apps/server "docs: pin the {{{depName}}} example to {{{newValue}}}"',
         ],
         fileFilters: ['.changeset/*.md'],
         executionMode: 'update',
