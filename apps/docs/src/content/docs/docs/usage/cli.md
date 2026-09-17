@@ -58,17 +58,17 @@ which matters for the stats card, whose extra stats each cost a request.
 
 ## Flags
 
-| Flag                | What it does                                                                             |
-| ------------------- | ---------------------------------------------------------------------------------------- |
-| `-c, --card <id>`   | Skip the first prompt: `stats`, `top-langs`, `pin`, `contributed-to`, `gist`, `wakatime` |
-| `-o, --out <file>`  | Where to write the SVG; the default is named after the card and its subject              |
-| `--config <file>`   | A saved card to load, and where "Save these options" writes                              |
-| `--options <query>` | Options as a query string, layered over `--config`                                       |
-| `-g, --generate`    | Render what `--config` holds and exit, without opening the menu                          |
-| `--print-query`     | Print the options as a query string and exit, without rendering                          |
-| `--pat <token>`     | A GitHub token; repeat the flag for several                                              |
-| `--env-file <file>` | Which env file to read `PAT_1`, `PAT_2`, … from                                          |
-| `-h, --help`        | The same list, from the tool                                                             |
+| Flag                | What it does                                                                                                    |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `-c, --card <id>`   | Skip the first prompt: `stats`, `top-langs`, `pin`, `org`, `org-activity`, `contributed-to`, `gist`, `wakatime` |
+| `-o, --out <file>`  | Where to write the SVG; the default is named after the card and its subject                                     |
+| `--config <file>`   | A saved card to load, and where "Save these options" writes                                                     |
+| `--options <query>` | Options as a query string, layered over `--config`                                                              |
+| `-g, --generate`    | Render what `--config` holds and exit, without opening the menu                                                 |
+| `--print-query`     | Print the options as a query string and exit, without rendering                                                 |
+| `--pat <token>`     | A GitHub token; repeat the flag for several                                                                     |
+| `--env-file <file>` | Which env file to read `PAT_1`, `PAT_2`, … from                                                                 |
+| `-h, --help`        | The same list, from the tool                                                                                    |
 
 ## Saving a card
 

@@ -44,6 +44,11 @@ if (result.status === 'success') {
 Both branches carry a `content` you can serve: a failure is still an image, so a README shows the
 reason rather than a broken picture.
 
+:::note
+The card labels itself: `role="img"` with a `<title>` and a `<desc>` saying what it shows, since
+assistive technology cannot reach the text inside an image role.
+:::
+
 ### Error codes
 
 | Code            | What happened                                      | Retryable |
@@ -84,6 +89,9 @@ const config = new CardConfig({
 `GIST_ALLOWLIST`, `EXCLUDE_REPO` and `FETCH_MULTI_PAGE_STARS`, for a host that would rather
 configure through the environment. A `PAT_` variable set to nothing is skipped.
 
+A configuration is immutable. `config.with({ pats })` returns a copy, which is how a host swaps in
+a token belonging to the request rather than to the deployment.
+
 An allowlist is enforced by the api handlers, before anything is fetched, so an identity the
 deployment does not serve fails as `not_allowed` and spends no rate limit. It covers every
 GitHub login — `username` and the organization card's `org` — and the gist card's `id`. It does
@@ -119,6 +127,9 @@ site's card builder are two forms over the same list.
 
 `card.render` is the handler above, so a form can draw what it is building; `card.needsToken`
 says whether that costs a GitHub token.
+
+The accepted values come off the handlers, which is where the catalog reads them: each carries an
+`OPTIONS` keyed by the param it governs, so `topLangs.OPTIONS.layout` is what `?layout=` accepts.
 
 ## Other entry points
 
