@@ -1,5 +1,15 @@
 # @stats-forge/github-stats-server
 
+## 0.4.5
+
+### Patch Changes
+
+- [#150](https://github.com/stats-forge/github-stats-forge/pull/150) [`eb463cd`](https://github.com/stats-forge/github-stats-forge/commit/eb463cdbc0b72cd79404561342dea40b8a606ce5) - docs: list every card id the CLI's `--card` accepts
+
+- [#149](https://github.com/stats-forge/github-stats-forge/pull/149) [`9eefeaa`](https://github.com/stats-forge/github-stats-forge/commit/9eefeaaec3e9c6e68c94ccac117e13331c97a75d) - docs: say what a request that never reaches GitHub costs
+- Updated dependencies [[`eb463cd`](https://github.com/stats-forge/github-stats-forge/commit/eb463cdbc0b72cd79404561342dea40b8a606ce5), [`9eefeaa`](https://github.com/stats-forge/github-stats-forge/commit/9eefeaaec3e9c6e68c94ccac117e13331c97a75d), [`a6cca30`](https://github.com/stats-forge/github-stats-forge/commit/a6cca30771fdcd57e701a3ea79981f8c5944120d), [`c16f58e`](https://github.com/stats-forge/github-stats-forge/commit/c16f58ef75b929ab9a190a38a05ef815bfe6e423)]:
+  - @stats-forge/github-stats-forge-core@0.8.1
+
 ## 0.4.4
 
 ### Patch Changes

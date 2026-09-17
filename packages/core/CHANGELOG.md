@@ -1,5 +1,30 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.8.1
+
+### Patch Changes
+
+- [#150](https://github.com/stats-forge/github-stats-forge/pull/150) [`eb463cd`](https://github.com/stats-forge/github-stats-forge/commit/eb463cdbc0b72cd79404561342dea40b8a606ce5) - docs: cut each README to a front door and link the documentation site
+
+- [#149](https://github.com/stats-forge/github-stats-forge/pull/149) [`9eefeaa`](https://github.com/stats-forge/github-stats-forge/commit/9eefeaaec3e9c6e68c94ccac117e13331c97a75d) - fix: retry a transport failure with the same token, after a backoff
+
+  A network error used to fail the card at once. The retryer now retries it with the same token
+  after 100ms, 1s and 3s, and only then throws — as `upstream`, carrying the original as `cause`,
+  rather than letting the runtime's own wording reach the card. A request the host's transport
+  aborted is not retried, so a `fetch` timeout still means what it says.
+
+- [#146](https://github.com/stats-forge/github-stats-forge/pull/146) [`a6cca30`](https://github.com/stats-forge/github-stats-forge/commit/a6cca30771fdcd57e701a3ea79981f8c5944120d) - fix: center the stats card's rank ring in the space around it
+
+  The ring was centred in the gutter reserved for it,
+  which left 20px between it and the stat values but 45px between it and the card's edge.
+  It now sits halfway between the two.
+
+- [#145](https://github.com/stats-forge/github-stats-forge/pull/145) [`c16f58e`](https://github.com/stats-forge/github-stats-forge/commit/c16f58ef75b929ab9a190a38a05ef815bfe6e423) - fix: center the wakatime compact layout's progress bar
+
+  The track was 5px narrower than the card's own padding allowed and the stacked
+  segments were drawn from the card's edge rather than from the track's, so the bar
+  sat off centre and its first language lost 25px to the mask.
+
 ## 0.8.0
 
 ### Minor Changes
