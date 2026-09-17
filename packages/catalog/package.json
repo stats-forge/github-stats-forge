@@ -1,6 +1,6 @@
 {
   "name": "@stats-forge/github-stats-forge-catalog",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "What each GitHub Stats Forge card accepts: every option's name, label, kind and accepted values",
   "keywords": [
     "card-generator",
