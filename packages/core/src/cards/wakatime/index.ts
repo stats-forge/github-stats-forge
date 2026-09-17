@@ -320,15 +320,15 @@ const renderCard = (
 
   // RENDER COMPACT LAYOUT
   if (layout === 'compact') {
-    const width = normalizedWidth - 5;
+    const barWidth = normalizedWidth - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING;
     height =
       COMPACT_LAYOUT_BASE_HEIGHT + Math.round(filteredLanguages.length / 2) * DEFAULT_LINE_HEIGHT;
 
     // progressOffset holds the previous language's width and used to offset the next language
     // so that we can stack them one after another, like this: [--][----][---]
-    let progressOffset = 0;
+    let progressOffset = COMPACT_LAYOUT_PROGRESSBAR_PADDING;
     const compactProgressBar = filteredLanguages.map((language) => {
-      const progress = ((width - COMPACT_LAYOUT_PROGRESSBAR_PADDING) * language.percent) / 100;
+      const progress = (barWidth * language.percent) / 100;
       const x = progressOffset;
       progressOffset += progress;
 
@@ -350,7 +350,7 @@ const renderCard = (
         el('rect', {
           x: COMPACT_LAYOUT_PROGRESSBAR_PADDING,
           y: 0,
-          width: width - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING,
+          width: barWidth,
           height: 8,
           fill: 'white',
           rx: 5,

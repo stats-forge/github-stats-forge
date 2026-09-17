@@ -267,10 +267,10 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
       <mask id="rect-mask">
-        <rect x="25" y="0" width="445" height="8" fill="white" rx="5" />
+        <rect x="25" y="0" width="450" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="420.086" height="8" fill="#858585" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="420.086" y="0" width="29.375" height="8" fill="#3178c6" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="25" y="0" width="402.21" height="8" fill="#858585" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="427.21" y="0" width="28.125" height="8" fill="#3178c6" />
       <g transform="translate(25, 25)">
         <circle cx="5" cy="6" r="5" fill="#858585" />
         <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 19 mins</text>
@@ -404,10 +404,10 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
       <mask id="rect-mask">
-        <rect x="25" y="0" width="445" height="8" fill="white" rx="5" />
+        <rect x="25" y="0" width="450" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="441.095" height="8" fill="#858585" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="441.095" y="0" width="30.831999999999997" height="8" fill="#3178c6" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="25" y="0" width="422.325" height="8" fill="#858585" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="447.325" y="0" width="29.52" height="8" fill="#3178c6" />
       <g transform="translate(25, 25)">
         <circle cx="5" cy="6" r="5" fill="#858585" />
         <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 19 mins</text>

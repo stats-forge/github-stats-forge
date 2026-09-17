@@ -116,9 +116,9 @@
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
       <mask id="rect-mask">
-        <rect x="25" y="0" width="445" height="8" fill="white" rx="5" />
+        <rect x="25" y="0" width="450" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="470" height="8" fill="#858585" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="25" y="0" width="450" height="8" fill="#858585" />
       <g transform="translate(25, 25)">
         <circle cx="5" cy="6" r="5" fill="#858585" />
         <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 54 hrs 30 mins</text>
