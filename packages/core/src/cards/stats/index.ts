@@ -545,15 +545,15 @@ const renderCard = (
   }
 
   /**
-   * The ring sits centred in the same gutter the values are kept clear of, so the gap
-   * between them holds at every width; a rank-only card has no values, so it centres.
+   * The ring sits halfway between where the values stop and the card's own edge, which is
+   * the space actually visible around it; a rank-only card has no values, so it centres.
    *
    * @returns Rank circle translation value.
    */
-  const calculateRankXTranslation = (): number =>
-    visibleStats.length > 0
-      ? width - CARD_STYLE.padding.x - RANK_GUTTER / 2 + RANK_CIRCLE_CX_OFFSET
-      : width / 2 + 20 - 10;
+  const calculateRankXTranslation = (): number => {
+    const center = visibleStats.length > 0 ? (valueAnchorX + STAT_ROW_X + width) / 2 : width / 2;
+    return center + RANK_CIRCLE_CX_OFFSET;
+  };
 
   // Conditionally rendered elements
   const rankCircle =

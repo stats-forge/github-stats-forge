@@ -33,6 +33,10 @@ const stats: StatsData = {
   rank: { level: 'A+', percentile: 40 },
 };
 
+/** The x of an element's own `translate(...)`, which is how a card positions a group. */
+const translateX = (el: Element | null | undefined): number =>
+  Number(/translate\((?<x>-?[\d.]+)/.exec(el?.getAttribute('transform') ?? '')?.groups?.['x']);
+
 describe('Test renderStatsCard', () => {
   it('should render correctly', () => {
     document.body.innerHTML = renderStatsCard(stats);
@@ -432,6 +436,24 @@ describe('Test renderStatsCard', () => {
       number_precision: 2,
     });
     expect(screen.getByTestId('commits')).toHaveTextContent('1999');
+  });
+
+  it('should center the rank ring between the values and the card edge', () => {
+    document.body.innerHTML = renderStatsCard(stats);
+
+    const width = Number(document.querySelector('svg')?.getAttribute('width'));
+
+    // a value is right-anchored, so its own x is where the value column stops
+    const value = screen.getByTestId('stars');
+    expect(value).toHaveAttribute('text-anchor', 'end');
+    const valuesEnd = translateX(value.closest('g')) + Number(value.getAttribute('x'));
+
+    const rim = document.querySelector('.rank-circle-rim');
+    const ringCenter =
+      translateX(screen.getByTestId('rank-circle')) + Number(rim?.getAttribute('cx'));
+    const radius = Number(rim?.getAttribute('r'));
+
+    expect(ringCenter - radius - valuesEnd).toBeCloseTo(width - (ringCenter + radius));
   });
 
   it('should render default rank icon with level A+', () => {
