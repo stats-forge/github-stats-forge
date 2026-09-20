@@ -254,7 +254,7 @@ still earns its place. What replaced the rest:
   no editor surfaces on hover. `createProgressNode`'s `color?: string` carries
   `/** When omitted, the color must be set via a '.lang-progress' CSS rule. */` this way,
   and so do the parameters of `errorResult`, `approxNumber` and
-  `fetchAllTimeReposContributedTo`.
+  `fetchReposContributedTo`.
 - **Keep what the type cannot say.** A range (`0 <= n < max`), an ordering, a unit, a
   fallback, a format guarantee (`.svg`), or a side effect (`main` sets a non-zero exit
   code rather than throwing) belongs in the summary or the `@returns`, never dropped
