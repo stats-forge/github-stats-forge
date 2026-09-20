@@ -51,9 +51,13 @@ jobs:
           app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
           private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
 
+      # The commit CI passed on, not whatever main points at now: two merges in quick
+      # succession otherwise have both runs release the later one, and the second fails
+      # republishing what the first already published.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
       - name: Install Dependencies
