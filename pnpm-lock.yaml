@@ -299,22 +299,22 @@ importers:
   packages/cli:
     dependencies:
       '@inquirer/checkbox':
-        specifier: 5.2.5
+        specifier: ^5.2.5
         version: 5.2.5(@types/node@24.13.5)
       '@inquirer/confirm':
-        specifier: 6.3.2
+        specifier: ^6.3.2
         version: 6.3.2(@types/node@24.13.5)
       '@inquirer/input':
-        specifier: 5.1.6
+        specifier: ^5.1.6
         version: 5.1.6(@types/node@24.13.5)
       '@inquirer/number':
-        specifier: 4.2.3
+        specifier: ^4.2.3
         version: 4.2.3(@types/node@24.13.5)
       '@inquirer/password':
-        specifier: 5.2.2
+        specifier: ^5.2.2
         version: 5.2.2(@types/node@24.13.5)
       '@inquirer/select':
-        specifier: 5.2.5
+        specifier: ^5.2.5
         version: 5.2.5(@types/node@24.13.5)
       '@stats-forge/github-stats-forge-catalog':
         specifier: workspace:^
