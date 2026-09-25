@@ -41,7 +41,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@b24da7e3c0e4a66a97cb28e39499c37873a593b7 # v2.3.0
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
 
       # The card previews are committed, so nothing here needs a GitHub token.
       - name: Build the docs site
