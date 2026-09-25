@@ -1,5 +1,28 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.6.2
+
+### Patch Changes
+
+- [#171](https://github.com/stats-forge/github-stats-forge/pull/171) [`8d271e8`](https://github.com/stats-forge/github-stats-forge/commit/8d271e804941e0a4c462c6f36a9613a4b475d14c) - build: accept any compatible @inquirer release
+
+  The six prompt packages were pinned exactly, so a patched release reached an install
+  only after a release here. A caret lets one in at install time, as core's `zod` already does.
+
+- [#130](https://github.com/stats-forge/github-stats-forge/pull/130) [`42951eb`](https://github.com/stats-forge/github-stats-forge/commit/42951eb5fa31f5d7bde215e93cedcbc263056724) - build: update @inquirer/checkbox to 5.2.5
+
+- [#130](https://github.com/stats-forge/github-stats-forge/pull/130) [`42951eb`](https://github.com/stats-forge/github-stats-forge/commit/42951eb5fa31f5d7bde215e93cedcbc263056724) - build: update @inquirer/confirm to 6.3.2
+
+- [#130](https://github.com/stats-forge/github-stats-forge/pull/130) [`42951eb`](https://github.com/stats-forge/github-stats-forge/commit/42951eb5fa31f5d7bde215e93cedcbc263056724) - build: update @inquirer/input to 5.1.6
+
+- [#130](https://github.com/stats-forge/github-stats-forge/pull/130) [`42951eb`](https://github.com/stats-forge/github-stats-forge/commit/42951eb5fa31f5d7bde215e93cedcbc263056724) - build: update @inquirer/number to 4.2.3
+
+- [#130](https://github.com/stats-forge/github-stats-forge/pull/130) [`42951eb`](https://github.com/stats-forge/github-stats-forge/commit/42951eb5fa31f5d7bde215e93cedcbc263056724) - build: update @inquirer/password to 5.2.2
+
+- [#130](https://github.com/stats-forge/github-stats-forge/pull/130) [`42951eb`](https://github.com/stats-forge/github-stats-forge/commit/42951eb5fa31f5d7bde215e93cedcbc263056724) - build: update @inquirer/select to 5.2.5
+- Updated dependencies [[`c056ec3`](https://github.com/stats-forge/github-stats-forge/commit/c056ec32b2bbc6983f07eb0111fbe52e98f5a61f), [`33daaa2`](https://github.com/stats-forge/github-stats-forge/commit/33daaa2482b8e7069c09d1f6e121797b8afd37fd)]:
+  - @stats-forge/github-stats-forge-core@0.8.2
+
 ## 0.6.1
 
 ### Patch Changes

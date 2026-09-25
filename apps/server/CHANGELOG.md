@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-server
 
+## 0.4.6
+
+### Patch Changes
+
+- [#155](https://github.com/stats-forge/github-stats-forge/pull/155) [`dbc8c1e`](https://github.com/stats-forge/github-stats-forge/commit/dbc8c1e786032bdfd89d1e3d809a8d4c1ff6fae5) - docs: pin the stats-forge/github-stats-forge-action example to v0.8.1
+- Updated dependencies [[`c056ec3`](https://github.com/stats-forge/github-stats-forge/commit/c056ec32b2bbc6983f07eb0111fbe52e98f5a61f), [`33daaa2`](https://github.com/stats-forge/github-stats-forge/commit/33daaa2482b8e7069c09d1f6e121797b8afd37fd)]:
+  - @stats-forge/github-stats-forge-core@0.8.2
+
 ## 0.4.5
 
 ### Patch Changes
