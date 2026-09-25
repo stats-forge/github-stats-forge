@@ -51,14 +51,15 @@ jobs:
           app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
           private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
 
-      # The commit CI passed on, not whatever main points at now: two merges in quick
-      # succession otherwise have both runs release the later one, and the second fails
-      # republishing what the first already published.
+      # Pinned to the commit CI passed on, after two quick merges had both runs release the
+      # later one. changesets/action resets to `github.sha` regardless — main's tip under
+      # `workflow_run` — which a shallow clone cannot resolve once the two differ.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Install Dependencies
         uses: marcalexiei/github-actions/setup-node-and-pnpm@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
