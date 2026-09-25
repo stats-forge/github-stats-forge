@@ -1,5 +1,18 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.8.2
+
+### Patch Changes
+
+- [#169](https://github.com/stats-forge/github-stats-forge/pull/169) [`c056ec3`](https://github.com/stats-forge/github-stats-forge/commit/c056ec32b2bbc6983f07eb0111fbe52e98f5a61f) - fix: resolve a language's color whatever its case
+
+  WakaTime and gist languages are not always spelled the way linguist spells them,
+  and a casing difference drew the default gray instead of the language's brand color.
+
+- [#157](https://github.com/stats-forge/github-stats-forge/pull/157) [`33daaa2`](https://github.com/stats-forge/github-stats-forge/commit/33daaa2482b8e7069c09d1f6e121797b8afd37fd) - feat(core): update language colors
+
+  Regenerated from the [upstream linguist languages file](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml).
+
 ## 0.8.1
 
 ### Patch Changes
