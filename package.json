@@ -37,8 +37,8 @@
     "knip": "6.35.1",
     "lefthook": "2.1.14",
     "oxfmt": "0.67.0",
-    "oxlint": "1.82.0",
-    "oxlint-tsgolint": "7.0.2001",
+    "oxlint": "1.83.0",
+    "oxlint-tsgolint": "7.0.2002",
     "publint": "0.3.24",
     "typescript": "7.0.2",
     "vitest": "catalog:default"
