@@ -13,7 +13,8 @@ FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:50c8e8ca1d27439048670df5883
 
 WORKDIR /repo
 ENV PNPM_HOME=/pnpm
-RUN corepack enable && pnpm config set store-dir /pnpm/store
+# Corepack is no longer bundled from Node 25
+RUN npm install -g corepack && corepack enable && pnpm config set store-dir /pnpm/store
 
 # manifests first, so the dependency layer survives a source-only change
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
