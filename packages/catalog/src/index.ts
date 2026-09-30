@@ -519,6 +519,12 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'boolean',
         group: 'text',
       },
+      {
+        name: 'disable_animations',
+        label: 'Disable the animations',
+        kind: 'boolean',
+        group: 'text',
+      },
       LOCALE_OPTION,
     ],
     render: gist,

@@ -18,6 +18,16 @@ const data: GistData = {
   forksCount: 19,
 };
 
+/**
+ * The reduced-motion media block carries the same declaration as the unconditional rule, so
+ * finding it at all proves nothing about the option.
+ *
+ * @returns 1 when only reduced-motion stops the animation, 2 when the card stops it outright.
+ */
+const noMotionRules = (): number =>
+  (document.querySelector('style')?.innerHTML.split('animation-duration: 0s !important').length ??
+    1) - 1;
+
 describe('test renderGistCard', () => {
   it('should render correctly', () => {
     document.body.innerHTML = renderGistCard(data);
@@ -233,6 +243,20 @@ describe('test renderGistCard', () => {
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     document.body.innerHTML = renderGistCard(data, {});
     expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
+  });
+
+  it('should animate by default', () => {
+    document.body.innerHTML = renderGistCard(data);
+
+    expect(noMotionRules()).toBe(1);
+  });
+
+  it('should draw the card with no animation when disable_animations is true', () => {
+    document.body.innerHTML = renderGistCard(data, {
+      disable_animations: true,
+    });
+
+    expect(noMotionRules()).toBe(2);
   });
 
   it('should fallback to default description', () => {
