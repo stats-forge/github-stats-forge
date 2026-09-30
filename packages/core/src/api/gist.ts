@@ -14,6 +14,7 @@ const gistQuery = z.object({
   show_owner: booleanParam,
   browser_rendering: booleanParam,
   hide_border: booleanParam,
+  disable_animations: booleanParam,
 });
 
 /**
@@ -25,7 +26,7 @@ export const gist = cardHandler(
   gistQuery,
   { id: 'gist' },
   async (
-    { id, locale, border_radius, show_owner, browser_rendering, hide_border },
+    { id, locale, border_radius, show_owner, browser_rendering, hide_border, disable_animations },
     colors,
     config,
   ) => {
@@ -38,6 +39,7 @@ export const gist = cardHandler(
       show_owner,
       browser_rendering,
       hide_border,
+      disable_animations,
     });
   },
 );
