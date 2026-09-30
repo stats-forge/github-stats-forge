@@ -36,7 +36,7 @@
     "@vitest/coverage-v8": "catalog:default",
     "knip": "6.37.0",
     "lefthook": "2.1.14",
-    "oxfmt": "0.68.0",
+    "oxfmt": "0.70.0",
     "oxlint": "1.83.0",
     "oxlint-tsgolint": "7.0.2002",
     "publint": "0.3.24",
