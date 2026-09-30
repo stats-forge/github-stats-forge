@@ -34,6 +34,7 @@ const DESCRIPTION_MAX_LINES = 10;
 
 interface GistCardOptions extends CommonCardOptions {
   locale: string;
+  disable_animations: boolean;
   show_owner: boolean;
   browser_rendering: boolean;
 }
@@ -52,6 +53,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     show_owner = false,
     browser_rendering = false,
     hide_border = false,
+    disable_animations = false,
   } = options;
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
@@ -134,6 +136,10 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     border_radius,
     colors: { light: lightColors, dark: darkColors },
   });
+
+  if (disable_animations) {
+    card.disableAnimations();
+  }
 
   card.setCSS({
     light: ({ textColor, iconColor }) => [
