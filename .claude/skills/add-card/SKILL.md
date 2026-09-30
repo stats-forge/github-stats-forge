@@ -1,6 +1,6 @@
 ---
 name: add-card
-description: Add a new card to github-stats-forge, end to end — GraphQL query, fetcher, renderer, locales, api handler, CLI catalog, server route, anvil entry, documentation pages and tests. Use when asked to add, build or scaffold a card, a new endpoint that draws one, or a fetcher behind one. Also covers adding an option to an existing card.
+description: Add a new card to github-stats-forge, end to end — GraphQL query, fetcher, renderer, locales, api handler, card catalog, server route, anvil entry, documentation pages and tests. Use when asked to add, build or scaffold a card, a new endpoint that draws one, or a fetcher behind one. Also covers adding an option to an existing card.
 ---
 
 # Adding a card
@@ -11,7 +11,7 @@ other files that each hold their own copy of "every card there is".
 **Four of those copies are guarded and the rest are not.** `tests/routes.spec.ts` fails if the
 server does not route the card, the anvil throws if it has no `EXTRAS` entry, the docs build
 fails if the fetcher has no page, and `e2e/anvil.spec.ts` fails if the card picker's list is
-short. Everything else — the CLI catalog, the sidebar, the four documentation tables — is
+short. Everything else — the card catalog, the sidebar, the four documentation tables — is
 silent when you forget it: the card simply is not there, and nobody finds out until someone
 goes looking for it.
 
@@ -70,7 +70,7 @@ each belong, and the cards have their own about branding and translated text.
 
 Each of these is a separate file holding its own copy of "every card there is".
 
-10. `packages/cli/src/cards.ts` — the catalog entry. `choices` always reads
+10. `packages/catalog/src/index.ts` — the catalog entry. `choices` always reads
     `<handler>.OPTIONS.<param>`, never a literal. Every option needs a `group`.
     A numeric option is `integer` or `number` according to how **core** reads it —
     `looseIntParam` is an integer, `numberParam` a number.
@@ -111,7 +111,7 @@ re-recording.
 
 ## 7. Landing it
 
-24. A changeset naming **core, cli and server** — the server because the image ships the
+24. A changeset naming **core, catalog and server** — the server because the image ships the
     documentation site, so a visitor-facing docs change is a change to what it publishes.
     First line is a conventional commit and lands verbatim in the changelog.
     Confirm with `pnpm exec changeset status`.
@@ -129,9 +129,9 @@ Five places, and the anvil is free:
 - the renderer's `OPTIONS`, if the option names a closed set of values
 - the card's own options interface and its destructuring, where the **default** lives
 - the api schema in `packages/core/src/api/<card>.ts` — parse, never default
-- `packages/cli/src/cards.ts`, with `choices` read off the handler
+- `packages/catalog/src/index.ts`, with `choices` read off the handler
 - the options table on the card's documentation page
 
-The anvil builds its control from the CLI catalog, so it needs nothing. If the option changes
+The anvil builds its control from the card catalog, so it needs nothing. If the option changes
 _what is fetched_ rather than what is drawn, add it to that card's `maximal` in
 `apps/docs/src/anvil/cards.ts` and re-record the samples.
