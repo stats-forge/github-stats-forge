@@ -85,10 +85,6 @@
         animation-delay: 0s !important;
       }
     }
-    * {
-      animation-duration: 0s !important;
-      animation-delay: 0s !important;
-    }
   </style>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="399" fill="#151515" stroke-opacity="1" />
   <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h383a8 8 0 0 1 8 8v37.5h-399z" />
@@ -119,7 +115,7 @@
           </svg>
         </g>
         <g transform="translate(20, 0)">
-          <text data-testid="stargazers" class="gray">79</text>
+          <text data-testid="stargazers" class="gray">80</text>
         </g>
       </g>
       <g transform="translate(134.45999937057493, 0)">

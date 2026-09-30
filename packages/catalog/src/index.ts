@@ -355,6 +355,12 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'text',
         choices: pin.OPTIONS.number_format,
       },
+      {
+        name: 'disable_animations',
+        label: 'Disable the animations',
+        kind: 'boolean',
+        group: 'text',
+      },
       LOCALE_OPTION,
     ],
     render: pin,

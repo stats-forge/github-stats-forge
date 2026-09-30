@@ -31,6 +31,7 @@ const pinQuery = z.object({
   locale: localeParam,
   border_radius: numberParam,
   description_lines_count: looseIntParam,
+  disable_animations: booleanParam,
 });
 
 /**
@@ -57,6 +58,7 @@ const renderPin = cardHandler(
       locale,
       border_radius,
       description_lines_count,
+      disable_animations,
     },
     colors,
     config,
@@ -89,6 +91,7 @@ const renderPin = cardHandler(
       username,
       locale,
       description_lines_count,
+      disable_animations,
     });
   },
 );

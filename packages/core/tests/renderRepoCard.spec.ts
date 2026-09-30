@@ -27,6 +27,16 @@ const data_repo: { repository: RepositoryData } = {
   },
 };
 
+/**
+ * The reduced-motion media block carries the same declaration as the unconditional rule, so
+ * finding it at all proves nothing about the option.
+ *
+ * @returns 1 when only reduced-motion stops the animation, 2 when the card stops it outright.
+ */
+const noMotionRules = (): number =>
+  (document.querySelector('style')?.innerHTML.split('animation-duration: 0s !important').length ??
+    1) - 1;
+
 describe('Test renderRepoCard', () => {
   it('should render correctly', () => {
     document.body.innerHTML = renderRepoCard(data_repo.repository);
@@ -341,6 +351,20 @@ describe('Test renderRepoCard', () => {
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     document.body.innerHTML = renderRepoCard(data_repo.repository, {});
     expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
+  });
+
+  it('should animate by default', () => {
+    document.body.innerHTML = renderRepoCard(data_repo.repository);
+
+    expect(noMotionRules()).toBe(1);
+  });
+
+  it('should draw the card with no animation when disable_animations is true', () => {
+    document.body.innerHTML = renderRepoCard(data_repo.repository, {
+      disable_animations: true,
+    });
+
+    expect(noMotionRules()).toBe(2);
   });
 
   it('should fallback to default description', () => {
