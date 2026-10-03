@@ -1,5 +1,22 @@
 # @stats-forge/github-stats-forge-catalog
 
+## 0.1.2
+
+### Patch Changes
+
+- [#191](https://github.com/stats-forge/github-stats-forge/pull/191) [`c6b11a7`](https://github.com/stats-forge/github-stats-forge/commit/c6b11a7c72768fef8131852bcc2e585dc536b26a) - feat: let the gist card's animation be turned off
+
+  `disable_animations=true` stops the fade-in, as it already does on the other cards.
+  The card animates by default, which is what it did before.
+
+- [#189](https://github.com/stats-forge/github-stats-forge/pull/189) [`d88e40e`](https://github.com/stats-forge/github-stats-forge/commit/d88e40ee2c2fe5de24e5aa8b4df69d2769882e33) - feat: animate the repository pin card, and let disable_animations stop it
+
+  The card was drawn without animation and nothing could change that. It now behaves like
+  every other card: the fade-in plays by default, and `disable_animations=true` turns it off.
+
+- Updated dependencies [[`c6b11a7`](https://github.com/stats-forge/github-stats-forge/commit/c6b11a7c72768fef8131852bcc2e585dc536b26a), [`d88e40e`](https://github.com/stats-forge/github-stats-forge/commit/d88e40ee2c2fe5de24e5aa8b4df69d2769882e33)]:
+  - @stats-forge/github-stats-forge-core@0.8.3
+
 ## 0.1.1
 
 ### Patch Changes
