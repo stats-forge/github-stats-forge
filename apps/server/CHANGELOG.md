@@ -1,5 +1,30 @@
 # @stats-forge/github-stats-server
 
+## 0.4.7
+
+### Patch Changes
+
+- [#191](https://github.com/stats-forge/github-stats-forge/pull/191) [`c6b11a7`](https://github.com/stats-forge/github-stats-forge/commit/c6b11a7c72768fef8131852bcc2e585dc536b26a) - feat: let the gist card's animation be turned off
+
+  `disable_animations=true` stops the fade-in, as it already does on the other cards.
+  The card animates by default, which is what it did before.
+
+- [#192](https://github.com/stats-forge/github-stats-forge/pull/192) [`bd1aa86`](https://github.com/stats-forge/github-stats-forge/commit/bd1aa866027e81c6dfe7d35b64fcbd9cff501c61) - docs: stop counting the cards that take `locale`
+
+  The page said seven and there are eight. Naming no number cannot go stale again.
+
+- [#205](https://github.com/stats-forge/github-stats-forge/pull/205) [`5bcdc80`](https://github.com/stats-forge/github-stats-forge/commit/5bcdc801e7a6dcd2dfb6c3835bf687e4e400feba) - build: update the node:24-alpine base image digest
+
+- [#183](https://github.com/stats-forge/github-stats-forge/pull/183) [`079b725`](https://github.com/stats-forge/github-stats-forge/commit/079b72517d3c867b53832b3627b39c71045564f0) - docs: pin the stats-forge/github-stats-forge-action example to v0.8.2
+
+- [#189](https://github.com/stats-forge/github-stats-forge/pull/189) [`d88e40e`](https://github.com/stats-forge/github-stats-forge/commit/d88e40ee2c2fe5de24e5aa8b4df69d2769882e33) - feat: animate the repository pin card, and let disable_animations stop it
+
+  The card was drawn without animation and nothing could change that. It now behaves like
+  every other card: the fade-in plays by default, and `disable_animations=true` turns it off.
+
+- Updated dependencies [[`c6b11a7`](https://github.com/stats-forge/github-stats-forge/commit/c6b11a7c72768fef8131852bcc2e585dc536b26a), [`3221247`](https://github.com/stats-forge/github-stats-forge/commit/322124755f4950ef0e9517f907e8f6bc89d3a7e8), [`d88e40e`](https://github.com/stats-forge/github-stats-forge/commit/d88e40ee2c2fe5de24e5aa8b4df69d2769882e33)]:
+  - @stats-forge/github-stats-forge-core@0.8.3
+
 ## 0.4.6
 
 ### Patch Changes
