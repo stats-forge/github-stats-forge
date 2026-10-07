@@ -67,6 +67,42 @@ const mockGraphQL = (): void => {
   });
 };
 
+/**
+ * Answers the years query, then every range query with one contribution per range —
+ * so the total is the same however the ranges were chunked — after `failures` have been served.
+ *
+ * @returns How many range queries were sent.
+ */
+const mockRangesAfter = (failures: Array<[number, unknown?]>): (() => number) => {
+  let rangeQueries = 0;
+  mock.reset();
+  mock.onPost('https://api.github.com/graphql').reply((request) => {
+    const { query } = JSON.parse(request.data ?? '{}') as { query: string };
+    if (!query.includes('userReposContributedTo')) {
+      return [200, years];
+    }
+
+    const failure = failures[rangeQueries];
+    rangeQueries += 1;
+    if (failure) {
+      return failure;
+    }
+
+    const ranges: Record<string, unknown> = {};
+    for (let i = 0; i < (query.match(/range_\d+:/g) ?? []).length; i += 1) {
+      ranges[`range_${i}`] = {
+        commitContributionsByRepository: [
+          { repository: { nameWithOwner: 'org/repo1' }, contributions: { totalCount: 1 } },
+        ],
+        issueContributionsByRepository: [],
+        pullRequestContributionsByRepository: [],
+      };
+    }
+    return [200, { data: { user: ranges } }];
+  });
+  return () => rangeQueries;
+};
+
 describe('test fetchContributedTo', () => {
   beforeEach(() => {
     mock.reset();
@@ -194,42 +230,6 @@ describe('test fetchContributedTo', () => {
     expect(data.repos).toStrictEqual([]);
     expect(data.totalRepos).toBe(0);
   });
-
-  /**
-   * Answers the years query, then every range query with one contribution per range —
-   * so the total is the same however the ranges were chunked — after `failures` have been served.
-   *
-   * @returns How many range queries were sent.
-   */
-  const mockRangesAfter = (failures: Array<[number, unknown?]>): (() => number) => {
-    let rangeQueries = 0;
-    mock.reset();
-    mock.onPost('https://api.github.com/graphql').reply((request) => {
-      const { query } = JSON.parse(request.data ?? '{}') as { query: string };
-      if (!query.includes('userReposContributedTo')) {
-        return [200, years];
-      }
-
-      const failure = failures[rangeQueries];
-      rangeQueries += 1;
-      if (failure) {
-        return failure;
-      }
-
-      const ranges: Record<string, unknown> = {};
-      for (let i = 0; i < (query.match(/range_\d+:/g) ?? []).length; i += 1) {
-        ranges[`range_${i}`] = {
-          commitContributionsByRepository: [
-            { repository: { nameWithOwner: 'org/repo1' }, contributions: { totalCount: 1 } },
-          ],
-          issueContributionsByRepository: [],
-          pullRequestContributionsByRepository: [],
-        };
-      }
-      return [200, { data: { user: ranges } }];
-    });
-    return () => rangeQueries;
-  };
 
   it('should halve the request after GitHub refuses it for its size', async () => {
     const rangeQueries = mockRangesAfter([

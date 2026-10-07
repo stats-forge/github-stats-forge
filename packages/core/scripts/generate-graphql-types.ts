@@ -12,7 +12,7 @@ import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript';
 import * as typescriptPlugin from '@graphql-codegen/typescript';
 import type { TypeScriptDocumentsPluginConfig } from '@graphql-codegen/typescript-operations';
 import * as typescriptOperationsPlugin from '@graphql-codegen/typescript-operations';
-import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
+import { defineConfig } from '@marcalexiei/oxfmt-config';
 import { schema as githubSchema } from '@octokit/graphql-schema';
 import type {
   ASTNode,
@@ -208,7 +208,7 @@ const generated = await Promise.all(
     const formatted = await format(
       filename,
       BANNER + content.replace(INCREMENTAL_TYPE, ''),
-      oxfmtConfig,
+      defineConfig(),
     );
     return { filename, content: formatted.code };
   }),

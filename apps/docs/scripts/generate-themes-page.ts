@@ -13,7 +13,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
+import { defineConfig } from '@marcalexiei/oxfmt-config';
 import { themes } from '@stats-forge/github-stats-forge-core/themes';
 import { format } from 'oxfmt';
 
@@ -91,7 +91,7 @@ const render = (): string => {
 };
 
 const { values } = parseArgs({ options: { check: { type: 'boolean', default: false } } });
-const formatted = await format(PAGE, render(), oxfmtConfig);
+const formatted = await format(PAGE, render(), defineConfig());
 const page = formatted.code;
 
 if (values.check) {
