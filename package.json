@@ -35,7 +35,7 @@
     "@types/node": "24.19.0",
     "@vitest/coverage-v8": "catalog:default",
     "knip": "6.37.0",
-    "lefthook": "2.1.14",
+    "lefthook": "2.1.15",
     "oxfmt": "0.70.0",
     "oxlint": "1.83.0",
     "oxlint-tsgolint": "7.0.2002",
