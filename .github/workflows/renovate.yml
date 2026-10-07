@@ -58,14 +58,14 @@ jobs:
       # start other workflows, so CI would never run on the generated PRs.
       - name: Setup release helper
         id: release-helper
-        uses: marcalexiei/github-actions/setup-github-app-user-bot@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
+        uses: marcalexiei/github-actions/setup-github-app-user-bot@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
         with:
           app-id: ${{ vars.HELPER_APP_ID }}
           private-key: ${{ secrets.HELPER_PRIVATE_KEY }}
 
       # No checkout: Renovate clones the repository itself, and reads the configuration from it.
       - name: Renovate
-        uses: renovatebot/github-action@dcfba84a42d1b5d5e49bf131b1bf53511851a123 # v46.3.1
+        uses: renovatebot/github-action@6d26fcf0275dc65624cbc3d51fe78bc773f98321 # v46.3.6
         with:
           token: ${{ steps.release-helper.outputs.token }}
         env:
