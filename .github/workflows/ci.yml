@@ -1,54 +1,29 @@
+# EXPERIMENT, never to be merged: four ways of getting a browser into the docs job, three
+# samples of each. The real workflow is restored before anything is proposed.
 name: CI
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
+# Its own group, so a dispatch here cannot queue behind or ahead of a run on main.
 concurrency:
-  group: '${{ github.workflow }}-${{ github.head_ref }}'
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: playwright-experiment
+  cancel-in-progress: false
 
 permissions: {}
 
 jobs:
-  build-and-test:
-    name: Build and test ${{ matrix.node }} on ${{ matrix.os }}
+  runner:
+    name: ${{ matrix.variant.name }} #${{ matrix.sample }}
 
     strategy:
       fail-fast: false
       matrix:
-        node: [24, 26]
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Build packages
-        run: pnpm run build:packages
-
-      - name: Run tests
-        run: pnpm run test
-
-  code-checks:
-    name: Code checks
-
+        sample: [1, 2, 3]
+        variant:
+          - { name: baseline, args: '--with-deps chromium' }
+          - { name: shell-with-deps, args: '--with-deps --only-shell chromium' }
+          - { name: shell-no-deps, args: '--only-shell chromium' }
     runs-on: ubuntu-latest
 
     permissions:
@@ -61,84 +36,37 @@ jobs:
           persist-credentials: false
 
       - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
-        with:
-          save-cache: false
-
-      - name: Format
-        run: pnpm run format:check
-
-      # `astro:content` is a virtual module, so the type-aware rules see an error type
-      # in `content.config.ts` until astro has written `.astro/types.d.ts`.
-      - name: Sync the docs site's generated types
-        run: pnpm run docs:sync
-
-      - name: Lint
-        run: pnpm run lint:ci
-
-      - name: Lint (knip)
-        run: pnpm run lint:knip
-
-      - name: Lint (generated GraphQL types)
-        run: pnpm --filter ./packages/core/ run check-graphql-types
-
-      - name: Typecheck
-        run: pnpm run typecheck
-
-      # Relative specifiers are written `.ts` and rewritten on emit, so the published
-      # resolution is checked rather than assumed. `typecheck` above leaves the build in
-      # place for it.
-      - name: Lint (packaging and published types)
-        run: pnpm run lint:publish
-
-  docs:
-    name: Docs site
-
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
-        with:
-          save-cache: false
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
 
       - name: Lint (generated theme page)
         run: pnpm --filter ./apps/docs run check-themes-page
 
-      # The anvil's recorded samples are the only thing standing between a changed query and a
-      # page that cannot draw. Needs no token, so unlike the recorder it runs here.
       - name: Lint (anvil samples)
         run: pnpm --filter ./apps/docs run check-anvil-samples
 
       - name: Typecheck
         run: pnpm --filter ./apps/docs run typecheck
 
-      # The build is what checks the site: a page referencing a preview nobody rendered, a
-      # dead internal link, or a fetcher reference core no longer backs, each fail it.
-      # That last one also notices a TypeScript release moving the unstable API it reads.
       - name: Build
         run: pnpm run docs:build
 
-      # The anvil is the only page here that ships JavaScript, and nothing else checks it in a
-      # browser. It serves the build from the step above.
       - name: Install Playwright browser
-        run: pnpm --filter ./apps/docs exec playwright install --with-deps --only-shell chromium
+        run: pnpm --filter ./apps/docs exec playwright install ${{ matrix.variant.args }}
 
       - name: Test (anvil, end to end)
         run: pnpm --filter ./apps/docs run test:e2e
 
   image:
-    name: Server image
+    name: image #${{ matrix.sample }}
 
+    strategy:
+      fail-fast: false
+      matrix:
+        sample: [1, 2, 3]
     runs-on: ubuntu-latest
+
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
 
     permissions:
       contents: read
@@ -149,42 +77,26 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-
-      # amd64 only and no push: this is here so a broken Dockerfile fails on the pull request
-      # rather than during a release. `publish-image.yml` is what builds both architectures.
-      - name: Build the image
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
-        with:
-          context: .
-          file: apps/server/Dockerfile
-          load: true
-          tags: github-stats-forge-server:ci
-
-      # No build step, so only starting the image proves the sources resolve inside it.
-      - name: Run it
+      # The shared setup action reads `packageManager` with jq, which the image does not ship.
+      - name: Install jq
         run: |
-          docker run -d --name cards -p 9000:9000 github-stats-forge-server:ci
-          for _ in $(seq 1 30); do
-            if curl -sf http://127.0.0.1:9000/healthz > /dev/null; then break; fi
-            sleep 1
-          done
-          curl -sf http://127.0.0.1:9000/healthz
-          # no token, so this draws the `no_tokens` card — route, renderer and headers all the same
-          curl -s -D- -o /dev/null 'http://127.0.0.1:9000/api/stats?username=x' | tee /dev/stderr | grep -q 'card-error-code: no_tokens'
-          docker rm -f cards
+          curl -fsSL -o /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64
+          chmod +x /usr/local/bin/jq
 
-  ci-ok:
-    name: CI OK
-    runs-on: ubuntu-latest
-    if: always()
-    needs:
-      - build-and-test
-      - code-checks
-      - docs
-      - image
-    steps:
-      - name: Exit with error if some jobs are not successful
-        run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+      - name: Install Dependencies
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
+
+      - name: Lint (generated theme page)
+        run: pnpm --filter ./apps/docs run check-themes-page
+
+      - name: Lint (anvil samples)
+        run: pnpm --filter ./apps/docs run check-anvil-samples
+
+      - name: Typecheck
+        run: pnpm --filter ./apps/docs run typecheck
+
+      - name: Build
+        run: pnpm run docs:build
+
+      - name: Test (anvil, end to end)
+        run: pnpm --filter ./apps/docs run test:e2e
