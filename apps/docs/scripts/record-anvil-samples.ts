@@ -12,7 +12,7 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-import { oxfmtConfig } from '@marcalexiei/oxfmt-config';
+import { defineConfig } from '@marcalexiei/oxfmt-config';
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 import { format } from 'oxfmt';
@@ -79,7 +79,7 @@ const main = async (): Promise<void> => {
   const ordered = Object.fromEntries(
     Object.entries(samples).toSorted(([a], [b]) => a.localeCompare(b)),
   );
-  const formatted = await format(OUT, `${JSON.stringify(ordered, undefined, 2)}\n`, oxfmtConfig);
+  const formatted = await format(OUT, `${JSON.stringify(ordered, undefined, 2)}\n`, defineConfig());
   await writeFile(OUT, formatted.code, 'utf8');
   process.stderr.write(`\nRecorded ${String(Object.keys(ordered).length)} operation(s).\n`);
 
