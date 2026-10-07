@@ -36,7 +36,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
         with:
           node-version: ${{ matrix.node }}
 
@@ -61,7 +61,9 @@ jobs:
           persist-credentials: false
 
       - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
+        with:
+          save-cache: false
 
       - name: Format
         run: pnpm run format:check
@@ -94,12 +96,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # The browsers and the system libraries they need are baked in, so the job runs no
-    # `playwright install`. The tag must equal `@playwright/test` in apps/docs: playwright
-    # looks for the exact browser build its own version pins, and fails if the image has another.
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-
     permissions:
       contents: read
 
@@ -110,7 +106,9 @@ jobs:
           persist-credentials: false
 
       - name: Install Dependencies
-        uses: marcalexiei/github-actions/setup-node-and-pnpm@e9655755a6dc0040e650a931ee5d958c7d7a9f22 # v2.3.1
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
+        with:
+          save-cache: false
 
       - name: Lint (generated theme page)
         run: pnpm --filter ./apps/docs run check-themes-page
@@ -131,6 +129,9 @@ jobs:
 
       # The anvil is the only page here that ships JavaScript, and nothing else checks it in a
       # browser. It serves the build from the step above.
+      - name: Install Playwright browser
+        run: pnpm --filter ./apps/docs exec playwright install --with-deps --only-shell chromium
+
       - name: Test (anvil, end to end)
         run: pnpm --filter ./apps/docs run test:e2e
 
