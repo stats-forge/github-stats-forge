@@ -68,6 +68,10 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
 
+    # `lefthook install` fails in the container, the checkout being another user's.
+    env:
+      LEFTHOOK: 0
+
     permissions:
       contents: read
 
