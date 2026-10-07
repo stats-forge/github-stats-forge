@@ -9,7 +9,7 @@
 # Pinned by digest, because `24-alpine` is a moving tag; Renovate maintains it.
 # `$BUILDPLATFORM`: the install and the site build produce the same bytes on every architecture,
 # so they run natively once rather than under QEMU per target; only `runtime` is multi-arch.
-FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:50c8e8ca1d27439048670df5883f32d57cf81cff6233222c893fd0d9884cbd81 AS base
+FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS base
 
 WORKDIR /repo
 ENV PNPM_HOME=/pnpm
@@ -58,7 +58,7 @@ ENV SITE_BASE=/
 ENV SITE_SERVER=true
 RUN pnpm run docs:build
 
-FROM node:24-alpine@sha256:50c8e8ca1d27439048670df5883f32d57cf81cff6233222c893fd0d9884cbd81 AS runtime
+FROM node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS runtime
 
 LABEL org.opencontainers.image.title="github-stats-forge server"
 LABEL org.opencontainers.image.description="Serves the GitHub stats cards as SVG"
