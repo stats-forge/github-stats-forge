@@ -218,11 +218,18 @@ dev-only — no codegen dependency reaches consumers. It is covered by
 source file. The repo-root `scripts/` is covered the same way, by `tsconfig.scripts.json`
 at the root.
 
-**`graphql` is held at 16 — 17 cannot generate these types.** v17 enforces that an
-implementation field is not deprecated where the interface field it satisfies isn't, and
-GitHub's published SDL breaks it on five fields across `TeamDiscussion` and
-`TeamDiscussionComment`. The generator's `buildSchema(…, { assumeValidSDL: true })` does
-not help: codegen runs `assertValidSchema` of its own inside `validateGraphQlDocuments`,
-so `check-graphql-types` fails before writing anything. `@octokit/graphql-schema` also
-depends on graphql `^16.0.0`, so 17 puts two copies in the lockfile for no gain. Tried and
-reverted on 2026-09-13; retry only once GitHub's SDL is clean or octokit moves to 17.
+**`graphql` is 17, and the generator builds GitHub's schema with `assumeValid: true` to get
+there.** v17 enforces that an implementation field is not deprecated where the interface
+field it satisfies isn't, and GitHub's published SDL breaks it on fifteen fields, from
+`Project.id` to `TeamDiscussionComment.url`. `assumeValidSDL` alone does not cover it:
+codegen runs `assertValidSchema` inside `validateGraphQlDocuments`, and `assumeValid` on
+`buildSchema` is what answers that. **The queries are still validated against the schema** —
+a misspelt field fails `check-graphql-types` as before; only GitHub's own SDL goes unchecked.
+It was held at 16 from 2026-09-13 to 2026-10-10, the first attempt having stopped at that
+error without trying the flag.
+
+- **The lockfile carries graphql 16 as well**, `@octokit/graphql-schema` depending on
+  `^16.0.0`. The generator reads only its `idl` string, so no schema object crosses from one
+  copy to the other; it goes when octokit moves to 17.
+- **v17's `print` spaces an input object** — `{ field: SIZE, direction: DESC }` — which is the
+  whole of what changed in the generated documents when it landed.

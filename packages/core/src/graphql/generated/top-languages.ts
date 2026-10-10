@@ -51,7 +51,7 @@ query topLanguages($login: String!, $ownerAffiliations: [RepositoryAffiliation])
 }
 fragment TopLanguagesRepository on Repository {
   name
-  languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+  languages(first: 10, orderBy: { field: SIZE, direction: DESC }) {
     edges {
       ...TopLanguage
     }

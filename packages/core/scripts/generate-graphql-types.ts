@@ -63,8 +63,9 @@ const config: TypeScriptPluginConfig & TypeScriptDocumentsPluginConfig = {
   scalars: { DateTime: 'string' },
 };
 
-// GitHub's SDL declares a few fields twice, which trips SDL validation
-const schemaAst = buildSchema(githubSchema.idl, { assumeValidSDL: true });
+// GitHub's SDL declares a few fields twice, which trips SDL validation, and deprecates fields
+// whose interface does not, which trips graphql 17's schema validation
+const schemaAst = buildSchema(githubSchema.idl, { assumeValidSDL: true, assumeValid: true });
 // printed once: every query output reuses it
 const schemaDocument = parse(printSchema(schemaAst));
 

@@ -108,7 +108,7 @@ fragment RepoStars on User {
     first: 100
     after: $after
     ownerAffiliations: $ownerAffiliations
-    orderBy: {direction: DESC, field: STARGAZERS}
+    orderBy: { direction: DESC, field: STARGAZERS }
   ) {
     totalCount
     nodes {
@@ -175,7 +175,7 @@ fragment RepoStars on User {
     first: 100
     after: $after
     ownerAffiliations: $ownerAffiliations
-    orderBy: {direction: DESC, field: STARGAZERS}
+    orderBy: { direction: DESC, field: STARGAZERS }
   ) {
     totalCount
     nodes {
