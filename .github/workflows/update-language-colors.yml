@@ -16,14 +16,19 @@ on:
 permissions: {}
 
 # Skips the pre-commit hook — see ../CONTRIBUTING.md, "Workflows That Commit".
+defaults:
+  run:
+    shell: bash
+
 env:
   LEFTHOOK: 0
 
 jobs:
   update-languages:
-    if: github.repository == 'stats-forge/github-stats-forge'
+    if: ${{ github.repository == 'stats-forge/github-stats-forge' }}
     name: Generate Language Colors
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
 
     environment: update-meta-files # where HELPER_APP_ID and HELPER_PRIVATE_KEY live
 
@@ -63,6 +68,8 @@ jobs:
 
           Regenerated from the [upstream linguist languages file](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml).'
 
+      # The action also commits and pushes the branch, not only opens the PR.
+      # jactionlint ignore=superfluous-actions
       - name: Create Pull Request if upstream language file is changed
         id: create_pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1

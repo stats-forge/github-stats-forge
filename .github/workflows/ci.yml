@@ -15,6 +15,10 @@ concurrency:
 
 permissions: {}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build-and-test:
     name: Build and test ${{ matrix.node }} on ${{ matrix.os }}
@@ -23,8 +27,9 @@ jobs:
       fail-fast: false
       matrix:
         node: [24, 26]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, macos-15]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -49,7 +54,8 @@ jobs:
   code-checks:
     name: Code checks
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
 
     permissions:
       contents: read
@@ -92,7 +98,8 @@ jobs:
   docs:
     name: Docs site
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -136,7 +143,8 @@ jobs:
   image:
     name: Server image
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -175,8 +183,9 @@ jobs:
 
   ci-ok:
     name: CI OK
-    runs-on: ubuntu-latest
-    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    if: ${{ always() }}
     needs:
       - build-and-test
       - code-checks
