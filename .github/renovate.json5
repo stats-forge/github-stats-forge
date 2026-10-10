@@ -73,7 +73,7 @@
       enabled: false,
     },
 
-    // Automerged behind `CI OK`: neither reaches the published output, the catalog holding test
+    // Automerged behind `CI OK`: neither reaches the published output, the catalog holding dev
     // tooling only. A major stays manual, and a `dependencies` bump needs a changeset anyway.
     {
       matchDepTypes: ['devDependencies', 'pnpm.catalog.default'],
