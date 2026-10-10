@@ -19,6 +19,10 @@ concurrency:
 permissions: {}
 
 # Skips the pre-commit hook — see ../CONTRIBUTING.md, "Workflows That Commit".
+defaults:
+  run:
+    shell: bash
+
 env:
   LEFTHOOK: 0
 
@@ -29,7 +33,8 @@ jobs:
     environment: release-npm
 
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: write # required to push release commits and tags
@@ -86,8 +91,8 @@ jobs:
     if: ${{ contains(fromJSON(needs.release.outputs.publishedPackages).*.name, '@stats-forge/github-stats-server') }}
     uses: $/.github/workflows/publish-image.yml
     permissions:
-      contents: read
-      packages: write
+      contents: read # to check out the repository
+      packages: write # to push the image to GHCR
     with:
       ref: ${{ github.event.workflow_run.head_sha }}
 
@@ -96,7 +101,8 @@ jobs:
   annotate:
     name: Annotate
     needs: [release, image]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
 
     permissions:
       contents: write # required to edit the release body
@@ -148,9 +154,9 @@ jobs:
     if: ${{ needs.release.outputs.published == 'true' }}
     uses: $/.github/workflows/deploy-docs.yml
     permissions:
-      contents: read
-      pages: write
-      id-token: write
+      contents: read # to check out repo (actions/checkout)
+      pages: write # to publish to GitHub Pages (actions/deploy-pages)
+      id-token: write # to verify the deployment originates from this workflow
     with:
       ref: ${{ github.event.workflow_run.head_sha }}
 
@@ -160,7 +166,8 @@ jobs:
     name: Comment
     needs: release
     if: ${{ needs.release.outputs.published == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
 
     environment: release-npm # where the release helper's credentials live
 
@@ -192,7 +199,8 @@ jobs:
 
   on-ci-fail:
     name: 'Failure'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
       - run: echo "CI failed. Release will not run"

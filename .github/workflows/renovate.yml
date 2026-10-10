@@ -42,9 +42,9 @@ permissions: {}
 
 jobs:
   renovate:
-    if: github.repository == 'stats-forge/github-stats-forge'
+    if: ${{ github.repository == 'stats-forge/github-stats-forge' }}
     name: Renovate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     timeout-minutes: 30
 
