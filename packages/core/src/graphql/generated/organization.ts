@@ -65,7 +65,7 @@ query getOrganization($login: String!, $after: String) {
       after: $after
       privacy: PUBLIC
       isFork: false
-      orderBy: {field: STARGAZERS, direction: DESC}
+      orderBy: { field: STARGAZERS, direction: DESC }
     ) {
       totalCount
       pageInfo {
