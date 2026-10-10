@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.8.4
+
+### Patch Changes
+
+- [#210](https://github.com/stats-forge/github-stats-forge/pull/210) [`e6c0c83`](https://github.com/stats-forge/github-stats-forge/commit/e6c0c831827453db3dac57e7d3008edb772eb203) - build: regenerate the GraphQL documents with graphql 17
+
+  Input objects in the query text gain inner spaces; what GitHub is asked is unchanged.
+
 ## 0.8.3
 
 ### Patch Changes
