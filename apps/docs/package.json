@@ -17,17 +17,17 @@
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.5",
-    "astro": "7.3.5"
+    "astro": "7.3.6"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "7.3.1",
+    "@astrojs/markdown-remark": "7.3.2",
     "@awesome.me/webawesome": "3.14.0",
     "@marcalexiei/oxfmt-config": "2.0.0",
     "@playwright/test": "1.63.0",
     "@stats-forge/github-stats-forge-catalog": "workspace:^",
     "@stats-forge/github-stats-forge-core": "workspace:^",
     "@types/node": "24.19.1",
-    "oxfmt": "0.71.0",
+    "oxfmt": "catalog:default",
     "starlight-links-validator": "0.26.0",
     "typescript": "7.0.2"
   },

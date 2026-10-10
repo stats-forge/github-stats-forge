@@ -210,7 +210,7 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   documentation, and it was doing two different jobs: where the subject is really the user agent it
   is **the browser** (`the browser's colour scheme`, `wider than the browser window`), and where it
   is a person it is **you**, **anyone** or **a visitor** (`a visitor to your profile fetches the
-SVG`). Fourteen uses across five pages were rewritten on 2026-09-07. **`screen reader` stays** —
+  SVG`). Fourteen uses across five pages were rewritten on 2026-09-07. **`screen reader` stays** —
   it is the standard accessibility term, and `assistive reader` was normalised to it.
 - **A token never appears in a command the documentation tells someone to run.**
   `-e PAT_1=github_pat_...` puts it in the shell history and in `docker inspect`,
@@ -439,7 +439,7 @@ Other patterns:
   contributed-to cards had their last English literals put through a locale table on 2026-09-05 —
   the rule is that the option follows the reading, not that any given card has one.
 - **Colocate card options.** Each card declares `interface XCardOptions extends
-CommonCardOptions {…}` (an interface, not `type &`) in its own `index.ts`, **not exported** —
+  CommonCardOptions {…}` (an interface, not `type &`) in its own `index.ts`, **not exported** —
   knip flags it, and only that card uses it. All eight cards do this, so
   `cards/options.ts` holds only the shared base: `CommonCardOptions`, plus the
   `CardOptions<T>` helper below. The `ThemeName` union lives in `themes/index.ts`.

@@ -64,7 +64,7 @@ still seeds as `10`.
   the first row whose name starts with what was typed, so `g`, `s`, `p` and `q` reach Generate,
   Save, Print and Quit from anywhere in a 38-row list, and the help line under the menu says so.
   The actions sit first, so they win the letter even where an option shares it — `Save these
-options` beats `Show the stat icons` — but keep it that way: an action added below the sections
+  options` beats `Show the stat icons` — but keep it that way: an action added below the sections
   would lose.
   - **`indexMode: 'number'` is not the alternative.** It numbers a row by subtracting the
     separators rendered _so far on the visible page_, so the numbers shift as a grouped list
