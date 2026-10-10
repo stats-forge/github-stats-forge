@@ -7,6 +7,8 @@ overrides:
   # no code of either package runs here, the site importing webawesome's components and
   # never the @lit-labs/ssr behind them.
   node-fetch: npm:node-fetch-native@^1.6.7
+  # It asks for ^16 on behalf of a `validate` nothing here calls; the generator reads only its SDL.
+  '@octokit/graphql-schema>graphql': ^17.0.0
 
 allowBuilds:
   # astro's bundler; it fetches its platform binary in a postinstall

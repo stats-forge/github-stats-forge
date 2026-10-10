@@ -228,8 +228,10 @@ a misspelt field fails `check-graphql-types` as before; only GitHub's own SDL go
 It was held at 16 from 2026-09-13 to 2026-10-10, the first attempt having stopped at that
 error without trying the flag.
 
-- **The lockfile carries graphql 16 as well**, `@octokit/graphql-schema` depending on
-  `^16.0.0`. The generator reads only its `idl` string, so no schema object crosses from one
-  copy to the other; it goes when octokit moves to 17.
+- **An override in `pnpm-workspace.yaml` is what keeps graphql 16 out of the lockfile**,
+  `@octokit/graphql-schema` depending on `^16.0.0`. That range serves its `validate` export,
+  which nothing here calls — the generator reads only the `idl` string. It loads under 17
+  all the same, `check-graphql-types` importing it on every run. Drop the override when
+  octokit moves to 17.
 - **v17's `print` spaces an input object** — `{ field: SIZE, direction: DESC }` — which is the
   whole of what changed in the generated documents when it landed.
