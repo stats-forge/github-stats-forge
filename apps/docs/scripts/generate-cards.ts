@@ -43,7 +43,7 @@ const render = (
 ): Promise<string | undefined> => {
   const args = [CLI, '--config', config, '--generate', '--out', out, ...passthrough];
 
-  return new Promise((settle) => {
+  return new Promise((resolve) => {
     const cli = spawn(process.execPath, args, {
       cwd: REPO_ROOT,
       stdio: ['ignore', 'inherit', 'pipe'],
@@ -58,7 +58,7 @@ const render = (
     });
 
     cli.on('close', (code) => {
-      settle(code === 0 ? undefined : stderr.trim() || `the CLI exited with code ${String(code)}`);
+      resolve(code === 0 ? undefined : stderr.trim() || `the CLI exited with code ${String(code)}`);
     });
   });
 };

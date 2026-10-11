@@ -70,13 +70,13 @@ const fetchTopLanguages = async (
     (node): node is TopLanguagesRepositoryFragment => !!node && !repoToHide[node.name],
   );
 
-  let languageEdges: Array<TopLanguageFragment> = [];
+  const languageEdges: Array<TopLanguageFragment> = [];
   for (const repo of repoNodes) {
     const edges = (repo.languages?.edges ?? []).filter(
       (edge): edge is TopLanguageFragment => !!edge,
     );
     if (edges.length > 0) {
-      languageEdges = [...edges, ...languageEdges];
+      languageEdges.unshift(...edges);
     }
   }
 

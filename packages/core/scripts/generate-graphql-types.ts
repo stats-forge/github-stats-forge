@@ -225,6 +225,7 @@ const stale = outDirFiles
   .map((file) => path.join(OUT_DIR, file))
   .filter((file) => !expected.has(file));
 
+let message: string;
 if (checkOnly) {
   const outdated = stale.map((file) => pathRelativeFromRoot(file));
   for (const { filename, content } of generated) {
@@ -236,13 +237,12 @@ if (checkOnly) {
 
   if (outdated.length > 0) {
     const files = outdated.map((file) => `  ${file}`).join('\n');
-    const message = `GraphQL types are out of date:\n${files}\n\nRun \`pnpm --filter ./packages/core/ run generate-graphql-types\`.`;
-    console.error(message);
+    const outdatedMessage = `GraphQL types are out of date:\n${files}\n\nRun \`pnpm --filter ./packages/core/ run generate-graphql-types\`.`;
+    console.error(outdatedMessage);
     process.exit(1);
   }
 
-  const message = `GraphQL types are up to date (${queryCount})`;
-  console.log(message);
+  message = `GraphQL types are up to date (${queryCount})`;
 } else {
   await fs.mkdir(OUT_DIR, { recursive: true });
   for (const { filename, content } of generated) {
@@ -256,6 +256,6 @@ if (checkOnly) {
   }
 
   const outDir = pathRelativeFromRoot(OUT_DIR);
-  const message = `Generated ${generated.length} files in ${outDir} from ${queryCount}`;
-  console.log(message);
+  message = `Generated ${generated.length} files in ${outDir} from ${queryCount}`;
 }
+console.log(message);

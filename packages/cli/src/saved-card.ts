@@ -129,18 +129,17 @@ export const toAnswers = (card: CardKind, options: Record<string, string>): Map<
 
   const toAnswer = (name: string, value: string): Answer => {
     switch (kinds.get(name)) {
-      case 'boolean': {
+      case 'boolean':
         return value === 'true';
-      }
-      case 'list': {
+
+      case 'list':
         return value
           .split(',')
           .map((item) => item.trim())
           .filter(Boolean);
-      }
-      default: {
+
+      default:
         return value;
-      }
     }
   };
 

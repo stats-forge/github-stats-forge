@@ -404,17 +404,16 @@ const renderCard = (
   // Get title range text
   let titleText = t.title();
   switch (stats.range) {
-    case 'last_7_days': {
+    case 'last_7_days':
       titleText += ` (${t.last7Days()})`;
       break;
-    }
-    case 'last_year': {
+
+    case 'last_year':
       titleText += ` (${commonT.lastYear()})`;
       break;
-    }
-    default: {
+
+    default:
       break;
-    }
   }
 
   const card = new Card({

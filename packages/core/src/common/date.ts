@@ -92,11 +92,11 @@ const parseRangeDate = (value: string, end: 'from' | 'to'): Date | undefined => 
   }
 
   const nextUnit =
-    dayText !== undefined
-      ? Date.UTC(year, month - 1, day + 1)
-      : monthText !== undefined
-        ? Date.UTC(year, month, 1)
-        : Date.UTC(year + 1, 0, 1);
+    dayText === undefined
+      ? monthText === undefined
+        ? Date.UTC(year + 1, 0, 1)
+        : Date.UTC(year, month, 1)
+      : Date.UTC(year, month - 1, day + 1);
   return new Date(nextUnit - 1000);
 };
 

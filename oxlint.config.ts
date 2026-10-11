@@ -82,12 +82,8 @@ export default defineConfig({
     // The layout and escaping loops read better skipping an item than nesting the rest.
     'no-continue': 'off',
 
-    // A trailing note on the line it explains is this repo's style.
-    'no-inline-comments': 'off',
-
     // The card layout picks a width or a label by chaining conditions; an if-chain hides that shape.
     'no-nested-ternary': 'off',
-    'unicorn/no-nested-ternary': 'off',
 
     // `Number()` is not the coercion these call sites perform: `parseFloat` is what keeps
     // `?border_radius=10px` rendering `rx="10"`.
@@ -95,9 +91,6 @@ export default defineConfig({
 
     // Text is measured by code point, which is what spreading a string yields.
     'typescript/no-misused-spread': 'off',
-
-    // It flags every narrowing `as`, which is what the mock and parse boundaries use `as` for.
-    'typescript/no-unsafe-type-assertion': 'off',
 
     // Size limits the card renderers already exceed; splitting them is its own change.
     complexity: 'off',
@@ -133,10 +126,6 @@ export default defineConfig({
 
         // The rule counts the `?.` and `??` that `noUncheckedIndexedAccess` forces.
         'vitest/no-conditional-in-test': 'off',
-
-        // Both contradict `prefer-strict-boolean-matchers`, which the suites follow.
-        'vitest/prefer-to-be-falsy': 'off',
-        'vitest/prefer-to-be-truthy': 'off',
 
         // The XSS suite asserts through a helper.
         'vitest/expect-expect': [

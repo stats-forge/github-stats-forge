@@ -195,11 +195,11 @@ importers:
         specifier: 3.0.3
         version: 3.0.3
       '@marcalexiei/oxfmt-config':
-        specifier: 2.0.0
-        version: 2.0.0(oxfmt@0.72.0)
+        specifier: 2.0.1
+        version: 2.0.1(oxfmt@0.72.0)
       '@marcalexiei/oxlint-config':
-        specifier: 1.5.0
-        version: 1.5.0(oxlint-tsgolint@7.0.2003)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))
+        specifier: 1.6.0
+        version: 1.6.0(oxlint-tsgolint@7.0.2003)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))
       '@types/node':
         specifier: 24.19.1
         version: 24.19.1
@@ -247,8 +247,8 @@ importers:
         specifier: 3.14.0
         version: 3.14.0(@floating-ui/utils@0.2.12)(@types/node@24.19.1)(@types/react@19.2.18)
       '@marcalexiei/oxfmt-config':
-        specifier: 2.0.0
-        version: 2.0.0(oxfmt@0.72.0)
+        specifier: 2.0.1
+        version: 2.0.1(oxfmt@0.72.0)
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
@@ -1326,16 +1326,16 @@ packages:
     resolution: {integrity: sha512-6QEf6yqFbETdwGITKq57aYoPfX/3K8XFNwsAlx0C1M7o8cb79sv1M3w+tWuWvIcSbNqrLF7OD7YpZMVVz335hQ==}
     engines: {node: '>=20.0.0'}
 
-  '@marcalexiei/oxfmt-config@2.0.0':
-    resolution: {integrity: sha512-gOB42bvYEr+GLFfUYQB4lhEjAysKqc36+AesyNFazBB7hlz02Tj3u0nHWrP9gedEisQ+zJJ1fO+MZw3ZmB8exA==}
+  '@marcalexiei/oxfmt-config@2.0.1':
+    resolution: {integrity: sha512-narmisZb3NcW+q21bU0pfEq8j0mPOS55dZxRv3AchGfpm3tjdszzLsbi5fnbhoThHchV5O1tIUhuW51CmV5fZA==}
     peerDependencies:
       oxfmt: '>=0.65.0 <1'
 
-  '@marcalexiei/oxlint-config@1.5.0':
-    resolution: {integrity: sha512-QcmqtQYix9bdq9km/6CWOrwIbdjVzSWocvQWZSb9pcYWdHajxVlcctYG2gmgEFrQenO1YwcWz4oE5AD+Gb6TgQ==}
+  '@marcalexiei/oxlint-config@1.6.0':
+    resolution: {integrity: sha512-+Fml+MhGQ0pcphT2OjofzZwINGoeRWvqGzB2fk49gKmxi7w4FB3aVzJigPbBzDO0ZL3JI4tgx4w+hm5SzOXOmw==}
     peerDependencies:
-      oxlint: '>=1.80.0 <2'
-      oxlint-tsgolint: '>=7.0.2001 <8'
+      oxlint: '>=1.86.0 <2'
+      oxlint-tsgolint: '>=7.0.2003 <8'
     peerDependenciesMeta:
       oxlint-tsgolint:
         optional: true
@@ -5175,11 +5175,11 @@ snapshots:
       tinyglobby: 0.2.17
       yaml: 2.9.1
 
-  '@marcalexiei/oxfmt-config@2.0.0(oxfmt@0.72.0)':
+  '@marcalexiei/oxfmt-config@2.0.1(oxfmt@0.72.0)':
     dependencies:
       oxfmt: 0.72.0
 
-  '@marcalexiei/oxlint-config@1.5.0(oxlint-tsgolint@7.0.2003)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))':
+  '@marcalexiei/oxlint-config@1.6.0(oxlint-tsgolint@7.0.2003)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))':
     dependencies:
       oxlint: 1.87.0(oxlint-tsgolint@7.0.2003)
     optionalDependencies:
