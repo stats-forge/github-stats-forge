@@ -24,6 +24,11 @@ catalog:
 # Deliberately stricter than pnpm's 1440 default (3 days vs 1)
 minimumReleaseAge: 4320
 
+# The cooling-off period buys nothing against our own packages.
+minimumReleaseAgeExclude:
+  - '@marcalexiei/oxfmt-config'
+  - '@marcalexiei/oxlint-config'
+
 # Reject a version with weaker publish trust evidence than an earlier one.
 trustPolicy: no-downgrade
 
