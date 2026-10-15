@@ -44,6 +44,9 @@ const REPO_SHOW_STATS = [
 ] as const;
 type RepoShowStat = (typeof REPO_SHOW_STATS)[number];
 
+/** The space between stat rows, which the card's height is measured on. */
+const EXTRA_LINE_HEIGHT = 22;
+
 interface RepoCardOptions extends CommonCardOptions {
   locale: string;
   disable_animations: boolean;
@@ -55,7 +58,6 @@ interface RepoCardOptions extends CommonCardOptions {
   number_format: string;
   number_precision: number;
   text_bold: boolean;
-  line_height: number;
   username: string;
 }
 
@@ -126,7 +128,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     number_format = 'short',
     number_precision,
     text_bold = false,
-    line_height: extraLHeight = 22,
     username,
     theme = 'default_repocard',
     border_radius,
@@ -270,7 +271,9 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   );
 
   const extraHeight =
-    Object.keys(STATS).length > 0 ? -7 + (Math.ceil(statItems.length / 2) + 1) * extraLHeight : 0;
+    Object.keys(STATS).length > 0
+      ? -7 + (Math.ceil(statItems.length / 2) + 1) * EXTRA_LINE_HEIGHT
+      : 0;
   const height =
     (descriptionLinesCount > 1 ? 120 : 110) + descriptionLinesCount * lineHeight + extraHeight;
 
@@ -311,7 +314,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     el(
       'g',
       { transform: `translate(-3, ${height - 52 - extraHeight})` },
-      flexLayout({ items: extraRows, gap: extraLHeight, direction: 'column' }),
+      flexLayout({ items: extraRows, gap: EXTRA_LINE_HEIGHT, direction: 'column' }),
     ),
   );
 

@@ -81,7 +81,7 @@ root `AGENTS.md`.
 - **Each card's icon is distinct, and `CARD_ICON` is the one table.** A card must be identifiable
   from its header.
 - **A card's height is its content plus `CARD_STYLE.padding.bottom`, never a spare row** ([#123]).
-  A spare row made the bottom gap scale with `line_height` while the top did not. **Measure both
+  A spare row made the bottom gap scale with the row spacing while the top did not. **Measure both
   ends across all the cards before trusting a layout constant**: drift is invisible in one card.
 - **Two things that move with a width are derived from it the same way.** The stats card's rank ring
   and its values both come off `RANK_GUTTER`; interpolating one and scaling the other made them

@@ -98,7 +98,7 @@ describe('api query schemas', () => {
     expect(result.status).toBe('error');
   });
 
-  it.each(['card_width', 'line_height'])(
+  it.each(['card_width', 'number_precision'])(
     'rejects a %s with no number in it by naming the param',
     async (param) => {
       const result = await endpoints.stats({ username: 'anuraghazra', [param]: 'abc' });
@@ -112,8 +112,8 @@ describe('api query schemas', () => {
     ['stats', 'card_width', '-200'],
     ['stats', 'card_width', '0'],
     ['stats', 'card_width', '1e3'],
-    ['stats', 'line_height', '25px'],
-    ['stats', 'line_height', '9'.repeat(400)],
+    ['top-langs', 'langs_count', '5px'],
+    ['stats', 'card_width', '9'.repeat(400)],
     ['stats', 'number_precision', '-1'],
     ['stats', 'border_radius', '-4'],
     ['top-langs', 'langs_count', '5abc'],

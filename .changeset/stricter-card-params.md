@@ -33,3 +33,4 @@ feat!: stricter, more consistent card params
   for the last N days, and naming both is an `invalid_param`.
 - Removed `wrap_description` (formerly `browser_rendering`): a description is always wrapped by the
   card, to `description_lines_count` lines.
+- Removed `line_height`: rows sit on each card's own spacing.

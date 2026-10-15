@@ -16,7 +16,7 @@ import { wakatimeCardLocales } from './locales.ts';
 const DEFAULT_CARD_WIDTH = CARD_STYLE.width.wide;
 const MIN_CARD_WIDTH = 250;
 const COMPACT_LAYOUT_MIN_WIDTH = 400;
-const DEFAULT_LINE_HEIGHT = 25;
+const LINE_HEIGHT = 25;
 /**
  * The compact layout's own floor: the body offset, one row of ink and `CARD_STYLE.padding.bottom`,
  * with the rows themselves added on top.
@@ -40,7 +40,6 @@ interface WakaTimeOptions extends CommonCardOptions {
   hide_title: boolean;
   hide_langs: Array<string>;
   card_width: number;
-  line_height: number;
   hide_progress: boolean;
   title: string;
   layout: WakaTimeLayout;
@@ -140,7 +139,7 @@ const createLanguageTextNode = ({
     return createCompactLangNode({
       lang,
       x: isLeft ? LEFT_X : RIGHT_X,
-      y: y + DEFAULT_LINE_HEIGHT * Math.floor(index / 2),
+      y: y + LINE_HEIGHT * Math.floor(index / 2),
       value_format,
     });
   });
@@ -281,7 +280,6 @@ const renderCard = (
     hide_border = false,
     card_width,
     hide_langs,
-    line_height: lheight = DEFAULT_LINE_HEIGHT,
     hide_progress,
     title,
     locale,
@@ -319,7 +317,7 @@ const renderCard = (
   // A short language list would otherwise draw a stub card, so 150 is the floor.
   let height = Math.max(
     CARD_STYLE.padding.bodyOffsetY +
-      Math.max(filteredLanguages.length - 1, 0) * lheight +
+      Math.max(filteredLanguages.length - 1, 0) * LINE_HEIGHT +
       CARD_STYLE.statRowInk +
       CARD_STYLE.padding.bottom,
     150,
@@ -330,8 +328,7 @@ const renderCard = (
   // RENDER COMPACT LAYOUT
   if (layout === 'compact') {
     const barWidth = normalizedWidth - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING;
-    height =
-      COMPACT_LAYOUT_BASE_HEIGHT + Math.round(filteredLanguages.length / 2) * DEFAULT_LINE_HEIGHT;
+    height = COMPACT_LAYOUT_BASE_HEIGHT + Math.round(filteredLanguages.length / 2) * LINE_HEIGHT;
 
     // progressOffset holds the previous language's width and used to offset the next language
     // so that we can stack them one after another, like this: [--][----][---]
@@ -405,7 +402,7 @@ const renderCard = (
                   : t.notPublic(),
               }),
             ],
-      gap: lheight,
+      gap: LINE_HEIGHT,
       direction: 'column',
     });
   }
