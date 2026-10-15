@@ -296,7 +296,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall issues',
     be: 'Усяго пытанняў',
   },
-  contribs: {
+  contributedTo: {
     en: 'Contributed to (last year)',
     ar: 'ساهم في (العام الماضي)',
     az: 'Töhfə verdi (ötən il)',
@@ -345,7 +345,7 @@ const statCardLocales = defineLocales({
     no: 'Bidro til (i fjor)',
     be: 'Уклад (за мінулы год)',
   },
-  allTimeContribs: {
+  contributedToAllTime: {
     en: 'Contributed to (all time)',
   },
   // The title an assistive reader gets in place of the card's own, whose inner text
@@ -500,7 +500,7 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall besvarte diskusjoner',
     be: 'Усяго адказаў у абмеркаваннях',
   },
-  prsAuthored: {
+  prsOpened: {
     en: 'PRs Created',
     'zh-tw': '建立的拉取請求',
   },
@@ -512,7 +512,7 @@ const statCardLocales = defineLocales({
     en: 'PRs Reviewed',
     'zh-tw': '審核的拉取請求',
   },
-  issuesAuthored: {
+  issuesOpened: {
     en: 'Issues Created',
     'zh-tw': '建立的議題',
   },

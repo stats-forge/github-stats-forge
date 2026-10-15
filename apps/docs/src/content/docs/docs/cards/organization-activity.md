@@ -30,7 +30,7 @@ See [the token it needs](#the-token-it-needs).
 | Option               | Values                                                    | What it does                                  |
 | -------------------- | --------------------------------------------------------- | --------------------------------------------- |
 | `days`               | `1` to `365`                                              | Days the window covers (30 by default)        |
-| `show`               | `discussions` `commits`                                   | Draw these stats as well                      |
+| `show`               | `discussions_started` `commits`                           | Draw these stats as well                      |
 | `hide`               | `prs_opened` `prs_merged` `issues_opened` `issues_closed` | Leave these stats out                         |
 | `show_icons`         | `true` `false`                                            | Show an icon beside each stat (on by default) |
 | `custom_title`       | any text                                                  | Replace the card's title                      |

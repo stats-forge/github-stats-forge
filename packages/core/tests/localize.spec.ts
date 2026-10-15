@@ -13,7 +13,7 @@ describe(localize, () => {
   it('should fall back to english when the locale has no entry for the key', () => {
     const t = localize(statCardLocales, 'fr');
     // a key written in english and not yet translated
-    expect(t.allTimeContribs()).toBe('Contributed to (all time)');
+    expect(t.contributedToAllTime()).toBe('Contributed to (all time)');
   });
 
   it('should fall back to english when no locale is asked for', () => {

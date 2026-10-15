@@ -106,7 +106,7 @@ const repoCardLocales = defineLocales({
     no: 'Arkivert',
     be: 'Архіваваны',
   },
-  prsAuthored: {
+  prsOpened: {
     en: 'my created PRs',
     'zh-tw': '我所創建的拉取請求',
   },
@@ -118,7 +118,7 @@ const repoCardLocales = defineLocales({
     en: 'my reviewed PRs',
     'zh-tw': '我所審核的拉取請求',
   },
-  issuesAuthored: {
+  issuesOpened: {
     en: 'my created issues',
     'zh-tw': '我所創建的議題',
   },

@@ -420,10 +420,10 @@ describe('Test renderRepoCard', () => {
     const locales = [
       ...new Set(
         [
-          repoCardLocales.prsAuthored,
+          repoCardLocales.prsOpened,
           repoCardLocales.prsCommented,
           repoCardLocales.prsReviewed,
-          repoCardLocales.issuesAuthored,
+          repoCardLocales.issuesOpened,
           repoCardLocales.issuesCommented,
         ].flatMap((wording) => Object.keys(wording)),
       ),

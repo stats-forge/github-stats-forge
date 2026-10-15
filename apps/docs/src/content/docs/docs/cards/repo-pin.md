@@ -22,7 +22,7 @@ so a README can show as many as it likes, in whatever order it likes.
 ## Showing more than stars and forks
 
 `show` adds a line under the description, as a comma-separated list:
-`prs_authored`, `prs_commented`, `prs_reviewed`, `issues_authored`, `issues_commented`.
+`prs_opened`, `prs_commented`, `prs_reviewed`, `issues_opened`, `issues_commented`.
 Each one is counted for the repository, not for the user.
 
 ## Options

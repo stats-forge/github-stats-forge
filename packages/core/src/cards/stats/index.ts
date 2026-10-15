@@ -47,17 +47,17 @@ const SHOW_STATS = [
   'reviews',
   'discussions_started',
   'discussions_answered',
-  'prs_authored',
+  'prs_opened',
   'prs_commented',
   'prs_reviewed',
-  'issues_authored',
+  'issues_opened',
   'issues_commented',
-  'all_time_contribs',
+  'contributed_to_all_time',
 ] as const;
 type ShowStat = (typeof SHOW_STATS)[number];
 
 /** Stats the card always draws, and so the ones `hide` has anything to remove. */
-const HIDE_STATS = ['stars', 'commits', 'prs', 'issues', 'contribs'] as const;
+const HIDE_STATS = ['stars', 'commits', 'prs', 'issues', 'contributed_to'] as const;
 type HideStat = (typeof HIDE_STATS)[number];
 
 /** Every stat the card can draw: the ones it always draws, plus the ones `show` adds. */
@@ -375,12 +375,12 @@ const renderCard = (
 
   const repoFilter = encodeURIComponent(buildSearchFilter(repo, owner));
   const encodedUsername = encodeURIComponent(username ?? '');
-  if (shows('prs_authored')) {
-    STATS['prs_authored'] = {
+  if (shows('prs_opened')) {
+    STATS['prs_opened'] = {
       icon: icons.prs,
-      label: t.prsAuthored(),
+      label: t.prsOpened(),
       value: totalPRsAuthored,
-      id: 'prs_authored',
+      id: 'prs_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
@@ -402,12 +402,12 @@ const renderCard = (
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (shows('issues_authored')) {
-    STATS['issues_authored'] = {
+  if (shows('issues_opened')) {
+    STATS['issues_opened'] = {
       icon: icons.issues,
-      label: t.issuesAuthored(),
+      label: t.issuesOpened(),
       value: totalIssuesAuthored,
-      id: 'issues_authored',
+      id: 'issues_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
     };
   }
@@ -421,19 +421,19 @@ const renderCard = (
     };
   }
 
-  STATS['contribs'] = {
+  STATS['contributed_to'] = {
     icon: icons.repo,
-    label: t.contribs(),
+    label: t.contributedTo(),
     value: contributedTo,
-    id: 'contribs',
+    id: 'contributed_to',
   };
 
-  if (shows('all_time_contribs')) {
-    STATS['all_time_contribs'] = {
+  if (shows('contributed_to_all_time')) {
+    STATS['contributed_to_all_time'] = {
       icon: icons.repo,
-      label: t.allTimeContribs(),
+      label: t.contributedToAllTime(),
       value: allTimeContributedTo,
-      id: 'all_time_contribs',
+      id: 'contributed_to_all_time',
     };
   }
 
