@@ -61,7 +61,7 @@ jobs:
 
       # A change to packages/* without one is invisible in the published CHANGELOG.
       - name: Add a changeset if the emoji map changed
-        run: | # zizmor: ignore[adhoc-packages] -- "add" is changeset's subcommand, not an install
+        run: |
           if [ -z "$(git status --porcelain packages/core/src/common/emojiMap.json)" ]; then
             exit 0
           fi
