@@ -1,5 +1,14 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.8.5
+
+### Patch Changes
+
+- [#222](https://github.com/stats-forge/github-stats-forge/pull/222) [`734c926`](https://github.com/stats-forge/github-stats-forge/commit/734c926ae292b285e62bf5f372e2243c82957428) - fix: keep the repo card's `show` stats clear of their values
+
+  Each column now places its values after its widest label, so a long label no longer runs into its
+  number. A card drawing two columns defaults to the 500px width step instead of 430px.
+
 ## 0.8.4
 
 ### Patch Changes
