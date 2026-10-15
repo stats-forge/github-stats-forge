@@ -71,7 +71,7 @@ interface StatCardOptions extends CommonCardOptions {
   card_width: number;
   hide_rank: boolean;
   include_all_commits: boolean;
-  line_height: number | string;
+  line_height: number;
   custom_title: string;
   disable_animations: boolean;
   number_format: string;
@@ -264,7 +264,7 @@ const renderCard = (
     card_width,
     hide_rank = false,
     include_all_commits = false,
-    line_height = 25,
+    line_height: lheight = 25,
     text_bold = true,
     custom_title,
     border_radius,
@@ -275,8 +275,6 @@ const renderCard = (
     rank_icon = 'default',
     show = [],
   } = options;
-
-  const lheight = Number.parseInt(String(line_height), 10);
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 

@@ -95,11 +95,13 @@ const numberParam: z.ZodMiniType<number | undefined, string | undefined> = z.pip
 );
 
 /**
- * A number the card already falls back from — widths, counts, line heights:
- * `NaN` reaches the renderer, which answers it with its own default.
+ * A whole number — a width, a count, a line height.
+ * `parseInt`, so `?card_width=500px` is still 500, but nothing numeric at all is rejected:
+ * a `NaN` reaching the renderer drew `NaN` into the SVG wherever no fallback caught it.
+ * Yields the parsed number, or `undefined` when the param is absent.
  */
-const looseIntParam = z.pipe(
-  rawParam,
+const intParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
+  rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseInt(value, 10)))),
   z.transform((value) => (value === undefined ? undefined : Number.parseInt(value, 10))),
 );
 
@@ -274,7 +276,7 @@ export {
   listParam,
   ORDERED_RANGE,
   localeParam,
-  looseIntParam,
+  intParam,
   numberParam,
   parseColorParams,
   parseParams,

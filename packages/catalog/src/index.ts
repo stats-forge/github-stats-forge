@@ -31,7 +31,7 @@ export type OptionKind = 'text' | 'boolean' | 'number' | 'integer' | 'list' | 'c
 
 /**
  * Which kinds are numeric, and how finely each moves.
- * The split follows core's own: a param it reads with `looseIntParam` is an `integer`,
+ * The split follows core's own: a param it reads with `intParam` is an `integer`,
  * one it reads with `numberParam` a `number`.
  */
 const NUMERIC_STEP: Partial<Record<OptionKind, 1 | 'any'>> = { integer: 1, number: 'any' };

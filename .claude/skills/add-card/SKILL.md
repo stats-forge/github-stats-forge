@@ -73,7 +73,7 @@ Each of these is a separate file holding its own copy of "every card there is".
 10. `packages/catalog/src/index.ts` — the catalog entry. `choices` always reads
     `<handler>.OPTIONS.<param>`, never a literal. Every option needs a `group`.
     A numeric option is `integer` or `number` according to how **core** reads it —
-    `looseIntParam` is an integer, `numberParam` a number.
+    `intParam` is an integer, `numberParam` a number.
 11. `apps/server/src/routes.ts` — the path, and the count in its `@file` block.
 12. `apps/docs/src/anvil/cards.ts` — the `EXTRAS` entry: `docs` slug, `category`, `identity`
     seeds and `maximal`, the params that turn on everything the recorder must capture.

@@ -40,7 +40,7 @@ interface WakaTimeOptions extends CommonCardOptions {
   hide_title: boolean;
   hide: Array<string>;
   card_width: number;
-  line_height: number | string;
+  line_height: number;
   hide_progress: boolean;
   custom_title: string;
   layout: WakaTimeLayout;
@@ -270,7 +270,7 @@ const renderCard = (
     hide_border = false,
     card_width,
     hide,
-    line_height = DEFAULT_LINE_HEIGHT,
+    line_height: lheight = DEFAULT_LINE_HEIGHT,
     hide_progress,
     custom_title,
     locale,
@@ -296,8 +296,6 @@ const renderCard = (
 
   const t = localize(wakatimeCardLocales, locale);
   const commonT = localize(commonLocales, locale);
-
-  const lheight = Number.parseInt(String(line_height), 10);
 
   const langsCount = clampValue(langs_count, 1, langs_count);
 

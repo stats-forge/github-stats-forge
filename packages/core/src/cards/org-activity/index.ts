@@ -44,7 +44,7 @@ interface OrgActivityCardOptions extends CommonCardOptions {
   show_icons: boolean;
   hide_title: boolean;
   card_width: number;
-  line_height: number | string;
+  line_height: number;
   custom_title: string;
   disable_animations: boolean;
   number_format: string;
@@ -130,7 +130,7 @@ const renderCard = (
     hide_title = false,
     hide_border = false,
     card_width,
-    line_height = 25,
+    line_height: lheight = 25,
     text_bold = true,
     custom_title,
     border_radius,
@@ -138,8 +138,6 @@ const renderCard = (
     locale,
     disable_animations = false,
   } = options;
-
-  const lheight = Number.parseInt(String(line_height), 10);
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 

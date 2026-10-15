@@ -97,6 +97,23 @@ describe('api query schemas', () => {
     expect(result.status).toBe('error');
   });
 
+  it.each(['card_width', 'line_height'])(
+    'rejects a %s with no number in it by naming the param',
+    async (param) => {
+      const result = await endpoints.stats({ username: 'anuraghazra', [param]: 'abc' });
+
+      expect(result).toMatchObject({ status: 'error', error: { code: 'invalid_param', param } });
+      expect(result.content).toContain(`Invalid number input for parameter &#34;${param}&#34;`);
+    },
+  );
+
+  it('reads an integer the way parseInt does, so 500px is 500', async () => {
+    const result = await endpoints.stats({ username: 'anuraghazra', card_width: '500px' });
+
+    // the stubbed fetch fails, but the param got past validation
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+  });
+
   it.each([
     ['layout', 'sideways', 'Incorrect layout input'],
     ['stats_format', 'kilobytes', 'Incorrect stats_format input'],
