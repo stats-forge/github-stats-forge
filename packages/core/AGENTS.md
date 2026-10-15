@@ -13,7 +13,7 @@ handlers). The cards have rules of their own, in `src/cards/AGENTS.md`.
 hand the render functions typed values — defaults stay with the renderer.
 
 **Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
-params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `looseIntParam`,
+params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `intParam`,
 `rawParam`, `safeParam`, `safeListParam`, `hostnameParam`, `wakatimeUsernameParam`,
 `localeParam`, `enumParam(values)`,
 `fromParam`, `toParam`) — none of which takes a message, because the wording is derived

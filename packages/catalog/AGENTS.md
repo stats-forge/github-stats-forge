@@ -16,13 +16,11 @@ consumer of it; `cli/cards` is **gone** rather than kept as a re-export, because
 one list is the drift this package exists to prevent.
 
 **A number is an `integer` or a `number`, and core's own reading is what says which.**
-A param core reads with `looseIntParam` is `parseInt`'d, so the option is `kind: 'integer'`
+A param core reads with `intParam` is `parseInt`'d, so the option is `kind: 'integer'`
 — `card_width`, `line_height`, `langs_count`, `repos_count`, `number_precision`,
-`description_lines_count`. One it reads with `numberParam` is
+`description_lines_count`, `days`. One it reads with `numberParam` is
 `parseFloat`'d and stays `kind: 'number'`: only `border_radius`, `size_weight` and
-`count_weight`. **`line_height` is an integer**, which is easy to get wrong — it is a
-`rawParam` at the boundary rather than either helper, and every card `parseInt`s it itself.
-Neither schema is exported from core, so nothing checks this mapping; read
+`count_weight`. Neither schema is exported from core, so nothing checks this mapping; read
 `packages/core/src/api/*.ts` when adding a numeric option.
 
 - **It imports core's public api and nothing else.** That is what keeps it a few hundred bytes in

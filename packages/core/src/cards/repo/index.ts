@@ -59,7 +59,7 @@ interface RepoCardOptions extends CommonCardOptions {
   show_icons: boolean;
   number_format: string;
   text_bold: boolean;
-  line_height: number | string;
+  line_height: number;
   username: string;
 }
 
@@ -130,7 +130,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     show_icons = true,
     number_format = 'short',
     text_bold = false,
-    line_height = 22,
+    line_height: extraLHeight = 22,
     username,
     theme = 'default_repocard',
     border_radius,
@@ -247,7 +247,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     }),
   );
 
-  const extraLHeight = Number.parseInt(String(line_height), 10);
   const lineHeight = 10;
   const header = show_owner ? nameWithOwner : name;
   const langName = primaryLanguage?.name || t.unspecifiedLanguage();
