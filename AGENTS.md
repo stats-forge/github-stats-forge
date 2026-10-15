@@ -114,6 +114,7 @@ pnpm docs:cards           # build, then redraw the docs site's card previews
 pnpm docs:cards:check     # build, then fail if a committed preview is out of date
 pnpm docs:e2e             # build the site, then run the anvil's browser tests
 pnpm check-all            # every check CI runs, cheapest first, in one command
+pnpm test:live            # draw every card from the live APIs; needs PAT_1 in the root .env
 ```
 
 **`pnpm run docs` needs the `run`, unlike every other script here.** `docs` is a pnpm builtin
@@ -232,6 +233,26 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   **The previews were drawn from real accounts until 2026-10-15**, which needed `PAT_1`, kept CI
   from checking them, and made every redraw carry a dozen files of drifted stats.
   **`examples/` was deleted on 2026-09-05**, when the site took over showing a card of each kind.
+- **`pnpm test:live` is the one check that touches the live APIs, and it is not part of CI.**
+  Every other check runs on made-up data — core's and the server's tests mock `fetch`, and the
+  site draws from the fixtures — so once the previews moved to them nothing called GitHub at all.
+  `apps/docs/scripts/test-live.ts` draws each card with the anvil's `maximal` options for real
+  accounts — the project's own by default, overridden by `LIVE_TEST_USER`, `LIVE_TEST_REPO`,
+  `LIVE_TEST_GIST`, `LIVE_TEST_ORG` and `LIVE_TEST_WAKATIME` — and asserts only that it drew:
+  live numbers drift.
+  A failure there is GitHub or WakaTime behaving differently from what core reads, which no typed
+  fixture can catch.
+  - **`.github/workflows/test-live.yml` runs it with the `LIVE_TEST_PAT` secret of the `test-live`
+    environment**, so no other job can read the token. It runs on Mondays, on demand, and on a
+    same-repository PR that changes `fetchers/`, `graphql/` or the live test itself — a fork's PR
+    gets no secrets, so it is skipped. Kept out of `ci.yml` so a GitHub outage cannot fail an
+    unrelated PR.
+  - **The secret is a personal access token, because that is what the docs tell people to use.**
+    A classic one needs only `read:org`, for the org card's member count; a fine-grained one needs
+    the organization as its resource owner and `Members: read`. The workflow's own `GITHUB_TOKEN`
+    was tried on 2026-10-15 and drew six of the eight cards: the gist card's `viewer` lookup is
+    refused to an installation token, and the org card failed whole as "Organization not found"
+    rather than dropping the member count.
 - `.claude/scratch/CORE_DEFERRED_IMPROVEMENTS.md` lists the follow-ups `packages/core`
   still owes. Check it before starting work there, and keep it current as they land.
 

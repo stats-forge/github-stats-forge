@@ -1,0 +1,68 @@
+name: Live API test
+
+# Every other check runs on made-up data; this one draws each card from the real APIs.
+# Kept out of CI so a GitHub outage cannot fail an unrelated PR; it runs on a PR only when that PR
+# changes what talks to GitHub.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/test-live.yml
+      - apps/docs/scripts/test-live.ts
+      - packages/core/src/fetchers/**
+      - packages/core/src/graphql/**
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │ ┌───────────── hour (0 - 23)
+    #        │ │ ┌───────────── day of the month (1 - 31)
+    #        │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │ │ │ │ │
+    - cron: '17 6 * * 1'
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.run_id }}'
+  cancel-in-progress: true
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test-live:
+    # a fork's PR is given no secrets, so it has no token to draw with
+    if: >-
+      ${{ github.repository == 'stats-forge/github-stats-forge' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository) }}
+    name: Draw every card from live data
+
+    # the token is an environment secret, so no other job in the repository can read it
+    environment: test-live
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Dependencies
+        uses: marcalexiei/github-actions/setup-node-and-pnpm@92c64c084d3479cff756151cb8163d03608f2acd # v2.4.2
+        with:
+          save-cache: false
+
+      # A personal access token, as the docs tell people to use: the workflow's own token is refused
+      # the gist card's `viewer` lookup and the org's member count. Classic with `read:org`, or
+      # fine-grained with the organization as resource owner and `Members: read`.
+      - name: Draw every card
+        run: pnpm test:live
+        env:
+          PAT_1: ${{ secrets.LIVE_TEST_PAT }}

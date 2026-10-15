@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "generate-cards": "node scripts/generate-cards.ts",
     "check-cards": "node scripts/generate-cards.ts --check",
+    "test:live": "node --conditions=@stats/source --env-file-if-exists=../../.env scripts/test-live.ts",
     "generate-anvil-samples": "node --conditions=@stats/source scripts/generate-anvil-samples.ts",
     "check-anvil-samples": "node --conditions=@stats/source scripts/generate-anvil-samples.ts --check && node --conditions=@stats/source scripts/check-anvil-samples.ts",
     "test:e2e": "playwright test",
