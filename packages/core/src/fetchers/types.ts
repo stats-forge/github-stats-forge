@@ -77,8 +77,8 @@ export interface OrgActivityData {
   name: string;
   /** The window every count covers, both ends inclusive. */
   range: GitHubDateRange;
-  /** Days that window spans, which is what the card says it is showing. */
-  days: number;
+  /** Days that window spans when it was asked for as days; `undefined` for a `from`/`to` range. */
+  days: number | undefined;
   prsOpened: number;
   prsMerged: number;
   /**

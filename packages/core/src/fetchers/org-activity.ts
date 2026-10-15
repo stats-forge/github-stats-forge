@@ -41,6 +41,30 @@ const lastDays = (days: number): GitHubDateRange => {
 };
 
 /**
+ * The window a query asked for: `days` back from today, or the range `from` and `to` name.
+ * An open end of a range falls back the way `days` does, to today or to the default span before it.
+ *
+ * @returns The range, and the days it spans when it was asked for as days.
+ */
+const windowOf = (
+  days: number | undefined,
+  from: Date | undefined,
+  to: Date | undefined,
+): { range: GitHubDateRange; days: number | undefined } => {
+  if (from === undefined && to === undefined) {
+    let span = DEFAULT_DAYS;
+    if (days !== undefined && Number.isFinite(days)) {
+      span = clampValue(days, 1, MAX_DAYS);
+    }
+    return { range: lastDays(span), days: span };
+  }
+
+  const end = to ?? lastDays(1).to;
+  const start = from ?? new Date(end.getTime() - (DEFAULT_DAYS - 1) * MS_PER_DAY);
+  return { range: { from: start, to: end }, days: undefined };
+};
+
+/**
  * Whether the issue searches were answered with something other than issues.
  *
  * This is the one refusal GitHub does not report: a token that may not read issues — an app
@@ -92,12 +116,18 @@ const fetchOrgActivity = async (
   {
     org,
     days,
+    from,
+    to,
     include_commits = false,
     require_issues = true,
   }: {
     org: string | undefined;
-    /** Days the window covers; out of range or unparsed, the default stands. */
+    /** Days the window covers, ending today; out of range or unparsed, the default stands. */
     days?: number | undefined;
+    /** The start of the window, instead of `days`. */
+    from?: Date | undefined;
+    /** The end of the window, instead of `days`. */
+    to?: Date | undefined;
     include_commits?: boolean | undefined;
     /**
      * Whether refused issue counts fail the whole fetch rather than dropping the two stats.
@@ -119,9 +149,7 @@ const fetchOrgActivity = async (
     });
   }
 
-  const window =
-    days !== undefined && Number.isFinite(days) ? clampValue(days, 1, MAX_DAYS) : DEFAULT_DAYS;
-  const range = lastDays(window);
+  const { range, days: window } = windowOf(days, from, to);
   const within = `${toSearchDate(range.from)}..${toSearchDate(range.to)}`;
   const scope = `org:${org}`;
 

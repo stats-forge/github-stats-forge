@@ -30,6 +30,8 @@ See [the token it needs](#the-token-it-needs).
 | Option               | Values                                                    | What it does                                  |
 | -------------------- | --------------------------------------------------------- | --------------------------------------------- |
 | `days`               | `1` to `365`                                              | Days the window covers (30 by default)        |
+| `from`               | a year, a month or a day                                  | The start of the window, instead of `days`    |
+| `to`                 | a year, a month or a day                                  | The end of the window, instead of `days`      |
 | `show`               | `discussions_started` `commits`                           | Draw these stats as well                      |
 | `hide`               | `prs_opened` `prs_merged` `issues_opened` `issues_closed` | Leave these stats out                         |
 | `show_icons`         | `true` `false`                                            | Show an icon beside each stat (on by default) |
@@ -50,6 +52,10 @@ and `locale`.
 
 `days` counts back from today, both ends inclusive — so the default 30 is today and the 29 days
 before it, and `days=1` is today alone. It rolls: the card drawn tomorrow covers tomorrow.
+
+`from` and `to` name a fixed window instead — `?from=2024&to=2024` is the whole of 2024, and the
+title says so. Either end may be left open: `to` then means today, and `from` the 30 days before
+`to`. A query naming `days` as well as either is an error.
 
 Every end is a UTC date, which is all GitHub's search qualifiers read. A card rendered just after
 midnight UTC therefore counts a today that has barely started.
