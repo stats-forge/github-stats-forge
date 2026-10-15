@@ -34,7 +34,7 @@ extra. See [the token it needs](#the-token-it-needs).
 | `hide`             | `repos` `stars` `forks` `watchers` `open_issues` `open_prs` | Leave these stats out                         |
 | `show_icons`       | `true` `false`                                              | Show an icon beside each stat (on by default) |
 | `hide_description` | `true` `false`                                              | Leave the organization's description out      |
-| `custom_title`     | any text                                                    | Replace the card's title                      |
+| `title`            | any text                                                    | Replace the card's title                      |
 | `hide_title`       | `true` `false`                                              | Drop the title, its icon and its band         |
 | `card_width`       | a number                                                    | Card width in pixels                          |
 | `line_height`      | a number                                                    | Space between the stat rows                   |

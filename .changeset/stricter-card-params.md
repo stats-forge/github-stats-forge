@@ -25,3 +25,7 @@ feat!: stricter, more consistent card params
   `prs_authored` → `prs_opened`, `issues_authored` → `issues_opened`, and org-activity's
   `discussions` → `discussions_started`.
 - Renamed: the top-languages and WakaTime cards' `hide` → `hide_langs`, so `hide` always names stats.
+- Renamed: `custom_title` → `title`, `role` → `affiliation`, `api_domain` → `wakatime_host`,
+  `browser_rendering` → `wrap_description`.
+- `number_precision` reaches every card drawing stat rows, and the repo card's stars and forks follow
+  `number_format`.

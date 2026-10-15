@@ -26,7 +26,7 @@ const wakatimeQuery = z.object({
   layout: enumParam(renderWakatimeCard.OPTIONS.layout),
   langs_count: intParam(),
   hide_langs: listParam,
-  api_domain: hostnameParam,
+  wakatime_host: hostnameParam,
   value_format: enumParam(renderWakatimeCard.OPTIONS.value_format),
 });
 
@@ -49,12 +49,12 @@ const renderWakatime = cardHandler(
       line_height,
       hide_title,
       hide_progress,
-      custom_title,
+      title,
       locale,
       layout,
       langs_count,
       hide_langs,
-      api_domain,
+      wakatime_host,
       border_radius,
       value_format,
       disable_animations,
@@ -62,11 +62,11 @@ const renderWakatime = cardHandler(
     colors,
     config,
   ) => {
-    const stats = await fetchWakatimeStats({ username, api_domain }, config);
+    const stats = await fetchWakatimeStats({ username, wakatime_host }, config);
 
     return renderWakatimeCard(stats, {
       ...colors,
-      custom_title,
+      title,
       hide_title,
       hide_border,
       card_width,

@@ -42,7 +42,7 @@ interface WakaTimeOptions extends CommonCardOptions {
   card_width: number;
   line_height: number;
   hide_progress: boolean;
-  custom_title: string;
+  title: string;
   layout: WakaTimeLayout;
   langs_count: number;
   value_format: ValueFormat;
@@ -272,7 +272,7 @@ const renderCard = (
     hide_langs,
     line_height: lheight = DEFAULT_LINE_HEIGHT,
     hide_progress,
-    custom_title,
+    title,
     locale,
     layout,
     langs_count = languages.length,
@@ -415,7 +415,7 @@ const renderCard = (
   }
 
   const card = new Card({
-    customTitle: custom_title,
+    customTitle: title,
     defaultTitle: titleText,
     titlePrefixIcon: CARD_ICON.wakatime,
     width: normalizedWidth,

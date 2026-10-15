@@ -15,10 +15,10 @@ import type { WakaTimeData } from './types.ts';
 const fetchWakatimeStats = async (
   {
     username,
-    api_domain,
+    wakatime_host,
   }: {
     username: string | undefined;
-    api_domain?: string | undefined;
+    wakatime_host?: string | undefined;
   },
   config: CardConfig,
 ): Promise<WakaTimeData> => {
@@ -30,14 +30,14 @@ const fetchWakatimeStats = async (
   if (!WAKATIME_USERNAME_PATTERN.test(username)) {
     throw new CardError('Invalid username provided.', { code: 'invalid_param', param: 'username' });
   }
-  if (api_domain && !HOSTNAME_PATTERN.test(api_domain)) {
-    throw new CardError('Invalid API domain provided.', {
+  if (wakatime_host && !HOSTNAME_PATTERN.test(wakatime_host)) {
+    throw new CardError('Invalid WakaTime host provided.', {
       code: 'invalid_param',
-      param: 'api_domain',
+      param: 'wakatime_host',
     });
   }
 
-  const domain = api_domain || 'wakatime.com';
+  const domain = wakatime_host || 'wakatime.com';
   const res = await httpRequest<{ data: WakaTimeData }>(
     config.fetch,
     `https://${domain}/api/v1/users/${username}/stats?is_including_today=true`,

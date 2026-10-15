@@ -36,7 +36,7 @@ interface GistCardOptions extends CommonCardOptions {
   locale: string;
   disable_animations: boolean;
   show_owner: boolean;
-  browser_rendering: boolean;
+  wrap_description: boolean;
 }
 
 /**
@@ -51,7 +51,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     theme = 'default_repocard',
     border_radius,
     show_owner = false,
-    browser_rendering = false,
+    wrap_description = false,
     hide_border = false,
     disable_animations = false,
   } = options;
@@ -64,7 +64,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   let descriptionLines: number;
   let descriptionSvg: Child;
-  if (browser_rendering) {
+  if (wrap_description) {
     // The browser performs the actual text wrapping inside the foreignObject;
     // we only estimate the line count server-side so the SVG can reserve enough
     // height. The estimate uses measureText for font-aware widths instead of a
@@ -146,7 +146,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
       rule('.description', {
         font: font('regular', 'meta'),
         fill: textColor,
-        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { font: font('regular', 'small'), fill: textColor }),
       rule('.icon', { fill: iconColor }),
@@ -154,7 +154,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     dark: ({ textColor, iconColor }) => [
       rule('.description', {
         fill: textColor,
-        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { fill: textColor }),
       rule('.icon', { fill: iconColor }),

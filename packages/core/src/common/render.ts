@@ -265,12 +265,30 @@ const iconWithLabel = (
   });
 };
 
-/**
- * How a stat value is written.
- * Not validated at the boundary: anything but `long` reads as `short`,
- * so an unknown value falls back rather than failing.
- */
+/** How a count is written: `short` abbreviates it (`1.5k`), `long` writes it out. */
 const NUMBER_FORMATS = ['short', 'long'] as const;
+
+/**
+ * A count as a card draws it.
+ *
+ * @returns The count, abbreviated unless `numberFormat` is `long`, to 0–2 decimals.
+ */
+const formatCount = (
+  value: number,
+  numberFormat: string,
+  /** Decimals kept when abbreviating, clamped to 0–2; the abbreviation's own default when absent. */
+  numberPrecision?: number,
+): string => {
+  if (numberFormat.toLowerCase() === 'long') {
+    return String(value);
+  }
+
+  if (numberPrecision === undefined) {
+    return String(kFormatter(value));
+  }
+
+  return String(kFormatter(value, clampValue(numberPrecision, 0, 2)));
+};
 
 /**
  * Create a labelled stat text item
@@ -682,6 +700,7 @@ const countWrappedLines = (
 ): number => Math.min(Math.max(1, splitWrappedText(text, fontSize, maxWidth).length), maxLines);
 
 export {
+  formatCount,
   NUMBER_FORMATS,
   renderError,
   createLanguageNode,

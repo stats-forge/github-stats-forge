@@ -3,15 +3,15 @@ import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
-import { kFormatter } from '../../common/fmt.ts';
 import { icons } from '../../common/icons.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import {
-  NUMBER_FORMATS,
   createTextNode,
   flexLayout,
+  formatCount,
   measureText,
+  NUMBER_FORMATS,
   wrapTextMultiline,
 } from '../../common/render.ts';
 import type { OrganizationData } from '../../fetchers/types.ts';
@@ -53,9 +53,10 @@ interface OrgCardOptions extends CommonCardOptions {
   hide_description: boolean;
   card_width: number;
   line_height: number;
-  custom_title: string;
+  title: string;
   disable_animations: boolean;
   number_format: string;
+  number_precision: number;
   text_bold: boolean;
 }
 
@@ -126,9 +127,10 @@ const renderCard = (
     card_width,
     line_height: lheight = 25,
     text_bold = true,
-    custom_title,
+    title,
     border_radius,
     number_format = 'short',
+    number_precision,
     locale,
     disable_animations = false,
   } = options;
@@ -147,9 +149,7 @@ const renderCard = (
    * @returns The value, as the row draws it.
    */
   const total = (value: number): number | string =>
-    truncated
-      ? `${number_format.toLowerCase() === 'long' ? String(value) : kFormatter(value)}+`
-      : value;
+    truncated ? `${formatCount(value, number_format, number_precision)}+` : value;
 
   const STATS: Partial<Record<StatId, StatItem>> = {
     repos: {
@@ -291,11 +291,12 @@ const renderCard = (
       bold: text_bold,
       labelBold: false,
       numberFormat: number_format,
+      numberPrecision: number_precision,
     }),
   );
 
   const card = new Card({
-    customTitle: custom_title,
+    customTitle: title,
     defaultTitle: t.title({ name, apostrophe }),
     titlePrefixIcon: CARD_ICON.organization,
     width,

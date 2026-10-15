@@ -395,10 +395,10 @@ describe('Test renderStatsCard', () => {
     expect(document.querySelector('svg')).toHaveAttribute('width', '300');
   });
 
-  it('should auto resize if hide_rank is true & custom_title is set', () => {
+  it('should auto resize if hide_rank is true & title is set', () => {
     document.body.innerHTML = renderStatsCard(stats, {
       hide_rank: true,
-      custom_title: 'Hello world',
+      title: 'Hello world',
     });
 
     expect(document.querySelector('svg')).toHaveAttribute('width', '300');

@@ -33,7 +33,7 @@ Each one is counted for the repository, not for the user.
 | `show`                    | the list above | Extra counts to draw                                         |
 | `show_icons`              | `true` `false` | Draw an icon beside each count                               |
 | `description_lines_count` | a number       | How many lines the description wraps to                      |
-| `browser_rendering`       | `true` `false` | Let the browser wrap the description instead of the renderer |
+| `wrap_description`        | `true` `false` | Let the browser wrap the description instead of the renderer |
 | `number_format`           | `short` `long` | `1.5k` or `1500`                                             |
 | `text_bold`               | `true` `false` | Bold the values                                              |
 | `line_height`             | a number       | Space between the lines                                      |
@@ -45,5 +45,5 @@ and `locale`.
 ## Wrapping the description
 
 The renderer wraps the description itself and truncates what does not fit, so the card is the same
-width everywhere. `browser_rendering=true` hands that job to the browser instead, which reads
+width everywhere. `wrap_description=true` hands that job to the browser instead, which reads
 better when the description is long and worse when the card sits somewhere narrow.

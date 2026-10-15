@@ -59,7 +59,7 @@ describe('test renderContributedToCard', () => {
   });
 
   it('should take a custom title', () => {
-    document.body.innerHTML = renderContributedToCard(data, { custom_title: 'Where I work' });
+    document.body.innerHTML = renderContributedToCard(data, { title: 'Where I work' });
 
     expect(document.querySelector('.header')).toHaveTextContent('Where I work');
   });

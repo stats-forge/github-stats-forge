@@ -30,7 +30,7 @@ const topLangsQuery = z.object({
   exclude_repo: safeListParam,
   size_weight: numberParam(),
   count_weight: numberParam(),
-  role: enumListParam(OWNER_AFFILIATIONS),
+  affiliation: enumListParam(OWNER_AFFILIATIONS),
   hide_progress: booleanParam,
   hide_values: booleanParam,
   value_format: enumParam(renderTopLanguages.OPTIONS.value_format),
@@ -56,10 +56,10 @@ const renderTopLangs = cardHandler(
       exclude_repo,
       size_weight,
       count_weight,
-      custom_title,
+      title,
       locale,
       border_radius,
-      role,
+      affiliation,
       disable_animations,
       hide_progress,
       hide_values,
@@ -74,14 +74,14 @@ const renderTopLangs = cardHandler(
         exclude_repo,
         size_weight,
         count_weight,
-        ownerAffiliations: role,
+        ownerAffiliations: affiliation,
       },
       config,
     );
 
     return renderTopLanguages(topLangs, {
       ...colors,
-      custom_title,
+      title,
       hide_title,
       hide_border,
       card_width,
@@ -103,5 +103,5 @@ const renderTopLangs = cardHandler(
  * A UI reads them off the function it calls: `topLangs.OPTIONS.layout`.
  */
 export const topLangs = Object.assign(renderTopLangs, {
-  OPTIONS: { ...renderTopLanguages.OPTIONS, role: OWNER_AFFILIATIONS },
+  OPTIONS: { ...renderTopLanguages.OPTIONS, affiliation: OWNER_AFFILIATIONS },
 });

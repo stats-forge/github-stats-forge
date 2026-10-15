@@ -142,7 +142,7 @@ describe(renderOrganizationCard, () => {
   });
 
   it('takes a custom title', () => {
-    document.body.innerHTML = renderOrganizationCard(data, { custom_title: 'The Vitest team' });
+    document.body.innerHTML = renderOrganizationCard(data, { title: 'The Vitest team' });
 
     expect(document.querySelector('.header')).toHaveTextContent('The Vitest team');
   });

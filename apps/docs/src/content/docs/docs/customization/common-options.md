@@ -62,7 +62,7 @@ you pass alongside it wins, so a theme is a starting point rather than a lock.
 | `hide_border`   | `true` `false` | Draw the card with no border             |
 | `border_radius` | a number       | How round the corners are; `0` is square |
 | `hide_title`    | `true` `false` | Leave the title out                      |
-| `custom_title`  | any text       | Replace the title                        |
+| `title`         | any text       | Replace the title                        |
 | `card_width`    | a whole number | Card width in pixels                     |
 
 `border_radius` and `card_width` take an optional `px`, so `10px` and `10` are the same thing.

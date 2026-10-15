@@ -54,7 +54,7 @@ interface TopLangOptions extends CommonCardOptions {
   card_width: number;
   hide_langs: Array<string>;
   layout: TopLangLayout;
-  custom_title: string;
+  title: string;
   langs_count: number;
   disable_animations: boolean;
   hide_progress: boolean;
@@ -839,7 +839,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     hide_progress,
     hide_values,
     layout,
-    custom_title,
+    title,
     locale,
     langs_count = getDefaultLanguagesCountByLayout({ layout, hide_progress }),
     border_radius,
@@ -897,7 +897,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
   }
 
   const card = new Card({
-    customTitle: custom_title,
+    customTitle: title,
     defaultTitle: t.title(),
     titlePrefixIcon: CARD_ICON.topLanguages,
     width,

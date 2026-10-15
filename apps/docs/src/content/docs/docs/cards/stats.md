@@ -69,7 +69,7 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 | `exclude_repo`        | `owner/name` or `name`                            | Repositories to leave out of the totals                 |
 | `repo`                | `owner/name` or `name`                            | Scope the search-based stats to these repositories      |
 | `owner`               | logins                                            | Scope the search-based stats to these owners            |
-| `role`                | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count towards the stars and the rank |
+| `affiliation`         | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count towards the stars and the rank |
 | `include_own_repos`   | `true` `false`                                    | Count contributions to your own repositories            |
 | `number_format`       | `short` `long`                                    | `1.5k` or `1500`                                        |
 | `number_precision`    | a number                                          | Decimals kept when abbreviating                         |
@@ -80,15 +80,15 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.
 
-## What `role` covers
+## What `affiliation` covers
 
-`role` filters the repository list GitHub answers with, and that list is used for the stars
+`affiliation` filters the repository list GitHub answers with, and that list is used for the stars
 total alone. Commits, pull requests, reviews, issues, discussions and repositories
-contributed to are counted across the whole of GitHub whatever `role` says. The default is
+contributed to are counted across the whole of GitHub whatever `affiliation` says. The default is
 `OWNER` — the repositories you own.
 
 ```text
-?username=octocat&role=OWNER,ORGANIZATION_MEMBER
+?username=octocat&affiliation=OWNER,ORGANIZATION_MEMBER
 ```
 
 Widening it moves two numbers rather than one: the stars, and the rank they feed into.

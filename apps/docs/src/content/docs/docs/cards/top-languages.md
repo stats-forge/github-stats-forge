@@ -70,7 +70,7 @@ Two languages can rank differently depending on what you mean by "most".
 | `hide_progress`      | `true` `false`                                    | Drop the bars and keep the names          |
 | `hide_values`        | `true` `false`                                    | Drop the numbers                          |
 | `prog_bar_bg_color`  | a hex color                                       | The unfilled part of each bar             |
-| `role`               | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count                  |
+| `affiliation`        | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count                  |
 | `disable_animations` | `true` `false`                                    | Draw the card with no animation           |
 
 Plus the [common options](../../customization/common-options/) every card takes,

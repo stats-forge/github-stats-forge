@@ -60,7 +60,7 @@ render functions typed values; defaults stay with the renderer.
   param or a non-string value is a compile error — rather than by importing a type.
 - **A card's accepted values ride on its renderer, in one `OPTIONS` object keyed by the option's
   name** ([#46]). The handler spreads the card's `OPTIONS` and adds only what belongs to the fetcher
-  (`role`); `enumParam(renderStatsCard.OPTIONS.rank_icon)` reads it back. A UI reads
+  (`affiliation`); `enumParam(renderStatsCard.OPTIONS.rank_icon)` reads it back. A UI reads
   `stats.OPTIONS.rank_icon` off the function it calls.
 - **A list whose values are a closed set is an `enumListParam`** ([#230]), and sits in `OPTIONS`.
   **`show` and `hide` each accept every stat the card draws**, and the handler fetches only what

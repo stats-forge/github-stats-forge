@@ -37,7 +37,7 @@ describe(toQuery, () => {
       new Map<string, Answer>([
         ['username', 'anuraghazra'],
         ['show_icons', true],
-        ['custom_title', ''],
+        ['title', ''],
         ['hide', []],
       ]),
     );
@@ -136,9 +136,7 @@ describe(toQueryString, () => {
   });
 
   it('encodes what a query string cannot carry raw', () => {
-    expect(toQueryString({ custom_title: 'My Stats & More' })).toBe(
-      '?custom_title=My+Stats+%26+More',
-    );
+    expect(toQueryString({ title: 'My Stats & More' })).toBe('?title=My+Stats+%26+More');
   });
 
   it('answers a bare ? when nothing is set, rather than an empty line', () => {
@@ -148,7 +146,7 @@ describe(toQueryString, () => {
 
 describe(fromQueryString, () => {
   it('reads back what toQueryString wrote', () => {
-    const query = { username: 'anuraghazra', theme: 'dark', custom_title: 'My Stats & More' };
+    const query = { username: 'anuraghazra', theme: 'dark', title: 'My Stats & More' };
 
     expect(fromQueryString(toQueryString(query))).toStrictEqual(query);
   });

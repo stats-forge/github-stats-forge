@@ -163,7 +163,7 @@ class CardError extends Error {
   }
 }
 
-/** The affiliation values `role` accepts, named in the rejection. */
+/** The affiliation values `affiliation` accepts, named in the rejection. */
 const INVALID_AFFILIATION = `Invalid owner affiliations. Valid values are: ${OWNER_AFFILIATIONS.join(
   ', ',
 )}`;

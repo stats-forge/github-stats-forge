@@ -120,7 +120,7 @@ describe('test renderOrgActivityCard', () => {
   });
 
   it('should take a custom title', () => {
-    document.body.innerHTML = renderOrgActivityCard(data, { custom_title: 'How we are doing' });
+    document.body.innerHTML = renderOrgActivityCard(data, { title: 'How we are doing' });
 
     expect(document.querySelector('.header')).toHaveTextContent('How we are doing');
   });

@@ -32,7 +32,7 @@ so switch on "Display coding activity publicly" in your WakaTime settings first.
 | `langs_count`        | a number           | How many languages to show                      |
 | `hide_langs`         | language names     | Languages to leave out                          |
 | `hide_progress`      | `true` `false`     | Drop the bars and keep the names                |
-| `api_domain`         | a hostname         | A self-hosted WakaTime, e.g. Wakapi or Hakatime |
+| `wakatime_host`      | a hostname         | A self-hosted WakaTime, e.g. Wakapi or Hakatime |
 | `disable_animations` | `true` `false`     | Draw the card with no animation                 |
 
 Plus the [common options](../../customization/common-options/) every card takes,
