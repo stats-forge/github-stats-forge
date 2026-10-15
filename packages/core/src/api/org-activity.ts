@@ -6,10 +6,14 @@ import { fetchOrgActivity } from '../fetchers/org-activity.ts';
 import { cardHandler } from './handler.ts';
 import {
   commonParams,
+  DAYS_OR_RANGE,
   enumListParam,
+  fromParam,
   intParam,
+  ORDERED_RANGE,
   statRowParams,
   titleParams,
+  toParam,
   usernameParam,
 } from './params.ts';
 
@@ -20,16 +24,21 @@ const STATS = [
 ] as const;
 
 /** What the organization activity endpoint accepts, on top of the shared color params. */
-const orgActivityQuery = z.object({
-  org: usernameParam,
-  ...commonParams,
-  ...titleParams,
-  ...statRowParams,
-  days: intParam(),
-  hide: enumListParam(STATS, renderOrgActivityCard.OPTIONS.hide),
-  show: enumListParam(STATS, renderOrgActivityCard.OPTIONS.show),
-  card_width: intParam({ px: true }),
-});
+const orgActivityQuery = z
+  .object({
+    org: usernameParam,
+    ...commonParams,
+    ...titleParams,
+    ...statRowParams,
+    days: intParam(),
+    from: fromParam,
+    to: toParam,
+    hide: enumListParam(STATS, renderOrgActivityCard.OPTIONS.hide),
+    show: enumListParam(STATS, renderOrgActivityCard.OPTIONS.show),
+    card_width: intParam({ px: true }),
+  })
+  .check(ORDERED_RANGE)
+  .check(DAYS_OR_RANGE);
 
 /**
  * Render the organization activity card for a set of query params.
@@ -43,6 +52,8 @@ const renderOrgActivity = cardHandler(
     {
       org,
       days,
+      from,
+      to,
       hide,
       show,
       show_icons,
@@ -69,6 +80,8 @@ const renderOrgActivity = cardHandler(
       {
         org,
         days,
+        from,
+        to,
         include_commits: drawn.has('commits'),
         // both rows are drawn unless hidden, so hiding both is how a query says it wants
         // the card from a token that may not read issues

@@ -59,6 +59,7 @@ type Rejection =
   | 'date'
   | 'out_of_range'
   | 'inverted_range'
+  | 'range_conflict'
   | 'unsafe'
   | 'username'
   | 'hostname'
@@ -76,6 +77,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   date: (param) => `Invalid date input for parameter "${param}"`,
   out_of_range: (param) => `Out of range date for parameter "${param}"`,
   inverted_range: () => 'Range "from" is after "to"',
+  range_conflict: (param) => `Parameter "${param}" cannot be combined with "from" or "to"`,
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
   username: (param) => `Invalid username input for parameter "${param}"`,
   hostname: (param) => `Invalid hostname input for parameter "${param}"`,
@@ -211,6 +213,16 @@ const ORDERED_RANGE = z.refine<{ from?: Date | undefined; to?: Date | undefined 
   ({ from, to }) => from === undefined || to === undefined || from <= to,
   { error: REJECTION_MESSAGES.inverted_range('from'), path: ['from'] },
 );
+
+/** `days` is a shorthand for a range, so a query naming both says two different things. */
+const DAYS_OR_RANGE = z.refine<{
+  days?: number | undefined;
+  from?: Date | undefined;
+  to?: Date | undefined;
+}>(({ days, from, to }) => days === undefined || (from === undefined && to === undefined), {
+  error: REJECTION_MESSAGES.range_conflict('days'),
+  path: ['days'],
+});
 
 /**
  * A text param that must match a pattern, yielded unchanged.
@@ -452,6 +464,7 @@ export type { ApiQuery, ParamKind, ParamShape };
 export {
   booleanParam,
   commonParams,
+  DAYS_OR_RANGE,
   describeParams,
   enumListParam,
   enumParam,

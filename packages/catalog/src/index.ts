@@ -437,8 +437,9 @@ const CARDS: ReadonlyArray<CardKind> = [
         label: 'Days to count',
         kind: 'integer',
         group: 'data',
-        hint: 'The window ends today; 30 by default',
+        hint: 'The window ends today; 30 by default. Leave it out to count from and up to dates',
       },
+      ...rangeOptions('activity'),
       {
         name: 'show',
         label: 'Extra stats to show',

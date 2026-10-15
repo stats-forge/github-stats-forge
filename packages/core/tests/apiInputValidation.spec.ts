@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { ApiResult } from '../src/api/api-result.ts';
 import { contributedTo } from '../src/api/contributed-to.ts';
 import { gist } from '../src/api/gist.ts';
+import { orgActivity } from '../src/api/org-activity.ts';
 import { pin } from '../src/api/pin.ts';
 import { stats } from '../src/api/stats.ts';
 import { topLangs } from '../src/api/top-langs.ts';
@@ -41,6 +42,8 @@ const rangeParams: Array<[string, string, (value: string) => Promise<ApiResult>]
   ['contributed-to', 'to', (to) => contributedTo({ username: 'user', to }, config)],
   ['stats', 'from', (from) => stats({ username: 'user', from }, config)],
   ['stats', 'to', (to) => stats({ username: 'user', to }, config)],
+  ['org-activity', 'from', (from) => orgActivity({ org: 'org', from }, config)],
+  ['org-activity', 'to', (to) => orgActivity({ org: 'org', to }, config)],
 ];
 
 // Within the safe set, but not logins GitHub can issue: a hyphen may not lead, trail or double.
@@ -116,6 +119,13 @@ describe('API input validation', () => {
       error: { code: 'invalid_param', param: 'from' },
     });
     expect(result.content).toContain('Range &#34;from&#34; is after &#34;to&#34;');
+  });
+
+  it('org-activity: rejects days together with a range', async () => {
+    const result = await orgActivity({ org: 'vitest-dev', days: '30', from: '2024' }, config);
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'days' } });
+    expect(result.content).toContain('cannot be combined with');
   });
 
   describe.each(rangeParams)('%s: %s', (_endpoint, param, send) => {

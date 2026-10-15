@@ -2,6 +2,7 @@ import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
+import { formatRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
 import { icons } from '../../common/icons.ts';
 import type { Localized } from '../../common/localize.ts';
@@ -71,10 +72,11 @@ interface StatItem {
 const defaultTitleFor = (
   t: Localized<typeof orgActivityCardLocales>,
   name: string,
-  days: number,
+  { days, range }: Pick<OrgActivityData, 'days' | 'range'>,
   contentWidth: number,
 ): string => {
-  const window = ` (${t.lastDays({ count: days })})`;
+  const window =
+    days === undefined ? ` (${formatRange(range)})` : ` (${t.lastDays({ count: days })})`;
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const named = `${t.title({ name, apostrophe })}${window}`;
   return measureText(named, TITLE_FONT_SIZE) <= contentWidth
@@ -117,6 +119,7 @@ const renderCard = (
   const {
     name,
     days,
+    range,
     prsOpened,
     prsMerged,
     issuesOpened,
@@ -252,7 +255,7 @@ const renderCard = (
     defaultTitle: defaultTitleFor(
       t,
       name,
-      days,
+      { days, range },
       width - 2 * CARD_STYLE.padding.x - TITLE_ICON_COLUMN,
     ),
     titlePrefixIcon: CARD_ICON.orgActivity,

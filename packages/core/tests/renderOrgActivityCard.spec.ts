@@ -93,6 +93,16 @@ describe('test renderOrgActivityCard', () => {
     );
   });
 
+  it('should write a from/to window as the range it covers', () => {
+    document.body.innerHTML = renderOrgActivityCard({
+      ...data,
+      days: undefined,
+      range: { from: new Date('2024-01-01T00:00:00Z'), to: new Date('2024-12-31T23:59:59Z') },
+    });
+
+    expect(document.querySelector('.header')).toHaveTextContent('(2024)');
+  });
+
   it('should write the window in the singular for a window of one day', () => {
     document.body.innerHTML = renderOrgActivityCard({ ...data, days: 1 });
 

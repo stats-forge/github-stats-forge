@@ -29,3 +29,5 @@ feat!: stricter, more consistent card params
   `browser_rendering` → `wrap_description`.
 - `number_precision` reaches every card drawing stat rows, and the repo card's stars and forks follow
   `number_format`.
+- The org-activity card takes `from` and `to` like the other cards; `days` stays as the shorthand
+  for the last N days, and naming both is an `invalid_param`.

@@ -133,6 +133,30 @@ describe(fetchOrgActivity, () => {
     expect(sentSearches()['prsOpened']).toContain('created:2025-09-13..2026-09-12');
   });
 
+  it('counts within a from/to range instead of days, and says it was not asked as days', async () => {
+    mock.onPost(GRAPHQL).reply(200, answer());
+
+    const data = await fetchOrgActivity(
+      {
+        org: 'vitest-dev',
+        from: new Date('2024-01-01T00:00:00Z'),
+        to: new Date('2024-12-31T23:59:59Z'),
+      },
+      config,
+    );
+
+    expect(sentSearches()['prsOpened']).toContain('created:2024-01-01..2024-12-31');
+    expect(data.days).toBeUndefined();
+  });
+
+  it('ends an open range today', async () => {
+    mock.onPost(GRAPHQL).reply(200, answer());
+
+    await fetchOrgActivity({ org: 'vitest-dev', from: new Date('2026-09-01T00:00:00Z') }, config);
+
+    expect(sentSearches()['prsOpened']).toContain('created:2026-09-01..2026-09-12');
+  });
+
   it('takes the default window when the query named an unparsed one', async () => {
     mock.onPost(GRAPHQL).reply(200, answer());
 
