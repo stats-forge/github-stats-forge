@@ -378,11 +378,29 @@ const renderCard = (
   }
 
   const repoFilter = encodeURIComponent(buildSearchFilter(repo, owner));
+  const scopes = [...repo, ...owner.map((login) => `${login}/*`)];
+  /**
+   * A search stat's label, naming where it counted, since nothing else on the card says so.
+   *
+   * @returns The label, with the scope after it when there is one.
+   */
+  const scoped = (label: string): string => {
+    const [only] = scopes;
+    if (only === undefined) {
+      return label;
+    }
+
+    if (scopes.length === 1) {
+      return `${label} (${only})`;
+    }
+
+    return `${label} (${t.scopes({ count: scopes.length })})`;
+  };
   const encodedUsername = encodeURIComponent(username ?? '');
   if (shows('prs_opened')) {
     STATS['prs_opened'] = {
       icon: icons.prs,
-      label: t.prsOpened(),
+      label: scoped(t.prsOpened()),
       value: totalPRsAuthored,
       id: 'prs_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -391,7 +409,7 @@ const renderCard = (
   if (shows('prs_commented')) {
     STATS['prs_commented'] = {
       icon: icons.comments,
-      label: t.prsCommented(),
+      label: scoped(t.prsCommented()),
       value: totalPRsCommented,
       id: 'prs_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -400,7 +418,7 @@ const renderCard = (
   if (shows('prs_reviewed')) {
     STATS['prs_reviewed'] = {
       icon: icons.reviews,
-      label: t.prsReviewed(),
+      label: scoped(t.prsReviewed()),
       value: totalPRsReviewed,
       id: 'prs_reviewed',
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -409,7 +427,7 @@ const renderCard = (
   if (shows('issues_opened')) {
     STATS['issues_opened'] = {
       icon: icons.issues,
-      label: t.issuesOpened(),
+      label: scoped(t.issuesOpened()),
       value: totalIssuesAuthored,
       id: 'issues_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
@@ -418,7 +436,7 @@ const renderCard = (
   if (shows('issues_commented')) {
     STATS['issues_commented'] = {
       icon: icons.discussions_started,
-      label: t.issuesCommented(),
+      label: scoped(t.issuesCommented()),
       value: totalIssuesCommented,
       id: 'issues_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,

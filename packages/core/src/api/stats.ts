@@ -14,6 +14,8 @@ import {
   intParam,
   ORDERED_RANGE,
   safeListParam,
+  scopeNeedsSearchStat,
+  scopeParam,
   statRowParams,
   titleParams,
   toParam,
@@ -23,6 +25,15 @@ import {
 /** Every stat the card draws: `show` and `hide` each accept any of them. */
 const STATS = [...renderStatsCard.OPTIONS.hide, ...renderStatsCard.OPTIONS.show] as const;
 
+/** The stats counted by search, and so the only ones `scope` narrows. */
+const SEARCH_STATS = [
+  'prs_opened',
+  'prs_commented',
+  'prs_reviewed',
+  'issues_opened',
+  'issues_commented',
+] as const;
+
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z
   .object({
@@ -30,8 +41,7 @@ const statsQuery = z
     ...commonParams,
     ...titleParams,
     ...statRowParams,
-    repo: safeListParam,
-    owner: safeListParam,
+    scope: scopeParam,
     hide: enumListParam(STATS, renderStatsCard.OPTIONS.hide),
     card_width: intParam({ px: true }),
     hide_rank: booleanParam,
@@ -44,7 +54,8 @@ const statsQuery = z
     show: enumListParam(STATS, renderStatsCard.OPTIONS.show),
     include_own_repos: booleanParam,
   })
-  .check(ORDERED_RANGE);
+  .check(ORDERED_RANGE)
+  .check(scopeNeedsSearchStat(SEARCH_STATS));
 
 /**
  * Render the stats card for a set of query params.
@@ -57,8 +68,7 @@ const renderStats = cardHandler(
   async (
     {
       username,
-      repo,
-      owner,
+      scope,
       hide,
       hide_title,
       hide_border,
@@ -86,10 +96,9 @@ const renderStats = cardHandler(
     // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
     const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
 
-    // A bare repo name is scoped to the user whose card this is.
-    const repository = repo.map((name) =>
-      name.includes('/') ? name : `${username ?? ''}/${name}`,
-    );
+    // `owner/*` is an owner; anything else the boundary let through is a repository
+    const owner = scope.filter((entry) => entry.endsWith('/*')).map((entry) => entry.slice(0, -2));
+    const repository = scope.filter((entry) => !entry.endsWith('/*'));
 
     const stats = await fetchStats(
       {

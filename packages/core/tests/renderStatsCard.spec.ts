@@ -142,6 +142,26 @@ describe('Test renderStatsCard', () => {
     expect(screen.queryByTestId('contributed_to_all_time')).not.toBeInTheDocument();
   });
 
+  it('names the scope of a search stat, and counts several', () => {
+    document.body.innerHTML = renderStatsCard(
+      stats,
+      { show: ['prs_opened'] },
+      'me',
+      [],
+      ['vitest-dev'],
+    );
+    expect(document.querySelector('svg')).toHaveTextContent('PRs Created (vitest-dev/*)');
+
+    document.body.innerHTML = renderStatsCard(
+      stats,
+      { show: ['prs_opened'] },
+      'me',
+      ['me/dotfiles'],
+      ['vitest-dev'],
+    );
+    expect(document.querySelector('svg')).toHaveTextContent('PRs Created (2 scopes)');
+  });
+
   it('should hide_rank', () => {
     document.body.innerHTML = renderStatsCard(stats, { hide_rank: true });
 

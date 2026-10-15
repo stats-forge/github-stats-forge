@@ -500,6 +500,9 @@ const statCardLocales = defineLocales({
     no: 'Totalt antall besvarte diskusjoner',
     be: 'Усяго адказаў у абмеркаваннях',
   },
+  scopes: {
+    en: { one: '{count} scope', other: '{count} scopes' },
+  },
   prsOpened: {
     en: 'PRs Created',
     'zh-tw': '建立的拉取請求',

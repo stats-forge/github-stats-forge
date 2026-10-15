@@ -67,8 +67,7 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 | `include_all_commits` | `true` `false`                                    | Count commits of all time rather than the counted range |
 | `from` / `to`         | `2024`, `2024-03`, `2024-03-15`                   | The range commits and contributions are counted in      |
 | `exclude_repo`        | `owner/name` or `name`                            | Repositories to leave out of the totals                 |
-| `repo`                | `owner/name` or `name`                            | Scope the search-based stats to these repositories      |
-| `owner`               | logins                                            | Scope the search-based stats to these owners            |
+| `scope`               | `owner/name` `owner/*`                            | Where the search-based stats count                      |
 | `affiliation`         | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count towards the stars and the rank |
 | `include_own_repos`   | `true` `false`                                    | Count contributions to your own repositories            |
 | `number_format`       | `short` `long`                                    | `1.5k` or `1500`                                        |
@@ -77,6 +76,20 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.
+
+## Scoping the search stats
+
+`prs_opened`, `prs_commented`, `prs_reviewed`, `issues_opened` and `issues_commented` are counted
+by GitHub's search, and `scope` narrows that search: `owner/name` for one repository, `owner/*` for
+everything an owner holds, up to ten entries.
+
+```text
+?username=octocat&show=prs_opened&scope=vitest-dev/*,octocat/dotfiles
+```
+
+Each scoped line names its scope, `PRs Created (vitest-dev/*)` or `PRs Created (2 scopes)`. A bare
+name is an error, being a repository or an owner with nothing to say which, and so is a `scope`
+when none of those five stats is drawn.
 
 ## What `affiliation` covers
 

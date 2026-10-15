@@ -194,16 +194,11 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'data',
       },
       {
-        name: 'repo',
-        label: 'Repositories the search-based stats are scoped to',
+        name: 'scope',
+        label: 'Where the search-based stats count',
         kind: 'list',
         group: 'data',
-      },
-      {
-        name: 'owner',
-        label: 'Owners the search-based stats are scoped to',
-        kind: 'list',
-        group: 'data',
+        hint: 'owner/name for a repository, owner/* for everything an owner holds',
       },
       {
         name: 'affiliation',

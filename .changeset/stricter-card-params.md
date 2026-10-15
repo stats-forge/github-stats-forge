@@ -35,3 +35,6 @@ feat!: stricter, more consistent card params
   card, to `description_lines_count` lines.
 - Removed `line_height`: rows sit on each card's own spacing.
 - Removed `text_bold`: each card keeps its own value weight.
+- The stats card's `repo` and `owner` become one `scope` list of `owner/name` and `owner/*` entries;
+  a bare name, more than ten entries, or a `scope` with no search stat drawn is an `invalid_param`, and
+  each scoped line names its scope.

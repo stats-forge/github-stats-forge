@@ -23,8 +23,6 @@ const config = new CardConfig({ pats: [{ name: 'PAT_1', value: 'token' }] });
  */
 const endpoints: Array<[string, string, (value: string) => Promise<ApiResult>]> = [
   ['gist', 'id', (id) => gist({ id }, config)],
-  ['stats', 'repo', (repo) => stats({ repo }, config)],
-  ['stats', 'owner', (owner) => stats({ owner }, config)],
   ['pin', 'repo', (repo) => pin({ repo }, config)],
 ];
 
@@ -119,6 +117,25 @@ describe('API input validation', () => {
       error: { code: 'invalid_param', param: 'from' },
     });
     expect(result.content).toContain('Range &#34;from&#34; is after &#34;to&#34;');
+  });
+
+  it.each([
+    'vitest',
+    'a/b/c',
+    'a b/c',
+    'evil/<x>',
+    Array.from({ length: 11 }, (_, index) => `o${index}/*`).join(','),
+  ])('stats: rejects scope %j', async (scope) => {
+    const result = await stats({ username: 'user', show: 'prs_opened', scope }, config);
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'scope' } });
+  });
+
+  it('stats: rejects a scope when no search stat is drawn', async () => {
+    const result = await stats({ username: 'user', scope: 'vitest-dev/*' }, config);
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'scope' } });
+    expect(result.content).toContain('applies only to the search stats');
   });
 
   it('org-activity: rejects days together with a range', async () => {

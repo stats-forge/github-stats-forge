@@ -149,8 +149,6 @@ const casesFor = (params: Array<string>): Array<[string, string]> =>
 
 describe('XSS prevention - stats API', () => {
   const apiParamNames = [
-    'repo',
-    'owner',
     'hide',
     'hide_title',
     'hide_border',
