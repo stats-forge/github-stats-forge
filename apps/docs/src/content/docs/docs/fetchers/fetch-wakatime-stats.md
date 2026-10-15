@@ -17,7 +17,8 @@ treatment here as everywhere else.
 ## Another instance
 
 `api_domain` points at a self-hosted WakaTime — Wakapi or Hakatime — and defaults to
-`wakatime.com`. A trailing slash is trimmed for you.
+`wakatime.com`. It is a host and an optional port, `wakapi.dev` or `localhost:3000`:
+a path, a query or credentials are refused, as is a username that is not one path segment.
 
 The profile has to be public: WakaTime hides these numbers until "Display coding activity
 publicly" is switched on.

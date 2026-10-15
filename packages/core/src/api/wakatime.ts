@@ -7,17 +7,18 @@ import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   enumParam,
+  hostnameParam,
   listParam,
   localeParam,
   looseIntParam,
   numberParam,
   rawParam,
-  safeParam,
+  wakatimeUsernameParam,
 } from './params.ts';
 
 /** What the wakatime endpoint accepts, on top of the shared color params. */
 const wakatimeQuery = z.object({
-  username: safeParam,
+  username: wakatimeUsernameParam,
   hide_border: booleanParam,
   card_width: looseIntParam,
   line_height: rawParam,
@@ -28,7 +29,7 @@ const wakatimeQuery = z.object({
   layout: enumParam(renderWakatimeCard.OPTIONS.layout),
   langs_count: looseIntParam,
   hide: listParam,
-  api_domain: rawParam,
+  api_domain: hostnameParam,
   border_radius: numberParam,
   display_format: enumParam(renderWakatimeCard.OPTIONS.display_format),
   disable_animations: booleanParam,

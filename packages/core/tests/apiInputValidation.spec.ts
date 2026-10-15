@@ -21,8 +21,6 @@ const config = new CardConfig({ pats: [{ name: 'PAT_1', value: 'token' }] });
  * so the rejection cannot be blamed on another param.
  */
 const endpoints: Array<[string, string, (value: string) => Promise<ApiResult>]> = [
-  // A WakaTime username is not a GitHub login, so it is only checked against the safe set.
-  ['wakatime', 'username', (username) => wakatime({ username }, config)],
   ['gist', 'id', (id) => gist({ id }, config)],
   ['stats', 'repo', (repo) => stats({ repo }, config)],
   ['stats', 'owner', (owner) => stats({ owner }, config)],
@@ -55,6 +53,35 @@ describe('API input validation', () => {
       expect(result.status).toBe('error');
       expect(result.content).toContain('unsafe characters');
     });
+  });
+
+  // Not a GitHub login, but still one segment of the URL path it is fetched from.
+  it.each([...unsafeValues, 'a/b', '..', '.'])('wakatime: rejects username %j', async (value) => {
+    const result = await wakatime({ username: value }, config);
+    expect(result).toMatchObject({
+      status: 'error',
+      error: { code: 'invalid_param', param: 'username' },
+    });
+  });
+
+  it.each([
+    'evil.com/path',
+    'evil.com?x=',
+    'evil.com#',
+    'user@evil.com',
+    'evil.com:80@internal',
+    'evil.com/',
+    '-evil.com',
+    'evil..com',
+    String.raw`evil.com\x`,
+  ])('wakatime: rejects api_domain %j', async (api_domain) => {
+    const result = await wakatime({ username: 'user', api_domain }, config);
+    expect(result).toMatchObject({
+      status: 'error',
+      retryable: false,
+      error: { code: 'invalid_param', param: 'api_domain' },
+    });
+    expect(result.content).toContain('Invalid hostname input for parameter &#34;api_domain&#34;');
   });
 
   describe.each(githubUsernameEndpoints)('%s: username', (_endpoint, send) => {

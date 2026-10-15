@@ -14,7 +14,8 @@ hand the render functions typed values — defaults stay with the renderer.
 
 **Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
 params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `looseIntParam`,
-`rawParam`, `safeParam`, `safeListParam`, `localeParam`, `enumParam(values)`,
+`rawParam`, `safeParam`, `safeListParam`, `hostnameParam`, `wakatimeUsernameParam`,
+`localeParam`, `enumParam(values)`,
 `fromParam`, `toParam`) — none of which takes a message, because the wording is derived
 from the kind and the param name.
 A handler is then `cardHandler(xQuery, identities, async (params, colors, config) => svg)` from `api/handler.ts`:

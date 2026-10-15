@@ -1,4 +1,5 @@
 import type { CardConfig } from '../common/config.ts';
+import { HOSTNAME_PATTERN, WAKATIME_USERNAME_PATTERN } from '../common/constants.ts';
 import { CardError, WAKATIME_USER_NOT_FOUND } from '../common/error.ts';
 import { httpRequest } from '../common/http.ts';
 
@@ -25,7 +26,18 @@ const fetchWakatimeStats = async (
     throw CardError.missingParam(['username']);
   }
 
-  const domain = api_domain ? api_domain.replaceAll(/\/$/gi, '') : 'wakatime.com';
+  // `./fetchers` is a public export, so both are checked here as well as at the api boundary.
+  if (!WAKATIME_USERNAME_PATTERN.test(username)) {
+    throw new CardError('Invalid username provided.', { code: 'invalid_param', param: 'username' });
+  }
+  if (api_domain && !HOSTNAME_PATTERN.test(api_domain)) {
+    throw new CardError('Invalid API domain provided.', {
+      code: 'invalid_param',
+      param: 'api_domain',
+    });
+  }
+
+  const domain = api_domain || 'wakatime.com';
   const res = await httpRequest<{ data: WakaTimeData }>(
     config.fetch,
     `https://${domain}/api/v1/users/${username}/stats?is_including_today=true`,
