@@ -30,6 +30,13 @@ const COMPACT_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 const DONUT_LAYOUT_DEFAULT_LANGS_COUNT = 5;
 /** Room for the chart that sits beside the language list. */
 const DONUT_EXTRA_WIDTH = 50;
+const DONUT_ROW_GAP = 32;
+/** How far a donut-layout row's ink reaches below its own top: the label's baseline, plus descenders. */
+const DONUT_ROW_INK = 13;
+/** Fixed rather than taken from the width, which the card's height and the list cannot follow. */
+const DONUT_RADIUS = 60;
+const DONUT_STROKE_WIDTH = 12;
+const DONUT_OUTER_RADIUS = DONUT_RADIUS + DONUT_STROKE_WIDTH / 2;
 const PIE_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 const DONUT_VERTICAL_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 
@@ -149,12 +156,28 @@ const calculateNormalLayoutHeight = (totalLangs: number): number =>
   CARD_STYLE.padding.bottom;
 
 /**
+ * The height of the donut layout's language list.
+ *
+ * @returns From the top of the first row to the ink of the last.
+ */
+const donutLayoutListHeight = (totalLangs: number): number =>
+  Math.max(totalLangs - 1, 0) * DONUT_ROW_GAP + DONUT_ROW_INK;
+
+/**
+ * The height of the donut layout's body: the list or the ring, whichever is taller.
+ *
+ * @returns Body height.
+ */
+const donutLayoutBodyHeight = (totalLangs: number): number =>
+  Math.max(donutLayoutListHeight(totalLangs), DONUT_OUTER_RADIUS * 2);
+
+/**
  * Calculates height for the donut layout.
  *
  * @returns Card height.
  */
 const calculateDonutLayoutHeight = (totalLangs: number): number =>
-  215 + Math.max(totalLangs - 5, 0) * 32;
+  CARD_STYLE.padding.bodyOffsetY + donutLayoutBodyHeight(totalLangs) + CARD_STYLE.padding.bottom;
 
 /**
  * Calculates height for the donut vertical layout.
@@ -171,14 +194,6 @@ const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
  */
 const calculatePieLayoutHeight = (totalLangs: number): number =>
   300 + Math.round(totalLangs / 2) * 25;
-
-/**
- * Calculates the center translation needed to keep the donut chart centred.
- *
- * @returns Donut center translation.
- */
-const donutCenterTranslation = (totalLangs: number): number =>
-  -45 + Math.max(totalLangs - 5, 0) * 16;
 
 /**
  * Trim top languages to lang_count while also hiding certain languages.
@@ -385,7 +400,7 @@ const createDonutLanguagesNode = ({
         index,
       }),
     ),
-    gap: 32,
+    gap: DONUT_ROW_GAP,
     direction: 'column',
   });
 
@@ -709,17 +724,18 @@ const renderDonutLayout = (
     throw new TypeError(`Invalid width: "${width}"`);
   }
 
-  const centerX = width / 3;
-  const centerY = width / 3;
-  const radius = centerX - 60;
-  const strokeWidth = 12;
+  const bodyHeight = donutLayoutBodyHeight(langs.length);
+  // The body is drawn from the card's left padding, and the ring stops at its right one.
+  const centerX = width - CARD_STYLE.padding.x * 2 - DONUT_OUTER_RADIUS;
+  const centerY = bodyHeight / 2;
+  const listOffsetY = (bodyHeight - donutLayoutListHeight(langs.length)) / 2;
 
   const colors = langs.map((lang) => resolveLangColor(lang));
   const langsPercents = langs.map((lang) =>
     Number.parseFloat(((lang.size / totalLanguageSize) * 100).toFixed(2)),
   );
 
-  const langPaths = createDonutPaths(centerX, centerY, radius, langsPercents);
+  const langPaths = createDonutPaths(centerX, centerY, DONUT_RADIUS, langsPercents);
 
   const donutPaths: Array<Child> =
     langs.length === 1
@@ -727,10 +743,10 @@ const renderDonutLayout = (
           el('circle', {
             cx: centerX,
             cy: centerY,
-            r: radius,
+            r: DONUT_RADIUS,
             stroke: colors[0] ?? DEFAULT_LANG_COLOR,
             fill: 'none',
-            'stroke-width': strokeWidth,
+            'stroke-width': DONUT_STROKE_WIDTH,
             'data-testid': 'lang-donut',
             size: 100,
           }),
@@ -745,18 +761,18 @@ const renderDonutLayout = (
               d: section.d,
               stroke: colors[index] ?? DEFAULT_LANG_COLOR,
               fill: 'none',
-              'stroke-width': strokeWidth,
+              'stroke-width': DONUT_STROKE_WIDTH,
             }),
           ),
         );
 
   return [
-    createDonutLanguagesNode({ langs, totalSize: totalLanguageSize, hideValues, statsFormat }),
     el(
       'g',
-      { transform: `translate(125, ${donutCenterTranslation(langs.length)})` },
-      el('svg', { width, height: width }, donutPaths),
+      { 'data-testid': 'donut-list', transform: `translate(0, ${listOffsetY})` },
+      createDonutLanguagesNode({ langs, totalSize: totalLanguageSize, hideValues, statsFormat }),
     ),
+    el('g', { 'data-testid': 'donut' }, donutPaths),
   ];
 };
 
@@ -971,7 +987,6 @@ export {
   calculateDonutLayoutHeight,
   calculateDonutVerticalLayoutHeight,
   calculatePieLayoutHeight,
-  donutCenterTranslation,
   trimTopLanguages,
   MIN_CARD_WIDTH,
   getDefaultLanguagesCountByLayout,
