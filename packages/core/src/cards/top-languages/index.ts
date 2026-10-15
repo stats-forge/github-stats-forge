@@ -232,8 +232,13 @@ const trimTopLanguages = (
  *
  * @returns Display value.
  */
-const getDisplayValue = (size: number, percentages: number, format: string): string =>
-  format === 'bytes' ? formatBytes(size) : `${percentages.toFixed(2)}%`;
+const getDisplayValue = (size: number, percentages: number, format: string): string => {
+  if (format === 'bytes') {
+    return formatBytes(size);
+  }
+
+  return `${percentages.toFixed(2)}%`;
+};
 
 /**
  * Resolves a language's display color, falling back to the default, and
@@ -851,13 +856,10 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
 
   const { langs, totalLanguageSize } = trimTopLanguages(topLangs, langs_count, hide_langs);
 
-  let width = card_width
-    ? Number.isNaN(card_width)
-      ? DEFAULT_CARD_WIDTH
-      : card_width < MIN_CARD_WIDTH
-        ? MIN_CARD_WIDTH
-        : card_width
-    : DEFAULT_CARD_WIDTH;
+  let width: number = DEFAULT_CARD_WIDTH;
+  if (card_width && !Number.isNaN(card_width)) {
+    width = Math.max(card_width, MIN_CARD_WIDTH);
+  }
   let height = calculateNormalLayoutHeight(langs.length);
 
   const { lightColors, darkColors } = getLightDarkColors(options);

@@ -56,14 +56,22 @@ const describeProblem = (code: string, param: string | null | undefined): string
 };
 
 /** @returns The failure as a line of text, or `undefined` when there was none. */
-const problemOf = (result: ApiResult): string | undefined =>
-  result.status === 'error' ? describeProblem(result.error.code, result.error.param) : undefined;
+const problemOf = (result: ApiResult): string | undefined => {
+  if (result.status !== 'error') {
+    return undefined;
+  }
+
+  return describeProblem(result.error.code, result.error.param);
+};
 
 /** @returns What the card response says went wrong, or `undefined` when it drew a card. */
-const problemFromHeaders = (headers: Headers): string | undefined =>
-  headers.get('card-status') === 'error'
-    ? describeProblem(headers.get('card-error-code') ?? '', headers.get('card-error-param'))
-    : undefined;
+const problemFromHeaders = (headers: Headers): string | undefined => {
+  if (headers.get('card-status') !== 'error') {
+    return undefined;
+  }
+
+  return describeProblem(headers.get('card-error-code') ?? '', headers.get('card-error-param'));
+};
 
 const sampleSource: PreviewSource = {
   label: 'Sample data',

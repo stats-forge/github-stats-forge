@@ -215,12 +215,17 @@ const getTotalCommitsRangeLabel = (
   include_all_commits: boolean,
   commitsRange: GitHubDateRange | undefined,
   commonT: Localized<typeof commonLocales>,
-): string =>
-  include_all_commits
-    ? ''
-    : commitsRange
-      ? ` (${formatRange(commitsRange)})`
-      : ` (${commonT.lastYear()})`;
+): string => {
+  if (include_all_commits) {
+    return '';
+  }
+
+  if (commitsRange) {
+    return ` (${formatRange(commitsRange)})`;
+  }
+
+  return ` (${commonT.lastYear()})`;
+};
 
 /**
  * Renders the stats card.
@@ -472,11 +477,12 @@ const renderCard = (
   const iconWidth = show_icons && visibleStats.length > 0 ? 16 + /* padding */ 1 : 0;
   // The icons ride inside the step's own slack, so a default card lands on the width grid;
   // only the minimum, which has no slack, still has to make room for them.
-  const defaultCardWidth = hide_rank
-    ? CARD_DEFAULT_WIDTH
-    : visibleStats.length > 0
-      ? RANK_CARD_DEFAULT_WIDTH
-      : RANK_ONLY_CARD_DEFAULT_WIDTH;
+  let defaultCardWidth: number = RANK_ONLY_CARD_DEFAULT_WIDTH;
+  if (hide_rank) {
+    defaultCardWidth = CARD_DEFAULT_WIDTH;
+  } else if (visibleStats.length > 0) {
+    defaultCardWidth = RANK_CARD_DEFAULT_WIDTH;
+  }
   // Only a card sized by its own title can outgrow its step: the ranked layouts are fixed,
   // so their step is also their floor.
   const fittedWidth = hide_rank

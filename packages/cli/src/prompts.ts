@@ -75,8 +75,13 @@ const askOption = async (option: CardOption, current: Answer): Promise<Answer> =
 export type MenuChoice = 'generate' | 'save' | 'print' | 'quit';
 
 /** Rows the list may use: the terminal, less the message, the help line and some air. */
-const menuHeight = (): number =>
-  process.stdout.isTTY ? Math.max(10, process.stdout.rows - 6) : 15;
+const menuHeight = (): number => {
+  if (!process.stdout.isTTY) {
+    return 15;
+  }
+
+  return Math.max(10, process.stdout.rows - 6);
+};
 
 /**
  * A section heading, ruled out to the width of the labels under it.

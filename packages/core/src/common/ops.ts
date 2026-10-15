@@ -57,8 +57,13 @@ const excludes = (entries: Array<string>): ((nameWithOwner: string) => boolean) 
  *
  * @returns The clamped number; `min` for `NaN`.
  */
-const clampValue = (number: number, min: number, max: number): number =>
-  Number.isNaN(number) ? min : Math.max(min, Math.min(number, max));
+const clampValue = (number: number, min: number, max: number): number => {
+  if (Number.isNaN(number)) {
+    return min;
+  }
+
+  return Math.max(min, Math.min(number, max));
+};
 
 /**
  * Lowercase and trim string.

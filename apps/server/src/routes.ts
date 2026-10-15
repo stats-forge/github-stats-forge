@@ -38,16 +38,26 @@ const CARD_ROUTES: ReadonlyMap<string, CardHandler> = new Map([
  *
  * @returns The path a route is looked up by.
  */
-const normalizePath = (pathname: string): string =>
-  pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+const normalizePath = (pathname: string): string => {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1);
+  }
+
+  return pathname;
+};
 
 /**
  * Which card a path draws, for the log line.
  *
  * @returns The card's id, or `undefined` when the path is not a card's.
  */
-const cardIdFor = (path: string): string | undefined =>
-  CARD_ROUTES.has(path) ? path.slice('/api/'.length) : undefined;
+const cardIdFor = (path: string): string | undefined => {
+  if (!CARD_ROUTES.has(path)) {
+    return undefined;
+  }
+
+  return path.slice('/api/'.length);
+};
 
 export type { CardHandler };
 

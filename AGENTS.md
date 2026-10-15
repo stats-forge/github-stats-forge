@@ -193,6 +193,9 @@ flags are in `tsconfig.base.json`; the lint-enforced style (`Array<T>`, `_`-pref
   `getLightDarkColors`, so the `_light` / `_dark` params are part of its contract.
 - **What one card exports and another imports moves to `common/`.** Ask before moving.
 - **One export style per module** ([#39]): a name, or a default, never both.
+- **A function that branches gets a block body: each outcome an `if` with an early `return`.** Not
+  an arrow expression body built from a ternary, and never a nested ternary anywhere; a one-line body
+  with no branching is fine. Type-level conditional types are the exception, having no `if`.
 - **An untyped dependency gets a `declare module` shim** — `@uppercod/css-to-object` →
   `tests/_css-to-object.d.ts`. A runtime dependency's shim lives under `src/`, where the build sees it.
 - **A dependency whose whole body is one literal is inlined** ([#31]), as `GITHUB_USERNAME_PATTERN`

@@ -148,8 +148,13 @@ const renderCard = (
    *
    * @returns The value, as the row draws it.
    */
-  const total = (value: number): number | string =>
-    truncated ? `${formatCount(value, number_format, number_precision)}+` : value;
+  const total = (value: number): number | string => {
+    if (!truncated) {
+      return value;
+    }
+
+    return `${formatCount(value, number_format, number_precision)}+`;
+  };
 
   const STATS: Partial<Record<StatId, StatItem>> = {
     repos: {

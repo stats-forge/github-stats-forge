@@ -64,10 +64,13 @@ const ttlFor = (
 /**
  * @returns The `Cache-Control` value for an answer that keeps `seconds`.
  */
-const cacheControl = (seconds: number): string =>
-  seconds === 0
-    ? 'no-store'
-    : `max-age=${seconds}, s-maxage=${seconds}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`;
+const cacheControl = (seconds: number): string => {
+  if (seconds === 0) {
+    return 'no-store';
+  }
+
+  return `max-age=${seconds}, s-maxage=${seconds}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`;
+};
 
 /**
  * What a request asked for, without `cache_seconds`: it names how long the answer keeps,

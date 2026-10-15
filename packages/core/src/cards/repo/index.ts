@@ -404,12 +404,15 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     desc: [`${desc}.`, primaryLanguage ? langName : '', extraStatLabels].filter(Boolean).join(', '),
   });
 
+  let badge: Child;
+  if (isTemplate) {
+    badge = getBadgeSVG(t.template(), card_width - CARD_DEFAULT_WIDTH);
+  } else if (isArchived) {
+    badge = getBadgeSVG(t.archived(), card_width - CARD_DEFAULT_WIDTH);
+  }
+
   return card.render([
-    isTemplate
-      ? getBadgeSVG(t.template(), card_width - CARD_DEFAULT_WIDTH)
-      : isArchived
-        ? getBadgeSVG(t.archived(), card_width - CARD_DEFAULT_WIDTH)
-        : undefined,
+    badge,
     descriptionSvg,
     el('g', { transform: `translate(30, ${height - 75 - extraHeight})` }, starAndForkCount),
     extraItems,

@@ -68,7 +68,13 @@ const formatLanguageValue = ({
 }: {
   value_format: ValueFormat;
   lang: WakaTimeLang;
-}): string => (value_format === 'percent' ? `${lang.percent.toFixed(2)} %` : lang.text);
+}): string => {
+  if (value_format === 'percent') {
+    return `${lang.percent.toFixed(2)} %`;
+  }
+
+  return lang.text;
+};
 
 /**
  * Create compact WakaTime layout.
@@ -234,8 +240,13 @@ const getStyles = ({ textColor }: { textColor: string }): Array<CssChild> => {
 };
 
 /** A bar the same color as the text behind it would be invisible, so it goes transparent. */
-const progressBackground = (titleColor: string, textColor: string): string =>
-  textColor === titleColor ? '#fff0' : textColor;
+const progressBackground = (titleColor: string, textColor: string): string => {
+  if (textColor === titleColor) {
+    return '#fff0';
+  }
+
+  return textColor;
+};
 
 /**
  * Normalize incoming width (string or number) and clamp to minimum.

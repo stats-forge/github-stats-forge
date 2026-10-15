@@ -29,8 +29,13 @@ const OPAQUE_ALPHA = 0x80;
 const THEME_NAMES = Object.keys(themes);
 
 /** @returns The hex expanded from three or four digits, or as given when it is not a shorthand. */
-const expandHex = (hex: string): string =>
-  hex.length === 3 || hex.length === 4 ? [...hex].map((char) => char + char).join('') : hex;
+const expandHex = (hex: string): string => {
+  if (hex.length !== 3 && hex.length !== 4) {
+    return hex;
+  }
+
+  return [...hex].map((char) => char + char).join('');
+};
 
 /** @returns Whether a 6- or 8-digit hex reads as dark, by perceived luminance. */
 const isDarkHex = (hex: string): boolean => {
@@ -76,14 +81,22 @@ const themeMode = (name: string): ThemeMode => {
  *
  * @returns The names, in no particular order.
  */
-const themesForCategory = (category: CardCategory): Array<string> =>
-  category === 'repo'
-    ? THEME_NAMES.filter((name) => !THEME_NAMES.includes(`${name}_repocard`))
-    : THEME_NAMES.filter((name) => !name.endsWith('_repocard'));
+const themesForCategory = (category: CardCategory): Array<string> => {
+  if (category === 'repo') {
+    return THEME_NAMES.filter((name) => !THEME_NAMES.includes(`${name}_repocard`));
+  }
+
+  return THEME_NAMES.filter((name) => !name.endsWith('_repocard'));
+};
 
 /** The half of the `default` pair this card wears, which is the theme it draws with when none is named. */
-const defaultThemeFor = (category: CardCategory): string =>
-  category === 'repo' ? 'default_repocard' : 'default';
+const defaultThemeFor = (category: CardCategory): string => {
+  if (category === 'repo') {
+    return 'default_repocard';
+  }
+
+  return 'default';
+};
 
 /**
  * Any per-scheme background: with one of these the card carries a `prefers-color-scheme` block and
