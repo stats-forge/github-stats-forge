@@ -15,7 +15,7 @@ hand the render functions typed values — defaults stay with the renderer.
 **Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
 params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `intParam`,
 `rawParam`, `safeParam`, `safeListParam`, `hostnameParam`, `wakatimeUsernameParam`,
-`localeParam`, `enumParam(values)`,
+`localeParam`, `enumParam(values)`, `enumListParam(values)`,
 `fromParam`, `toParam`) — none of which takes a message, because the wording is derived
 from the kind and the param name.
 A handler is then `cardHandler(xQuery, identities, async (params, colors, config) => svg)` from `api/handler.ts`:
@@ -64,11 +64,13 @@ Six handlers each carried that control flow by hand until 2026-09-05.
   Only `role` is added there, because affiliations belong to the fetcher's query rather
   than to one card's drawing. A UI reads a param's values off the function it calls:
   `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`, `pin.OPTIONS.show`.
-- **A `listParam` whose values are a closed set sits in `OPTIONS` beside the enum ones.**
-  `stats.OPTIONS.show`, `stats.OPTIONS.hide`, `pin.OPTIONS.show` and `role` on the two
-  handlers that take one: the schema cannot check a list against them — an unknown value
-  is ignored, not rejected — but a UI can offer them, which is what the CLI's checkbox
-  prompts read. Each card's `show` checks run through a `shows()` helper typed against its
+- **A list whose values are a closed set is an `enumListParam`, and sits in `OPTIONS` beside
+  the enum ones.** `stats.OPTIONS.show`, `stats.OPTIONS.hide`, `pin.OPTIONS.show`, the two org
+  cards' `show` and `hide`, and `role` on the two handlers that take one. One unknown entry
+  rejects the list — an ignored one reads as a stat the card forgot to draw — and entries match
+  case-insensitively, yielded as the set spells them, so `?role=owner` is `OWNER`. They were
+  `listParam`s that ignored an unknown value until 2026-10-15, and `role` was checked in the
+  fetcher instead. Each card's `show` checks run through a `shows()` helper typed against its
   own list, and the stats card's `STATS` record is keyed `Partial<Record<StatId, StatItem>>`
   where `StatId` is both lists' unions, so a stat it draws cannot be missing from them.
 - **A value set the boundary does not police still belongs on the renderer.**

@@ -115,6 +115,28 @@ describe('api query schemas', () => {
   });
 
   it.each([
+    ['show', 'prs_merged,stars'],
+    ['hide', 'stars,sparkles'],
+    ['role', 'owner,stranger'],
+  ])('rejects a %s naming something outside its set', async (param, value) => {
+    const result = await endpoints.stats({ username: 'anuraghazra', [param]: value });
+
+    expect(result).toMatchObject({ status: 'error', error: { code: 'invalid_param', param } });
+    expect(result.content).toContain(`Incorrect ${param} input`);
+  });
+
+  it('matches a closed list case-insensitively', async () => {
+    const result = await endpoints.stats({
+      username: 'anuraghazra',
+      show: 'PRS_MERGED',
+      role: 'owner,Collaborator',
+    });
+
+    // the stubbed fetch fails, but the params got past validation
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+  });
+
+  it.each([
     ['layout', 'sideways', 'Incorrect layout input'],
     ['stats_format', 'kilobytes', 'Incorrect stats_format input'],
   ])('rejects an unrenderable %s', async (param, value, message) => {

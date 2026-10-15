@@ -200,6 +200,28 @@ const enumParam = <const T extends ReadonlyArray<string>>(
   rawParam.check(rejects('enum', (value) => (values as ReadonlyArray<string>).includes(value)));
 
 /**
+ * A comma-separated list drawn from a fixed set, such as the stats a card can show.
+ * Matched case-insensitively and yielded as the set spells it, so `?role=owner` reads as `OWNER`;
+ * one unknown entry rejects the list, since an ignored entry reads as a stat the card forgot.
+ *
+ * @returns Schema yielding the entries, empty when absent.
+ */
+const enumListParam = <const T extends ReadonlyArray<string>>(
+  values: T,
+): z.ZodMiniType<Array<T[number]>, string | undefined> => {
+  const canonical = (entry: string): T[number] | undefined =>
+    values.find((value) => value.toLowerCase() === entry.toLowerCase());
+  return z.pipe(
+    rawParam.check(
+      rejects('enum', (value) =>
+        parseArray(value).every((entry) => canonical(entry) !== undefined),
+      ),
+    ),
+    z.transform((value) => parseArray(value).flatMap((entry) => canonical(entry) ?? [])),
+  );
+};
+
+/**
  * Every color param an endpoint accepts, validated and picked in one pass.
  *
  * Theme params are `rawParam`:
@@ -270,6 +292,7 @@ export type { ApiQuery };
 
 export {
   booleanParam,
+  enumListParam,
   enumParam,
   fromParam,
   hostnameParam,
