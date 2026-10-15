@@ -40,6 +40,7 @@ extra. See [the token it needs](#the-token-it-needs).
 | `line_height`      | a number                                                    | Space between the stat rows                   |
 | `text_bold`        | `true` `false`                                              | Bold the values (on by default)               |
 | `number_format`    | `short` `long`                                              | `18.7k` or `18724`                            |
+| `number_precision` | `0` `1` `2`                                                 | Decimals kept when a count is abbreviated     |
 
 `show` and `hide` each take any stat the card draws; a stat named in both is left out.
 

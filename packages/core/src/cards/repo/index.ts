@@ -5,7 +5,6 @@ import { icons } from '../../common/icons.ts';
 import { localize } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue, parseEmojis } from '../../common/ops.ts';
 import {
-  countWrappedLines,
   createLanguageNode,
   createTextNode,
   flexLayout,
@@ -13,8 +12,6 @@ import {
   iconWithLabel,
   measureText,
   NUMBER_FORMATS,
-  wrappedTextNode,
-  wrappedTextStyles,
   wrapTextMultiline,
 } from '../../common/render.ts';
 import type { RepositoryData } from '../../fetchers/types.ts';
@@ -28,7 +25,6 @@ const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.standard;
 const X_OFFSET = 25;
 const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
-const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 3;
 /** Where a stat row starts: the stats group's `-3` plus `createTextNode`'s own `25`. */
 const STAT_ROW_X = 22;
@@ -52,7 +48,6 @@ interface RepoCardOptions extends CommonCardOptions {
   locale: string;
   disable_animations: boolean;
   show_owner: boolean;
-  wrap_description: boolean;
   description_lines_count: number;
   card_width_input: number;
   show: Array<string>;
@@ -126,7 +121,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     hide_border = false,
     card_width_input,
     show_owner = false,
-    wrap_description = false,
     show = [],
     show_icons = true,
     number_format = 'short',
@@ -257,45 +251,23 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const desc = parseEmojis(description || t.noDescription());
   const descriptionBoxWidth = card_width - 2 * X_OFFSET;
 
-  let descriptionLinesCount: number;
-  let descriptionSvg: Child;
-  if (wrap_description) {
-    // The browser performs the actual text wrapping inside the foreignObject;
-    // we only estimate the line count server-side so the SVG can reserve enough
-    // height. The estimate uses measureText for font-aware widths instead of a
-    // fixed character count.
-    descriptionLinesCount = description_lines_count
-      ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
-      : countWrappedLines(desc, DESCRIPTION_FONT_SIZE, descriptionBoxWidth, DESCRIPTION_MAX_LINES);
-    descriptionSvg = wrappedTextNode({
-      text: desc,
-      x: X_OFFSET,
-      y: -3,
-      width: descriptionBoxWidth,
-      height: descriptionLinesCount * DESCRIPTION_LINE_HEIGHT_PX + 10, // 10px extra for "descenders" like g, j, q, p, y
-      lineCount: descriptionLinesCount,
-      className: 'description',
-      testId: 'description-text',
-    });
-  } else {
-    const descriptionMaxLines = description_lines_count
-      ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
-      : DESCRIPTION_MAX_LINES;
-    const multiLineDescription = wrapTextMultiline(
-      desc,
-      descriptionBoxWidth,
-      DESCRIPTION_FONT_SIZE,
-      descriptionMaxLines,
-    );
-    descriptionLinesCount = description_lines_count
-      ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
-      : multiLineDescription.length;
-    descriptionSvg = el(
-      'text',
-      { class: 'description', x: X_OFFSET, y: -5 },
-      multiLineDescription.map((line) => el('tspan', { dy: '1.2em', x: X_OFFSET }, line)),
-    );
-  }
+  const descriptionMaxLines = description_lines_count
+    ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
+    : DESCRIPTION_MAX_LINES;
+  const multiLineDescription = wrapTextMultiline(
+    desc,
+    descriptionBoxWidth,
+    DESCRIPTION_FONT_SIZE,
+    descriptionMaxLines,
+  );
+  const descriptionLinesCount = description_lines_count
+    ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
+    : multiLineDescription.length;
+  const descriptionSvg = el(
+    'text',
+    { class: 'description', x: X_OFFSET, y: -5 },
+    multiLineDescription.map((line) => el('tspan', { dy: '1.2em', x: X_OFFSET }, line)),
+  );
 
   const extraHeight =
     Object.keys(STATS).length > 0 ? -7 + (Math.ceil(statItems.length / 2) + 1) * extraLHeight : 0;
@@ -362,7 +334,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       rule('.description', {
         font: font('regular', 'meta'),
         fill: textColor,
-        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { font: font('regular', 'small'), fill: textColor }),
       rule('.badge', { font: font('semibold', 'micro') }),
@@ -380,7 +351,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     dark: ({ textColor, iconColor }) => [
       rule('.description', {
         fill: textColor,
-        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { fill: textColor }),
       rule('.badge rect', { stroke: textColor }),

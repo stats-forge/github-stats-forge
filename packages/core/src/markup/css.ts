@@ -115,4 +115,4 @@ const writeCss = (children: Array<CssChild>, depth: number, sink: Sink): void =>
 };
 
 export { atRule, cssComment, rule, writeCss };
-export type { CssChild, Declarations };
+export type { CssChild };

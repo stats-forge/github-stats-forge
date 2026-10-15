@@ -339,12 +339,6 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'integer',
         group: 'text',
       },
-      {
-        name: 'wrap_description',
-        label: 'Let the browser wrap the description',
-        kind: 'boolean',
-        group: 'text',
-      },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
@@ -532,12 +526,6 @@ const CARDS: ReadonlyArray<CardKind> = [
     required: [{ name: 'id', label: 'Gist ID', kind: 'text' }],
     options: [
       { name: 'show_owner', label: 'Show the owner', kind: 'boolean', group: 'display' },
-      {
-        name: 'wrap_description',
-        label: 'Let the browser wrap the description',
-        kind: 'boolean',
-        group: 'text',
-      },
       {
         name: 'disable_animations',
         label: 'Disable the animations',

@@ -13,8 +13,6 @@ type Tag =
   | 'circle'
   | 'defs'
   | 'desc'
-  | 'div'
-  | 'foreignObject'
   | 'g'
   | 'linearGradient'
   | 'mask'
@@ -77,7 +75,7 @@ type Attribute =
 type Attributes = Partial<Record<Attribute, string | number | undefined>>;
 
 /** Elements whose character data is part of the rendering, so they stay on one line. */
-const INLINE_ELEMENTS: ReadonlySet<Tag> = new Set(['text', 'tspan', 'title', 'desc', 'div']);
+const INLINE_ELEMENTS: ReadonlySet<Tag> = new Set(['text', 'tspan', 'title', 'desc']);
 
 interface MarkupElement {
   readonly tag: Tag;

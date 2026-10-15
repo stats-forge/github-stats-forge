@@ -1,4 +1,4 @@
-import type { Child, Declarations, MarkupElement } from '../markup/index.ts';
+import type { Child, MarkupElement } from '../markup/index.ts';
 import { el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { getCardColors, isPrefixedHexColor } from './color.ts';
@@ -136,93 +136,6 @@ const createProgressNode = ({
       }),
     ),
   );
-};
-
-/**
- * Renders multi-line text via a `foreignObject` so the browser performs
- * native, font-aware wrapping. Content overflowing `lineCount` lines is
- * clipped (with an ellipsis on the last visible line) by CSS line-clamp.
- *
- * @returns foreignObject SVG node.
- */
-const wrappedTextNode = ({
-  text,
-  x,
-  y,
-  width,
-  height,
-  lineCount,
-  className,
-  testId,
-}: {
-  text: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  lineCount: number;
-  className: string;
-  testId?: string;
-}): MarkupElement => {
-  if (!Number.isFinite(x)) {
-    throw new TypeError(`Invalid x: "${x}"`);
-  }
-  if (!Number.isFinite(y)) {
-    throw new TypeError(`Invalid y: "${y}"`);
-  }
-  if (!Number.isFinite(width)) {
-    throw new TypeError(`Invalid width: "${width}"`);
-  }
-  if (!Number.isFinite(height)) {
-    throw new TypeError(`Invalid height: "${height}"`);
-  }
-  if (!Number.isFinite(lineCount)) {
-    throw new TypeError(`Invalid lineCount: "${lineCount}"`);
-  }
-
-  return el(
-    'foreignObject',
-    { x, y, width, height },
-    el(
-      'div',
-      {
-        xmlns: 'http://www.w3.org/1999/xhtml',
-        class: className,
-        style: `--lines: ${lineCount};`,
-        'data-testid': testId,
-      },
-      text,
-    ),
-  );
-};
-
-/**
- * CSS rules used to render multi-line text inside a `foreignObject`. Apply this
- * to a CSS class (e.g. `.description`) shared with `wrappedTextNode` so the
- * browser handles wrapping and the line count is taken from the `--lines`
- * custom property set on the element.
- *
- * @returns The declarations, to merge into the class's own rule.
- */
-const wrappedTextStyles = (color: string): Declarations => {
-  if (!isPrefixedHexColor(color)) {
-    throw new Error(`Invalid text color: "${color}"`);
-  }
-
-  return {
-    color,
-    margin: 0,
-    'line-height': 1.2,
-    'overflow-wrap': 'anywhere',
-    'word-break': 'break-word',
-    display: '-webkit-box',
-    '-webkit-box-orient': 'vertical',
-    '-webkit-line-clamp': 'var(--lines)',
-    'line-clamp': 'var(--lines)',
-    overflow: 'hidden',
-    'text-overflow': 'ellipsis',
-    'padding-bottom': '0.15em',
-  };
 };
 
 /**
@@ -566,8 +479,6 @@ const measureText = (str: string, fontSize = 10): number =>
  * Split text into the lines it would wrap to when laid out greedily at the
  * given font size inside a box of width `maxWidth`. Uses `measureText` so the
  * estimate reflects actual font metrics rather than a fixed character count.
- * The browser still does the real wrap inside the foreignObject; this is only
- * used to size the SVG.
  *
  * @returns Estimated wrapped lines.
  */
@@ -686,19 +597,6 @@ const wrapTextMultiline = (
   return multiLineText;
 };
 
-/**
- * Estimate how many lines a string will wrap to when laid out greedily at the
- * given font size inside a box of width `maxWidth`, capped at `maxLines`.
- *
- * @returns Estimated line count, at least 1, at most `maxLines`.
- */
-const countWrappedLines = (
-  text: string,
-  fontSize: number,
-  maxWidth: number,
-  maxLines: number,
-): number => Math.min(Math.max(1, splitWrappedText(text, fontSize, maxWidth).length), maxLines);
-
 export {
   formatCount,
   NUMBER_FORMATS,
@@ -711,7 +609,4 @@ export {
   measureText,
   splitWrappedText,
   wrapTextMultiline,
-  countWrappedLines,
-  wrappedTextNode,
-  wrappedTextStyles,
 };

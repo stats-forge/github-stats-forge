@@ -81,7 +81,7 @@ Only the cards that draw text take it, which today is all of them.
 
 Cards that draw counts take `number_format`: `short` writes `1.5k`, `long` writes `1500`.
 Anything else reads as `short`.
-The stats card additionally takes `number_precision`, the decimals kept when abbreviating.
+They take `number_precision` too, the decimals kept when abbreviating.
 
 ## Animations
 
