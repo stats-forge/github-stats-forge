@@ -30,6 +30,13 @@ const X_OFFSET = 25;
 const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
 const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 3;
+/** Where a stat row starts: the stats group's `-3` plus `createTextNode`'s own `25`. */
+const STAT_ROW_X = 22;
+const STAT_LABEL_X = 23;
+const STAT_COLUMN_GAP = 20;
+const LABEL_VALUE_GAP = 10;
+/** `measureText` reads Segoe UI; the stack's other fonts run wider, and semibold wider still. */
+const INK_SCALE = { regular: 1.05, bold: 1.12 };
 
 /** Stats the card draws only when `show` names them. */
 const REPO_SHOW_STATS = [
@@ -132,13 +139,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     disable_animations = false,
   } = options;
 
-  const card_width =
-    card_width_input && !Number.isNaN(card_width_input)
-      ? card_width_input
-      : show.length >= 2
-        ? CARD_DEFAULT_WIDTH + 30
-        : CARD_DEFAULT_WIDTH;
-
   const t = localize(repoCardLocales, locale);
 
   // Typed against the exported list, so a stat drawn here cannot be missing from it.
@@ -193,7 +193,42 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     };
   }
 
-  const statItems = Object.values(STATS).map((stat, index) =>
+  // Stats fill the rows left to right, so an even index is the first column.
+  const statList = Object.values(STATS);
+  const columns = [0, 1]
+    .map((column) => statList.filter((_, index) => index % 2 === column))
+    .filter((column) => column.length > 0);
+  const inkScale = text_bold ? INK_SCALE.bold : INK_SCALE.regular;
+  const widest = (texts: Array<string>): number =>
+    Math.max(...texts.map((text) => measureText(text, CARD_STYLE.fontSize.small))) * inkScale;
+  const formatValue = (value: number): string =>
+    String(number_format.toLowerCase() === 'long' ? value : kFormatter(value));
+  // Each column's values end after its widest label and widest value, so neither can reach the other.
+  const [firstColumnWidth = 0, secondColumnWidth = 0] = columns.map(
+    (column) =>
+      (show_icons ? STAT_LABEL_X : 0) +
+      widest(column.map((stat) => `${stat.label}:`)) +
+      LABEL_VALUE_GAP +
+      widest(column.map((stat) => formatValue(stat.value ?? 0))),
+  );
+
+  const widthInput = card_width_input && !Number.isNaN(card_width_input) ? card_width_input : 0;
+  const defaultWidth = columns.length > 1 ? CARD_STYLE.width.wide : CARD_DEFAULT_WIDTH;
+  const statsArea = (widthInput || defaultWidth) - STAT_ROW_X - X_OFFSET;
+  const secondColumnX = Math.ceil(
+    Math.max((statsArea + STAT_COLUMN_GAP) / 2, firstColumnWidth + STAT_COLUMN_GAP),
+  );
+  const statsWidth = columns.length > 1 ? secondColumnX + secondColumnWidth : firstColumnWidth;
+
+  // The default grows rather than overlap; a width asked for is kept, and the stats overflow it.
+  const card_width =
+    widthInput || Math.max(defaultWidth, Math.ceil(STAT_ROW_X + statsWidth + X_OFFSET));
+  const valueAnchors = [
+    secondColumnX - STAT_COLUMN_GAP,
+    Math.ceil(Math.max(card_width - STAT_ROW_X - X_OFFSET - secondColumnX, secondColumnWidth)),
+  ];
+
+  const statItems = statList.map((stat, index) =>
     // create the text nodes, and pass index so that we can calculate the line spacing
     createTextNode({
       icon: stat.icon,
@@ -203,11 +238,12 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       unitSymbol: stat.unitSymbol,
       index,
       showIcons: show_icons,
-      shiftValuePos: 14.01,
+      shiftValuePos: 0,
+      valueAnchorX: valueAnchors[index % 2],
       bold: text_bold,
       numberFormat: number_format,
       link: stat.link,
-      labelXOffset: 23,
+      labelXOffset: STAT_LABEL_X,
     }),
   );
 
@@ -288,7 +324,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     extraRows.push(
       flexLayout({
         items: statItems.slice(i, i + 2),
-        gap: 210,
+        gap: secondColumnX,
         direction: 'row',
       }),
     );
