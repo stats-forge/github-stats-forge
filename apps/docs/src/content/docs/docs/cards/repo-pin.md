@@ -27,23 +27,22 @@ Each one is counted for the repository, not for the user.
 
 ## Options
 
-| Option                    | Values         | What it does                                                 |
-| ------------------------- | -------------- | ------------------------------------------------------------ |
-| `show_owner`              | `true` `false` | Put the owner's login above the repository name              |
-| `show`                    | the list above | Extra counts to draw                                         |
-| `show_icons`              | `true` `false` | Draw an icon beside each count                               |
-| `description_lines_count` | a number       | How many lines the description wraps to                      |
-| `wrap_description`        | `true` `false` | Let the browser wrap the description instead of the renderer |
-| `number_format`           | `short` `long` | `1.5k` or `1500`                                             |
-| `text_bold`               | `true` `false` | Bold the values                                              |
-| `line_height`             | a number       | Space between the lines                                      |
-| `disable_animations`      | `true` `false` | Draw the card with no animation                              |
+| Option                    | Values         | What it does                                    |
+| ------------------------- | -------------- | ----------------------------------------------- |
+| `show_owner`              | `true` `false` | Put the owner's login above the repository name |
+| `show`                    | the list above | Extra counts to draw                            |
+| `show_icons`              | `true` `false` | Draw an icon beside each count                  |
+| `description_lines_count` | a number       | How many lines the description wraps to         |
+| `number_format`           | `short` `long` | `1.5k` or `1500`                                |
+| `number_precision`        | `0` `1` `2`    | Decimals kept when a count is abbreviated       |
+| `text_bold`               | `true` `false` | Bold the values                                 |
+| `line_height`             | a number       | Space between the lines                         |
+| `disable_animations`      | `true` `false` | Draw the card with no animation                 |
 
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.
 
 ## Wrapping the description
 
-The renderer wraps the description itself and truncates what does not fit, so the card is the same
-width everywhere. `wrap_description=true` hands that job to the browser instead, which reads
-better when the description is long and worse when the card sits somewhere narrow.
+The renderer wraps the description to the card's width and cuts it after
+`description_lines_count` lines, so the card looks the same wherever it is shown.

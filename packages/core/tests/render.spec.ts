@@ -2,12 +2,7 @@ import { queryByTestId, screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { TRY_AGAIN_LATER } from '../src/common/error.ts';
-import {
-  countWrappedLines,
-  renderError,
-  splitWrappedText,
-  wrapTextMultiline,
-} from '../src/common/render.ts';
+import { renderError, splitWrappedText, wrapTextMultiline } from '../src/common/render.ts';
 
 describe('Test splitWrappedText', () => {
   it('should return an empty array for empty text', () => {
@@ -69,36 +64,6 @@ describe('Test wrapTextMultiline', () => {
     expect(multiLineText).toHaveLength(3);
     // Plain characters: the escaping happens when the line is serialized into the card.
     expect(multiLineText[0]).toHaveLength(11);
-  });
-});
-
-describe('Test countWrappedLines', () => {
-  it('should return 1 for empty text', () => {
-    expect(countWrappedLines('', 10, 200, 10)).toBe(1);
-  });
-
-  it('should return 1 when all text fits on a single line', () => {
-    expect(countWrappedLines('hi', 10, 200, 10)).toBe(1);
-  });
-
-  it('should return 2 when a two-word string wraps', () => {
-    expect(countWrappedLines('hello world', 10, 25, 10)).toBe(2);
-  });
-
-  it('should split a word wider than maxWidth (overflow-wrap: anywhere)', () => {
-    expect(countWrappedLines('aaaa', 10, 15, 10)).toBe(2);
-  });
-
-  it('should cap the result at maxLines', () => {
-    expect(countWrappedLines('word '.repeat(10), 10, 25, 3)).toBe(3);
-  });
-
-  it('should handle complex whitespace characters', () => {
-    expect(countWrappedLines('One         two three', 10, 25, 10)).toBe(5);
-  });
-
-  it('trailing spaces should not cause line breaks', () => {
-    expect(countWrappedLines('hi hi ', 10, 12, 10)).toBe(2);
   });
 });
 

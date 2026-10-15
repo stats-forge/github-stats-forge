@@ -22,7 +22,6 @@ const pinQuery = z.object({
   repo: safeParam,
   card_width: intParam({ px: true }),
   show_owner: booleanParam,
-  wrap_description: booleanParam,
   show: enumListParam(renderRepoCard.OPTIONS.show),
   description_lines_count: intParam(),
 });
@@ -42,7 +41,6 @@ const renderPin = cardHandler(
       hide_border,
       card_width,
       show_owner,
-      wrap_description,
       show,
       show_icons,
       number_format,
@@ -76,7 +74,6 @@ const renderPin = cardHandler(
       border_radius,
       card_width_input: card_width,
       show_owner,
-      wrap_description,
       show,
       show_icons,
       number_format,

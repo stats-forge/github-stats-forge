@@ -7,17 +7,13 @@ import { getLanguageColor } from '../../common/languageColors.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import {
-  countWrappedLines,
   wrapTextMultiline,
   createLanguageNode,
   flexLayout,
   iconWithLabel,
   measureText,
-  wrappedTextNode,
-  wrappedTextStyles,
 } from '../../common/render.ts';
 import type { GistData } from '../../fetchers/types.ts';
-import type { Child } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
@@ -29,14 +25,12 @@ const X_OFFSET = 25;
 const HEADER_MAX_LENGTH = 35;
 const DESCRIPTION_BOX_WIDTH = CARD_DEFAULT_WIDTH - 2 * X_OFFSET;
 const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
-const DESCRIPTION_LINE_HEIGHT_PX = 16;
 const DESCRIPTION_MAX_LINES = 10;
 
 interface GistCardOptions extends CommonCardOptions {
   locale: string;
   disable_animations: boolean;
   show_owner: boolean;
-  wrap_description: boolean;
 }
 
 /**
@@ -51,7 +45,6 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     theme = 'default_repocard',
     border_radius,
     show_owner = false,
-    wrap_description = false,
     hide_border = false,
     disable_animations = false,
   } = options;
@@ -62,45 +55,18 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   const desc = parseEmojis(description || t.noDescription());
 
-  let descriptionLines: number;
-  let descriptionSvg: Child;
-  if (wrap_description) {
-    // The browser performs the actual text wrapping inside the foreignObject;
-    // we only estimate the line count server-side so the SVG can reserve enough
-    // height. The estimate uses measureText for font-aware widths instead of a
-    // fixed character count.
-    descriptionLines = countWrappedLines(
-      desc,
-      DESCRIPTION_FONT_SIZE,
-      DESCRIPTION_BOX_WIDTH,
-      DESCRIPTION_MAX_LINES,
-    );
-
-    descriptionSvg = wrappedTextNode({
-      text: desc,
-      x: X_OFFSET,
-      y: -3,
-      width: DESCRIPTION_BOX_WIDTH,
-      height: descriptionLines * DESCRIPTION_LINE_HEIGHT_PX + 10, // 10px extra for "descenders" like g, j, q, p, y
-      lineCount: descriptionLines,
-      className: 'description',
-      testId: 'description-text',
-    });
-  } else {
-    const linesLimit = 10;
-    const multiLineDescription = wrapTextMultiline(
-      desc,
-      DESCRIPTION_BOX_WIDTH,
-      DESCRIPTION_FONT_SIZE,
-      linesLimit,
-    );
-    descriptionLines = multiLineDescription.length;
-    descriptionSvg = el(
-      'text',
-      { class: 'description', x: X_OFFSET, y: -5 },
-      multiLineDescription.map((line) => el('tspan', { dy: '1.2em', x: X_OFFSET }, line)),
-    );
-  }
+  const multiLineDescription = wrapTextMultiline(
+    desc,
+    DESCRIPTION_BOX_WIDTH,
+    DESCRIPTION_FONT_SIZE,
+    DESCRIPTION_MAX_LINES,
+  );
+  const descriptionLines = multiLineDescription.length;
+  const descriptionSvg = el(
+    'text',
+    { class: 'description', x: X_OFFSET, y: -5 },
+    multiLineDescription.map((line) => el('tspan', { dy: '1.2em', x: X_OFFSET }, line)),
+  );
 
   const lineHeight = descriptionLines > 3 ? 12 : 10;
   const height = (descriptionLines > 1 ? 120 : 110) + descriptionLines * lineHeight;
@@ -146,7 +112,6 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
       rule('.description', {
         font: font('regular', 'meta'),
         fill: textColor,
-        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { font: font('regular', 'small'), fill: textColor }),
       rule('.icon', { fill: iconColor }),
@@ -154,7 +119,6 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     dark: ({ textColor, iconColor }) => [
       rule('.description', {
         fill: textColor,
-        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { fill: textColor }),
       rule('.icon', { fill: iconColor }),

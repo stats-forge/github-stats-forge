@@ -102,34 +102,6 @@ describe('Test renderRepoCard', () => {
     expect(document.querySelector('.description')).toHaveTextContent('Small text should not trim');
   });
 
-  it('should respect wrap_description=true', () => {
-    document.body.innerHTML = renderRepoCard(
-      {
-        ...data_repo.repository,
-        description:
-          'The quick brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet',
-      },
-      { wrap_description: true },
-    );
-
-    // Browser-side wrapping inside the foreignObject keeps the full text in
-    // the DOM; the CSS line-clamp truncates whatever exceeds the line budget
-    // at render time.
-    const description = document.querySelector<HTMLElement>('.description');
-    expect(description).toHaveTextContent(
-      'The quick brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet',
-    );
-    expect(description).toHaveStyle({ '--lines': '3' });
-
-    // Short descriptions should leave the full text visible without clamping.
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      description: 'Small text should not trim',
-    });
-
-    expect(document.querySelector('.description')).toHaveTextContent('Small text should not trim');
-  });
-
   it('should render emojis', () => {
     document.body.innerHTML = renderRepoCard({
       ...data_repo.repository,

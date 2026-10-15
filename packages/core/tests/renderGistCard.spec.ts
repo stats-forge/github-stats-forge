@@ -72,24 +72,6 @@ describe('test renderGistCard', () => {
     expect(lines[1]).toHaveTextContent('English-language pangram—a sentence that contains all of');
   });
 
-  it('should respect wrap_description=true', () => {
-    document.body.innerHTML = renderGistCard(
-      {
-        ...data,
-        description:
-          'The <b>quick</b> brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet',
-      },
-      { wrap_description: true },
-    );
-    // The full description stays in the DOM; the CSS line-clamp on the
-    // foreignObject's inner div is what visually truncates the overflow.
-    const description = document.querySelector<HTMLElement>('.description');
-    expect(description).toHaveTextContent(
-      'The <b>quick</b> brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet',
-    );
-    expect(Number(description?.style.getPropertyValue('--lines'))).toBeGreaterThan(0);
-  });
-
   it('should not trim description if it is short', () => {
     document.body.innerHTML = renderGistCard({
       ...data,

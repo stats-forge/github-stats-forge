@@ -31,3 +31,5 @@ feat!: stricter, more consistent card params
   `number_format`.
 - The org-activity card takes `from` and `to` like the other cards; `days` stays as the shorthand
   for the last N days, and naming both is an `invalid_param`.
+- Removed `wrap_description` (formerly `browser_rendering`): a description is always wrapped by the
+  card, to `description_lines_count` lines.
