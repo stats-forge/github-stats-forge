@@ -522,12 +522,12 @@ describe('Test fetchStats', () => {
     expect(stats).toStrictEqual(expectedStats({ totalPRs: 0 }, { prs: 0 }));
   });
 
-  it('should include own repos in contributed-to count when contribs_include_own_repos is true', async () => {
+  it('should include own repos in contributed-to count when include_own_repos is true', async () => {
     const statsWithout = await fetchStats({ username: 'anuraghazra' }, config);
     expect(statsWithout.contributedTo).toBe(61);
 
     const statsWith = await fetchStatsWith({
-      contribs_include_own_repos: true,
+      include_own_repos: true,
     });
     expect(statsWith.contributedTo).toBe(75);
   });
@@ -539,10 +539,10 @@ describe('Test fetchStats', () => {
     expect(stats.allTimeContributedTo).toBe(3);
   });
 
-  it('should include own repos in all-time contributed-to count when contribs_include_own_repos is true', async () => {
+  it('should include own repos in all-time contributed-to count when include_own_repos is true', async () => {
     const stats = await fetchStatsWith({
       include_all_time_contribs: true,
-      contribs_include_own_repos: true,
+      include_own_repos: true,
     });
 
     expect(stats.allTimeContributedTo).toBe(5);
@@ -568,7 +568,7 @@ describe('Test fetchStats', () => {
 
       await fetchStatsWith({
         include_all_time_contribs: true,
-        contribs_include_own_repos: contribsIncludeOwnRepos,
+        include_own_repos: contribsIncludeOwnRepos,
       });
 
       // an @include(if: false) field would still count toward the node cost

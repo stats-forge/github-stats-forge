@@ -66,7 +66,7 @@ Two languages can rank differently depending on what you mean by "most".
 | `exclude_repo`       | `owner/name` or `name`                            | Repositories to leave out                 |
 | `size_weight`        | a number                                          | Weight given to a language's size         |
 | `count_weight`       | a number                                          | Weight given to its repository count      |
-| `stats_format`       | `percentages` `bytes`                             | What the value beside each language reads |
+| `value_format`       | `percent` `bytes`                                 | What the value beside each language reads |
 | `hide_progress`      | `true` `false`                                    | Drop the bars and keep the names          |
 | `hide_values`        | `true` `false`                                    | Drop the numbers                          |
 | `prog_bar_bg_color`  | a hex color                                       | The unfilled part of each bar             |

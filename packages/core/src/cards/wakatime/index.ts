@@ -31,9 +31,9 @@ const TOTAL_TEXT_WIDTH = 275;
 const WAKATIME_LAYOUTS = ['compact', 'normal'] as const;
 type WakaTimeLayout = (typeof WAKATIME_LAYOUTS)[number];
 
-/** How a language's time is written; the api validates `display_format` against this. */
-const DISPLAY_FORMATS = ['time', 'percent'] as const;
-type DisplayFormat = (typeof DISPLAY_FORMATS)[number];
+/** How a language's time is written; the api validates `value_format` against this. */
+const VALUE_FORMATS = ['time', 'percent'] as const;
+type ValueFormat = (typeof VALUE_FORMATS)[number];
 
 interface WakaTimeOptions extends CommonCardOptions {
   locale: string;
@@ -45,7 +45,7 @@ interface WakaTimeOptions extends CommonCardOptions {
   custom_title: string;
   layout: WakaTimeLayout;
   langs_count: number;
-  display_format: DisplayFormat;
+  value_format: ValueFormat;
   disable_animations: boolean;
 }
 
@@ -63,12 +63,12 @@ const noCodingActivityNode = ({ text }: { text: string }): MarkupElement =>
  * @returns The formatted language value.
  */
 const formatLanguageValue = ({
-  display_format,
+  value_format,
   lang,
 }: {
-  display_format: DisplayFormat;
+  value_format: ValueFormat;
   lang: WakaTimeLang;
-}): string => (display_format === 'percent' ? `${lang.percent.toFixed(2)} %` : lang.text);
+}): string => (value_format === 'percent' ? `${lang.percent.toFixed(2)} %` : lang.text);
 
 /**
  * Create compact WakaTime layout.
@@ -79,12 +79,12 @@ const createCompactLangNode = ({
   lang,
   x,
   y,
-  display_format,
+  value_format,
 }: {
   lang: WakaTimeLang;
   x: number;
   y: number;
-  display_format: DisplayFormat;
+  value_format: ValueFormat;
 }): MarkupElement => {
   if (!Number.isFinite(x)) {
     throw new TypeError(`Invalid x: "${x}"`);
@@ -94,7 +94,7 @@ const createCompactLangNode = ({
   }
 
   const color = getLanguageColor(lang.name);
-  const value = formatLanguageValue({ display_format, lang });
+  const value = formatLanguageValue({ value_format, lang });
 
   return el(
     'g',
@@ -116,12 +116,12 @@ const createCompactLangNode = ({
 const createLanguageTextNode = ({
   langs,
   y,
-  display_format,
+  value_format,
   card_width,
 }: {
   langs: Array<WakaTimeLang>;
   y: number;
-  display_format: DisplayFormat;
+  value_format: ValueFormat;
   card_width: number;
 }): Array<Child> => {
   const LEFT_X = 25;
@@ -135,7 +135,7 @@ const createLanguageTextNode = ({
       lang,
       x: isLeft ? LEFT_X : RIGHT_X,
       y: y + DEFAULT_LINE_HEIGHT * Math.floor(index / 2),
-      display_format,
+      value_format,
     });
   });
 };
@@ -277,7 +277,7 @@ const renderCard = (
     layout,
     langs_count = languages.length,
     border_radius,
-    display_format = 'time',
+    value_format = 'time',
     disable_animations,
   } = options;
 
@@ -359,7 +359,7 @@ const renderCard = (
         ? createLanguageTextNode({
             y: 25,
             langs: filteredLanguages,
-            display_format,
+            value_format,
             card_width: normalizedWidth,
           })
         : noCodingActivityNode({
@@ -378,7 +378,7 @@ const renderCard = (
               createTextNode({
                 id: language.name,
                 label: language.name,
-                value: formatLanguageValue({ display_format, lang: language }),
+                value: formatLanguageValue({ value_format, lang: language }),
                 index,
                 percent: language.percent,
                 hideProgress: hide_progress,
@@ -468,7 +468,7 @@ const renderCard = (
     desc:
       filteredLanguages.length > 0
         ? filteredLanguages
-            .map((lang) => `${lang.name}: ${formatLanguageValue({ display_format, lang })}`)
+            .map((lang) => `${lang.name}: ${formatLanguageValue({ value_format, lang })}`)
             .join(', ')
         : t.noCodingActivity(),
   });
@@ -484,7 +484,7 @@ const renderCard = (
 const renderWakatimeCard = Object.assign(renderCard, {
   OPTIONS: {
     layout: WAKATIME_LAYOUTS,
-    display_format: DISPLAY_FORMATS,
+    value_format: VALUE_FORMATS,
   },
 });
 

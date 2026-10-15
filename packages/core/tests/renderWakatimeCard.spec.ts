@@ -98,7 +98,7 @@ describe('Test Render WakaTime Card', () => {
 
   it('should render correctly with percent display format', () => {
     const card = renderWakatimeCard(wakaTimeData.data, {
-      display_format: 'percent',
+      value_format: 'percent',
     });
     expect(card).toMatchSnapshot();
   });

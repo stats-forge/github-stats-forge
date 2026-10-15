@@ -213,7 +213,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         choices: stats.OPTIONS.role,
       },
       {
-        name: 'contribs_include_own_repos',
+        name: 'include_own_repos',
         label: 'Count contributions to your own repositories',
         kind: 'boolean',
         group: 'data',
@@ -276,11 +276,11 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'data',
       },
       {
-        name: 'stats_format',
+        name: 'value_format',
         label: 'Show values as',
         kind: 'choice',
         group: 'display',
-        choices: topLangs.OPTIONS.stats_format,
+        choices: topLangs.OPTIONS.value_format,
       },
       {
         name: 'hide_progress',
@@ -543,11 +543,11 @@ const CARDS: ReadonlyArray<CardKind> = [
         choices: wakatime.OPTIONS.layout,
       },
       {
-        name: 'display_format',
+        name: 'value_format',
         label: 'Show values as',
         kind: 'choice',
         group: 'display',
-        choices: wakatime.OPTIONS.display_format,
+        choices: wakatime.OPTIONS.value_format,
       },
       { name: 'langs_count', label: 'Languages to show', kind: 'integer', group: 'data' },
       { name: 'hide', label: 'Languages to hide', kind: 'list', group: 'data' },

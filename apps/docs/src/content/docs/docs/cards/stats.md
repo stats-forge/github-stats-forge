@@ -54,26 +54,26 @@ for none.
 
 ## Options
 
-| Option                       | Values                                       | What it does                                            |
-| ---------------------------- | -------------------------------------------- | ------------------------------------------------------- |
-| `show`                       | the list above                               | Extra stats to draw                                     |
-| `hide`                       | `stars` `commits` `prs` `issues` `contribs`  | Default stats to leave out                              |
-| `show_icons`                 | `true` `false`                               | Draw an icon beside each stat                           |
-| `hide_rank`                  | `true` `false`                               | Leave out the rank circle                               |
-| `rank_icon`                  | `default` `github` `percentile`              | What the rank circle shows                              |
-| `ring_color`                 | a hex color                                  | The rank ring, when it should differ from the title     |
-| `include_all_commits`        | `true` `false`                               | Count commits of all time rather than the counted range |
-| `from` / `to`                | `2024`, `2024-03`, `2024-03-15`              | The range commits and contributions are counted in      |
-| `exclude_repo`               | `owner/name` or `name`                       | Repositories to leave out of the totals                 |
-| `repo`                       | `owner/name` or `name`                       | Scope the search-based stats to these repositories      |
-| `owner`                      | logins                                       | Scope the search-based stats to these owners            |
-| `role`                       | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER` | Which repositories count towards the stars and the rank |
-| `contribs_include_own_repos` | `true` `false`                               | Count contributions to your own repositories            |
-| `number_format`              | `short` `long`                               | `1.5k` or `1500`                                        |
-| `number_precision`           | a number                                     | Decimals kept when abbreviating                         |
-| `text_bold`                  | `true` `false`                               | Bold the stat values                                    |
-| `line_height`                | a number                                     | Space between the lines                                 |
-| `disable_animations`         | `true` `false`                               | Draw the card with no animation                         |
+| Option                | Values                                       | What it does                                            |
+| --------------------- | -------------------------------------------- | ------------------------------------------------------- |
+| `show`                | the list above                               | Extra stats to draw                                     |
+| `hide`                | `stars` `commits` `prs` `issues` `contribs`  | Default stats to leave out                              |
+| `show_icons`          | `true` `false`                               | Draw an icon beside each stat                           |
+| `hide_rank`           | `true` `false`                               | Leave out the rank circle                               |
+| `rank_icon`           | `default` `github` `percentile`              | What the rank circle shows                              |
+| `ring_color`          | a hex color                                  | The rank ring, when it should differ from the title     |
+| `include_all_commits` | `true` `false`                               | Count commits of all time rather than the counted range |
+| `from` / `to`         | `2024`, `2024-03`, `2024-03-15`              | The range commits and contributions are counted in      |
+| `exclude_repo`        | `owner/name` or `name`                       | Repositories to leave out of the totals                 |
+| `repo`                | `owner/name` or `name`                       | Scope the search-based stats to these repositories      |
+| `owner`               | logins                                       | Scope the search-based stats to these owners            |
+| `role`                | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER` | Which repositories count towards the stars and the rank |
+| `include_own_repos`   | `true` `false`                               | Count contributions to your own repositories            |
+| `number_format`       | `short` `long`                               | `1.5k` or `1500`                                        |
+| `number_precision`    | a number                                     | Decimals kept when abbreviating                         |
+| `text_bold`           | `true` `false`                               | Bold the stat values                                    |
+| `line_height`         | a number                                     | Space between the lines                                 |
+| `disable_animations`  | `true` `false`                               | Draw the card with no animation                         |
 
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.

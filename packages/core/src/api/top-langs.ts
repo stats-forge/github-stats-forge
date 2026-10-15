@@ -33,7 +33,7 @@ const topLangsQuery = z.object({
   role: enumListParam(OWNER_AFFILIATIONS),
   hide_progress: booleanParam,
   hide_values: booleanParam,
-  stats_format: enumParam(renderTopLanguages.OPTIONS.stats_format),
+  value_format: enumParam(renderTopLanguages.OPTIONS.value_format),
 });
 
 /**
@@ -63,7 +63,7 @@ const renderTopLangs = cardHandler(
       disable_animations,
       hide_progress,
       hide_values,
-      stats_format,
+      value_format,
     },
     colors,
     config,
@@ -93,7 +93,7 @@ const renderTopLangs = cardHandler(
       disable_animations,
       hide_progress,
       hide_values,
-      stats_format,
+      value_format,
     });
   },
 );
