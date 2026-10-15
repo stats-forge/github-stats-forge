@@ -1,5 +1,24 @@
 # @stats-forge/github-stats-server
 
+## 0.4.9
+
+### Patch Changes
+
+- [#223](https://github.com/stats-forge/github-stats-forge/pull/223) [`7fb5232`](https://github.com/stats-forge/github-stats-forge/commit/7fb5232117e2abdda4fc1e8e68bf05c1a2c6cc74) - docs: say what the allowlists leave open on a self-hosted instance
+
+  `ALLOWLIST` does not reach the gist card, which answers to `GIST_ALLOWLIST` alone, and the
+  self-hosting page now says so, with an example of both. It also no longer lists gists under
+  `/api/pin`, which draws repositories only.
+
+- [#225](https://github.com/stats-forge/github-stats-forge/pull/225) [`6bb56ad`](https://github.com/stats-forge/github-stats-forge/commit/6bb56ada50574d9483b8e14c0a395a0b7017fd29) - docs: draw the site's cards from a made-up account
+
+  The anvil's mock data and the previews on every card page no longer come from real accounts.
+  Both are drawn from one fictional user, organization, gist and WakaTime profile,
+  with figures chosen to show off each option.
+
+- Updated dependencies [[`734c926`](https://github.com/stats-forge/github-stats-forge/commit/734c926ae292b285e62bf5f372e2243c82957428)]:
+  - @stats-forge/github-stats-forge-core@0.8.5
+
 ## 0.4.8
 
 ### Patch Changes
