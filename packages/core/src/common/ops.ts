@@ -26,16 +26,15 @@ const parseBoolean = (value: string | boolean | undefined): boolean | undefined 
 };
 
 /**
- * Parse string to array of strings.
+ * A comma-separated list, as a URL is typed by hand: `a, b,` is `a` and `b`.
  *
- * @returns The array of strings.
+ * @returns The trimmed entries, without the empty ones.
  */
-const parseArray = (str: string | undefined): Array<string> => {
-  if (!str) {
-    return [];
-  }
-  return str.split(',');
-};
+const parseArray = (str: string | undefined): Array<string> =>
+  (str ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry !== '');
 
 /**
  * Clamp the given number between the given range.

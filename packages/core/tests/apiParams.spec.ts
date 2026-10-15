@@ -125,6 +125,17 @@ describe('api query schemas', () => {
     expect(result.content).toContain(`Incorrect ${param} input`);
   });
 
+  it('reads a list typed with spaces and a trailing comma', async () => {
+    const result = await endpoints.stats({
+      username: 'anuraghazra',
+      show: 'prs_merged, reviews,',
+      repo: 'a, b',
+    });
+
+    // the stubbed fetch fails, but the params got past validation
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+  });
+
   it('matches a closed list case-insensitively', async () => {
     const result = await endpoints.stats({
       username: 'anuraghazra',
