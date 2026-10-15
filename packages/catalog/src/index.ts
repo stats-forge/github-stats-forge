@@ -18,7 +18,7 @@ import {
   topLangs,
   wakatime,
 } from '@stats-forge/github-stats-forge-core/api';
-import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core/api';
+import type { ApiResult, CardConfig, ParamKind } from '@stats-forge/github-stats-forge-core/api';
 
 /**
  * The saved card file format, so a later change to it can be migrated rather than guessed at.
@@ -26,8 +26,8 @@ import type { ApiResult, CardConfig } from '@stats-forge/github-stats-forge-core
  */
 export const CARD_FILE_VERSION = 1;
 
-/** How a param is asked for, and how the answer becomes a query string value. */
-export type OptionKind = 'text' | 'boolean' | 'number' | 'integer' | 'list' | 'choice';
+/** How a param is asked for, and how the answer becomes a query string value: core's own word for it. */
+export type OptionKind = ParamKind;
 
 /**
  * Which kinds are numeric, and how finely each moves.

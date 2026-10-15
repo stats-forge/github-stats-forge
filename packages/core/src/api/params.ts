@@ -24,8 +24,30 @@ import { parseArray, parseBoolean } from '../common/ops.ts';
 import { NUMBER_FORMATS } from '../common/render.ts';
 import { themes } from '../themes/index.ts';
 
+/** How a form asks for a param: the vocabulary of the catalog, which holds each option to it. */
+type ParamKind = 'text' | 'boolean' | 'number' | 'integer' | 'list' | 'choice';
+
+/** What a form needs to know of a param to ask for it. */
+interface ParamShape {
+  kind: ParamKind;
+  /** The accepted values, where they are a fixed set. */
+  choices?: ReadonlyArray<string>;
+}
+
+const SHAPES = new WeakMap<z.core.$ZodType, ParamShape>();
+
+/**
+ * Records how a form asks for the param a schema reads.
+ *
+ * @returns The schema itself.
+ */
+const kinded = <T extends z.core.$ZodType>(shape: ParamKind | ParamShape, schema: T): T => {
+  SHAPES.set(schema, typeof shape === 'string' ? { kind: shape } : shape);
+  return schema;
+};
+
 /** Every param arrives as a string, or not at all. */
-const rawParam = z.optional(z.string());
+const rawParam = kinded('text', z.optional(z.string()));
 
 /** Characters a repository, owner or gist id may contain. */
 const SAFE_PATTERN = /^[-\w/.,]+$/;
@@ -77,14 +99,17 @@ const rejects = (kind: Rejection, passes: (value: string) => boolean): z.core.$Z
  * `?x=true` / `?x=false`, in any case.
  * Absent is `undefined`, which leaves the card's own default in place; anything else is rejected.
  */
-const booleanParam = z.pipe(
-  rawParam.check(rejects('boolean', (value) => parseBoolean(value) !== undefined)),
-  // Narrowed: `parseBoolean` also takes booleans, which a query string cannot hold.
-  z.transform((value: string | undefined) => parseBoolean(value)),
+const booleanParam = kinded(
+  'boolean',
+  z.pipe(
+    rawParam.check(rejects('boolean', (value) => parseBoolean(value) !== undefined)),
+    // Narrowed: `parseBoolean` also takes booleans, which a query string cannot hold.
+    z.transform((value: string | undefined) => parseBoolean(value)),
+  ),
 );
 
 /** Comma-separated values, empty when the param is absent. */
-const listParam = z.pipe(rawParam, z.transform(parseArray));
+const listParam = kinded('list', z.pipe(rawParam, z.transform(parseArray)));
 
 /**
  * A number the card cannot fall back from, so a malformed one is rejected here:
@@ -93,9 +118,12 @@ const listParam = z.pipe(rawParam, z.transform(parseArray));
  * `parseFloat`, matching the coercion `Card` performs internally, so `?border_radius=10px` still renders `rx="10"`.
  * Yields the parsed number, or `undefined` when the param is absent.
  */
-const numberParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
-  rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseFloat(value)))),
-  z.transform((value) => (value === undefined ? undefined : Number.parseFloat(value))),
+const numberParam: z.ZodMiniType<number | undefined, string | undefined> = kinded(
+  'number',
+  z.pipe(
+    rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseFloat(value)))),
+    z.transform((value) => (value === undefined ? undefined : Number.parseFloat(value))),
+  ),
 );
 
 /**
@@ -104,9 +132,12 @@ const numberParam: z.ZodMiniType<number | undefined, string | undefined> = z.pip
  * a `NaN` reaching the renderer drew `NaN` into the SVG wherever no fallback caught it.
  * Yields the parsed number, or `undefined` when the param is absent.
  */
-const intParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
-  rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseInt(value, 10)))),
-  z.transform((value) => (value === undefined ? undefined : Number.parseInt(value, 10))),
+const intParam: z.ZodMiniType<number | undefined, string | undefined> = kinded(
+  'integer',
+  z.pipe(
+    rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseInt(value, 10)))),
+    z.transform((value) => (value === undefined ? undefined : Number.parseInt(value, 10))),
+  ),
 );
 
 /**
@@ -116,16 +147,19 @@ const intParam: z.ZodMiniType<number | undefined, string | undefined> = z.pipe(
  */
 const rangeParam = (end: 'from' | 'to'): z.ZodMiniType<Date | undefined, string | undefined> => {
   const parse = (value: string): Date | undefined => parseRangeDate(value, end);
-  return z.pipe(
-    rawParam.check(rejects('date', (value) => parse(value) !== undefined)).check(
-      rejects('out_of_range', (value) => {
-        const date = parse(value);
-        const widest = getWidestRange();
-        // a bad shape is already reported by the check above
-        return date === undefined || (date >= widest.from && date <= widest.to);
-      }),
+  return kinded(
+    'text',
+    z.pipe(
+      rawParam.check(rejects('date', (value) => parse(value) !== undefined)).check(
+        rejects('out_of_range', (value) => {
+          const date = parse(value);
+          const widest = getWidestRange();
+          // a bad shape is already reported by the check above
+          return date === undefined || (date >= widest.from && date <= widest.to);
+        }),
+      ),
+      z.transform((value) => (value === undefined ? undefined : parse(value))),
     ),
-    z.transform((value) => (value === undefined ? undefined : parse(value))),
   );
 };
 
@@ -148,40 +182,47 @@ const ORDERED_RANGE = z.refine<{ from?: Date | undefined; to?: Date | undefined 
  * An id the fetchers put in a URL.
  * Rejected before any request is made, and yielded unchanged otherwise.
  */
-const safeParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
-  rejects('unsafe', (value) => !value || SAFE_PATTERN.test(value)),
+const safeParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
+  'text',
+  rawParam.check(rejects('unsafe', (value) => !value || SAFE_PATTERN.test(value))),
 );
 
 /**
  * A GitHub login, stricter than `safeParam`: no leading, trailing or doubled hyphen.
  * Rejected here so a malformed one is a permanent error rather than the NOT_FOUND GitHub answers.
  */
-const usernameParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
-  rejects('username', (value) => !value || GITHUB_USERNAME_PATTERN.test(value)),
+const usernameParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
+  'text',
+  rawParam.check(rejects('username', (value) => !value || GITHUB_USERNAME_PATTERN.test(value))),
 );
 
 /** A WakaTime profile, which the fetcher puts in a URL path as one segment. */
-const wakatimeUsernameParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
-  rejects('username', (value) => !value || WAKATIME_USERNAME_PATTERN.test(value)),
+const wakatimeUsernameParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
+  'text',
+  rawParam.check(rejects('username', (value) => !value || WAKATIME_USERNAME_PATTERN.test(value))),
 );
 
 /**
  * A host the server is asked to fetch from.
  * A path, a query or credentials would let the query steer the request past the host it names.
  */
-const hostnameParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
-  rejects('hostname', (value) => !value || HOSTNAME_PATTERN.test(value)),
+const hostnameParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
+  'text',
+  rawParam.check(rejects('hostname', (value) => !value || HOSTNAME_PATTERN.test(value))),
 );
 
 /**
  * A comma-separated list of ids, each checked as {@link safeParam} checks one.
  * Yields the split values, empty when the param is absent.
  */
-const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = z.pipe(
-  rawParam.check(
-    rejects('unsafe', (value) => parseArray(value).every((entry) => SAFE_PATTERN.test(entry))),
+const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = kinded(
+  'list',
+  z.pipe(
+    rawParam.check(
+      rejects('unsafe', (value) => parseArray(value).every((entry) => SAFE_PATTERN.test(entry))),
+    ),
+    z.transform(parseArray),
   ),
-  z.transform(parseArray),
 );
 
 /**
@@ -189,9 +230,12 @@ const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = z.pipe(
  * One wording for every endpoint:
  * the message names the param, as the number and color rejections do.
  */
-const localeParam = z.pipe(
-  rawParam.check(rejects('locale', (value) => !value || isLocaleAvailable(value))),
-  z.transform((value) => value?.toLowerCase()),
+const localeParam = kinded(
+  'text',
+  z.pipe(
+    rawParam.check(rejects('locale', (value) => !value || isLocaleAvailable(value))),
+    z.transform((value) => value?.toLowerCase()),
+  ),
 );
 
 /**
@@ -214,9 +258,12 @@ const enumParam = <const T extends ReadonlyArray<string>>(
   values: T,
 ): z.ZodMiniType<T[number] | undefined, string | undefined> => {
   const canonical = inSet<T[number]>(values);
-  return z.pipe(
-    rawParam.check(rejects('enum', (value) => canonical(value) !== undefined)),
-    z.transform((value) => (value === undefined ? undefined : canonical(value))),
+  return kinded(
+    { kind: 'choice', choices: values },
+    z.pipe(
+      rawParam.check(rejects('enum', (value) => canonical(value) !== undefined)),
+      z.transform((value) => (value === undefined ? undefined : canonical(value))),
+    ),
   );
 };
 
@@ -231,13 +278,16 @@ const enumListParam = <const T extends ReadonlyArray<string>>(
   values: T,
 ): z.ZodMiniType<Array<T[number]>, string | undefined> => {
   const canonical = inSet<T[number]>(values);
-  return z.pipe(
-    rawParam.check(
-      rejects('enum', (value) =>
-        parseArray(value).every((entry) => canonical(entry) !== undefined),
+  return kinded(
+    { kind: 'list', choices: values },
+    z.pipe(
+      rawParam.check(
+        rejects('enum', (value) =>
+          parseArray(value).every((entry) => canonical(entry) !== undefined),
+        ),
       ),
+      z.transform((value) => parseArray(value).flatMap((entry) => canonical(entry) ?? [])),
     ),
-    z.transform((value) => parseArray(value).flatMap((entry) => canonical(entry) ?? [])),
   );
 };
 
@@ -270,7 +320,7 @@ const colorParamsSchema = z.object(
       key,
       THEME_PARAM_KEYS.includes(key)
         ? enumParam(Object.keys(themes))
-        : rawParam.check(rejects('color', isValidColorInput)),
+        : kinded('text', rawParam.check(rejects('color', isValidColorInput))),
     ]),
   ),
 );
@@ -325,11 +375,32 @@ const parseParams = <TSchema extends z.ZodMiniType>(
  */
 const parseColorParams = (query: unknown): ColorParams => parseParams(colorParamsSchema, query);
 
-export type { ApiQuery };
+/**
+ * How a form asks for each param a schema shape reads, colors first.
+ *
+ * @throws {Error} When a param was built without a kind, which only a new helper can do.
+ *
+ * @returns Each param's shape, keyed by the param.
+ */
+const describeParams = (
+  shape: Readonly<Record<string, z.core.$ZodType>>,
+): Readonly<Record<string, ParamShape>> =>
+  Object.fromEntries(
+    Object.entries({ ...colorParamsSchema.shape, ...shape }).map(([param, schema]) => {
+      const described = SHAPES.get(schema);
+      if (!described) {
+        throw new Error(`Param "${param}" was built without a kind`);
+      }
+      return [param, described];
+    }),
+  );
+
+export type { ApiQuery, ParamKind, ParamShape };
 
 export {
   booleanParam,
   commonParams,
+  describeParams,
   enumListParam,
   enumParam,
   fromParam,

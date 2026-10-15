@@ -6,19 +6,22 @@ import { CardError } from '../common/error.ts';
 
 import type { ApiResult } from './api-result.ts';
 import { errorResult } from './api-result.ts';
-import type { ApiQuery } from './params.ts';
-import { parseColorParams, parseParams } from './params.ts';
+import type { ApiQuery, ParamShape } from './params.ts';
+import { describeParams, parseColorParams, parseParams } from './params.ts';
 
 /** Which of an endpoint's params name an identity, and which list guards each. */
-type Identities<TSchema extends z.ZodMiniType> = Partial<
+type Identities<TSchema extends z.ZodMiniObject> = Partial<
   Record<Extract<keyof z.output<TSchema>, string>, AllowlistKind>
 >;
 
-/** An endpoint, and the identities a pinned deployment may refuse it. */
-type CardEndpoint<TSchema extends z.ZodMiniType> = ((
+/** An endpoint, the identities a pinned deployment may refuse it, and how a form asks for each param. */
+type CardEndpoint<TSchema extends z.ZodMiniObject> = ((
   query: ApiQuery<TSchema>,
   config: CardConfig,
-) => Promise<ApiResult>) & { IDENTITIES: Identities<TSchema> };
+) => Promise<ApiResult>) & {
+  IDENTITIES: Identities<TSchema>;
+  PARAMS: Readonly<Record<string, ParamShape>>;
+};
 
 /**
  * An endpoint: the schema it accepts, the identities a pinned deployment may refuse,
@@ -29,7 +32,7 @@ type CardEndpoint<TSchema extends z.ZodMiniType> = ((
  *
  * @returns The handler, taking the query the schema describes.
  */
-const cardHandler = <TSchema extends z.ZodMiniType>(
+const cardHandler = <TSchema extends z.ZodMiniObject>(
   schema: TSchema,
   identities: Identities<TSchema>,
   render: (params: z.output<TSchema>, colors: ColorParams, config: CardConfig) => Promise<string>,
@@ -60,8 +63,8 @@ const cardHandler = <TSchema extends z.ZodMiniType>(
     }
   };
 
-  // carried like `OPTIONS`, so `tests/allowlist.spec.ts` can assert every card declares one
-  return Object.assign(handler, { IDENTITIES: identities });
+  // carried like `OPTIONS`: `tests/allowlist.spec.ts` reads the one, the catalog's test the other
+  return Object.assign(handler, { IDENTITIES: identities, PARAMS: describeParams(schema.shape) });
 };
 
 export { cardHandler };

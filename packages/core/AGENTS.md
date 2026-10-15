@@ -24,6 +24,10 @@ and its two `catch`es are the only place `errorResult` is called.
 Parsing throws, fetching throws, and one place turns whatever was thrown into the answer.
 Six handlers each carried that control flow by hand until 2026-09-05.
 
+- **Every param helper records its kind, and the handler carries them as `PARAMS`.** `kinded()` in
+  `api/params.ts` tags a schema with the catalog's vocabulary; `cardHandler` reads them off the
+  schema's shape, and throws at import on a param built without one, so a new helper cannot go
+  undescribed. The catalog's test is what reads them.
 - **The allowlists are enforced here, and a card declares which of its params they guard.**
   `cardHandler`'s second argument maps a param to `'username'` or `'gist'`, the check runs after
   parsing and **before the render**, and a refusal is `not_allowed` — so an identity a pinned

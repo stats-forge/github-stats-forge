@@ -15,13 +15,12 @@ calls. The list moved to a package whose one dependency is core, and the CLI bec
 consumer of it; `cli/cards` is **gone** rather than kept as a re-export, because a second path to
 one list is the drift this package exists to prevent.
 
-**A number is an `integer` or a `number`, and core's own reading is what says which.**
-A param core reads with `intParam` is `parseInt`'d, so the option is `kind: 'integer'`
-— `card_width`, `line_height`, `langs_count`, `repos_count`, `number_precision`,
-`description_lines_count`, `days`. One it reads with `numberParam` is
-`parseFloat`'d and stays `kind: 'number'`: only `border_radius`, `size_weight` and
-`count_weight`. Neither schema is exported from core, so nothing checks this mapping; read
-`packages/core/src/api/*.ts` when adding a numeric option.
+**An option's `kind` and `choices` are core's, and `tests/catalog.spec.ts` holds them to it.**
+Each handler carries `PARAMS`, how a form asks for every param its schema reads — `intParam` is an
+`integer`, `numberParam` a `number`, an `enumParam` a `choice` with its values — and `OptionKind` is
+core's `ParamKind`. The test fails on an option core reads differently, and on a param of a card's
+own that the catalog never asks for; only the colors past the menu's few are exempt. The mapping was
+kept by hand until 2026-10-15, with `line_height` the one that was easy to get wrong.
 
 - **It imports core's public api and nothing else.** That is what keeps it a few hundred bytes in
   a browser bundle, and what lets `apps/server` hold it as a devDependency for one test without it
