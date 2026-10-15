@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 
 import { pin as pinApi } from '../src/api/pin.ts';
 import { renderRepoCard } from '../src/cards/repo/index.ts';
+import { repoCardLocales } from '../src/cards/repo/locales.ts';
+import { measureText } from '../src/common/render.ts';
 import type { RepositoryData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -36,6 +38,13 @@ const data_repo: { repository: RepositoryData } = {
 const noMotionRules = (): number =>
   (document.querySelector('style')?.innerHTML.split('animation-duration: 0s !important').length ??
     1) - 1;
+
+// Semibold Helvetica Neue measured 1.097 times `measureText` in Chromium.
+const ink = (text: string): number => measureText(text, 12) * 1.1;
+const translateX = (node: Element | null): number =>
+  Number(
+    /translate\((?<x>[\d.-]+)/.exec(node?.getAttribute('transform') ?? '')?.groups?.['x'] ?? 0,
+  );
 
 describe('Test renderRepoCard', () => {
   it('should render correctly', () => {
@@ -404,6 +413,71 @@ describe('Test renderRepoCard', () => {
       },
     );
     expect(document.querySelector('svg')).toHaveAttribute('height', '120');
+  });
+
+  describe('every `show` stat at once', () => {
+    const showStats = renderRepoCard.OPTIONS.show;
+    const locales = [
+      ...new Set(
+        [
+          repoCardLocales.prsAuthored,
+          repoCardLocales.prsCommented,
+          repoCardLocales.prsReviewed,
+          repoCardLocales.issuesAuthored,
+          repoCardLocales.issuesCommented,
+        ].flatMap((wording) => Object.keys(wording)),
+      ),
+    ];
+    const repository: RepositoryData = {
+      ...data_repo.repository,
+      totalPRsAuthored: 1_234_567,
+      totalPRsCommented: 4_567_890,
+      totalPRsReviewed: 9876,
+      totalIssuesAuthored: 321,
+      totalIssuesCommented: 9_999_999,
+    };
+
+    it.each(locales.flatMap((locale) => [true, false].map((bold) => ({ locale, bold }))))(
+      'keeps labels clear of values ($locale, bold: $bold)',
+      ({ locale, bold }) => {
+        document.body.innerHTML = renderRepoCard(repository, {
+          show: [...showStats],
+          locale,
+          text_bold: bold,
+          number_format: 'long',
+        });
+
+        const card = document.querySelector('svg');
+        expect(card).toHaveAttribute('width', '500');
+
+        const rows = showStats.map((id) => {
+          const value = screen.getByTestId(id);
+          const row = value.closest('.stagger');
+          // `-3` is the stats group, `25` the row's own offset.
+          const x = -3 + translateX(row?.parentElement ?? null) + 25;
+          const label = row?.querySelector('text')?.textContent ?? '';
+          const valueRight = x + Number(value.getAttribute('x'));
+          return {
+            left: x,
+            labelRight: x + 23 + ink(label),
+            valueLeft: valueRight - ink(value.textContent),
+            valueRight,
+          };
+        });
+
+        for (const row of rows) {
+          expect(row.valueLeft - row.labelRight).toBeGreaterThanOrEqual(8);
+          expect(row.valueRight).toBeLessThanOrEqual(500 - 25);
+        }
+        // Stats fill the rows left to right: 0, 2, 4 in the first column, 1 and 3 in the second.
+        const firstColumnRight = Math.max(
+          ...rows.filter((_, i) => i % 2 === 0).map((r) => r.valueRight),
+        );
+        for (const row of rows.filter((_, i) => i % 2 === 1)) {
+          expect(row.left).toBeGreaterThan(firstColumnRight);
+        }
+      },
+    );
   });
 });
 
