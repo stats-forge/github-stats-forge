@@ -111,34 +111,68 @@ const booleanParam = kinded(
 /** Comma-separated values, empty when the param is absent. */
 const listParam = kinded('list', z.pipe(rawParam, z.transform(parseArray)));
 
-/**
- * A number the card cannot fall back from, so a malformed one is rejected here:
- * a render-time guard would throw into the generic catch and read as a temporary error.
- *
- * `parseFloat`, matching the coercion `Card` performs internally, so `?border_radius=10px` still renders `rx="10"`.
- * Yields the parsed number, or `undefined` when the param is absent.
- */
-const numberParam: z.ZodMiniType<number | undefined, string | undefined> = kinded(
-  'number',
-  z.pipe(
-    rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseFloat(value)))),
-    z.transform((value) => (value === undefined ? undefined : Number.parseFloat(value))),
-  ),
-);
+/** What a numeric param may be written with. */
+interface NumericFormat {
+  /** The smallest value accepted. */
+  min?: number;
+  /** Whether a trailing `px` is accepted, for the params a reader thinks of as lengths. */
+  px?: boolean;
+}
 
 /**
- * A whole number — a width, a count, a line height.
- * `parseInt`, so `?card_width=500px` is still 500, but nothing numeric at all is rejected:
- * a `NaN` reaching the renderer drew `NaN` into the SVG wherever no fallback caught it.
- * Yields the parsed number, or `undefined` when the param is absent.
+ * A pattern for a non-negative number, with nothing after it but an optional `px`.
+ *
+ * @returns The pattern.
  */
-const intParam: z.ZodMiniType<number | undefined, string | undefined> = kinded(
-  'integer',
-  z.pipe(
-    rawParam.check(rejects('number', (value) => Number.isFinite(Number.parseInt(value, 10)))),
-    z.transform((value) => (value === undefined ? undefined : Number.parseInt(value, 10))),
-  ),
-);
+const numericPattern = (digits: string, px: boolean): RegExp =>
+  new RegExp(`^${digits}${px ? '(?:px)?' : ''}$`, 'i');
+
+/**
+ * A decimal number — a radius, a weight. Nothing but digits and an optional `px` is accepted:
+ * `parseFloat` alone read `1e3` as 1000 and `5abc` as 5.
+ *
+ * @returns Schema yielding the number, or `undefined` when the param is absent.
+ */
+const numberParam = ({ min = 0, px = false }: NumericFormat = {}): z.ZodMiniType<
+  number | undefined,
+  string | undefined
+> => {
+  const pattern = numericPattern(String.raw`(?:\d+(?:\.\d*)?|\.\d+)`, px);
+  return kinded(
+    'number',
+    z.pipe(
+      rawParam.check(
+        rejects('number', (value) => pattern.test(value) && Number.parseFloat(value) >= min),
+      ),
+      z.transform((value) => (value === undefined ? undefined : Number.parseFloat(value))),
+    ),
+  );
+};
+
+/**
+ * A whole number — a width, a count, a line height — at least 1 unless said otherwise:
+ * a negative width or height drew a broken SVG.
+ *
+ * @returns Schema yielding the number, or `undefined` when the param is absent.
+ */
+const intParam = ({ min = 1, px = false }: NumericFormat = {}): z.ZodMiniType<
+  number | undefined,
+  string | undefined
+> => {
+  const pattern = numericPattern(String.raw`\d+`, px);
+  return kinded(
+    'integer',
+    z.pipe(
+      rawParam.check(
+        rejects('number', (value) => {
+          const parsed = Number.parseInt(value, 10);
+          return pattern.test(value) && Number.isSafeInteger(parsed) && parsed >= min;
+        }),
+      ),
+      z.transform((value) => (value === undefined ? undefined : Number.parseInt(value, 10))),
+    ),
+  );
+};
 
 /**
  * One end of the range a card counts within, written as `2024`, `2024-03` or `2024-03-15`.
@@ -290,7 +324,7 @@ const enumListParam = <const T extends ReadonlyArray<string>>(
 /** What every card accepts beside the colors, so a card cannot be the one that forgot one. */
 const commonParams = {
   hide_border: booleanParam,
-  border_radius: numberParam,
+  border_radius: numberParam({ px: true }),
   disable_animations: booleanParam,
   locale: localeParam,
 };
@@ -305,7 +339,7 @@ const titleParams = {
 const statRowParams = {
   show_icons: booleanParam,
   text_bold: booleanParam,
-  line_height: intParam,
+  line_height: intParam(),
   number_format: enumParam(NUMBER_FORMATS),
 };
 

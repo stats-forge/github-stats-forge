@@ -38,8 +38,9 @@ render functions typed values; defaults stay with the renderer.
 - **A malformed param is a permanent `invalid_param`, decided at the boundary.** A render-time guard
   would throw into the generic `catch`, which reports a retryable error. Name the param, never echo
   the value.
-- **Match the coercion the callee already performs.** `numberParam` and `intParam` use `parseFloat`
-  and `parseInt` because `Card` does, so `?border_radius=10px` still renders `rx="10"`.
+- **A number is digits and nothing else, bar an optional `px` on a length.** `intParam` and
+  `numberParam` take a `min` (an integer defaults to 1) and a `px` flag; `parseFloat` alone read
+  `1e3` as 1000 and `5abc` as 5, and a negative width drew a broken SVG.
 - **The api parses; the card defaults.** A handler turns strings into typed values and stops; it
   never supplies a fallback the render function already owns (gist's default theme is
   `default_repocard`, which only the card knows).

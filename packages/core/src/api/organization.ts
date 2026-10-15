@@ -23,7 +23,7 @@ const orgQuery = z.object({
   hide: enumListParam(renderOrganizationCard.OPTIONS.hide),
   show: enumListParam(renderOrganizationCard.OPTIONS.show),
   hide_description: booleanParam,
-  card_width: intParam,
+  card_width: intParam({ px: true }),
 });
 
 /**

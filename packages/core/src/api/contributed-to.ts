@@ -22,13 +22,13 @@ const contributedToQuery = z
     username: usernameParam,
     ...commonParams,
     ...titleParams,
-    repos_count: intParam,
+    repos_count: intParam(),
     include_own_repos: booleanParam,
     exclude_repo: safeListParam,
     from: fromParam,
     to: toParam,
     hide_years: booleanParam,
-    card_width: intParam,
+    card_width: intParam({ px: true }),
   })
   .check(ORDERED_RANGE);
 

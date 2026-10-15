@@ -20,11 +20,11 @@ const pinQuery = z.object({
   ...commonParams,
   ...statRowParams,
   repo: safeParam,
-  card_width: intParam,
+  card_width: intParam({ px: true }),
   show_owner: booleanParam,
   browser_rendering: booleanParam,
   show: enumListParam(renderRepoCard.OPTIONS.show),
-  description_lines_count: intParam,
+  description_lines_count: intParam(),
 });
 
 /**
