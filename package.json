@@ -36,7 +36,7 @@
     "@marcalexiei/oxlint-config": "1.6.0",
     "@types/node": "24.19.1",
     "@vitest/coverage-v8": "catalog:default",
-    "knip": "6.40.0",
+    "knip": "6.41.0",
     "lefthook": "2.1.17",
     "oxfmt": "catalog:default",
     "oxlint": "1.87.0",
