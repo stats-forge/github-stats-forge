@@ -261,7 +261,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         choices: topLangs.OPTIONS.layout,
       },
       { name: 'langs_count', label: 'Languages to show', kind: 'integer', group: 'data' },
-      { name: 'hide', label: 'Languages to hide', kind: 'list', group: 'data' },
+      { name: 'hide_langs', label: 'Languages to hide', kind: 'list', group: 'data' },
       { name: 'exclude_repo', label: 'Repositories to exclude', kind: 'list', group: 'data' },
       {
         name: 'size_weight',
@@ -550,7 +550,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         choices: wakatime.OPTIONS.value_format,
       },
       { name: 'langs_count', label: 'Languages to show', kind: 'integer', group: 'data' },
-      { name: 'hide', label: 'Languages to hide', kind: 'list', group: 'data' },
+      { name: 'hide_langs', label: 'Languages to hide', kind: 'list', group: 'data' },
       {
         name: 'hide_progress',
         label: 'Hide the progress bars',

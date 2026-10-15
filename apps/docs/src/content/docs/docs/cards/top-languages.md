@@ -62,7 +62,7 @@ Two languages can rank differently depending on what you mean by "most".
 | -------------------- | ------------------------------------------------- | ----------------------------------------- |
 | `layout`             | `normal` `compact` `donut` `donut-vertical` `pie` | The shape of the card                     |
 | `langs_count`        | a number                                          | How many languages to show                |
-| `hide`               | language names                                    | Languages to leave out                    |
+| `hide_langs`         | language names                                    | Languages to leave out                    |
 | `exclude_repo`       | `owner/name` or `name`                            | Repositories to leave out                 |
 | `size_weight`        | a number                                          | Weight given to a language's size         |
 | `count_weight`       | a number                                          | Weight given to its repository count      |

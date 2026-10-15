@@ -24,3 +24,4 @@ feat!: stricter, more consistent card params
 - Renamed stats: `contribs` → `contributed_to`, `all_time_contribs` → `contributed_to_all_time`,
   `prs_authored` → `prs_opened`, `issues_authored` → `issues_opened`, and org-activity's
   `discussions` → `discussions_started`.
+- Renamed: the top-languages and WakaTime cards' `hide` → `hide_langs`, so `hide` always names stats.

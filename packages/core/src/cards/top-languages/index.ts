@@ -52,7 +52,7 @@ interface TopLangOptions extends CommonCardOptions {
   locale: string;
   hide_title: boolean;
   card_width: number;
-  hide: Array<string>;
+  hide_langs: Array<string>;
   layout: TopLangLayout;
   custom_title: string;
   langs_count: number;
@@ -835,7 +835,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     hide_title = false,
     hide_border = false,
     card_width,
-    hide,
+    hide_langs,
     hide_progress,
     hide_values,
     layout,
@@ -849,7 +849,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
 
   const t = localize(langCardLocales, locale);
 
-  const { langs, totalLanguageSize } = trimTopLanguages(topLangs, langs_count, hide);
+  const { langs, totalLanguageSize } = trimTopLanguages(topLangs, langs_count, hide_langs);
 
   let width = card_width
     ? Number.isNaN(card_width)

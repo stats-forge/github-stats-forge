@@ -38,7 +38,7 @@ type ValueFormat = (typeof VALUE_FORMATS)[number];
 interface WakaTimeOptions extends CommonCardOptions {
   locale: string;
   hide_title: boolean;
-  hide: Array<string>;
+  hide_langs: Array<string>;
   card_width: number;
   line_height: number;
   hide_progress: boolean;
@@ -269,7 +269,7 @@ const renderCard = (
     hide_title = false,
     hide_border = false,
     card_width,
-    hide,
+    hide_langs,
     line_height: lheight = DEFAULT_LINE_HEIGHT,
     hide_progress,
     custom_title,
@@ -283,9 +283,9 @@ const renderCard = (
 
   const normalizedWidth = normalizeCardWidth({ value: card_width, layout });
 
-  const shouldHideLangs = Array.isArray(hide) && hide.length > 0;
+  const shouldHideLangs = Array.isArray(hide_langs) && hide_langs.length > 0;
   if (shouldHideLangs) {
-    const languagesToHide = new Set(hide.map((lang) => lowercaseTrim(lang)));
+    const languagesToHide = new Set(hide_langs.map((lang) => lowercaseTrim(lang)));
     languages = languages.filter((lang) => !languagesToHide.has(lowercaseTrim(lang.name)));
   }
 
