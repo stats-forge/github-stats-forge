@@ -32,6 +32,9 @@ render functions typed values; defaults stay with the renderer.
   URL. Booleans are `true` / `false`; an `enumParam` or `enumListParam` matches case-insensitively
   and yields the value as its set spells it. **Unknown params stay ignored**: a README appends
   `?v=2` to get past GitHub's image cache, and the server reads `cache_seconds` off the query.
+- **An empty value is resolved once, by `resolveEmpty` in the handler, before any check.**
+  `?flag` and `?flag=` arrive alike, so an empty boolean is `true` and any other empty param is
+  absent; no helper handles `''` itself.
 - **A malformed param is a permanent `invalid_param`, decided at the boundary.** A render-time guard
   would throw into the generic `catch`, which reports a retryable error. Name the param, never echo
   the value.

@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import type { ApiResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
+import { resolveEmpty } from '../src/api/params.ts';
 import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
@@ -147,7 +148,7 @@ describe('api query schemas', () => {
     expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
-  it.each(['yes', '1', ''])('rejects the boolean %j by naming the param', async (value) => {
+  it.each(['yes', '1'])('rejects the boolean %j by naming the param', async (value) => {
     const result = await endpoints.stats({ username: 'anuraghazra', show_icons: value });
 
     expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'show_icons' } });
@@ -165,6 +166,26 @@ describe('api query schemas', () => {
 
     expect(result).toMatchObject({ error: { code: 'invalid_param', param } });
     expect(result.content).toContain(`Incorrect ${param} input`);
+  });
+
+  it('resolves an empty value by the kind of its param', () => {
+    expect(
+      resolveEmpty({ hide_border: '', theme: '', card_width: '', username: 'x' }, statsApi.PARAMS),
+    ).toStrictEqual({ hide_border: 'true', username: 'x' });
+  });
+
+  it('reads an empty boolean as a flag that is set, and any other empty param as absent', async () => {
+    const result = await endpoints.stats({
+      username: 'anuraghazra',
+      hide_border: '',
+      theme: '',
+      card_width: '',
+      show: '',
+      from: '',
+    });
+
+    // the stubbed fetch fails, but the params got past validation
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
   it('matches booleans and fixed values case-insensitively', async () => {

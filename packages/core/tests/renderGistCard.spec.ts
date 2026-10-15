@@ -282,7 +282,7 @@ describe('test gist API', () => {
     expect(result.content).toContain(`Invalid color input for parameter &#34;title_color&#34;`);
   });
 
-  it.each(['abc', ''])(
+  it.each(['abc', 'px'])(
     'should return permanent error for border_radius %j',
     async (border_radius) => {
       const result = await gistApi({ id: 'abc123', border_radius }, testConfig);

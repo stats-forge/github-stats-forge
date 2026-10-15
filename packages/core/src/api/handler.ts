@@ -7,7 +7,7 @@ import { CardError } from '../common/error.ts';
 import type { ApiResult } from './api-result.ts';
 import { errorResult } from './api-result.ts';
 import type { ApiQuery, ParamShape } from './params.ts';
-import { describeParams, parseColorParams, parseParams } from './params.ts';
+import { describeParams, parseColorParams, parseParams, resolveEmpty } from './params.ts';
 
 /** Which of an endpoint's params name an identity, and which list guards each. */
 type Identities<TSchema extends z.ZodMiniObject> = Partial<
@@ -37,7 +37,10 @@ const cardHandler = <TSchema extends z.ZodMiniObject>(
   identities: Identities<TSchema>,
   render: (params: z.output<TSchema>, colors: ColorParams, config: CardConfig) => Promise<string>,
 ): CardEndpoint<TSchema> => {
-  const handler = async (query: ApiQuery<TSchema>, config: CardConfig): Promise<ApiResult> => {
+  const PARAMS = describeParams(schema.shape);
+
+  const handler = async (raw: ApiQuery<TSchema>, config: CardConfig): Promise<ApiResult> => {
+    const query = resolveEmpty(raw, PARAMS);
     let colors: ColorParams;
     try {
       colors = parseColorParams(query);
@@ -64,7 +67,7 @@ const cardHandler = <TSchema extends z.ZodMiniObject>(
   };
 
   // carried like `OPTIONS`: `tests/allowlist.spec.ts` reads the one, the catalog's test the other
-  return Object.assign(handler, { IDENTITIES: identities, PARAMS: describeParams(schema.shape) });
+  return Object.assign(handler, { IDENTITIES: identities, PARAMS });
 };
 
 export { cardHandler };

@@ -5,6 +5,9 @@ description: The colors, borders, titles and sizes every card accepts.
 
 Every card takes the options on this page. The ones only one card takes are on that card's page.
 
+A `true` / `false` option can be written alone: `?hide_border` is `?hide_border=true`. Any other
+option left empty, such as `?theme=`, is the same as leaving it out.
+
 ## Colors
 
 | Option         | What it colors                      |
