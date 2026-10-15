@@ -173,12 +173,13 @@ const hostnameParam: z.ZodMiniType<string | undefined, string | undefined> = raw
 );
 
 /**
- * A comma-separated list of ids, checked before it is split.
- * The safe pattern allows the commas, so one check covers the whole list.
+ * A comma-separated list of ids, each checked as {@link safeParam} checks one.
  * Yields the split values, empty when the param is absent.
  */
 const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = z.pipe(
-  safeParam,
+  rawParam.check(
+    rejects('unsafe', (value) => parseArray(value).every((entry) => SAFE_PATTERN.test(entry))),
+  ),
   z.transform(parseArray),
 );
 

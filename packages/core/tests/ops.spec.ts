@@ -29,7 +29,9 @@ describe('Test ops.js', () => {
 
   it('should test parseArray', () => {
     expect(parseArray('a,b,c')).toStrictEqual(['a', 'b', 'c']);
-    expect(parseArray('a, b, c')).toStrictEqual(['a', ' b', ' c']); // preserves spaces
+    expect(parseArray('a, b ,c')).toStrictEqual(['a', 'b', 'c']);
+    expect(parseArray('a,,b,')).toStrictEqual(['a', 'b']);
+    expect(parseArray(' , ')).toStrictEqual([]);
     expect(parseArray('')).toStrictEqual([]);
     expect(parseArray(undefined)).toStrictEqual([]);
   });
