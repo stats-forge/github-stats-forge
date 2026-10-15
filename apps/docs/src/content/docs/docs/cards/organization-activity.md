@@ -38,7 +38,6 @@ See [the token it needs](#the-token-it-needs).
 | `title`              | any text                                                  | Replace the card's title                      |
 | `hide_title`         | `true` `false`                                            | Drop the title, its icon and its band         |
 | `card_width`         | a number                                                  | Card width in pixels                          |
-| `text_bold`          | `true` `false`                                            | Bold the values (on by default)               |
 | `number_format`      | `short` `long`                                            | `1.2k` or `1204`                              |
 | `number_precision`   | `0` `1` `2`                                               | Decimals kept when a count is abbreviated     |
 | `disable_animations` | `true` `false`                                            | Draw it without the fade-in                   |

@@ -28,7 +28,7 @@ const savedCard = async (page: Page): Promise<SavedCard> => {
 };
 
 /** Seeded on every card, so a test about what a control wrote asserts without them. */
-const IDENTITY_PARAMS = new Set(['username', 'repo', 'id']);
+const IDENTITY_PARAMS = new Set(['username', 'repo', 'id', 'org']);
 
 /** The envelope keys, which are not options and so are never what a control wrote. */
 const ENVELOPE_KEYS = new Set(['version', 'card']);
@@ -316,16 +316,17 @@ test('a boolean can be turned on, turned off, or left to the card', async ({ pag
   expect(chosen(on)).toEqual({ show_icons: 'true' });
   await expect(drawnCard(page).locator('.icon').first()).toBeAttached();
 
-  // Off has to be writable, not absent: `text_bold` defaults to on, so a switch could not clear it.
-  await setBoolean(page, 'text_bold', 'false');
+  // Off has to be writable, not absent: `show_icons` defaults to on for the org card.
+  await setCard(page, 'org');
+  await setBoolean(page, 'show_icons', 'false');
   const off = await savedCard(page);
-  expect(chosen(off)).toEqual({ show_icons: 'true', text_bold: 'false' });
-  await expect(drawnCard(page).locator('.stat.bold')).toHaveCount(0);
+  expect(chosen(off)).toEqual({ show_icons: 'false' });
+  await expect(drawnCard(page).locator('.icon')).toHaveCount(0);
 
-  await setBoolean(page, 'text_bold', 'default');
+  await setBoolean(page, 'show_icons', 'default');
   const back = await savedCard(page);
-  expect(chosen(back)).toEqual({ show_icons: 'true' });
-  await expect(drawnCard(page).locator('.stat.bold').first()).toBeAttached();
+  expect(chosen(back)).toEqual({});
+  await expect(drawnCard(page).locator('.icon').first()).toBeAttached();
 });
 
 test("a boolean's three segments are one bar of equal parts", async ({ page }) => {

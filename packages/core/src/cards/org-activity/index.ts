@@ -52,7 +52,6 @@ interface OrgActivityCardOptions extends CommonCardOptions {
   disable_animations: boolean;
   number_format: string;
   number_precision: number;
-  text_bold: boolean;
 }
 
 /** Meta data for a stat, used to build its text node and accessibility label. */
@@ -136,7 +135,6 @@ const renderCard = (
     hide_title = false,
     hide_border = false,
     card_width,
-    text_bold = true,
     title,
     border_radius,
     number_format = 'short',
@@ -244,7 +242,7 @@ const renderCard = (
       showIcons: show_icons,
       shiftValuePos: 0,
       valueAnchorX,
-      bold: text_bold,
+      bold: true,
       labelBold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,

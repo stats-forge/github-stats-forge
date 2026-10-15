@@ -34,3 +34,4 @@ feat!: stricter, more consistent card params
 - Removed `wrap_description` (formerly `browser_rendering`): a description is always wrapped by the
   card, to `description_lines_count` lines.
 - Removed `line_height`: rows sit on each card's own spacing.
+- Removed `text_bold`: each card keeps its own value weight.

@@ -64,7 +64,6 @@ const renderOrgActivity = cardHandler(
       disable_animations,
       number_format,
       number_precision,
-      text_bold,
       locale,
       border_radius,
     },
@@ -101,7 +100,6 @@ const renderOrgActivity = cardHandler(
       disable_animations,
       number_format,
       number_precision,
-      text_bold,
       locale,
       border_radius,
     });

@@ -54,7 +54,6 @@ const renderOrg = cardHandler(
       disable_animations,
       number_format,
       number_precision,
-      text_bold,
       locale,
       border_radius,
     },
@@ -84,7 +83,6 @@ const renderOrg = cardHandler(
       disable_animations,
       number_format,
       number_precision,
-      text_bold,
       locale,
       border_radius,
     });

@@ -31,8 +31,12 @@ const STAT_ROW_X = 22;
 const STAT_LABEL_X = 23;
 const STAT_COLUMN_GAP = 20;
 const LABEL_VALUE_GAP = 10;
-/** `measureText` reads Segoe UI; the stack's other fonts run wider, and semibold wider still. */
-const INK_SCALE = { regular: 1.05, bold: 1.12 };
+/** `measureText` reads Segoe UI; the stack's other fonts run wider. */
+const INK_SCALE = 1.05;
+
+/** @returns The width of the widest of `texts`, as a row draws them. */
+const widest = (texts: Array<string>): number =>
+  Math.max(...texts.map((text) => measureText(text, CARD_STYLE.fontSize.small))) * INK_SCALE;
 
 /** Stats the card draws only when `show` names them. */
 const REPO_SHOW_STATS = [
@@ -57,7 +61,6 @@ interface RepoCardOptions extends CommonCardOptions {
   show_icons: boolean;
   number_format: string;
   number_precision: number;
-  text_bold: boolean;
   username: string;
 }
 
@@ -127,7 +130,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     show_icons = true,
     number_format = 'short',
     number_precision,
-    text_bold = false,
     username,
     theme = 'default_repocard',
     border_radius,
@@ -195,9 +197,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const columns = [0, 1]
     .map((column) => statList.filter((_, index) => index % 2 === column))
     .filter((column) => column.length > 0);
-  const inkScale = text_bold ? INK_SCALE.bold : INK_SCALE.regular;
-  const widest = (texts: Array<string>): number =>
-    Math.max(...texts.map((text) => measureText(text, CARD_STYLE.fontSize.small))) * inkScale;
   const formatValue = (value: number): string =>
     formatCount(value, number_format, number_precision);
   // Each column's values end after its widest label and widest value, so neither can reach the other.
@@ -237,7 +236,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       showIcons: show_icons,
       shiftValuePos: 0,
       valueAnchorX: valueAnchors[index % 2],
-      bold: text_bold,
+      bold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,
       link: stat.link,

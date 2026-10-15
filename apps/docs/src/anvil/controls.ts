@@ -286,8 +286,8 @@ const TRI_DEFAULT = 'default';
 
 /**
  * **Not a switch.** A boolean here has three states — on, off, and *not said* — because a card's
- * own default may be either: `text_bold` is on for the stats card and off for the repo card, so a
- * switch could not turn the stats card's bold off.
+ * own default may be either: `show_icons` is off for the stats card and on for the org cards, so a
+ * switch could not turn the org card's icons off.
  *
  * @returns The group.
  */
