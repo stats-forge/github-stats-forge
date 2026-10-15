@@ -179,37 +179,33 @@ const ORDERED_RANGE = z.refine<{ from?: Date | undefined; to?: Date | undefined 
 );
 
 /**
- * An id the fetchers put in a URL.
- * Rejected before any request is made, and yielded unchanged otherwise.
+ * A text param that must match a pattern, yielded unchanged.
+ *
+ * @returns Schema yielding the value, or `undefined` when absent.
  */
-const safeParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
-  'text',
-  rawParam.check(rejects('unsafe', (value) => !value || SAFE_PATTERN.test(value))),
-);
+const patternParam = (
+  kind: Rejection,
+  pattern: RegExp,
+): z.ZodMiniType<string | undefined, string | undefined> =>
+  kinded('text', rawParam.check(rejects(kind, (value) => !value || pattern.test(value))));
+
+/** An id the fetchers put in a URL, rejected before any request is made. */
+const safeParam = patternParam('unsafe', SAFE_PATTERN);
 
 /**
  * A GitHub login, stricter than `safeParam`: no leading, trailing or doubled hyphen.
  * Rejected here so a malformed one is a permanent error rather than the NOT_FOUND GitHub answers.
  */
-const usernameParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
-  'text',
-  rawParam.check(rejects('username', (value) => !value || GITHUB_USERNAME_PATTERN.test(value))),
-);
+const usernameParam = patternParam('username', GITHUB_USERNAME_PATTERN);
 
 /** A WakaTime profile, which the fetcher puts in a URL path as one segment. */
-const wakatimeUsernameParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
-  'text',
-  rawParam.check(rejects('username', (value) => !value || WAKATIME_USERNAME_PATTERN.test(value))),
-);
+const wakatimeUsernameParam = patternParam('username', WAKATIME_USERNAME_PATTERN);
 
 /**
  * A host the server is asked to fetch from.
  * A path, a query or credentials would let the query steer the request past the host it names.
  */
-const hostnameParam: z.ZodMiniType<string | undefined, string | undefined> = kinded(
-  'text',
-  rawParam.check(rejects('hostname', (value) => !value || HOSTNAME_PATTERN.test(value))),
-);
+const hostnameParam = patternParam('hostname', HOSTNAME_PATTERN);
 
 /**
  * A comma-separated list of ids, each checked as {@link safeParam} checks one.
@@ -243,10 +239,10 @@ const localeParam = kinded(
  *
  * @returns The entry as the set spells it, or `undefined` when the set lacks it.
  */
-const inSet =
-  <T extends string>(values: ReadonlyArray<T>) =>
-  (entry: string): T | undefined =>
-    values.find((value) => value.toLowerCase() === entry.toLowerCase());
+const inSet = <T extends string>(values: ReadonlyArray<T>): ((entry: string) => T | undefined) => {
+  const byLowercase = new Map(values.map((value) => [value.toLowerCase(), value]));
+  return (entry) => byLowercase.get(entry.toLowerCase());
+};
 
 /**
  * A param the card only renders as one of a fixed set of values.
