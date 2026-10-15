@@ -156,7 +156,7 @@ washed out against a strong one.
 ## An alpha channel on any theme
 
 A `bg_color` with eight hex digits carries alpha, and `00000000` is fully see-through. That turns
-**any** of the [79 themes](../themes/) transparent while keeping its text and icon colours:
+**any** of the [themes](../themes/) transparent while keeping its text and icon colours:
 
 ```md
 ![My GitHub stats](./cards/stats.svg)

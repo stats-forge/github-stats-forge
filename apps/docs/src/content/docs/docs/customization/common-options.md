@@ -47,7 +47,7 @@ and for what wins over what.
 
 ## Theme
 
-`theme` names one of the [79 built-in themes](../themes/).
+`theme` names one of the [built-in themes](../themes/).
 An unknown name falls back to `default` rather than failing, and any explicit color you pass
 alongside it wins, so a theme is a starting point rather than a lock.
 

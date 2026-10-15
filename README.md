@@ -35,7 +35,7 @@ docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-fo
 ## Documentation
 
 - [The eight cards](https://stats-forge.github.io/github-stats-forge/docs/cards/stats/) and every option each takes
-- [Common options](https://stats-forge.github.io/github-stats-forge/docs/customization/common-options/), [79 themes](https://stats-forge.github.io/github-stats-forge/docs/customization/themes/) and [light and dark mode](https://stats-forge.github.io/github-stats-forge/docs/customization/light-and-dark/)
+- [Common options](https://stats-forge.github.io/github-stats-forge/docs/customization/common-options/), [themes](https://stats-forge.github.io/github-stats-forge/docs/customization/themes/) and [light and dark mode](https://stats-forge.github.io/github-stats-forge/docs/customization/light-and-dark/)
 - [Putting a card in a README](https://stats-forge.github.io/github-stats-forge/docs/usage/in-your-readme/)
 - [The CLI](https://stats-forge.github.io/github-stats-forge/docs/usage/cli/), [the library](https://stats-forge.github.io/github-stats-forge/docs/usage/library/) and [self-hosting](https://stats-forge.github.io/github-stats-forge/docs/usage/self-hosting/)
 - [The fetchers](https://stats-forge.github.io/github-stats-forge/docs/fetchers/overview/) behind the cards
