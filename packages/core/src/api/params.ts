@@ -353,7 +353,6 @@ const titleParams = {
 const statRowParams = {
   show_icons: booleanParam,
   text_bold: booleanParam,
-  line_height: intParam(),
   number_format: enumParam(NUMBER_FORMATS),
   number_precision: intParam({ min: 0 }),
 };

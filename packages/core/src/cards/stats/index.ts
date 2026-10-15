@@ -63,6 +63,9 @@ type HideStat = (typeof HIDE_STATS)[number];
 /** Every stat the card can draw: the ones it always draws, plus the ones `show` adds. */
 type StatId = HideStat | ShowStat;
 
+/** The space between stat rows, which the card's height is measured on. */
+const LINE_HEIGHT = 25;
+
 interface StatCardOptions extends CommonCardOptions {
   locale: string;
   hide: Array<string>;
@@ -71,7 +74,6 @@ interface StatCardOptions extends CommonCardOptions {
   card_width: number;
   hide_rank: boolean;
   include_all_commits: boolean;
-  line_height: number;
   title: string;
   disable_animations: boolean;
   number_format: string;
@@ -269,7 +271,6 @@ const renderCard = (
     card_width,
     hide_rank = false,
     include_all_commits = false,
-    line_height: lheight = 25,
     text_bold = true,
     title,
     border_radius,
@@ -463,7 +464,7 @@ const renderCard = (
   // The rank ring sets the floor: 150 beside the stats, 180 when it is the whole card.
   const height = Math.max(
     CARD_STYLE.padding.bodyOffsetY +
-      Math.max(visibleStats.length - 1, 0) * lheight +
+      Math.max(visibleStats.length - 1, 0) * LINE_HEIGHT +
       CARD_STYLE.statRowInk +
       CARD_STYLE.padding.bottom,
     hide_rank ? 0 : visibleStats.length > 0 ? 150 : 180,
@@ -594,7 +595,11 @@ const renderCard = (
 
   return card.render([
     rankCircle,
-    el('svg', { x: 0, y: 0 }, flexLayout({ items: statItems, gap: lheight, direction: 'column' })),
+    el(
+      'svg',
+      { x: 0, y: 0 },
+      flexLayout({ items: statItems, gap: LINE_HEIGHT, direction: 'column' }),
+    ),
   ]);
 };
 

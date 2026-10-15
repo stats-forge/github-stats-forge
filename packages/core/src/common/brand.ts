@@ -53,9 +53,9 @@ const CARD_STYLE = {
   /**
    * The air a card keeps at its edges.
    *
-   * `bottom` is what the last row is measured against, so it holds whatever `line_height`
-   * a card is given; deriving it from the line height instead put 33px under a top-languages
-   * card against the 17px above its title.
+   * `bottom` is what the last row is measured against, so it holds whatever a card's row
+   * spacing is; deriving it from that spacing instead put 33px under a top-languages card
+   * against the 17px above its title.
    */
   padding: {
     /** Matches `Card`'s own `paddingX`. */

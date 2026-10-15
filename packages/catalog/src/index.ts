@@ -221,7 +221,6 @@ const CARDS: ReadonlyArray<CardKind> = [
       { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
@@ -340,7 +339,6 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'text',
       },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
@@ -395,7 +393,6 @@ const CARDS: ReadonlyArray<CardKind> = [
       { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
@@ -453,7 +450,6 @@ const CARDS: ReadonlyArray<CardKind> = [
       { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       { name: 'text_bold', label: 'Bold stat values', kind: 'boolean', group: 'text' },
       {
         name: 'number_format',
@@ -567,7 +563,6 @@ const CARDS: ReadonlyArray<CardKind> = [
       { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
-      { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
       {
         name: 'disable_animations',
         label: 'Disable the animations',

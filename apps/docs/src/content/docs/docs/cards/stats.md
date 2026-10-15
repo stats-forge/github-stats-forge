@@ -74,7 +74,6 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 | `number_format`       | `short` `long`                                    | `1.5k` or `1500`                                        |
 | `number_precision`    | a number                                          | Decimals kept when abbreviating                         |
 | `text_bold`           | `true` `false`                                    | Bold the stat values                                    |
-| `line_height`         | a number                                          | Space between the lines                                 |
 | `disable_animations`  | `true` `false`                                    | Draw the card with no animation                         |
 
 Plus the [common options](../../customization/common-options/) every card takes,

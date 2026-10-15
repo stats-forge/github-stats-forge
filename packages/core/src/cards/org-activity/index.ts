@@ -38,6 +38,9 @@ type HideStat = (typeof HIDE_STATS)[number];
 
 type StatId = HideStat | ShowStat;
 
+/** The space between stat rows, which the card's height is measured on. */
+const LINE_HEIGHT = 25;
+
 interface OrgActivityCardOptions extends CommonCardOptions {
   locale: string;
   hide: Array<string>;
@@ -45,7 +48,6 @@ interface OrgActivityCardOptions extends CommonCardOptions {
   show_icons: boolean;
   hide_title: boolean;
   card_width: number;
-  line_height: number;
   title: string;
   disable_animations: boolean;
   number_format: string;
@@ -134,7 +136,6 @@ const renderCard = (
     hide_title = false,
     hide_border = false,
     card_width,
-    line_height: lheight = 25,
     text_bold = true,
     title,
     border_radius,
@@ -217,7 +218,7 @@ const renderCard = (
 
   const height =
     CARD_STYLE.padding.bodyOffsetY +
-    Math.max(visibleStats.length - 1, 0) * lheight +
+    Math.max(visibleStats.length - 1, 0) * LINE_HEIGHT +
     CARD_STYLE.statRowInk +
     CARD_STYLE.padding.bottom;
 
@@ -282,7 +283,7 @@ const renderCard = (
     desc: visibleStats.map(([, stat]) => `${stat.label}: ${String(stat.value)}`).join(', '),
   });
 
-  return card.render(flexLayout({ items: statItems, gap: lheight, direction: 'column' }));
+  return card.render(flexLayout({ items: statItems, gap: LINE_HEIGHT, direction: 'column' }));
 };
 
 /**

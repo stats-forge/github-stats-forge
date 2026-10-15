@@ -36,7 +36,6 @@ Each one is counted for the repository, not for the user.
 | `number_format`           | `short` `long` | `1.5k` or `1500`                                |
 | `number_precision`        | `0` `1` `2`    | Decimals kept when a count is abbreviated       |
 | `text_bold`               | `true` `false` | Bold the values                                 |
-| `line_height`             | a number       | Space between the lines                         |
 | `disable_animations`      | `true` `false` | Draw the card with no animation                 |
 
 Plus the [common options](../../customization/common-options/) every card takes,
