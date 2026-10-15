@@ -117,7 +117,7 @@ describe('API input validation', () => {
   });
 
   describe.each(rangeParams)('%s: %s', (_endpoint, param, send) => {
-    it.each(['', 'abc', '1', '12', '20244', '2024.5', '-2024', '2024-13', '2023-02-29'])(
+    it.each(['abc', '1', '12', '20244', '2024.5', '-2024', '2024-13', '2023-02-29'])(
       'rejects %j',
       async (value) => {
         const result = await send(value);

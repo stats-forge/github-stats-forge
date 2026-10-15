@@ -187,7 +187,7 @@ const patternParam = (
   kind: Rejection,
   pattern: RegExp,
 ): z.ZodMiniType<string | undefined, string | undefined> =>
-  kinded('text', rawParam.check(rejects(kind, (value) => !value || pattern.test(value))));
+  kinded('text', rawParam.check(rejects(kind, (value) => pattern.test(value))));
 
 /** An id the fetchers put in a URL, rejected before any request is made. */
 const safeParam = patternParam('unsafe', SAFE_PATTERN);
@@ -229,7 +229,7 @@ const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = kinded(
 const localeParam = kinded(
   'text',
   z.pipe(
-    rawParam.check(rejects('locale', (value) => !value || isLocaleAvailable(value))),
+    rawParam.check(rejects('locale', isLocaleAvailable)),
     z.transform((value) => value?.toLowerCase()),
   ),
 );
@@ -372,6 +372,25 @@ const parseParams = <TSchema extends z.ZodMiniType>(
 const parseColorParams = (query: unknown): ColorParams => parseParams(colorParamsSchema, query);
 
 /**
+ * One rule for an empty value, whatever the param: `?hide_border` and `?hide_border=` arrive alike,
+ * so an empty boolean is a flag that is set, and any other empty param is absent.
+ *
+ * @returns The query with every empty value resolved.
+ */
+const resolveEmpty = (
+  query: Readonly<Record<string, unknown>>,
+  params: Readonly<Record<string, ParamShape>>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(query).flatMap(([param, value]) => {
+      if (value !== '') {
+        return [[param, value]];
+      }
+      return params[param]?.kind === 'boolean' ? [[param, 'true']] : [];
+    }),
+  );
+
+/**
  * How a form asks for each param a schema shape reads, colors first.
  *
  * @throws {Error} When a param was built without a kind, which only a new helper can do.
@@ -407,6 +426,7 @@ export {
   numberParam,
   parseColorParams,
   parseParams,
+  resolveEmpty,
   safeListParam,
   safeParam,
   statRowParams,
