@@ -16,7 +16,7 @@ treatment here as everywhere else.
 
 ## Another instance
 
-`api_domain` points at a self-hosted WakaTime — Wakapi or Hakatime — and defaults to
+`wakatime_host` points at a self-hosted WakaTime — Wakapi or Hakatime — and defaults to
 `wakatime.com`. It is a host and an optional port, `wakapi.dev` or `localhost:3000`:
 a path, a query or credentials are refused, as is a username that is not one path segment.
 

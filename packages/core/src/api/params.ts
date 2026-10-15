@@ -299,7 +299,7 @@ const enumParam = <const T extends ReadonlyArray<string>>(
 
 /**
  * A comma-separated list drawn from a fixed set, such as the stats a card can show.
- * Matched as {@link enumParam} matches, so `?role=owner` reads as `OWNER`;
+ * Matched as {@link enumParam} matches, so `?affiliation=owner` reads as `OWNER`;
  * one unknown entry rejects the list, since an ignored entry reads as a stat the card forgot.
  *
  * @returns Schema yielding the entries, empty when absent.
@@ -334,7 +334,7 @@ const commonParams = {
 /** What a card that draws a title accepts. */
 const titleParams = {
   hide_title: booleanParam,
-  custom_title: rawParam,
+  title: rawParam,
 };
 
 /** What a card drawing one stat per row accepts. */
@@ -343,6 +343,7 @@ const statRowParams = {
   text_bold: booleanParam,
   line_height: intParam(),
   number_format: enumParam(NUMBER_FORMATS),
+  number_precision: intParam({ min: 0 }),
 };
 
 /** Every color param an endpoint accepts, validated and picked in one pass. */

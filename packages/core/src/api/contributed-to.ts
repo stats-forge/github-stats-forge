@@ -53,7 +53,7 @@ export const contributedTo = cardHandler(
       hide_title,
       hide_border,
       card_width,
-      custom_title,
+      title,
       border_radius,
       disable_animations,
     },
@@ -72,7 +72,7 @@ export const contributedTo = cardHandler(
       hide_title,
       hide_border,
       card_width,
-      custom_title,
+      title,
       border_radius,
       disable_animations,
     });

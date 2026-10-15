@@ -270,7 +270,7 @@ test('the query box reaches the renderer', async ({ page }) => {
 test('offers every option the CLI asks for, not only the closed sets', async ({ page }) => {
   // The catalog is the CLI's own, so these are exactly the options its prompts walk.
   await expect(triState(page, 'show_icons')).toBeVisible();
-  await expect(field(page, 'custom_title')).toBeVisible();
+  await expect(field(page, 'title')).toBeVisible();
   await expect(field(page, 'card_width')).toBeVisible();
 
   // Sectioned as the CLI's menu is, from the same table; the colours fold away rather than go absent.
@@ -303,7 +303,7 @@ test('a numeric field steps as coarsely as its param is read', async ({ page }) 
   // core reads a count of languages with parseInt and the weight beside it with parseFloat
   await expect(field(page, 'langs_count')).toHaveAttribute('step', '1');
   await expect(field(page, 'size_weight')).toHaveAttribute('step', 'any');
-  await expect(field(page, 'custom_title')).not.toHaveAttribute('step');
+  await expect(field(page, 'title')).not.toHaveAttribute('step');
 });
 
 test('a boolean can be turned on, turned off, or left to the card', async ({ page }) => {

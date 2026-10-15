@@ -30,7 +30,7 @@ Two things are deliberately never translated:
 
 - **Error cards.** An error is often thrown before the locale has been read, and sometimes
   _because_ it could not be. They are English.
-- **Your own text.** `custom_title` is drawn exactly as you passed it.
+- **Your own text.** `title` is drawn exactly as you passed it.
 
 ## Contributing a translation
 

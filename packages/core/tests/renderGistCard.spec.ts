@@ -72,14 +72,14 @@ describe('test renderGistCard', () => {
     expect(lines[1]).toHaveTextContent('English-language pangram—a sentence that contains all of');
   });
 
-  it('should respect browser_rendering=true', () => {
+  it('should respect wrap_description=true', () => {
     document.body.innerHTML = renderGistCard(
       {
         ...data,
         description:
           'The <b>quick</b> brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet',
       },
-      { browser_rendering: true },
+      { wrap_description: true },
     );
     // The full description stays in the DOM; the CSS line-clamp on the
     // foreignObject's inner div is what visually truncates the overflow.

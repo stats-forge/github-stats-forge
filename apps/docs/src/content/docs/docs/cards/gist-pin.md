@@ -23,7 +23,7 @@ its first file's name, its description, its language, and its stars and forks.
 | Option               | Values         | What it does                                                 |
 | -------------------- | -------------- | ------------------------------------------------------------ |
 | `show_owner`         | `true` `false` | Put the owner's login above the gist name                    |
-| `browser_rendering`  | `true` `false` | Let the browser wrap the description instead of the renderer |
+| `wrap_description`   | `true` `false` | Let the browser wrap the description instead of the renderer |
 | `disable_animations` | `true` `false` | Draw the card with no animation                              |
 
 Plus the [common options](../../customization/common-options/) every card takes,

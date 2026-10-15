@@ -1,21 +1,21 @@
 import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
-import { kFormatter } from '../../common/fmt.ts';
 import { icons } from '../../common/icons.ts';
 import { localize } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue, parseEmojis } from '../../common/ops.ts';
 import {
-  NUMBER_FORMATS,
   countWrappedLines,
-  wrapTextMultiline,
   createLanguageNode,
   createTextNode,
   flexLayout,
+  formatCount,
   iconWithLabel,
   measureText,
+  NUMBER_FORMATS,
   wrappedTextNode,
   wrappedTextStyles,
+  wrapTextMultiline,
 } from '../../common/render.ts';
 import type { RepositoryData } from '../../fetchers/types.ts';
 import type { Child, MarkupElement } from '../../markup/index.ts';
@@ -52,12 +52,13 @@ interface RepoCardOptions extends CommonCardOptions {
   locale: string;
   disable_animations: boolean;
   show_owner: boolean;
-  browser_rendering: boolean;
+  wrap_description: boolean;
   description_lines_count: number;
   card_width_input: number;
   show: Array<string>;
   show_icons: boolean;
   number_format: string;
+  number_precision: number;
   text_bold: boolean;
   line_height: number;
   username: string;
@@ -125,10 +126,11 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     hide_border = false,
     card_width_input,
     show_owner = false,
-    browser_rendering = false,
+    wrap_description = false,
     show = [],
     show_icons = true,
     number_format = 'short',
+    number_precision,
     text_bold = false,
     line_height: extraLHeight = 22,
     username,
@@ -202,7 +204,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const widest = (texts: Array<string>): number =>
     Math.max(...texts.map((text) => measureText(text, CARD_STYLE.fontSize.small))) * inkScale;
   const formatValue = (value: number): string =>
-    String(number_format.toLowerCase() === 'long' ? value : kFormatter(value));
+    formatCount(value, number_format, number_precision);
   // Each column's values end after its widest label and widest value, so neither can reach the other.
   const [firstColumnWidth = 0, secondColumnWidth = 0] = columns.map(
     (column) =>
@@ -242,6 +244,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       valueAnchorX: valueAnchors[index % 2],
       bold: text_bold,
       numberFormat: number_format,
+      numberPrecision: number_precision,
       link: stat.link,
       labelXOffset: STAT_LABEL_X,
     }),
@@ -256,7 +259,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
 
   let descriptionLinesCount: number;
   let descriptionSvg: Child;
-  if (browser_rendering) {
+  if (wrap_description) {
     // The browser performs the actual text wrapping inside the foreignObject;
     // we only estimate the line count server-side so the SVG can reserve enough
     // height. The estimate uses measureText for font-aware widths instead of a
@@ -303,8 +306,10 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
 
   const svgLanguage = primaryLanguage ? createLanguageNode(langName, langColor) : undefined;
 
-  const totalStars = kFormatter(stargazerCount);
-  const totalForks = kFormatter(forkCount);
+  // a zero stays a number, which is what `iconWithLabel` leaves out
+  const totalStars =
+    stargazerCount > 0 ? formatCount(stargazerCount, number_format, number_precision) : 0;
+  const totalForks = forkCount > 0 ? formatCount(forkCount, number_format, number_precision) : 0;
   const svgStars = iconWithLabel(icons.star, totalStars, 'stargazers', ICON_SIZE);
   const svgForks = iconWithLabel(icons.fork, totalForks, 'forkcount', ICON_SIZE);
 
@@ -312,8 +317,8 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     items: [svgLanguage, svgStars, svgForks],
     sizes: [
       measureText(langName, 12),
-      ICON_SIZE + measureText(`${totalStars}`, 12),
-      ICON_SIZE + measureText(`${totalForks}`, 12),
+      ICON_SIZE + measureText(String(totalStars), 12),
+      ICON_SIZE + measureText(String(totalForks), 12),
     ],
     gap: 25,
   });
@@ -357,7 +362,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       rule('.description', {
         font: font('regular', 'meta'),
         fill: textColor,
-        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { font: font('regular', 'small'), fill: textColor }),
       rule('.badge', { font: font('semibold', 'micro') }),
@@ -375,7 +380,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     dark: ({ textColor, iconColor }) => [
       rule('.description', {
         fill: textColor,
-        ...(browser_rendering ? wrappedTextStyles(textColor) : {}),
+        ...(wrap_description ? wrappedTextStyles(textColor) : {}),
       }),
       rule('.gray', { fill: textColor }),
       rule('.badge rect', { stroke: textColor }),

@@ -44,7 +44,7 @@ interface ContributedToCardOptions extends CommonCardOptions {
   locale: string;
   hide_title: boolean;
   card_width: number;
-  custom_title: string;
+  title: string;
   disable_animations: boolean;
   hide_years: boolean;
 }
@@ -55,7 +55,7 @@ interface ContributedToCardOptions extends CommonCardOptions {
  * A login is up to 39 characters, which at the title's size overruns the default width
  * by half again — so the plain wording is the fallback rather than a truncated login.
  *
- * @returns The default title, which `custom_title` still overrides.
+ * @returns The default title, which `title` still overrides.
  */
 const defaultTitleFor = (
   t: Localized<typeof contributedToCardLocales>,
@@ -225,7 +225,7 @@ const renderContributedToCard = (
     hide_title = false,
     hide_border = false,
     card_width,
-    custom_title,
+    title,
     disable_animations = false,
     hide_years = false,
     border_radius,
@@ -267,7 +267,7 @@ const renderContributedToCard = (
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
   const card = new Card({
-    customTitle: custom_title,
+    customTitle: title,
     defaultTitle: defaultTitleFor(t, login, contentWidth - TITLE_ICON_COLUMN),
     titlePrefixIcon: CARD_ICON.contributedTo,
     width,

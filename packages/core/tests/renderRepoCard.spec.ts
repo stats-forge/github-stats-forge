@@ -102,14 +102,14 @@ describe('Test renderRepoCard', () => {
     expect(document.querySelector('.description')).toHaveTextContent('Small text should not trim');
   });
 
-  it('should respect browser_rendering=true', () => {
+  it('should respect wrap_description=true', () => {
     document.body.innerHTML = renderRepoCard(
       {
         ...data_repo.repository,
         description:
           'The quick brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet',
       },
-      { browser_rendering: true },
+      { wrap_description: true },
     );
 
     // Browser-side wrapping inside the foreignObject keeps the full text in

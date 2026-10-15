@@ -33,7 +33,7 @@ See [the token it needs](#the-token-it-needs).
 | `show`               | `discussions_started` `commits`                           | Draw these stats as well                      |
 | `hide`               | `prs_opened` `prs_merged` `issues_opened` `issues_closed` | Leave these stats out                         |
 | `show_icons`         | `true` `false`                                            | Show an icon beside each stat (on by default) |
-| `custom_title`       | any text                                                  | Replace the card's title                      |
+| `title`              | any text                                                  | Replace the card's title                      |
 | `hide_title`         | `true` `false`                                            | Drop the title, its icon and its band         |
 | `card_width`         | a number                                                  | Card width in pixels                          |
 | `line_height`        | a number                                                  | Space between the stat rows                   |

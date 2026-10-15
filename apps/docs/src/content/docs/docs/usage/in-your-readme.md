@@ -147,4 +147,4 @@ justify, and every run spends rate limit.
 - **The animation does not play.** Some contexts strip it. Render with `disable_animations=true`
   so the card is drawn in its final state rather than its first frame.
 - **The text is cut off.** The renderer wraps and truncates to a fixed width. Raise `card_width`,
-  or shorten what goes in it — a `custom_title`, fewer `show` entries.
+  or shorten what goes in it — a `title`, fewer `show` entries.

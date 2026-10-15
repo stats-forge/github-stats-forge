@@ -126,20 +126,20 @@ describe('WakaTime fetcher', () => {
 
   it.each(['wakapi.dev', 'localhost:3000', 'stats.example.com', 'wakapi.dev:65535'])(
     'fetches from the host %j',
-    async (api_domain) => {
+    async (wakatime_host) => {
       mock
-        .onGet(`https://${api_domain}/api/v1/users/user/stats?is_including_today=true`)
+        .onGet(`https://${wakatime_host}/api/v1/users/user/stats?is_including_today=true`)
         .reply(200, wakaTimeData);
 
       await expect(
-        fetchWakatimeStats({ username: 'user', api_domain }, config),
+        fetchWakatimeStats({ username: 'user', wakatime_host }, config),
       ).resolves.toStrictEqual(wakaTimeData.data);
     },
   );
 
-  it.each(['evil.com/x?', 'user@evil.com'])('refuses the api domain %j', async (api_domain) => {
-    await expect(fetchWakatimeStats({ username: 'user', api_domain }, config)).rejects.toThrow(
-      'Invalid API domain provided.',
+  it.each(['evil.com/x?', 'user@evil.com'])('refuses the api domain %j', async (wakatime_host) => {
+    await expect(fetchWakatimeStats({ username: 'user', wakatime_host }, config)).rejects.toThrow(
+      'Invalid WakaTime host provided.',
     );
   });
 

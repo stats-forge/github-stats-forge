@@ -72,7 +72,7 @@ interface StatCardOptions extends CommonCardOptions {
   hide_rank: boolean;
   include_all_commits: boolean;
   line_height: number;
-  custom_title: string;
+  title: string;
   disable_animations: boolean;
   number_format: string;
   number_precision: number;
@@ -266,7 +266,7 @@ const renderCard = (
     include_all_commits = false,
     line_height: lheight = 25,
     text_bold = true,
-    custom_title,
+    title,
     border_radius,
     number_format = 'short',
     number_precision,
@@ -467,7 +467,7 @@ const renderCard = (
   // the lower the user's percentile the better
   const progress = 100 - rank.percentile;
 
-  const calculateTextWidth = (): number => measureText(custom_title || defaultTitle);
+  const calculateTextWidth = (): number => measureText(title || defaultTitle);
 
   const iconWidth = show_icons && visibleStats.length > 0 ? 16 + /* padding */ 1 : 0;
   // The icons ride inside the step's own slack, so a default card lands on the width grid;
@@ -522,7 +522,7 @@ const renderCard = (
   );
 
   const card = new Card({
-    customTitle: custom_title,
+    customTitle: title,
     defaultTitle,
     titlePrefixIcon: CARD_ICON.stats,
     width,

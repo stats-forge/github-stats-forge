@@ -118,7 +118,7 @@ const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAf
 
   // Check if ownerAffiliations contains valid values.
   if (!normalized.every((value) => isOwnerAffiliation(value))) {
-    throw CardError.invalidParam('role', INVALID_AFFILIATION);
+    throw CardError.invalidParam('affiliation', INVALID_AFFILIATION);
   }
   return normalized;
 };

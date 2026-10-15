@@ -77,14 +77,16 @@ describe('API input validation', () => {
     '-evil.com',
     'evil..com',
     String.raw`evil.com\x`,
-  ])('wakatime: rejects api_domain %j', async (api_domain) => {
-    const result = await wakatime({ username: 'user', api_domain }, config);
+  ])('wakatime: rejects wakatime_host %j', async (wakatime_host) => {
+    const result = await wakatime({ username: 'user', wakatime_host }, config);
     expect(result).toMatchObject({
       status: 'error',
       retryable: false,
-      error: { code: 'invalid_param', param: 'api_domain' },
+      error: { code: 'invalid_param', param: 'wakatime_host' },
     });
-    expect(result.content).toContain('Invalid hostname input for parameter &#34;api_domain&#34;');
+    expect(result.content).toContain(
+      'Invalid hostname input for parameter &#34;wakatime_host&#34;',
+    );
   });
 
   describe.each(githubUsernameEndpoints)('%s: username', (_endpoint, send) => {

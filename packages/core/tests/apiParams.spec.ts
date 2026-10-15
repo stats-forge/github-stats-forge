@@ -148,7 +148,7 @@ describe('api query schemas', () => {
   it.each([
     ['show', 'prs_merged,sparkles'],
     ['hide', 'stars,sparkles'],
-    ['role', 'owner,stranger'],
+    ['affiliation', 'owner,stranger'],
   ])('rejects a %s naming something outside its set', async (param, value) => {
     const result = await endpoints.stats({ username: 'anuraghazra', [param]: value });
 
@@ -182,7 +182,7 @@ describe('api query schemas', () => {
     const result = await endpoints.stats({
       username: 'anuraghazra',
       show: 'PRS_MERGED',
-      role: 'owner,Collaborator',
+      affiliation: 'owner,Collaborator',
     });
 
     // the stubbed fetch fails, but the params got past validation

@@ -45,9 +45,10 @@ interface OrgActivityCardOptions extends CommonCardOptions {
   hide_title: boolean;
   card_width: number;
   line_height: number;
-  custom_title: string;
+  title: string;
   disable_animations: boolean;
   number_format: string;
+  number_precision: number;
   text_bold: boolean;
 }
 
@@ -65,7 +66,7 @@ interface StatItem {
  * The window is composed onto it in parentheses rather than written into the wording,
  * so both halves keep whatever translations they have — see the wakatime card's own.
  *
- * @returns The default title, which `custom_title` still overrides.
+ * @returns The default title, which `title` still overrides.
  */
 const defaultTitleFor = (
   t: Localized<typeof orgActivityCardLocales>,
@@ -132,9 +133,10 @@ const renderCard = (
     card_width,
     line_height: lheight = 25,
     text_bold = true,
-    custom_title,
+    title,
     border_radius,
     number_format = 'short',
+    number_precision,
     locale,
     disable_animations = false,
   } = options;
@@ -241,11 +243,12 @@ const renderCard = (
       bold: text_bold,
       labelBold: false,
       numberFormat: number_format,
+      numberPrecision: number_precision,
     }),
   );
 
   const card = new Card({
-    customTitle: custom_title,
+    customTitle: title,
     defaultTitle: defaultTitleFor(
       t,
       name,

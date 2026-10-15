@@ -206,11 +206,11 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'data',
       },
       {
-        name: 'role',
+        name: 'affiliation',
         label: 'Owner affiliations to include',
         kind: 'list',
         group: 'data',
-        choices: stats.OPTIONS.role,
+        choices: stats.OPTIONS.affiliation,
       },
       {
         name: 'include_own_repos',
@@ -218,7 +218,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'boolean',
         group: 'data',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
@@ -296,13 +296,13 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'colors',
       },
       {
-        name: 'role',
+        name: 'affiliation',
         label: 'Owner affiliations to include',
         kind: 'list',
         group: 'data',
-        choices: topLangs.OPTIONS.role,
+        choices: topLangs.OPTIONS.affiliation,
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       {
@@ -340,7 +340,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'text',
       },
       {
-        name: 'browser_rendering',
+        name: 'wrap_description',
         label: 'Let the browser wrap the description',
         kind: 'boolean',
         group: 'text',
@@ -354,6 +354,12 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'choice',
         group: 'text',
         choices: pin.OPTIONS.number_format,
+      },
+      {
+        name: 'number_precision',
+        label: 'Decimals kept when abbreviating',
+        kind: 'integer',
+        group: 'text',
       },
       {
         name: 'disable_animations',
@@ -392,7 +398,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'boolean',
         group: 'display',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
@@ -403,6 +409,12 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'choice',
         group: 'text',
         choices: org.OPTIONS.number_format,
+      },
+      {
+        name: 'number_precision',
+        label: 'Decimals kept when abbreviating',
+        kind: 'integer',
+        group: 'text',
       },
       {
         name: 'disable_animations',
@@ -443,7 +455,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         choices: orgActivity.OPTIONS.hide,
       },
       { name: 'show_icons', label: 'Show the stat icons', kind: 'boolean', group: 'display' },
-      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
@@ -454,6 +466,12 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'choice',
         group: 'text',
         choices: orgActivity.OPTIONS.number_format,
+      },
+      {
+        name: 'number_precision',
+        label: 'Decimals kept when abbreviating',
+        kind: 'integer',
+        group: 'text',
       },
       {
         name: 'disable_animations',
@@ -493,7 +511,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'display',
         hint: 'One mark per contribution year, filled for the years that repo got one',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       {
@@ -514,7 +532,7 @@ const CARDS: ReadonlyArray<CardKind> = [
     options: [
       { name: 'show_owner', label: 'Show the owner', kind: 'boolean', group: 'display' },
       {
-        name: 'browser_rendering',
+        name: 'wrap_description',
         label: 'Let the browser wrap the description',
         kind: 'boolean',
         group: 'text',
@@ -557,7 +575,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         kind: 'boolean',
         group: 'display',
       },
-      { name: 'custom_title', label: 'Card title', kind: 'text', group: 'text' },
+      { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },
       { name: 'line_height', label: 'Line height', kind: 'integer', group: 'text' },
@@ -568,7 +586,7 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'text',
       },
       {
-        name: 'api_domain',
+        name: 'wakatime_host',
         label: 'WakaTime instance',
         kind: 'text',
         group: 'data',
