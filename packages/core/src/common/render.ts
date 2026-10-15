@@ -40,12 +40,12 @@ const flexLayout = ({
     lastSize += (sizes[i] ?? 0) + gap;
 
     // The first item never moves, so it gets no transform to carry.
-    const transform =
-      offset === 0
-        ? undefined
-        : direction === 'column'
-          ? `translate(0, ${offset})`
-          : `translate(${offset}, 0)`;
+    let transform: string | undefined;
+    if (offset !== 0 && direction === 'column') {
+      transform = `translate(0, ${offset})`;
+    } else if (offset !== 0) {
+      transform = `translate(${offset}, 0)`;
+    }
 
     return el('g', { transform }, item);
   });

@@ -36,8 +36,13 @@ interface ServerSettings {
  *
  * @returns The value, or `undefined` when it is absent or empty.
  */
-const fromEnv = (value: string | undefined): string | undefined =>
-  value === '' ? undefined : value;
+const fromEnv = (value: string | undefined): string | undefined => {
+  if (value === '') {
+    return undefined;
+  }
+
+  return value;
+};
 
 /**
  * A transport that gives up rather than waiting on GitHub forever. Core wraps the rejection as

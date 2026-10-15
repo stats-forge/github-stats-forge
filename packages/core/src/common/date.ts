@@ -123,8 +123,13 @@ const toYearRanges = ({ from, to }: GitHubDateRange): Array<GitHubDateRange> => 
  *
  * @returns e.g. `2024` or `2020–2024`.
  */
-const formatYears = (first: number, last: number): string =>
-  first === last ? `${first}` : `${first}–${last}`;
+const formatYears = (first: number, last: number): string => {
+  if (first === last) {
+    return `${first}`;
+  }
+
+  return `${first}–${last}`;
+};
 
 /**
  * A range as a card writes it, at the coarsest granularity that stays true.
