@@ -29,7 +29,7 @@ One path per card, named after the card.
 | --------------------- | ---------------------------- |
 | `/api/stats`          | commits, PRs, issues, a rank |
 | `/api/top-langs`      | most-used languages          |
-| `/api/pin`            | one repository or gist       |
+| `/api/pin`            | one repository               |
 | `/api/org`            | an organization              |
 | `/api/org-activity`   | its PRs, issues and commits  |
 | `/api/contributed-to` | repositories contributed to  |
@@ -85,13 +85,27 @@ Set `STRICT_HTTP_STATUS=true` and it answers with the code the failure deserves 
 ## Pinning it to yourself
 
 An instance with a token on it will draw a card for anyone who asks, and spend your rate limit
-doing it. `ALLOWLIST` is a comma-separated list of the GitHub logins it will serve, users and
-organizations alike, matched without regard to case; `GIST_ALLOWLIST` does the same for gist ids.
-Anything else is refused before a single request reaches GitHub.
+doing it. Two lines in `cards.env` keep it to your own:
+
+```sh
+ALLOWLIST=you,your-org
+GIST_ALLOWLIST=0123456789abcdef0123456789abcdef
+```
+
+`ALLOWLIST` is a comma-separated list of the GitHub logins it will serve, users and organizations
+alike, matched without regard to case. It guards every card that takes a login — `username` on
+the stats, top languages, repository pin and contributed-to cards, `org` on the two organization
+cards. Anything else is refused before a single request reaches GitHub.
+
+**The gist card answers to `GIST_ALLOWLIST` alone.** A gist is named by its id rather than its
+owner, so `ALLOWLIST` does not reach it, and an instance with only `ALLOWLIST` set still draws any
+public gist. List your own gist ids there to close it. Either variable left unset, or empty, is no
+list at all, and the cards it guards are drawn for anyone.
 
 Two things it is not. It does not cover the WakaTime card, whose username is a WakaTime profile
-rather than a GitHub login. And it is not authentication: it limits whose cards the instance
-draws, not who may ask it to draw them.
+rather than a GitHub login — that card reads WakaTime rather than GitHub, so it spends none of
+your rate limit. And it is not authentication: it limits whose cards the instance draws, not who
+may ask it to draw them.
 
 ## Configuration
 
