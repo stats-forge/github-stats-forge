@@ -13,6 +13,7 @@ import {
   OPTION_GROUPS,
 } from '@stats-forge/github-stats-forge-catalog';
 import type { CardField } from '@stats-forge/github-stats-forge-catalog';
+import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 
 import { CARD_GROUPS, CARDS, findCard } from './cards.ts';
 import type { AnvilCard } from './cards.ts';
@@ -121,7 +122,9 @@ const toQuery = (state: State): Record<string, string> => {
     }
   }
 
-  for (const [name, value] of new URLSearchParams(state.extra.replace(/^\?/, ''))) {
+  for (const [name, value] of Object.entries(
+    queryOf(new URLSearchParams(state.extra.replace(/^\?/, ''))),
+  )) {
     if (name !== '') {
       query[name] = value;
     }

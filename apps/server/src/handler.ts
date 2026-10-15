@@ -4,6 +4,7 @@
  */
 
 import type { ApiResult, CardConfig, ErrorCode } from '@stats-forge/github-stats-forge-core/api';
+import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 
 import { TTL, cacheControl, cacheKey, parseInteger, ttlFor } from './cache.ts';
 import type { CardCache } from './cache.ts';
@@ -231,7 +232,7 @@ const route = async (
     return cardResponse(hit.result, ttlFor(hit.result, wanted), hit.age, options.strictHttpStatus);
   }
 
-  const query = Object.fromEntries(url.searchParams);
+  const query = queryOf(url.searchParams);
   const result = await drawCard(render, key, query, options, inFlight);
 
   return cardResponse(result, ttlFor(result, wanted), undefined, options.strictHttpStatus);

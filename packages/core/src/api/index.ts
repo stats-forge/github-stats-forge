@@ -6,6 +6,7 @@ export { pin } from './pin.ts';
 export { stats } from './stats.ts';
 export { topLangs } from './top-langs.ts';
 export { wakatime } from './wakatime.ts';
+export { queryOf } from './query.ts';
 
 export type { ApiError, ApiResult } from './api-result.ts';
 export type { ParamKind, ParamShape } from './params.ts';
