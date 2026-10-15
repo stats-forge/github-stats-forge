@@ -124,7 +124,7 @@ describe('WakaTime fetcher', () => {
     );
   });
 
-  it.each(['wakapi.dev', 'localhost:3000', 'stats.example.com'])(
+  it.each(['wakapi.dev', 'localhost:3000', 'stats.example.com', 'wakapi.dev:65535'])(
     'fetches from the host %j',
     async (api_domain) => {
       mock
