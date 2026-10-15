@@ -9,6 +9,7 @@ export type TopLanguageFragment = { size: number; node: { color: string | null; 
 
 export type TopLanguagesRepositoryFragment = {
   name: string;
+  nameWithOwner: string;
   languages: {
     edges: Array<{ size: number; node: { color: string | null; name: string } } | null> | null;
   } | null;
@@ -28,6 +29,7 @@ export type TopLanguagesQuery = {
     repositories: {
       nodes: Array<{
         name: string;
+        nameWithOwner: string;
         languages: {
           edges: Array<{
             size: number;
@@ -51,6 +53,7 @@ query topLanguages($login: String!, $ownerAffiliations: [RepositoryAffiliation])
 }
 fragment TopLanguagesRepository on Repository {
   name
+  nameWithOwner
   languages(first: 10, orderBy: { field: SIZE, direction: DESC }) {
     edges {
       ...TopLanguage

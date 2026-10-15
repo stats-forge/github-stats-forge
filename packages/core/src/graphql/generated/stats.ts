@@ -5,12 +5,12 @@ type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 import { graphqlDocument } from '../graphqlDocument.ts';
 
 import type * as Types from './common.ts';
-export type RepoNodeFragment = { name: string; stargazerCount: number };
+export type RepoNodeFragment = { name: string; nameWithOwner: string; stargazerCount: number };
 
 export type RepoStarsFragment = {
   repositories: {
     totalCount: number;
-    nodes: Array<{ name: string; stargazerCount: number } | null> | null;
+    nodes: Array<{ name: string; nameWithOwner: string; stargazerCount: number } | null> | null;
     pageInfo: { hasNextPage: boolean; endCursor: string | null };
   };
 };
@@ -29,7 +29,7 @@ export type UserReposQuery = {
   user: {
     repositories: {
       totalCount: number;
-      nodes: Array<{ name: string; stargazerCount: number } | null> | null;
+      nodes: Array<{ name: string; nameWithOwner: string; stargazerCount: number } | null> | null;
       pageInfo: { hasNextPage: boolean; endCursor: string | null };
     };
   } | null;
@@ -68,7 +68,7 @@ export type UserInfoQuery = {
     contributionsCollection: { contributionYears: Array<number> };
     repositories: {
       totalCount: number;
-      nodes: Array<{ name: string; stargazerCount: number } | null> | null;
+      nodes: Array<{ name: string; nameWithOwner: string; stargazerCount: number } | null> | null;
       pageInfo: { hasNextPage: boolean; endCursor: string | null };
     };
   } | null;
@@ -122,6 +122,7 @@ fragment RepoStars on User {
 }
 fragment RepoNode on Repository {
   name
+  nameWithOwner
   stargazerCount
 }`);
 
@@ -189,5 +190,6 @@ fragment RepoStars on User {
 }
 fragment RepoNode on Repository {
   name
+  nameWithOwner
   stargazerCount
 }`);

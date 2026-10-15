@@ -1,7 +1,7 @@
 import type { CardConfig } from '../common/config.ts';
 import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
-import { parseOwnerAffiliations } from '../common/ops.ts';
+import { excludes, parseOwnerAffiliations } from '../common/ops.ts';
 import { retryer } from '../common/retryer.ts';
 import { TopLanguagesDocument } from '../graphql/generated/top-languages.ts';
 import type {
@@ -57,17 +57,9 @@ const fetchTopLanguages = async (
     );
   }
 
-  const repoToHide: Record<string, boolean> = {};
-  const allExcludedRepos = [...exclude_repo, ...config.excludeRepositories];
-
-  // populate repoToHide map for quick lookup while filtering out
-  for (const repoName of allExcludedRepos) {
-    repoToHide[repoName] = true;
-  }
-
-  // filter out repositories to be hidden
+  const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);
   const repoNodes = (res.data.data.user?.repositories.nodes ?? []).filter(
-    (node): node is TopLanguagesRepositoryFragment => !!node && !repoToHide[node.name],
+    (node): node is TopLanguagesRepositoryFragment => !!node && !isExcluded(node.nameWithOwner),
   );
 
   const languageEdges: Array<TopLanguageFragment> = [];
