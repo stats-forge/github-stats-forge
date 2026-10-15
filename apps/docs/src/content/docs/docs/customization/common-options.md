@@ -48,8 +48,8 @@ and for what wins over what.
 ## Theme
 
 `theme` names one of the [built-in themes](../themes/).
-An unknown name falls back to `default` rather than failing, and any explicit color you pass
-alongside it wins, so a theme is a starting point rather than a lock.
+An unknown name is an error rather than a card in the default colors, and any explicit color
+you pass alongside it wins, so a theme is a starting point rather than a lock.
 
 ## Border, title and size
 

@@ -4,6 +4,7 @@ import { parseColorParams } from '../src/api/params.ts';
 import {
   BASE_COLOR_KEYS,
   COLOR_PARAM_KEYS,
+  THEME_PARAM_KEYS,
   THEME_VARIANTS,
   getCardColors,
   getLightDarkColors,
@@ -318,14 +319,17 @@ describe(parseColorParams, () => {
     expect(invalidParam({ title_color: 'invalid,f00,0f0' })).toBe('title_color');
   });
 
-  it('should validate colors but skip theme params', () => {
-    expect(invalidParam({ theme: 'not-a-color', bg_color: 'fff' })).toBeNull();
-    expect(invalidParam({ theme_dark: 'not-a-color', bg_color: 'fff' })).toBeNull();
+  it('should check a theme param against the themes rather than as a color', () => {
+    expect(invalidParam({ theme: 'dark', theme_dark: 'radical', bg_color: 'fff' })).toBeNull();
+    expect(invalidParam({ theme: 'fff' })).toBe('theme');
+    expect(invalidParam({ theme_dark: 'not-a-theme' })).toBe('theme_dark');
     expect(invalidParam({ bg_color_dark: 'not-a-color' })).toBe('bg_color_dark');
   });
 
   it('should pick every accepted param off a query, and nothing else', () => {
-    const query = Object.fromEntries(COLOR_PARAM_KEYS.map((key) => [key, 'fff']));
+    const query = Object.fromEntries(
+      COLOR_PARAM_KEYS.map((key) => [key, THEME_PARAM_KEYS.includes(key) ? 'dark' : 'fff']),
+    );
     expect(Object.keys(parseColorParams({ ...query, username: 'x' }))).toStrictEqual([
       ...COLOR_PARAM_KEYS,
     ]);

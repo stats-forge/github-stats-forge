@@ -21,6 +21,7 @@ import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
 import { isLocaleAvailable } from '../common/localize.ts';
 import { parseArray, parseBoolean } from '../common/ops.ts';
+import { themes } from '../themes/index.ts';
 
 /** Every param arrives as a string, or not at all. */
 const rawParam = z.optional(z.string());
@@ -30,6 +31,7 @@ const SAFE_PATTERN = /^[-\w/.,]+$/;
 
 /** What a check rejected a param for. */
 type Rejection =
+  | 'boolean'
   | 'number'
   | 'date'
   | 'out_of_range'
@@ -46,6 +48,7 @@ type Rejection =
  * The param comes from the issue's own path, so no schema repeats its own name.
  */
 const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
+  boolean: (param) => `Invalid boolean input for parameter "${param}"`,
   number: (param) => `Invalid number input for parameter "${param}"`,
   date: (param) => `Invalid date input for parameter "${param}"`,
   out_of_range: (param) => `Out of range date for parameter "${param}"`,
@@ -70,11 +73,11 @@ const rejects = (kind: Rejection, passes: (value: string) => boolean): z.core.$Z
   });
 
 /**
- * `?x=true` / `?x=false`.
- * Anything else is `undefined`, which leaves the card's own default in place.
+ * `?x=true` / `?x=false`, in any case.
+ * Absent is `undefined`, which leaves the card's own default in place; anything else is rejected.
  */
 const booleanParam = z.pipe(
-  rawParam,
+  rawParam.check(rejects('boolean', (value) => parseBoolean(value) !== undefined)),
   // Narrowed: `parseBoolean` also takes booleans, which a query string cannot hold.
   z.transform((value: string | undefined) => parseBoolean(value)),
 );
@@ -190,18 +193,34 @@ const localeParam = z.pipe(
 );
 
 /**
+ * Looks an entry up in a fixed set, ignoring case.
+ *
+ * @returns The entry as the set spells it, or `undefined` when the set lacks it.
+ */
+const inSet =
+  <T extends string>(values: ReadonlyArray<T>) =>
+  (entry: string): T | undefined =>
+    values.find((value) => value.toLowerCase() === entry.toLowerCase());
+
+/**
  * A param the card only renders as one of a fixed set of values.
+ * Matched case-insensitively and yielded as the set spells it.
  *
  * @returns Schema yielding one of `values`, or `undefined` when absent.
  */
 const enumParam = <const T extends ReadonlyArray<string>>(
   values: T,
-): z.ZodMiniType<T[number] | undefined, string | undefined> =>
-  rawParam.check(rejects('enum', (value) => (values as ReadonlyArray<string>).includes(value)));
+): z.ZodMiniType<T[number] | undefined, string | undefined> => {
+  const canonical = inSet<T[number]>(values);
+  return z.pipe(
+    rawParam.check(rejects('enum', (value) => canonical(value) !== undefined)),
+    z.transform((value) => (value === undefined ? undefined : canonical(value))),
+  );
+};
 
 /**
  * A comma-separated list drawn from a fixed set, such as the stats a card can show.
- * Matched case-insensitively and yielded as the set spells it, so `?role=owner` reads as `OWNER`;
+ * Matched as {@link enumParam} matches, so `?role=owner` reads as `OWNER`;
  * one unknown entry rejects the list, since an ignored entry reads as a stat the card forgot.
  *
  * @returns Schema yielding the entries, empty when absent.
@@ -209,8 +228,7 @@ const enumParam = <const T extends ReadonlyArray<string>>(
 const enumListParam = <const T extends ReadonlyArray<string>>(
   values: T,
 ): z.ZodMiniType<Array<T[number]>, string | undefined> => {
-  const canonical = (entry: string): T[number] | undefined =>
-    values.find((value) => value.toLowerCase() === entry.toLowerCase());
+  const canonical = inSet<T[number]>(values);
   return z.pipe(
     rawParam.check(
       rejects('enum', (value) =>
@@ -221,18 +239,13 @@ const enumListParam = <const T extends ReadonlyArray<string>>(
   );
 };
 
-/**
- * Every color param an endpoint accepts, validated and picked in one pass.
- *
- * Theme params are `rawParam`:
- * they name a theme, and an unknown name falls back to the default rather than being an error.
- */
+/** Every color param an endpoint accepts, validated and picked in one pass. */
 const colorParamsSchema = z.object(
   Object.fromEntries(
     COLOR_PARAM_KEYS.map((key) => [
       key,
       THEME_PARAM_KEYS.includes(key)
-        ? rawParam
+        ? enumParam(Object.keys(themes))
         : rawParam.check(rejects('color', isValidColorInput)),
     ]),
   ),

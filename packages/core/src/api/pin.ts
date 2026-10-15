@@ -7,10 +7,10 @@ import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   enumListParam,
-  localeParam,
+  enumParam,
   intParam,
+  localeParam,
   numberParam,
-  rawParam,
   safeParam,
   usernameParam,
 } from './params.ts';
@@ -25,7 +25,7 @@ const pinQuery = z.object({
   browser_rendering: booleanParam,
   show: enumListParam(renderRepoCard.OPTIONS.show),
   show_icons: booleanParam,
-  number_format: rawParam,
+  number_format: enumParam(renderRepoCard.OPTIONS.number_format),
   text_bold: booleanParam,
   line_height: intParam,
   locale: localeParam,
