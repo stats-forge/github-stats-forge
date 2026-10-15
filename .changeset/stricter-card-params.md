@@ -7,6 +7,8 @@ feat!: stricter, more consistent card params
 
 - A malformed or unknown value is an `invalid_param` instead of being ignored: booleans,
   `number_format`, theme names, whole numbers, and `show`, `hide` and `role` entries.
+- `show` and `hide` each take any stat the card draws; a stat in both is left out, and not
+  fetched.
 - Fixed values match case-insensitively, and lists trim spaces and drop empty entries.
 - An empty boolean (`?hide_border`) is `true`; any other empty param is absent.
 - A param given twice is joined into one list, by the server and the anvil as by the CLI, through

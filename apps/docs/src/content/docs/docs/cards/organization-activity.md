@@ -41,6 +41,8 @@ See [the token it needs](#the-token-it-needs).
 | `number_format`      | `short` `long`                                            | `1.2k` or `1204`                              |
 | `disable_animations` | `true` `false`                                            | Draw it without the fade-in                   |
 
+`show` and `hide` each take any stat the card draws; a stat named in both is left out.
+
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.
 

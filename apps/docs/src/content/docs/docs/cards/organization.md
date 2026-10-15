@@ -41,6 +41,8 @@ extra. See [the token it needs](#the-token-it-needs).
 | `text_bold`        | `true` `false`                                              | Bold the values (on by default)               |
 | `number_format`    | `short` `long`                                              | `18.7k` or `18724`                            |
 
+`show` and `hide` each take any stat the card draws; a stat named in both is left out.
+
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.
 

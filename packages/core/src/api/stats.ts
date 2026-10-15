@@ -20,6 +20,9 @@ import {
   usernameParam,
 } from './params.ts';
 
+/** Every stat the card draws: `show` and `hide` each accept any of them. */
+const STATS = [...renderStatsCard.OPTIONS.hide, ...renderStatsCard.OPTIONS.show] as const;
+
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z
   .object({
@@ -29,7 +32,7 @@ const statsQuery = z
     ...statRowParams,
     repo: safeListParam,
     owner: safeListParam,
-    hide: enumListParam(renderStatsCard.OPTIONS.hide),
+    hide: enumListParam(STATS, renderStatsCard.OPTIONS.hide),
     card_width: intParam({ px: true }),
     hide_rank: booleanParam,
     include_all_commits: booleanParam,
@@ -39,7 +42,7 @@ const statsQuery = z
     role: enumListParam(OWNER_AFFILIATIONS),
     number_precision: intParam({ min: 0 }),
     rank_icon: enumParam(renderStatsCard.OPTIONS.rank_icon),
-    show: enumListParam(renderStatsCard.OPTIONS.show),
+    show: enumListParam(STATS, renderStatsCard.OPTIONS.show),
     include_own_repos: booleanParam,
   })
   .check(ORDERED_RANGE);
@@ -83,6 +86,9 @@ const renderStats = cardHandler(
     colors,
     config,
   ) => {
+    // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
+    const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
+
     // A bare repo name is scoped to the user whose card this is.
     const repository = repo.map((name) =>
       name.includes('/') ? name : `${username ?? ''}/${name}`,
@@ -93,22 +99,21 @@ const renderStats = cardHandler(
         username,
         include_all_commits,
         exclude_repo,
-        include_merged_pull_requests:
-          show.includes('prs_merged') || show.includes('prs_merged_percentage'),
-        include_discussions: show.includes('discussions_started'),
-        include_discussions_answers: show.includes('discussions_answered'),
+        include_merged_pull_requests: drawn.has('prs_merged') || drawn.has('prs_merged_percentage'),
+        include_discussions: drawn.has('discussions_started'),
+        include_discussions_answers: drawn.has('discussions_answered'),
         from,
         to,
         repo: repository,
         owner,
-        include_prs_authored: show.includes('prs_opened'),
-        include_prs_commented: show.includes('prs_commented'),
-        include_prs_reviewed: show.includes('prs_reviewed'),
-        include_issues_authored: show.includes('issues_opened'),
-        include_issues_commented: show.includes('issues_commented'),
+        include_prs_authored: drawn.has('prs_opened'),
+        include_prs_commented: drawn.has('prs_commented'),
+        include_prs_reviewed: drawn.has('prs_reviewed'),
+        include_issues_authored: drawn.has('issues_opened'),
+        include_issues_commented: drawn.has('issues_commented'),
         ownerAffiliations: role,
-        include_contributions: show.includes('contributions'),
-        include_all_time_contribs: show.includes('contributed_to_all_time'),
+        include_contributions: drawn.has('contributions'),
+        include_all_time_contribs: drawn.has('contributed_to_all_time'),
         include_own_repos,
       },
       config,
