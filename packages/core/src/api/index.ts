@@ -16,5 +16,6 @@ export type { CardConfigInit, PersonalAccessToken } from '../common/config.ts';
 export type { FetchLike } from '../common/http.ts';
 export type { ErrorCode } from '../common/error.ts';
 
+export { COLOR_PARAM_KEYS } from '../common/color.ts';
 export { themes } from '../themes/index.ts';
 export type { ThemeName } from '../themes/index.ts';
