@@ -19,3 +19,6 @@ feat!: stricter, more consistent card params
   names the color params.
 - Renamed: `contribs_include_own_repos` → `include_own_repos`; `stats_format` and `display_format`
   → `value_format`, whose `percentages` is now `percent`.
+- Renamed stats: `contribs` → `contributed_to`, `all_time_contribs` → `contributed_to_all_time`,
+  `prs_authored` → `prs_opened`, `issues_authored` → `issues_opened`, and org-activity's
+  `discussions` → `discussions_started`.

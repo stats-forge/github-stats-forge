@@ -28,7 +28,7 @@ const TITLE_FONT_SIZE = CARD_STYLE.fontSize.title;
 const TITLE_ICON_COLUMN = 25;
 
 /** Stats the card draws only when `show` names them. */
-const SHOW_STATS = ['discussions', 'commits'] as const;
+const SHOW_STATS = ['discussions_started', 'commits'] as const;
 type ShowStat = (typeof SHOW_STATS)[number];
 
 /** Stats `show` does not gate, and so the ones `hide` has anything to remove. */
@@ -180,12 +180,12 @@ const renderCard = (
     };
   }
 
-  if (shows('discussions')) {
-    STATS['discussions'] = {
+  if (shows('discussions_started')) {
+    STATS['discussions_started'] = {
       icon: icons.discussions_started,
       label: t.discussions(),
       value: discussionsOpened,
-      id: 'discussions',
+      id: 'discussions_started',
     };
   }
 

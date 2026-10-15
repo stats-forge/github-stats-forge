@@ -48,7 +48,7 @@ describe('Test renderStatsCard', () => {
     expect(screen.getByTestId('commits')).toHaveTextContent('200');
     expect(screen.getByTestId('issues')).toHaveTextContent('300');
     expect(screen.getByTestId('prs')).toHaveTextContent('400');
-    expect(screen.getByTestId('contribs')).toHaveTextContent('500');
+    expect(screen.getByTestId('contributed_to')).toHaveTextContent('500');
     expect(screen.queryByTestId('card-bg')).toBeInTheDocument();
     expect(screen.queryByTestId('rank-circle')).toBeInTheDocument();
 
@@ -59,7 +59,7 @@ describe('Test renderStatsCard', () => {
     expect(screen.queryByTestId('prs_merged')).not.toBeInTheDocument();
     expect(screen.queryByTestId('prs_merged_percentage')).not.toBeInTheDocument();
     expect(screen.queryByTestId('contributions')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('all_time_contribs')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('contributed_to_all_time')).not.toBeInTheDocument();
   });
 
   it('should have proper name apostrophe', () => {
@@ -74,7 +74,7 @@ describe('Test renderStatsCard', () => {
 
   it('should hide individual stats', () => {
     document.body.innerHTML = renderStatsCard(stats, {
-      hide: ['issues', 'prs', 'contribs'],
+      hide: ['issues', 'prs', 'contributed_to'],
     });
 
     // height should be 150 because we clamped it.
@@ -84,7 +84,7 @@ describe('Test renderStatsCard', () => {
     expect(screen.queryByTestId('commits')).toBeInTheDocument();
     expect(screen.queryByTestId('issues')).not.toBeInTheDocument();
     expect(screen.queryByTestId('prs')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('contribs')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('contributed_to')).not.toBeInTheDocument();
     expect(screen.queryByTestId('reviews')).not.toBeInTheDocument();
     expect(screen.queryByTestId('discussions_started')).not.toBeInTheDocument();
     expect(screen.queryByTestId('discussions_answered')).not.toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('Test renderStatsCard', () => {
     expect(screen.queryByTestId('commits')).toBeInTheDocument();
     expect(screen.queryByTestId('issues')).toBeInTheDocument();
     expect(screen.queryByTestId('prs')).toBeInTheDocument();
-    expect(screen.queryByTestId('contribs')).toBeInTheDocument();
+    expect(screen.queryByTestId('contributed_to')).toBeInTheDocument();
     expect(screen.queryByTestId('reviews')).toBeInTheDocument();
     expect(screen.queryByTestId('discussions_started')).toBeInTheDocument();
     expect(screen.queryByTestId('discussions_answered')).toBeInTheDocument();
@@ -125,12 +125,12 @@ describe('Test renderStatsCard', () => {
     expect(screen.getByTestId('contributions').textContent).toBe('5k');
   });
 
-  it('should show all_time_contribs stat when included in show list', () => {
+  it('should show contributed_to_all_time stat when included in show list', () => {
     document.body.innerHTML = renderStatsCard(stats, {
-      show: ['all_time_contribs'],
+      show: ['contributed_to_all_time'],
     });
 
-    expect(screen.getByTestId('all_time_contribs')).toHaveTextContent('500');
+    expect(screen.getByTestId('contributed_to_all_time')).toHaveTextContent('500');
   });
 
   it('should hide_rank', () => {

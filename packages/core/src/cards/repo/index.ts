@@ -40,10 +40,10 @@ const INK_SCALE = { regular: 1.05, bold: 1.12 };
 
 /** Stats the card draws only when `show` names them. */
 const REPO_SHOW_STATS = [
-  'prs_authored',
+  'prs_opened',
   'prs_commented',
   'prs_reviewed',
-  'issues_authored',
+  'issues_opened',
   'issues_commented',
 ] as const;
 type RepoShowStat = (typeof REPO_SHOW_STATS)[number];
@@ -147,12 +147,12 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const repoFilter = encodeURIComponent(buildSearchFilter([nameWithOwner], []));
   const encodedUsername = encodeURIComponent(username ?? '');
   const STATS: Record<string, RepoStatItem> = {};
-  if (shows('prs_authored')) {
-    STATS['prs_authored'] = {
+  if (shows('prs_opened')) {
+    STATS['prs_opened'] = {
       icon: icons.prs,
-      label: t.prsAuthored(),
+      label: t.prsOpened(),
       value: totalPRsAuthored,
-      id: 'prs_authored',
+      id: 'prs_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
@@ -174,12 +174,12 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
     };
   }
-  if (shows('issues_authored')) {
-    STATS['issues_authored'] = {
+  if (shows('issues_opened')) {
+    STATS['issues_opened'] = {
       icon: icons.issues,
-      label: t.issuesAuthored(),
+      label: t.issuesOpened(),
       value: totalIssuesAuthored,
-      id: 'issues_authored',
+      id: 'issues_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
     };
   }

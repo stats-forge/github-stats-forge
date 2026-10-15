@@ -29,51 +29,51 @@ Anything else it can show is opt-in through [`show`](#showing-more-stats).
 ?username=octocat&show_icons=true&show=reviews,prs_merged,contributions&rank_icon=percentile
 ```
 
-| Value                   | The line it adds                               |
-| ----------------------- | ---------------------------------------------- |
-| `reviews`               | Pull requests reviewed                         |
-| `prs_merged`            | Pull requests merged                           |
-| `prs_merged_percentage` | What share of your PRs were merged             |
-| `discussions_started`   | Discussions started                            |
-| `discussions_answered`  | Discussions answered                           |
-| `prs_authored`          | Pull requests authored                         |
-| `prs_commented`         | Pull requests commented on                     |
-| `prs_reviewed`          | Pull requests reviewed, counted by search      |
-| `issues_authored`       | Issues authored                                |
-| `issues_commented`      | Issues commented on                            |
-| `contributions`         | Contributions in the counted range             |
-| `all_time_contribs`     | Contributions across every year of the account |
+| Value                     | The line it adds                                              |
+| ------------------------- | ------------------------------------------------------------- |
+| `reviews`                 | Pull requests reviewed                                        |
+| `prs_merged`              | Pull requests merged                                          |
+| `prs_merged_percentage`   | What share of your PRs were merged                            |
+| `discussions_started`     | Discussions started                                           |
+| `discussions_answered`    | Discussions answered                                          |
+| `prs_opened`              | Pull requests opened, counted by search                       |
+| `prs_commented`           | Pull requests commented on                                    |
+| `prs_reviewed`            | Pull requests reviewed, counted by search                     |
+| `issues_opened`           | Issues opened, counted by search                              |
+| `issues_commented`        | Issues commented on                                           |
+| `contributions`           | Contributions in the counted range                            |
+| `contributed_to_all_time` | Repositories contributed to, across every year of the account |
 
-Each extra stat costs another request, so a card asking for all twelve is slower than one asking
+Each extra stat costs another request, so a card asking for all of them is slower than one asking
 for none.
 
 ## Hiding the default stats
 
 `hide` takes the same shape, and removes a line the card would otherwise draw:
-`stars`, `commits`, `prs`, `issues`, `contribs`.
+`stars`, `commits`, `prs`, `issues`, `contributed_to`.
 
 ## Options
 
-| Option                | Values                                       | What it does                                            |
-| --------------------- | -------------------------------------------- | ------------------------------------------------------- |
-| `show`                | the list above                               | Extra stats to draw                                     |
-| `hide`                | `stars` `commits` `prs` `issues` `contribs`  | Default stats to leave out                              |
-| `show_icons`          | `true` `false`                               | Draw an icon beside each stat                           |
-| `hide_rank`           | `true` `false`                               | Leave out the rank circle                               |
-| `rank_icon`           | `default` `github` `percentile`              | What the rank circle shows                              |
-| `ring_color`          | a hex color                                  | The rank ring, when it should differ from the title     |
-| `include_all_commits` | `true` `false`                               | Count commits of all time rather than the counted range |
-| `from` / `to`         | `2024`, `2024-03`, `2024-03-15`              | The range commits and contributions are counted in      |
-| `exclude_repo`        | `owner/name` or `name`                       | Repositories to leave out of the totals                 |
-| `repo`                | `owner/name` or `name`                       | Scope the search-based stats to these repositories      |
-| `owner`               | logins                                       | Scope the search-based stats to these owners            |
-| `role`                | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER` | Which repositories count towards the stars and the rank |
-| `include_own_repos`   | `true` `false`                               | Count contributions to your own repositories            |
-| `number_format`       | `short` `long`                               | `1.5k` or `1500`                                        |
-| `number_precision`    | a number                                     | Decimals kept when abbreviating                         |
-| `text_bold`           | `true` `false`                               | Bold the stat values                                    |
-| `line_height`         | a number                                     | Space between the lines                                 |
-| `disable_animations`  | `true` `false`                               | Draw the card with no animation                         |
+| Option                | Values                                            | What it does                                            |
+| --------------------- | ------------------------------------------------- | ------------------------------------------------------- |
+| `show`                | the list above                                    | Extra stats to draw                                     |
+| `hide`                | `stars` `commits` `prs` `issues` `contributed_to` | Default stats to leave out                              |
+| `show_icons`          | `true` `false`                                    | Draw an icon beside each stat                           |
+| `hide_rank`           | `true` `false`                                    | Leave out the rank circle                               |
+| `rank_icon`           | `default` `github` `percentile`                   | What the rank circle shows                              |
+| `ring_color`          | a hex color                                       | The rank ring, when it should differ from the title     |
+| `include_all_commits` | `true` `false`                                    | Count commits of all time rather than the counted range |
+| `from` / `to`         | `2024`, `2024-03`, `2024-03-15`                   | The range commits and contributions are counted in      |
+| `exclude_repo`        | `owner/name` or `name`                            | Repositories to leave out of the totals                 |
+| `repo`                | `owner/name` or `name`                            | Scope the search-based stats to these repositories      |
+| `owner`               | logins                                            | Scope the search-based stats to these owners            |
+| `role`                | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count towards the stars and the rank |
+| `include_own_repos`   | `true` `false`                                    | Count contributions to your own repositories            |
+| `number_format`       | `short` `long`                                    | `1.5k` or `1500`                                        |
+| `number_precision`    | a number                                          | Decimals kept when abbreviating                         |
+| `text_bold`           | `true` `false`                                    | Bold the stat values                                    |
+| `line_height`         | a number                                          | Space between the lines                                 |
+| `disable_animations`  | `true` `false`                                    | Draw the card with no animation                         |
 
 Plus the [common options](../../customization/common-options/) every card takes,
 and `locale`.

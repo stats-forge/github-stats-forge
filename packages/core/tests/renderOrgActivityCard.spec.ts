@@ -29,14 +29,16 @@ describe('test renderOrgActivityCard', () => {
     expect(screen.queryByTestId('issues_opened')).toHaveTextContent('82');
     expect(screen.queryByTestId('issues_closed')).toHaveTextContent('66');
 
-    expect(screen.queryByTestId('discussions')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('discussions_started')).not.toBeInTheDocument();
     expect(screen.queryByTestId('commits')).not.toBeInTheDocument();
   });
 
   it('should draw the extra stats `show` names', () => {
-    document.body.innerHTML = renderOrgActivityCard(data, { show: ['discussions', 'commits'] });
+    document.body.innerHTML = renderOrgActivityCard(data, {
+      show: ['discussions_started', 'commits'],
+    });
 
-    expect(screen.queryByTestId('discussions')).toHaveTextContent('9');
+    expect(screen.queryByTestId('discussions_started')).toHaveTextContent('9');
     expect(screen.queryByTestId('commits')).toHaveTextContent('204');
   });
 
