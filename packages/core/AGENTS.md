@@ -13,11 +13,11 @@ handlers). The cards have rules of their own, in `src/cards/AGENTS.md`.
 hand the render functions typed values — defaults stay with the renderer.
 
 **Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
-params in `api/params.ts` (`booleanParam`, `listParam`, `numberParam`, `intParam`,
-`rawParam`, `safeParam`, `safeListParam`, `hostnameParam`, `wakatimeUsernameParam`,
-`localeParam`, `enumParam(values)`, `enumListParam(values)`,
-`fromParam`, `toParam`) — none of which takes a message, because the wording is derived
-from the kind and the param name.
+params in `api/params.ts` — none of which takes a message, because the wording is derived from the
+kind and the param name. **A param more than one card takes goes in a shared fragment**:
+`commonParams` on every card, `titleParams` on each that draws a title, `statRowParams` on each that
+draws one stat per row; a schema spreads them after its identity param, so a card cannot be the one
+that forgot `disable_animations`.
 A handler is then `cardHandler(xQuery, identities, async (params, colors, config) => svg)` from `api/handler.ts`:
 it parses the colors, parses the query against the schema, checks the allowlists, awaits the render,
 and its two `catch`es are the only place `errorResult` is called.

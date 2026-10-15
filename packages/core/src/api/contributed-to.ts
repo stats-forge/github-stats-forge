@@ -6,13 +6,12 @@ import { fetchContributedTo } from '../fetchers/contributed-to.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
+  commonParams,
   fromParam,
   intParam,
-  localeParam,
-  numberParam,
   ORDERED_RANGE,
-  rawParam,
   safeListParam,
+  titleParams,
   toParam,
   usernameParam,
 } from './params.ts';
@@ -21,19 +20,15 @@ import {
 const contributedToQuery = z
   .object({
     username: usernameParam,
-    locale: localeParam,
+    ...commonParams,
+    ...titleParams,
     repos_count: intParam,
     include_own_repos: booleanParam,
     exclude_repo: safeListParam,
     from: fromParam,
     to: toParam,
     hide_years: booleanParam,
-    hide_title: booleanParam,
-    hide_border: booleanParam,
     card_width: intParam,
-    custom_title: rawParam,
-    border_radius: numberParam,
-    disable_animations: booleanParam,
   })
   .check(ORDERED_RANGE);
 
