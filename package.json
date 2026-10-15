@@ -25,6 +25,7 @@
     "lint:publish": "pnpm -r --filter \"./packages/*\" run lint:publish",
     "typecheck": "pnpm run build:packages && pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run typecheck && tsc -p tsconfig.scripts.json",
     "check-all": "node scripts/check-all.ts",
+    "test:live": "pnpm --filter ./apps/docs run test:live",
     "release": "pnpm run build:packages && changeset publish"
   },
   "devDependencies": {
