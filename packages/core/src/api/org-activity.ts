@@ -19,10 +19,10 @@ const orgActivityQuery = z.object({
   ...commonParams,
   ...titleParams,
   ...statRowParams,
-  days: intParam,
+  days: intParam(),
   hide: enumListParam(renderOrgActivityCard.OPTIONS.hide),
   show: enumListParam(renderOrgActivityCard.OPTIONS.show),
-  card_width: intParam,
+  card_width: intParam({ px: true }),
 });
 
 /**

@@ -108,6 +108,36 @@ describe('api query schemas', () => {
     },
   );
 
+  it.each([
+    ['stats', 'card_width', '-200'],
+    ['stats', 'card_width', '0'],
+    ['stats', 'card_width', '1e3'],
+    ['stats', 'line_height', '25px'],
+    ['stats', 'line_height', '9'.repeat(400)],
+    ['stats', 'number_precision', '-1'],
+    ['stats', 'border_radius', '-4'],
+    ['top-langs', 'langs_count', '5abc'],
+    ['top-langs', 'langs_count', '2.5'],
+    ['top-langs', 'size_weight', '0.5px'],
+  ] as const)('%s rejects %s %j', async (endpoint, param, value) => {
+    const result = await endpoints[endpoint]({ username: 'anuraghazra', [param]: value });
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param } });
+  });
+
+  it.each([
+    ['stats', 'card_width', '500PX'],
+    ['stats', 'number_precision', '0'],
+    ['stats', 'border_radius', '4.5px'],
+    ['top-langs', 'size_weight', '.5'],
+    ['top-langs', 'count_weight', '0'],
+  ] as const)('%s accepts %s %j', async (endpoint, param, value) => {
+    const result = await endpoints[endpoint]({ username: 'anuraghazra', [param]: value });
+
+    // the stubbed fetch fails, but the param got past validation
+    expect(result).toMatchObject({ error: { code: 'upstream' } });
+  });
+
   it('reads an integer the way parseInt does, so 500px is 500', async () => {
     const result = await endpoints.stats({ username: 'anuraghazra', card_width: '500px' });
 

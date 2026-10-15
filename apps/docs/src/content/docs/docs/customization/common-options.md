@@ -62,10 +62,11 @@ you pass alongside it wins, so a theme is a starting point rather than a lock.
 | `border_radius` | a number       | How round the corners are; `0` is square |
 | `hide_title`    | `true` `false` | Leave the title out                      |
 | `custom_title`  | any text       | Replace the title                        |
-| `card_width`    | a number       | Card width in pixels                     |
+| `card_width`    | a whole number | Card width in pixels                     |
 
-`border_radius` is read the way CSS reads it, so `10px` and `10` are the same thing.
-A value that is not a number at all is an error naming the parameter.
+`border_radius` and `card_width` take an optional `px`, so `10px` and `10` are the same thing.
+Anything else — a negative number, a width of `0`, `1e3`, `10abc` — is an error naming the
+parameter.
 
 ## Locale
 
