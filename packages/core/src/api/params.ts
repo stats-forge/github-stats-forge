@@ -21,6 +21,7 @@ import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
 import { isLocaleAvailable } from '../common/localize.ts';
 import { parseArray, parseBoolean } from '../common/ops.ts';
+import { NUMBER_FORMATS } from '../common/render.ts';
 import { themes } from '../themes/index.ts';
 
 /** Every param arrives as a string, or not at all. */
@@ -240,6 +241,28 @@ const enumListParam = <const T extends ReadonlyArray<string>>(
   );
 };
 
+/** What every card accepts beside the colors, so a card cannot be the one that forgot one. */
+const commonParams = {
+  hide_border: booleanParam,
+  border_radius: numberParam,
+  disable_animations: booleanParam,
+  locale: localeParam,
+};
+
+/** What a card that draws a title accepts. */
+const titleParams = {
+  hide_title: booleanParam,
+  custom_title: rawParam,
+};
+
+/** What a card drawing one stat per row accepts. */
+const statRowParams = {
+  show_icons: booleanParam,
+  text_bold: booleanParam,
+  line_height: intParam,
+  number_format: enumParam(NUMBER_FORMATS),
+};
+
 /** Every color param an endpoint accepts, validated and picked in one pass. */
 const colorParamsSchema = z.object(
   Object.fromEntries(
@@ -306,20 +329,21 @@ export type { ApiQuery };
 
 export {
   booleanParam,
+  commonParams,
   enumListParam,
   enumParam,
   fromParam,
   hostnameParam,
   listParam,
   ORDERED_RANGE,
-  localeParam,
   intParam,
   numberParam,
   parseColorParams,
   parseParams,
-  rawParam,
   safeListParam,
   safeParam,
+  statRowParams,
+  titleParams,
   toParam,
   usernameParam,
   wakatimeUsernameParam,

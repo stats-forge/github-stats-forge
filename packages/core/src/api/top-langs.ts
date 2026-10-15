@@ -7,34 +7,30 @@ import { fetchTopLanguages } from '../fetchers/top-languages.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
+  commonParams,
   enumListParam,
   enumParam,
   intParam,
   listParam,
-  localeParam,
   numberParam,
-  rawParam,
   safeListParam,
+  titleParams,
   usernameParam,
 } from './params.ts';
 
 /** What the top-languages endpoint accepts, on top of the shared color params. */
 const topLangsQuery = z.object({
   username: usernameParam,
+  ...commonParams,
+  ...titleParams,
   hide: listParam,
-  hide_title: booleanParam,
-  hide_border: booleanParam,
   card_width: intParam,
   layout: enumParam(renderTopLanguages.OPTIONS.layout),
   langs_count: intParam,
   exclude_repo: safeListParam,
   size_weight: numberParam,
   count_weight: numberParam,
-  custom_title: rawParam,
-  locale: localeParam,
-  border_radius: numberParam,
   role: enumListParam(OWNER_AFFILIATIONS),
-  disable_animations: booleanParam,
   hide_progress: booleanParam,
   hide_values: booleanParam,
   stats_format: enumParam(renderTopLanguages.OPTIONS.stats_format),

@@ -5,33 +5,24 @@ import { fetchOrgActivity } from '../fetchers/org-activity.ts';
 
 import { cardHandler } from './handler.ts';
 import {
-  booleanParam,
+  commonParams,
   enumListParam,
-  enumParam,
   intParam,
-  localeParam,
-  numberParam,
-  rawParam,
+  statRowParams,
+  titleParams,
   usernameParam,
 } from './params.ts';
 
 /** What the organization activity endpoint accepts, on top of the shared color params. */
 const orgActivityQuery = z.object({
   org: usernameParam,
+  ...commonParams,
+  ...titleParams,
+  ...statRowParams,
   days: intParam,
   hide: enumListParam(renderOrgActivityCard.OPTIONS.hide),
   show: enumListParam(renderOrgActivityCard.OPTIONS.show),
-  show_icons: booleanParam,
-  hide_title: booleanParam,
-  hide_border: booleanParam,
   card_width: intParam,
-  line_height: intParam,
-  custom_title: rawParam,
-  disable_animations: booleanParam,
-  number_format: enumParam(renderOrgActivityCard.OPTIONS.number_format),
-  text_bold: booleanParam,
-  locale: localeParam,
-  border_radius: numberParam,
 });
 
 /**

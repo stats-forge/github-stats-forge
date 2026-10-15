@@ -6,32 +6,24 @@ import { fetchOrganization } from '../fetchers/organization.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
+  commonParams,
   enumListParam,
-  enumParam,
   intParam,
-  localeParam,
-  numberParam,
-  rawParam,
+  statRowParams,
+  titleParams,
   usernameParam,
 } from './params.ts';
 
 /** What the organization endpoint accepts, on top of the shared color params. */
 const orgQuery = z.object({
   org: usernameParam,
+  ...commonParams,
+  ...titleParams,
+  ...statRowParams,
   hide: enumListParam(renderOrganizationCard.OPTIONS.hide),
   show: enumListParam(renderOrganizationCard.OPTIONS.show),
-  show_icons: booleanParam,
-  hide_title: booleanParam,
-  hide_border: booleanParam,
   hide_description: booleanParam,
   card_width: intParam,
-  line_height: intParam,
-  custom_title: rawParam,
-  disable_animations: booleanParam,
-  number_format: enumParam(renderOrganizationCard.OPTIONS.number_format),
-  text_bold: booleanParam,
-  locale: localeParam,
-  border_radius: numberParam,
 });
 
 /**

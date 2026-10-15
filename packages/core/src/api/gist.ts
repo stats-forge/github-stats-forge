@@ -4,17 +4,14 @@ import { renderGistCard } from '../cards/gist/index.ts';
 import { fetchGist } from '../fetchers/gist.ts';
 
 import { cardHandler } from './handler.ts';
-import { booleanParam, localeParam, numberParam, safeParam } from './params.ts';
+import { booleanParam, commonParams, safeParam } from './params.ts';
 
 /** What the gist endpoint accepts, on top of the shared color params. */
 const gistQuery = z.object({
   id: safeParam,
-  locale: localeParam,
-  border_radius: numberParam,
+  ...commonParams,
   show_owner: booleanParam,
   browser_rendering: booleanParam,
-  hide_border: booleanParam,
-  disable_animations: booleanParam,
 });
 
 /**

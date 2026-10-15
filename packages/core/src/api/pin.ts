@@ -6,32 +6,25 @@ import { fetchRepo } from '../fetchers/repo.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
+  commonParams,
   enumListParam,
-  enumParam,
   intParam,
-  localeParam,
-  numberParam,
   safeParam,
+  statRowParams,
   usernameParam,
 } from './params.ts';
 
 /** What the pin endpoint accepts, on top of the shared color params. */
 const pinQuery = z.object({
   username: usernameParam,
+  ...commonParams,
+  ...statRowParams,
   repo: safeParam,
-  hide_border: booleanParam,
   card_width: intParam,
   show_owner: booleanParam,
   browser_rendering: booleanParam,
   show: enumListParam(renderRepoCard.OPTIONS.show),
-  show_icons: booleanParam,
-  number_format: enumParam(renderRepoCard.OPTIONS.number_format),
-  text_bold: booleanParam,
-  line_height: intParam,
-  locale: localeParam,
-  border_radius: numberParam,
   description_lines_count: intParam,
-  disable_animations: booleanParam,
 });
 
 /**
