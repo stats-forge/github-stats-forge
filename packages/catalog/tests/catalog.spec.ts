@@ -1,6 +1,35 @@
+import {
+  contributedTo,
+  gist,
+  org,
+  orgActivity,
+  pin,
+  stats,
+  topLangs,
+  wakatime,
+} from '@stats-forge/github-stats-forge-core/api';
 import { describe, expect, it } from 'vitest';
 
 import { cards, COMMON_OPTIONS, findCard, numericStep, OPTION_GROUPS } from '../src/index.ts';
+
+/** The endpoint each card renders through, and so the params it reads. */
+const ENDPOINTS = {
+  stats,
+  'top-langs': topLangs,
+  pin,
+  org,
+  'org-activity': orgActivity,
+  'contributed-to': contributedTo,
+  gist,
+  wakatime,
+} as const;
+
+/** The colors past the few the menu offers, which are typed into a URL rather than asked for. */
+const isColorParam = (name: string): boolean => /(?:^theme|_color)(?:_light|_dark)?$/.test(name);
+
+/** @returns The endpoint the card renders through. */
+const endpointOf = (card: (typeof cards)[number]): (typeof ENDPOINTS)[keyof typeof ENDPOINTS] =>
+  ENDPOINTS[card.id as keyof typeof ENDPOINTS];
 
 /** @returns Every param the card asks for, required or not. */
 const paramsOf = (card: (typeof cards)[number]): Array<string> =>
@@ -59,6 +88,39 @@ describe('the catalog', () => {
 
     expect(numeric.length).toBeGreaterThan(0);
     expect(mistepped).toStrictEqual([]);
+  });
+
+  it('renders each card through the endpoint its id names', () => {
+    const mismatched = cards.filter((card) => card.render !== endpointOf(card)).map(({ id }) => id);
+
+    expect(mismatched).toStrictEqual([]);
+  });
+
+  it('asks for each param the way core reads it', () => {
+    const misread = cards.flatMap((card) => {
+      const { PARAMS } = endpointOf(card);
+      return [...card.required, ...card.options]
+        .filter(({ name, kind, choices }) => {
+          const shape = PARAMS[name];
+          return shape?.kind !== kind || shape.choices?.join(',') !== choices?.join(',');
+        })
+        .map(
+          ({ name, kind }) => `${card.id}: ${name} is ${kind}, core reads ${PARAMS[name]?.kind}`,
+        );
+    });
+
+    expect(misread).toStrictEqual([]);
+  });
+
+  it('asks for every param of its own a card reads', () => {
+    const unasked = cards.flatMap((card) => {
+      const asked = new Set(paramsOf(card));
+      return Object.keys(endpointOf(card).PARAMS)
+        .filter((name) => !asked.has(name) && !isColorParam(name))
+        .map((name) => `${card.id}: ${name}`);
+    });
+
+    expect(unasked).toStrictEqual([]);
   });
 
   it('renders nothing for a name no card answers to', () => {

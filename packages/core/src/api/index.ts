@@ -8,6 +8,7 @@ export { topLangs } from './top-langs.ts';
 export { wakatime } from './wakatime.ts';
 
 export type { ApiError, ApiResult } from './api-result.ts';
+export type { ParamKind, ParamShape } from './params.ts';
 
 // every handler but `wakatime` needs the PAT pool, and that one still needs the transport.
 export { CardConfig } from '../common/config.ts';
