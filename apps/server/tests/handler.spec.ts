@@ -55,6 +55,15 @@ describe('routing', () => {
   });
 });
 
+describe('queries', () => {
+  it('passes every value of a repeated param on, not only the last', async () => {
+    // joined, `xx,en` is no locale; had only the last reached the card, it would have drawn
+    const response = await get(`${GIST_URL}&locale=xx&locale=en`, testOptions());
+
+    expect(response.headers.get('card-error-param')).toBe('locale');
+  });
+});
+
 describe('methods', () => {
   it('answers anything but GET and HEAD with 405 and an Allow header', async () => {
     const response = await get(GIST_URL, testOptions(), 'POST');

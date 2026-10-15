@@ -10,6 +10,7 @@
  */
 
 import type { CardKind, CardOption } from '@stats-forge/github-stats-forge-catalog';
+import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 
 /** What a prompt answered, before it becomes a query param. */
 export type Answer = string | number | boolean | Array<string> | undefined;
@@ -98,7 +99,5 @@ export const fromQueryString = (value: string): Record<string, string> => {
   const start = /^https?:\/\//i.test(trimmed) ? trimmed.indexOf('?') + 1 : 0;
   const params = new URLSearchParams(trimmed.slice(start));
 
-  return Object.fromEntries(
-    [...new Set(params.keys())].map((key) => [key, params.getAll(key).join(',')]),
-  );
+  return queryOf(params);
 };
