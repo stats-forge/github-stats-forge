@@ -73,7 +73,6 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 | `include_own_repos`   | `true` `false`                                    | Count contributions to your own repositories            |
 | `number_format`       | `short` `long`                                    | `1.5k` or `1500`                                        |
 | `number_precision`    | a number                                          | Decimals kept when abbreviating                         |
-| `text_bold`           | `true` `false`                                    | Bold the stat values                                    |
 | `disable_animations`  | `true` `false`                                    | Draw the card with no animation                         |
 
 Plus the [common options](../../customization/common-options/) every card takes,

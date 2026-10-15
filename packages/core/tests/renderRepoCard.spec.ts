@@ -409,47 +409,43 @@ describe('Test renderRepoCard', () => {
       totalIssuesCommented: 9_999_999,
     };
 
-    it.each(locales.flatMap((locale) => [true, false].map((bold) => ({ locale, bold }))))(
-      'keeps labels clear of values ($locale, bold: $bold)',
-      ({ locale, bold }) => {
-        document.body.innerHTML = renderRepoCard(repository, {
-          show: [...showStats],
-          locale,
-          text_bold: bold,
-          number_format: 'long',
-        });
+    it.each(locales)('keeps labels clear of values (%s)', (locale) => {
+      document.body.innerHTML = renderRepoCard(repository, {
+        show: [...showStats],
+        locale,
+        number_format: 'long',
+      });
 
-        const card = document.querySelector('svg');
-        expect(card).toHaveAttribute('width', '500');
+      const card = document.querySelector('svg');
+      expect(card).toHaveAttribute('width', '500');
 
-        const rows = showStats.map((id) => {
-          const value = screen.getByTestId(id);
-          const row = value.closest('.stagger');
-          // `-3` is the stats group, `25` the row's own offset.
-          const x = -3 + translateX(row?.parentElement ?? null) + 25;
-          const label = row?.querySelector('text')?.textContent ?? '';
-          const valueRight = x + Number(value.getAttribute('x'));
-          return {
-            left: x,
-            labelRight: x + 23 + ink(label),
-            valueLeft: valueRight - ink(value.textContent),
-            valueRight,
-          };
-        });
+      const rows = showStats.map((id) => {
+        const value = screen.getByTestId(id);
+        const row = value.closest('.stagger');
+        // `-3` is the stats group, `25` the row's own offset.
+        const x = -3 + translateX(row?.parentElement ?? null) + 25;
+        const label = row?.querySelector('text')?.textContent ?? '';
+        const valueRight = x + Number(value.getAttribute('x'));
+        return {
+          left: x,
+          labelRight: x + 23 + ink(label),
+          valueLeft: valueRight - ink(value.textContent),
+          valueRight,
+        };
+      });
 
-        for (const row of rows) {
-          expect(row.valueLeft - row.labelRight).toBeGreaterThanOrEqual(8);
-          expect(row.valueRight).toBeLessThanOrEqual(500 - 25);
-        }
-        // Stats fill the rows left to right: 0, 2, 4 in the first column, 1 and 3 in the second.
-        const firstColumnRight = Math.max(
-          ...rows.filter((_, i) => i % 2 === 0).map((r) => r.valueRight),
-        );
-        for (const row of rows.filter((_, i) => i % 2 === 1)) {
-          expect(row.left).toBeGreaterThan(firstColumnRight);
-        }
-      },
-    );
+      for (const row of rows) {
+        expect(row.valueLeft - row.labelRight).toBeGreaterThanOrEqual(8);
+        expect(row.valueRight).toBeLessThanOrEqual(500 - 25);
+      }
+      // Stats fill the rows left to right: 0, 2, 4 in the first column, 1 and 3 in the second.
+      const firstColumnRight = Math.max(
+        ...rows.filter((_, i) => i % 2 === 0).map((r) => r.valueRight),
+      );
+      for (const row of rows.filter((_, i) => i % 2 === 1)) {
+        expect(row.left).toBeGreaterThan(firstColumnRight);
+      }
+    });
   });
 });
 

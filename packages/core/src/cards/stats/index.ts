@@ -79,7 +79,6 @@ interface StatCardOptions extends CommonCardOptions {
   number_format: string;
   number_precision: number;
   ring_color: string;
-  text_bold: boolean;
   rank_icon: RankIcon;
   show: Array<string>;
 }
@@ -271,7 +270,6 @@ const renderCard = (
     card_width,
     hide_rank = false,
     include_all_commits = false,
-    text_bold = true,
     title,
     border_radius,
     number_format = 'short',
@@ -520,7 +518,7 @@ const renderCard = (
       showIcons: show_icons,
       shiftValuePos: 29.01 + (longLabels ? 50 : 0) + (isLongLocale ? 50 : 0),
       valueAnchorX,
-      bold: text_bold,
+      bold: true,
       labelBold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,

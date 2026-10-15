@@ -352,7 +352,6 @@ const titleParams = {
 /** What a card drawing one stat per row accepts. */
 const statRowParams = {
   show_icons: booleanParam,
-  text_bold: booleanParam,
   number_format: enumParam(NUMBER_FORMATS),
   number_precision: intParam({ min: 0 }),
 };
