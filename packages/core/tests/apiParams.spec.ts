@@ -232,7 +232,7 @@ describe('api query schemas', () => {
 
   it.each([
     ['layout', 'sideways', 'Incorrect layout input'],
-    ['stats_format', 'kilobytes', 'Incorrect stats_format input'],
+    ['value_format', 'kilobytes', 'Incorrect value_format input'],
   ])('rejects an unrenderable %s', async (param, value, message) => {
     const result = await endpoints['top-langs']({
       username: 'anuraghazra',

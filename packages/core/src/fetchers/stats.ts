@@ -337,7 +337,7 @@ const fetchStats = async (
     ownerAffiliations = [],
     include_contributions = false,
     include_all_time_contribs = false,
-    contribs_include_own_repos = false,
+    include_own_repos = false,
   }: {
     username: string | undefined;
     include_all_commits?: boolean | undefined;
@@ -359,7 +359,7 @@ const fetchStats = async (
     ownerAffiliations?: Array<string>;
     include_contributions?: boolean;
     include_all_time_contribs?: boolean;
-    contribs_include_own_repos?: boolean | undefined;
+    include_own_repos?: boolean | undefined;
   },
   config: CardConfig,
 ): Promise<StatsData> => {
@@ -405,7 +405,7 @@ const fetchStats = async (
       includeDiscussionsAnswers: include_discussions_answers,
       commitsRange: inlineRange,
       ownerAffiliations: affiliations,
-      includeUserRepositories: contribs_include_own_repos,
+      includeUserRepositories: include_own_repos,
     },
     config,
   );
@@ -502,7 +502,7 @@ const fetchStats = async (
     const reposContributedTo = await fetchReposContributedTo(
       user.login,
       contributionRanges,
-      contribs_include_own_repos,
+      include_own_repos,
       config,
     );
     stats.allTimeContributedTo = reposContributedTo.size;

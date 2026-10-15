@@ -716,7 +716,7 @@ describe('Test renderTopLanguages', () => {
   it('should show proper stats format', () => {
     document.body.innerHTML = renderTopLanguages(langs, {
       layout: 'compact',
-      stats_format: 'percentages',
+      value_format: 'percent',
     });
 
     let langNames = screen.queryAllByTestId('lang-name');
@@ -726,7 +726,7 @@ describe('Test renderTopLanguages', () => {
 
     document.body.innerHTML = renderTopLanguages(langs, {
       layout: 'compact',
-      stats_format: 'bytes',
+      value_format: 'bytes',
     });
 
     langNames = screen.queryAllByTestId('lang-name');

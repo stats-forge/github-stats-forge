@@ -40,7 +40,7 @@ const statsQuery = z
     number_precision: intParam({ min: 0 }),
     rank_icon: enumParam(renderStatsCard.OPTIONS.rank_icon),
     show: enumListParam(renderStatsCard.OPTIONS.show),
-    contribs_include_own_repos: booleanParam,
+    include_own_repos: booleanParam,
   })
   .check(ORDERED_RANGE);
 
@@ -78,7 +78,7 @@ const renderStats = cardHandler(
       number_precision,
       rank_icon,
       show,
-      contribs_include_own_repos,
+      include_own_repos,
     },
     colors,
     config,
@@ -109,7 +109,7 @@ const renderStats = cardHandler(
         ownerAffiliations: role,
         include_contributions: show.includes('contributions'),
         include_all_time_contribs: show.includes('all_time_contribs'),
-        contribs_include_own_repos,
+        include_own_repos,
       },
       config,
     );

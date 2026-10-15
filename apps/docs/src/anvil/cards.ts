@@ -54,7 +54,7 @@ const EXTRAS: Readonly<Record<string, AnvilExtras>> = {
     identity: { username: SAMPLE.username },
     maximal: {
       include_all_commits: 'true',
-      contribs_include_own_repos: 'true',
+      include_own_repos: 'true',
       show: stats.OPTIONS.show.join(','),
     },
   },

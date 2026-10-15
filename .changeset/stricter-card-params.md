@@ -17,3 +17,5 @@ feat!: stricter, more consistent card params
 - `exclude_repo` takes `owner/name` or `name`, ignoring case, on every card.
 - Each api handler carries `PARAMS`, the kind and choices of every param it reads, and `COLOR_PARAM_KEYS`
   names the color params.
+- Renamed: `contribs_include_own_repos` → `include_own_repos`; `stats_format` and `display_format`
+  → `value_format`, whose `percentages` is now `percent`.
