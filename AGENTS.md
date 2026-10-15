@@ -2,30 +2,32 @@
 
 Guidance for Claude Code when working in this repository.
 
-This file is written in the spirit of **compounding engineering** — the practice of
-turning every code review, bug, and correction into a permanent lesson the tooling
-applies automatically, so each unit of work makes the next one easier rather than harder
-([Every, _Compound Engineering: How Every Codes With Agents_](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents);
-[guide](https://every.to/guides/compound-engineering)). Practically: when a reviewer
-pushes back, a rule lands here — not in a chat message that evaporates. Each rule below
-cites the incident that produced it, because the incident is what makes it stick.
+Written in the spirit of **compounding engineering**: every review, bug and correction becomes a
+rule the tooling applies next time
+([Every, _Compound Engineering_](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents)).
+Each rule links the change that produced it; the full story is in that change, not here.
 
-Scope split: **this file holds the durable rules**; work not yet done lives in
-`.claude/scratch/` (untracked). Rules go here, pending work goes there; don't duplicate
-across the two. Open at the moment: `CORE_DEFERRED_IMPROVEMENTS.md` (follow-ups in
-`packages/core`, each verified as still applicable), `CORE_PACKAGE_SPLIT.md` (whether
-`packages/core` becomes several packages), `ANVIL.md` (the docs site's card builder,
-which writes the CLI's config file) and `SERVER_DOCKER.md` — whose phases 1 to 4 landed on
-2026-09-09 as `apps/server`, 6 and 7 on 2026-09-10 and the "Run it yourself" page as
-`usage/self-hosting.md`, leaving `/instance` and live previews still to do.
+Scope split: **this file holds the durable rules**; work not yet done lives in `.claude/scratch/`
+(untracked). Rules go here, pending work goes there; don't duplicate across the two.
+
+## Before you change anything
+
+- **Don't commit, push, open a PR or comment on one unless asked.** The repo owner usually does
+  that; leave changes in the working tree, and when a branch is wanted, say which commits are on it.
+- **A change to `packages/*` carries a changeset, written without being asked** ([#15]); a change to
+  `apps/docs` a visitor would notice carries one on the _server_ ([#86]). See [Changesets](#changesets).
+- **Run `pnpm check-all` before handing work over.** It is every check CI runs.
+- **Never put a token in a command the documentation tells someone to run** ([#107]).
+- **Redraw `apps/docs/public/cards` with `pnpm docs:cards` when a card's output changes**; CI fails
+  on a stale preview ([#225]).
+- **Never hand-edit `packages/core/src/graphql/generated/**`** — change the `.graphql` and regenerate.
+- **Keep the rule files true.** Fix a rule in the same change that broke it; no need to ask.
 
 ## What this is
 
-`github-stats-forge` — a pnpm monorepo holding the library that renders
-GitHub stats as SVG cards, the catalog of what each card accepts, the CLI that writes one to a
-file, the server that serves them over HTTP, and the site that documents them all.
-The Express backend that used to live here is gone and nothing was ported from it;
-`apps/server` is designed from what core exposes today.
+`github-stats-forge` — a pnpm monorepo holding the library that renders GitHub stats as SVG cards,
+the catalog of what each card accepts, the CLI that writes one to a file, the server that serves them
+over HTTP, and the site that documents them all.
 
 | Path               | What it is                                                                                                    |
 | ------------------ | ------------------------------------------------------------------------------------------------------------- |
@@ -36,30 +38,24 @@ The Express backend that used to live here is gone and nothing was ported from i
 | `apps/docs`        | The documentation site — Astro + Starlight, every page markdown; **not published**                            |
 | `scripts/`         | Repo-level tooling — `check-all.ts`, via `tsconfig.scripts.json`                                              |
 
-**The workspace is `packages/*` and `apps/*`, and what a thing publishes to is what decides its
-rules — not which folder it sits in.** A package under `packages/` goes to npm, so it carries a
-changeset and a `lint:publish`. `apps/docs` publishes nothing and carries neither. `apps/server`
-publishes an image, so it **does carry a changeset** and no `lint:publish`: the release that
-publishes to npm publishes the image too, and the version it is tagged with is the one changesets
-set. `build:packages` and `lint:publish` stay filtered to `./packages/*`; the root `typecheck`
-covers the packages, both apps and `scripts/`, and the root `vitest` projects the packages and
-`apps/server` — `scripts/` has no tests.
+**What a thing publishes to decides its rules, not which folder it sits in** ([#79]).
 
-- **`privatePackages: { version: true, tag: true }` in `.changeset/config.json` is what makes
-  that work**, together with a `version` field on `apps/server/package.json`. `apps/docs` has no
-  `version` field, so changesets leaves it alone — that is the difference between the two apps,
-  and it is deliberate rather than an oversight.
-  - **`tag: true` cannot leak a private package onto npm.** `getUnpublishedPackages` drops every
-    `private` package before the publish queue is built, whatever the flag says; the flag adds the
-    git tag, and with it the GitHub release the action cuts from that package's changelog and its
-    entry in `published-packages`. It was `false` until 2026-09-16, which left the image the one
-    artifact released with no tag and no release to its name.
-- **`updateInternalDependencies: patch` means a core release bumps the server too**, so a card
-  change reaches the image without a changeset naming the server. Confirm with
-  `pnpm exec changeset status`.
+- A package under `packages/` goes to npm: it carries a changeset and a `lint:publish`.
+- `apps/docs` publishes nothing and carries neither.
+- `apps/server` publishes an image: it carries a changeset and no `lint:publish`, and is released
+  with the npm packages under the version changesets set.
+- `build:packages` and `lint:publish` stay filtered to `./packages/*`. The root `typecheck` covers
+  the packages, both apps and `scripts/`; the root vitest projects the packages and `apps/server`.
+  `scripts/` has no tests.
+- **`privatePackages: { version: true, tag: true }` plus a `version` field on
+  `apps/server/package.json` is what releases the server.** `apps/docs` has no `version` field, on
+  purpose. `tag: true` cannot leak a private package onto npm — changesets drops every `private`
+  package before publishing — it adds the git tag and the GitHub release ([#133]).
+- **`updateInternalDependencies: patch` means a core release bumps its dependents**, so a card
+  change reaches the image without naming the server. Confirm with `pnpm exec changeset status`.
 
-**A rule about one directory lives in that directory.** This file holds what is repo-wide;
-these hold the rest, and load when work touches their tree:
+**A rule about one directory lives in that directory** ([#106]). This file holds what crosses
+directories, and what must be known before choosing one:
 
 | File                                | What it covers                                                       |
 | ----------------------------------- | -------------------------------------------------------------------- |
@@ -71,24 +67,27 @@ these hold the rest, and load when work touches their tree:
 | `apps/docs/AGENTS.md`               | The documentation site                                               |
 | `apps/docs/src/anvil/AGENTS.md`     | The anvil, its controls and its browser tests                        |
 
-Split out on 2026-09-13, when one file had reached 1,700 lines and some 34k tokens on every
-session — seven eighths of it about a single directory, and idle in every session that never
-opened one. Put a new rule where its subject lives. What stays here is what crosses
-directories, and anything that has to be known _before_ choosing which one to work in.
+- **Each `AGENTS.md` has a one-line `CLAUDE.md` beside it that imports it.** Claude Code discovers
+  `CLAUDE.md`, not `AGENTS.md` (verified on 2.1.263), so the stub is what loads the rules.
+- `packages/core/src` is `fetchers/` (network) → `cards/` (SVG render) → `api/` (query-string
+  handlers), with `common/` for shared helpers, `themes/` for the theme table and `graphql/` for
+  query text and its generated types.
+- **A card is a folder under `cards/`**: its renderer as `index.ts`, its translations as
+  `locales.ts`. Only `cards/options.ts` sits loose beside them ([#61]).
+- **Every source file is TypeScript**, `packages/cli/bin.js` excepted — see `packages/cli/AGENTS.md`.
+  Generators are covered by a `tsconfig.scripts.json`, so CI typechecks them ([#39]).
 
-`packages/core/src` is laid out as `fetchers/` (network) → `cards/` (SVG render) →
-`api/` (query-string handlers), with `common/` for shared helpers, `themes/` for the
-theme table and `graphql/` for query text and its generated types.
+## Changesets
 
-**A card is a folder under `cards/`**, holding its renderer as `index.ts` and its
-translations as `locales.ts`; only `cards/options.ts` sits loose beside them. The tables
-were one `src/translations.ts` until 2026-09-07 — a file no card owned, which every card
-had to be read alongside.
-
-**Every source file is TypeScript**, `packages/cli/bin.js` excepted — see `packages/cli/AGENTS.md`
-for why that one cannot be. The generators under `packages/core/scripts/` were
-the last `.js` holdouts and became `.ts` on 2026-09-03, which also put them under
-`packages/core/tsconfig.scripts.json` — so CI typechecks them now.
+- **The summary's first line is a conventional commit with no scope** — `feat: …`, `fix!: …` —
+  because it lands verbatim in the changelog under the package's own name ([#78]). Blank line, then
+  a few lines of prose.
+- **The packages are pre-1.0, so a breaking change is `minor`**, not `major` ([#15]).
+- **A dependent package needs no entry of its own**; `updateInternalDependencies` bumps it.
+- **A visitor-visible `apps/docs` change is a server changeset** ([#86]): the image ships the site,
+  and `apps/docs` has no `version`, so a docs-only changeset has nothing to bump.
+- **A pure tooling change that leaves the published output alone may go without one** — that is
+  the owner's call, so ask.
 
 ## Commands
 
@@ -117,497 +116,228 @@ pnpm check-all            # every check CI runs, cheapest first, in one command
 pnpm test:live            # draw every card from the live APIs; needs PAT_1 in the root .env
 ```
 
-**`pnpm run docs` needs the `run`, unlike every other script here.** `docs` is a pnpm builtin
-(`pnpm docs <package-name>`), so bare `pnpm docs` never reaches the script and fails with
-`Usage: pnpm docs <PACKAGE>` — from the repository root, where the script plainly exists. The
-`docs:*` scripts are unaffected, being no one's builtin. Confirmed on pnpm 11 on 2026-09-07, after
-the bare form was documented here and did not work, and again on pnpm 12 on 2026-09-13 — which
-reports it as a missing argument rather than the v11 `ERR_PNPM_MISSING_PACKAGE_NAME`, and still
-exits 0.
-
-`check-all` is the one to reach for before handing work over. It is
-`scripts/check-all.ts` — thirteen checks ordered so the fastest failure surfaces first, each
-named and timed, stopping at the first failure unless `-k` asks for the whole list. It was an
-`&&` chain in `package.json` until that reached eleven links; a `.sh` was considered and
-rejected, because every other file here is TypeScript and so gets typechecked, linted and
-formatted. It does not build separately, because `typecheck` already does. Keep the list in
-step with `.github/workflows/ci.yml` — a check that runs in CI and not here is a check that
-fails after the push instead of before it.
-
-Per-package: `pnpm exec tsc -p tsconfig.typecheck.json`.
-
-**A lint script is per-package only when the tool is.** oxlint reads one root config and
-sweeps the workspace in a single pass, so it has no per-package script and never will.
-`lint:publish` is the opposite: `attw --pack .` and `publint` each examine one tarball,
-so each package owns the script and the root one is
-`pnpm -r --filter "./packages/*" run lint:publish`. That way a third package is covered
-the day it appears, rather than the day someone remembers to add it to a hardcoded list.
-
-**Task ordering is `pnpm -r`'s, not a task runner's.** `pnpm run -r` walks the workspace
-in topological order, so `build:packages` builds core before cli for free. `typecheck`
-spells out its one extra edge by building first: each package's `tsconfig.typecheck.json`
-clears `customConditions`, so cli resolves core through its built `.d.ts`.
-
-**turbo was removed on 2026-09-04, after being measured.** It owned exactly these two
-tasks, and its own startup cost more than the `tsc` builds it ordered — 2.0s cold against
-1.3s for plain `pnpm -r`, with a warm cache hit at 0.6s saving under a second. CI never
-collected even that: there was no `actions/cache` step and no remote cache, so all four
-matrix jobs paid the cold-run penalty. It also cost the poisoned-cache session recorded
-under "tsconfig layout and emit". Don't reinstate a runner for three packages; if the
-package split lands, measure again rather than assume.
-
-GraphQL types are generated, so run these from the repo root after touching any
-`src/graphql/queries/*.graphql`:
+After touching any `src/graphql/queries/*.graphql`:
 
 ```sh
 pnpm --filter ./packages/core/ run generate-graphql-types   # rewrite src/graphql/generated
 pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fails on drift
 ```
 
-The root `vitest.config.ts` is a `projects` workspace over `packages/*`. Running
-`pnpm exec vitest` inside a package also works and is the quick way to iterate on one
-suite. A package that imports another resolves it through the `@stats/source`
-condition, which vitest only applies when it is set under **`ssr.resolve.conditions`**
-as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
+- **`pnpm run docs` needs the `run`.** `docs` is a pnpm builtin, so bare `pnpm docs` never reaches
+  the script — and still exits 0 ([#58]).
+- **`check-all` stops at the first failure; `-k` runs the whole list.** Keep `scripts/check-all.ts`
+  in step with `.github/workflows/ci.yml`, or a check fails after the push instead of before it.
+- Per-package typecheck: `pnpm exec tsc -p tsconfig.typecheck.json`.
+- **A lint script is per-package only when the tool is** ([#42]). oxlint sweeps the workspace in one
+  pass from the root; `lint:publish` examines one tarball, so each package owns it and the root runs
+  `pnpm -r --filter "./packages/*" run lint:publish`, covering a new package the day it appears.
+- **Task ordering is `pnpm -r`'s topological order, not a task runner's.** `typecheck` builds first
+  because each `tsconfig.typecheck.json` resolves core through its built `.d.ts`. turbo was removed
+  for costing more than it saved ([#41]); measure before reinstating one.
+- **vitest applies the `@stats/source` condition only when it is also under
+  `ssr.resolve.conditions`** — see `packages/cli/vitest.config.ts`. Running `pnpm exec vitest`
+  inside a package is the quick way to iterate on one suite.
 
-## Working agreements
+## Documentation and previews
 
-- **Don't commit or open PRs unless asked** — the repo owner usually does that. Leave
-  changes in the working tree, and when a branch is wanted, say which commits are on it.
-- **A change to `packages/*` carries a changeset, written without being asked.**
-  Add it to `.changeset/` as part of the same change, not as a follow-up:
-  the published `CHANGELOG.md` is generated from these files,
-  so a package change shipped without one is invisible to consumers.
-  - **The summary's first line is a conventional commit, and it carries no scope** —
-    `refactor!: …`, `feat: …`, `ci: …` — because it lands verbatim in the changelog
-    (see the 0.0.2 entry in `packages/core/CHANGELOG.md`),
-    where it already sits under the package's own name and version.
-    The scope belongs in the commit message, which is read with the whole repository
-    in front of it; the frontmatter is what names the package here.
-    Blank line, then the prose.
-  - **The packages are pre-1.0, so a breaking change is `minor`**, not `major`:
-    changesets would read `major` as 0.0.2 → 1.0.0.
-  - **A dependent package needs no entry of its own.**
-    `updateInternalDependencies: patch` bumps it, so removing core's root entry
-    patched the CLI without the changeset naming it.
-    Confirm with `pnpm exec changeset status` before committing.
-  - **A change to `apps/docs` a visitor would notice carries a changeset on the _server_.**
-    The image ships the documentation site, so an anvil or a page change is a change to what
-    `apps/server` publishes; `heavy-moons-repeat.md` in the 0.1.0 release is already that shape,
-    a server `minor` whose whole content is about the site. It is also the only way such a change
-    is releasable at all — `apps/docs` has no `version` field, so a docs-only tree gives
-    `changeset status` nothing to bump.
-  - A pure tooling change that leaves the published output alone can go without one —
-    that is the owner's call, so ask rather than assume.
-- **Keep this file current.** When a rule here stops matching the repo, fix it in the
-  same change that broke it; no need to ask first. The rules earn their keep only while
-  they are true, and a stale rule is worse than no rule.
-- **Every untracked working file lives in `.claude/scratch/`** — review replies, design
-  plans and pending-work lists, all in one ignored folder instead of scattered across the
-  repo root. The rule files are the exception: `AGENTS.md` at the root and in the seven
-  directories listed above, each with a one-line `CLAUDE.md` beside it that imports it —
-  Claude Code discovers `CLAUDE.md` and not `AGENTS.md`, verified on 2.1.263, so the stub
-  is what keeps the agnostic name working rather than silently dropping every rule.
-- **Don't call the person reading the docs "the reader".** It is uncommon phrasing for
-  documentation, and it was doing two different jobs: where the subject is really the user agent it
-  is **the browser** (`the browser's colour scheme`, `wider than the browser window`), and where it
-  is a person it is **you**, **anyone** or **a visitor** (`a visitor to your profile fetches the
-  SVG`). Fourteen uses across five pages were rewritten on 2026-09-07. **`screen reader` stays** —
-  it is the standard accessibility term, and `assistive reader` was normalised to it.
-- **Prose never states a count that grows with the code** — "the [themes]", not "79 themes".
-  Nothing regenerates a number written into a sentence, and the theme count sat in five places
-  until 2026-10-15. `customization/themes.md` may say it, because its generator writes the count.
-- **A token never appears in a command the documentation tells someone to run.**
-  `-e PAT_1=github_pat_...` puts it in the shell history and in `docker inspect`,
-  and four pages carried it until 2026-09-13. The examples show `--env-file cards.env`,
-  a pass-through `-e PAT_1`, or a secret manager instead; the self-hosting page's
-  "Where the token lives" is the long form, and anything new links there rather than
-  restating it. The same goes for the CLI's `--pat`, hence `--pat "$token"`.
-- **`apps/docs/public/cards` is committed, so redraw it when a card's output changes.**
-  `pnpm docs:cards` renders every saved card in `apps/docs/cards` through the built CLI, twice
-  each, with the CLI's `fetch` answered by the fictional account in `apps/docs/scripts/fixtures.ts`
-  — the one the anvil draws from too. It needs no token, the output is deterministic, and
-  `pnpm docs:cards:check` fails in CI when a card's output changed without a redraw. Each fixture
-  is typed as its query's generated result, so **a change to a `.graphql` query fails
-  `pnpm typecheck` until `fixtures.ts` follows it**.
-  **The previews were drawn from real accounts until 2026-10-15**, which needed `PAT_1`, kept CI
-  from checking them, and made every redraw carry a dozen files of drifted stats.
-  **`examples/` was deleted on 2026-09-05**, when the site took over showing a card of each kind.
-- **`pnpm test:live` is the one check that touches the live APIs, and it is not part of CI.**
-  Every other check runs on made-up data — core's and the server's tests mock `fetch`, and the
-  site draws from the fixtures — so once the previews moved to them nothing called GitHub at all.
+- **A token never appears in a command the docs tell someone to run** ([#107]): it lands in shell
+  history and `docker inspect`. Show `--env-file cards.env`, a pass-through `-e PAT_1`, a secret
+  manager, or `--pat "$token"`; link the self-hosting page's "Where the token lives" rather than
+  restating it.
+- **`apps/docs/public/cards` is committed, so redraw it when a card's output changes** ([#225]).
+  `pnpm docs:cards` renders `apps/docs/cards` through the built CLI with `fetch` answered by the
+  fictional account in `apps/docs/scripts/fixtures.ts`: no token, deterministic output, and
+  `pnpm docs:cards:check` fails in CI on drift. Each fixture is typed as its query's generated
+  result, so **a `.graphql` change fails `pnpm typecheck` until `fixtures.ts` follows it**.
+- **Prose never states a count that grows with the code** — "the [themes]", not a number ([#220]).
+  Only generated pages, such as `customization/themes.md`, may.
+- **Don't call the person reading the docs "the reader"** ([#30]): say **the browser** where the
+  subject is the user agent, and **you**, **anyone** or **a visitor** where it is a person.
+  `screen reader` stays.
+- **`pnpm test:live` is the one check that touches the live APIs, and it is not in CI** ([#226]).
   `apps/docs/scripts/test-live.ts` draws each card with the anvil's `maximal` options for real
-  accounts — the project's own by default, overridden by `LIVE_TEST_USER`, `LIVE_TEST_REPO`,
-  `LIVE_TEST_GIST`, `LIVE_TEST_ORG` and `LIVE_TEST_WAKATIME` — and asserts only that it drew:
-  live numbers drift.
-  A failure there is GitHub or WakaTime behaving differently from what core reads, which no typed
-  fixture can catch.
+  accounts (overridable with the `LIVE_TEST_*` variables) and asserts only that it drew, since live
+  numbers drift.
   - **`.github/workflows/test-live.yml` runs it with the `LIVE_TEST_PAT` secret of the `test-live`
-    environment**, so no other job can read the token. It runs on Mondays, on demand, and on a
-    push to `main` that changes `fetchers/`, `graphql/` or the live test itself. Kept out of
-    `ci.yml` so a GitHub outage cannot fail an unrelated PR, and off PRs altogether since a run on
-    one hit the token's rate limit on 2026-10-15.
-  - **The secret is a personal access token, because that is what the docs tell people to use.**
-    A classic one needs only `read:org`, for the org card's member count; a fine-grained one needs
-    the organization as its resource owner and `Members: read`. The workflow's own `GITHUB_TOKEN`
-    was tried on 2026-10-15 and drew six of the eight cards: the gist card's `viewer` lookup is
-    refused to an installation token, and the org card failed whole as "Organization not found"
-    rather than dropping the member count.
-- `.claude/scratch/CORE_DEFERRED_IMPROVEMENTS.md` lists the follow-ups `packages/core`
-  still owes. Check it before starting work there, and keep it current as they land.
-
-## Comments
-
-**A comment states the reason, never the behaviour.** Write it, then delete every
-sentence the reader could have got from the code itself; what survives is usually one
-line. A comment that only announces what the next block does is not worth keeping.
-
-**A `@file` block is the first thing in its file, before the imports** — after the shebang, where
-there is one. That is where JSDoc places a file-level tag, and it was true of one file in 41 until
-2026-09-10, when the other 40 moved. Nothing enforces it: oxlint's jsdoc plugin has no rule for
-the tag's position, and a script that checked it was written and removed the same day as more
-machinery than the rule is worth. Put the block first when you write one, and move it when you
-find one below the imports.
-
-**There are no `@param` tags in this repository; `@returns` stays.** 566 `@param` lines
-were deleted on 2026-09-03 across 56 files, because under TypeScript they restated the
-signature and nothing checked them — eslint's `jsdoc/check-param-names` kept the
-`@param props.x` paths honest, and oxlint has no equivalent, so they were free to rot.
-A return value has no name in the signature, so its description is the one tag that
-still earns its place. What replaced the rest:
-
-- **A doc block is a summary, then `@returns`.** One or two sentences on what the
-  function is for, plus `@see` / `@example` / `@deprecated` where they earn it.
-- **A note about one parameter or property goes next to that declaration, as a `/** */`**
-  — not as a tag far from the thing it describes, and not as a `//` line comment, which
-  no editor surfaces on hover. `createProgressNode`'s `color?: string` carries
-  `/** When omitted, the color must be set via a '.lang-progress' CSS rule. */` this way,
-  and so do the parameters of `errorResult`, `approxNumber` and
-  `fetchReposContributedTo`.
-- **Keep what the type cannot say.** A range (`0 <= n < max`), an ordering, a unit, a
-  fallback, a format guarantee (`.svg`), or a side effect (`main` sets a non-zero exit
-  code rather than throwing) belongs in the summary or the `@returns`, never dropped
-  because the signature "looks obvious".
-- **Mind multi-line tags when stripping them mechanically.** `api/api-result.ts`,
-  `common/error.ts`, `common/render.ts`, `fetchers/stats.ts` and `tests/utils.ts` each had
-  a `@param` whose text ran onto a second line; deleting the tag line alone left the
-  continuation orphaned under the summary. Audit the diff for removed lines that are not
-  tags or delimiters.
-
-**Domain interfaces** (`CardColors`, `Config`, …) — data shapes that aren't one
-function's parameter object — document their members inline with `/** */`.
-
-**oxlint's `jsdoc` plugin holds the line, as far as it can.** `check-tag-names`,
-`empty-tags` and `no-blank-blocks` are on and clean. `require-returns-type` stays off —
-it wants `@returns {Type}`, which the signature already carries, and would flag all 171
-tags. `require-returns` is off too: it would demand a tag on 26 functions that never had
-one, which is a bigger decision than a lint rule should make on its own.
-
-## Linting and formatting
-
-**oxlint replaced eslint on 2026-09-03.** `oxlint.config.ts` at the root extends
-`@marcalexiei/oxlint-config` (`base` + `typescript`, and `vitest` in an override for
-`**/*.{spec,test}.ts`), and runs **type-aware** via `oxlint-tsgolint`. `oxfmt`
-formats, configured from `@marcalexiei/oxfmt-config`.
-
-Both configs are the repo owner's own packages, developed in a sibling checkout of
-`void-0-configs` and published to npm. **When the shared config is wrong, fix it there**
-rather than working around it here — three bugs were found and fixed upstream during the
-migration, including a `vitest` config that enabled the `jest` plugin alongside it and so
-reported all 49 shared rules twice.
-
-- **Every local override carries its reason, in the config.** `oxlint.config.ts` splits
-  them into "tuned to what this repository is" and "off, each for a reason this repository
-  owns", one comment per entry. An override with no reason is a rule someone silenced.
-- **`reportUnusedDisableDirectives` is `error`.** An `oxlint-disable` that stops being
-  needed fails the build, so the handful in the tree stay honest.
-- **Prefer a rule option to switching a rule off.** `id-length` keeps `properties: 'never'`
-  and a list of the single letters SVG, colour channels and comparators actually use;
-  `prefer-nullish-coalescing` keeps `ignorePrimitives: { string: true }` because a query
-  param arrives as `''` when empty, so `||` is what falls back to the theme.
-- **`unicorn/prefer-number-coercion` is off for a behavioural reason.** It rewrites
-  `Number.parseFloat(x)` to `Number(x)`, which would break `?border_radius=10px`.
-- **`import/no-cycle` is fully enforced, with no exemptions.** The `fmt` ↔ `render` cycle
-  that once needed two disable directives was untangled on 2026-09-03 by moving
-  `wrapTextMultiline` into `render.ts`, so `fmt.ts` no longer imports back.
-- **The autofixer is not a review.** `oxlint --fix` is worth running, but it converted an
-  array to a `Set` without updating its `Array<string>` annotation, and stripped explicit
-  `undefined` arguments that a required parameter still needed. Typecheck and test after
-  every `--fix`, and read the diff.
-
-## Dependencies and pnpm
-
-**Renovate keeps the dependencies current, and Dependabot is gone as of 2026-09-13.**
-`.github/renovate.json5` reproduces what `.github/dependabot.yml` did — the same groups,
-the same `build(deps)` / `build(deps-dev)` / `ci(deps)` prefixes, the same seven-day
-cooldown, the same two held-back majors — and adds the one thing Dependabot cannot do:
-`customManagers` read the version pins out of the documentation's markdown. Dependabot
-only fetches the manifests of the ecosystems it supports, and its `github_actions`
-file-fetcher says so in as many words ("Repo must contain a .github/workflows directory
-with YAML files or an action.yml file"), so the `uses:` example on the CLI page needed a
-workflow of its own to move it. That workflow, `update-action-pin.yml`, was written and then
-replaced by the custom manager before either reached `main` — which is why the history holds
-no trace of it.
-
-- **It runs self-hosted, from `.github/workflows/renovate.yml`, and that is not incidental.**
-  `postUpgradeTasks` — which writes the changeset a documentation pin and a runtime dependency
-  bump each need — is a self-hosted-only option; the Mend app cannot run one. The allowlist for it is
-  `RENOVATE_ALLOWED_COMMANDS` in the workflow, and the one command is
-  `.github/scripts/renovate-changeset.sh`.
-- **A `dependencies` bump in `packages/*` writes its own changeset, and nothing else does.**
-  `.github/scripts/renovate-changeset.sh <slug> <package dir> <summary>` reads the package's name
-  from its `package.json` and files a `patch` against it, so the entry names whichever package
-  carries the dependency. A dev dependency reaches no consumer and gets none; a grouped bump
-  writes one entry per dependency, which is why the `@inquirer/*` group lands five.
-- **The workflow's cron is the heartbeat, the config's `schedule` is the gate.** Renovate
-  only evaluates a schedule while it is running, so a per-manager window has to contain the
-  time the workflow fires. The workflow runs daily; npm is `* * * * 3,6` and the base image
-  `* * * * 1` — day-wide, because a scheduled run on GitHub is delayed under load, and an
-  hour-wide window would silently skip a week. **Renovate's cron takes no minutes field**;
-  `*` is the only accepted value there.
-- **A dev dependency automerges once `CI OK` is green, and nothing else does.**
-  `devDependencies` and the catalog, on a minor, patch, pin or digest; a major and every
-  `dependencies` bump stay manual, the latter because it needs a changeset Renovate does not
-  write. `automergeStrategy` is `squash`, because `main`'s ruleset allows no other method.
-- **Check a config change with `renovate-config-validator`, and run nothing else against this
-  checkout.** `RENOVATE_PLATFORM=local` resolves real updates and is the only way to see what the
-  custom managers extract, but it stages the whole tree, reverts the tracked files it touches and
-  removes untracked ones — it ate an uncommitted pin and its changeset on 2026-09-13. Copy the
-  repository somewhere else and run it there.
-- **A group is `matchPackageNames` with globs, and order decides.** The held-back rules sit
-  after the groups, because a later `packageRules` entry wins — `@types/node` majors would
-  otherwise be re-enabled by the `typescript` group above them.
-
-pnpm is **12.x**, since 2026-09-13. Two renames bite, because each stops applying
-silently rather than failing: v11's `onlyBuiltDependencies` → the `allowBuilds` map, which
-skips a package's install scripts until it is listed again, and v12's `--frozen-lockfile false`
-→ `--no-frozen-lockfile`. **v12 also rejects an unrecognized key in `pnpm-workspace.yaml`**
-with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS`, so a typo there now fails the install
-instead of being ignored — which is what makes the renames survivable.
-
-- **`allowBuilds` holds only packages still in the graph.** It is `lefthook` and — since the docs
-  site landed on 2026-09-05 — `esbuild` again, which astro pulls in and which fetches its platform
-  binary in a postinstall. `@swc/core` and `unrs-resolver` were removed as each left. Check with
-  `pnpm why <pkg>` before adding or keeping an entry.
-- **A stale lockfile can hold a package nothing depends on.** `esbuild` survived as an
-  optional peer of `vite` long after vite moved to rolldown. Deleting `node_modules` **and**
-  `pnpm-lock.yaml` and reinstalling dropped it and six others; deleting the lockfile alone
-  does not, because pnpm reuses what is already installed.
-- **`minimumReleaseAge` is 4320 minutes (3 days), deliberately stricter than the default.**
-  A package published minutes ago cannot be installed, which is why a fresh release of a
-  first-party config is excluded by exact version in `minimumReleaseAgeExclude` — the
-  cooling-off period is there to catch a third-party publish going bad. Pin the version in
-  the exclusion; a bare package name would exempt every future publish too.
-- **`overrides` is where a deprecated transitive dependency gets replaced.**
-  `node-fetch` is aliased to `node-fetch-native`, which is the same API with no
-  dependencies: `@lit-labs/ssr` — a `@awesome.me/webawesome` dependency, so reached
-  through the anvil — wants it for one `fetch` on its DOM shim's window, and node-fetch's
-  own blob and formdata shims brought the deprecated `node-domexception` with them.
-  Every published version of that package is deprecated, so a version bump is not the fix.
-  **Neither package's code runs here**, the site importing webawesome's components and never
-  the `@lit-labs/ssr` behind them, so this is a lockfile change and nothing more:
-  six packages left it on 2026-09-10 for the one that replaced them.
-- **Nothing polices an override, and the script that tried was deleted.**
-  `scripts/assert-deduped.ts` failed on a package locked at two versions and on an entry
-  whose override was gone, for a `SINGLE_VERSION` list that held one package —
-  `lightningcss`, whose override had already left `pnpm-workspace.yaml` without the list
-  noticing. It was a CI job and a `check-all` step to guard one line, and went on
-  2026-09-10. Check an override by hand with `pnpm why <pkg>` when you touch one.
-- `strictPeerDependencies` and `engineStrict` are on, so an unmet peer fails the install
-  rather than warning.
+    environment**, weekly, on demand, and on a push to `main` touching `fetchers/`, `graphql/` or the
+    test. It stays out of `ci.yml` so a GitHub outage cannot fail an unrelated PR, and off PRs since
+    a run on one hit the token's rate limit ([#254]).
+  - **The secret is a personal access token, because the docs tell people to use one**: classic with
+    `read:org`, or fine-grained with the organization as owner and `Members: read`. The workflow's
+    `GITHUB_TOKEN` cannot draw the gist or org cards.
+- **Every untracked working file lives in `.claude/scratch/`**; the rule files are the exception.
 
 ## TypeScript conventions
 
-`packages/core`, `packages/catalog` and `packages/cli` are `.ts` throughout, source, tests
-and scripts alike.
-TypeScript is **7.x**; the type-aware linter tracks the same major, so `tsc` and
-`oxlint-tsgolint` agree on semantics.
+TypeScript is **7.x**, and `oxlint-tsgolint` tracks the same major so the two agree. The strict
+flags are in `tsconfig.base.json`; the lint-enforced style (`Array<T>`, `_`-prefixed unused args,
+`@ts-expect-error <description>`, no nullish values in template literals) is in
+`@marcalexiei/oxlint-config/typescript`.
 
-`tsconfig.base.json` is strict and then some — `strict`, `noUncheckedIndexedAccess`,
-`exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals`,
-`noUnusedParameters`, `verbatimModuleSyntax`, `isolatedModules`, `module: nodenext`.
-
-**A relative import names the file that exists, so the extension is `.ts`.** This was
-`.js` until 2026-09-04, when 375 specifiers across 76 files were rewritten; the pair of
-options that allows it is `allowImportingTsExtensions` plus
-`rewriteRelativeImportExtensions`, both in `tsconfig.base.json` — the first alone demands
-`noEmit`, which the two `tsconfig.build.json` are not. What it bought is `pnpm dev` with
-no build step. Three things to know before touching it:
-
-- **Only the `.js` emit is rewritten. The `.d.ts` emit is not.** A declaration in `build`
-  still reads `from './x.ts'`, naming a file the tarball does not contain. `tsc` resolves
-  it to the sibling `.d.ts` anyway, and `attw` reports both packages green — which is why
-  `lint:publish` exists and runs in CI. Do not "fix" those specifiers by hand, and do not
-  drop that check: it is the only thing standing between this convention and a consumer
-  whose toolchain is less forgiving than `tsc`.
-- **The GraphQL generator carries the extension in two places.** `importExtension: '.ts'`
-  and the `prepend` literal in `packages/core/scripts/generate-graphql-types.ts`. Nothing
-  fails until someone regenerates, so change them with the convention, not after it.
-- **`noCheck: true` in the build configs means a green build proves nothing here.** Run
-  `pnpm check-all`.
-
-**Never widen a signature just to keep an old test compiling — adapt the test to the
-code.** Type every function to the contract its _production_ call sites actually use. If
-a test called it with something looser, fix the test. This was a real regression: the
-top-languages conversion typed
-`trimTopLanguages(topLangs: TopLangData | Array<Lang>, langs_count?: number)`, where the
-union and the `?` existed only because the old tests passed bare arrays and omitted the
-count — the card itself always passes a `TopLangData` and a `langs_count`. A maintainer
-had to follow up in upstream PR #476 ("adapt tests to code") to narrow it back to
-`(topLangs: TopLangData, langs_count: number)` and rewrite the three test calls. The same
-applies to `?: T | undefined` widenings and `Partial<…>`: add them only when a real
-caller forwards `undefined`, never to appease a fixture.
-
-Other patterns:
-
-- **Declare only the params you actually read — and validate nothing you do not use.**
-  `locale` sat in `CommonCardOptions` and `api/gist.ts` both forwarded and validated it,
-  yet the gist card had no translated text and never read it, so `?locale=xx` returned
-  "Language not found" for an option that could not have changed the output. It moved to
-  the card options that do read it. It is on all eight today, because the gist and
-  contributed-to cards had their last English literals put through a locale table on 2026-09-05 —
-  the rule is that the option follows the reading, not that any given card has one.
-- **Colocate card options.** Each card declares `interface XCardOptions extends
-  CommonCardOptions {…}` (an interface, not `type &`) in its own `index.ts`, **not exported** —
-  knip flags it, and only that card uses it. All eight cards do this, so
-  `cards/options.ts` holds only the shared base: `CommonCardOptions`, plus the
-  `CardOptions<T>` helper below. The `ThemeName` union lives in `themes/index.ts`.
-- **`CommonCardOptions` extends `ColorParams`.** Every card forwards its whole options
-  object into `getLightDarkColors`, so the `_light` / `_dark` colour params are part of a
-  card's contract even though no card destructures them by name.
-- **If a card exports something another card imports, move it to `common/`** — e.g.
-  `createTextNode` moved from the stats card to `common/render.ts`, and the `lastYear`
-  wording from the wakatime card's table to `common/locales.ts` on 2026-09-08. Ask before
-  moving.
-- **One export style per module.** `Card.ts` carried both a named and a default export of
-  the same class, and one card imported the default while four imported the name; knip
-  flagged the default as unused once that import was normalised, and it was deleted.
-- Prefer `Array<T>` over `T[]` (`typescript/array-type: generic`).
-- No `string | undefined` or `null` inside template literals
-  (`typescript/restrict-template-expressions` with `allowNullish: false`); resolve with `??` first.
-- No `@ts-check` / `@ts-ignore` — use real types. For deliberate misuse in tests,
-  `// @ts-expect-error <description>` (the description is required by `ban-ts-comment`),
-  and delete it once the call becomes valid.
-- Unused args are only allowed with a leading `_`.
-- Untyped deps with no `exports`-mapped declaration get a `declare module` shim:
-  `@uppercod/css-to-object` → `tests/_css-to-object.d.ts` and `emoji-name-map` →
-  `src/_emoji-name-map.d.ts` (a runtime dep's shim has to live under `src/` for the build
-  config to see it).
-- **A dependency whose whole body is one literal gets inlined instead.**
-  `github-username-regex` cost a runtime dep, a `declare module` shim and a bullet in this
-  file, all to deliver the 87 bytes of `/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i` —
-  v1.0.0, published 2017, CC0. It is now `GITHUB_USERNAME_PATTERN` in
-  `common/constants.ts` and the shim is gone. Read a small package's source before adding
-  it: where copying costs a line and a comment, and the licence allows it, copy it.
+- **A relative import names the file that exists, so the extension is `.ts`** ([#42]), allowed by
+  `allowImportingTsExtensions` plus `rewriteRelativeImportExtensions`.
+  - **Only the `.js` emit is rewritten; the `.d.ts` emit still says `./x.ts`.** Don't fix those by
+    hand and don't drop `lint:publish` — it is the only check standing between this convention and
+    a consumer whose toolchain is less forgiving than `tsc`.
+  - **The GraphQL generator carries the extension twice**: `importExtension: '.ts'` and the
+    `prepend` literal in `packages/core/scripts/generate-graphql-types.ts`.
+- **Never widen a signature to keep an old test compiling — adapt the test.** Type a function to
+  what its production call sites pass; upstream had to narrow `trimTopLanguages` back in its PR #476.
+  Add `?: T | undefined` or `Partial<…>` only for a real caller forwarding `undefined`.
+- **Declare only the params you read, and validate nothing you don't use.** A validated-but-unread
+  `locale` once rejected a query for an option that could not change the output.
+- **Colocate card options**: `interface XCardOptions extends CommonCardOptions {…}` in the card's
+  `index.ts`, not exported. `cards/options.ts` holds only the shared base and `CardOptions<T>`; the
+  `ThemeName` union lives in `themes/index.ts`.
+- **`CommonCardOptions` extends `ColorParams`**: every card forwards its options into
+  `getLightDarkColors`, so the `_light` / `_dark` params are part of its contract.
+- **What one card exports and another imports moves to `common/`.** Ask before moving.
+- **One export style per module** ([#39]): a name, or a default, never both.
+- **An untyped dependency gets a `declare module` shim** — `@uppercod/css-to-object` →
+  `tests/_css-to-object.d.ts`. A runtime dependency's shim lives under `src/`, where the build sees it.
+- **A dependency whose whole body is one literal is inlined** ([#31]), as `GITHUB_USERNAME_PATTERN`
+  replaced `github-username-regex`. Read a small package before adding it; if copying costs a line
+  and the licence allows it, copy it.
 
 ### tsconfig layout and emit
 
-**Emit is opt-in.** `tsconfig.base.json` sets `noEmit: true`, and the only configs that
-opt back in are the two `tsconfig.build.json` — one per package, byte-identical
-(`noEmit: false` + `rootDir: "./src"` + `outDir: "./build"`, plus `declaration`,
-`declarationMap` and an emptied `customConditions`). Nothing else in the repo emits.
-Don't add `noEmit` to a config that already inherits it, and don't put an `outDir` on a
-config that can't emit.
-
-The build config also sets **`noCheck: true`** — `pnpm build` emits without typechecking,
-because the `typecheck` task does that separately against `tsconfig.typecheck.json`. A
-green build is therefore not evidence the types are sound; run `pnpm typecheck` too. Each
-package's `tsconfig.typecheck.json` exists only to clear `customConditions`, so the check
-runs against built `.d.ts` the way a consumer would resolve them rather than through the
-`@stats/source` condition. **`apps/docs` deliberately has no such config** — it is not published,
-so it typechecks against core's source and needs nothing built. Its `astro build` does need it,
-which is why `docs:build` builds the packages.
-
-This came from `packages/core/tsconfig.json` — the config the editor and a bare `tsc`
-pick up — carrying `outDir: "build"` while including `tests`. Any stray `tsc` in the
-package wrote `build/src`, `build/tests` and `build/vitest.config.js`; turbo, which ran
-the builds at the time, captured that under its `build/**` outputs and replayed the test
-files back into `build/` on every later cache hit, so the build _looked_ like it was
-producing them. The cache left with turbo, but the lesson did not: when build output is
-wrong, check what the editor's config emits before suspecting the build config.
-
-There are no TypeScript project references anywhere, so don't reach for `composite: true`
-— where it used to sit, its only live effect was forcing declaration emit.
+- **Emit is opt-in.** `tsconfig.base.json` sets `noEmit`; only each published package's
+  `tsconfig.build.json` opts back in, and those are byte-identical. Don't repeat `noEmit`, and don't
+  put an `outDir` on a config that cannot emit.
+- **`noCheck: true` in the build configs means a green build proves nothing** — run `pnpm check-all`.
+- **Each `tsconfig.typecheck.json` only clears `customConditions`**, so the check resolves siblings
+  through built `.d.ts` as a consumer would. `apps/docs` has none: it is not published, and
+  typechecks against core's source — though its `astro build` needs the packages built.
+- **When build output is wrong, check what the editor's `tsconfig.json` emits first.** A stray
+  `outDir` there once wrote tests into `build/`.
+- **No project references**, so don't reach for `composite: true`.
 
 ### Strict-mode friction to expect
 
-- `noUncheckedIndexedAccess` makes every index access `T | undefined`. Read-modify-write
-  like `lines[i] += s` becomes `lines[i] = (lines[i] ?? "") + s`; a lookup feeding a
-  non-optional return needs an explicit guard.
-- `noPropertyAccessFromIndexSignature` forbids dot-access on `Record` types — assign and
-  read through brackets, or via `Object.entries`/`Object.values`.
-- `exactOptionalPropertyTypes` rejects passing `T | undefined` into `?: T`. Declare the
-  _receiving_ optional param as `?: T | undefined` when a real caller forwards a
-  possibly-undefined value, or `NonNullable<…>` when the value is always present — but
-  re-read the widening rule above first.
+- `noUncheckedIndexedAccess`: `lines[i] += s` becomes `lines[i] = (lines[i] ?? "") + s`; a lookup
+  feeding a non-optional return needs a guard.
+- `noPropertyAccessFromIndexSignature`: read a `Record` through brackets or `Object.entries`.
+- `exactOptionalPropertyTypes`: declare the receiving param `?: T | undefined` when a real caller
+  forwards `undefined`, or `NonNullable<…>` when it never does — after re-reading the widening rule.
 
 ## Testing
 
-- Vitest. In `packages/core` the card tests assert on the rendered DOM, not on snapshots —
-  the one exception is `tests/__snapshots__/renderWakatimeCard.spec.ts.snap`.
-- **A suite is `*.spec.ts`, which is the shared config's convention rather than this repo's.**
-  `vitest/consistent-test-filename` comes from `@marcalexiei/oxlint-config/vitest` asking for
-  `.spec`; a local override asked for `.test` instead, and 48 files were renamed on 2026-09-15 to
-  drop it. An override that only restates a preference is one the shared config should own.
-  - **The one type test follows it too, as `fetchRepo.types.spec-d.ts`** — which vitest's own
-    `typecheck.include` default (`*.test-d.*`) would not collect. Nothing here runs `--typecheck`:
-    `expectTypeOf` fails the build through `tsc`, which covers `tests/` already. Enabling vitest's
-    typecheck later means setting `typecheck.include` alongside it.
-- **`packages/core` runs on `pool: 'vmThreads'`, and `isolate: false` is not an option.**
-  Building jsdom per file was 63% of the suite's tracked time; `vmThreads` builds it once per
-  worker and keeps per-file isolation, taking the workspace run from ~5.1s to ~2.4s.
-  `isolate: false` is faster still and fails half the time — always the same three
-  `fetchTopLanguages` error tests, which share module state once files stop being isolated.
-  Measured over eight runs of each on 2026-09-14; don't re-litigate it without re-measuring.
-  Coverage is identical under both pools, so `test:coverage` reads the same either way.
-  **`fsModuleCache: true` was measured the same day and left out**: it silences the transform
-  hint the cli project prints and writes `node_modules/.vite/vitest`, but four consecutive
-  warm runs came in at 2.38s against 2.41s without it — the transforms are not on the critical
-  path, and CI never sees a warm cache anyway.
-- **Snapshots are byte-exact.** Template-literal contents in card renderers include
-  their whitespace verbatim, and the formatter will reflow a multi-line `${cond ? a : b}`
-  interpolation onto its own line, injecting a newline and indent into the SVG. Hoist
-  such expressions into a `const` so the template only ever interpolates a plain
-  `${identifier}`. After any card edit, diff the snapshots before assuming success.
+Rules oxlint already enforces — the `.spec.ts` suffix, and the vitest rules switched off — carry
+their reasons in `oxlint.config.ts`.
+
 - **Assert on DOM nodes with jest-dom matchers, never by reading the node yourself** —
-  `toHaveTextContent` / `toHaveAttribute` / `toHaveClass` / `toHaveStyle` /
-  `toBeInTheDocument`, not `el?.textContent).toBe(…)` or `el?.getAttribute(x)).toBe(y)`.
-  They fail loudly on a missing element and print the node. In particular **never write
-  `expect(queryByTestId(…)).toBeDefined()`** — `queryBy*` returns `null` when absent, and
-  `null` _is_ defined, so the assertion can never fail. Use `toBeInTheDocument()` /
-  `not.toBeInTheDocument()`. Converting the ~15 such no-ops in `renderStatsCard.spec.ts`
-  immediately exposed one asserting on `rank-percentile-text`, which is a CSS class and
-  was never a test id. For array-index existence (`langNames[2]`), assert
-  `toHaveLength(n)` on the `queryAllBy*` result instead — `toBeInTheDocument()` rejects
-  `undefined` even under `.not`.
-- Use the `@testing-library/dom` **`screen` API** (`screen.getByTestId("x")`), not
-  `getByTestId(document.body, "x")` — <https://testing-library.com/docs/queries/about/#screen>.
-  Cache a repeated same-id query in a local variable. Plain
-  `document.querySelector` is still fine.
-- Mock with the typesafe form `vi.mock(import("…"), factory)`, not
-  `vi.mock("…", factory)`, and keep the static import for its types.
-- jest-dom matchers are typed in `packages/core/tests/_setup.ts`, which augments vitest's
-  `Matchers` interface inside `declare module "vitest"` (vitest 4 re-exports
-  `Assertion`/`Matchers` from `@vitest/expect`, so augmenting `vitest` is the path that
-  works — <https://vitest.dev/guide/extending-matchers>).
-- Reach for `querySelector`/`querySelectorAll` over `getElementsByClassName`, and
-  `document.querySelector<HTMLElement>(…)` when you need `.style`. Under the strict
-  flags, `cssToObject(styleTag?.innerHTML ?? "")` and
-  `stylesObject[":host"]?.[".header "]?.["fill"]?.trim()` are the working shapes.
-- **Type test fixtures** (`const data: StatsData = …`). When a fixture is a `Record<…>`
-  that you also access by dot, annotating it would trip
-  `noPropertyAccessFromIndexSignature` — use `… satisfies TopLangData` instead, which
-  validates against the type while keeping the concrete keys.
-- **A test that provokes a diagnostic silences it, and `vi.spyOn(console, …)` is what does.**
-  `common/log.ts` dispatches to `console` at call time for exactly this; it held the reference it
-  captured at import until 2026-09-10, so the spy in the server's rate-limit test was a no-op and
-  the run printed `PAT_1 Failed due to rate limiting` at whoever ran it. Three tests deliberately
-  provoke one — the rate-limit reply, and the two organization refusals — and each spies with a
-  line saying why. **Run `vitest run --disable-console-intercept` to see what the suite prints**:
-  a pipe hides the `stdout |` blocks, which is why this survived several passes.
-- **The vitest rules oxlint disagrees with are off in one place, with reasons.** A card
-  test asserts on every node the card drew, so `max-expects` is off; the `?.` and `??`
-  that `noUncheckedIndexedAccess` forces are not "conditionals in tests", so
-  `no-conditional-in-test` is off; a file-level `beforeAll` applies to every suite in the
-  file, so `require-top-level-describe` is off. `expect-expect` knows about the XSS
-  suite's `expectNoScript` helper through `assertFunctionNames`.
+  `toHaveTextContent`, `toHaveAttribute`, `toBeInTheDocument`. **Never write
+  `expect(queryBy…(…)).toBeDefined()`**: `null` is defined, so it cannot fail. For array indices,
+  assert `toHaveLength(n)` on the `queryAllBy*` result.
+- **Card tests assert on the rendered DOM, not snapshots**; the one exception is
+  `renderWakatimeCard.spec.ts.snap`.
+- **Snapshots are byte-exact.** The formatter can reflow a `${cond ? a : b}` inside a renderer's
+  template literal onto its own line, injecting whitespace into the SVG; hoist such expressions into
+  a `const`, and diff the snapshots after any card edit.
+- **A test that provokes a diagnostic silences it with `vi.spyOn(console, …)`**, saying why ([#79]).
+  `common/log.ts` reads `console` at call time so the spy works; run
+  `vitest run --disable-console-intercept` to see what the suite prints.
+- **`packages/core` runs on `pool: 'vmThreads'`, and `isolate: false` is not an option** ([#122]):
+  the `fetchTopLanguages` error tests share module state once files stop being isolated.
+  `fsModuleCache` was measured and gained nothing. Re-measure before re-litigating either.
+- **The type test is `fetchRepo.types.spec-d.ts`**, which vitest's own `typecheck.include` would not
+  collect ([#132]). `tsc` checks it; enabling vitest's typecheck means setting `typecheck.include`.
+- Use the `@testing-library/dom` **`screen` API**, and cache a repeated same-id query.
+  `querySelector` is fine; prefer it to `getElementsByClassName`, and type it
+  `querySelector<HTMLElement>(…)` when you need `.style`.
+- Mock with the typesafe `vi.mock(import("…"), factory)`, keeping the static import for its types.
+- jest-dom's matchers are registered and typed by importing `@testing-library/jest-dom/vitest` in
+  `packages/core/tests/_setup.ts`.
+- **Type test fixtures** (`const data: StatsData = …`); a `Record` fixture you read by dot uses
+  `satisfies` instead, to keep its concrete keys.
+
+## Comments
+
+**A comment states the reason, never the behaviour.** Write it, then delete every sentence the code
+already says; what survives is usually one line.
+
+- **A `@file` block is the first thing in its file**, after any shebang and before the imports
+  ([#79]). Nothing enforces it.
+- **There are no `@param` tags; `@returns` stays** ([#39]). Under TypeScript a `@param` restated the
+  signature and nothing checked it.
+- **A doc block is a summary, then `@returns`**, plus `@see` / `@example` / `@deprecated` where they
+  earn it.
+- **A note about one parameter or property goes on that declaration as a `/** */`**, where an editor
+  shows it on hover — not as a tag, and not as a `//` comment.
+- **Keep what the type cannot say**: a range, an ordering, a unit, a fallback, a format guarantee or
+  a side effect.
+- **Domain interfaces** (`CardColors`, …) document their members inline with `/** */`.
+- **When stripping tags mechanically, check for an orphaned continuation line.**
+- The jsdoc rules on are in `oxlint.config.ts`. `require-returns-type` stays off because the
+  signature carries the type; `require-returns` stays off because adding tags everywhere is a
+  bigger decision than a lint rule should make.
+
+## Linting and formatting
+
+oxlint (type-aware, via `oxlint-tsgolint`) and oxfmt replaced eslint and prettier ([#39]). Their
+configs extend the owner's `@marcalexiei/oxlint-config` and `@marcalexiei/oxfmt-config`, developed
+in the sibling `void-0-configs` checkout.
+
+- **When the shared config is wrong, fix it there**, not with a workaround here.
+- **Every local override carries its reason, in `oxlint.config.ts`.** An override with no reason is
+  a silenced rule.
+- **Prefer a rule option to switching a rule off.**
+- **`import/no-cycle` has no exemptions.** Untangle a cycle rather than disable the rule for it.
+- **The autofixer is not a review.** Typecheck and test after `oxlint --fix`, and read the diff.
+
+## Dependencies and pnpm
+
+**Renovate keeps the dependencies current, self-hosted from `.github/workflows/renovate.yml`**
+([#114]). Its config is `.github/renovate.json5`; its `customManagers` also move the version pins in
+the documentation's markdown, which Dependabot could not.
+
+- **It is self-hosted because `postUpgradeTasks` is a self-hosted-only option**, and that is what
+  writes a changeset. The one allowed command is `.github/scripts/renovate-changeset.sh`, listed in
+  `RENOVATE_ALLOWED_COMMANDS`.
+- **A `dependencies` bump in `packages/*` writes its own `patch` changeset; nothing else does.** A
+  dev dependency reaches no consumer.
+- **The workflow's cron is the heartbeat; the config's `schedule` is the gate.** A per-manager window
+  must contain the time the workflow fires, so windows are day-wide.
+- **A dev dependency automerges once `CI OK` is green** on a minor, patch, pin or digest ([#137]).
+  Majors and `dependencies` bumps stay manual.
+- **Check a config change with `renovate-config-validator`, and nothing else on this checkout.**
+  `RENOVATE_PLATFORM=local` reverts tracked files and removes untracked ones; run it on a copy.
+- **A later `packageRules` entry wins**, so the held-back rules sit after the groups.
+
+pnpm is **12.x** ([#110]). `pnpm-workspace.yaml` carries the reason beside each setting.
+
+- **Two renames stop applying silently**: v11's `onlyBuiltDependencies` → `allowBuilds`, and v12's
+  `--frozen-lockfile false` → `--no-frozen-lockfile`. v12 does reject an unknown key in
+  `pnpm-workspace.yaml`.
+- **`allowBuilds` lists only packages still in the graph.** Check with `pnpm why <pkg>`.
+- **A stale lockfile can hold a package nothing depends on.** Delete `node_modules` **and**
+  `pnpm-lock.yaml`, then reinstall; deleting the lockfile alone reuses what is installed.
+- **`minimumReleaseAge` exempts only the first-party configs, by name** ([#216]): the cooling-off
+  period is there to catch a third-party publish going bad.
+- **Nothing polices an override.** Check one with `pnpm why <pkg>` when you touch it ([#80]).
+
+[#15]: https://github.com/stats-forge/github-stats-forge/pull/15
+[#30]: https://github.com/stats-forge/github-stats-forge/pull/30
+[#31]: https://github.com/stats-forge/github-stats-forge/pull/31
+[#39]: https://github.com/stats-forge/github-stats-forge/pull/39
+[#41]: https://github.com/stats-forge/github-stats-forge/pull/41
+[#42]: https://github.com/stats-forge/github-stats-forge/pull/42
+[#58]: https://github.com/stats-forge/github-stats-forge/pull/58
+[#61]: https://github.com/stats-forge/github-stats-forge/pull/61
+[#78]: https://github.com/stats-forge/github-stats-forge/pull/78
+[#79]: https://github.com/stats-forge/github-stats-forge/pull/79
+[#80]: https://github.com/stats-forge/github-stats-forge/pull/80
+[#86]: https://github.com/stats-forge/github-stats-forge/pull/86
+[#106]: https://github.com/stats-forge/github-stats-forge/pull/106
+[#107]: https://github.com/stats-forge/github-stats-forge/pull/107
+[#110]: https://github.com/stats-forge/github-stats-forge/pull/110
+[#114]: https://github.com/stats-forge/github-stats-forge/pull/114
+[#122]: https://github.com/stats-forge/github-stats-forge/pull/122
+[#132]: https://github.com/stats-forge/github-stats-forge/pull/132
+[#133]: https://github.com/stats-forge/github-stats-forge/pull/133
+[#137]: https://github.com/stats-forge/github-stats-forge/pull/137
+[#216]: https://github.com/stats-forge/github-stats-forge/pull/216
+[#220]: https://github.com/stats-forge/github-stats-forge/pull/220
+[#225]: https://github.com/stats-forge/github-stats-forge/pull/225
+[#226]: https://github.com/stats-forge/github-stats-forge/pull/226
+[#254]: https://github.com/stats-forge/github-stats-forge/pull/254
