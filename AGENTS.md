@@ -281,7 +281,7 @@ one, which is a bigger decision than a lint rule should make on its own.
 
 **oxlint replaced eslint on 2026-09-03.** `oxlint.config.ts` at the root extends
 `@marcalexiei/oxlint-config` (`base` + `typescript`, and `vitest` in an override for
-`**/*.{spec,test,bench}.ts`), and runs **type-aware** via `oxlint-tsgolint`. `oxfmt`
+`**/*.{spec,test}.ts`), and runs **type-aware** via `oxlint-tsgolint`. `oxfmt`
 formats, configured from `@marcalexiei/oxfmt-config`.
 
 Both configs are the repo owner's own packages, developed in a sibling checkout of

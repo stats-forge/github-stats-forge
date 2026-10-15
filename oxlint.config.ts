@@ -106,7 +106,7 @@ export default defineConfig({
     {
       // `test` is in the glob so that a misnamed suite reaches `consistent-test-filename`,
       // which is what asks for `.spec`.
-      files: ['**/*.{spec,test,bench}.ts'],
+      files: ['**/*.{spec,test}.ts'],
       // Playwright names its files the same way, and vitest's rules do not describe it.
       excludeFiles: ['apps/docs/e2e/**'],
       ...vitestConfig,
