@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   chunkArray,
   clampValue,
+  excludes,
   lowercaseTrim,
   parseArray,
   parseBoolean,
@@ -25,6 +26,14 @@ describe('Test ops.js', () => {
     expect(parseBoolean('0')).toBeUndefined();
     expect(parseBoolean('')).toBeUndefined();
     expect(parseBoolean(undefined)).toBeUndefined();
+  });
+
+  it('should match an excluded repository by owner/name or by name, ignoring case', () => {
+    const isExcluded = excludes(['Bellows', 'smith/Anvil']);
+    expect(isExcluded('smith/bellows')).toBe(true);
+    expect(isExcluded('SMITH/anvil')).toBe(true);
+    expect(isExcluded('other/anvil')).toBe(false);
+    expect(isExcluded('smith/tongs')).toBe(false);
   });
 
   it('should test parseArray', () => {

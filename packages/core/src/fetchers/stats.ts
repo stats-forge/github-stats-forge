@@ -13,7 +13,7 @@ import { CardError, USER_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
-import { buildSearchFilter, parseOwnerAffiliations } from '../common/ops.ts';
+import { buildSearchFilter, excludes, parseOwnerAffiliations } from '../common/ops.ts';
 import { retryer } from '../common/retryer.ts';
 import type { FetcherResponse } from '../common/retryer.ts';
 import { buildContributionsDocument } from '../graphql/contributionsDocument.ts';
@@ -509,11 +509,10 @@ const fetchStats = async (
   }
 
   // Retrieve stars while filtering out repositories to be hidden.
-  const allExcludedRepos = [...exclude_repo, ...config.excludeRepositories];
-  const repoToHide = new Set(allExcludedRepos);
+  const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);
 
   stats.totalStars = (user.repositories.nodes ?? [])
-    .filter((data) => !!data && !repoToHide.has(data.name))
+    .filter((data) => !!data && !isExcluded(data.nameWithOwner))
     .reduce((prev, curr) => prev + (curr?.stargazerCount ?? 0), 0);
 
   stats.rank = calculateRank({

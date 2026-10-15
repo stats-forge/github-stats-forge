@@ -4,7 +4,7 @@ import { toContributionRanges, toRange } from '../common/date.ts';
 import { CardError, USER_NOT_FOUND } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import { logger } from '../common/log.ts';
-import { clampValue } from '../common/ops.ts';
+import { clampValue, excludes } from '../common/ops.ts';
 import { retryer } from '../common/retryer.ts';
 import { UserContributionYearsDocument } from '../graphql/generated/contributed-to.ts';
 import {
@@ -211,23 +211,6 @@ const fetchReposContributedTo = async (
   }
 
   return repos;
-};
-
-/**
- * Whether a repository was excluded by the query or by the deployment.
- *
- * An entry matches either the full `owner/name` or the bare `name`,
- * so a host's `EXCLUDE_REPO` — which the other cards match against bare names — still bites here,
- * where a repository is identified by its owner as well.
- *
- * @returns The test, over lowercased entries.
- */
-const excludes = (entries: Array<string>): ((nameWithOwner: string) => boolean) => {
-  const excluded = new Set(entries.map((entry) => entry.toLowerCase()));
-  return (nameWithOwner) => {
-    const lowered = nameWithOwner.toLowerCase();
-    return excluded.has(lowered) || excluded.has(lowered.slice(lowered.indexOf('/') + 1));
-  };
 };
 
 /**

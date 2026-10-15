@@ -51,9 +51,9 @@ const user_stats: QueryUser<UserInfoQuery> = {
   repositories: {
     totalCount: 3,
     nodes: [
-      { name: 'test-repo-1', stargazerCount: 100 },
-      { name: 'test-repo-2', stargazerCount: 100 },
-      { name: 'test-repo-3', stargazerCount: 100 },
+      { name: 'test-repo-1', nameWithOwner: 'anuraghazra/test-repo-1', stargazerCount: 100 },
+      { name: 'test-repo-2', nameWithOwner: 'anuraghazra/test-repo-2', stargazerCount: 100 },
+      { name: 'test-repo-3', nameWithOwner: 'anuraghazra/test-repo-3', stargazerCount: 100 },
     ],
     pageInfo: {
       hasNextPage: true,
@@ -89,8 +89,8 @@ const data_without_pull_requests: GraphQLBody<UserInfoQuery> = {
 const repo_page: RepoStarsFragment['repositories'] = {
   totalCount: 2,
   nodes: [
-    { name: 'test-repo-4', stargazerCount: 50 },
-    { name: 'test-repo-5', stargazerCount: 50 },
+    { name: 'test-repo-4', nameWithOwner: 'anuraghazra/test-repo-4', stargazerCount: 50 },
+    { name: 'test-repo-5', nameWithOwner: 'anuraghazra/test-repo-5', stargazerCount: 50 },
   ],
   pageInfo: {
     hasNextPage: false,
@@ -130,11 +130,11 @@ const data_repo_zero_stars: GraphQLBody<UserReposQuery> = {
       repositories: {
         totalCount: 5,
         nodes: [
-          { name: 'test-repo-1', stargazerCount: 100 },
-          { name: 'test-repo-2', stargazerCount: 100 },
-          { name: 'test-repo-3', stargazerCount: 100 },
-          { name: 'test-repo-4', stargazerCount: 0 },
-          { name: 'test-repo-5', stargazerCount: 0 },
+          { name: 'test-repo-1', nameWithOwner: 'anuraghazra/test-repo-1', stargazerCount: 100 },
+          { name: 'test-repo-2', nameWithOwner: 'anuraghazra/test-repo-2', stargazerCount: 100 },
+          { name: 'test-repo-3', nameWithOwner: 'anuraghazra/test-repo-3', stargazerCount: 100 },
+          { name: 'test-repo-4', nameWithOwner: 'anuraghazra/test-repo-4', stargazerCount: 0 },
+          { name: 'test-repo-5', nameWithOwner: 'anuraghazra/test-repo-5', stargazerCount: 0 },
         ],
         pageInfo: {
           hasNextPage: true,
@@ -333,22 +333,25 @@ describe('Test fetchStats', () => {
     );
   });
 
-  it('should exclude stars of the `test-repo-1` repository', async () => {
-    mock
-      .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
-      .reply(200, { total_count: 1000 });
+  it.each(['test-repo-1', 'Anuraghazra/TEST-repo-1'])(
+    'should exclude stars of the repository named %j',
+    async (entry) => {
+      mock
+        .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
+        .reply(200, { total_count: 1000 });
 
-    const stats = await fetchStatsWith({
-      include_all_commits: true,
-      exclude_repo: ['test-repo-1'],
-    });
-    expect(stats).toStrictEqual(
-      expectedStats(
-        { totalCommits: 1000, totalStars: 200 },
-        { all_commits: true, commits: 1000, stars: 200 },
-      ),
-    );
-  });
+      const stats = await fetchStatsWith({
+        include_all_commits: true,
+        exclude_repo: [entry],
+      });
+      expect(stats).toStrictEqual(
+        expectedStats(
+          { totalCommits: 1000, totalStars: 200 },
+          { all_commits: true, commits: 1000, stars: 200 },
+        ),
+      );
+    },
+  );
 
   it("should fetch two pages of stars if 'FETCH_MULTI_PAGE_STARS' env variable is set to `true`", async () => {
     config = baseConfig.with({ fetchMultiPageStars: Infinity });

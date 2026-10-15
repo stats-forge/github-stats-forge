@@ -285,7 +285,11 @@ const userInfo = (): Body<UserInfoQuery> => ({
       contributionsCollection: { contributionYears: CONTRIBUTION_YEARS.toReversed() },
       repositories: {
         totalCount: 58,
-        nodes: USER_REPOS.map(({ name, stars }) => ({ name, stargazerCount: stars })),
+        nodes: USER_REPOS.map(({ name, stars }) => ({
+          name,
+          nameWithOwner: `${SAMPLE.username}/${name}`,
+          stargazerCount: stars,
+        })),
         pageInfo: { hasNextPage: false, endCursor: null },
       },
     },
@@ -368,6 +372,7 @@ const topLanguages = (): Body<TopLanguagesQuery> => ({
       repositories: {
         nodes: USER_REPOS.map(({ name, languages }) => ({
           name,
+          nameWithOwner: `${SAMPLE.username}/${name}`,
           languages: {
             edges: Object.entries(languages).map(([lang, size]) => ({
               size,

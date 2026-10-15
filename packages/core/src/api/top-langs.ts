@@ -14,6 +14,7 @@ import {
   localeParam,
   numberParam,
   rawParam,
+  safeListParam,
   usernameParam,
 } from './params.ts';
 
@@ -26,7 +27,7 @@ const topLangsQuery = z.object({
   card_width: intParam,
   layout: enumParam(renderTopLanguages.OPTIONS.layout),
   langs_count: intParam,
-  exclude_repo: listParam,
+  exclude_repo: safeListParam,
   size_weight: numberParam,
   count_weight: numberParam,
   custom_title: rawParam,

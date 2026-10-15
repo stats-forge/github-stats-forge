@@ -1,5 +1,6 @@
 fragment RepoNode on Repository {
   name
+  nameWithOwner
   stargazerCount
 }
 

@@ -37,6 +37,22 @@ const parseArray = (str: string | undefined): Array<string> =>
     .filter((entry) => entry !== '');
 
 /**
+ * Whether a repository was excluded by the query or by the deployment.
+ *
+ * An entry matches either the full `owner/name` or the bare `name`, ignoring case as GitHub does,
+ * so every card taking `exclude_repo` reads it, and a host's `EXCLUDE_REPO`, the same way.
+ *
+ * @returns The test, over lowercased entries.
+ */
+const excludes = (entries: Array<string>): ((nameWithOwner: string) => boolean) => {
+  const excluded = new Set(entries.map((entry) => entry.toLowerCase()));
+  return (nameWithOwner) => {
+    const lowered = nameWithOwner.toLowerCase();
+    return excluded.has(lowered) || excluded.has(lowered.slice(lowered.indexOf('/') + 1));
+  };
+};
+
+/**
  * Clamp the given number between the given range.
  *
  * @returns The clamped number; `min` for `NaN`.
@@ -118,6 +134,7 @@ const buildSearchFilter = (repos: Array<string>, owners: Array<string>): string 
 export {
   parseBoolean,
   parseArray,
+  excludes,
   clampValue,
   lowercaseTrim,
   chunkArray,

@@ -385,6 +385,7 @@
             "nodes": [
               {
                 "name": "quench",
+                "nameWithOwner": "ember-smith/quench",
                 "languages": {
                   "edges": [
                     {
@@ -413,6 +414,7 @@
               },
               {
                 "name": "tongs-cli",
+                "nameWithOwner": "ember-smith/tongs-cli",
                 "languages": {
                   "edges": [
                     {
@@ -441,6 +443,7 @@
               },
               {
                 "name": "bellows",
+                "nameWithOwner": "ember-smith/bellows",
                 "languages": {
                   "edges": [
                     {
@@ -469,6 +472,7 @@
               },
               {
                 "name": "slag",
+                "nameWithOwner": "ember-smith/slag",
                 "languages": {
                   "edges": [
                     {
@@ -490,6 +494,7 @@
               },
               {
                 "name": "rivet",
+                "nameWithOwner": "ember-smith/rivet",
                 "languages": {
                   "edges": [
                     {
@@ -511,6 +516,7 @@
               },
               {
                 "name": "whetstone",
+                "nameWithOwner": "ember-smith/whetstone",
                 "languages": {
                   "edges": [
                     {
@@ -539,6 +545,7 @@
               },
               {
                 "name": "ingot",
+                "nameWithOwner": "ember-smith/ingot",
                 "languages": {
                   "edges": [
                     {
@@ -560,6 +567,7 @@
               },
               {
                 "name": "hammerfall",
+                "nameWithOwner": "ember-smith/hammerfall",
                 "languages": {
                   "edges": [
                     {
@@ -581,6 +589,7 @@
               },
               {
                 "name": "ember.nvim",
+                "nameWithOwner": "ember-smith/ember.nvim",
                 "languages": {
                   "edges": [
                     {
@@ -602,6 +611,7 @@
               },
               {
                 "name": "dotfiles",
+                "nameWithOwner": "ember-smith/dotfiles",
                 "languages": {
                   "edges": [
                     {
@@ -630,6 +640,7 @@
               },
               {
                 "name": "scratchpad",
+                "nameWithOwner": "ember-smith/scratchpad",
                 "languages": {
                   "edges": [
                     {
@@ -651,6 +662,7 @@
               },
               {
                 "name": "notes",
+                "nameWithOwner": "ember-smith/notes",
                 "languages": {
                   "edges": []
                 }
@@ -788,50 +800,62 @@
             "nodes": [
               {
                 "name": "quench",
+                "nameWithOwner": "ember-smith/quench",
                 "stargazerCount": 4821
               },
               {
                 "name": "tongs-cli",
+                "nameWithOwner": "ember-smith/tongs-cli",
                 "stargazerCount": 2964
               },
               {
                 "name": "bellows",
+                "nameWithOwner": "ember-smith/bellows",
                 "stargazerCount": 1587
               },
               {
                 "name": "slag",
+                "nameWithOwner": "ember-smith/slag",
                 "stargazerCount": 1243
               },
               {
                 "name": "rivet",
+                "nameWithOwner": "ember-smith/rivet",
                 "stargazerCount": 806
               },
               {
                 "name": "whetstone",
+                "nameWithOwner": "ember-smith/whetstone",
                 "stargazerCount": 512
               },
               {
                 "name": "ingot",
+                "nameWithOwner": "ember-smith/ingot",
                 "stargazerCount": 298
               },
               {
                 "name": "hammerfall",
+                "nameWithOwner": "ember-smith/hammerfall",
                 "stargazerCount": 187
               },
               {
                 "name": "ember.nvim",
+                "nameWithOwner": "ember-smith/ember.nvim",
                 "stargazerCount": 142
               },
               {
                 "name": "dotfiles",
+                "nameWithOwner": "ember-smith/dotfiles",
                 "stargazerCount": 76
               },
               {
                 "name": "scratchpad",
+                "nameWithOwner": "ember-smith/scratchpad",
                 "stargazerCount": 19
               },
               {
                 "name": "notes",
+                "nameWithOwner": "ember-smith/notes",
                 "stargazerCount": 0
               }
             ],

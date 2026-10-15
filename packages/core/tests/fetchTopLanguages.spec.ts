@@ -30,24 +30,28 @@ const data_langs = {
         nodes: [
           {
             name: 'test-repo-1',
+            nameWithOwner: 'anuraghazra/test-repo-1',
             languages: {
               edges: [{ size: 100, node: { color: '#0f0', name: 'HTML' } }],
             },
           },
           {
             name: 'test-repo-2',
+            nameWithOwner: 'anuraghazra/test-repo-2',
             languages: {
               edges: [{ size: 100, node: { color: '#0ff', name: 'javascript' } }],
             },
           },
           {
             name: 'test-repo-3',
+            nameWithOwner: 'anuraghazra/test-repo-3',
             languages: {
               edges: [{ size: 100, node: { color: '#0f0', name: 'HTML' } }],
             },
           },
           {
             name: 'test-repo-4',
+            nameWithOwner: 'anuraghazra/test-repo-4',
             languages: {
               edges: [{ size: 100, node: { color: '#0ff', name: 'javascript' } }],
             },
@@ -93,28 +97,31 @@ describe('FetchTopLanguages', () => {
     });
   });
 
-  it("should fetch correct language data while excluding the 'test-repo-1' repository", async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, data_langs);
+  it.each(['test-repo-1', 'Anuraghazra/TEST-repo-1'])(
+    'should fetch correct language data while excluding the repository named %j',
+    async (entry) => {
+      mock.onPost('https://api.github.com/graphql').reply(200, data_langs);
 
-    const repo = await fetchTopLanguages(
-      { username: 'anuraghazra', exclude_repo: ['test-repo-1'] },
-      config,
-    );
-    expect(repo).toStrictEqual({
-      HTML: {
-        color: '#0f0',
-        count: 1,
-        name: 'HTML',
-        size: 100,
-      },
-      javascript: {
-        color: '#0ff',
-        count: 2,
-        name: 'javascript',
-        size: 200,
-      },
-    });
-  });
+      const repo = await fetchTopLanguages(
+        { username: 'anuraghazra', exclude_repo: [entry] },
+        config,
+      );
+      expect(repo).toStrictEqual({
+        HTML: {
+          color: '#0f0',
+          count: 1,
+          name: 'HTML',
+          size: 100,
+        },
+        javascript: {
+          color: '#0ff',
+          count: 2,
+          name: 'javascript',
+          size: 200,
+        },
+      });
+    },
+  );
 
   it('should fetch correct language data while using the old calculation', async () => {
     mock.onPost('https://api.github.com/graphql').reply(200, data_langs);
