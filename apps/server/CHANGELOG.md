@@ -1,5 +1,20 @@
 # @stats-forge/github-stats-server
 
+## 0.4.8
+
+### Patch Changes
+
+- [#220](https://github.com/stats-forge/github-stats-forge/pull/220) [`eaf187d`](https://github.com/stats-forge/github-stats-forge/commit/eaf187d21fd47b90a750d39eb23565cfb211b154) - docs: redesign the landing page
+
+  The hero is centred, the cards section shows a gallery linking to each card's page, and the four
+  ways to draw a card are panels, with the GitHub Action first.
+
+- [#217](https://github.com/stats-forge/github-stats-forge/pull/217) [`514822f`](https://github.com/stats-forge/github-stats-forge/commit/514822f2c4b6280db41d887fe74d3ffb062666c9) - docs: pin the actions/setup-node example to v7.1.0
+
+- [#209](https://github.com/stats-forge/github-stats-forge/pull/209) [`e8616fc`](https://github.com/stats-forge/github-stats-forge/commit/e8616fc0c35131a2086f1f645b2f9dd21136af48) - docs: pin the stats-forge/github-stats-forge-action example to v0.8.3
+- Updated dependencies [[`e6c0c83`](https://github.com/stats-forge/github-stats-forge/commit/e6c0c831827453db3dac57e7d3008edb772eb203), [`9700951`](https://github.com/stats-forge/github-stats-forge/commit/97009515dbb147ad55c435b2525b599162815717)]:
+  - @stats-forge/github-stats-forge-core@0.8.4
+
 ## 0.4.7
 
 ### Patch Changes
