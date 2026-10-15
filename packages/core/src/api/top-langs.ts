@@ -23,7 +23,7 @@ const topLangsQuery = z.object({
   username: usernameParam,
   ...commonParams,
   ...titleParams,
-  hide: listParam,
+  hide_langs: listParam,
   card_width: intParam({ px: true }),
   layout: enumParam(renderTopLanguages.OPTIONS.layout),
   langs_count: intParam(),
@@ -47,7 +47,7 @@ const renderTopLangs = cardHandler(
   async (
     {
       username,
-      hide,
+      hide_langs,
       hide_title,
       hide_border,
       card_width,
@@ -85,7 +85,7 @@ const renderTopLangs = cardHandler(
       hide_title,
       hide_border,
       card_width,
-      hide,
+      hide_langs,
       layout,
       langs_count,
       border_radius,

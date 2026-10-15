@@ -321,7 +321,7 @@ describe('Test renderTopLanguages', () => {
 
   it('should hide languages when hide is passed', () => {
     document.body.innerHTML = renderTopLanguages(langs, {
-      hide: ['HTML'],
+      hide_langs: ['HTML'],
     });
     let langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toBeInTheDocument();
@@ -330,7 +330,7 @@ describe('Test renderTopLanguages', () => {
 
     // multiple languages passed
     document.body.innerHTML = renderTopLanguages(langs, {
-      hide: ['HTML', 'css'],
+      hide_langs: ['HTML', 'css'],
     });
     langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toBeInTheDocument();
@@ -701,7 +701,7 @@ describe('Test renderTopLanguages', () => {
 
   it('should render langs with specified langs_count even when hide is set', () => {
     const options = {
-      hide: ['HTML'],
+      hide_langs: ['HTML'],
       langs_count: 2,
     };
     document.body.innerHTML = renderTopLanguages(langs, { ...options });

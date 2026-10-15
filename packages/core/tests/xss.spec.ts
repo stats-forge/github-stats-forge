@@ -210,7 +210,7 @@ describe('XSS prevention - stats API', () => {
 
 describe('XSS prevention - top-langs API', () => {
   const apiParamNames = [
-    'hide',
+    'hide_langs',
     'hide_title',
     'hide_border',
     'card_width',
@@ -363,7 +363,7 @@ describe('XSS prevention - wakatime API', () => {
     'locale',
     'layout',
     'langs_count',
-    'hide',
+    'hide_langs',
     'api_domain',
     'border_radius',
     'border_color',

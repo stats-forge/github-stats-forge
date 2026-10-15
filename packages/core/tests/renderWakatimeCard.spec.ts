@@ -47,7 +47,7 @@ describe('Test Render WakaTime Card', () => {
 
   it('should hide languages when hide is passed', () => {
     document.body.innerHTML = renderWakatimeCard(wakaTimeData.data, {
-      hide: ['YAML', 'Other'],
+      hide_langs: ['YAML', 'Other'],
     });
 
     expect(screen.queryByTestId(/YAML/i)).not.toBeInTheDocument();
