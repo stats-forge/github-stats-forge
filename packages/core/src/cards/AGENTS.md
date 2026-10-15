@@ -65,6 +65,10 @@ brand import to one line.
   positioned its rank ring by interpolating between two constants while the values scaled 1:1
   with the width, so widening the card by 50px moved them 50 and the ring 8, and the values
   overran the ring. Both now come off `RANK_GUTTER`.
+  - **The same holds for a width and a height.** The donut took its radius and centre from the
+    width while its card height and offset were constants tuned for 350px, so moving it to the
+    400px step overflowed the card (#218). Its ring is now a fixed size, and the height is derived
+    from it and the list.
 
 ## Card text and translations
 

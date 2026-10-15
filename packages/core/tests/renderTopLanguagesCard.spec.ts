@@ -12,7 +12,6 @@ import {
   calculatePieLayoutHeight,
   cartesianToPolar,
   degreesToRadians,
-  donutCenterTranslation,
   getCircleLength,
   getDefaultLanguagesCountByLayout,
   getLongestLang,
@@ -212,17 +211,17 @@ describe('Test renderTopLanguages helper functions', () => {
   });
 
   it('calculateDonutLayoutHeight', () => {
-    expect(calculateDonutLayoutHeight(0)).toBe(215);
-    expect(calculateDonutLayoutHeight(1)).toBe(215);
-    expect(calculateDonutLayoutHeight(2)).toBe(215);
-    expect(calculateDonutLayoutHeight(3)).toBe(215);
-    expect(calculateDonutLayoutHeight(4)).toBe(215);
-    expect(calculateDonutLayoutHeight(5)).toBe(215);
-    expect(calculateDonutLayoutHeight(6)).toBe(247);
-    expect(calculateDonutLayoutHeight(7)).toBe(279);
-    expect(calculateDonutLayoutHeight(8)).toBe(311);
-    expect(calculateDonutLayoutHeight(9)).toBe(343);
-    expect(calculateDonutLayoutHeight(10)).toBe(375);
+    expect(calculateDonutLayoutHeight(0)).toBe(205);
+    expect(calculateDonutLayoutHeight(1)).toBe(205);
+    expect(calculateDonutLayoutHeight(2)).toBe(205);
+    expect(calculateDonutLayoutHeight(3)).toBe(205);
+    expect(calculateDonutLayoutHeight(4)).toBe(205);
+    expect(calculateDonutLayoutHeight(5)).toBe(214);
+    expect(calculateDonutLayoutHeight(6)).toBe(246);
+    expect(calculateDonutLayoutHeight(7)).toBe(278);
+    expect(calculateDonutLayoutHeight(8)).toBe(310);
+    expect(calculateDonutLayoutHeight(9)).toBe(342);
+    expect(calculateDonutLayoutHeight(10)).toBe(374);
   });
 
   it('calculateDonutVerticalLayoutHeight', () => {
@@ -251,20 +250,6 @@ describe('Test renderTopLanguages helper functions', () => {
     expect(calculatePieLayoutHeight(8)).toBe(400);
     expect(calculatePieLayoutHeight(9)).toBe(425);
     expect(calculatePieLayoutHeight(10)).toBe(425);
-  });
-
-  it('donutCenterTranslation', () => {
-    expect(donutCenterTranslation(0)).toBe(-45);
-    expect(donutCenterTranslation(1)).toBe(-45);
-    expect(donutCenterTranslation(2)).toBe(-45);
-    expect(donutCenterTranslation(3)).toBe(-45);
-    expect(donutCenterTranslation(4)).toBe(-45);
-    expect(donutCenterTranslation(5)).toBe(-45);
-    expect(donutCenterTranslation(6)).toBe(-29);
-    expect(donutCenterTranslation(7)).toBe(-13);
-    expect(donutCenterTranslation(8)).toBe(3);
-    expect(donutCenterTranslation(9)).toBe(19);
-    expect(donutCenterTranslation(10)).toBe(35);
   });
 
   it('getCircleLength', () => {
@@ -500,8 +485,9 @@ describe('Test renderTopLanguages', () => {
 
     expect(langNames[0]).toHaveTextContent('HTML 40.00%');
     expect(donuts[0]).toHaveAttribute('size', '40');
+    // The first slice ends at twelve o'clock, straight above the centre.
     const d = getNumbersFromSvgPathDefinitionAttribute(donuts[0]?.getAttribute('d') ?? '');
-    const center = { x: d[7] ?? 0, y: d[7] ?? 0 };
+    const center = { x: d[7] ?? 0, y: (d[8] ?? 0) + (d[2] ?? 0) };
     const HTMLLangPercent = langPercentFromDonutLayoutSvg(
       donuts[0]?.getAttribute('d') ?? '',
       center.x,
@@ -537,6 +523,53 @@ describe('Test renderTopLanguages', () => {
     expect(singleDonuts).toHaveLength(1);
     expect(singleDonuts[0]?.tagName).toBe('circle');
   });
+
+  it.each([
+    { count: 1, card_width: undefined },
+    { count: 4, card_width: undefined },
+    { count: 5, card_width: undefined },
+    { count: 10, card_width: undefined },
+    { count: 5, card_width: 500 },
+    { count: 5, card_width: MIN_CARD_WIDTH },
+  ])(
+    'should fit the donut inside the card for $count languages at card_width $card_width',
+    ({ count, card_width }) => {
+      const data: TopLangData = Object.fromEntries(
+        Array.from({ length: count }, (_, index) => [
+          `lang${index}`,
+          { color: '#0f0', name: `lang${index}`, size: count - index, count: 1 },
+        ]),
+      );
+      document.body.innerHTML = renderTopLanguages(data, {
+        layout: 'donut',
+        langs_count: count,
+        card_width,
+      });
+
+      const card = document.querySelector('svg');
+      const [ring] = screen.getAllByTestId('lang-donut');
+      const d = getNumbersFromSvgPathDefinitionAttribute(ring?.getAttribute('d') ?? '');
+      const radius = Number(ring?.getAttribute('r') ?? d[2]);
+      const outerRadius = radius + Number(ring?.getAttribute('stroke-width')) / 2;
+      // A slice ends at twelve o'clock, straight above the centre.
+      const centerX = Number(ring?.getAttribute('cx') ?? d[7]);
+      const centerY = Number(ring?.getAttribute('cy') ?? (d[8] ?? 0) + radius);
+      const listOffsetY = Number(
+        /translate\(0, (?<y>[\d.]+)\)/u.exec(
+          screen.getByTestId('donut-list').getAttribute('transform') ?? '',
+        )?.groups?.['y'],
+      );
+      const listMiddle = listOffsetY + ((count - 1) * 32 + 13) / 2;
+
+      // The body starts at the card's left padding and 55px down, under the title.
+      expect(25 + centerX + outerRadius).toBeCloseTo(Number(card?.getAttribute('width')) - 25);
+      expect(centerY - outerRadius).toBeGreaterThanOrEqual(0);
+      expect(55 + centerY + outerRadius).toBeLessThanOrEqual(
+        Number(card?.getAttribute('height')) - 18,
+      );
+      expect(centerY).toBeCloseTo(listMiddle);
+    },
+  );
 
   it('should render with layout donut vertical', () => {
     document.body.innerHTML = renderTopLanguages(langs, {
