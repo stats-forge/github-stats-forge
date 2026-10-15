@@ -1,5 +1,18 @@
-/* The landing page's call to action. Starlight's own button is a component, and the pages are
-   markdown, so the links are styled here instead. */
+/* The landing page. Its pages are markdown, so each block is a classed `<div>` styled here. */
+
+/* No hero image, so the copy takes the whole row rather than Starlight's 7fr of it. */
+[data-has-hero] .hero {
+  grid-template-columns: 100%;
+  padding-block-end: 0;
+}
+
+[data-has-hero] .hero .stack {
+  text-align: center;
+}
+
+[data-has-hero] .hero .copy {
+  align-items: center;
+}
 
 /* Markdown puts both links in one paragraph; that is the row. */
 .hero-actions p {
@@ -12,19 +25,255 @@
 
 .hero-actions a {
   padding: 0.5rem 1.25rem;
-  border: 1px solid var(--sl-color-accent);
+  border: 1px solid var(--sl-color-text-accent);
   border-radius: 0.25rem;
-  background: var(--sl-color-accent);
-  color: var(--sl-color-white);
+  background: var(--sl-color-text-accent);
+  color: var(--sl-color-black);
   font-size: var(--sl-text-lg);
   text-decoration: none;
 }
 
-/* The second one leads off the site, so it does not compete with the first. */
+/* The second one stays on the page, so it does not compete with the first. */
 .hero-actions a:not(:first-child) {
   background: transparent;
+  color: var(--sl-color-white);
 }
 
 .hero-actions a:hover {
-  border-color: var(--sl-color-text-accent);
+  border-color: var(--sl-color-white);
+}
+
+.hero-cards {
+  position: relative;
+  isolation: isolate;
+  justify-content: center;
+  margin-block: 3rem 2rem;
+}
+
+.hero-cards::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 10% 20%;
+  background: var(--sl-color-accent);
+  opacity: 0.25;
+  filter: blur(4rem);
+}
+
+.hero-cards img {
+  border-radius: 4.5px;
+  box-shadow: 0 1rem 2.5rem -1rem rgb(0 0 0 / 0.45);
+}
+
+/* Starlight renders the heading inline beside its anchor, so the wrapper is what gets centred. */
+[data-has-hero] .sl-heading-wrapper.level-h2 {
+  margin-block-start: 4rem;
+  text-align: center;
+}
+
+[data-has-hero] .sl-heading-wrapper.level-h2 + p {
+  max-width: 65ch;
+  margin-inline: auto;
+  color: var(--sl-color-gray-2);
+  text-align: center;
+}
+
+/* Cards differ in height, so columns pack them where a grid would leave gaps. */
+.card-gallery {
+  column-gap: 1.25rem;
+  columns: 2 22rem;
+  margin-block-start: 2.5rem;
+}
+
+.card-gallery > p {
+  margin: 0;
+  padding-block-end: 1.25rem;
+  break-inside: avoid;
+}
+
+.card-gallery a,
+.way {
+  border: 1px solid var(--sl-color-hairline-light);
+  border-radius: 0.75rem;
+  background: var(--sl-color-bg-nav);
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+
+.card-gallery a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 1.25rem;
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.card-gallery a:hover,
+.way:hover {
+  border-color: var(--sl-color-accent);
+  transform: translateY(-2px);
+}
+
+.section-link {
+  text-align: center;
+}
+
+.section-link a,
+.way strong a {
+  text-decoration: none;
+}
+
+.section-link a::after,
+.way strong a::after {
+  content: ' →';
+}
+
+.ways {
+  display: grid;
+  gap: 1.25rem;
+  margin-block-start: 2.5rem;
+}
+
+@media (min-width: 50rem) {
+  .ways {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.way {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+}
+
+.way > * {
+  margin: 0;
+}
+
+/* The eyebrow: what each way is for. */
+.way > p:first-child {
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.way strong a {
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-xl);
+}
+
+/* The title's link covers the whole panel, so the panel is the target. */
+.way strong a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.way--featured {
+  grid-column: 1 / -1;
+  padding: 2rem;
+  border-color: var(--sl-color-accent);
+  background: linear-gradient(135deg, var(--sl-color-accent-low), var(--sl-color-bg-nav) 70%);
+}
+
+.way--featured > p:first-child {
+  align-self: flex-start;
+  justify-self: start;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  background: var(--sl-color-text-accent);
+  color: var(--sl-color-black);
+}
+
+.way--featured strong a {
+  font-size: var(--sl-text-2xl);
+}
+
+.way--featured > p:not(:first-child) {
+  max-width: 65ch;
+}
+
+.way--featured ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-start: 0.75rem;
+  padding: 0;
+  counter-reset: step;
+  list-style: none;
+}
+
+.way--featured li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0;
+  padding: 0.3rem 0.85rem 0.3rem 0.3rem;
+  border: 1px solid var(--sl-color-hairline-light);
+  border-radius: 999px;
+  background: var(--sl-color-black);
+  font-size: var(--sl-text-sm);
+  counter-increment: step;
+}
+
+.way--featured li::before {
+  content: counter(step);
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sl-color-text-accent);
+  color: var(--sl-color-black);
+  font-size: var(--sl-text-xs);
+  font-weight: 600;
+}
+
+.footnote {
+  margin-block-start: 3rem;
+  padding-block-start: 2rem;
+  border-block-start: 1px solid var(--sl-color-hairline);
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+  text-align: center;
+}
+
+/* Wide enough for the steps to stand beside the copy rather than under it. */
+@media (min-width: 50rem) {
+  .way--featured {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 3rem;
+    align-items: start;
+  }
+
+  .way--featured ol {
+    flex-direction: column;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-gallery a,
+  .way {
+    transition: none;
+  }
+
+  .card-gallery a:hover,
+  .way:hover {
+    transform: none;
+  }
 }

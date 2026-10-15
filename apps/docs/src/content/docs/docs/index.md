@@ -83,6 +83,6 @@ the token goes, keeping it out of your shell history. See [Self-hosting](usage/s
 ## Customizing one
 
 Every card takes the same [colors, borders and title options](customization/common-options/),
-one of [79 built-in themes](customization/themes/),
+one of the [built-in themes](customization/themes/),
 and a [locale](customization/locales/) where it has text to translate.
 Each card page lists what only that card accepts.

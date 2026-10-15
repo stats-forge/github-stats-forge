@@ -2,7 +2,7 @@
 /**
  * @file Writes the theme reference page.
  *
- * The table is the theme table — a page listing 79 themes by hand would be wrong within a release.
+ * The table is the theme table — a page listing the themes by hand would be wrong within a release.
  * Run it after touching `packages/core/src/themes/index.ts`; `--check` is what CI runs.
  *
  * The output goes through oxfmt, as the GraphQL generator's does, so `pnpm format` leaves it alone

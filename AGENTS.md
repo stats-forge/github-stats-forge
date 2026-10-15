@@ -212,6 +212,9 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   is a person it is **you**, **anyone** or **a visitor** (`a visitor to your profile fetches the
   SVG`). Fourteen uses across five pages were rewritten on 2026-09-07. **`screen reader` stays** —
   it is the standard accessibility term, and `assistive reader` was normalised to it.
+- **Prose never states a count that grows with the code** — "the [themes]", not "79 themes".
+  Nothing regenerates a number written into a sentence, and the theme count sat in five places
+  until 2026-10-15. `customization/themes.md` may say it, because its generator writes the count.
 - **A token never appears in a command the documentation tells someone to run.**
   `-e PAT_1=github_pat_...` puts it in the shell history and in `docker inspect`,
   and four pages carried it until 2026-09-13. The examples show `--env-file cards.env`,

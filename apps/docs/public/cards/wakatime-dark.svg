@@ -1,6 +1,6 @@
 <svg width="500" height="111" viewBox="0 0 500 111" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">WakaTime Stats (last year)</title>
-  <desc id="desc-id">Other: 54 hrs 30 mins</desc>
+  <desc id="desc-id">Other: 57 hrs 40 mins</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
@@ -121,7 +121,7 @@
       <rect mask="url(#rect-mask)" data-testid="lang-progress" x="25" y="0" width="450" height="8" fill="#858585" />
       <g transform="translate(25, 25)">
         <circle cx="5" cy="6" r="5" fill="#858585" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 54 hrs 30 mins</text>
+        <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 57 hrs 40 mins</text>
       </g>
     </svg>
   </g>
