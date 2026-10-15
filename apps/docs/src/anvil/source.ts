@@ -1,5 +1,5 @@
 /**
- * @file Where a preview comes from: a recording that never leaves the browser, or the instance
+ * @file Where a preview comes from: samples that never leave the browser, or the instance
  * serving the page. A source carries its prose as well as its `draw`, because
  * "nothing you type is sent anywhere" is true of one of them only.
  */
@@ -70,9 +70,9 @@ const sampleSource: PreviewSource = {
   badge: 'Mock data',
   aside: '— the figures never move, whatever you type.',
   detail:
-    "Cards are drawn in your browser from saved API responses, so nothing you type is sent anywhere. The look of the card is exact; the numbers are always the sample account's.",
+    "Cards are drawn in your browser from saved responses for a made-up account, so nothing you type is sent anywhere. The look of the card is exact; the numbers are always the sample account's.",
   identityNote:
-    'These go into the saved file, so the card renders as yours. The preview draws the recorded account whatever you type.',
+    'These go into the saved file, so the card renders as yours. The preview draws the sample account whatever you type.',
   draw: async (cardId, options) => {
     const result = await renderSampleCard(cardId, options);
     return { content: result.content, problem: problemOf(result) };

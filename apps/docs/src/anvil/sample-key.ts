@@ -1,7 +1,7 @@
 /**
- * @file How a request is keyed against a recorded response.
+ * @file How a request is keyed against a sampled response.
  *
- * Read by the recorder and by the transport, so the two cannot disagree. A key keeps only what a
+ * Read by the generator and by the transport, so the two cannot disagree. A key keeps only what a
  * request asks and drops who it asks for: a card's variables move with its options, so an
  * exact-match key would miss most of the option space.
  */
@@ -105,7 +105,7 @@ const searchKey = (url: URL): string => {
   return `${url.pathname.replace(/^\//, '')}|${qualifiers.join(',')}`;
 };
 
-/** @returns The key it is recorded under, or `undefined` for a request no branch recognises. */
+/** @returns The key it is sampled under, or `undefined` for a request no branch recognises. */
 const sampleKey = (url: string, init?: RequestInit): string | undefined => {
   let parsed: URL;
   try {

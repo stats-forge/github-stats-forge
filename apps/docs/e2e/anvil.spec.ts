@@ -381,8 +381,8 @@ test('a link wrapped onto its own line keeps the space before it', async ({ page
 
 test('the required params are in the file, and the reader owns them', async ({ page }) => {
   // The file used to carry every option *except* this one, so it drew here and the CLI rejected it.
-  await expect(field(page, 'username')).toHaveValue('marcalexiei');
-  expect(await savedParam(page, 'username')).toBe('marcalexiei');
+  await expect(field(page, 'username')).toHaveValue('ember-smith');
+  expect(await savedParam(page, 'username')).toBe('ember-smith');
 
   await field(page, 'username').fill('octocat');
   await expect.poll(() => savedParam(page, 'username')).toBe('octocat');
@@ -400,8 +400,8 @@ test('offers no card URL, there being no instance to answer one', async ({ page 
 test('a card identified by more than one param gets a field for each', async ({ page }) => {
   await setCard(page, 'pin');
 
-  await expect(field(page, 'username')).toHaveValue('marcalexiei');
-  await expect(field(page, 'repo')).toHaveValue('eslint-zod');
+  await expect(field(page, 'username')).toHaveValue('ember-smith');
+  await expect(field(page, 'repo')).toHaveValue('quench');
 
   await field(page, 'repo').fill('github-stats-forge');
   await expect.poll(() => savedParam(page, 'repo')).toBe('github-stats-forge');
@@ -536,7 +536,7 @@ test('both buttons report through a toast that is announced', async ({ context, 
   await page.locator('[data-anvil="download"]').click();
   await download;
   await expect(
-    page.locator('wa-toast-item').filter({ hasText: 'Saving marcalexiei-stats-config.json' }),
+    page.locator('wa-toast-item').filter({ hasText: 'Saving ember-smith-stats-config.json' }),
   ).toBeVisible();
 });
 
@@ -625,13 +625,13 @@ test('the file on offer is the file the CLI reads', async ({ page }) => {
   expect(saved).toEqual({
     version: CARD_FILE_VERSION,
     card: 'stats',
-    username: 'marcalexiei',
+    username: 'ember-smith',
     theme: 'dark',
     rank_icon: 'percentile',
   });
 
   const download = page.locator('[data-anvil="download"]');
-  await expect(download).toHaveAttribute('download', 'marcalexiei-stats-config.json');
+  await expect(download).toHaveAttribute('download', 'ember-smith-stats-config.json');
   await expect(download).toHaveAttribute('href', /^blob:/);
 });
 
@@ -640,14 +640,14 @@ test('the file is named after the card and whoever it is for', async ({ page }) 
   const shown = page.locator('[data-anvil="filename"]');
   const command = page.locator('[data-anvil="command"]');
 
-  await expect(shown).toHaveText('marcalexiei-stats-config.json');
+  await expect(shown).toHaveText('ember-smith-stats-config.json');
   await expect(command).toHaveText(
-    'npx @stats-forge/github-stats-forge-cli --config marcalexiei-stats-config.json --generate',
+    'npx @stats-forge/github-stats-forge-cli --config ember-smith-stats-config.json --generate',
   );
 
   // The repository, not its owner: the last required param is what the card is about.
   await setCard(page, 'pin');
-  await expect(download).toHaveAttribute('download', 'eslint-zod-pin-config.json');
+  await expect(download).toHaveAttribute('download', 'quench-pin-config.json');
 
   // A typed subject reaches a file name, so what a file system reads specially is dropped.
   await field(page, 'repo').fill('../My Repo!');

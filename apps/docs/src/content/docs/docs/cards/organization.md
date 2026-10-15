@@ -17,7 +17,7 @@ extra. See [the token it needs](#the-token-it-needs).
 ![The organization card](/cards/organization.svg)
 
 ```text
-?org=vitest-dev&show=releases,commits,top_language
+?org=forge-guild&show=releases,commits,top_language
 ```
 
 ## Required

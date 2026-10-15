@@ -11,7 +11,7 @@ transport every request goes through.
 ![The WakaTime card](/cards/wakatime.svg)
 
 ```text
-?username=ffflabs&layout=compact&langs_count=6
+?username=ember-smith&layout=compact&langs_count=6
 ```
 
 ## Required

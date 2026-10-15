@@ -1,6 +1,6 @@
 <svg width="400" height="246" viewBox="0 0 400 246" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">Most Used Languages</title>
-  <desc id="desc-id">TypeScript 95.11%, JavaScript 3.89%, Svelte 0.50%, SCSS 0.19%, HTML 0.15%, Rust 0.15%</desc>
+  <desc id="desc-id">Rust 30.98%, TypeScript 22.78%, Go 20.59%, Python 11.74%, Jupyter Notebook 8.63%, Svelte 5.28%</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
@@ -114,59 +114,59 @@
       <g data-testid="donut-list" transform="translate(0, 0)">
         <g>
           <g class="stagger" style="animation-delay: 450ms">
-            <circle cx="5" cy="6" r="5" fill="#3178c6" />
-            <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 95.11%</text>
+            <circle cx="5" cy="6" r="5" fill="#dea584" />
+            <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust 30.98%</text>
           </g>
         </g>
         <g transform="translate(0, 32)">
           <g class="stagger" style="animation-delay: 600ms">
-            <circle cx="5" cy="6" r="5" fill="#f1e05a" />
-            <text data-testid="lang-name" x="15" y="10" class="lang-name">JavaScript 3.89%</text>
+            <circle cx="5" cy="6" r="5" fill="#3178c6" />
+            <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 22.78%</text>
           </g>
         </g>
         <g transform="translate(0, 64)">
           <g class="stagger" style="animation-delay: 750ms">
-            <circle cx="5" cy="6" r="5" fill="#ff3e00" />
-            <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 0.50%</text>
+            <circle cx="5" cy="6" r="5" fill="#00ADD8" />
+            <text data-testid="lang-name" x="15" y="10" class="lang-name">Go 20.59%</text>
           </g>
         </g>
         <g transform="translate(0, 96)">
           <g class="stagger" style="animation-delay: 900ms">
-            <circle cx="5" cy="6" r="5" fill="#c6538c" />
-            <text data-testid="lang-name" x="15" y="10" class="lang-name">SCSS 0.19%</text>
+            <circle cx="5" cy="6" r="5" fill="#3572A5" />
+            <text data-testid="lang-name" x="15" y="10" class="lang-name">Python 11.74%</text>
           </g>
         </g>
         <g transform="translate(0, 128)">
           <g class="stagger" style="animation-delay: 1050ms">
-            <circle cx="5" cy="6" r="5" fill="#e34c26" />
-            <text data-testid="lang-name" x="15" y="10" class="lang-name">HTML 0.15%</text>
+            <circle cx="5" cy="6" r="5" fill="#DA5B0B" />
+            <text data-testid="lang-name" x="15" y="10" class="lang-name">Jupyter Notebook 8.63%</text>
           </g>
         </g>
         <g transform="translate(0, 160)">
           <g class="stagger" style="animation-delay: 1200ms">
-            <circle cx="5" cy="6" r="5" fill="#dea584" />
-            <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust 0.15%</text>
+            <circle cx="5" cy="6" r="5" fill="#ff3e00" />
+            <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 5.28%</text>
           </g>
         </g>
       </g>
       <g data-testid="donut">
         <g class="stagger" style="animation-delay: 600ms">
-          <path data-testid="lang-donut" size="95.12" d="M 265.8897511087043 29.298436340469486 A 60 60 0 1 0 284 26.5" stroke="#3178c6" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="30.98" d="M 339.8143010360382 108.51735224450256 A 60 60 0 0 0 284 26.5" stroke="#dea584" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 700ms">
-          <path data-testid="lang-donut" size="3.89" d="M 280.27019429068406 26.616040967795435 A 60 60 0 0 0 265.8897511087043 29.298436340469486" stroke="#f1e05a" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="22.78" d="M 269.9566234534917 144.83338302527105 A 60 60 0 0 0 339.8143010360382 108.51735224450256" stroke="#3178c6" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 800ms">
-          <path data-testid="lang-donut" size="0.5" d="M 282.15303533445433 26.528434058095286 A 60 60 0 0 0 280.27019429068406 26.616040967795435" stroke="#ff3e00" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="20.59" d="M 224.0500319394476 88.94976111871064 A 60 60 0 0 0 269.9566234534917 144.83338302527105" stroke="#00ADD8" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 900ms">
-          <path data-testid="lang-donut" size="0.19" d="M 282.8690936170756 26.510658857151455 A 60 60 0 0 0 282.15303533445433 26.528434058095286" stroke="#c6538c" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="11.74" d="M 237.98621631640748 47.99374451962961 A 60 60 0 0 0 224.0500319394476 88.94976111871064" stroke="#3572A5" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 1000ms">
-          <path data-testid="lang-donut" size="0.15" d="M 283.43452169401144 26.50266477346301 A 60 60 0 0 0 282.8690936170756 26.510658857151455" stroke="#e34c26" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="8.63" d="M 264.45798976511406 29.77161349042604 A 60 60 0 0 0 237.98621631640748 47.99374451962961" stroke="#DA5B0B" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 1100ms">
-          <path data-testid="lang-donut" size="0.15" d="M 284.0000000000001 26.5 A 60 60 0 0 0 283.43452169401144 26.50266477346301" stroke="#dea584" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="5.28" d="M 283.99999999999994 26.5 A 60 60 0 0 0 264.45798976511406 29.77161349042604" stroke="#ff3e00" fill="none" stroke-width="12" />
         </g>
       </g>
     </svg>

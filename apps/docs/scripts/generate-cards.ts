@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 /**
  * @file Renders every card the documentation shows, once per site theme — through the CLI, the
- * way anyone else would.
+ * way anyone else would, with its `fetch` answered by the fictional account in `fixtures.ts`.
  *
  * Each file in `cards/` is a saved card minus the theme, which is merged in here rather than kept
  * in two near-identical files. A theme sample names its own theme, so it is rendered once.
+ *
+ * The fixtures make the output deterministic, so `--check` fails when a committed SVG differs from
+ * what this would write — which is what CI runs.
  */
 
 import { spawn } from 'node:child_process';
@@ -24,6 +27,7 @@ const CARDS_DIR = join(DOCS_DIR, 'cards');
 const OUT_DIR = join(DOCS_DIR, 'public', 'cards');
 const THEMES_OUT_DIR = join(DOCS_DIR, 'public', THEMES_DIR);
 const CLI = join(REPO_ROOT, 'packages', 'cli', 'build', 'index.js');
+const FIXTURE_FETCH = fileURLToPath(new URL('fixture-fetch.ts', import.meta.url));
 
 /** A saved card, as the files in `cards/` hold it: every option on the root. */
 interface SavedCard extends Record<string, string | number> {
@@ -32,21 +36,19 @@ interface SavedCard extends Record<string, string | number> {
 }
 
 /**
- * Runs from the repository root, so the CLI finds the root `.env` on its own.
+ * Runs from the site's directory, which holds no `.env`, with a placeholder token: the fixtures
+ * answer every request, so no real token is needed or read.
  *
  * @returns Nothing when it rendered, or why it did not.
  */
-const render = (
-  config: string,
-  out: string,
-  passthrough: Array<string>,
-): Promise<string | undefined> => {
-  const args = [CLI, '--config', config, '--generate', '--out', out, ...passthrough];
+const render = (config: string, out: string, quiet: boolean): Promise<string | undefined> => {
+  const args = ['--import', FIXTURE_FETCH, CLI, '--config', config, '--generate', '--out', out];
 
   return new Promise((resolve) => {
     const cli = spawn(process.execPath, args, {
-      cwd: REPO_ROOT,
-      stdio: ['ignore', 'inherit', 'pipe'],
+      cwd: DOCS_DIR,
+      env: { ...process.env, PAT_1: 'fixture' },
+      stdio: ['ignore', quiet ? 'ignore' : 'inherit', 'pipe'],
     });
 
     // Teed rather than inherited: the failure is shown as it happens and quoted later.
@@ -66,10 +68,7 @@ const render = (
 /** @returns Nothing; the process exits non-zero when a card could not be rendered. */
 const main = async (): Promise<void> => {
   const { values, positionals } = parseArgs({
-    options: {
-      pat: { type: 'string', multiple: true, default: [] },
-      'env-file': { type: 'string' },
-    },
+    options: { check: { type: 'boolean', default: false } },
     allowPositionals: true,
   });
 
@@ -91,11 +90,6 @@ const main = async (): Promise<void> => {
   }
   const wanted = positionals.length > 0 ? positionals : available;
 
-  const passthrough = [
-    ...values.pat.flatMap((pat) => ['--pat', pat]),
-    ...(values['env-file'] === undefined ? [] : ['--env-file', values['env-file']]),
-  ];
-
   const scratch = await mkdtemp(join(tmpdir(), 'stats-forge-docs-'));
   const failures: Array<string> = [];
 
@@ -106,12 +100,23 @@ const main = async (): Promise<void> => {
     out: string,
     label: string,
   ): Promise<void> => {
-    const config = join(scratch, `${label.replaceAll(/\W/g, '-')}.json`);
+    const slug = label.replaceAll(/\W/g, '-');
+    const config = join(scratch, `${slug}.json`);
     await writeFile(config, JSON.stringify({ ...saved, theme }), 'utf8');
 
-    const error = await render(config, out, passthrough);
+    // under --check the card is drawn beside the committed one and compared, never written over it
+    const target = values.check ? join(scratch, `${slug}.svg`) : out;
+    const error = await render(config, target, values.check);
     if (error !== undefined) {
       failures.push(`${label}: ${error}`);
+      return;
+    }
+
+    if (values.check) {
+      const committed = await readFile(out, 'utf8').catch(() => '');
+      if (committed !== (await readFile(target, 'utf8'))) {
+        failures.push(`${label}: ${relative(DOCS_DIR, out)} is out of date`);
+      }
     }
   };
 
@@ -136,9 +141,12 @@ const main = async (): Promise<void> => {
   }
 
   if (failures.length > 0) {
-    process.stderr.write(`\n${String(failures.length)} card(s) did not render:\n`);
+    process.stderr.write(`\n${String(failures.length)} card(s) did not render or drifted:\n`);
     for (const failure of failures) {
       process.stderr.write(`  ${failure}\n`);
+    }
+    if (values.check) {
+      process.stderr.write('\nRedraw them: pnpm docs:cards\n');
     }
     process.exitCode = 1;
   }

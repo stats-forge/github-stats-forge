@@ -12,6 +12,7 @@
     "docs:sync": "pnpm --filter ./apps/docs exec astro sync",
     "docs:build": "pnpm run build:packages && pnpm --filter ./apps/docs run build",
     "docs:cards": "pnpm run build:packages && pnpm --filter ./apps/docs run generate-cards",
+    "docs:cards:check": "pnpm run build:packages && pnpm --filter ./apps/docs run check-cards",
     "docs:e2e": "pnpm run docs:build && pnpm --filter ./apps/docs run test:e2e",
     "test": "vitest",
     "test:coverage": "vitest --config vitest.config.coverage.ts",

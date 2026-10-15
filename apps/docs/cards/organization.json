@@ -1,6 +1,6 @@
 {
   "version": 1,
   "card": "org",
-  "org": "vitest-dev",
+  "org": "forge-guild",
   "show": "releases,commits,top_language"
 }

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "card": "org-activity",
-  "org": "vitest-dev",
+  "org": "forge-guild",
   "days": "30",
   "show": "commits"
 }

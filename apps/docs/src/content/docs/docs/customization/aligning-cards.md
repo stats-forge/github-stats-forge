@@ -22,13 +22,13 @@ URLs from a self-hosted endpoint — swap the paths.
 ## Stats and top languages, side by side
 
 ```html
-<a href="https://github.com/marcalexiei">
+<a href="https://github.com/ember-smith">
   <picture>
     <source srcset="./cards/stats-dark.svg" media="(prefers-color-scheme: dark)" />
     <img height="200" align="center" src="./cards/stats-light.svg" alt="My GitHub stats" />
   </picture>
 </a>
-<a href="https://github.com/marcalexiei">
+<a href="https://github.com/ember-smith">
   <picture>
     <source srcset="./cards/top-langs-dark.svg" media="(prefers-color-scheme: dark)" />
     <img
@@ -59,13 +59,13 @@ What that looks like:
 The same shape, one link per repository:
 
 ```html
-<a href="https://github.com/marcalexiei/eslint-zod">
+<a href="https://github.com/ember-smith/quench">
   <picture>
-    <source srcset="./cards/eslint-zod-dark.svg" media="(prefers-color-scheme: dark)" />
-    <img align="center" src="./cards/eslint-zod-light.svg" alt="eslint-zod" />
+    <source srcset="./cards/quench-dark.svg" media="(prefers-color-scheme: dark)" />
+    <img align="center" src="./cards/quench-light.svg" alt="quench" />
   </picture>
 </a>
-<a href="https://gist.github.com/marcalexiei/1f13e82cb48a9058ebcbf4945f5a1c20">
+<a href="https://gist.github.com/ember-smith/0a5c3e9f7d2b4e6a8c1f0b9d7e5a3c21">
   <picture>
     <source srcset="./cards/gist-dark.svg" media="(prefers-color-scheme: dark)" />
     <img align="center" src="./cards/gist-light.svg" alt="A gist" />

@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 /**
- * @file Records what GitHub answers each card's requests with, once, for the anvil to replay.
+ * @file Writes the samples the anvil replays, from the fictional account in `fixtures.ts`.
  *
- * The anvil's own render path with the transport reversed — same handlers, a `fetch` that reaches
- * the network — so a recording cannot be of a request the anvil does not make.
+ * The anvil's own render path with the transport swapped — same handlers, a `fetch` that answers
+ * from the fixtures — so a sample cannot be of a request the anvil does not make. `--check` fails
+ * when `samples.json` differs from what this would write, which is what CI runs.
  *
- * Needs `PAT_1` in the root `.env`, so the output is committed and CI runs `check-anvil-samples`
- * instead. Written through oxfmt, as the other generators are, so `pnpm format` leaves it alone.
+ * Written through oxfmt, as the other generators are, so `pnpm format` leaves it alone.
  */
 
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 
 import { defineConfig } from '@marcalexiei/oxfmt-config';
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
@@ -21,6 +22,8 @@ import { CARDS } from '../src/anvil/cards.ts';
 import type { Samples } from '../src/anvil/sample-fetch.ts';
 import { sampleKey } from '../src/anvil/sample-key.ts';
 
+import { fixtureFetch } from './fixtures.ts';
+
 const OUT = fileURLToPath(new URL('../src/anvil/samples.json', import.meta.url));
 
 /**
@@ -28,22 +31,16 @@ const OUT = fileURLToPath(new URL('../src/anvil/samples.json', import.meta.url))
  *
  * @returns The transport, and the map it fills as requests go through it.
  */
-const recordingFetch = (): { fetch: FetchLike; samples: Samples } => {
+const samplingFetch = (): { fetch: FetchLike; samples: Samples } => {
   const samples: Samples = {};
 
   const fetchImpl: FetchLike = async (url, init) => {
-    const response = await fetch(url, init);
+    const response = await fixtureFetch(url, init);
     const text = await response.text();
 
     const key = sampleKey(url, init);
     if (key !== undefined) {
-      let body: unknown;
-      try {
-        body = JSON.parse(text);
-      } catch {
-        body = text;
-      }
-      samples[key] = { status: response.status, body };
+      samples[key] = { status: response.status, body: JSON.parse(text) as unknown };
     }
 
     return new Response(text, { status: response.status, statusText: response.statusText });
@@ -52,17 +49,14 @@ const recordingFetch = (): { fetch: FetchLike; samples: Samples } => {
   return { fetch: fetchImpl, samples };
 };
 
-/** @returns Nothing; the process exits non-zero when a card did not render. */
+/** @returns Nothing; the process exits non-zero when a card did not render or the file drifted. */
 const main = async (): Promise<void> => {
-  const token = process.env['PAT_1'];
-  if (token === undefined || token === '') {
-    throw new Error('No PAT_1. Put one in the repository root .env, as pnpm docs:cards needs.');
-  }
+  const { values } = parseArgs({ options: { check: { type: 'boolean', default: false } } });
 
-  const { fetch: recorder, samples } = recordingFetch();
+  const { fetch: sampler, samples } = samplingFetch();
   const config = new CardConfig({
-    pats: [{ name: 'PAT_1', value: token }],
-    fetch: recorder,
+    pats: [{ name: 'ANVIL', value: 'sample' }],
+    fetch: sampler,
   });
 
   const failures: Array<string> = [];
@@ -80,11 +74,21 @@ const main = async (): Promise<void> => {
     Object.entries(samples).toSorted(([a], [b]) => a.localeCompare(b)),
   );
   const formatted = await format(OUT, `${JSON.stringify(ordered, undefined, 2)}\n`, defineConfig());
-  await writeFile(OUT, formatted.code, 'utf8');
-  process.stderr.write(`\nRecorded ${String(Object.keys(ordered).length)} operation(s).\n`);
+
+  if (values.check) {
+    const current = await readFile(OUT, 'utf8').catch(() => '');
+    if (current !== formatted.code) {
+      failures.push(
+        'samples.json is out of date: pnpm --filter ./apps/docs run generate-anvil-samples',
+      );
+    }
+  } else {
+    await writeFile(OUT, formatted.code, 'utf8');
+    process.stderr.write(`\nWrote ${String(Object.keys(ordered).length)} operation(s).\n`);
+  }
 
   if (failures.length > 0) {
-    process.stderr.write(`\n${String(failures.length)} card(s) did not render:\n`);
+    process.stderr.write(`\n${String(failures.length)} problem(s):\n`);
     for (const failure of failures) {
       process.stderr.write(`  ${failure}\n`);
     }

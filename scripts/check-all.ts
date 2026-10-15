@@ -21,6 +21,8 @@ const CHECKS: Record<string, Array<string>> = {
   'graphql types': ['--filter', './packages/core', 'run', 'check-graphql-types'],
   'themes page': ['--filter', './apps/docs', 'run', 'check-themes-page'],
   'anvil samples': ['--filter', './apps/docs', 'run', 'check-anvil-samples'],
+  // after `typecheck`, which leaves the CLI built for it
+  'card previews': ['--filter', './apps/docs', 'run', 'check-cards'],
   'docs site': ['run', 'docs:build'],
   knip: ['run', 'lint:knip'],
   tests: ['exec', 'vitest', '--run'],

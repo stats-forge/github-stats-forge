@@ -1,6 +1,6 @@
 <svg width="300" height="186" viewBox="0 0 300 186" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">Most Used Languages</title>
-  <desc id="desc-id">TypeScript 94.92%, JavaScript 3.89%, Svelte 0.50%, SCSS 0.19%, HTML 0.15%, Rust 0.15%, Shell 0.11%, CSS 0.08%</desc>
+  <desc id="desc-id">Rust 28.34%, TypeScript 20.84%, Go 18.84%, Python 10.74%, Jupyter Notebook 7.89%, Svelte 4.84%, Lua 4.39%, Elixir 4.11%</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
@@ -114,64 +114,64 @@
       <mask id="rect-mask">
         <rect x="0" y="0" width="250" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="237.31" height="8" fill="#3178c6" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="237.31" y="0" width="19.71" height="8" fill="#f1e05a" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="247.02" y="0" width="11.26" height="8" fill="#ff3e00" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="248.28" y="0" width="10.46" height="8" fill="#c6538c" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="248.74" y="0" width="10.39" height="8" fill="#e34c26" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="249.13" y="0" width="10.38" height="8" fill="#dea584" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="249.51" y="0" width="10.28" height="8" fill="#89e051" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="249.79" y="0" width="10.21" height="8" fill="#663399" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="70.86" height="8" fill="#dea584" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="70.86" y="0" width="52.1" height="8" fill="#3178c6" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="122.96000000000001" y="0" width="47.1" height="8" fill="#00ADD8" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="170.06" y="0" width="26.86" height="8" fill="#3572A5" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="196.92000000000002" y="0" width="19.73" height="8" fill="#DA5B0B" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="216.65" y="0" width="12.09" height="8" fill="#ff3e00" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="228.74" y="0" width="10.98" height="8" fill="#000080" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="239.72" y="0" width="10.28" height="8" fill="#6e4a7e" />
       <g transform="translate(0, 25)">
         <g>
           <g>
             <g class="stagger" style="animation-delay: 450ms">
-              <circle cx="5" cy="6" r="5" fill="#3178c6" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 94.92%</text>
+              <circle cx="5" cy="6" r="5" fill="#dea584" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust 28.34%</text>
             </g>
           </g>
           <g transform="translate(0, 25)">
             <g class="stagger" style="animation-delay: 600ms">
-              <circle cx="5" cy="6" r="5" fill="#f1e05a" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">JavaScript 3.89%</text>
+              <circle cx="5" cy="6" r="5" fill="#3178c6" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 20.84%</text>
             </g>
           </g>
           <g transform="translate(0, 50)">
             <g class="stagger" style="animation-delay: 750ms">
-              <circle cx="5" cy="6" r="5" fill="#ff3e00" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 0.50%</text>
+              <circle cx="5" cy="6" r="5" fill="#00ADD8" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Go 18.84%</text>
             </g>
           </g>
           <g transform="translate(0, 75)">
             <g class="stagger" style="animation-delay: 900ms">
-              <circle cx="5" cy="6" r="5" fill="#c6538c" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">SCSS 0.19%</text>
+              <circle cx="5" cy="6" r="5" fill="#3572A5" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Python 10.74%</text>
             </g>
           </g>
         </g>
         <g transform="translate(150, 0)">
           <g>
             <g class="stagger" style="animation-delay: 450ms">
-              <circle cx="5" cy="6" r="5" fill="#e34c26" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">HTML 0.15%</text>
+              <circle cx="5" cy="6" r="5" fill="#DA5B0B" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Jupyter Notebook 7.89%</text>
             </g>
           </g>
           <g transform="translate(0, 25)">
             <g class="stagger" style="animation-delay: 600ms">
-              <circle cx="5" cy="6" r="5" fill="#dea584" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust 0.15%</text>
+              <circle cx="5" cy="6" r="5" fill="#ff3e00" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 4.84%</text>
             </g>
           </g>
           <g transform="translate(0, 50)">
             <g class="stagger" style="animation-delay: 750ms">
-              <circle cx="5" cy="6" r="5" fill="#89e051" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Shell 0.11%</text>
+              <circle cx="5" cy="6" r="5" fill="#000080" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Lua 4.39%</text>
             </g>
           </g>
           <g transform="translate(0, 75)">
             <g class="stagger" style="animation-delay: 900ms">
-              <circle cx="5" cy="6" r="5" fill="#663399" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">CSS 0.08%</text>
+              <circle cx="5" cy="6" r="5" fill="#6e4a7e" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Elixir 4.11%</text>
             </g>
           </g>
         </g>
