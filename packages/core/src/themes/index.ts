@@ -515,5 +515,5 @@ export const isThemeName = (value: unknown): value is ThemeName => {
   if (typeof value !== 'string') {
     return false;
   }
-  return value in themes;
+  return Object.hasOwn(themes, value);
 };

@@ -11,7 +11,7 @@ Pass one by name:
 ?username=octocat&theme=tokyonight
 ```
 
-An unknown name is not an error — it falls back to `default`, so a typo still renders a card.
+An unknown name is an error, `Incorrect theme input`, rather than a card in the wrong colors.
 Any color you pass alongside a theme wins over the theme, so `theme` is a starting point
 rather than a lock: see [Common options](../common-options/) for the color params.
 

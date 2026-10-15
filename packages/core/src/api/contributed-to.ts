@@ -7,8 +7,8 @@ import { cardHandler } from './handler.ts';
 import {
   booleanParam,
   fromParam,
-  localeParam,
   intParam,
+  localeParam,
   numberParam,
   ORDERED_RANGE,
   rawParam,

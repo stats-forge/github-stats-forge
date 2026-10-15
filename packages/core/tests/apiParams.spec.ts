@@ -136,6 +136,38 @@ describe('api query schemas', () => {
     expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
+  it.each(['yes', '1', ''])('rejects the boolean %j by naming the param', async (value) => {
+    const result = await endpoints.stats({ username: 'anuraghazra', show_icons: value });
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'show_icons' } });
+    expect(result.content).toContain('Invalid boolean input for parameter &#34;show_icons&#34;');
+  });
+
+  it.each([
+    ['theme', 'not_a_theme'],
+    // inherited from Object.prototype, which an `in` check once let through
+    ['theme', 'toString'],
+    ['theme_dark', 'nope'],
+    ['number_format', 'medium'],
+  ])('rejects the %s %j', async (param, value) => {
+    const result = await endpoints.stats({ username: 'anuraghazra', [param]: value });
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param } });
+    expect(result.content).toContain(`Incorrect ${param} input`);
+  });
+
+  it('matches booleans and fixed values case-insensitively', async () => {
+    const result = await endpoints['top-langs']({
+      username: 'anuraghazra',
+      hide_title: 'TRUE',
+      layout: 'Donut',
+      theme: 'Dark',
+    });
+
+    // the stubbed fetch fails, but the params got past validation
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+  });
+
   it.each([
     ['layout', 'sideways', 'Incorrect layout input'],
     ['stats_format', 'kilobytes', 'Incorrect stats_format input'],

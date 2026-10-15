@@ -73,12 +73,15 @@ Six handlers each carried that control flow by hand until 2026-09-05.
   fetcher instead. Each card's `show` checks run through a `shows()` helper typed against its
   own list, and the stats card's `STATS` record is keyed `Partial<Record<StatId, StatItem>>`
   where `StatId` is both lists' unions, so a stat it draws cannot be missing from them.
-- **A value set the boundary does not police still belongs on the renderer.**
-  `NUMBER_FORMATS` is declared in `common/render.ts`, beside the `numberFormat === 'long'`
-  that reads it, and both cards that take the option carry it as `OPTIONS.number_format`.
-  `number_format` stays a `rawParam`: anything but `long` reads as `short`, so an unknown
-  value falls back rather than failing, and making it an `enumParam` would turn
-  `?number_format=xyz` into an error it has never been.
+- **The boundary is strict: a value outside what a param accepts is an error, never ignored.**
+  Decided on 2026-10-15, when the leniency inherited from ghse went — `?hide_border=ture`,
+  `?number_format=xyz` and `?theme=tokyonite` had each drawn a card that silently ignored them,
+  which reads as a bug in the card rather than in the URL. Booleans are `true` / `false`, and an
+  `enumParam` or `enumListParam` matches case-insensitively and yields the value as its set spells
+  it. `NUMBER_FORMATS` is declared in `common/render.ts`, beside the `numberFormat === 'long'`
+  that reads it, and the cards taking it carry it as `OPTIONS.number_format`. **Unknown params stay
+  ignored**: a README appends `?v=2` to get past GitHub's image cache, and the server reads
+  `cache_seconds` off the same query.
 - **One wording per kind of rejection, in one table.**
   `REJECTION_MESSAGES` in `api/params.ts` maps a `Rejection` kind to its message, and the
   param name comes from the issue's own `path` — no schema spells its own name or prose.
@@ -130,11 +133,10 @@ Six handlers each carried that control flow by hand until 2026-09-05.
 - **`CardOptions<T>`** (`cards/options.ts`) is `Partial<T>` that also accepts an
   explicit `undefined`. Render functions take it because a handler forwards params that
   may legitimately be absent.
-- **Leave `theme` a raw string — `getCardColors` normalises it.** Card options type it as
-  `string`, not the `ThemeName` union, because that is what a handler receives and
-  `getCardColors` already resolves an unknown name to `themes.default`. Narrowing it at the
-  boundary buys nothing and costs a cast; the `isThemeName` guard in `themes/index.ts`
-  belongs in `getCardColors`, which is the one place that does the resolving.
+- **A theme param is an `enumParam` over the theme names, checked with the colors.** Card options
+  still type `theme` as `string`, and `getCardColors` still resolves an unknown name to
+  `themes.default` for a caller rendering a card directly. `isThemeName` is `Object.hasOwn`, not
+  `in`: `?theme=toString` found `Object.prototype`'s and drew with a function for a theme.
 
 ## Generated GraphQL types
 

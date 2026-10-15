@@ -100,7 +100,7 @@ export const COMMON_OPTIONS: ReadonlyArray<CardOption> = [
     kind: 'choice',
     group: 'colors',
     choices: THEME_NAMES,
-    hint: 'An unknown name falls back to the default theme',
+    hint: 'An unknown name is an error',
   },
   {
     name: 'title_color',
