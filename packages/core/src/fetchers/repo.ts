@@ -80,7 +80,7 @@ const fetchRepo = async (
     const repoUserStats = await fetchRepoUserStats(
       {
         username: login,
-        repo: [`${repoOwner}/${repo}`],
+        scope: [`${repoOwner}/${repo}`],
         include_prs_authored,
         include_prs_commented,
         include_prs_reviewed,
@@ -106,7 +106,7 @@ const fetchRepo = async (
     const repoUserStats = await fetchRepoUserStats(
       {
         username: login,
-        repo: [`${repoOwner}/${repo}`],
+        scope: [`${repoOwner}/${repo}`],
         include_prs_authored,
         include_prs_commented,
         include_prs_reviewed,

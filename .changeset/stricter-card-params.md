@@ -35,3 +35,7 @@ feat!: stricter, more consistent card params
   card, to `description_lines_count` lines.
 - Removed `line_height`: rows sit on each card's own spacing.
 - Removed `text_bold`: each card keeps its own value weight.
+- The stats card's `repo` and `owner` become one `scope` list of `owner/name` and `owner/*` entries;
+  a bare name, more than ten entries, or a `scope` with nothing counted by search is an `invalid_param`,
+  and each scoped line names its scope. `renderStatsCard` takes `scope` as an option, and reads the
+  login off `StatsData`; `fetchStats` and `fetchRepoUserStats` take `scope` for `repo` and `owner`.

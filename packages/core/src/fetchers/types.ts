@@ -100,6 +100,8 @@ export interface OrgActivityData {
 }
 
 export interface StatsData {
+  /** GitHub's own casing of the login, which the search links name. */
+  login: string;
   name: string;
   totalPRs: number;
   totalPRsMerged: number;

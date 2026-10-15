@@ -81,6 +81,8 @@ interface StatCardOptions extends CommonCardOptions {
   ring_color: string;
   rank_icon: RankIcon;
   show: Array<string>;
+  /** `owner/name` and `owner/*` entries the search-based stats were narrowed to, named in their labels. */
+  scope: Array<string>;
 }
 
 /** Meta data for a stat, used to build its text node and accessibility label. */
@@ -233,14 +235,9 @@ const getTotalCommitsRangeLabel = (
  *
  * @returns The stats card SVG object.
  */
-const renderCard = (
-  stats: StatsData,
-  options: CardOptions<StatCardOptions> = {},
-  username?: string,
-  repo: Array<string> = [],
-  owner: Array<string> = [],
-): string => {
+const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}): string => {
   const {
+    login,
     name,
     totalStars,
     totalCommits,
@@ -273,6 +270,7 @@ const renderCard = (
     title,
     border_radius,
     number_format = 'short',
+    scope = [],
     number_precision,
     locale,
     disable_animations = false,
@@ -290,6 +288,25 @@ const renderCard = (
   const commonT = localize(commonLocales, locale);
 
   // Meta data for creating text nodes with createTextNode function
+  const repoFilter = encodeURIComponent(buildSearchFilter(scope));
+  /**
+   * A search stat's label, naming where it counted, since nothing else on the card says so.
+   *
+   * @returns The label, with the scope after it when there is one.
+   */
+  const scoped = (label: string): string => {
+    const [only] = scope;
+    if (only === undefined) {
+      return label;
+    }
+
+    if (scope.length === 1) {
+      return `${label} (${only})`;
+    }
+
+    return `${label} (${t.scopes({ count: scope.length })})`;
+  };
+
   const STATS: Partial<Record<StatId, StatItem>> = {
     stars: {
       icon: icons.star,
@@ -310,7 +327,10 @@ const renderCard = (
 
   STATS['commits'] = {
     icon: icons.commits,
-    label: `${t.commits()}${getTotalCommitsRangeLabel(include_all_commits, commitsRange, commonT)}`,
+    // counted by search only when it is all commits, which is when a scope reaches it
+    label: include_all_commits
+      ? scoped(t.commits())
+      : `${t.commits()}${getTotalCommitsRangeLabel(false, commitsRange, commonT)}`,
     value: totalCommits,
     id: 'commits',
   };
@@ -377,12 +397,11 @@ const renderCard = (
     };
   }
 
-  const repoFilter = encodeURIComponent(buildSearchFilter(repo, owner));
-  const encodedUsername = encodeURIComponent(username ?? '');
+  const encodedUsername = encodeURIComponent(login);
   if (shows('prs_opened')) {
     STATS['prs_opened'] = {
       icon: icons.prs,
-      label: t.prsOpened(),
+      label: scoped(t.prsOpened()),
       value: totalPRsAuthored,
       id: 'prs_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -391,7 +410,7 @@ const renderCard = (
   if (shows('prs_commented')) {
     STATS['prs_commented'] = {
       icon: icons.comments,
-      label: t.prsCommented(),
+      label: scoped(t.prsCommented()),
       value: totalPRsCommented,
       id: 'prs_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -400,7 +419,7 @@ const renderCard = (
   if (shows('prs_reviewed')) {
     STATS['prs_reviewed'] = {
       icon: icons.reviews,
-      label: t.prsReviewed(),
+      label: scoped(t.prsReviewed()),
       value: totalPRsReviewed,
       id: 'prs_reviewed',
       link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
@@ -409,7 +428,7 @@ const renderCard = (
   if (shows('issues_opened')) {
     STATS['issues_opened'] = {
       icon: icons.issues,
-      label: t.issuesOpened(),
+      label: scoped(t.issuesOpened()),
       value: totalIssuesAuthored,
       id: 'issues_opened',
       link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
@@ -418,7 +437,7 @@ const renderCard = (
   if (shows('issues_commented')) {
     STATS['issues_commented'] = {
       icon: icons.discussions_started,
-      label: t.issuesCommented(),
+      label: scoped(t.issuesCommented()),
       value: totalIssuesCommented,
       id: 'issues_commented',
       link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,

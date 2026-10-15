@@ -129,12 +129,14 @@ const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAf
 };
 
 /**
- * The qualifiers that scope a REST search to repositories and owners.
+ * The search qualifiers a scope reads as: `owner/*` is an owner, anything else a repository.
  *
- * @returns e.g. `repo:a/b owner:c `, each qualifier followed by a space; empty when both lists are.
+ * @returns The qualifiers, each followed by a space, ready to prefix a query.
  */
-const buildSearchFilter = (repos: Array<string>, owners: Array<string>): string =>
-  [...repos.map((repo) => `repo:${repo} `), ...owners.map((owner) => `owner:${owner} `)].join('');
+const buildSearchFilter = (scope: ReadonlyArray<string>): string =>
+  scope
+    .map((entry) => (entry.endsWith('/*') ? `owner:${entry.slice(0, -2)} ` : `repo:${entry} `))
+    .join('');
 
 export {
   parseBoolean,

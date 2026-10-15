@@ -136,8 +136,8 @@ interface SearchVariables {
   type: string;
   /** Qualifiers appended after the scope, already `+`-joined. */
   filter: string;
-  repo: Array<string>;
-  owner: Array<string>;
+  /** `owner/name` and `owner/*` entries the search is narrowed to. */
+  scope: ReadonlyArray<string>;
 }
 
 /**
@@ -148,13 +148,13 @@ interface SearchVariables {
  * @returns The search response, carrying `total_count`.
  */
 const fetchTotalItems = (
-  { type, filter, repo, owner }: SearchVariables,
+  { type, filter, scope }: SearchVariables,
   token: string,
   { fetch }: FetcherContext,
 ): Promise<FetcherResponse<{ total_count?: number }>> =>
   httpRequest(
     fetch,
-    `https://api.github.com/search/${type}?per_page=1&q=${buildSearchFilter(repo, owner).replaceAll(
+    `https://api.github.com/search/${type}?per_page=1&q=${buildSearchFilter(scope).replaceAll(
       ' ',
       '+',
     )}${filter}`,
@@ -247,13 +247,12 @@ const REPO_USER_SEARCHES: ReadonlyArray<
 const fetchRepoUserStats = async (
   {
     username,
-    repo = [],
-    owner = [],
+    scope = [],
     ...flags
   }: RepoUserStatsFlags & {
     username: string;
-    repo?: Array<string>;
-    owner?: Array<string>;
+    /** `owner/name` and `owner/*` entries the searches are narrowed to. */
+    scope?: ReadonlyArray<string>;
   },
   config: CardConfig,
 ): Promise<RepoUserStats> => {
@@ -261,7 +260,7 @@ const fetchRepoUserStats = async (
   for (const [flag, stat, filter] of REPO_USER_SEARCHES) {
     if (flags[flag]) {
       stats[stat] = await totalItemsFetcher(
-        { username, repo, owner, type: 'issues', filter: filter(username) },
+        { username, scope, type: 'issues', filter: filter(username) },
         config,
       );
     }
@@ -327,8 +326,7 @@ const fetchStats = async (
     include_discussions_answers = false,
     from,
     to,
-    repo = [],
-    owner = [],
+    scope = [],
     include_prs_authored = false,
     include_prs_commented = false,
     include_prs_reviewed = false,
@@ -349,8 +347,8 @@ const fetchStats = async (
     from?: Date | undefined;
     /** End of that range. */
     to?: Date | undefined;
-    repo?: Array<string>;
-    owner?: Array<string>;
+    /** `owner/name` and `owner/*` entries the search-based counts are narrowed to. */
+    scope?: ReadonlyArray<string>;
     include_prs_authored?: boolean;
     include_prs_commented?: boolean;
     include_prs_reviewed?: boolean;
@@ -368,6 +366,7 @@ const fetchStats = async (
   }
 
   const stats: StatsData = {
+    login: '',
     name: '',
     totalPRs: 0,
     totalPRsMerged: 0,
@@ -426,6 +425,7 @@ const fetchStats = async (
     });
   }
 
+  stats.login = user.login;
   stats.name = user.name || user.login;
 
   // if include_all_commits, fetch all commits using the REST API.
@@ -433,8 +433,7 @@ const fetchStats = async (
     stats.totalCommits = await totalItemsFetcher(
       {
         username,
-        repo,
-        owner,
+        scope,
         type: 'commits',
         filter: `author:${username}`,
       },
@@ -456,8 +455,7 @@ const fetchStats = async (
   const repoUserStats = await fetchRepoUserStats(
     {
       username,
-      repo,
-      owner,
+      scope,
       include_prs_authored,
       include_prs_commented,
       include_prs_reviewed,

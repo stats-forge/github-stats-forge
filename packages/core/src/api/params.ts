@@ -52,6 +52,12 @@ const rawParam = kinded('text', z.optional(z.string()));
 /** Characters a repository, owner or gist id may contain. */
 const SAFE_PATTERN = /^[-\w/.,]+$/;
 
+/** One repository, `owner/name`, or everything an owner holds, `owner/*`. */
+const SCOPE_PATTERN = /^[\w.-]+\/(?:\*|[\w.-]+)$/;
+
+/** Past this a search query nears the length GitHub refuses, which would read as an upstream error. */
+const MAX_SCOPES = 10;
+
 /** What a check rejected a param for. */
 type Rejection =
   | 'boolean'
@@ -60,6 +66,8 @@ type Rejection =
   | 'out_of_range'
   | 'inverted_range'
   | 'range_conflict'
+  | 'scope'
+  | 'scope_unused'
   | 'unsafe'
   | 'username'
   | 'hostname'
@@ -78,6 +86,9 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   out_of_range: (param) => `Out of range date for parameter "${param}"`,
   inverted_range: () => 'Range "from" is after "to"',
   range_conflict: (param) => `Parameter "${param}" cannot be combined with "from" or "to"`,
+  scope: (param) =>
+    `Parameter "${param}" takes up to ${MAX_SCOPES} entries, each owner/name or owner/*`,
+  scope_unused: (param) => `Parameter "${param}" applies only to stats counted by search`,
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
   username: (param) => `Invalid username input for parameter "${param}"`,
   hostname: (param) => `Invalid hostname input for parameter "${param}"`,
@@ -335,6 +346,36 @@ const enumListParam = <const T extends ReadonlyArray<string>>(
   );
 };
 
+/**
+ * Where the search-based stats count: `owner/name` or `owner/*` entries. A bare name is rejected,
+ * being a repository or an owner with nothing to say which.
+ */
+const scopeParam: z.ZodMiniType<Array<string>, string | undefined> = kinded(
+  'list',
+  z.pipe(
+    rawParam.check(
+      rejects('scope', (value) => {
+        const entries = parseArray(value);
+        return entries.length <= MAX_SCOPES && entries.every((entry) => SCOPE_PATTERN.test(entry));
+      }),
+    ),
+    z.transform(parseArray),
+  ),
+);
+
+/**
+ * A `scope` changes only what is counted by search, so one with no search to narrow changes nothing.
+ *
+ * @returns The check, over whether the query draws anything counted by search.
+ */
+const scopeNeedsSearch = <TQuery extends { scope: Array<string> }>(
+  searches: (query: TQuery) => boolean,
+): z.core.$ZodCheck<TQuery> =>
+  z.refine((query: TQuery) => query.scope.length === 0 || searches(query), {
+    error: REJECTION_MESSAGES.scope_unused('scope'),
+    path: ['scope'],
+  });
+
 /** What every card accepts beside the colors, so a card cannot be the one that forgot one. */
 const commonParams = {
   hide_border: booleanParam,
@@ -477,6 +518,8 @@ export {
   resolveEmpty,
   safeListParam,
   safeParam,
+  scopeNeedsSearch,
+  scopeParam,
   statRowParams,
   titleParams,
   toParam,

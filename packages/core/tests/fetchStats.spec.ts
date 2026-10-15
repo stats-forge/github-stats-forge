@@ -218,6 +218,7 @@ const expectedStats = (
   overrides: Partial<StatsData> = {},
   rankOverrides: Partial<RankInput> = {},
 ): StatsData => ({
+  login: 'anuraghazra',
   contributedTo: 61,
   allTimeContributedTo: 0,
   name: 'Anurag Hazra',

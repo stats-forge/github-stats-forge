@@ -14,6 +14,8 @@ import {
   intParam,
   ORDERED_RANGE,
   safeListParam,
+  scopeNeedsSearch,
+  scopeParam,
   statRowParams,
   titleParams,
   toParam,
@@ -23,6 +25,15 @@ import {
 /** Every stat the card draws: `show` and `hide` each accept any of them. */
 const STATS = [...renderStatsCard.OPTIONS.hide, ...renderStatsCard.OPTIONS.show] as const;
 
+/** The stats counted by search, which `scope` narrows, with commits when `include_all_commits` is on. */
+const SEARCH_STATS = [
+  'prs_opened',
+  'prs_commented',
+  'prs_reviewed',
+  'issues_opened',
+  'issues_commented',
+] as const;
+
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z
   .object({
@@ -30,8 +41,7 @@ const statsQuery = z
     ...commonParams,
     ...titleParams,
     ...statRowParams,
-    repo: safeListParam,
-    owner: safeListParam,
+    scope: scopeParam,
     hide: enumListParam(STATS, renderStatsCard.OPTIONS.hide),
     card_width: intParam({ px: true }),
     hide_rank: booleanParam,
@@ -44,7 +54,14 @@ const statsQuery = z
     show: enumListParam(STATS, renderStatsCard.OPTIONS.show),
     include_own_repos: booleanParam,
   })
-  .check(ORDERED_RANGE);
+  .check(ORDERED_RANGE)
+  .check(
+    scopeNeedsSearch(
+      ({ show, hide, include_all_commits }) =>
+        SEARCH_STATS.some((stat) => show.includes(stat) && !hide.includes(stat)) ||
+        (include_all_commits === true && !hide.includes('commits')),
+    ),
+  );
 
 /**
  * Render the stats card for a set of query params.
@@ -57,8 +74,7 @@ const renderStats = cardHandler(
   async (
     {
       username,
-      repo,
-      owner,
+      scope,
       hide,
       hide_title,
       hide_border,
@@ -86,11 +102,6 @@ const renderStats = cardHandler(
     // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
     const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
 
-    // A bare repo name is scoped to the user whose card this is.
-    const repository = repo.map((name) =>
-      name.includes('/') ? name : `${username ?? ''}/${name}`,
-    );
-
     const stats = await fetchStats(
       {
         username,
@@ -101,8 +112,7 @@ const renderStats = cardHandler(
         include_discussions_answers: drawn.has('discussions_answered'),
         from,
         to,
-        repo: repository,
-        owner,
+        scope,
         include_prs_authored: drawn.has('prs_opened'),
         include_prs_commented: drawn.has('prs_commented'),
         include_prs_reviewed: drawn.has('prs_reviewed'),
@@ -116,30 +126,25 @@ const renderStats = cardHandler(
       config,
     );
 
-    return renderStatsCard(
-      stats,
-      {
-        ...colors,
-        hide,
-        show_icons,
-        hide_title,
-        hide_border,
-        card_width,
-        hide_rank,
-        include_all_commits,
-        title,
-        border_radius,
-        number_format,
-        number_precision,
-        locale,
-        disable_animations,
-        rank_icon,
-        show,
-      },
-      username,
-      repository,
-      owner,
-    );
+    return renderStatsCard(stats, {
+      ...colors,
+      hide,
+      show_icons,
+      hide_title,
+      hide_border,
+      card_width,
+      hide_rank,
+      include_all_commits,
+      title,
+      border_radius,
+      number_format,
+      number_precision,
+      locale,
+      disable_animations,
+      rank_icon,
+      show,
+      scope,
+    });
   },
 );
 

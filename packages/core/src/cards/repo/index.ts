@@ -143,7 +143,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   // Typed against the exported list, so a stat drawn here cannot be missing from it.
   const shows = (stat: RepoShowStat): boolean => show.includes(stat);
 
-  const repoFilter = encodeURIComponent(buildSearchFilter([nameWithOwner], []));
+  const repoFilter = encodeURIComponent(buildSearchFilter([nameWithOwner]));
   const encodedUsername = encodeURIComponent(username ?? '');
   const STATS: Record<string, RepoStatItem> = {};
   if (shows('prs_opened')) {

@@ -160,7 +160,7 @@ describe('api query schemas', () => {
     const result = await endpoints.stats({
       username: 'anuraghazra',
       show: 'prs_merged, reviews,',
-      repo: 'a, b',
+      exclude_repo: 'a, b',
     });
 
     // the stubbed fetch fails, but the params got past validation
