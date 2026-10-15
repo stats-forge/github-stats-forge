@@ -9,7 +9,7 @@ its first file's name, its description, its language, and its stars and forks.
 ![The gist pin card](/cards/gist.svg)
 
 ```text
-?id=1f13e82cb48a9058ebcbf4945f5a1c20&show_owner=true
+?id=0a5c3e9f7d2b4e6a8c1f0b9d7e5a3c21&show_owner=true
 ```
 
 ## Required

@@ -12,7 +12,7 @@ name `.ts` (see below) and Node strips the types. The condition is what makes it
 realpath falls outside `node_modules`, so Node does not refuse to strip types there.
 
 From the repo root, `pnpm cli` builds both packages and runs the CLI there,
-so it picks up the root `.env` the way `pnpm docs:cards` does.
+so it picks up the root `.env`.
 Its flags are forwarded, so `pnpm cli --card stats` skips the first prompt.
 
 **`bin.js` is the one committed `.js` file in the repository, and it has to be.** pnpm creates a

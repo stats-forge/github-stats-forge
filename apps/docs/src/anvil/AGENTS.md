@@ -9,8 +9,8 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
 `ghse` already has one.
 
 - **A preview comes from a source, and which one it is decides the prose as much as the numbers.**
-  `src/anvil/source.ts` is one interface with two implementations: the recording, which never
-  leaves the browser, and the instance, which draws with its own token and its own allowlists.
+  `src/anvil/source.ts` is one interface with two implementations: the samples, which never
+  leave the browser, and the instance, which draws with its own token and its own allowlists.
   A source therefore carries its own `badge`, `aside`, `detail` and `identityNote` alongside its
   `draw`, and `ui.ts` writes whichever is drawing into the page — **"nothing you type is sent
   anywhere" is true of one of them only**, and it was hardcoded in `anvil.astro` until 2026-09-10.
@@ -21,10 +21,10 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
     each code means in the anvil's terms, and the error card the reader is looking at says the
     rest. `content` is `undefined` when the draw never happened, which keeps the last card up.
   - **Both sources are in the bundle either way**, so an instance with no `PAT_1` configured can
-    fall back to the recording. The picker appears only where there is a choice.
+    fall back to the samples. The picker appears only where there is a choice.
   - **The instance's cards are at `/api/**` on the origin, never under the base**, the routes
     being the server's rather than the site's.
-  - **A text field redraws after a pause, not per keystroke.** Free with a recording, a request
+  - **A text field redraws after a pause, not per keystroke.** Free with the samples, a request
     against the instance's token otherwise. `writeFile` still runs at once, so the saved file and
     the URL never lag behind what is typed; only `draw` waits.
   - **The card's URL is offered above the saved file, and only on an instance.** The origin is the
@@ -34,24 +34,41 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
     server.
 - **It draws through core's public `./api` handlers, never through the card renderers.**
   `CardConfig` takes a `fetch`, and its own doc comment already names the browser as a host, so the
-  page hands it a transport that answers from a recording:
+  page hands it a transport that answers from the samples:
   `new CardConfig({ pats: [dummy], fetch: createSampleFetch(samples) })`. Three things follow, and
   they are why a `./cards` export carrying render functions plus fixtures was rejected:
   - core's public API does not grow, so the page needs no changeset and stays an ordinary consumer
   - the preview walks the real path — query string, validation, fetch, render — so a rejected option
     draws **the same error card a reader would really get**, rather than a page-level message
   - the SVG is byte-identical to what the CLI writes
-- **`samples.json` is recorded, committed, and never hand-edited.**
-  `pnpm --filter ./apps/docs run record-anvil-samples` drives the same eight handlers with a `fetch`
-  that reaches the network and keeps what comes back — so a recording cannot be of a request the
-  anvil does not make. It needs `PAT_1` in the root `.env`, the same trade `pnpm docs:cards` makes,
-  and its output goes through oxfmt's API so `pnpm format` leaves it alone.
-  - **`check-anvil-samples` is what guards it, and needs no token, so it runs in CI.**
-    Nothing types the recording against core's GraphQL types — the anvil reads only core's public
-    api — so the guard is behavioural: change a query's shape and the card stops drawing.
-    It is in `check-all` and in CI's docs job. It caught two real gaps while being written.
+- **`samples.json` is generated from a fictional account, committed, and never hand-edited.**
+  `scripts/fixtures.ts` answers as GitHub and WakaTime would for `ember-smith`, the
+  `forge-guild` organization, a gist and a WakaTime profile, none of them real.
+  `pnpm --filter ./apps/docs run generate-anvil-samples` drives the same eight handlers with that
+  as their `fetch` and keeps what it answered — so a sample cannot be of a request the anvil does
+  not make, and a request the fixtures cannot answer throws rather than drawing an error card.
+  Its output goes through oxfmt's API so `pnpm format` leaves it alone.
+  - **They were recorded from real accounts until 2026-10-15**, which put a real person's name,
+    a real organization and other people's commit URLs into the bundle — and the WakaTime profile
+    borrowed for it drew one language, "Other". Invented figures can be chosen to show off each
+    option, which recorded ones never were, and they need no token.
+  - **The figures are picked for the options, so change them with the options in mind.** Stars
+    that read differently under `number_format`, more languages than the default `langs_count`
+    with Shell spread thin across five repositories for `count_weight`, more repositories
+    contributed to than `repos_count` allows, a pin description long enough to wrap.
+  - **`check-anvil-samples` is what guards it, and needs no token, so it runs in CI.** It first
+    runs the generator with `--check`, failing when the file differs from what it would write,
+    then draws every card through the browser's replay path, so a query whose shape changed moves
+    a key or stops a card drawing. It is in `check-all` and in CI's docs job.
+  - **Each fixture is typed as the result core's query is generated as**, so a field a query gains
+    fails `pnpm typecheck` in `fixtures.ts` before any card draws it as `undefined` — removing one
+    field from `userInfo` was checked to fail it on 2026-10-15. Those types are not core's public
+    api, so they are type-only relative imports from `packages/core/src`; the runtime documents use
+    `ContributionsQuery` and `ReposContributedToQuery`, and WakaTime the exported `WakaTimeData`.
+    **This types against what core reads, not against GitHub** — `check-graphql-types` is what ties
+    the queries to GitHub's schema, and nothing compares a fixture with a live response.
 - **A request is keyed by what it asks, never by the whole request.** `sample-key.ts` is read by the
-  recorder and the transport both, so the two cannot disagree. A card's variables move with its
+  generator and the transport both, so the two cannot disagree. A card's variables move with its
   options, so an exact-match key would miss most of the option space:
   - a GraphQL request keys on its **operation name**, plus a hash of the query with its range fields
     collapsed. The name alone is too coarse for the documents built at runtime —
@@ -62,8 +79,8 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   - a REST search keys on its path and its **qualifier names**, with `repo:` and `owner:` dropped —
     those carry values the reader chooses — and `type:` kept, because `type:pr` and `type:issue` are
     different figures.
-  - **ranges are aliased by position (`range_0`, `range_1`, …), so one recording answers any
-    length**: `createSampleFetch` re-aliases what it recorded onto however many the request asked
+  - **ranges are aliased by position (`range_0`, `range_1`, …), so one sample answers any
+    length**: `createSampleFetch` re-aliases what it holds onto however many the request asked
     for. That is what lets `from` and `to` move over the whole allowed span.
 - **The consequence is stated on the page, not hidden.** Options that change how a card is _drawn_
   are exact; options that change _what is counted_ leave the sample numbers where they are.
@@ -140,7 +157,7 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
     in a phone-width pane lost its left edge.
 - **A draw that is _taking_ a while gets an indicator; a draw that is merely happening does not.**
   `BUSY_PAUSE` is 200ms, and the timer is armed per draw and cancelled by whichever draw is latest
-  — so a recording, which answers in milliseconds, never flickers, and neither does an instance's
+  — so the samples, which answer in milliseconds, never flickers, and neither does an instance's
   cache hit. **Timed rather than asked of the source**: `PreviewSource` carries no "slow" flag,
   because the same source is both.
   - **It is a chip with the word `Drawing…` in it, not a bare spinner.** A spinner alone sat beside
@@ -158,10 +175,10 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
     `--sl-content-gap-y` falls on the frame's second child, and a top margin on an `inset: 0` box
     moves it down and shrinks it — so the frame's top edge stayed bright mid-draw. Same rule that
     the boolean's segments already pay for, in a place it is much harder to see.
-  - **The e2e suite can only assert the half that needs no instance**: that an ordinary recorded
+  - **The e2e suite can only assert the half that needs no instance**: that an ordinary sampled
     redraw never flashes it, through a `MutationObserver` log over `data-busy`. The appearing half
     was verified by hand against a `SITE_SERVER=true` build with a stubbed slow `/api/**`; there is
-    nothing in this repository that makes a recorded draw slow enough to test it.
+    nothing in this repository that makes a sampled draw slow enough to test it.
 - **A card is drawn into a shadow root, because an inlined SVG's `<style>` is document-wide.**
   A card carries its own CSS, and inlining the SVG into HTML does not scope it: the stats card
   defaults `show_icons` off, which emits `.icon { display: none }`, and that hid **every** `svg.icon`
@@ -209,18 +226,19 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   wrapped onto their own line rendered as `eachcard's own page` and `options tothe library`; each
   needs an explicit `{' '}` ahead of it. There is an e2e test for it, because it is invisible in the
   source and returns the next time a paragraph is rewrapped.
-- **The sample identity is the site's own, and it seeds the fields rather than replacing them.**
-  Every preview under `public/cards` is drawn from the same account, and `identity` in `cards.ts`
-  reuses it, so a reader sees one set of numbers across the whole site. It is the **starting value**
-  of each card's `required` fields, which the reader then edits.
+- **The sample identity is the fictional account's, and it seeds the fields rather than replacing
+  them.** `SAMPLE` in `cards.ts` names it, and `fixtures.ts` imports it so the logins the
+  samples carry match the fields. It is the **starting value** of each card's `required` fields,
+  which the reader then edits. The previews under `public/cards` are drawn from the same fixtures,
+  so a reader sees one set of numbers across the whole site.
   - **The file has to carry the required params, because a file without them is one the CLI
     rejects.** `toQuery` walked `card.options` alone until 2026-09-07 while `render.ts` merged
     `card.identity` in behind the form, so the preview drew and the downloaded `card.json` had no
     `username` at all — valid-looking, and `missing_param` the moment it was used. `toQuery` writes
     the required params first, and `renderSampleCard` overrides nothing.
-  - **Editing them is safe precisely because a recording is keyed by what a request asks, never by
+  - **Editing them is safe precisely because a sample is keyed by what a request asks, never by
     its variables** — `sample-key.ts` drops `repo:` and `owner:` for this reason. So a typed
-    username still resolves, to the recorded account's numbers, and the anvil says so in a note
+    username still resolves, to the sample account's numbers, and the anvil says so in a note
     under those fields. That note is the honest half of making the fields editable; don't remove one
     without the other.
   - `CARDS` throws when a `required` param has no seed, the same way it throws for a card with no
@@ -257,7 +275,7 @@ the file the CLI's `--config` reads. Renamed from "wizard" on 2026-09-07, becaus
   option's name, label, kind, hint and choices, and reads those choices off core's `OPTIONS` so no
   list is copied anywhere — see that package's own `AGENTS.md`. Two forms over the same options are
   not two lists. What `apps/docs` adds is only what the catalog has no use for: each card's sample
-  identity, which half of every theme pair it wears, and the `maximal` params the recorder needs.
+  identity, which half of every theme pair it wears, and the `maximal` params the generator needs.
   That overlay **throws when a card in the catalog has no entry**, so a card added there is noticed
   here rather than silently undrawable.
   - The catalog imports nothing but core's public api, so pulling it into the browser costs a few
@@ -359,7 +377,7 @@ reaches the renderer.
   longer separates the two — and a Playwright file under vitest's rules reports against a framework
   it is not using. The vitest workspace is `packages/*` and `apps/server`, so nothing collects it
   as a unit test either way.
-- **One test asserts the privacy claim, and it belongs to the recording rather than to the page.**
+- **One test asserts the privacy claim, and it belongs to the samples rather than to the page.**
   `sends nothing anywhere while drawing every card` records every request made while cycling all
   eight and fails on any that leaves the origin — **and on any that reaches `/api/**`**, which an
   instance's cards do and the origin check alone would miss. It states which source is drawing

@@ -89,14 +89,18 @@ Each of these is a separate file holding its own copy of "every card there is".
 16. `apps/docs/src/content/docs/docs/fetchers/fetch-<name>.md` — **the docs build fails
     without this**, naming the file to write. It carries `<!-- api: fetchName -->`, which is
     expanded at build time; the prose around it is hand-written.
-17. `apps/docs/cards/<card>.json` — a saved card, no theme. Then `pnpm docs:cards`.
-18. `pnpm --filter ./apps/docs run record-anvil-samples` — needs `PAT_1`.
+17. A fixture for each new request in `apps/docs/scripts/fixtures.ts`, answering for the
+    fictional account and picked so the card's options have something to show. Type its return
+    as `Body<XQuery>`, the result core generates for the card's query, so `pnpm typecheck` holds
+    the fixture to the query from then on. The generators throw naming any request the fixtures
+    cannot answer.
+18. `apps/docs/cards/<card>.json` — a saved card, no theme, naming the `SAMPLE` identities from
+    `apps/docs/src/anvil/cards.ts`. Then `pnpm docs:cards` and
+    `pnpm --filter ./apps/docs run generate-anvil-samples` — neither needs a token.
 
-**Both generators rewrite every card's output, not just the new one.** The committed SVGs
-and `samples.json` carry live numbers that drift on their own, so re-recording them all puts
-a dozen unrelated files in your diff. Keep only what is new: `git checkout --` the previews
-you did not add, and merge the two new keys into `samples.json` rather than taking the whole
-re-recording.
+**Both generators are deterministic**, the fixtures being fixed, so a regeneration changes only
+what the new card added — or what a change to an existing card's output really moved. A diff in a
+preview you did not touch is a finding, not noise.
 
 ## 6. The tests
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * @file Fails when a card cannot be drawn from the recorded samples.
+ * @file Fails when a card cannot be drawn from the samples, replayed as the browser replays them.
  *
- * Nothing types the recording against core's GraphQL types, so the guard is behavioural: change a
- * query's shape and a card stops drawing. Needs no token, so unlike the recorder it runs in CI.
+ * The fixtures behind the samples are typed against core's queries; this is the behavioural half,
+ * a card that cannot draw from what they answer. Needs no token, so it runs in CI.
  *
  * @returns Nothing; the process exits non-zero when a card did not draw.
  */
@@ -30,7 +30,9 @@ const main = async (): Promise<void> => {
     for (const failure of failures) {
       process.stderr.write(`  ${failure}\n`);
     }
-    process.stderr.write('\nRe-record them: pnpm --filter ./apps/docs run record-anvil-samples\n');
+    process.stderr.write(
+      '\nRegenerate them: pnpm --filter ./apps/docs run generate-anvil-samples\n',
+    );
     process.exitCode = 1;
   }
 };

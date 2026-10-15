@@ -12,17 +12,17 @@ import { org, orgActivity, pin, stats } from '@stats-forge/github-stats-forge-co
 
 import type { CardCategory } from './themes.ts';
 
-/** The account every card but wakatime and gist is sampled from. */
-const SAMPLE_USERNAME = 'marcalexiei';
-
-/** Wakatime is a different service, so it has its own public sample profile. */
-const SAMPLE_WAKATIME_USERNAME = 'ffflabs';
-
-/** The organization the org card samples: this project's own. */
-const SAMPLE_ORGANIZATION = 'stats-forge';
-
-/** The gist the pin card samples. */
-const SAMPLE_GIST_ID = '1f13e82cb48a9058ebcbf4945f5a1c20';
+/**
+ * The fictional account every sample is drawn from. `scripts/fixtures.ts` answers as this
+ * account would, and seeds each card's identity fields with these.
+ */
+const SAMPLE = {
+  username: 'ember-smith',
+  repo: 'quench',
+  org: 'forge-guild',
+  gist: '0a5c3e9f7d2b4e6a8c1f0b9d7e5a3c21',
+  wakatime: 'ember-smith',
+} as const;
 
 /** What the anvil knows about a card that the CLI does not need to. */
 interface AnvilExtras {
@@ -36,12 +36,12 @@ interface AnvilExtras {
   /**
    * The params that identify whose card it is. They seed the required fields, which are then
    * editable — so the saved file names whoever was typed while the preview still draws the
-   * recording. The recorder sends them too.
+   * sample account. The generator sends them too.
    */
   identity: Record<string, string>;
   /**
-   * Every param that changes *what is fetched*, turned on, so the recorder captures each card's
-   * whole set of requests in one pass — an unrecorded operation is a card that cannot draw.
+   * Every param that changes *what is fetched*, turned on, so the generator captures each card's
+   * whole set of requests in one pass — an operation with no sample is a card that cannot draw.
    */
   maximal: Record<string, string>;
 }
@@ -51,7 +51,7 @@ const EXTRAS: Readonly<Record<string, AnvilExtras>> = {
   stats: {
     docs: 'stats',
     category: 'user',
-    identity: { username: SAMPLE_USERNAME },
+    identity: { username: SAMPLE.username },
     maximal: {
       include_all_commits: 'true',
       contribs_include_own_repos: 'true',
@@ -61,44 +61,44 @@ const EXTRAS: Readonly<Record<string, AnvilExtras>> = {
   'top-langs': {
     docs: 'top-languages',
     category: 'user',
-    identity: { username: SAMPLE_USERNAME },
+    identity: { username: SAMPLE.username },
     maximal: {},
   },
   pin: {
     docs: 'repo-pin',
     category: 'repo',
-    identity: { username: SAMPLE_USERNAME, repo: 'eslint-zod' },
+    identity: { username: SAMPLE.username, repo: SAMPLE.repo },
     maximal: { show: pin.OPTIONS.show.join(',') },
   },
   'contributed-to': {
     docs: 'contributed-to',
     category: 'user',
-    identity: { username: SAMPLE_USERNAME },
+    identity: { username: SAMPLE.username },
     maximal: { from: '2016' },
   },
   org: {
     docs: 'organization',
     category: 'org',
-    identity: { org: SAMPLE_ORGANIZATION },
+    identity: { org: SAMPLE.org },
     maximal: { show: org.OPTIONS.show.join(',') },
   },
   'org-activity': {
     docs: 'organization-activity',
     category: 'org',
-    identity: { org: SAMPLE_ORGANIZATION },
-    // the commit count is a request of its own, so recording it is what lets `show` reach it
+    identity: { org: SAMPLE.org },
+    // the commit count is a request of its own, so sampling it is what lets `show` reach it
     maximal: { show: orgActivity.OPTIONS.show.join(',') },
   },
   gist: {
     docs: 'gist-pin',
     category: 'repo',
-    identity: { id: SAMPLE_GIST_ID },
+    identity: { id: SAMPLE.gist },
     maximal: {},
   },
   wakatime: {
     docs: 'wakatime',
     category: 'user',
-    identity: { username: SAMPLE_WAKATIME_USERNAME },
+    identity: { username: SAMPLE.wakatime },
     maximal: {},
   },
 };
@@ -148,5 +148,5 @@ const CARD_GROUPS: ReadonlyArray<CardGroup> = GROUP_LABELS.map(([category, label
 /** @returns The card with that id, or `undefined`. */
 const findCard = (id: string): AnvilCard | undefined => CARDS.find((card) => card.id === id);
 
-export { CARD_GROUPS, CARDS, findCard };
+export { CARD_GROUPS, CARDS, SAMPLE, findCard };
 export type { AnvilCard };

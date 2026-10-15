@@ -111,6 +111,7 @@ pnpm server:hosted        # build the site as the image does, then the server wi
 pnpm run docs             # build, then the docs site's dev server (`run` is required — see below)
 pnpm docs:build           # build the docs site (what CI runs)
 pnpm docs:cards           # build, then redraw the docs site's card previews
+pnpm docs:cards:check     # build, then fail if a committed preview is out of date
 pnpm docs:e2e             # build the site, then run the anvil's browser tests
 pnpm check-all            # every check CI runs, cheapest first, in one command
 ```
@@ -124,7 +125,7 @@ reports it as a missing argument rather than the v11 `ERR_PNPM_MISSING_PACKAGE_N
 exits 0.
 
 `check-all` is the one to reach for before handing work over. It is
-`scripts/check-all.ts` — twelve checks ordered so the fastest failure surfaces first, each
+`scripts/check-all.ts` — thirteen checks ordered so the fastest failure surfaces first, each
 named and timed, stopping at the first failure unless `-k` asks for the whole list. It was an
 `&&` chain in `package.json` until that reached eleven links; a `.sh` was considered and
 rejected, because every other file here is TypeScript and so gets typechecked, linted and
@@ -223,9 +224,13 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   restating it. The same goes for the CLI's `--pat`, hence `--pat "$token"`.
 - **`apps/docs/public/cards` is committed, so redraw it when a card's output changes.**
   `pnpm docs:cards` renders every saved card in `apps/docs/cards` through the built CLI, twice
-  each; it needs `PAT_1` in a root `.env`, which is why CI cannot keep the previews current.
-  The SVGs carry live stats and drift on their own — that is expected, and not a reason to
-  regenerate them in an unrelated change.
+  each, with the CLI's `fetch` answered by the fictional account in `apps/docs/scripts/fixtures.ts`
+  — the one the anvil draws from too. It needs no token, the output is deterministic, and
+  `pnpm docs:cards:check` fails in CI when a card's output changed without a redraw. Each fixture
+  is typed as its query's generated result, so **a change to a `.graphql` query fails
+  `pnpm typecheck` until `fixtures.ts` follows it**.
+  **The previews were drawn from real accounts until 2026-10-15**, which needed `PAT_1`, kept CI
+  from checking them, and made every redraw carry a dozen files of drifted stats.
   **`examples/` was deleted on 2026-09-05**, when the site took over showing a card of each kind.
 - `.claude/scratch/CORE_DEFERRED_IMPROVEMENTS.md` lists the follow-ups `packages/core`
   still owes. Check it before starting work there, and keep it current as they land.

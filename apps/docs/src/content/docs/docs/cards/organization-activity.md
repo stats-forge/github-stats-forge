@@ -16,7 +16,7 @@ See [the token it needs](#the-token-it-needs).
 ![The organization activity card](/cards/org-activity.svg)
 
 ```text
-?org=vitest-dev&days=30&show=commits
+?org=forge-guild&days=30&show=commits
 ```
 
 ## Required

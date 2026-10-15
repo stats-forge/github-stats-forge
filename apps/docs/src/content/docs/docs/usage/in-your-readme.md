@@ -80,7 +80,7 @@ Wrap it, the way any image is linked — a pinned repository card pointing at th
 the usual case:
 
 ```md
-[![rollup-plugin-sass](./cards/pin.svg)](https://github.com/marcalexiei/rollup-plugin-sass)
+[![quench](./cards/pin.svg)](https://github.com/ember-smith/quench)
 ```
 
 ## Keeping it current

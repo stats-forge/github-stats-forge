@@ -49,7 +49,8 @@ pnpm docs:cards   # redraw the card previews the pages show
 ```
 
 The previews are committed, so redraw them when a card's output changes.
-That needs `PAT_1` in the root `.env`, which is why CI cannot keep them current.
+They are drawn from a made-up account in `apps/docs/scripts/fixtures.ts`, so no token is needed,
+and CI fails when one is out of date (`pnpm docs:cards:check`).
 
 ## GraphQL Queries
 

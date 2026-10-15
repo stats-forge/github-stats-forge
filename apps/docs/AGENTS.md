@@ -84,6 +84,16 @@ no `lint:publish`.
   `apps/docs/cards/*.json` holds a saved card without a theme; `pnpm docs:cards` renders each one
   twice, once per site theme, into `apps/docs/public/cards/<name>-{light,dark}.svg`. Those SVGs are
   committed, so the build needs no `PAT_1` and CI can run it.
+  - **The CLI draws them from the fictional account, not from GitHub.** `scripts/fixture-fetch.ts`
+    is loaded with `node --import` and points the global `fetch` at `scripts/fixtures.ts`; core
+    reads the global at call time, so the CLI itself is untouched. The saved cards name the same
+    identities as the anvil's `SAMPLE`, and the card pages print those in their query strings.
+  - **Each fixture is typed as the result core's query is generated as**, so a query that gains a
+    field fails `pnpm typecheck` until its fixture answers it — see `src/anvil/AGENTS.md` for how,
+    and for what that does not cover.
+  - **`check-cards` redraws every preview beside the committed one and fails on any difference.**
+    It is `pnpm docs:cards:check` from the root, in CI's docs job and in `check-all`. A card whose
+    output changed is therefore a diff in the PR that changed it, which is where it belongs.
 - **One image in the markdown, two in the page.** `src/plugins/rehype-card-previews.ts` turns
   `![alt](/cards/<name>.svg)` into the light and dark pair, adds the base path, reads `width` and
   `height` off the SVG so nothing shifts as it loads, and marks the dark copy `aria-hidden` with an

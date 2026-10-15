@@ -1,6 +1,6 @@
 import { rangeCount, sampleKey } from './sample-key.ts';
 
-/** What the recorder wrote: the status and body GitHub answered a key with. */
+/** What the generator wrote: the status and body the fixtures answered a key with. */
 interface SampleResponse {
   status: number;
   body: unknown;
@@ -15,7 +15,7 @@ const rangeFields = (user: Record<string, unknown>): Array<[string, unknown]> =>
     .toSorted(([a], [b]) => Number(a.slice(6)) - Number(b.slice(6)));
 
 /**
- * Ranges are aliased by position, not by year, so one recording answers any length: a shorter
+ * Ranges are aliased by position, not by year, so one sample answers any length: a shorter
  * request takes the leading blocks and a longer one cycles them. `from` and `to` can therefore
  * move over the whole allowed span, at the cost — stated on the page — of the numbers being fixed.
  *
@@ -50,7 +50,7 @@ const withRanges = (body: unknown, wanted: number): unknown => {
 };
 
 /**
- * Nothing leaves the browser. A request with no recording is answered as a GitHub error, so the
+ * Nothing leaves the browser. A request with no sample is answered as a GitHub error, so the
  * card draws that failure rather than hanging.
  *
  * @returns A `fetch` core can send through.
@@ -64,7 +64,7 @@ const createSampleFetch =
     if (sample === undefined) {
       return Promise.resolve(
         Response.json(
-          { errors: [{ type: 'NOT_FOUND', message: `No sample recorded for "${key ?? url}"` }] },
+          { errors: [{ type: 'NOT_FOUND', message: `No sample for "${key ?? url}"` }] },
           { status: 404 },
         ),
       );

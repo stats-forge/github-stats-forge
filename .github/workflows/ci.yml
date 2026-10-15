@@ -118,13 +118,18 @@ jobs:
       - name: Lint (generated theme page)
         run: pnpm --filter ./apps/docs run check-themes-page
 
-      # The anvil's recorded samples are the only thing standing between a changed query and a
-      # page that cannot draw. Needs no token, so unlike the recorder it runs here.
+      # The anvil's samples are the only thing standing between a changed query and a page that
+      # cannot draw; this also fails when they differ from what their generator writes.
       - name: Lint (anvil samples)
         run: pnpm --filter ./apps/docs run check-anvil-samples
 
       - name: Typecheck
         run: pnpm --filter ./apps/docs run typecheck
+
+      # The previews are drawn from the same fixtures, so they are deterministic and a card whose
+      # output changed without a redraw fails here.
+      - name: Lint (card previews)
+        run: pnpm run docs:cards:check
 
       # The build is what checks the site: a page referencing a preview nobody rendered, a
       # dead internal link, or a fetcher reference core no longer backs, each fail it.

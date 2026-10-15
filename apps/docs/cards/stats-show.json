@@ -1,7 +1,7 @@
 {
   "version": 1,
   "card": "stats",
-  "username": "marcalexiei",
+  "username": "ember-smith",
   "show_icons": "true",
   "show": "reviews,prs_merged,contributions",
   "rank_icon": "percentile"
