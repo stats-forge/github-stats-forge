@@ -1,11 +1,11 @@
 name: Live API test
 
 # Every other check runs on made-up data; this one draws each card from the real APIs.
-# Kept out of CI so a GitHub outage cannot fail an unrelated PR; it runs on a PR only when that PR
-# changes what talks to GitHub.
+# Kept off PRs so a GitHub outage or the token's rate limit cannot fail an unrelated one.
 on:
   workflow_dispatch:
-  pull_request:
+  push:
+    branches: [main]
     paths:
       - .github/workflows/test-live.yml
       - apps/docs/scripts/test-live.ts
@@ -21,8 +21,7 @@ on:
     - cron: '17 6 * * 1'
 
 concurrency:
-  group: '${{ github.workflow }}-${{ github.head_ref || github.run_id }}'
-  cancel-in-progress: true
+  group: '${{ github.workflow }}-${{ github.ref }}'
 
 permissions: {}
 
@@ -32,11 +31,7 @@ defaults:
 
 jobs:
   test-live:
-    # a fork's PR is given no secrets, so it has no token to draw with
-    if: >-
-      ${{ github.repository == 'stats-forge/github-stats-forge' &&
-      (github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository) }}
+    if: ${{ github.repository == 'stats-forge/github-stats-forge' }}
     name: Draw every card from live data
 
     # the token is an environment secret, so no other job in the repository can read it

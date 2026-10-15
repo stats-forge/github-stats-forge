@@ -244,9 +244,9 @@ as well as `resolve.conditions` — see `packages/cli/vitest.config.ts`.
   fixture can catch.
   - **`.github/workflows/test-live.yml` runs it with the `LIVE_TEST_PAT` secret of the `test-live`
     environment**, so no other job can read the token. It runs on Mondays, on demand, and on a
-    same-repository PR that changes `fetchers/`, `graphql/` or the live test itself — a fork's PR
-    gets no secrets, so it is skipped. Kept out of `ci.yml` so a GitHub outage cannot fail an
-    unrelated PR.
+    push to `main` that changes `fetchers/`, `graphql/` or the live test itself. Kept out of
+    `ci.yml` so a GitHub outage cannot fail an unrelated PR, and off PRs altogether since a run on
+    one hit the token's rate limit on 2026-10-15.
   - **The secret is a personal access token, because that is what the docs tell people to use.**
     A classic one needs only `read:org`, for the org card's member count; a fine-grained one needs
     the organization as its resource owner and `Members: read`. The workflow's own `GITHUB_TOKEN`

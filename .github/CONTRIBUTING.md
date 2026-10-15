@@ -53,7 +53,7 @@ They are drawn from a made-up account in `apps/docs/scripts/fixtures.ts`, so no 
 and CI fails when one is out of date (`pnpm docs:cards:check`).
 
 Since nothing else here calls the real APIs, `pnpm test:live` draws every card from live data and fails on any that does not draw.
-It needs `PAT_1` in the root `.env`; the `Live API test` workflow runs it weekly, and on PRs that change how core talks to GitHub, with the `LIVE_TEST_PAT` secret of the `test-live` environment — a classic personal access token with `read:org`.
+It needs `PAT_1` in the root `.env`; the `Live API test` workflow runs it weekly, and on pushes to `main` that change how core talks to GitHub, with the `LIVE_TEST_PAT` secret of the `test-live` environment — a classic personal access token with `read:org`.
 
 ## GraphQL Queries
 
