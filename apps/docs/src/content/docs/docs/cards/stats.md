@@ -52,6 +52,8 @@ for none.
 `hide` takes the same shape, and removes a line the card would otherwise draw:
 `stars`, `commits`, `prs`, `issues`, `contributed_to`.
 
+Either list takes any stat the card draws. A stat named in both is left out, and so is not fetched.
+
 ## Options
 
 | Option                | Values                                            | What it does                                            |

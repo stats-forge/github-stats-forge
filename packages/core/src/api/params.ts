@@ -306,10 +306,12 @@ const enumParam = <const T extends ReadonlyArray<string>>(
  */
 const enumListParam = <const T extends ReadonlyArray<string>>(
   values: T,
+  /** What a form offers, when that is only the useful part of what is accepted. */
+  offered: ReadonlyArray<T[number]> = values,
 ): z.ZodMiniType<Array<T[number]>, string | undefined> => {
   const canonical = inSet<T[number]>(values);
   return kinded(
-    { kind: 'list', choices: values },
+    { kind: 'list', choices: offered },
     z.pipe(
       rawParam.check(
         rejects('enum', (value) =>

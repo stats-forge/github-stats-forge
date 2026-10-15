@@ -133,6 +133,15 @@ describe('Test renderStatsCard', () => {
     expect(screen.getByTestId('contributed_to_all_time')).toHaveTextContent('500');
   });
 
+  it('leaves out a stat that is both shown and hidden', () => {
+    document.body.innerHTML = renderStatsCard(stats, {
+      show: ['contributed_to_all_time'],
+      hide: ['contributed_to_all_time'],
+    });
+
+    expect(screen.queryByTestId('contributed_to_all_time')).not.toBeInTheDocument();
+  });
+
   it('should hide_rank', () => {
     document.body.innerHTML = renderStatsCard(stats, { hide_rank: true });
 

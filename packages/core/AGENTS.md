@@ -63,6 +63,8 @@ render functions typed values; defaults stay with the renderer.
   (`role`); `enumParam(renderStatsCard.OPTIONS.rank_icon)` reads it back. A UI reads
   `stats.OPTIONS.rank_icon` off the function it calls.
 - **A list whose values are a closed set is an `enumListParam`** ([#230]), and sits in `OPTIONS`.
+  **`show` and `hide` each accept every stat the card draws**, and the handler fetches only what
+  ends up drawn; `enumListParam`'s second argument is the part a form offers.
   Each card's `show` checks run through a `shows()` helper typed against its own list.
 - **`NUMBER_FORMATS` lives in `common/render.ts`**, beside the `numberFormat === 'long'` that reads it.
 - **A theme param is an `enumParam` over the theme names.** `getCardColors` still resolves an

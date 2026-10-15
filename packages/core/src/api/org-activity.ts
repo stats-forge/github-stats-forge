@@ -13,6 +13,12 @@ import {
   usernameParam,
 } from './params.ts';
 
+/** Every stat the card draws: `show` and `hide` each accept any of them. */
+const STATS = [
+  ...renderOrgActivityCard.OPTIONS.hide,
+  ...renderOrgActivityCard.OPTIONS.show,
+] as const;
+
 /** What the organization activity endpoint accepts, on top of the shared color params. */
 const orgActivityQuery = z.object({
   org: usernameParam,
@@ -20,8 +26,8 @@ const orgActivityQuery = z.object({
   ...titleParams,
   ...statRowParams,
   days: intParam(),
-  hide: enumListParam(renderOrgActivityCard.OPTIONS.hide),
-  show: enumListParam(renderOrgActivityCard.OPTIONS.show),
+  hide: enumListParam(STATS, renderOrgActivityCard.OPTIONS.hide),
+  show: enumListParam(STATS, renderOrgActivityCard.OPTIONS.show),
   card_width: intParam({ px: true }),
 });
 
@@ -54,12 +60,15 @@ const renderOrgActivity = cardHandler(
     colors,
     config,
   ) => {
+    // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
+    const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
+
     // the commit count is a REST search of its own, so it is fetched only for a card that draws it
     const data = await fetchOrgActivity(
       {
         org,
         days,
-        include_commits: show.includes('commits'),
+        include_commits: drawn.has('commits'),
         // both rows are drawn unless hidden, so hiding both is how a query says it wants
         // the card from a token that may not read issues
         require_issues: !hide.includes('issues_opened') || !hide.includes('issues_closed'),

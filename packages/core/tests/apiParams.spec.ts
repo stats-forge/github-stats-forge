@@ -146,7 +146,7 @@ describe('api query schemas', () => {
   });
 
   it.each([
-    ['show', 'prs_merged,stars'],
+    ['show', 'prs_merged,sparkles'],
     ['hide', 'stars,sparkles'],
     ['role', 'owner,stranger'],
   ])('rejects a %s naming something outside its set', async (param, value) => {
@@ -161,6 +161,17 @@ describe('api query schemas', () => {
       username: 'anuraghazra',
       show: 'prs_merged, reviews,',
       repo: 'a, b',
+    });
+
+    // the stubbed fetch fails, but the params got past validation
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+  });
+
+  it('takes any stat in either list, whatever its default', async () => {
+    const result = await endpoints.stats({
+      username: 'anuraghazra',
+      show: 'stars,reviews',
+      hide: 'reviews,contributed_to',
     });
 
     // the stubbed fetch fails, but the params got past validation

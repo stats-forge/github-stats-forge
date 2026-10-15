@@ -14,14 +14,20 @@ import {
   usernameParam,
 } from './params.ts';
 
+/** Every stat the card draws: `show` and `hide` each accept any of them. */
+const STATS = [
+  ...renderOrganizationCard.OPTIONS.hide,
+  ...renderOrganizationCard.OPTIONS.show,
+] as const;
+
 /** What the organization endpoint accepts, on top of the shared color params. */
 const orgQuery = z.object({
   org: usernameParam,
   ...commonParams,
   ...titleParams,
   ...statRowParams,
-  hide: enumListParam(renderOrganizationCard.OPTIONS.hide),
-  show: enumListParam(renderOrganizationCard.OPTIONS.show),
+  hide: enumListParam(STATS, renderOrganizationCard.OPTIONS.hide),
+  show: enumListParam(STATS, renderOrganizationCard.OPTIONS.show),
   hide_description: booleanParam,
   card_width: intParam({ px: true }),
 });
@@ -55,10 +61,13 @@ const renderOrg = cardHandler(
     colors,
     config,
   ) => {
+    // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
+    const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
+
     // the member count is the one stat a token can be refused, so only a query asking for
     // it is told: `show=members` is what turns that refusal into an error card
     const organizationData = await fetchOrganization(
-      { org, require_members: show.includes('members') },
+      { org, require_members: drawn.has('members') },
       config,
     );
 
