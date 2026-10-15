@@ -4,159 +4,114 @@
 > The repo-wide rules — commands, working agreements, comments, linting,
 > dependencies, TypeScript and testing — are in the root `AGENTS.md`.
 
-`apps/server` is an HTTP server over core's `./api` handlers, shipped as a container image.
+`apps/server` is an HTTP server over core's `./api` handlers, shipped as a container image. Unless
+another change is linked, a rule here comes from the PR that built it, [#79].
+
 **It owns exactly four things core deliberately does not — routing, HTTP status and headers,
 caching, and the process. Everything else it does is a bug.** `CardConfig.fromEnv` already reads
-the tokens and the allowlists, and `ApiResult` already carries the code and whether a retry could
-help, so there is nothing here to re-derive.
+the tokens and allowlists, and `ApiResult` already says what failed and whether a retry helps.
 
-- **There is no build step, and there must not be one.** Node strips the types, every relative
-  import names the `.ts` that exists, and `--conditions=@stats/source` points the core import at
-  `packages/core/src` — pnpm links a workspace package as a symlink whose realpath falls outside
-  `node_modules`, which is what lets node strip types there. So the image runs the sources: what
-  is in the container is what is in the repository, and nothing is compiled or bundled.
-  - It **was** bundled with rolldown for one afternoon on 2026-09-09. Two things killed it: the
-    bundle is a second artifact nobody can diff against the repo, and the config key is
-    `resolve.conditionNames`, not `conditions` — the wrong one is reported as an invalid option
-    and then quietly leaves both workspace packages external, producing a 5 kB file that cannot
-    start. Do not reinstate it.
+## Never
+
+- **Never log a query value or a token.** A query holds usernames; `PersonalAccessToken` carries the
+  env var's `name` for exactly this. One structured JSON line per request on stdout, built from the
+  response's own headers.
+- **Never add a build step.** Node strips the types and `--conditions=@stats/source` points core at
+  its source, so the image runs exactly what is in the repository. A rolldown bundle was tried and
+  removed: an artifact nobody can diff, and its `resolve.conditionNames` key fails quietly when
+  misspelt as `conditions`.
+- **Never let a rejection escape the adapter.** A handler that throws is answered `500`, because an
+  unhandled rejection kills the process on Node 24. `static.ts` answers `undefined` for what it
+  cannot read, and `tests/node.spec.ts` covers the catch.
+- **No framework and no dependency.** `node:http` plus `URL` is the whole surface. If middleware ever
+  justifies one, Hono speaks `Request`/`Response`; not Express, which wants `req`/`res`.
+- **No `X-` prefix on a header** (RFC 6648). `X-Content-Type-Options` is the exception, being that
+  header's registered name.
+
+## Shape
+
 - **The core of it is `(request: Request) => Promise<Response>`.** `node.ts` is the only file that
-  knows what an `IncomingMessage` is, which is why `handler.ts` has forty-odd tests and it has
-  two. A whole endpoint is testable with no socket and no token, because `CardConfig` already
-  takes the transport.
-  - **Nothing escapes the adapter.** A handler that throws is answered `500`, because an unhandled
-    rejection is a dead process on Node 24 — and one did: `static.ts` only `stat`s before it
-    reads, so a directory named `index.html` or a `0600` file on a bind mount made `readFile`
-    reject through `route` and out of `void serve(...)`. `static.ts` now answers `undefined` for
-    those, and the adapter's catch is the second line; `tests/node.spec.ts` covers the catch.
-- **No framework and no dependency.** `node:http` plus `URL` is the entire surface this needs, and
-  this repository inlined an 87-byte regex rather than carry a dependency. If middleware ever
-  justifies one, Hono speaks `Request`/`Response` and slots in without changing `handler.ts`. Not
-  Express: it wants `req`/`res`, which is the shape this is deliberately not built on.
-- **The server imports core and nothing else.** `packages/catalog` carries the same eight ids, but
-  it carries a form's vocabulary with them — a label, a hint and a control per option — which a
-  route table has no use for, so `routes.ts` spells the table out and `tests/routes.spec.ts`
-  asserts twice over that it has not drifted: every card core exports is routed, and every path is
-  named as the catalog names its card. The catalog is a **dev**dependency here for that test
-  alone, which is what keeps it out of the image's `--prod` install.
-- **A failure answers `200` with the drawn error card, and puts the truth in headers.** GitHub's
-  image proxy only displays a `200`, so a `4xx` turns "Invalid username input" into a broken image
-  in a README. `Card-Status`, `Card-Error-Code`, `Card-Error-Param` and `Card-Cache` are what a
-  host branches on — the same argument that made `ApiResult` a union rather than a status string.
-  `STRICT_HTTP_STATUS=true` maps the real codes for a caller that is not a README.
-  - **No `X-` prefix.** RFC 6648 deprecated it in 2012. `X-Content-Type-Options` is the one
-    exception, that being the header's registered name — renaming it would turn it off.
-- **A held answer carries `Age`, and never a restarted `max-age`.** The first shape computed a
-  countdown into `max-age` on a cache hit, which quietly overrode the `cache_seconds` the caller
-  asked for. `Age` is the header that exists for this: a downstream cache subtracts it itself.
-  - **The copy is held for the deployment's default, and `cache_seconds` shapes only the header.**
-    `cacheKey` drops the param, so every caller shares one entry; storing it under the first
-    caller's TTL let a `cache_seconds=86400` README keep everyone on day-old numbers past their own
-    ten-hour `max-age`. `cache_seconds=0` also skips the held copy, so a `no-store` answer is never
-    a `Card-Cache: hit`.
-  - **One render per key at a time.** `createHandler` keeps the in-flight renders in a `Map`, so N
-    requests arriving while a card is drawing share the one GitHub call; without it a hot README's
-    TTL lapsing was N rate-limit points for N identical SVGs.
-  - **`CardCache` is never `undefined`.** `CACHE_SECONDS=0` used to be represented twice — as a
-    `0` and as a missing cache — and the two disagreed on a `?cache_seconds=` override. A TTL of
-    `0` stores nothing, so the number is the one switch.
+  knows an `IncomingMessage`, so a whole endpoint is testable with no socket and no token.
+- **The server imports core and nothing else at runtime.** `routes.ts` spells the route table out,
+  and `tests/routes.spec.ts` checks it against both core's exports and the catalog's ids. The
+  catalog is a **dev**dependency for that test alone, which keeps it out of the image.
+- **A failure answers `200` with the drawn error card, and puts the truth in headers.** GitHub's image
+  proxy shows only a `200`. `Card-Status`, `Card-Error-Code`, `Card-Error-Param` and `Card-Cache`
+  are what a host branches on; `STRICT_HTTP_STATUS=true` maps the real codes.
 - **An empty environment variable is an unset one.** `docker compose` writes `""` for every
-  `${VAR:-}` it has no value for, and an empty `CACHE_SECONDS` read as a number is `0` — which
-  would silently turn caching off on an instance that never asked. `fromEnv` in `config.ts` is
-  that guard, an empty `PAT_2` is dropped from the pool, and `tests/config.spec.ts` covers both.
-- **Never log a query value or a token.** A query holds usernames; `PersonalAccessToken` carries
-  the env var's `name` for exactly this reason. One structured JSON line per request on stdout,
-  built from the response's own headers rather than a second return channel out of the handler.
-- **The image carries the documentation site, and `SITE_DIR` is what turns it on.** The static
-  handler is claimed **last**, after `/api/**` and `/healthz`, so nothing the site holds can
-  shadow a card; `/_astro/**` is immutable and everything else keeps 300s. Absent the variable the
-  server draws cards and serves no pages, which is what a deployment wanting only an endpoint gets.
-  - **A site build knows where it will be served from, so `SITE_DIR` and the build have to
-    match.** `SITE_BASE` is the path it is written against — `/github-stats-forge` for Pages, `/`
-    for the image — and pointing `SITE_DIR` at a Pages build serves HTML whose every asset 404s.
+  `${VAR:-}`, and an empty `CACHE_SECONDS` read as `0` would turn caching off. `fromEnv` in
+  `config.ts` guards it, an empty `PAT_2` is dropped, and `tests/config.spec.ts` covers both.
+
+## Caching
+
+- **A held answer carries `Age`, never a restarted `max-age`**; a downstream cache subtracts `Age`
+  itself, and a recomputed `max-age` overrode the caller's `cache_seconds`.
+- **The copy is held for the deployment's default; `cache_seconds` shapes only the header.**
+  `cacheKey` drops the param, so every caller shares one entry, and `cache_seconds=0` skips the held
+  copy, so a `no-store` answer is never a `Card-Cache: hit`.
+- **One render per key at a time.** `createHandler` shares an in-flight render, so concurrent
+  requests for one card cost one GitHub call.
+- **`CardCache` is never `undefined`.** A TTL of `0` stores nothing, so the number is the one switch.
+
+## The site it carries
+
+- **`SITE_DIR` turns the site on, and its handler is claimed last**, after `/api/**` and `/healthz`,
+  so nothing the site holds can shadow a card. `/_astro/**` is immutable; the rest keeps 300s.
+  Without it the server draws cards only.
+  - **`SITE_DIR` must point at a build made for `/`.** `SITE_BASE` is baked into a build, and a
+    Pages build served here 404s every asset.
   - **`pnpm server:hosted` is the Dockerfile's site build plus `server:standalone` with
-    `SITE_DIR=../docs/build`**, the path being relative to `apps/server`. Added on 2026-09-10,
-    when the cards-only script answered neither `/` nor `/anvil/`. A shell variable beats the
-    `.env`, node's `--env-file` never overriding one already set, so one `.env` serves both.
-  - `send` in `node.ts` goes through `arrayBuffer`, not `text`, and so does the `Content-Length`
-    a `HEAD` answers with: a PNG round-tripped through a string is a corrupted PNG, and the site
-    has several.
-  - **`toRequest` copies no header across.** Nothing routes on one, so the loop that did was dead
-    work per request; add it back the day a route reads an `Accept` or an `If-None-Match`.
-- **`SITE_SERVER=true` is what tells the anvil there is a server under it.** `anvil.astro` writes
-  it onto the page as `data-source`, because `ui.ts` runs in a browser and has no environment.
-  **Told, not probed**: the alternative is a request for `/healthz` on every load of the anvil on
-  Pages, where there is nothing to find. It is also what recolours the site's icon — see
-  `apps/docs/AGENTS.md`.
-- **`node:24-alpine`, pinned by digest, and there is no lighter official Node image.** Measured
-  from the registries on 2026-09-10: alpine 56 MB compressed, slim 77, the full image 391, and
-  distroless 50. So distroless buys six megabytes for a container with no shell in it, which is
-  not the trade to make on a server someone self-hosts and will want to look inside.
-  - **`bookworm` is the Debian side of the same fork, not a lighter one.** `24-bookworm-slim` is
-    byte-identical to `24-slim` and `24-bookworm` to `24`, so the choice is musl against glibc
-    rather than size. Nothing here needs glibc — the `--prod` install is `zod` and nothing else,
-    with no native addon anywhere — so Alpine stands. Revisit it if a native dependency arrives,
-    or if DNS turns flaky in a cluster: musl's resolver is the usual suspect, and this server
-    resolves `api.github.com` on every cache miss.
-  - **The digest is there because `24-alpine` is a moving tag** — it has floated across Alpine
-    3.20 to 3.24 for this Node major alone, so the OS under the image changed without the
-    Dockerfile doing. **Renovate maintains it** (its `dockerfile` manager, Mondays),
-    so a base bump arrives as a pull request CI has built. Both `FROM` lines carry the same
-    digest; change them together.
-- **The base stage deletes the root `prepare` script, because every `pnpm install` runs it.**
-  It is `lefthook install`, and neither stage can satisfy it: `--prod` leaves lefthook
-  uninstalled, so the shell reports `command not found`, and the site stage has lefthook but no
-  `.git`, so it exits 128. Both failed the image build on 2026-09-10. `ENV LEFTHOOK=0` was there
-  to prevent exactly that and never could — it silences the hook runner, not `lefthook install` —
-  so it went with the fix. `pnpm pkg delete scripts.prepare` leaves each dependency's own
-  postinstall alone, which `--ignore-scripts` would not.
-- **The healthcheck is `src/healthcheck.ts`, not a `node -e` one-liner**, so it is typechecked,
-  linted and formatted with the rest of the server. Two things it needs that the one-liner did not:
-  `agent: false`, because node's global agent holds a socket alive for five seconds and would
-  outlive the check's own three-second timeout; and `process.exitCode` rather than `process.exit`,
-  which `unicorn/no-process-exit` forbids and which is unnecessary once the socket closes. Runs in
-  79ms and verified three ways — `0` against a live server, `1` against a dead port and `1` against
-  one answering `500`.
-  - **`health.ts` is its own module for this**, holding `HEALTH_PATH` and the default port and
-    host. `HEALTH_PATH` sat in `routes.ts`, which imports core's whole api behind the card table:
-    130ms against 35ms for a bare start, every thirty seconds, to learn one string. The defaults
-    moved in on 2026-09-10, when the check read `PORT` raw — an empty one dialled port 80 — and
-    always dialled `127.0.0.1`, which a server bound to a concrete `HOST` never answers.
-- **The image build is the one CI check that is not in `check-all`.** It needs docker, which not
-  every checkout has, and it takes minutes rather than seconds. CI's `image` job builds it, starts
-  it and asks it for a card — which is the only thing that proves the sources resolve inside the
-  container, there being no compile step to fail first.
-- **`base` is `--platform=$BUILDPLATFORM`; only `runtime` is multi-arch.** The install and the
-  site build produce the same bytes on every architecture, so they run natively once rather than
-  under QEMU per target, and a pnpm store cache mount keeps a lockfile change from a cold download.
-  - **That mount is a local benefit, not a CI one.** BuildKit does not export a cache mount with
-    `cache-to`, and `setup-buildx-action` starts a fresh builder each run, so in CI the store is
-    empty every time.
-  - **Neither image job carries a registry cache, since 2026-09-10.** The GitHub Actions cache
-    exported every stage's layers on every run, and CI's build step still measured 98s to 145s
-    across ten runs, warm or cold; a cache scoped per branch seldom hits from a pull request, and
-    the release's would export two architectures of every stage to be read days later, if at all.
-    Measure before reinstating one — that is what condemned this pair.
+    `SITE_DIR=../docs/build`**, relative to `apps/server`. A shell variable beats the `.env`, so one
+    `.env` serves both scripts.
+  - **`send` goes through `arrayBuffer`, not `text`**, and so does a `HEAD`'s `Content-Length`: a
+    PNG round-tripped through a string is corrupted.
+  - **`toRequest` copies no header across**, since nothing routes on one; add it back the day a
+    route reads one.
+- **`SITE_SERVER=true` is what tells the anvil there is a server under it** — told, not probed, so
+  the Pages build makes no `/healthz` request. See `apps/docs/AGENTS.md`.
+
+## The image
+
+- **The image build is the one CI check not in `check-all`**: it needs docker and takes minutes.
+  CI's `image` job builds it, starts it and asks for a card — the only proof the sources resolve in
+  the container.
+- **`node:24-alpine`, pinned by digest.** Distroless saves too little to give up a shell on a server
+  people self-host, and `bookworm` differs in libc, not size. Nothing needs glibc; revisit if a
+  native dependency arrives, or if DNS turns flaky in a cluster (musl's resolver is the usual
+  suspect).
+  - **The digest is pinned because `24-alpine` moves.** Renovate's `dockerfile` manager bumps it;
+    both `FROM` lines carry the same digest, so change them together.
+- **The base stage deletes the root `prepare` script**, which every `pnpm install` runs and neither
+  stage can satisfy (no lefthook under `--prod`, no `.git` in the site stage). `LEFTHOOK=0` does not
+  help: it silences the hook runner, not `lefthook install`.
+- **The healthcheck is `src/healthcheck.ts`, not a `node -e` one-liner**, so it is typechecked and
+  linted. It needs `agent: false`, or the global agent's kept-alive socket outlives the check's
+  timeout, and it sets `process.exitCode` rather than calling `process.exit`.
+  - **`health.ts` holds `HEALTH_PATH` and the default port and host**, so the check imports no card
+    code and dials the address a server bound to `HOST` actually answers.
+- **`base` is `--platform=$BUILDPLATFORM`; only `runtime` is multi-arch.** The install and the site
+  build produce the same bytes everywhere, so they run natively once, not under QEMU per target.
+  - **The pnpm store cache mount helps local builds only**: CI starts a fresh builder each run.
+  - **Neither image job carries a registry cache** ([#83]): it was measured to save nothing. Measure
+    before reinstating one.
+
+## The release
+
+- **The release publishes to npm, GHCR and Pages, in that order, from one workflow.** The image job
+  is gated on the server's entry in `published-packages`, and `publish-image.yml` skips a version
+  already in the registry, so a re-run cannot republish.
+  - **Tagging the server is what lets Pages go out with a server release** ([#133]). One gate now
+    serves both; `deploy-docs.yml` keeps `workflow_dispatch` for a build from `main` between
+    releases.
+  - **The `annotate` job names the image on the release** ([#135]). It reads the version from
+    `published-packages`, needs `image` so the reference resolves, and re-reads the body so a
+    re-run does not append twice.
 - **The two called workflows carry distinct concurrency groups.** In a called workflow
-  `github.workflow` is the caller's name, so `publish-image.yml` and `deploy-docs.yml` both
-  resolved to `Release` and queued behind each other; the image one is suffixed `-image`.
-- **The release publishes to npm, GHCR and Pages, in that order, from one workflow.** The image
-  job is gated on the server's own entry in `published-packages`, which it has because
-  `privatePackages.tag` tags it like any published package; `publish-image.yml` then skips a
-  version already in the registry, which is what stops a `workflow_dispatch` or a re-run
-  republishing one.
-  - **Tagging the server is what lets Pages go out with a server release.** The image gate was
-    `hasChangesets == 'false'` until 2026-09-16, because a private package published nothing and
-    left `published` at `false` — so a release touching only the site or the server reached GHCR
-    and never Pages, and the site went on documenting a version older than the image carried. The
-    tag sets `published`, so one gate now serves both. `deploy-docs.yml` keeps its
-    `workflow_dispatch` for a build from `main` between releases, falling back to
-    `inputs.ref || github.sha`.
-  - **The `annotate` job is what names the image on the release.** Changesets writes the changelog
-    and stops there, so the release for a version said nothing about the artifact it corresponds
-    to. It reads the version out of `published-packages` rather than the checkout, needs `image`
-    so the reference it appends already resolves, and re-reads the body first so a re-run does not
-    append it twice.
-- **A workflow in this repository calls its sibling with `$/`, not `./`.** That is the documented
-  "same repo at the running commit" form, and `release.yml` used it before the image job existed.
-  It was changed to `./` on 2026-09-09 by someone who took it for a typo, and changed back.
+  `github.workflow` is the caller's name, so the image group is suffixed `-image`.
+- **A workflow calls its sibling with `$/`, not `./`.** It is the documented "same repository at
+  the running commit" form, not a typo.
+
+[#79]: https://github.com/stats-forge/github-stats-forge/pull/79
+[#83]: https://github.com/stats-forge/github-stats-forge/pull/83
+[#133]: https://github.com/stats-forge/github-stats-forge/pull/133
+[#135]: https://github.com/stats-forge/github-stats-forge/pull/135

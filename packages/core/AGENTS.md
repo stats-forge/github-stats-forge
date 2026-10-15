@@ -9,238 +9,128 @@ handlers). The cards have rules of their own, in `src/cards/AGENTS.md`.
 
 ## The api layer is the trust boundary
 
-`api/*` turns a query string into card options, so **parse and validate there once** and
-hand the render functions typed values — defaults stay with the renderer.
+`api/*` turns a query string into card options, so **parse and validate there once** and hand the
+render functions typed values; defaults stay with the renderer.
 
-**Each endpoint declares what it accepts as a `zod/mini` schema**, built from the shared
-params in `api/params.ts` — none of which takes a message, because the wording is derived from the
-kind and the param name. **A param more than one card takes goes in a shared fragment**:
-`commonParams` on every card, `titleParams` on each that draws a title, `statRowParams` on each that
-draws one stat per row; a schema spreads them after its identity param, so a card cannot be the one
-that forgot `disable_animations`.
-A handler is then `cardHandler(xQuery, identities, async (params, colors, config) => svg)` from `api/handler.ts`:
-it parses the colors, parses the query against the schema, checks the allowlists, awaits the render,
-and its two `catch`es are the only place `errorResult` is called.
-Parsing throws, fetching throws, and one place turns whatever was thrown into the answer.
-Six handlers each carried that control flow by hand until 2026-09-05.
+- **Never hand-edit `src/graphql/generated/**`** — see [Generated GraphQL types](#generated-graphql-types).
+- **The allowlists are enforced here, before the render** ([#79]). `cardHandler`'s second argument
+  maps a param to `'username'` or `'gist'`; a refusal is `not_allowed` and costs no rate-limit
+  point. Naming a param the schema lacks is a compile error, and the map rides on the handler as
+  `IDENTITIES`, so `tests/allowlist.spec.ts` asserts every card declares one.
+  - **A config field only a method reads, and a method nothing calls, is a security bug knip will
+    not flag.** `CardConfig.isAllowed` existed, documented and parsed, and enforced nothing until
+    [#79].
+  - **`ALLOWLIST` is every GitHub login**, users' and organizations' alike, matched
+    case-insensitively — so the org card's `org` is guarded by it too.
+  - **The wakatime card is deliberately unguarded**: its `username` is a WakaTime profile. It
+    declares `{}` with the reason at the call site, and a test asserts the empty map.
+- **A shape check inside a fetcher is not validation** ([#31]). A GitHub login's shape lives in
+  `usernameParam`, so every endpoint taking one rejects it before any request. A fetcher keeps
+  its own guard, `./fetchers` being public, but tests the shared pattern rather than a copy.
+- **The boundary is strict: a value outside what a param accepts is an error, never ignored**
+  ([#229], [#230], [#231]). A silently ignored value reads as a bug in the card rather than in the
+  URL. Booleans are `true` / `false`; an `enumParam` or `enumListParam` matches case-insensitively
+  and yields the value as its set spells it. **Unknown params stay ignored**: a README appends
+  `?v=2` to get past GitHub's image cache, and the server reads `cache_seconds` off the query.
+- **A malformed param is a permanent `invalid_param`, decided at the boundary.** A render-time guard
+  would throw into the generic `catch`, which reports a retryable error. Name the param, never echo
+  the value.
+- **Match the coercion the callee already performs.** `numberParam` and `intParam` use `parseFloat`
+  and `parseInt` because `Card` does, so `?border_radius=10px` still renders `rx="10"`.
+- **The api parses; the card defaults.** A handler turns strings into typed values and stops; it
+  never supplies a fallback the render function already owns (gist's default theme is
+  `default_repocard`, which only the card knows).
 
-- **Every param helper records its kind, and the handler carries them as `PARAMS`.** `kinded()` in
-  `api/params.ts` tags a schema with the catalog's vocabulary; `cardHandler` reads them off the
-  schema's shape, and throws at import on a param built without one, so a new helper cannot go
-  undescribed. The catalog's test is what reads them.
-- **The allowlists are enforced here, and a card declares which of its params they guard.**
-  `cardHandler`'s second argument maps a param to `'username'` or `'gist'`, the check runs after
-  parsing and **before the render**, and a refusal is `not_allowed` — so an identity a pinned
-  deployment does not serve costs it no rate-limit point. Naming a param the schema does not
-  declare is a compile error, and the map is carried on the handler as `IDENTITIES` the way
-  `OPTIONS` is, which is what lets `tests/allowlist.spec.ts` assert every card declares one.
-  - **This existed as `CardConfig.isAllowed` and was called by nothing** from the day it was
-    added until 2026-09-09 — parsed from `ALLOWLIST`, documented on the site and in the server's
-    README, and enforced nowhere, so a deployment configured with it served anyone who asked.
-    A config field that only a method reads, and a method nothing calls, is the shape of that
-    bug; knip does not flag an unused class member.
-  - **`ALLOWLIST` is every GitHub login**, a user's and an organization's alike, GitHub sharing
-    one namespace between them — so the org card's `org` is guarded by the same list as
-    `username`. Matched case-insensitively, because a login is.
-  - **The wakatime card is deliberately unguarded**, its `username` being a WakaTime profile
-    rather than a GitHub login; it declares `{}` with the reason written at the call site, and a
-    test asserts the empty map so that turning it into an oversight takes an edit.
-- **Colors parse first, separately.**
-  A rejected color cannot be used to draw its own error card,
-  which is why `cardHandler` runs `parseColorParams` as its own pass and renders that error with no `renderOptions`.
-- **The query type comes from the schema.**
-  `cardHandler` types the handler it returns as taking `ApiQuery<typeof xQuery>`,
-  so no module names the alias; `ApiQuery` itself is what `params.ts` exports.
-  A consumer is checked at the call site rather than by importing a type:
-  an unknown param or a non-string value is a compile error, and every param stays optional.
-- **A card option's accepted values ride on the render function that draws them, in one
-  `OPTIONS` object keyed by the option's own name.** Each card ends in
-  `Object.assign(renderCard, { OPTIONS: { rank_icon: RANK_ICONS, show: SHOW_STATS, … } })`,
-  so a list cannot be found without the renderer it belongs to, and the key says which
-  param it governs rather than leaving that to the const's name. The card's union type
-  derives from the same const, so the schema cannot drift from what renders. This replaced
-  loose module-level exports on 2026-09-05, where a list was findable without its card and
-  the CLI kept its own copy of `['short', 'long']` in two places.
-- **The api handler forwards `OPTIONS`, and `enumParam` reads it back off the renderer.**
-  `Object.assign(renderStats, { OPTIONS: { ...renderStatsCard.OPTIONS, role: OWNER_AFFILIATIONS } })`,
-  then `enumParam(renderStatsCard.OPTIONS.rank_icon)` — one spread rather than a line per
-  list, so an option added to a card reaches its handler without the handler being edited.
-  Only `role` is added there, because affiliations belong to the fetcher's query rather
-  than to one card's drawing. A UI reads a param's values off the function it calls:
-  `stats.OPTIONS.rank_icon`, `topLangs.OPTIONS.layout`, `pin.OPTIONS.show`.
-- **A list whose values are a closed set is an `enumListParam`, and sits in `OPTIONS` beside
-  the enum ones.** `stats.OPTIONS.show`, `stats.OPTIONS.hide`, `pin.OPTIONS.show`, the two org
-  cards' `show` and `hide`, and `role` on the two handlers that take one. One unknown entry
-  rejects the list — an ignored one reads as a stat the card forgot to draw — and entries match
-  case-insensitively, yielded as the set spells them, so `?role=owner` is `OWNER`. They were
-  `listParam`s that ignored an unknown value until 2026-10-15, and `role` was checked in the
-  fetcher instead. Each card's `show` checks run through a `shows()` helper typed against its
-  own list, and the stats card's `STATS` record is keyed `Partial<Record<StatId, StatItem>>`
-  where `StatId` is both lists' unions, so a stat it draws cannot be missing from them.
-- **The boundary is strict: a value outside what a param accepts is an error, never ignored.**
-  Decided on 2026-10-15, when the leniency inherited from ghse went — `?hide_border=ture`,
-  `?number_format=xyz` and `?theme=tokyonite` had each drawn a card that silently ignored them,
-  which reads as a bug in the card rather than in the URL. Booleans are `true` / `false`, and an
-  `enumParam` or `enumListParam` matches case-insensitively and yields the value as its set spells
-  it. `NUMBER_FORMATS` is declared in `common/render.ts`, beside the `numberFormat === 'long'`
-  that reads it, and the cards taking it carry it as `OPTIONS.number_format`. **Unknown params stay
-  ignored**: a README appends `?v=2` to get past GitHub's image cache, and the server reads
-  `cache_seconds` off the same query.
-- **One wording per kind of rejection, in one table.**
-  `REJECTION_MESSAGES` in `api/params.ts` maps a `Rejection` kind to its message, and the
-  param name comes from the issue's own `path` — no schema spells its own name or prose.
-  A check declares its kind through `rejects(kind, passes)`, which closes over the kind and
-  hands zod the message function. Nothing reads a kind back off an issue, so no metadata
-  rides along on it. Only the first rejection is reported: the error card has one line.
-- **Everything throws `CardError`** (`common/error.ts`), which carries a `code`, the two
-  lines the card draws, and the param at fault. The codes are `forbidden`, `invalid_param`,
-  `missing_param`, `not_allowed`, `not_found`, `no_tokens`, `rate_limited` and `upstream`;
-  `retryable` is
-  derived from the code by one table — `no_tokens` is retryable, its remedy being a token on the
-  next start rather than a query change, and so is `forbidden`, the retryer starting at a random
-  token so the next request may pick one that is permitted — so "can a retry help" is answered once rather than at
-  each throw site. `CardError.from(err)` wraps anything else as `upstream`, **which is
-  retryable** — so a permanent failure has to throw a `CardError` to be reported as one.
-- **`ApiResult` is a union, not a status string.** Success is `{ status: "success", content }`;
-  failure is `{ status: "error", retryable, error: { code, message, secondaryMessage, param }, content }`.
-  A host branches on `code` / `retryable` instead of matching `"error - temporary"`, and
-  never has to read the SVG to find out what happened.
-- **A shape check inside a fetcher is not validation.** GitHub's login rules were
-  enforced in `totalItemsFetcher` — the REST-search path alone — while the api layer let
-  through anything in the safe character set, so `?username=-foo` was rejected mid-fetch
-  or not at all depending on which request ran first. The shape now lives in
-  `usernameParam`, so the five endpoints taking a GitHub login reject it as
-  `invalid_param` once, before any request. The fetcher keeps its own guard —
-  `./fetchers` is a public export and that is where the value reaches a URL — but it
-  tests the shared pattern rather than a copy.
-- **The api parses; the card defaults.** A handler turns strings into typed values
-  (`parseBoolean`, `Number.parseFloat`, `toLowerCase`) and stops there — it never supplies
-  a fallback the render function already owns. `parseBoolean(x) ?? false` alongside the
-  card's own `show_owner = false` is the same default written twice, and card defaults are
-  card knowledge anyway (gist's theme default is `default_repocard`, not `default`).
-- **Write plain properties, not conditional spreads.** `CardOptions<T>` accepts an
-  explicit `undefined`, so a parsed-or-`undefined` local can be passed straight through;
-  `...(x !== undefined && { x })` is only needed against a bare `Partial<T>` under
-  `exactOptionalPropertyTypes`.
-- **A malformed param is `error - permanent`, decided at the boundary.** Reject it next to
-  the colour and id checks rather than letting a render-time guard throw into the generic
-  `catch`, which labels everything `error - temporary` — a status a host reads as
-  "retry may help". `?border_radius=abc` used to surface `Card`'s internal
-  `Invalid border radius: "NaN"` as a temporary error; it is now a permanent
-  `Invalid number input for parameter "border_radius"`, matching the colour wording. Name
-  the parameter, never echo the value.
-- **Match the coercion the callee already performed.** `border_radius` is
-  `Number.parseFloat`d by `numberParam` because `Card` does
-  `Number.parseFloat(String(border_radius))` internally, so `?border_radius=10px` still
-  renders `rx="10"`; `Number()` would also have made `?border_radius=` a silent `0`
-  instead of an error. This is why `unicorn/prefer-number-coercion` is off.
-- **`CardOptions<T>`** (`cards/options.ts`) is `Partial<T>` that also accepts an
-  explicit `undefined`. Render functions take it because a handler forwards params that
-  may legitimately be absent.
-- **A theme param is an `enumParam` over the theme names, checked with the colors.** Card options
-  still type `theme` as `string`, and `getCardColors` still resolves an unknown name to
-  `themes.default` for a caller rendering a card directly. `isThemeName` is `Object.hasOwn`, not
-  `in`: `?theme=toString` found `Object.prototype`'s and drew with a function for a theme.
+### How an endpoint is built
+
+- **Each endpoint is a `zod/mini` schema built from the helpers in `api/params.ts`, and
+  `cardHandler(schema, identities, render)`** ([#48]). The handler parses colors, parses the query,
+  checks the allowlists and renders; its two `catch`es are the only place `errorResult` is called.
+- **A param more than one card takes goes in a shared fragment** ([#234]): `commonParams`,
+  `titleParams`, `statRowParams`, spread after the schema's identity param.
+- **Every param helper records its kind with `kinded()`, and the handler carries them as `PARAMS`**
+  ([#235]). `cardHandler` throws at import on a param built without one; the catalog's test reads
+  them.
+- **Colors parse first, on their own**: a rejected color cannot draw its own error card.
+- **The query type comes from the schema.** A consumer is checked at the call site — an unknown
+  param or a non-string value is a compile error — rather than by importing a type.
+- **A card's accepted values ride on its renderer, in one `OPTIONS` object keyed by the option's
+  name** ([#46]). The handler spreads the card's `OPTIONS` and adds only what belongs to the fetcher
+  (`role`); `enumParam(renderStatsCard.OPTIONS.rank_icon)` reads it back. A UI reads
+  `stats.OPTIONS.rank_icon` off the function it calls.
+- **A list whose values are a closed set is an `enumListParam`** ([#230]), and sits in `OPTIONS`.
+  Each card's `show` checks run through a `shows()` helper typed against its own list.
+- **`NUMBER_FORMATS` lives in `common/render.ts`**, beside the `numberFormat === 'long'` that reads it.
+- **A theme param is an `enumParam` over the theme names.** `getCardColors` still resolves an
+  unknown name to `themes.default` for a direct caller, and `isThemeName` is `Object.hasOwn`, not
+  `in`, so `?theme=toString` cannot find `Object.prototype`'s ([#231]).
+- **One wording per kind of rejection, in `REJECTION_MESSAGES`.** A check declares its kind through
+  `rejects(kind, passes)`; the param name comes from the issue's path. Only the first rejection is
+  reported: the error card has one line.
+- **Write plain properties, not conditional spreads.** `CardOptions<T>` (`cards/options.ts`) is
+  `Partial<T>` that also accepts an explicit `undefined`, so a parsed-or-`undefined` local passes
+  straight through.
+
+### Errors
+
+- **Everything throws `CardError`** (`common/error.ts`): a `code`, the two lines the card draws, and
+  the param at fault. `retryable` is derived from the code by one table, so "can a retry help" is
+  answered once.
+  - **`CardError.from(err)` wraps anything else as `upstream`, which is retryable** — a permanent
+    failure has to throw a `CardError` to be reported as one.
+- **`ApiResult` is a union, not a status string.** A host branches on `code` / `retryable` and never
+  reads the SVG to learn what happened.
 
 ## Generated GraphQL types
 
-Query text lives in `src/graphql/queries/*.graphql`, never inline in a fetcher. Each file
-generates `src/graphql/generated/<name>.ts`, plus a shared `common.ts` for the enums and
-scalars the variables name. **Never hand-edit `src/graphql/generated/**` — change the
-query and regenerate;** the folder is committed and both oxlint and knip ignore it, so
-nothing else guards it. Derive fetcher types from the generated ones (`RepoInfo` is
-`Omit<RepoInfoFragment, …>`) and give a sub-shape a name with a GraphQL `fragment` rather
-than a `NonNullable<…>` chain.
+**Never hand-edit `src/graphql/generated/**` — change the query and regenerate.** The folder is
+committed and both oxlint and knip ignore it, so nothing else guards it.
 
-A query whose shape is only known at runtime (dynamic aliases, e.g. one
-`contributionsCollection` field per contribution year) can't be a static operation, and
-GitHub's GraphQL API neither batches requests nor offers an all-time contributions
-field — so a single-request fetch forces runtime assembly. Keep it typed anyway: declare
-the selection set as a fragment no operation spreads, so the generator still emits its
-type, and build the query in a `build<X>Document(…)` module under `src/graphql/` that
-returns `graphqlDocument<Result, Variables>(…)` for `createGraphQLFetcher` (see
-`contributionsDocument.ts` ← `fetchers/stats.ts`).
+- **Query text lives in `src/graphql/queries/*.graphql`, never inline in a fetcher.** Derive fetcher
+  types from the generated ones (`RepoInfo` is `Omit<RepoInfoFragment, …>`), and name a sub-shape
+  with a GraphQL `fragment` rather than a `NonNullable<…>` chain.
+- **A query whose shape is only known at runtime still gets typed**: declare the selection set as a
+  fragment no operation spreads, and build the query in a `build<X>Document(…)` module under
+  `src/graphql/` (see `contributionsDocument.ts`). One request per account year was the alternative,
+  at one rate-limit point each.
+  - **Such a module repeats its fragment's text, and nothing checks the copy** — the generator emits
+    fragment types, not text. Change both together.
+- **A `contributionsCollection` names both ends of its range, and spans at most a year** ([#47]).
+  GitHub defaults an omitted `to` to a year after `from`, and refuses a longer range;
+  `common/date.ts` slices one range per calendar year and `aliasedRanges` sends them in one
+  request. Say **range, never span**: `from` and `to`, both inclusive.
+- **A count GitHub can search for is an aliased `search` field** ([#106]): any number of them cost
+  one point together, so `org-activity.graphql` asks for every figure it might draw. A search
+  qualifier takes a date, which is what `toSearchDate` is for.
+- **A search whose result a permission can change must say what it matched** ([#113]). A token
+  refused issues answers `is:issue` with pull requests, so each issue search asks for
+  `nodes { __typename }` and checks it got an `Issue`.
+- **A stat the query asked for and the token may not read is `CardError.forbidden`, not a missing
+  row** ([#113]). Its second line names the permission and the option that drops the stat.
+  - **The api layer decides whether the stat was asked for, and hands the fetcher one boolean**
+    (`require_members`, `require_issues`, `include_commits`); a fetcher never reads `show` or `hide`.
+  - **A stat drawn by default is asked for by default**: the issue rows fail unless `hide` names
+    both; the `show`-gated members row fails only when `show` names it.
+  - **Log the refusal once, not once per page.**
+- **Commits have no GraphQL search index**: they are REST only, against a much smaller allowance, so
+  the activity card's commit row is behind `show` and a refused commit search leaves the count `null`.
+- **The generator is dev-only** — no codegen dependency reaches consumers — and
+  `packages/core/tsconfig.scripts.json` typechecks it.
+- **`graphql` is 17, and the generator builds GitHub's schema with `assumeValid: true`.** GitHub's
+  SDL breaks a v17 deprecation rule, and `assumeValidSDL` alone does not reach codegen's own
+  validation. The queries are still validated against the schema.
+  - **The `pnpm-workspace.yaml` override keeps graphql 16 out of the lockfile**, for a
+    `@octokit/graphql-schema` export nothing calls. Drop it when octokit moves to 17.
 
-The generator emits fragment **types** but not fragment **text**, so such a module has to
-repeat the fragment body in its template literal — `contributionsDocument.ts` spells out
-`RangeContributions` verbatim while importing `RangeContributionsFragment` from
-`generated/stats.ts`. That duplication is unguarded: nothing fails if the `.graphql`
-fragment and the copy drift apart, so change both together and keep the comment pointing
-at the source.
-
-The alternative — one static `($login, $from, $to)` query fetched per year in parallel —
-was tried and dropped: it costs ~1 rate-limit point per account year instead of 1
-total. Fetchers still never contain query text.
-
-**A `contributionsCollection` names both ends of its range, always, and spans at most a
-year.** GitHub defaults an omitted `to` to a year after `from` — `?commits_year=2024` counted
-2 commits made on 2025-01-01 until this was fixed on 2026-09-05 — and refuses a longer range
-outright, so `common/date.ts` slices one per calendar year and `aliasedRanges` sends them as
-fields of a single request. The vocabulary there is **range, never span**: `from` and `to`,
-both ends inclusive, an open one filled from `getWidestRange()` — which is also the bound the
-api rejects a date outside of.
-
-**A count GitHub can search for is an aliased `search` field, and a request carries as many as
-it likes for one point.** Measured on 2026-09-12 while the organization activity card was
-written: six searches plus an `organization` selection in one request answered `cost: 1`, and so
-did two. So `org-activity.graphql` is a static operation asking for every figure it might draw,
-rather than a document assembled per `show` — the shape of the card cannot change what it costs.
-A search qualifier reads a **date**, not the `DateTime` the GraphQL arguments take, which is what
-`toSearchDate` in `common/date.ts` is for.
-
-- **A token refused issues is answered with pull requests, not with an error.** `is:pr` applies
-  for such a token and `is:issue` does not, so `org:x is:issue created:…` returns the window's
-  pull requests and the count arrives looking like a real one. It drew a profile card reading
-  `Issues opened: 157, Issues closed: 157` beside `PRs opened: 157` on 2026-09-13 — the org has
-  two issues, both open — because the workflow authenticated with an app installation token
-  carrying no `Issues` permission. Nothing in the response says so: the fix is to ask each issue
-  search for `nodes { __typename }` and check it matched an `Issue`, which keeps the request at
-  `cost: 1`. **A search whose result a permission can change is not self-describing — ask it what
-  it matched.**
-- **A stat the query asked for and the token may not read is an error, not a missing row.**
-  Silently dropping it answers a question nobody asked: `show=members` on a token without the
-  organization `Members` permission drew a members-less card that looked like a rendering bug, and
-  a dropped issue row looks like a quiet organization. Both are now `CardError.forbidden`, whose
-  second line names the permission **and the option that drops the stat instead**, so the refusal
-  is escapable without reading this file. Decided on 2026-09-13.
-  - **The api layer decides whether the stat was asked for, and tells the fetcher.**
-    `show.includes('members')` becomes `require_members`, and `hide` naming both issue rows
-    becomes `require_issues: false` — the same shape as `include_commits`, which already rode
-    down from `show`. A fetcher cannot read `show` or `hide`, and should not learn to: it is
-    handed the one boolean its own refusal turns on.
-  - **A stat drawn by default is asked for by default.** The activity card draws both issue
-    rows unless `hide` names them, so a refusal is fatal unless **both** are hidden — hiding one
-    still leaves a row that would carry the wrong number. The members row is the other way
-    round: it is `show`-gated, so a refusal is fatal only when `show` names it.
-  - **Log the refusal once, not once per page.** `fetchOrganization` walks up to five pages and
-    the member refusal arrives on each, so the log sits behind the flag it sets.
-- **Commits are the one figure that has no GraphQL search index.** `search(type: ISSUE)` covers
-  issues and pull requests and `type: DISCUSSION` the discussions, but commits are REST only —
-  a second request, against the search API's much smaller allowance. That is why the activity
-  card's commit row is behind `show` and why `fetchOrgActivity` takes `include_commits`: the api
-  handler derives it from `show`, so a card that does not draw the row never pays for it. A
-  refused commit search leaves the count `null` and the rest of the card renders.
-
-The generator (`packages/core/scripts/generate-graphql-types.ts`) is deliberately
-dev-only — no codegen dependency reaches consumers. It is covered by
-`packages/core/tsconfig.scripts.json`, so `pnpm typecheck` checks it like any other
-source file. The repo-root `scripts/` is covered the same way, by `tsconfig.scripts.json`
-at the root.
-
-**`graphql` is 17, and the generator builds GitHub's schema with `assumeValid: true` to get
-there.** v17 enforces that an implementation field is not deprecated where the interface
-field it satisfies isn't, and GitHub's published SDL breaks it on fifteen fields, from
-`Project.id` to `TeamDiscussionComment.url`. `assumeValidSDL` alone does not cover it:
-codegen runs `assertValidSchema` inside `validateGraphQlDocuments`, and `assumeValid` on
-`buildSchema` is what answers that. **The queries are still validated against the schema** —
-a misspelt field fails `check-graphql-types` as before; only GitHub's own SDL goes unchecked.
-It was held at 16 from 2026-09-13 to 2026-10-10, the first attempt having stopped at that
-error without trying the flag.
-
-- **An override in `pnpm-workspace.yaml` is what keeps graphql 16 out of the lockfile**,
-  `@octokit/graphql-schema` depending on `^16.0.0`. That range serves its `validate` export,
-  which nothing here calls — the generator reads only the `idl` string. It loads under 17
-  all the same, `check-graphql-types` importing it on every run. Drop the override when
-  octokit moves to 17.
-- **v17's `print` spaces an input object** — `{ field: SIZE, direction: DESC }` — which is the
-  whole of what changed in the generated documents when it landed.
+[#31]: https://github.com/stats-forge/github-stats-forge/pull/31
+[#46]: https://github.com/stats-forge/github-stats-forge/pull/46
+[#47]: https://github.com/stats-forge/github-stats-forge/pull/47
+[#48]: https://github.com/stats-forge/github-stats-forge/pull/48
+[#79]: https://github.com/stats-forge/github-stats-forge/pull/79
+[#106]: https://github.com/stats-forge/github-stats-forge/pull/106
+[#113]: https://github.com/stats-forge/github-stats-forge/pull/113
+[#229]: https://github.com/stats-forge/github-stats-forge/pull/229
+[#230]: https://github.com/stats-forge/github-stats-forge/pull/230
+[#231]: https://github.com/stats-forge/github-stats-forge/pull/231
+[#234]: https://github.com/stats-forge/github-stats-forge/pull/234
+[#235]: https://github.com/stats-forge/github-stats-forge/pull/235
