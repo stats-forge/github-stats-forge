@@ -81,6 +81,8 @@ interface StatCardOptions extends CommonCardOptions {
   ring_color: string;
   rank_icon: RankIcon;
   show: Array<string>;
+  /** `owner/name` and `owner/*` entries the search-based stats were narrowed to, named in their labels. */
+  scope: Array<string>;
 }
 
 /** Meta data for a stat, used to build its text node and accessibility label. */
@@ -233,14 +235,9 @@ const getTotalCommitsRangeLabel = (
  *
  * @returns The stats card SVG object.
  */
-const renderCard = (
-  stats: StatsData,
-  options: CardOptions<StatCardOptions> = {},
-  username?: string,
-  repo: Array<string> = [],
-  owner: Array<string> = [],
-): string => {
+const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}): string => {
   const {
+    login,
     name,
     totalStars,
     totalCommits,
@@ -273,6 +270,7 @@ const renderCard = (
     title,
     border_radius,
     number_format = 'short',
+    scope = [],
     number_precision,
     locale,
     disable_animations = false,
@@ -290,6 +288,25 @@ const renderCard = (
   const commonT = localize(commonLocales, locale);
 
   // Meta data for creating text nodes with createTextNode function
+  const repoFilter = encodeURIComponent(buildSearchFilter(scope));
+  /**
+   * A search stat's label, naming where it counted, since nothing else on the card says so.
+   *
+   * @returns The label, with the scope after it when there is one.
+   */
+  const scoped = (label: string): string => {
+    const [only] = scope;
+    if (only === undefined) {
+      return label;
+    }
+
+    if (scope.length === 1) {
+      return `${label} (${only})`;
+    }
+
+    return `${label} (${t.scopes({ count: scope.length })})`;
+  };
+
   const STATS: Partial<Record<StatId, StatItem>> = {
     stars: {
       icon: icons.star,
@@ -310,7 +327,10 @@ const renderCard = (
 
   STATS['commits'] = {
     icon: icons.commits,
-    label: `${t.commits()}${getTotalCommitsRangeLabel(include_all_commits, commitsRange, commonT)}`,
+    // counted by search only when it is all commits, which is when a scope reaches it
+    label: include_all_commits
+      ? scoped(t.commits())
+      : `${t.commits()}${getTotalCommitsRangeLabel(false, commitsRange, commonT)}`,
     value: totalCommits,
     id: 'commits',
   };
@@ -377,26 +397,7 @@ const renderCard = (
     };
   }
 
-  const repoFilter = encodeURIComponent(buildSearchFilter(repo, owner));
-  const scopes = [...repo, ...owner.map((login) => `${login}/*`)];
-  /**
-   * A search stat's label, naming where it counted, since nothing else on the card says so.
-   *
-   * @returns The label, with the scope after it when there is one.
-   */
-  const scoped = (label: string): string => {
-    const [only] = scopes;
-    if (only === undefined) {
-      return label;
-    }
-
-    if (scopes.length === 1) {
-      return `${label} (${only})`;
-    }
-
-    return `${label} (${t.scopes({ count: scopes.length })})`;
-  };
-  const encodedUsername = encodeURIComponent(username ?? '');
+  const encodedUsername = encodeURIComponent(login);
   if (shows('prs_opened')) {
     STATS['prs_opened'] = {
       icon: icons.prs,

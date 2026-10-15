@@ -38,6 +38,7 @@ const repoData: RepositoryData = {
 };
 
 const statsData: StatsData = {
+  login: 'anuraghazra',
   name: 'Anurag Hazra',
   totalStars: 100,
   commitsRange: undefined,

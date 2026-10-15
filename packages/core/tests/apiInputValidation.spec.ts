@@ -135,7 +135,7 @@ describe('API input validation', () => {
     const result = await stats({ username: 'user', scope: 'vitest-dev/*' }, config);
 
     expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'scope' } });
-    expect(result.content).toContain('applies only to the search stats');
+    expect(result.content).toContain('applies only to stats counted by search');
   });
 
   it('org-activity: rejects days together with a range', async () => {

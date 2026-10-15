@@ -80,7 +80,7 @@ and `locale`.
 ## Scoping the search stats
 
 `prs_opened`, `prs_commented`, `prs_reviewed`, `issues_opened` and `issues_commented` are counted
-by GitHub's search, and `scope` narrows that search: `owner/name` for one repository, `owner/*` for
+by GitHub's search, and so are commits under `include_all_commits`. `scope` narrows that search: `owner/name` for one repository, `owner/*` for
 everything an owner holds, up to ten entries.
 
 ```text
@@ -89,7 +89,7 @@ everything an owner holds, up to ten entries.
 
 Each scoped line names its scope, `PRs Created (vitest-dev/*)` or `PRs Created (2 scopes)`. A bare
 name is an error, being a repository or an owner with nothing to say which, and so is a `scope`
-when none of those five stats is drawn.
+when nothing on the card is counted by search.
 
 ## What `affiliation` covers
 

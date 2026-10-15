@@ -11,6 +11,7 @@ import { themes } from '../src/themes/index.ts';
 import { testConfig } from './_config.ts';
 
 const stats: StatsData = {
+  login: 'anuraghazra',
   name: 'Anurag Hazra',
   totalStars: 100,
   commitsRange: undefined,
@@ -143,23 +144,28 @@ describe('Test renderStatsCard', () => {
   });
 
   it('names the scope of a search stat, and counts several', () => {
-    document.body.innerHTML = renderStatsCard(
-      stats,
-      { show: ['prs_opened'] },
-      'me',
-      [],
-      ['vitest-dev'],
-    );
+    document.body.innerHTML = renderStatsCard(stats, {
+      show: ['prs_opened'],
+      scope: ['vitest-dev/*'],
+    });
     expect(document.querySelector('svg')).toHaveTextContent('PRs Created (vitest-dev/*)');
 
-    document.body.innerHTML = renderStatsCard(
-      stats,
-      { show: ['prs_opened'] },
-      'me',
-      ['me/dotfiles'],
-      ['vitest-dev'],
-    );
+    document.body.innerHTML = renderStatsCard(stats, {
+      show: ['prs_opened'],
+      scope: ['me/dotfiles', 'vitest-dev/*'],
+    });
     expect(document.querySelector('svg')).toHaveTextContent('PRs Created (2 scopes)');
+  });
+
+  it('names the scope on the commits line only when commits are counted by search', () => {
+    document.body.innerHTML = renderStatsCard(stats, { scope: ['vitest-dev/*'] });
+    expect(screen.getByTestId('commits').closest('g')).not.toHaveTextContent('vitest-dev');
+
+    document.body.innerHTML = renderStatsCard(stats, {
+      include_all_commits: true,
+      scope: ['vitest-dev/*'],
+    });
+    expect(document.querySelector('svg')).toHaveTextContent('(vitest-dev/*)');
   });
 
   it('should hide_rank', () => {

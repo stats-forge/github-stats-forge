@@ -88,7 +88,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   range_conflict: (param) => `Parameter "${param}" cannot be combined with "from" or "to"`,
   scope: (param) =>
     `Parameter "${param}" takes up to ${MAX_SCOPES} entries, each owner/name or owner/*`,
-  scope_unused: (param) => `Parameter "${param}" applies only to the search stats; show one`,
+  scope_unused: (param) => `Parameter "${param}" applies only to stats counted by search`,
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
   username: (param) => `Invalid username input for parameter "${param}"`,
   hostname: (param) => `Invalid hostname input for parameter "${param}"`,
@@ -364,18 +364,17 @@ const scopeParam: z.ZodMiniType<Array<string>, string | undefined> = kinded(
 );
 
 /**
- * A `scope` changes only the search-based stats, so one with none of them drawn changes nothing.
+ * A `scope` changes only what is counted by search, so one with no search to narrow changes nothing.
  *
- * @returns The check, over the stats the card draws only through search.
+ * @returns The check, over whether the query draws anything counted by search.
  */
-const scopeNeedsSearchStat = (
-  searchStats: ReadonlyArray<string>,
-): z.core.$ZodCheck<{ scope: Array<string>; show: Array<string>; hide: Array<string> }> =>
-  z.refine(
-    ({ scope, show, hide }) =>
-      scope.length === 0 || searchStats.some((stat) => show.includes(stat) && !hide.includes(stat)),
-    { error: REJECTION_MESSAGES.scope_unused('scope'), path: ['scope'] },
-  );
+const scopeNeedsSearch = <TQuery extends { scope: Array<string> }>(
+  searches: (query: TQuery) => boolean,
+): z.core.$ZodCheck<TQuery> =>
+  z.refine((query: TQuery) => query.scope.length === 0 || searches(query), {
+    error: REJECTION_MESSAGES.scope_unused('scope'),
+    path: ['scope'],
+  });
 
 /** What every card accepts beside the colors, so a card cannot be the one that forgot one. */
 const commonParams = {
@@ -519,7 +518,7 @@ export {
   resolveEmpty,
   safeListParam,
   safeParam,
-  scopeNeedsSearchStat,
+  scopeNeedsSearch,
   scopeParam,
   statRowParams,
   titleParams,

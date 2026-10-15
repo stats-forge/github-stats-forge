@@ -14,7 +14,7 @@ import {
   intParam,
   ORDERED_RANGE,
   safeListParam,
-  scopeNeedsSearchStat,
+  scopeNeedsSearch,
   scopeParam,
   statRowParams,
   titleParams,
@@ -25,7 +25,7 @@ import {
 /** Every stat the card draws: `show` and `hide` each accept any of them. */
 const STATS = [...renderStatsCard.OPTIONS.hide, ...renderStatsCard.OPTIONS.show] as const;
 
-/** The stats counted by search, and so the only ones `scope` narrows. */
+/** The stats counted by search, which `scope` narrows, with commits when `include_all_commits` is on. */
 const SEARCH_STATS = [
   'prs_opened',
   'prs_commented',
@@ -55,7 +55,13 @@ const statsQuery = z
     include_own_repos: booleanParam,
   })
   .check(ORDERED_RANGE)
-  .check(scopeNeedsSearchStat(SEARCH_STATS));
+  .check(
+    scopeNeedsSearch(
+      ({ show, hide, include_all_commits }) =>
+        SEARCH_STATS.some((stat) => show.includes(stat) && !hide.includes(stat)) ||
+        (include_all_commits === true && !hide.includes('commits')),
+    ),
+  );
 
 /**
  * Render the stats card for a set of query params.
@@ -96,10 +102,6 @@ const renderStats = cardHandler(
     // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
     const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
 
-    // `owner/*` is an owner; anything else the boundary let through is a repository
-    const owner = scope.filter((entry) => entry.endsWith('/*')).map((entry) => entry.slice(0, -2));
-    const repository = scope.filter((entry) => !entry.endsWith('/*'));
-
     const stats = await fetchStats(
       {
         username,
@@ -110,8 +112,7 @@ const renderStats = cardHandler(
         include_discussions_answers: drawn.has('discussions_answered'),
         from,
         to,
-        repo: repository,
-        owner,
+        scope,
         include_prs_authored: drawn.has('prs_opened'),
         include_prs_commented: drawn.has('prs_commented'),
         include_prs_reviewed: drawn.has('prs_reviewed'),
@@ -125,30 +126,25 @@ const renderStats = cardHandler(
       config,
     );
 
-    return renderStatsCard(
-      stats,
-      {
-        ...colors,
-        hide,
-        show_icons,
-        hide_title,
-        hide_border,
-        card_width,
-        hide_rank,
-        include_all_commits,
-        title,
-        border_radius,
-        number_format,
-        number_precision,
-        locale,
-        disable_animations,
-        rank_icon,
-        show,
-      },
-      username,
-      repository,
-      owner,
-    );
+    return renderStatsCard(stats, {
+      ...colors,
+      hide,
+      show_icons,
+      hide_title,
+      hide_border,
+      card_width,
+      hide_rank,
+      include_all_commits,
+      title,
+      border_radius,
+      number_format,
+      number_precision,
+      locale,
+      disable_animations,
+      rank_icon,
+      show,
+      scope,
+    });
   },
 );
 
