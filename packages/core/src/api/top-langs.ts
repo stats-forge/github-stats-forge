@@ -7,6 +7,7 @@ import { fetchTopLanguages } from '../fetchers/top-languages.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
+  enumListParam,
   enumParam,
   listParam,
   localeParam,
@@ -31,7 +32,7 @@ const topLangsQuery = z.object({
   custom_title: rawParam,
   locale: localeParam,
   border_radius: numberParam,
-  role: listParam,
+  role: enumListParam(OWNER_AFFILIATIONS),
   disable_animations: booleanParam,
   hide_progress: booleanParam,
   hide_values: booleanParam,

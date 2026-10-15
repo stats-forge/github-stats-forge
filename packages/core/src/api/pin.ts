@@ -6,7 +6,7 @@ import { fetchRepo } from '../fetchers/repo.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
-  listParam,
+  enumListParam,
   localeParam,
   intParam,
   numberParam,
@@ -23,7 +23,7 @@ const pinQuery = z.object({
   card_width: intParam,
   show_owner: booleanParam,
   browser_rendering: booleanParam,
-  show: listParam,
+  show: enumListParam(renderRepoCard.OPTIONS.show),
   show_icons: booleanParam,
   number_format: rawParam,
   text_bold: booleanParam,

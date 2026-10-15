@@ -6,7 +6,7 @@ import { fetchOrgActivity } from '../fetchers/org-activity.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
-  listParam,
+  enumListParam,
   localeParam,
   intParam,
   numberParam,
@@ -18,8 +18,8 @@ import {
 const orgActivityQuery = z.object({
   org: usernameParam,
   days: intParam,
-  hide: listParam,
-  show: listParam,
+  hide: enumListParam(renderOrgActivityCard.OPTIONS.hide),
+  show: enumListParam(renderOrgActivityCard.OPTIONS.show),
   show_icons: booleanParam,
   hide_title: booleanParam,
   hide_border: booleanParam,

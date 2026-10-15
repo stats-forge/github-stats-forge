@@ -7,6 +7,7 @@ import { fetchStats } from '../fetchers/stats.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
+  enumListParam,
   enumParam,
   fromParam,
   listParam,
@@ -26,7 +27,7 @@ const statsQuery = z
     username: usernameParam,
     repo: safeListParam,
     owner: safeListParam,
-    hide: listParam,
+    hide: enumListParam(renderStatsCard.OPTIONS.hide),
     hide_title: booleanParam,
     hide_border: booleanParam,
     card_width: intParam,
@@ -43,10 +44,10 @@ const statsQuery = z
     disable_animations: booleanParam,
     border_radius: numberParam,
     number_format: rawParam,
-    role: listParam,
+    role: enumListParam(OWNER_AFFILIATIONS),
     number_precision: intParam,
     rank_icon: enumParam(renderStatsCard.OPTIONS.rank_icon),
-    show: listParam,
+    show: enumListParam(renderStatsCard.OPTIONS.show),
     contribs_include_own_repos: booleanParam,
   })
   .check(ORDERED_RANGE);

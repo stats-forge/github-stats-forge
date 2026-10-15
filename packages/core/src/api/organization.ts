@@ -6,7 +6,7 @@ import { fetchOrganization } from '../fetchers/organization.ts';
 import { cardHandler } from './handler.ts';
 import {
   booleanParam,
-  listParam,
+  enumListParam,
   localeParam,
   intParam,
   numberParam,
@@ -17,8 +17,8 @@ import {
 /** What the organization endpoint accepts, on top of the shared color params. */
 const orgQuery = z.object({
   org: usernameParam,
-  hide: listParam,
-  show: listParam,
+  hide: enumListParam(renderOrganizationCard.OPTIONS.hide),
+  show: enumListParam(renderOrganizationCard.OPTIONS.show),
   show_icons: booleanParam,
   hide_title: booleanParam,
   hide_border: booleanParam,
