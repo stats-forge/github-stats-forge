@@ -12,7 +12,11 @@ import * as z from 'zod/mini';
 
 import type { ColorParams } from '../common/color.ts';
 import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.ts';
-import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
+import {
+  GITHUB_USERNAME_PATTERN,
+  HOSTNAME_PATTERN,
+  WAKATIME_USERNAME_PATTERN,
+} from '../common/constants.ts';
 import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
 import { isLocaleAvailable } from '../common/localize.ts';
@@ -32,6 +36,7 @@ type Rejection =
   | 'inverted_range'
   | 'unsafe'
   | 'username'
+  | 'hostname'
   | 'locale'
   | 'enum'
   | 'color';
@@ -47,6 +52,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   inverted_range: () => 'Range "from" is after "to"',
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
   username: (param) => `Invalid username input for parameter "${param}"`,
+  hostname: (param) => `Invalid hostname input for parameter "${param}"`,
   locale: () => 'Locale not found',
   enum: (param) => `Incorrect ${param} input`,
   color: (param) => `Invalid color input for parameter "${param}"`,
@@ -146,6 +152,19 @@ const safeParam: z.ZodMiniType<string | undefined, string | undefined> = rawPara
  */
 const usernameParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
   rejects('username', (value) => !value || GITHUB_USERNAME_PATTERN.test(value)),
+);
+
+/** A WakaTime profile, which the fetcher puts in a URL path as one segment. */
+const wakatimeUsernameParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
+  rejects('username', (value) => !value || WAKATIME_USERNAME_PATTERN.test(value)),
+);
+
+/**
+ * A host the server is asked to fetch from.
+ * A path, a query or credentials would let the query steer the request past the host it names.
+ */
+const hostnameParam: z.ZodMiniType<string | undefined, string | undefined> = rawParam.check(
+  rejects('hostname', (value) => !value || HOSTNAME_PATTERN.test(value)),
 );
 
 /**
@@ -251,6 +270,7 @@ export {
   booleanParam,
   enumParam,
   fromParam,
+  hostnameParam,
   listParam,
   ORDERED_RANGE,
   localeParam,
@@ -263,4 +283,5 @@ export {
   safeParam,
   toParam,
   usernameParam,
+  wakatimeUsernameParam,
 };
