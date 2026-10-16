@@ -364,13 +364,13 @@ const renderError = ({
 
   /*
    * Its own line, at the small size, because it no longer fits beside the title: the inherited URL
-   * ran to 561px inside a 576.5px card and this one reaches 587px. Measured in a canvas at the
+   * ran to 561px inside a 576.5px card and this one runs past it. Measured in a canvas at the
    * title's own font, so re-measure before putting it back on one line.
    */
   const report =
     UPSTREAM_API_ERRORS.has(secondaryMessage) || !show_repo_link
       ? ''
-      : 'File an issue at https://tinyurl.com/stats-forge-bug';
+      : 'File an issue at https://tinyurl.com/github-stats-forge-bug';
 
   return renderMarkup(
     el(
