@@ -88,7 +88,7 @@ describe('Test renderError', () => {
   it('points a reader at this project, on its own line', () => {
     document.body.innerHTML = renderError({ message: 'Nope' });
     expect(screen.getByTestId('report')).toHaveTextContent(
-      'File an issue at https://tinyurl.com/stats-forge-bug',
+      'File an issue at https://tinyurl.com/github-stats-forge-bug',
     );
   });
 
