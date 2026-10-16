@@ -16,10 +16,10 @@ allowBuilds:
   lefthook: true
 
 catalog:
-  '@vitest/coverage-v8': 5.0.3
+  '@vitest/coverage-v8': 5.0.4
   jsdom: 30.1.2
-  oxfmt: 0.72.0
-  vitest: 5.0.3
+  oxfmt: 0.73.0
+  vitest: 5.0.4
 
 # Deliberately stricter than pnpm's 1440 default (3 days vs 1)
 minimumReleaseAge: 4320
