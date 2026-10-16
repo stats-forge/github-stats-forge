@@ -54,7 +54,7 @@ jobs:
   code-checks:
     name: Code checks
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
 
     permissions:
@@ -98,7 +98,7 @@ jobs:
   docs:
     name: Docs site
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
 
     permissions:
@@ -148,7 +148,7 @@ jobs:
   image:
     name: Server image
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
 
     permissions:
@@ -188,7 +188,7 @@ jobs:
 
   ci-ok:
     name: CI OK
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 1
     if: ${{ always() }}
     needs:
