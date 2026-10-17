@@ -1,5 +1,11 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.9.1
+
+### Patch Changes
+
+- [#260](https://github.com/stats-forge/github-stats-forge/pull/260) [`6de4809`](https://github.com/stats-forge/github-stats-forge/commit/6de4809d0ff10b8db279b228327fca606abf9664) - fix: point the error card's report line at https://tinyurl.com/github-stats-forge-bug
+
 ## 0.9.0
 
 ### Minor Changes
