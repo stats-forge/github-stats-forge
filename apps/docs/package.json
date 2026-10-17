@@ -28,7 +28,7 @@
     "@playwright/test": "1.64.0",
     "@stats-forge/github-stats-forge-catalog": "workspace:^",
     "@stats-forge/github-stats-forge-core": "workspace:^",
-    "@types/node": "24.19.1",
+    "@types/node": "24.19.2",
     "oxfmt": "catalog:default",
     "starlight-links-validator": "0.27.0",
     "typescript": "7.0.2"

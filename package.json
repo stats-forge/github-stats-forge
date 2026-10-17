@@ -34,7 +34,7 @@
     "@changesets/cli": "3.0.3",
     "@marcalexiei/oxfmt-config": "2.0.1",
     "@marcalexiei/oxlint-config": "1.6.0",
-    "@types/node": "24.19.1",
+    "@types/node": "24.19.2",
     "@vitest/coverage-v8": "catalog:default",
     "knip": "6.41.0",
     "lefthook": "2.1.17",
