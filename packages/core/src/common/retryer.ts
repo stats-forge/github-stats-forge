@@ -1,5 +1,5 @@
 import type { CardConfig } from './config.ts';
-import { CardError, TOKENS_REJECTED } from './error.ts';
+import { CardError } from './error.ts';
 import type { FetcherContext, HttpResponse } from './http.ts';
 import { logger } from './log.ts';
 
@@ -73,7 +73,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
   const PATs = config.pats;
 
   if (PATs.length === 0) {
-    throw new CardError('No GitHub API tokens found', { code: 'no_tokens' });
+    throw CardError.because('tokens_missing');
   }
   const startPAT = getRandomInt(PATs.length);
   let transientFailures = 0;
@@ -103,7 +103,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
       // the budget doubles as the delay table: out of delays is out of retries
       const delay = TRANSIENT_RETRY_DELAYS_MS[transientFailures];
       if (delay === undefined) {
-        throw new CardError('Could not reach GitHub', { code: 'upstream', cause: error });
+        throw CardError.because('github_unreachable', { cause: error });
       }
       await sleep(delay);
       transientFailures += 1;
@@ -140,15 +140,10 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 
   // a lapsed token is the operator's to replace, which no amount of waiting out a rate limit fixes
   if (rejectedPATs === PATs.length) {
-    throw new CardError('Every GitHub API token was rejected', {
-      code: 'no_tokens',
-      secondaryMessage: TOKENS_REJECTED,
-    });
+    throw CardError.because('tokens_rejected');
   }
 
-  throw new CardError('Downtime due to GitHub API rate limiting', {
-    code: 'rate_limited',
-  });
+  throw CardError.because('rate_limited');
 };
 
 export { retryer };

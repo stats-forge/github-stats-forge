@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CardError, MEMBERS_FORBIDDEN } from '../src/common/error.ts';
+import { CardError } from '../src/common/error.ts';
 import { fetchOrganization } from '../src/fetchers/organization.ts';
 import type {
   GetOrganizationQuery,
@@ -229,7 +229,7 @@ describe(fetchOrganization, () => {
 
     await expect(
       fetchOrganization({ org: 'vitest-dev', require_members: true }, config),
-    ).rejects.toMatchObject({ code: 'forbidden', secondaryMessage: MEMBERS_FORBIDDEN });
+    ).rejects.toMatchObject({ code: 'forbidden', reason: 'members_forbidden' });
   });
 
   it('keeps the rest of the card when the token may not read the member count', async () => {
@@ -290,7 +290,7 @@ describe(fetchOrganization, () => {
 
     await expect(fetchOrganization({ org: 'marcalexiei' }, config)).rejects.toMatchObject({
       code: 'not_found',
-      secondaryMessage: 'Make sure the provided organization exists and is not a user',
+      reason: 'organization_not_found',
     });
   });
 

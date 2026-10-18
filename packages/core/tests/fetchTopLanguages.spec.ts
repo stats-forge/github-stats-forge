@@ -196,9 +196,11 @@ describe('FetchTopLanguages', () => {
       errors: [{ type: 'TEST' }],
     });
 
-    await expect(fetchTopLanguages({ username: 'anuraghazra' }, config)).rejects.toThrow(
-      'Something went wrong while trying to retrieve the language data using the GraphQL API.',
-    );
+    await expect(fetchTopLanguages({ username: 'anuraghazra' }, config)).rejects.toMatchObject({
+      reason: 'graphql_failed',
+      message:
+        'Something went wrong while trying to retrieve the language data using the GraphQL API.',
+    });
 
     expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
   });

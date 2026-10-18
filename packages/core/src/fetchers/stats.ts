@@ -9,7 +9,7 @@ import {
   toRange,
   toYearRanges,
 } from '../common/date.ts';
-import { CardError, USER_NOT_FOUND } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
@@ -26,7 +26,6 @@ import type {
 } from '../graphql/generated/stats.ts';
 
 import { fetchReposContributedTo } from './contributed-to.ts';
-import { graphqlError } from './graphql-error.ts';
 import type { RepoUserStats, StatsData } from './types.ts';
 
 /** The subset of the stats response `statsFetcher` returns and threads on. */
@@ -183,10 +182,7 @@ const totalItemsFetcher = async (
 ): Promise<number> => {
   if (!GITHUB_USERNAME_PATTERN.test(username)) {
     logger.log('Invalid username provided.');
-    throw new CardError('Invalid username provided.', {
-      code: 'invalid_param',
-      param: 'username',
-    });
+    throw CardError.because('invalid_username');
   }
 
   let res: FetcherResponse<{ total_count?: number }>;
@@ -200,9 +196,7 @@ const totalItemsFetcher = async (
   const totalCount = res.data.total_count;
   if (typeof totalCount !== 'number' || Number.isNaN(totalCount)) {
     logger.error(`GitHub error: ${JSON.stringify(res.data)}`);
-    throw new CardError('Could not fetch data from GitHub REST API.', {
-      code: 'upstream',
-    });
+    throw CardError.because('search_count_unavailable');
   }
   return totalCount;
 };
@@ -292,10 +286,10 @@ const sumOverRanges = async (
   const contribRes = await retryer(contributionsFetcher, { login: username }, config);
 
   if (contribRes.data.errors) {
-    throw graphqlError(
+    throw CardError.fromGraphQL(
       contribRes.data.errors,
       contribRes.statusText,
-      'Something went wrong while trying to retrieve the contributions data using the GraphQL API.',
+      'contributions data',
     );
   }
 
@@ -362,7 +356,7 @@ const fetchStats = async (
   config: CardConfig,
 ): Promise<StatsData> => {
   if (!username) {
-    throw CardError.missingParam(['username']);
+    throw CardError.because('missing_param', { params: ['username'] });
   }
 
   const stats: StatsData = {
@@ -410,19 +404,12 @@ const fetchStats = async (
   );
 
   if (res.data.errors) {
-    throw graphqlError(
-      res.data.errors,
-      res.statusText,
-      'Something went wrong while trying to retrieve the stats data using the GraphQL API.',
-    );
+    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'stats data');
   }
 
   const { user } = res.data.data;
   if (!user) {
-    throw new CardError('Could not fetch user.', {
-      code: 'not_found',
-      secondaryMessage: USER_NOT_FOUND,
-    });
+    throw CardError.because('user_not_found');
   }
 
   stats.login = user.login;

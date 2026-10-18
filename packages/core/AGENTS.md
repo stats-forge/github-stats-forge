@@ -84,6 +84,21 @@ render functions typed values; defaults stay with the renderer.
   answered once.
   - **`CardError.from(err)` wraps anything else as `upstream`, which is retryable** — a permanent
     failure has to throw a `CardError` to be reported as one.
+- **Every error table is a `static #` field of `CardError`, so no message string leaves the class.**
+- **A failure is thrown by its reason: `CardError.because(reason, data)`.** Its code and both lines
+  live in `CardError.#FAILURES` and nowhere else, and tests assert on `reason`, not on the text.
+  `from` is the only other way to build one; `fromGraphQL` picks the reason for a query's
+  `errors`.
+  - **Each entry of `#FAILURES` is a function from the reason's data to the failure**, so a line
+    built from data reads as one template.
+  - **`FailureData` says what each reason needs** — `undefined` for nothing, an object to require
+    it, `| undefined` to take it optionally — and `because` demands exactly that, so a missing
+    param or username fails `tsc`. Pass in only what the table cannot word itself.
+  - **`FailureReason` is `keyof FailureData`**, because a type cannot reach a `#` field.
+  - **`reason` is set by `because` alone**, so it can never disagree with the code.
+- **`CardError.reportable` decides the error card's report line, and each failure declares it**:
+  `reportable: false` for a spent rate limit, upstream's own outage, a missing param (whose card
+  links the docs) and whatever `from` wraps.
 - **`ApiResult` is a union, not a status string.** A host branches on `code` / `retryable` and never
   reads the SVG to learn what happened.
 
@@ -111,7 +126,7 @@ committed and both oxlint and knip ignore it, so nothing else guards it.
 - **A search whose result a permission can change must say what it matched** ([#113]). A token
   refused issues answers `is:issue` with pull requests, so each issue search asks for
   `nodes { __typename }` and checks it got an `Issue`.
-- **A stat the query asked for and the token may not read is `CardError.forbidden`, not a missing
+- **A stat the query asked for and the token may not read is a `forbidden` reason, not a missing
   row** ([#113]). Its second line names the permission and the option that drops the stat.
   - **The api layer decides whether the stat was asked for, and hands the fetcher one boolean**
     (`require_members`, `require_issues`, `include_commits`); a fetcher never reads `show` or `hide`.

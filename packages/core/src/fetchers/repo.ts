@@ -1,5 +1,5 @@
 import type { CardConfig } from '../common/config.ts';
-import { CardError, REPO_NOT_FOUND } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import { retryer } from '../common/retryer.ts';
 import { GetRepoDocument } from '../graphql/generated/repo.ts';
@@ -47,13 +47,13 @@ const fetchRepo = async (
 
   const login = username || parsedOwner;
   if (!login && !repo) {
-    throw CardError.missingParam(['username', 'repo'], urlExample);
+    throw CardError.because('missing_param', { params: ['username', 'repo'], hint: urlExample });
   }
   if (!login) {
-    throw CardError.missingParam(['username'], urlExample);
+    throw CardError.because('missing_param', { params: ['username'], hint: urlExample });
   }
   if (!repo) {
-    throw CardError.missingParam(['repo'], urlExample);
+    throw CardError.because('missing_param', { params: ['repo'], hint: urlExample });
   }
 
   const repoOwner = parsedOwner || login;
@@ -63,19 +63,13 @@ const fetchRepo = async (
   const { data } = res.data;
 
   if (!data.user && !data.organization) {
-    throw new CardError('Not found', {
-      code: 'not_found',
-      secondaryMessage: REPO_NOT_FOUND,
-    });
+    throw CardError.because('repo_not_found');
   }
 
   if (data.organization === null && data.user) {
     const { repository } = data.user;
     if (!repository || repository.isPrivate) {
-      throw new CardError('User Repository Not found', {
-        code: 'not_found',
-        secondaryMessage: REPO_NOT_FOUND,
-      });
+      throw CardError.because('repo_not_found');
     }
     const repoUserStats = await fetchRepoUserStats(
       {
@@ -98,10 +92,7 @@ const fetchRepo = async (
   if (data.user === null && data.organization) {
     const { repository } = data.organization;
     if (!repository || repository.isPrivate) {
-      throw new CardError('Organization Repository Not found', {
-        code: 'not_found',
-        secondaryMessage: REPO_NOT_FOUND,
-      });
+      throw CardError.because('repo_not_found');
     }
     const repoUserStats = await fetchRepoUserStats(
       {
@@ -121,7 +112,7 @@ const fetchRepo = async (
     };
   }
 
-  throw new CardError('Unexpected behavior', { code: 'upstream' });
+  throw CardError.because('unexpected_repo_response');
 };
 
 export { fetchRepo };

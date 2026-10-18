@@ -321,7 +321,7 @@ describe('Test fetchStats', () => {
   it('should throw specific error when include_all_commits true and invalid username', async () => {
     await expect(
       fetchStats({ username: 'asdf///---', include_all_commits: true }, config),
-    ).rejects.toThrow('Invalid username provided.');
+    ).rejects.toMatchObject({ reason: 'invalid_username' });
   });
 
   it('should throw specific error when include_all_commits true and API returns error', async () => {
@@ -329,9 +329,9 @@ describe('Test fetchStats', () => {
       .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
       .reply(200, { error: 'Some test error message' });
 
-    await expect(fetchStatsWith({ include_all_commits: true })).rejects.toThrow(
-      'Could not fetch data from GitHub REST API.',
-    );
+    await expect(fetchStatsWith({ include_all_commits: true })).rejects.toMatchObject({
+      reason: 'search_count_unavailable',
+    });
   });
 
   it.each(['test-repo-1', 'Anuraghazra/TEST-repo-1'])(
@@ -512,9 +512,11 @@ describe('Test fetchStats', () => {
       return [200, req.query.includes('totalCommitContributions') ? data_stats : data_repo];
     });
 
-    await expect(fetchStatsWith({ include_contributions: true })).rejects.toThrow(
-      'Something went wrong while trying to retrieve the contributions data using the GraphQL API.',
-    );
+    await expect(fetchStatsWith({ include_contributions: true })).rejects.toMatchObject({
+      reason: 'graphql_failed',
+      message:
+        'Something went wrong while trying to retrieve the contributions data using the GraphQL API.',
+    });
   });
 
   it("should return correct data when user don't have any pull requests", async () => {

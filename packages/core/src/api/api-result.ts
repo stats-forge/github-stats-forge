@@ -62,8 +62,7 @@ export const errorResult = (
       secondaryMessage: error.secondaryMessage,
       renderOptions: {
         ...renderOptions,
-        // A missing param is the caller's to fix, so the card links its docs instead.
-        show_repo_link: error.code !== 'missing_param',
+        show_repo_link: error.reportable,
       },
     }),
   };

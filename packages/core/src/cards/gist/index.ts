@@ -6,13 +6,8 @@ import { icons } from '../../common/icons.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
-import {
-  wrapTextMultiline,
-  createLanguageNode,
-  flexLayout,
-  iconWithLabel,
-  measureText,
-} from '../../common/render.ts';
+import { createLanguageNode, flexLayout, iconWithLabel } from '../../common/render.ts';
+import { wrapTextMultiline, measureText } from '../../common/text.ts';
 import type { GistData } from '../../fetchers/types.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

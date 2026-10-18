@@ -1,7 +1,7 @@
 import type { CardConfig } from '../common/config.ts';
 import type { GitHubDateRange } from '../common/date.ts';
 import { toContributionRanges, toRange } from '../common/date.ts';
-import { CardError, USER_NOT_FOUND } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import { logger } from '../common/log.ts';
 import { clampValue, excludes } from '../common/ops.ts';
@@ -12,7 +12,6 @@ import {
   buildReposContributedToDocument,
 } from '../graphql/reposContributedToDocument.ts';
 
-import { graphqlError } from './graphql-error.ts';
 import type { ContributedToData, ContributedRepo } from './types.ts';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -31,15 +30,12 @@ const RESOURCE_LIMITS_EXCEEDED = 'RESOURCE_LIMITS_EXCEEDED';
 /** Empty bodies tolerated in a row before the walk gives up. */
 const MAX_EMPTY_RESPONSE_RETRIES = 3;
 
-const REPOS_CONTRIBUTED_TO_ERROR =
-  'Something went wrong while trying to retrieve the repository contributions data using the GraphQL API.';
+/** What the repository walk asks for, as a failure names it. */
+const REPOS_CONTRIBUTED_TO = 'repository contributions data';
 
 /** Rows the card ranks when the query names no count, and the most it will rank. */
 const DEFAULT_REPOS_COUNT = 5;
 const MAX_REPOS_COUNT = 20;
-
-const CONTRIBUTION_YEARS_ERROR =
-  'Something went wrong while trying to retrieve the contribution years using the GraphQL API.';
 
 /** What one repository accumulated over the walk. */
 interface RepoContributions {
@@ -103,7 +99,7 @@ const fetchReposContributedTo = async (
     // a gateway timeout is GitHub giving up on the request rather than rejecting it
     if (res.status === 502 || res.status === 504) {
       if (chunk.length === 1) {
-        throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: 'upstream' });
+        throw CardError.because('graphql_failed', { subject: REPOS_CONTRIBUTED_TO });
       }
       rangesPerRequest = Math.floor(chunk.length / 2);
       logger.log(
@@ -116,7 +112,7 @@ const fetchReposContributedTo = async (
     const envelope: unknown = res.data;
     if (envelope === null || typeof envelope !== 'object') {
       if (emptyResponses >= MAX_EMPTY_RESPONSE_RETRIES) {
-        throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: 'upstream' });
+        throw CardError.because('graphql_failed', { subject: REPOS_CONTRIBUTED_TO });
       }
       emptyResponses += 1;
       logger.log(
@@ -133,20 +129,18 @@ const fetchReposContributedTo = async (
         logger.log(`Resource limits exceeded, retrying ${rangesPerRequest} range(s) at a time...`);
         continue;
       }
-      throw graphqlError(res.data.errors, res.statusText, REPOS_CONTRIBUTED_TO_ERROR);
+      throw CardError.fromGraphQL(res.data.errors, res.statusText, REPOS_CONTRIBUTED_TO);
     }
     const { user } = res.data.data;
     if (!user) {
-      throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, { code: 'upstream' });
+      throw CardError.because('graphql_failed', { subject: REPOS_CONTRIBUTED_TO });
     }
 
     const halves: Array<GitHubDateRange> = [];
     for (const [index, range] of chunk.entries()) {
       const rangeResponse = user[`range_${index}`];
       if (!rangeResponse) {
-        throw new CardError(REPOS_CONTRIBUTED_TO_ERROR, {
-          code: 'upstream',
-        });
+        throw CardError.because('graphql_failed', { subject: REPOS_CONTRIBUTED_TO });
       }
 
       const counted = [
@@ -251,7 +245,7 @@ const fetchContributedTo = async (
   config: CardConfig,
 ): Promise<ContributedToData> => {
   if (!username) {
-    throw CardError.missingParam(['username']);
+    throw CardError.because('missing_param', { params: ['username'] });
   }
 
   const count =
@@ -261,15 +255,12 @@ const fetchContributedTo = async (
 
   const res = await retryer(yearsFetcher, { login: username }, config);
   if (res.data.errors) {
-    throw graphqlError(res.data.errors, res.statusText, CONTRIBUTION_YEARS_ERROR);
+    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'contribution years');
   }
 
   const { user } = res.data.data;
   if (!user) {
-    throw new CardError('Could not fetch user.', {
-      code: 'not_found',
-      secondaryMessage: USER_NOT_FOUND,
-    });
+    throw CardError.because('user_not_found');
   }
 
   const ranges = toContributionRanges(

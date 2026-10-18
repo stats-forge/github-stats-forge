@@ -9,7 +9,6 @@ import type {
   TopLanguagesRepositoryFragment,
 } from '../graphql/generated/top-languages.ts';
 
-import { graphqlError } from './graphql-error.ts';
 import type { Lang, TopLangData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(TopLanguagesDocument, 'token');
@@ -36,7 +35,7 @@ const fetchTopLanguages = async (
   config: CardConfig,
 ): Promise<TopLangData> => {
   if (!username) {
-    throw CardError.missingParam(['username']);
+    throw CardError.because('missing_param', { params: ['username'] });
   }
   const affiliations = parseOwnerAffiliations(ownerAffiliations);
 
@@ -50,11 +49,7 @@ const fetchTopLanguages = async (
   );
 
   if (res.data.errors) {
-    throw graphqlError(
-      res.data.errors,
-      res.statusText,
-      'Something went wrong while trying to retrieve the language data using the GraphQL API.',
-    );
+    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'language data');
   }
 
   const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);

@@ -138,23 +138,26 @@ describe('WakaTime fetcher', () => {
   );
 
   it.each(['evil.com/x?', 'user@evil.com'])('refuses the api domain %j', async (wakatime_host) => {
-    await expect(fetchWakatimeStats({ username: 'user', wakatime_host }, config)).rejects.toThrow(
-      'Invalid WakaTime host provided.',
-    );
+    await expect(
+      fetchWakatimeStats({ username: 'user', wakatime_host }, config),
+    ).rejects.toMatchObject({
+      reason: 'invalid_wakatime_host',
+    });
   });
 
   it('refuses a username that is not one path segment', async () => {
-    await expect(fetchWakatimeStats({ username: '../x' }, config)).rejects.toThrow(
-      'Invalid username provided.',
-    );
+    await expect(fetchWakatimeStats({ username: '../x' }, config)).rejects.toMatchObject({
+      reason: 'invalid_username',
+    });
   });
 
   it('should throw error if username is not found', async () => {
     mock.onGet(/wakatime\.com\/api/).reply(404, wakaTimeData);
 
-    await expect(fetchWakatimeStats({ username: 'noone' }, config)).rejects.toThrow(
-      "Could not resolve to a User with the login of 'noone'",
-    );
+    await expect(fetchWakatimeStats({ username: 'noone' }, config)).rejects.toMatchObject({
+      reason: 'wakatime_user_not_found',
+      message: "Could not resolve to a User with the login of 'noone'",
+    });
   });
 });
 

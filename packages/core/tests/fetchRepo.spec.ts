@@ -63,7 +63,7 @@ describe('Test fetchRepo', () => {
 
     await expect(
       fetchRepo({ username: 'anuraghazra', reponame: 'convoychat' }, config),
-    ).rejects.toThrow('User Repository Not found');
+    ).rejects.toMatchObject({ reason: 'repo_not_found' });
   });
 
   it('should throw error if org is found but repo is null', async () => {
@@ -73,7 +73,7 @@ describe('Test fetchRepo', () => {
 
     await expect(
       fetchRepo({ username: 'anuraghazra', reponame: 'convoychat' }, config),
-    ).rejects.toThrow('Organization Repository Not found');
+    ).rejects.toMatchObject({ reason: 'repo_not_found' });
   });
 
   it('should throw error if both user & org data not found', async () => {
@@ -83,7 +83,7 @@ describe('Test fetchRepo', () => {
 
     await expect(
       fetchRepo({ username: 'anuraghazra', reponame: 'convoychat' }, config),
-    ).rejects.toThrow('Not found');
+    ).rejects.toMatchObject({ reason: 'repo_not_found' });
   });
 
   it('should throw error if repository is private', async () => {
@@ -96,6 +96,6 @@ describe('Test fetchRepo', () => {
 
     await expect(
       fetchRepo({ username: 'anuraghazra', reponame: 'convoychat' }, config),
-    ).rejects.toThrow('User Repository Not found');
+    ).rejects.toMatchObject({ reason: 'repo_not_found' });
   });
 });

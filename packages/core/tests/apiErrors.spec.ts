@@ -1,11 +1,14 @@
+import { screen } from '@testing-library/dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { errorResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
 import { orgActivity as orgActivityApi } from '../src/api/org-activity.ts';
 import { org as orgApi } from '../src/api/organization.ts';
 import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
+import { CardError } from '../src/common/error.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';
@@ -208,5 +211,31 @@ describe('a stat the token may not read', () => {
     await expect(orgApi({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
       status: 'success',
     });
+  });
+});
+
+describe('the report line', () => {
+  it('is offered for a failure an issue could fix', () => {
+    document.body.innerHTML = errorResult(CardError.because('repo_not_found')).content;
+    expect(screen.getByTestId('report')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['a spent rate limit', CardError.because('rate_limited')],
+    ["upstream's own outage", CardError.because('graphql_failed', { subject: 'stats data' })],
+    ['anything that was not a CardError', CardError.from(new Error('boom'))],
+    [
+      'a missing param, whose card links the docs',
+      CardError.because('missing_param', { params: ['id'] }),
+    ],
+  ])('is not offered for %s', (_name, error) => {
+    document.body.innerHTML = errorResult(error).content;
+    expect(screen.queryByTestId('report')).not.toBeInTheDocument();
+  });
+
+  it('is offered for an upstream failure that says what GitHub answered', () => {
+    const error = CardError.because('github_error', { message: 'Nope', statusText: 'Bad Gateway' });
+    document.body.innerHTML = errorResult(error).content;
+    expect(screen.getByTestId('report')).toBeInTheDocument();
   });
 });

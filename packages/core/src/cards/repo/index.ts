@@ -10,10 +10,9 @@ import {
   flexLayout,
   formatCount,
   iconWithLabel,
-  measureText,
   NUMBER_FORMATS,
-  wrapTextMultiline,
 } from '../../common/render.ts';
+import { measureText, wrapTextMultiline } from '../../common/text.ts';
 import type { RepositoryData } from '../../fetchers/types.ts';
 import type { Child, MarkupElement } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';

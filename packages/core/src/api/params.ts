@@ -425,7 +425,10 @@ type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> & Color
  */
 const toCardError = (error: z.core.$ZodError): CardError => {
   const [issue] = error.issues;
-  return CardError.invalidParam(String(issue?.path[0] ?? ''), issue?.message ?? 'Invalid input');
+  return CardError.because('invalid_param', {
+    param: String(issue?.path[0] ?? ''),
+    detail: issue?.message ?? 'Invalid input',
+  });
 };
 
 /**

@@ -56,7 +56,7 @@ const cardHandler = <TSchema extends z.ZodMiniObject>(
       for (const [param, kind] of Object.entries(identities) as Array<[string, AllowlistKind]>) {
         const value: unknown = (params as Record<string, unknown>)[param];
         if (typeof value === 'string' && !config.isAllowed(value, kind)) {
-          throw CardError.notAllowed(param);
+          throw CardError.because('not_allowed', { param });
         }
       }
 
