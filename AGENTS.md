@@ -240,6 +240,11 @@ their reasons in `oxlint.config.ts`.
 - **A test that provokes a diagnostic silences it with `vi.spyOn(console, …)`**, saying why ([#79]).
   `common/log.ts` reads `console` at call time so the spy works; run
   `vitest run --disable-console-intercept` to see what the suite prints.
+- **A test that needs an upstream failure answers one; it never drops the request.** A rejected
+  fetch, `networkError()` or a `FetchMock` with no handler is a transport failure, which the
+  retryer waits out for 4.1s — one such suite once took 62s of a 63s run. Answer GitHub with an
+  `errors` body or WakaTime with a `502`; when the transport failure is the subject, use fake
+  timers, as `retryer.spec.ts` does.
 - **`packages/core` runs on `pool: 'vmThreads'`, and `isolate: false` is not an option** ([#122]):
   the `fetchTopLanguages` error tests share module state once files stop being isolated.
   `fsModuleCache` was measured and gained nothing. Re-measure before re-litigating either.

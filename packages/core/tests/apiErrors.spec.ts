@@ -47,7 +47,12 @@ describe('api errors', () => {
   });
 
   it('marks an upstream failure retryable', async () => {
-    mock.onPost('https://api.github.com/graphql').networkError();
+    // GitHub's error is logged as it arrives
+    vi.spyOn(console, 'error').mockReturnValue();
+    // answered, not dropped: the retryer waits a dropped request out for seconds
+    mock.onPost('https://api.github.com/graphql').reply(200, {
+      errors: [{ type: 'INTERNAL', message: 'Something went wrong' }],
+    });
 
     const result = await statsApi({ username: 'anuraghazra' }, config);
 

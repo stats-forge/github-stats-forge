@@ -7,7 +7,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { createHandler } from '../src/handler.ts';
 import { createStaticHandler } from '../src/static.ts';
 
-import { GIST_ID, optionsAnswering } from './_fake-github.ts';
+import { GIST_ID, UPSTREAM_ERROR_REPLY, optionsAnswering } from './_fake-github.ts';
 
 /** The first bytes of a PNG, which no text encoding round-trips. Decimal, to keep oxfmt and oxlint agreed. */
 const PNG_SIGNATURE = [137, 80, 78, 71, 13, 138];
@@ -102,7 +102,7 @@ const shadowingCard = (pathname: string): Promise<Response | undefined> =>
 
 describe('the site inside the server', () => {
   it('never shadows a card, being claimed last', async () => {
-    const { options } = optionsAnswering(new Error('Network Error'));
+    const { options } = optionsAnswering(UPSTREAM_ERROR_REPLY);
 
     const response = await createHandler({ ...options, site: shadowingCard })(
       new Request(`http://localhost/api/gist?id=${GIST_ID}`),
@@ -113,7 +113,7 @@ describe('the site inside the server', () => {
   });
 
   it('answers a page the site does have', async () => {
-    const { options } = optionsAnswering(new Error('Network Error'));
+    const { options } = optionsAnswering(UPSTREAM_ERROR_REPLY);
 
     const response = await createHandler({ ...options, site })(
       new Request('http://localhost/docs/'),
@@ -124,7 +124,7 @@ describe('the site inside the server', () => {
   });
 
   it('measures a HEAD in bytes, which a PNG has more of than characters', async () => {
-    const { options } = optionsAnswering(new Error('Network Error'));
+    const { options } = optionsAnswering(UPSTREAM_ERROR_REPLY);
 
     const response = await createHandler({ ...options, site })(
       new Request('http://localhost/icon.png', { method: 'HEAD' }),
@@ -135,7 +135,7 @@ describe('the site inside the server', () => {
   });
 
   it('still answers 404 as JSON when the site has no such page', async () => {
-    const { options } = optionsAnswering(new Error('Network Error'));
+    const { options } = optionsAnswering(UPSTREAM_ERROR_REPLY);
 
     const response = await createHandler({ ...options, site })(
       new Request('http://localhost/nope'),

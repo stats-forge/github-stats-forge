@@ -3,7 +3,7 @@
  * any request reaches GitHub, and every card has to declare which of its params is the identity.
  */
 
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { ApiResult } from '../src/api/api-result.ts';
 import { contributedTo } from '../src/api/contributed-to.ts';
@@ -21,8 +21,17 @@ import { FetchMock } from './_fetch-mock.ts';
 const OWNER = 'marcalexiei';
 const GIST_ID = '1f13e82cb48a9058ebcbf4945f5a1c20';
 
-/** A transport that fails the test if anything reaches it: a refusal must cost no request. */
+/**
+ * A transport recording what reaches it, since a refusal must cost no request, and failing
+ * anything that does at once rather than dropping it, which the retryer would wait out.
+ */
 const noRequests = new FetchMock();
+
+beforeAll(() => {
+  noRequests
+    .onAny()
+    .reply(200, { errors: [{ type: 'INTERNAL', message: 'Something went wrong' }] });
+});
 
 const pinned = new CardConfig({
   pats: [{ name: 'PAT_1', value: 'token' }],
@@ -76,6 +85,8 @@ describe('a deployment pinned by ALLOWLIST', () => {
   });
 
   it('matches a login case-insensitively, GitHub logins being case-insensitive', async () => {
+    // the transport's failure is logged as GitHub's error
+    vi.spyOn(console, 'error').mockReturnValue();
     const result = await stats({ username: OWNER.toUpperCase() }, pinned);
 
     // allowed, so it gets as far as the transport and fails there instead
@@ -90,6 +101,8 @@ describe('a deployment pinned by ALLOWLIST', () => {
   });
 
   it('serves anyone when no list is configured', async () => {
+    // the transport's failure is logged as GitHub's error
+    vi.spyOn(console, 'error').mockReturnValue();
     const open = new CardConfig({
       pats: [{ name: 'PAT_1', value: 'token' }],
       fetch: noRequests.fetch,

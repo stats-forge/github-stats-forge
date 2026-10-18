@@ -10,6 +10,7 @@ import {
   GIST_NOT_FOUND_REPLY,
   GIST_REPLY,
   RATE_LIMITED_REPLY,
+  UPSTREAM_ERROR_REPLY,
   optionsAnswering,
   testCache,
   testOptions,
@@ -149,7 +150,7 @@ describe('a failure', () => {
   });
 
   it('keeps a retryable one for ten minutes, because it may fix itself', async () => {
-    const { options } = optionsAnswering(new Error('Network Error'));
+    const { options } = optionsAnswering(UPSTREAM_ERROR_REPLY);
     const response = await get(GIST_URL, options);
 
     expect(response.headers.get('card-error-code')).toBe('upstream');
@@ -162,7 +163,7 @@ const STRICT_CASES: ReadonlyArray<{ code: ErrorCode; url: string; reply: unknown
   { code: 'missing_param', url: 'http://localhost/api/gist', reply: GIST_REPLY },
   { code: 'invalid_param', url: `${GIST_URL}&border_radius=abc`, reply: GIST_REPLY },
   { code: 'not_found', url: GIST_URL, reply: GIST_NOT_FOUND_REPLY },
-  { code: 'upstream', url: GIST_URL, reply: new Error('Network Error') },
+  { code: 'upstream', url: GIST_URL, reply: UPSTREAM_ERROR_REPLY },
 ];
 
 describe('STRICT_HTTP_STATUS', () => {
@@ -175,7 +176,7 @@ describe('STRICT_HTTP_STATUS', () => {
   });
 
   it('tells a caller when to come back from any retryable failure', async () => {
-    const { options } = optionsAnswering(new Error('Network Error'), { strictHttpStatus: true });
+    const { options } = optionsAnswering(UPSTREAM_ERROR_REPLY, { strictHttpStatus: true });
     const response = await get(GIST_URL, options);
 
     expect(response.status).toBe(502);
@@ -243,7 +244,7 @@ describe('a pinned instance', () => {
   });
 
   it('leaves the wakatime card open, its username being another service’s', async () => {
-    const { options, github } = optionsAnswering(new Error('Network Error'));
+    const { options, github } = optionsAnswering(new Response(null, { status: 502 }));
     const response = await get(
       'http://localhost/api/wakatime?username=someone-else',
       pinnedTo(options),
