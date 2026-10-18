@@ -6,6 +6,7 @@ import { commonLocales } from '../../common/locales.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
 import { createProgressNode, flexLayout } from '../../common/render.ts';
+import { measureText } from '../../common/text.ts';
 import type { WakaTimeData, WakaTimeLang } from '../../fetchers/types.ts';
 import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
@@ -26,6 +27,13 @@ const PROGRESSBAR_PADDING = 130;
 const HIDDEN_PROGRESSBAR_PADDING = 170;
 const COMPACT_LAYOUT_PROGRESSBAR_PADDING = 25;
 const TOTAL_TEXT_WIDTH = 275;
+const COMPACT_LEFT_X = 25;
+/** Where the right column sits on a default-width card, while the left column leaves it room. */
+const COMPACT_RIGHT_X = 230;
+/** Where a compact row's label starts, clear of its dot. */
+const COMPACT_LABEL_X = 15;
+/** Air between the left column's widest label and the right column. */
+const COMPACT_COLUMN_AIR = 5;
 
 /** Layouts the card can draw; the api validates `layout` against this. */
 const WAKATIME_LAYOUTS = ['compact', 'normal'] as const;
@@ -76,6 +84,49 @@ const formatLanguageValue = ({
 };
 
 /**
+ * The text a compact row draws for a language.
+ *
+ * @returns The language's name and its value.
+ */
+const compactLabel = (lang: WakaTimeLang, value_format: ValueFormat): string =>
+  `${lang.name} - ${formatLanguageValue({ value_format, lang })}`;
+
+/**
+ * Places the compact layout's right column clear of the left column's widest label.
+ *
+ * @returns The right column's x, and the card width both columns need.
+ */
+const measureCompactColumns = ({
+  langs,
+  value_format,
+  width,
+}: {
+  langs: Array<WakaTimeLang>;
+  value_format: ValueFormat;
+  width: number;
+}): { rightX: number; width: number } => {
+  const widest = (column: Array<WakaTimeLang>): number =>
+    Math.max(
+      0,
+      ...column.map(
+        (lang) =>
+          COMPACT_LABEL_X +
+          measureText(compactLabel(lang, value_format), CARD_STYLE.fontSize.micro),
+      ),
+    );
+  const left = langs.filter((_, index) => index % 2 === 0);
+  const right = langs.filter((_, index) => index % 2 === 1);
+  const rightX = Math.max(
+    COMPACT_RIGHT_X + (width - DEFAULT_CARD_WIDTH) / 2,
+    COMPACT_LEFT_X + widest(left) + COMPACT_COLUMN_AIR,
+  );
+  return {
+    rightX,
+    width: Math.max(width, Math.ceil(rightX + widest(right) + CARD_STYLE.padding.x)),
+  };
+};
+
+/**
  * Create compact WakaTime layout.
  *
  * @returns The compact layout language SVG node.
@@ -99,7 +150,6 @@ const createCompactLangNode = ({
   }
 
   const color = getLanguageColor(lang.name);
-  const value = formatLanguageValue({ value_format, lang });
 
   return el(
     'g',
@@ -107,8 +157,8 @@ const createCompactLangNode = ({
     el('circle', { cx: 5, cy: 6, r: 5, fill: color }),
     el(
       'text',
-      { 'data-testid': 'lang-name', x: 15, y: 10, class: 'lang-name' },
-      `${lang.name} - ${value}`,
+      { 'data-testid': 'lang-name', x: COMPACT_LABEL_X, y: 10, class: 'lang-name' },
+      compactLabel(lang, value_format),
     ),
   );
 };
@@ -122,28 +172,22 @@ const createLanguageTextNode = ({
   langs,
   y,
   value_format,
-  card_width,
+  rightX,
 }: {
   langs: Array<WakaTimeLang>;
   y: number;
   value_format: ValueFormat;
-  card_width: number;
-}): Array<Child> => {
-  const LEFT_X = 25;
-  const RIGHT_X_BASE = 230;
-  const rightOffset = (card_width - DEFAULT_CARD_WIDTH) / 2;
-  const RIGHT_X = RIGHT_X_BASE + rightOffset;
-
-  return langs.map((lang, index) => {
+  rightX: number;
+}): Array<Child> =>
+  langs.map((lang, index) => {
     const isLeft = index % 2 === 0;
     return createCompactLangNode({
       lang,
-      x: isLeft ? LEFT_X : RIGHT_X,
+      x: isLeft ? COMPACT_LEFT_X : rightX,
       y: y + LINE_HEIGHT * Math.floor(index / 2),
       value_format,
     });
   });
-};
 
 /**
  * Create WakaTime text item.
@@ -290,7 +334,7 @@ const renderCard = (
     disable_animations,
   } = options;
 
-  const normalizedWidth = normalizeCardWidth({ value: card_width, layout });
+  let width = normalizeCardWidth({ value: card_width, layout });
 
   const shouldHideLangs = Array.isArray(hide_langs) && hide_langs.length > 0;
   if (shouldHideLangs) {
@@ -327,7 +371,9 @@ const renderCard = (
 
   // RENDER COMPACT LAYOUT
   if (layout === 'compact') {
-    const barWidth = normalizedWidth - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING;
+    const columns = measureCompactColumns({ langs: filteredLanguages, value_format, width });
+    ({ width } = columns);
+    const barWidth = width - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING;
     height = COMPACT_LAYOUT_BASE_HEIGHT + Math.round(filteredLanguages.length / 2) * LINE_HEIGHT;
 
     // progressOffset holds the previous language's width and used to offset the next language
@@ -368,7 +414,7 @@ const renderCard = (
             y: 25,
             langs: filteredLanguages,
             value_format,
-            card_width: normalizedWidth,
+            rightX: columns.rightX,
           })
         : noCodingActivityNode({
             text: stats.is_coding_activity_visible
@@ -390,7 +436,7 @@ const renderCard = (
                 index,
                 percent: language.percent,
                 hideProgress: hide_progress,
-                progressBarWidth: normalizedWidth - TOTAL_TEXT_WIDTH,
+                progressBarWidth: width - TOTAL_TEXT_WIDTH,
               }),
             )
           : [
@@ -426,7 +472,7 @@ const renderCard = (
     customTitle: title,
     defaultTitle: titleText,
     titlePrefixIcon: CARD_ICON.wakatime,
-    width: normalizedWidth,
+    width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
