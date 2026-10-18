@@ -77,6 +77,7 @@ Everything but `PAT_1` is optional.
 | `FETCH_MULTI_PAGE_STARS` | `1`                | pages of starred repositories to count, or `true` for all    |
 | `STRICT_HTTP_STATUS`     | `false`            | answer with the status code a failure deserves               |
 | `CACHE_SECONDS`          | —                  | default lifetime of a drawn card; `0` turns caching off      |
+| `STALE_SECONDS`          | `86400`            | how long a held card covers a failing redraw; `0` for none   |
 | `CORS_ORIGIN`            | —                  | the one origin allowed to read a card from script            |
 
 A classic token with no scopes is enough: the cards read public data only.
@@ -160,7 +161,8 @@ What changed is on the [releases page](https://github.com/stats-forge/github-sta
 ## Caching
 
 A card is held for ten hours, a failure that might fix itself for ten minutes, and one that will not
-for an hour. If a redraw fails, the last good card is served for up to a day longer.
+for an hour. If a redraw fails, the last good card is served for up to a day longer, or for
+`STALE_SECONDS`.
 `?cache_seconds=` asks for a life between four and twenty-four hours; `CACHE_SECONDS=0` turns
 caching off.
 

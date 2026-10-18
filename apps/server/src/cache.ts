@@ -26,7 +26,8 @@ const MAX_CACHE_SECONDS = 24 * HOUR;
 
 /**
  * How long a stale card may still be served while a fresh one is fetched, downstream and here:
- * a held success outlives its TTL by this much, to answer for a redraw that fails.
+ * a held success outlives its TTL by this much, to answer for a redraw that fails, unless
+ * `STALE_SECONDS` says otherwise.
  */
 const STALE_WHILE_REVALIDATE = 24 * HOUR;
 
@@ -112,9 +113,16 @@ interface CacheHit {
 class CardCache {
   readonly #entries = new Map<string, CacheEntry>();
   readonly #maxEntries: number;
+  readonly #staleMs: number;
 
-  constructor(maxEntries: number) {
+  constructor(
+    maxEntries: number,
+    /** How long a success outlives its TTL, for a redraw that fails; `0` keeps none. */
+    staleSeconds: number,
+  ) {
     this.#maxEntries = maxEntries;
+    // a negative window would forget a card before its TTL ran out
+    this.#staleMs = Math.max(staleSeconds, 0) * 1000;
   }
 
   /** How many answers are held, stale ones and those past keeping included until the next sweep. */
@@ -154,8 +162,7 @@ class CardCache {
 
     const storedAt = Date.now();
     const expiresAt = storedAt + ttlSeconds * 1000;
-    const staleUntil =
-      result.status === 'success' ? expiresAt + STALE_WHILE_REVALIDATE * 1000 : expiresAt;
+    const staleUntil = result.status === 'success' ? expiresAt + this.#staleMs : expiresAt;
     this.#entries.set(key, { result, storedAt, expiresAt, staleUntil });
   }
 

@@ -5,7 +5,7 @@
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 
-import { CardCache, parseInteger } from './cache.ts';
+import { CardCache, STALE_WHILE_REVALIDATE, parseInteger } from './cache.ts';
 import type { ServerOptions } from './handler.ts';
 import { DEFAULT_HOST, DEFAULT_PORT } from './health.ts';
 import { createStaticHandler } from './static.ts';
@@ -74,7 +74,10 @@ const readSettings = (env: Env): ServerSettings => {
       // `0` is the one switch: it stores nothing as well as sending `no-store`
       cacheSeconds: parseInteger(env['CACHE_SECONDS']),
       corsOrigin: fromEnv(env['CORS_ORIGIN']),
-      cache: new CardCache(parseInteger(env['CACHE_MAX_ENTRIES']) ?? DEFAULT_CACHE_MAX_ENTRIES),
+      cache: new CardCache(
+        parseInteger(env['CACHE_MAX_ENTRIES']) ?? DEFAULT_CACHE_MAX_ENTRIES,
+        parseInteger(env['STALE_SECONDS']) ?? STALE_WHILE_REVALIDATE,
+      ),
       // set by the image; without it the server draws cards and serves no pages
       site: siteDir === undefined ? undefined : createStaticHandler(siteDir),
     },
