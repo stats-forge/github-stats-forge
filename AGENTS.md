@@ -94,8 +94,8 @@ directories, and what must be known before choosing one:
 Run from the **repo root** unless stated otherwise.
 
 ```sh
-pnpm test                 # vitest, whole workspace
-pnpm test:coverage        # vitest with the coverage config
+pnpm test                 # vitest, whole workspace, one run (`pnpm exec vitest` watches)
+pnpm test:coverage        # the same run, with the coverage config
 pnpm typecheck            # build, then tsc over the packages and scripts/
 pnpm lint                 # oxlint over the whole workspace
 pnpm lint:ci              # oxlint --format=github (what CI runs, for annotations)
@@ -240,6 +240,11 @@ their reasons in `oxlint.config.ts`.
 - **A test that provokes a diagnostic silences it with `vi.spyOn(console, …)`**, saying why ([#79]).
   `common/log.ts` reads `console` at call time so the spy works; run
   `vitest run --disable-console-intercept` to see what the suite prints.
+- **A test that needs an upstream failure answers one; it never drops the request.** A rejected
+  fetch, `networkError()` or a `FetchMock` with no handler is a transport failure, which the
+  retryer waits out for 4.1s — one such suite once took 62s of a 63s run. Answer GitHub with an
+  `errors` body or WakaTime with a `502`; when the transport failure is the subject, use fake
+  timers, as `retryer.spec.ts` does.
 - **`packages/core` runs on `pool: 'vmThreads'`, and `isolate: false` is not an option** ([#122]):
   the `fetchTopLanguages` error tests share module state once files stop being isolated.
   `fsModuleCache` was measured and gained nothing. Re-measure before re-litigating either.

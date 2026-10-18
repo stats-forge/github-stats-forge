@@ -29,6 +29,9 @@ const GIST_REPLY = {
 /** The same gist id, resolving to nothing. */
 const GIST_NOT_FOUND_REPLY = { data: { viewer: { gist: null } } };
 
+/** GitHub failing at once, which a dropped request would not: the retryer waits one out for seconds. */
+const UPSTREAM_ERROR_REPLY = { errors: [{ type: 'INTERNAL', message: 'Something went wrong' }] };
+
 /** GitHub answering that every token is spent. */
 const RATE_LIMITED_REPLY = {
   errors: [{ type: 'RATE_LIMITED', message: 'API rate limit exceeded' }],
@@ -42,7 +45,7 @@ interface FakeGitHub {
 }
 
 /**
- * @returns A transport answering `body`, or throwing when `body` is an `Error`.
+ * @returns A transport answering `body` (as it is when a `Response`), or throwing when an `Error`.
  */
 const fakeGitHub = (body: unknown): FakeGitHub => {
   const calls: Array<string> = [];
@@ -53,6 +56,9 @@ const fakeGitHub = (body: unknown): FakeGitHub => {
       calls.push(url);
       if (body instanceof Error) {
         return Promise.reject(body);
+      }
+      if (body instanceof Response) {
+        return Promise.resolve(body.clone());
       }
       return Promise.resolve(Response.json(body));
     },
@@ -95,6 +101,7 @@ export {
   GIST_NOT_FOUND_REPLY,
   GIST_REPLY,
   RATE_LIMITED_REPLY,
+  UPSTREAM_ERROR_REPLY,
   optionsAnswering,
   testCache,
   testOptions,

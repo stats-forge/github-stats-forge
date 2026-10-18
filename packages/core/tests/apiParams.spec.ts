@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { ApiResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
@@ -11,8 +11,9 @@ import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 import { testConfig } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';
 
-// Nothing here is about fetching:
-// every request fails immediately, so a query that got past validation is a temporary error.
+// Nothing here is about fetching: every request is answered with an upstream failure at once,
+// so a query that got past validation is a temporary error. Not a dropped request, which the
+// retryer would wait out for seconds.
 const mock = new FetchMock();
 const config = testConfig.with({ fetch: mock.fetch });
 
@@ -29,7 +30,10 @@ const withUser = (endpoint: string): Record<string, string> =>
   endpoint === 'gist' ? { id: 'abc123' } : { username: 'anuraghazra' };
 
 beforeAll(() => {
-  mock.onAny().networkError();
+  mock.onPost().reply(200, { errors: [{ type: 'INTERNAL', message: 'Upstream is down' }] });
+  mock.onGet().reply(502);
+  // the GraphQL answer is logged as GitHub's error, which is the point of answering it
+  vi.spyOn(console, 'error').mockReturnValue();
 });
 
 afterAll(() => {
