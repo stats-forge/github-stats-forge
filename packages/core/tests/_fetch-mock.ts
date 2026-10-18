@@ -151,4 +151,22 @@ class FetchMock {
   }
 }
 
-export { FetchMock };
+/** GitHub's GraphQL endpoint, which every fetcher but the commit search and WakaTime posts to. */
+const GRAPHQL = 'https://api.github.com/graphql';
+
+/**
+ * Reads a GraphQL request back, as the mock recorded or is answering it.
+ *
+ * @returns The query text and its variables, `{}` for a request that sent none.
+ */
+const graphqlBody = (
+  request: MockRequest | undefined,
+): { query: string; variables: Record<string, unknown> } => {
+  const { query = '', variables = {} } = JSON.parse(request?.data ?? '{}') as {
+    query?: string;
+    variables?: Record<string, unknown>;
+  };
+  return { query, variables };
+};
+
+export { FetchMock, GRAPHQL, graphqlBody };

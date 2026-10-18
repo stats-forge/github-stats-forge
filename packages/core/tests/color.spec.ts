@@ -122,55 +122,45 @@ describe(getCardColors, () => {
   });
 });
 
-describe(isPrefixedHexColor, () => {
-  it('should validate hex colors with # prefix', () => {
-    expect(isPrefixedHexColor('#f00')).toBe(true);
-    expect(isPrefixedHexColor('#ffffff')).toBe(true);
-    expect(isPrefixedHexColor('#12345678')).toBe(true);
-    expect(isPrefixedHexColor('f00')).toBe(false);
-    expect(isPrefixedHexColor('#red')).toBe(false);
-    expect(isPrefixedHexColor('red')).toBe(false);
+describe.each([
+  [
+    'isPrefixedHexColor',
+    isPrefixedHexColor,
+    ['#f00', '#ffffff', '#12345678'],
+    ['f00', '#red', 'red'],
+  ],
+  ['isBareHexColor', isBareHexColor, ['f00', 'ffffff', '12345678'], ['#f00', '#red', 'red']],
+] as const)('%s', (_name, isColor, valid, invalid) => {
+  it.each(valid)('accepts %j', (color) => {
+    expect(isColor(color)).toBe(true);
   });
 
-  it('should reject non-string values', () => {
-    expect(isPrefixedHexColor(null)).toBe(false);
-    expect(isPrefixedHexColor(undefined)).toBe(false);
-  });
-});
-
-describe(isBareHexColor, () => {
-  it('should validate hex colors without # prefix', () => {
-    expect(isBareHexColor('f00')).toBe(true);
-    expect(isBareHexColor('ffffff')).toBe(true);
-    expect(isBareHexColor('12345678')).toBe(true);
-    expect(isBareHexColor('#f00')).toBe(false);
-    expect(isBareHexColor('#red')).toBe(false);
-    expect(isBareHexColor('red')).toBe(false);
-  });
-
-  it('should reject non-string values', () => {
-    expect(isBareHexColor(null)).toBe(false);
-    expect(isBareHexColor(undefined)).toBe(false);
+  it.each([...invalid, null, undefined])('rejects %j', (color) => {
+    expect(isColor(color)).toBe(false);
   });
 });
 
 describe(isValidGradient, () => {
-  it('should validate valid gradients', () => {
-    expect(isValidGradient(['90', 'f00', '0f0'])).toBe(true);
-    expect(isValidGradient(['45', 'fff', '000', 'abc'])).toBe(true);
-    expect(isValidGradient(['180', 'ff0000', '00ff00', '0000ff'])).toBe(true);
+  it.each([
+    ['90', 'f00', '0f0'],
+    ['45', 'fff', '000', 'abc'],
+    ['180', 'ff0000', '00ff00', '0000ff'],
+  ])('accepts an angle and its stops (%s, ...)', (...gradient) => {
+    expect(isValidGradient(gradient)).toBe(true);
   });
 
-  it('should reject invalid gradients', () => {
-    expect(isValidGradient(['90', '#f00', '#0f0'])).toBe(false); // # prefix not allowed
-    expect(isValidGradient(['red', 'f00', '0f0'])).toBe(false);
-    expect(isValidGradient(['90', 'f00'])).toBe(false); // too few colors
-    expect(isValidGradient(['90'])).toBe(false);
-    expect(isValidGradient(['', 'f00', '0f0'])).toBe(false); // empty angle
-    expect(isValidGradient(['90', 'f00', 'red'])).toBe(false); // invalid color
-    expect(isValidGradient(['Infinity', 'f00', '0f0'])).toBe(false); // non-finite angle
-    expect(isValidGradient(['-Infinity', 'f00', '0f0'])).toBe(false); // non-finite angle
-    expect(isValidGradient(['abc', 'f00', '0f0'])).toBe(false); // non-numeric angle
+  it.each([
+    ['a # prefix', ['90', '#f00', '#0f0']],
+    ['a named angle', ['red', 'f00', '0f0']],
+    ['too few colors', ['90', 'f00']],
+    ['no colors', ['90']],
+    ['an empty angle', ['', 'f00', '0f0']],
+    ['an invalid color', ['90', 'f00', 'red']],
+    ['an infinite angle', ['Infinity', 'f00', '0f0']],
+    ['a negative infinite angle', ['-Infinity', 'f00', '0f0']],
+    ['a non-numeric angle', ['abc', 'f00', '0f0']],
+  ])('rejects %s', (_why, gradient) => {
+    expect(isValidGradient(gradient)).toBe(false);
   });
 });
 

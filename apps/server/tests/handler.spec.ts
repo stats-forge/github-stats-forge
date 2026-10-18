@@ -13,7 +13,6 @@ import {
   RATE_LIMITED_REPLY,
   UPSTREAM_ERROR_REPLY,
   optionsAnswering,
-  testCache,
   testOptions,
 } from './_fake-github.ts';
 
@@ -292,7 +291,7 @@ describe('cache_seconds', () => {
 
 describe('the in-process cache', () => {
   it('makes two identical requests one GitHub request', async () => {
-    const { options, github } = optionsAnswering(GIST_REPLY, { cache: testCache() });
+    const { options, github } = optionsAnswering(GIST_REPLY);
 
     const first = await get(GIST_URL, options);
     const second = await get(GIST_URL, options);
@@ -305,7 +304,7 @@ describe('the in-process cache', () => {
   });
 
   it('keys on what was asked, so cache_seconds does not split the entry', async () => {
-    const { options, github } = optionsAnswering(GIST_REPLY, { cache: testCache() });
+    const { options, github } = optionsAnswering(GIST_REPLY);
 
     await get(GIST_URL, options);
     const second = await get(`${GIST_URL}&cache_seconds=20000`, options);
@@ -315,7 +314,7 @@ describe('the in-process cache', () => {
   });
 
   it('draws a different query again', async () => {
-    const { options, github } = optionsAnswering(GIST_REPLY, { cache: testCache() });
+    const { options, github } = optionsAnswering(GIST_REPLY);
 
     await get(GIST_URL, options);
     await get(`${GIST_URL}&theme=dark`, options);
@@ -364,7 +363,7 @@ describe('the in-process cache', () => {
 
   it('reports the age of what it held, so a hit does not claim a full life', async () => {
     vi.useFakeTimers();
-    const { options } = optionsAnswering(GIST_REPLY, { cache: testCache() });
+    const { options } = optionsAnswering(GIST_REPLY);
 
     const first = await get(GIST_URL, options);
     vi.advanceTimersByTime(60_000);

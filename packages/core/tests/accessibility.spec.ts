@@ -16,6 +16,8 @@ import type {
   WakaTimeData,
 } from '../src/fetchers/types.ts';
 
+import { draw } from './_card.ts';
+
 const gistData: GistData = {
   name: 'test',
   nameWithOwner: 'anuraghazra/test',
@@ -113,18 +115,9 @@ const cards = {
   wakatime: (): string => renderWakatimeCard(wakatimeData),
 };
 
-const parse = (svg: string): SVGElement => {
-  document.body.innerHTML = svg;
-  const root = document.querySelector('svg');
-  if (!root) {
-    throw new Error('no <svg> rendered');
-  }
-  return root;
-};
-
 describe('card accessibility', () => {
   it.each(Object.entries(cards))('%s announces itself as a labelled image', (_name, render) => {
-    const svg = parse(render());
+    const svg = draw(render());
 
     expect(svg).toHaveAttribute('role', 'img');
     // both ids, so the title is not merely present but actually announced
@@ -132,7 +125,7 @@ describe('card accessibility', () => {
   });
 
   it.each(Object.entries(cards))('%s labels itself with a non-empty title', (_name, render) => {
-    parse(render());
+    draw(render());
 
     // at least one non-whitespace character, so an empty label fails
     expect(document.querySelector('title#title-id')).toHaveTextContent(/\S/);
@@ -141,7 +134,7 @@ describe('card accessibility', () => {
   it.each(Object.entries(cards))(
     '%s describes its content for a screen reader',
     (_name, render) => {
-      parse(render());
+      draw(render());
 
       // `role="img"` hides the inner text, so an empty desc means the card's
       // numbers reach a screen reader as nothing at all.
@@ -150,7 +143,7 @@ describe('card accessibility', () => {
   );
 
   it('names every id the label points at', () => {
-    const svg = parse(renderStatsCard(statsData));
+    const svg = draw(renderStatsCard(statsData));
 
     const ids = svg.getAttribute('aria-labelledby')?.split(' ') ?? [];
     expect(ids).not.toHaveLength(0);
@@ -160,7 +153,7 @@ describe('card accessibility', () => {
   });
 
   it('labels the error card, which a host renders in the same <img> slot', () => {
-    const svg = parse(
+    const svg = draw(
       renderError({ message: 'Something went wrong', secondaryMessage: 'Try again' }),
     );
 
@@ -173,7 +166,7 @@ describe('card accessibility', () => {
 describe('card accessibility and locale', () => {
   it('keeps the repo description free of untranslated English', () => {
     // The card honours `locale`, so its label must not introduce words the card cannot translate.
-    parse(renderRepoCard(repoData, { locale: 'cn' }));
+    draw(renderRepoCard(repoData, { locale: 'cn' }));
 
     const desc = document.querySelector('desc#desc-id')?.textContent ?? '';
     expect(desc).not.toMatch(/\b(?:Stars|Forks|Language)\b/);

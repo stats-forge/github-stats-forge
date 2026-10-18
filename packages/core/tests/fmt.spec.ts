@@ -2,67 +2,43 @@ import { describe, expect, it } from 'vitest';
 
 import { formatBytes, kFormatter } from '../src/common/fmt.ts';
 
-describe('Test fmt.js', () => {
-  it('kFormatter: should format numbers correctly by default', () => {
-    expect(kFormatter(1)).toBe(1);
-    expect(kFormatter(-1)).toBe(-1);
-    expect(kFormatter(500)).toBe(500);
-    expect(kFormatter(1000)).toBe('1k');
-    expect(kFormatter(1200)).toBe('1.2k');
-    expect(kFormatter(10_000)).toBe('10k');
-    expect(kFormatter(12_345)).toBe('12.3k');
-    expect(kFormatter(99_900)).toBe('99.9k');
-    expect(kFormatter(9_900_000)).toBe('9900k');
+describe(kFormatter, () => {
+  it.each([
+    // value, then as written by default and at 0, 1 and 2 decimals
+    [1, 1, '0k', '0.0k', '0.00k'],
+    [-1, -1, '-0k', '-0.0k', '-0.00k'],
+    [500, 500, '1k', '0.5k', '0.50k'],
+    [1000, '1k', '1k', '1.0k', '1.00k'],
+    [1200, '1.2k', '1k', '1.2k', '1.20k'],
+    [10_000, '10k', '10k', '10.0k', '10.00k'],
+    [12_345, '12.3k', '12k', '12.3k', '12.35k'],
+    [99_900, '99.9k', '100k', '99.9k', '99.90k'],
+    [9_900_000, '9900k', '9900k', '9900.0k', '9900.00k'],
+  ])('writes %i as %s, then %s, %s and %s', (value, byDefault, zero, one, two) => {
+    expect(kFormatter(value)).toBe(byDefault);
+    expect(kFormatter(value, 0)).toBe(zero);
+    expect(kFormatter(value, 1)).toBe(one);
+    expect(kFormatter(value, 2)).toBe(two);
   });
 
-  it('kFormatter: should format numbers correctly with 0 decimal precision', () => {
-    expect(kFormatter(1, 0)).toBe('0k');
-    expect(kFormatter(-1, 0)).toBe('-0k');
-    expect(kFormatter(500, 0)).toBe('1k');
-    expect(kFormatter(1000, 0)).toBe('1k');
-    expect(kFormatter(1200, 0)).toBe('1k');
-    expect(kFormatter(10_000, 0)).toBe('10k');
-    expect(kFormatter(12_345, 0)).toBe('12k');
+  it('rounds to a whole thousand at 0 decimals', () => {
     expect(kFormatter(99_000, 0)).toBe('99k');
-    expect(kFormatter(99_900, 0)).toBe('100k');
-    expect(kFormatter(9_900_000, 0)).toBe('9900k');
   });
+});
 
-  it('kFormatter: should format numbers correctly with 1 decimal precision', () => {
-    expect(kFormatter(1, 1)).toBe('0.0k');
-    expect(kFormatter(-1, 1)).toBe('-0.0k');
-    expect(kFormatter(500, 1)).toBe('0.5k');
-    expect(kFormatter(1000, 1)).toBe('1.0k');
-    expect(kFormatter(1200, 1)).toBe('1.2k');
-    expect(kFormatter(10_000, 1)).toBe('10.0k');
-    expect(kFormatter(12_345, 1)).toBe('12.3k');
-    expect(kFormatter(99_900, 1)).toBe('99.9k');
-    expect(kFormatter(9_900_000, 1)).toBe('9900.0k');
-  });
-
-  it('kFormatter: should format numbers correctly with 2 decimal precision', () => {
-    expect(kFormatter(1, 2)).toBe('0.00k');
-    expect(kFormatter(-1, 2)).toBe('-0.00k');
-    expect(kFormatter(500, 2)).toBe('0.50k');
-    expect(kFormatter(1000, 2)).toBe('1.00k');
-    expect(kFormatter(1200, 2)).toBe('1.20k');
-    expect(kFormatter(10_000, 2)).toBe('10.00k');
-    expect(kFormatter(12_345, 2)).toBe('12.35k');
-    expect(kFormatter(99_900, 2)).toBe('99.90k');
-    expect(kFormatter(9_900_000, 2)).toBe('9900.00k');
-  });
-
-  it('formatBytes: should return expected values', () => {
-    expect(formatBytes(0)).toBe('0 B');
-    expect(formatBytes(100)).toBe('100.0 B');
-    expect(formatBytes(1024)).toBe('1.0 KB');
-    expect(formatBytes(1024 * 1024)).toBe('1.0 MB');
-    expect(formatBytes(1024 * 1024 * 1024)).toBe('1.0 GB');
-    expect(formatBytes(1024 * 1024 * 1024 * 1024)).toBe('1.0 TB');
-    expect(formatBytes(1024 * 1024 * 1024 * 1024 * 1024)).toBe('1.0 PB');
-    expect(formatBytes(1024 * 1024 * 1024 * 1024 * 1024 * 1024)).toBe('1.0 EB');
-
-    expect(formatBytes(1234 * 1024)).toBe('1.2 MB');
-    expect(formatBytes(123.4 * 1024)).toBe('123.4 KB');
+describe(formatBytes, () => {
+  it.each([
+    [0, '0 B'],
+    [100, '100.0 B'],
+    [1024, '1.0 KB'],
+    [1024 ** 2, '1.0 MB'],
+    [1024 ** 3, '1.0 GB'],
+    [1024 ** 4, '1.0 TB'],
+    [1024 ** 5, '1.0 PB'],
+    [1024 ** 6, '1.0 EB'],
+    [1234 * 1024, '1.2 MB'],
+    [123.4 * 1024, '123.4 KB'],
+  ])('writes %i bytes as %s', (bytes, written) => {
+    expect(formatBytes(bytes)).toBe(written);
   });
 });

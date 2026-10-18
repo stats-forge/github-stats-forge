@@ -114,6 +114,15 @@ const setBoolean = async (page: Page, option: string, state: string): Promise<vo
   await triState(page, option).locator(`wa-radio[value="${state}"]`).click();
 };
 
+/** The line that says how the last draw went: `data-state` is `ok` or `error`. */
+const statusLine = (page: Page): Locator => page.locator('[data-anvil="status"]');
+
+/** @returns Whether the tooltip for the element with this id is showing. */
+const tooltipOpen = (page: Page, id: string): Promise<boolean> =>
+  page
+    .locator(`wa-tooltip[for="${id}"]`)
+    .evaluate((element) => (element as HTMLElement & { open: boolean }).open);
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/anvil/');
   await expect(drawnCard(page)).toBeVisible();
@@ -178,7 +187,7 @@ test('groups the cards by what each one describes', async ({ page }) => {
 
 test('draws a card on arrival, with no card chosen', async ({ page }) => {
   await expect(drawnCard(page)).toHaveAttribute('width', '500');
-  await expect(page.locator('[data-anvil="status"]')).toHaveAttribute('data-state', 'ok');
+  await expect(statusLine(page)).toHaveAttribute('data-state', 'ok');
 
   const saved = await savedCard(page);
   expect(saved.card).toBe('stats');
@@ -351,7 +360,7 @@ test("a rejected option draws core's own error card, naming the parameter", asyn
   await queryBox(page).fill('border_radius=abc');
 
   // The status says what kind of failure in the anvil's words; the card carries core's own message.
-  const status = page.locator('[data-anvil="status"]');
+  const status = statusLine(page);
   await expect(status).toHaveAttribute('data-state', 'error');
   await expect(status).toContainText('"border_radius"');
   // The card is still drawn: the error is the card, not a broken page.
@@ -411,7 +420,7 @@ test('a card identified by more than one param gets a field for each', async ({ 
 test('emptying a required param draws the error the CLI would report', async ({ page }) => {
   await field(page, 'username').fill('');
 
-  const status = page.locator('[data-anvil="status"]');
+  const status = statusLine(page);
   await expect(status).toHaveAttribute('data-state', 'error');
   await expect(status).toContainText('username');
   // The file drops it rather than writing an empty one, so it is invalid in the same way.
@@ -434,12 +443,9 @@ test('the source badge explains itself on hover', async ({ page }) => {
     'the figures never move, whatever you type',
   );
 
-  const isOpen = (): Promise<boolean> =>
-    tooltip.evaluate((element) => (element as HTMLElement & { open: boolean }).open);
-
-  expect(await isOpen()).toBe(false);
+  expect(await tooltipOpen(page, 'anvil-source')).toBe(false);
   await badge.hover();
-  await expect.poll(isOpen).toBe(true);
+  await expect.poll(() => tooltipOpen(page, 'anvil-source')).toBe(true);
 });
 
 test("the page's description is on the page, not only in its meta", async ({ page }) => {
@@ -568,7 +574,7 @@ test("the toast's close button stays visible while hovered", async ({ context, p
 });
 
 test('fixing a rejected option clears the error and draws the card again', async ({ page }) => {
-  const status = page.locator('[data-anvil="status"]');
+  const status = statusLine(page);
 
   await queryBox(page).fill('border_radius=abc');
   await expect(status).toHaveAttribute('data-state', 'error');
@@ -609,13 +615,9 @@ test('the closed theme select shows the theme it is set to', async ({ page }) =>
 });
 
 test('the source badge is reachable by keyboard', async ({ page }) => {
-  const tooltip = page.locator('wa-tooltip[for="anvil-source"]');
-  const isOpen = (): Promise<boolean> =>
-    tooltip.evaluate((element) => (element as HTMLElement & { open: boolean }).open);
-
   // `tabindex="0"` on the badge exists for exactly this: the detail cannot be hover-only.
   await page.locator('#anvil-source').focus();
-  await expect.poll(isOpen).toBe(true);
+  await expect.poll(() => tooltipOpen(page, 'anvil-source')).toBe(true);
 });
 
 test('the file on offer is the file the CLI reads', async ({ page }) => {
@@ -774,17 +776,14 @@ test('the backdrop says it follows the theme, and gives the detail on hover', as
   await expect(tooltip).toContainText('the bg_color you set');
   await expect(tooltip).toContainText('names neither');
 
-  const isOpen = (): Promise<boolean> =>
-    tooltip.evaluate((element) => (element as HTMLElement & { open: boolean }).open);
-
-  expect(await isOpen()).toBe(false);
+  expect(await tooltipOpen(page, 'anvil-backdrop-note')).toBe(false);
   await badge.hover();
-  await expect.poll(isOpen).toBe(true);
+  await expect.poll(() => tooltipOpen(page, 'anvil-backdrop-note')).toBe(true);
 
   // And reachable without a pointer, as the source badge is.
   await page.keyboard.press('Escape');
   await badge.focus();
-  await expect.poll(isOpen).toBe(true);
+  await expect.poll(() => tooltipOpen(page, 'anvil-backdrop-note')).toBe(true);
 });
 
 test('the frame holds its size under the shortest card', async ({ page }) => {

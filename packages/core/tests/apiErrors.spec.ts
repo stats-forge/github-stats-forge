@@ -11,7 +11,7 @@ import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 import { CardError } from '../src/common/error.ts';
 
 import { testConfig } from './_config.ts';
-import { FetchMock } from './_fetch-mock.ts';
+import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 
 vi.mock(import('../src/common/log.ts'), async () => {
   const { createLoggerMock } = await import('./utils.ts');
@@ -50,7 +50,7 @@ describe('api errors', () => {
     // GitHub's error is logged as it arrives
     vi.spyOn(console, 'error').mockReturnValue();
     // answered, not dropped: the retryer waits a dropped request out for seconds
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'INTERNAL', message: 'Something went wrong' }],
     });
 
@@ -64,7 +64,7 @@ describe('api errors', () => {
   });
 
   it('does not mark a missing user retryable', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'NOT_FOUND', message: 'Could not resolve to a User.' }],
     });
 
@@ -78,9 +78,7 @@ describe('api errors', () => {
   });
 
   it('does not mark a repository that does not exist retryable', async () => {
-    mock
-      .onPost('https://api.github.com/graphql')
-      .reply(200, { data: { user: { repository: null }, organization: null } });
+    mock.onPost(GRAPHQL).reply(200, { data: { user: { repository: null }, organization: null } });
 
     const result = await pinApi({ username: 'anuraghazra', repo: 'not-a-repo' }, config);
 
@@ -92,7 +90,7 @@ describe('api errors', () => {
   });
 
   it('does not mark a gist that does not exist retryable', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, { data: { viewer: { gist: null } } });
+    mock.onPost(GRAPHQL).reply(200, { data: { viewer: { gist: null } } });
 
     const result = await gistApi({ id: 'not-a-gist' }, config);
 
@@ -138,8 +136,6 @@ describe('api errors', () => {
 });
 
 describe('a stat the token may not read', () => {
-  const GRAPHQL = 'https://api.github.com/graphql';
-
   /** The organization activity answer a token refused issues gets: pull requests under both labels. */
   const issuesAnsweredWithPRs = {
     data: {

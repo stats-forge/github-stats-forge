@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { fetchGist } from '../src/fetchers/gist.ts';
 
 import { testConfig } from './_config.ts';
-import { FetchMock } from './_fetch-mock.ts';
+import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 
 const gist_data = {
   data: {
@@ -78,7 +78,7 @@ afterEach(() => {
 
 describe('Test fetchGist', () => {
   it('should fetch gist correctly', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, gist_data);
+    mock.onPost(GRAPHQL).reply(200, gist_data);
 
     const gist = await fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config);
 
@@ -94,7 +94,7 @@ describe('Test fetchGist', () => {
   });
 
   it('should throw correct error if gist not found', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, gist_not_found_data);
+    mock.onPost(GRAPHQL).reply(200, gist_not_found_data);
 
     await expect(fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config)).rejects.toThrow(
       'Gist not found',
@@ -102,7 +102,7 @@ describe('Test fetchGist', () => {
   });
 
   it('should throw error if response contains them', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, gist_errors_data);
+    mock.onPost(GRAPHQL).reply(200, gist_errors_data);
 
     await expect(fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config)).rejects.toThrow(
       'Some test GraphQL error',

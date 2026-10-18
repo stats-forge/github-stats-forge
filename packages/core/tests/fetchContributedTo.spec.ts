@@ -6,10 +6,10 @@ import { fetchContributedTo } from '../src/fetchers/contributed-to.ts';
 import type { UserContributionYearsQuery } from '../src/graphql/generated/contributed-to.ts';
 import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.ts';
 
-import { FetchMock } from './_fetch-mock.ts';
+import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 
-vi.mock(import('../src/common/log.js'), async () => {
-  const { createLoggerMock } = await import('./utils.js');
+vi.mock(import('../src/common/log.ts'), async () => {
+  const { createLoggerMock } = await import('./utils.ts');
   return createLoggerMock();
 });
 
@@ -61,8 +61,8 @@ const config = new CardConfig({
 
 /** Answers the years query first, then every range query. */
 const mockGraphQL = (): void => {
-  mock.onPost('https://api.github.com/graphql').reply((request) => {
-    const { query } = JSON.parse(request.data ?? '{}') as { query: string };
+  mock.onPost(GRAPHQL).reply((request) => {
+    const { query } = graphqlBody(request);
     return [200, query.includes('userContributionYears') ? years : repos];
   });
 };
@@ -76,8 +76,8 @@ const mockGraphQL = (): void => {
 const mockRangesAfter = (failures: Array<[number, unknown?]>): (() => number) => {
   let rangeQueries = 0;
   mock.reset();
-  mock.onPost('https://api.github.com/graphql').reply((request) => {
-    const { query } = JSON.parse(request.data ?? '{}') as { query: string };
+  mock.onPost(GRAPHQL).reply((request) => {
+    const { query } = graphqlBody(request);
     if (!query.includes('userReposContributedTo')) {
       return [200, years];
     }
@@ -295,7 +295,7 @@ describe('test fetchContributedTo', () => {
 
   it('should report an unknown user as not found', async () => {
     mock.reset();
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       data: { user: null },
       errors: [
         { type: 'NOT_FOUND', message: "Could not resolve to a User with the login of 'x'." },

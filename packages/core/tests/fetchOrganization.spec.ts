@@ -8,7 +8,7 @@ import type {
 } from '../src/graphql/generated/organization.ts';
 
 import { testConfig } from './_config.ts';
-import { FetchMock } from './_fetch-mock.ts';
+import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 
 /**
  * One page of the repository walk, as GitHub answers it.
@@ -92,7 +92,7 @@ afterEach(() => {
 
 describe(fetchOrganization, () => {
   it('sums every count over the repositories it saw', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(
+    mock.onPost(GRAPHQL).reply(
       200,
       page({
         repos: [
@@ -142,7 +142,7 @@ describe(fetchOrganization, () => {
 
   it('counts a repository with no default branch as no commits', async () => {
     mock
-      .onPost('https://api.github.com/graphql')
+      .onPost(GRAPHQL)
       .reply(200, page({ repos: [repo({ commits: null }), repo({ commits: 12 })] }));
 
     await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
@@ -152,7 +152,7 @@ describe(fetchOrganization, () => {
 
   it('follows the cursor while there are more repositories', async () => {
     mock
-      .onPost('https://api.github.com/graphql')
+      .onPost(GRAPHQL)
       .replyOnce(
         200,
         page({
@@ -162,7 +162,7 @@ describe(fetchOrganization, () => {
           totalCount: 2,
         }),
       )
-      .onPost('https://api.github.com/graphql')
+      .onPost(GRAPHQL)
       .replyOnce(
         200,
         page({ repos: [repo({ stars: 5, forks: 1, language: rust })], totalCount: 2 }),
@@ -178,7 +178,7 @@ describe(fetchOrganization, () => {
   });
 
   it('reports totals as truncated when the walk hits its page cap', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(
+    mock.onPost(GRAPHQL).reply(
       200,
       page({
         repos: [repo({ stars: 10, forks: 1 })],
@@ -196,9 +196,7 @@ describe(fetchOrganization, () => {
   });
 
   it('has no top language when no repository names one', async () => {
-    mock
-      .onPost('https://api.github.com/graphql')
-      .reply(200, page({ repos: [repo({ stars: 1, language: null })] }));
+    mock.onPost(GRAPHQL).reply(200, page({ repos: [repo({ stars: 1, language: null })] }));
 
     await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
       topLanguage: null,
@@ -206,7 +204,7 @@ describe(fetchOrganization, () => {
   });
 
   it('falls back to the login when the organization has no display name', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, page({ repos: [], name: null }));
+    mock.onPost(GRAPHQL).reply(200, page({ repos: [], name: null }));
 
     await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
       name: 'vitest-dev',
@@ -216,7 +214,7 @@ describe(fetchOrganization, () => {
   it('refuses the card when the query asked for a member count the token may not read', async () => {
     const { data } = page({ repos: [repo({ stars: 3 })] });
 
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       data: { organization: { ...data.organization, membersWithRole: null } },
       errors: [
         {
@@ -238,7 +236,7 @@ describe(fetchOrganization, () => {
 
     const { data } = page({ repos: [repo({ stars: 3 })] });
 
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       data: { organization: { ...data.organization, membersWithRole: null } },
       errors: [
         {
@@ -261,7 +259,7 @@ describe(fetchOrganization, () => {
   it('rejects a refusal that is not just the member count', async () => {
     vi.spyOn(console, 'error').mockReturnValue();
 
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       data: { organization: null },
       errors: [
         {
@@ -278,7 +276,7 @@ describe(fetchOrganization, () => {
   });
 
   it('rejects a login that resolves to a user rather than an organization', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       data: { organization: null },
       errors: [
         {

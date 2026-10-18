@@ -1,12 +1,14 @@
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
-import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
 import { measureText } from '../src/common/text.ts';
 
-import { testConfig } from './_config.ts';
+import { draw, xOf } from './_card.ts';
 import { wakaTimeData } from './fetchWakatime.spec.ts';
+
+/** @returns Where a compact label's ink ends across the card. */
+const rightEdge = (label: HTMLElement): number => xOf(label) + measureText(label.textContent, 11);
 
 describe('Test Render WakaTime Card', () => {
   it('should render correctly', () => {
@@ -54,21 +56,19 @@ describe('Test Render WakaTime Card', () => {
         ...lang,
         name: `${lang.name} With An Extended And Very Long Name`,
       }));
-      document.body.innerHTML = renderWakatimeCard(data, { layout: 'compact', card_width });
+      const width = Number(
+        draw(renderWakatimeCard(data, { layout: 'compact', card_width })).getAttribute('width'),
+      );
 
-      const width = Number(document.querySelector('svg')?.getAttribute('width'));
-      const rows = screen.getAllByTestId('lang-name').map((label) => {
-        const x = Number(
-          /translate\((?<x>[\d.]+),/u.exec(label.parentElement?.getAttribute('transform') ?? '')
-            ?.groups?.['x'],
-        );
-        return { left: x, right: x + 15 + measureText(label.textContent, 11) };
-      });
-      const [left, right] = [0, 1].map((column) => rows.filter((_, i) => i % 2 === column));
-      const rightX = Math.min(...(right ?? []).map((row) => row.left));
+      // languages alternate between the columns, left first
+      const labels = screen.getAllByTestId('lang-name');
+      const left = labels.filter((_, index) => index % 2 === 0);
+      const right = labels.filter((_, index) => index % 2 === 1);
 
-      expect(Math.max(...(left ?? []).map((row) => row.right))).toBeLessThan(rightX);
-      expect(Math.max(...(right ?? []).map((row) => row.right))).toBeLessThanOrEqual(width - 25);
+      expect(Math.max(...left.map((label) => rightEdge(label)))).toBeLessThan(
+        Math.min(...right.map((label) => xOf(label))),
+      );
+      expect(Math.max(...right.map((label) => rightEdge(label)))).toBeLessThanOrEqual(width - 25);
     },
   );
 
@@ -159,14 +159,5 @@ describe('Test Render WakaTime Card', () => {
       theme: 'ambient_gradient',
     });
     expect(card).toMatchSnapshot();
-  });
-});
-
-describe('test wakatime API', () => {
-  it('should return a permanent error for an invalid color parameter', async () => {
-    const result = await wakatimeApi({ username: 'user', title_color: 'not-a-color' }, testConfig);
-
-    expect(result.status).toBe('error');
-    expect(result.content).toContain(`Invalid color input for parameter &#34;title_color&#34;`);
   });
 });

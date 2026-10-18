@@ -5,9 +5,8 @@ import { fetchOrgActivity } from '../src/fetchers/org-activity.ts';
 import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-activity.ts';
 
 import { testConfig } from './_config.ts';
-import { FetchMock } from './_fetch-mock.ts';
+import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 
-const GRAPHQL = 'https://api.github.com/graphql';
 const COMMIT_SEARCH = /^https:\/\/api\.github\.com\/search\/commits/;
 
 /**
@@ -53,9 +52,7 @@ const mock = new FetchMock();
 const config = testConfig.with({ fetch: mock.fetch });
 
 /** @returns The search queries the GraphQL request carried, keyed by their alias. */
-const sentSearches = (): Record<string, string> =>
-  (JSON.parse(mock.history.post[0]?.data ?? '{}') as { variables: Record<string, string> })
-    .variables;
+const sentSearches = (): Record<string, unknown> => graphqlBody(mock.history.post[0]).variables;
 
 beforeEach(() => {
   // the window ends today, so the dates a search asks for are only assertable against a fixed one

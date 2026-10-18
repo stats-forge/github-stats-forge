@@ -1,11 +1,12 @@
 import { screen } from '@testing-library/dom';
-import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
 import { renderOrgActivityCard } from '../src/cards/org-activity/index.ts';
 import { CardError } from '../src/common/error.ts';
 import type { OrgActivityData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
+
+import { cssValue } from './_card.ts';
 
 const data: OrgActivityData = {
   login: 'vitest-dev',
@@ -136,11 +137,8 @@ describe('test renderOrgActivityCard', () => {
   it('should give the title icon its own color, and hold its slot either way', () => {
     document.body.innerHTML = renderOrgActivityCard(data);
 
-    const styleTag = document.querySelector('style');
-    const iconStyles = cssToObject(styleTag?.innerHTML ?? '')[':host']?.['.title-icon '];
-
     expect(document.querySelector('.title-icon')).toBeInTheDocument();
-    expect(iconStyles?.['fill']?.trim()).toBe(`#${themes.default.icon_color}`);
+    expect(cssValue('.title-icon', 'fill')).toBe(`#${themes.default.icon_color}`);
   });
 
   it('should abbreviate a count, and write it out in full when the format is long', () => {
@@ -157,10 +155,7 @@ describe('test renderOrgActivityCard', () => {
   it('should hide the stat icons when asked, without dropping their rows', () => {
     document.body.innerHTML = renderOrgActivityCard(data, { show_icons: false });
 
-    const styleTag = document.querySelector('style');
-    const iconStyles = cssToObject(styleTag?.innerHTML ?? '')[':host']?.['.icon '];
-
-    expect(iconStyles?.['display']?.trim()).toBe('none');
+    expect(cssValue('.icon', 'display')).toBe('none');
     expect(screen.queryByTestId('prs_opened')).toBeInTheDocument();
   });
 

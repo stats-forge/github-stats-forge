@@ -103,6 +103,5 @@ export {
   RATE_LIMITED_REPLY,
   UPSTREAM_ERROR_REPLY,
   optionsAnswering,
-  testCache,
   testOptions,
 };

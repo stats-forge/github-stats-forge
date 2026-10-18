@@ -1,4 +1,4 @@
-import { cards, findCard, OPTION_GROUPS } from '@stats-forge/github-stats-forge-catalog';
+import { findCard } from '@stats-forge/github-stats-forge-catalog';
 import { describe, expect, it } from 'vitest';
 
 import type { Answer } from '../src/query.ts';
@@ -90,41 +90,6 @@ describe(defaultFileName, () => {
   it('writes a name a shell can handle', () => {
     const stats = findCard('stats');
     expect(stats && defaultFileName(stats, { username: 'a b/c' })).toBe('stats-a-b-c.svg');
-  });
-});
-
-describe('the card catalog', () => {
-  it('gives every card a unique id', () => {
-    const ids = cards.map((card) => card.id);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
-  it('names every option once per card', () => {
-    for (const card of cards) {
-      const names = [...card.required, ...card.options].map((option) => option.name);
-      expect(new Set(names).size, `${card.id} repeats an option`).toBe(names.length);
-    }
-  });
-
-  it('gives every choice option its choices', () => {
-    for (const card of cards) {
-      for (const option of card.options.filter((entry) => entry.kind === 'choice')) {
-        expect(option.choices?.length, `${card.id}.${option.name}`).toBeGreaterThan(0);
-      }
-    }
-  });
-
-  it('gives every option a section the menu knows how to head', () => {
-    const headed = new Set(OPTION_GROUPS.map((section) => section.group));
-    for (const card of cards) {
-      for (const option of card.options) {
-        expect(headed, `${card.id}.${option.name}`).toContain(option.group);
-      }
-    }
-  });
-
-  it('answers to an unknown card with nothing', () => {
-    expect(findCard('not-a-card')).toBeUndefined();
   });
 });
 

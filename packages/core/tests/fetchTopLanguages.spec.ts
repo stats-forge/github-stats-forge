@@ -4,7 +4,7 @@ import { logger } from '../src/common/log.ts';
 import { fetchTopLanguages } from '../src/fetchers/top-languages.ts';
 
 import { testConfig } from './_config.ts';
-import { FetchMock } from './_fetch-mock.ts';
+import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 import { approxNumber } from './utils.ts';
 
 vi.mock(import('../src/common/log.ts'), async () => {
@@ -75,7 +75,7 @@ const error = {
 
 describe('FetchTopLanguages', () => {
   it('should fetch correct language data while using the new calculation', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, data_langs);
+    mock.onPost(GRAPHQL).reply(200, data_langs);
 
     const repo = await fetchTopLanguages(
       { username: 'anuraghazra', size_weight: 0.5, count_weight: 0.5 },
@@ -100,7 +100,7 @@ describe('FetchTopLanguages', () => {
   it.each(['test-repo-1', 'Anuraghazra/TEST-repo-1'])(
     'should fetch correct language data while excluding the repository named %j',
     async (entry) => {
-      mock.onPost('https://api.github.com/graphql').reply(200, data_langs);
+      mock.onPost(GRAPHQL).reply(200, data_langs);
 
       const repo = await fetchTopLanguages(
         { username: 'anuraghazra', exclude_repo: [entry] },
@@ -124,7 +124,7 @@ describe('FetchTopLanguages', () => {
   );
 
   it('should fetch correct language data while using the old calculation', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, data_langs);
+    mock.onPost(GRAPHQL).reply(200, data_langs);
 
     const repo = await fetchTopLanguages(
       { username: 'anuraghazra', size_weight: 1, count_weight: 0 },
@@ -147,7 +147,7 @@ describe('FetchTopLanguages', () => {
   });
 
   it('should rank languages by the number of repositories they appear in', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, data_langs);
+    mock.onPost(GRAPHQL).reply(200, data_langs);
 
     const repo = await fetchTopLanguages(
       { username: 'anuraghazra', size_weight: 0, count_weight: 1 },
@@ -170,7 +170,7 @@ describe('FetchTopLanguages', () => {
   });
 
   it('should throw specific error when user not found', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, error);
+    mock.onPost(GRAPHQL).reply(200, error);
 
     await expect(fetchTopLanguages({ username: 'anuraghazra' }, config)).rejects.toThrow(
       "Could not resolve to a User with the login of 'noname'.",
@@ -180,7 +180,7 @@ describe('FetchTopLanguages', () => {
   });
 
   it('should throw other errors with their message', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       errors: [{ message: 'Some test GraphQL error' }],
     });
 
@@ -192,7 +192,7 @@ describe('FetchTopLanguages', () => {
   });
 
   it('should throw error with specific message when error does not contain message property', async () => {
-    mock.onPost('https://api.github.com/graphql').reply(200, {
+    mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'TEST' }],
     });
 

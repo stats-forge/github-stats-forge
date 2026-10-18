@@ -1,10 +1,11 @@
 import { screen } from '@testing-library/dom';
-import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
 import { MIN_CARD_WIDTH, renderContributedToCard } from '../src/cards/contributed-to/index.ts';
 import type { ContributedToData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
+
+import { cssValue } from './_card.ts';
 
 const data: ContributedToData = {
   login: 'anuraghazra',
@@ -51,11 +52,8 @@ describe('test renderContributedToCard', () => {
   it('should give the title icon its own color, and hold its slot either way', () => {
     document.body.innerHTML = renderContributedToCard(data);
 
-    const styleTag = document.querySelector('style');
-    const iconStyles = cssToObject(styleTag?.innerHTML ?? '')[':host']?.['.title-icon '];
-
     expect(document.querySelector('.title-icon')).toBeInTheDocument();
-    expect(iconStyles?.['fill']?.trim()).toBe(`#${themes.default.icon_color}`);
+    expect(cssValue('.title-icon', 'fill')).toBe(`#${themes.default.icon_color}`);
   });
 
   it('should take a custom title', () => {

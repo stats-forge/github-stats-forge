@@ -45,29 +45,29 @@ const customFetcher = vi.fn((_variables: unknown, token: string) =>
   Promise.resolve({ data: { token } }),
 ) as unknown as Fetcher;
 
-describe('Test Retryer', () => {
-  it('retryer should return value and have zero retries on first try', async () => {
+describe(retryer, () => {
+  it('answers on the first try without retrying', async () => {
     const res = await retryer(fetcher, {}, testConfig);
 
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(res).toStrictEqual({ data: 'ok' });
   });
 
-  it('retryer should return value and have 2 retries', async () => {
+  it('retries once after a rate limit, and answers', async () => {
     const res = await retryer(fetcherFailOnSecondTry, {}, testConfig);
 
     expect(fetcherFailOnSecondTry).toHaveBeenCalledTimes(2);
     expect(res).toStrictEqual({ data: 'ok' });
   });
 
-  it('retryer should return value and have 2 retries with message based rate limit error', async () => {
+  it('retries once after a rate limit named only in the message', async () => {
     const res = await retryer(fetcherFailWithMessageBasedRateLimitErr, {}, testConfig);
 
     expect(fetcherFailWithMessageBasedRateLimitErr).toHaveBeenCalledTimes(2);
     expect(res).toStrictEqual({ data: 'ok' });
   });
 
-  it('retryer should throw specific error if maximum retries reached', async () => {
+  it('reports a rate limit once every token has been tried', async () => {
     await expect(retryer(fetcherFail, {}, testConfig)).rejects.toMatchObject({
       reason: 'rate_limited',
     });
@@ -75,7 +75,7 @@ describe('Test Retryer', () => {
     expect(fetcherFail).toHaveBeenCalledTimes(2);
   });
 
-  it('retryer should report every token rejected as no_tokens, not a rate limit', async () => {
+  it('reports every token rejected as no_tokens, not a rate limit', async () => {
     const fetcherBadCredentials = vi.fn().mockResolvedValue({
       data: { message: 'Bad credentials' },
     }) as unknown as Fetcher;
@@ -88,7 +88,7 @@ describe('Test Retryer', () => {
     expect(fetcherBadCredentials).toHaveBeenCalledTimes(2);
   });
 
-  it('retryer should report a rate limit when only some tokens were rejected', async () => {
+  it('reports a rate limit when only some tokens were rejected', async () => {
     const fetcherOneRejected = vi.fn((_vars, token: string) =>
       Promise.resolve({
         data:
@@ -105,7 +105,7 @@ describe('Test Retryer', () => {
     expect(fetcherOneRejected).toHaveBeenCalledTimes(2);
   });
 
-  it('retryer should retry a transient error after a delay', async () => {
+  it('retries a transient error after a delay', async () => {
     vi.useFakeTimers();
     try {
       const fetcherFailingOnce = vi.fn((_vars, _token, { retries }) => {
@@ -126,7 +126,7 @@ describe('Test Retryer', () => {
     }
   });
 
-  it('retryer should retry transient errors 3 times and then give up as upstream', async () => {
+  it('retries a transient error 3 times, then gives up as upstream', async () => {
     vi.useFakeTimers();
     try {
       const networkError = new Error('Network Error');
@@ -156,7 +156,7 @@ describe('Test Retryer', () => {
     }
   });
 
-  it('retryer should not retry a failure that already named itself', async () => {
+  it('does not retry a failure that already named itself', async () => {
     const rejected = CardError.because('invalid_username');
     const fetcherRejecting = vi.fn().mockRejectedValue(rejected) as unknown as Fetcher;
 
@@ -165,7 +165,7 @@ describe('Test Retryer', () => {
     expect(fetcherRejecting).toHaveBeenCalledTimes(1);
   });
 
-  it('retryer should not retry a request the host gave up on', async () => {
+  it('does not retry a request the host gave up on', async () => {
     const timeout = new DOMException('The operation timed out.', 'TimeoutError');
     const fetcherTimingOut = vi.fn().mockRejectedValue(timeout) as unknown as Fetcher;
 
@@ -174,7 +174,7 @@ describe('Test Retryer', () => {
     expect(fetcherTimingOut).toHaveBeenCalledTimes(1);
   });
 
-  it('retryer should keep the PAT of a transient error and switch on a rate limit', async () => {
+  it('keeps the PAT through a transient error and switches it on a rate limit', async () => {
     vi.useFakeTimers();
     try {
       const tokens: Array<string> = [];
@@ -206,7 +206,7 @@ describe('Test Retryer', () => {
     }
   });
 
-  it('retryer should use injected PATs when provided', async () => {
+  it('uses the PATs the config carries', async () => {
     const userConfig = testConfig.with({
       pats: [{ name: 'user PAT from database', value: 'user-pat-token' }],
     });
