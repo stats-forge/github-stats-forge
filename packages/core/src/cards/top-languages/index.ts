@@ -17,6 +17,7 @@ import {
   calculateDonutVerticalLayoutHeight,
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
+  measureCompactList,
   noLanguagesDataNode,
   renderCompactLayout,
   renderDonutLayout,
@@ -114,6 +115,19 @@ const getDefaultLanguagesCountByLayout = ({
 };
 
 /**
+ * Widens the card to what its content needs: a default width takes the narrowest step that
+ * holds it, an explicit `card_width` grows only as far as it must.
+ *
+ * @returns The card's width.
+ */
+const fitWidth = (width: number, needed: number): number => {
+  if (width !== DEFAULT_CARD_WIDTH) {
+    return Math.max(width, Math.ceil(needed));
+  }
+  return Object.values(CARD_STYLE.width).find((step) => step >= needed) ?? Math.ceil(needed);
+};
+
+/**
  * Renders card that display user's most frequently used programming languages.
  *
  * @returns Language card SVG object.
@@ -162,6 +176,13 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     finalLayout = renderDonutVerticalLayout(langs, totalLanguageSize, value_format, hide_values);
   } else if (layout === 'compact' || hide_progress === true) {
     height = calculateCompactLayoutHeight(langs.length) + (hide_progress ? -25 : 0);
+    const listWidth = measureCompactList(langs, {
+      totalSize: totalLanguageSize,
+      hideProgress: hide_progress,
+      hideValues: hide_values,
+      valueFormat: value_format,
+    }).width;
+    width = fitWidth(width, listWidth + CARD_STYLE.padding.x * 2);
 
     finalLayout = renderCompactLayout(
       langs,

@@ -34,20 +34,11 @@ type TopLangLayout = (typeof TOP_LANG_LAYOUTS)[number];
 const TOP_LANG_VALUE_FORMATS = ['percent', 'bytes'] as const;
 type TopLangValueFormat = (typeof TOP_LANG_VALUE_FORMATS)[number];
 
-/**
- * Retrieves the programming language whose name is the longest.
- *
- * @returns Longest programming language object.
- */
-const getLongestLang = (arr: Array<Lang>): Pick<Lang, 'name' | 'size' | 'color'> => {
-  let longest: Pick<Lang, 'name' | 'size' | 'color'> = { name: '', size: 0, color: '' };
-  for (const lang of arr) {
-    if (lang.name.length > longest.name.length) {
-      longest = lang;
-    }
-  }
-  return longest;
-};
+/** Where a compact row's label starts, clear of its dot. */
+const COMPACT_LABEL_X = 15;
+const COMPACT_MIN_COLUMN_GAP = 150;
+/** Air between the first column's widest label and the second column. */
+const COMPACT_COLUMN_AIR = 5;
 
 /**
  * Calculates height for the compact layout.
@@ -183,6 +174,52 @@ const createProgressTextNode = ({
   );
 };
 
+interface CompactListOptions {
+  totalSize: number;
+  hideProgress?: boolean | undefined;
+  hideValues?: boolean | undefined;
+  valueFormat?: TopLangValueFormat | undefined;
+}
+
+/**
+ * The text a compact row draws for a language.
+ *
+ * @returns The language's name, followed by its value unless values are hidden.
+ */
+const compactLabel = (
+  lang: Lang,
+  { totalSize, hideProgress, hideValues, valueFormat = 'percent' }: CompactListOptions,
+): string => {
+  if (hideProgress || hideValues) {
+    return lang.name;
+  }
+  const percentages = (lang.size / totalSize) * 100;
+  return `${lang.name} ${getDisplayValue(lang.size, percentages, valueFormat)}`;
+};
+
+/**
+ * Splits the compact list into its two columns and measures them.
+ *
+ * @returns The columns, the second column's offset, and the width the whole list takes.
+ */
+const measureCompactList = (
+  langs: Array<Lang>,
+  options: CompactListOptions,
+): { columns: Array<Array<Lang>>; gap: number; width: number } => {
+  const columns = chunkArray(langs, langs.length / 2);
+  const columnWidths = columns.map((column) =>
+    Math.max(
+      ...column.map(
+        (lang) =>
+          COMPACT_LABEL_X + measureText(compactLabel(lang, options), CARD_STYLE.fontSize.micro),
+      ),
+    ),
+  );
+  const gap = Math.max(COMPACT_MIN_COLUMN_GAP, (columnWidths[0] ?? 0) + COMPACT_COLUMN_AIR);
+  const width = gap * (columns.length - 1) + (columnWidths.at(-1) ?? 0);
+  return { columns, gap, width };
+};
+
 /**
  * Creates compact text item for a programming language.
  *
@@ -190,32 +227,21 @@ const createProgressTextNode = ({
  */
 const createCompactLangNode = ({
   lang,
-  totalSize,
-  hideProgress,
-  hideValues,
-  valueFormat = 'percent',
   index,
-}: {
-  lang: Lang;
-  totalSize: number;
-  hideProgress?: boolean | undefined;
-  hideValues?: boolean | undefined;
-  valueFormat?: TopLangValueFormat | undefined;
-  index: number;
-}): MarkupElement => {
-  const percentages = (lang.size / totalSize) * 100;
-  const displayValue = getDisplayValue(lang.size, percentages, valueFormat);
-
+  ...options
+}: CompactListOptions & { lang: Lang; index: number }): MarkupElement => {
   const staggerDelay = (index + 3) * 150;
   const color = resolveLangColor(lang);
-
-  const label = hideProgress || hideValues ? lang.name : `${lang.name} ${displayValue}`;
 
   return el(
     'g',
     { class: 'stagger', style: `animation-delay: ${staggerDelay}ms` },
     el('circle', { cx: 5, cy: 6, r: 5, fill: color }),
-    el('text', { 'data-testid': 'lang-name', x: 15, y: 10, class: 'lang-name' }, label),
+    el(
+      'text',
+      { 'data-testid': 'lang-name', x: COMPACT_LABEL_X, y: 10, class: 'lang-name' },
+      compactLabel(lang, options),
+    ),
   );
 };
 
@@ -226,37 +252,15 @@ const createCompactLangNode = ({
  */
 const createLanguageTextNode = ({
   langs,
-  totalSize,
-  hideProgress,
-  hideValues,
-  valueFormat,
-}: {
-  langs: Array<Lang>;
-  totalSize: number;
-  hideProgress?: boolean | undefined;
-  hideValues?: boolean | undefined;
-  valueFormat?: TopLangValueFormat | undefined;
-}): Array<Child> => {
-  const longestLang = getLongestLang(langs);
-  const chunked = chunkArray(langs, langs.length / 2);
-  const layouts = chunked.map((array) => {
-    const items = array.map((lang, index) =>
-      createCompactLangNode({
-        lang,
-        totalSize,
-        hideProgress,
-        hideValues,
-        valueFormat,
-        index,
-      }),
-    );
+  ...options
+}: CompactListOptions & { langs: Array<Lang> }): Array<Child> => {
+  const { columns, gap } = measureCompactList(langs, options);
+  const layouts = columns.map((column) => {
+    const items = column.map((lang, index) => createCompactLangNode({ lang, index, ...options }));
     return flexLayout({ items, gap: 25, direction: 'column' });
   });
 
-  const percent = ((longestLang.size / totalSize) * 100).toFixed(2);
-  const minGap = 150;
-  const maxGap = 20 + measureText(`${longestLang.name} ${percent}%`, 11);
-  return flexLayout({ items: layouts, gap: maxGap < minGap ? minGap : maxGap });
+  return flexLayout({ items: layouts, gap });
 };
 
 /**
@@ -695,7 +699,7 @@ export {
   calculateDonutVerticalLayoutHeight,
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
-  getLongestLang,
+  measureCompactList,
   noLanguagesDataNode,
   renderCompactLayout,
   renderDonutLayout,
