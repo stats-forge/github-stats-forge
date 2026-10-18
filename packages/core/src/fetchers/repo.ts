@@ -112,7 +112,7 @@ const fetchRepo = async (
     };
   }
 
-  throw CardError.because('unexpected_repo_response');
+  throw CardError.because('repo_unexpected_response');
 };
 
 export { fetchRepo };

@@ -88,7 +88,10 @@ render functions typed values; defaults stay with the renderer.
 - **A failure is thrown by its reason: `CardError.because(reason, data)`.** Its code and both lines
   live in `CardError.#FAILURES` and nowhere else, and tests assert on `reason`, not on the text.
   `from` is the only other way to build one; `fromGraphQL` picks the reason for a query's
-  `errors`.
+  `errors`. The constructor is `private`, so `tsc` holds every caller to that.
+  - **A reason only one card family throws is prefixed with it** (`gist_`, `org_`,
+    `org_activity_`, `repo_`, `stats_`, `wakatime_`), so the sorted table groups by owner; one
+    shared code throws keeps a plain name.
   - **Each entry of `#FAILURES` is a function from the reason's data to the failure**, so a line
     built from data reads as one template.
   - **`FailureData` says what each reason needs** — `undefined` for nothing, an object to require

@@ -99,7 +99,7 @@ const fetchOrganization = async (
   }
   // `./fetchers` is a public export, so the login is checked here as well as at the api boundary.
   if (!GITHUB_USERNAME_PATTERN.test(org)) {
-    throw CardError.because('invalid_organization');
+    throw CardError.because('org_invalid');
   }
 
   const repos: Array<OrgRepoInfoFragment> = [];
@@ -119,13 +119,13 @@ const fetchOrganization = async (
       // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
       // words for a user query, so this endpoint's own wording is thrown instead.
       if (res.data.errors[0]?.type === 'NOT_FOUND') {
-        throw CardError.because('organization_not_found');
+        throw CardError.because('org_not_found');
       }
       if (!onlyMembersForbidden(res.data.errors)) {
         throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization data');
       }
       if (require_members) {
-        throw CardError.because('members_forbidden');
+        throw CardError.because('org_members_forbidden');
       }
       // the walk can page five times, and one refusal is worth saying once
       if (!membersForbidden) {
@@ -138,7 +138,7 @@ const fetchOrganization = async (
 
     organization = res.data.data.organization ?? undefined;
     if (!organization) {
-      throw CardError.because('organization_not_found');
+      throw CardError.because('org_not_found');
     }
 
     repos.push(...(organization.repositories.nodes ?? []).filter((node) => node !== null));

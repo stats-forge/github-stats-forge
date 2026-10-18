@@ -62,7 +62,7 @@ export const errorResult = (
       secondaryMessage: error.secondaryMessage,
       renderOptions: {
         ...renderOptions,
-        show_repo_link: error.reportable,
+        reportable: error.reportable,
       },
     }),
   };

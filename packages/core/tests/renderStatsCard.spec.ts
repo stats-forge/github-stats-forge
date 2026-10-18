@@ -521,7 +521,7 @@ describe('Test renderStatsCard', () => {
         hide: [...renderStatsCard.OPTIONS.hide],
         hide_rank: true,
       }),
-    ).toThrow(expect.objectContaining({ reason: 'no_stats_or_rank' }));
+    ).toThrow(expect.objectContaining({ reason: 'stats_no_stats_or_rank' }));
   });
 });
 

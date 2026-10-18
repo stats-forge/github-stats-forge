@@ -229,7 +229,7 @@ describe(fetchOrganization, () => {
 
     await expect(
       fetchOrganization({ org: 'vitest-dev', require_members: true }, config),
-    ).rejects.toMatchObject({ code: 'forbidden', reason: 'members_forbidden' });
+    ).rejects.toMatchObject({ code: 'forbidden', reason: 'org_members_forbidden' });
   });
 
   it('keeps the rest of the card when the token may not read the member count', async () => {
@@ -290,7 +290,7 @@ describe(fetchOrganization, () => {
 
     await expect(fetchOrganization({ org: 'marcalexiei' }, config)).rejects.toMatchObject({
       code: 'not_found',
-      reason: 'organization_not_found',
+      reason: 'org_not_found',
     });
   });
 

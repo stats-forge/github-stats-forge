@@ -467,7 +467,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
 
   if (visibleStats.length === 0 && hide_rank) {
-    throw CardError.because('no_stats_or_rank');
+    throw CardError.because('stats_no_stats_or_rank');
   }
 
   // check if all used labels are short

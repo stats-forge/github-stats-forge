@@ -3,13 +3,15 @@ import { describe, expect, it } from 'vitest';
 import { CardError } from '../src/common/error.ts';
 
 // never called: `tsc` checks the expectations inside
-const typed = (): void => {
+const typed = (): CardError => {
   // @ts-expect-error `not_allowed` needs the param it refused
   CardError.because('not_allowed');
   // @ts-expect-error `rate_limited` is worded without data
   CardError.because('rate_limited', {});
   CardError.because('user_not_found');
   CardError.because('user_not_found', { message: 'Could not resolve to a User' });
+  // @ts-expect-error only the class builds one
+  return new CardError('Nope', { code: 'upstream' });
 };
 
 describe('CardError.because', () => {
@@ -25,7 +27,7 @@ describe('CardError.because', () => {
     expect(typed).toBeTypeOf('function');
   });
 
-  it('carries no reason for a failure built any other way', () => {
-    expect(new CardError('Nope', { code: 'upstream' }).reason).toBeUndefined();
+  it('carries no reason for a failure it only wrapped', () => {
+    expect(CardError.from(new Error('Nope')).reason).toBeUndefined();
   });
 });

@@ -337,7 +337,7 @@ const renderError = ({
     bg_color?: string | undefined;
     border_color?: string | undefined;
     theme?: string | undefined;
-    show_repo_link?: boolean | undefined;
+    reportable?: boolean | undefined;
   };
 }): string => {
   const {
@@ -346,7 +346,7 @@ const renderError = ({
     bg_color,
     border_color,
     theme = 'default',
-    show_repo_link = true,
+    reportable = true,
   } = renderOptions;
 
   const { titleColor, textColor, bgColor, borderColor } = getCardColors({
@@ -364,9 +364,7 @@ const renderError = ({
    * ran to 561px inside a 576.5px card and this one runs past it. Measured in a canvas at the
    * title's own font, so re-measure before putting it back on one line.
    */
-  const report = show_repo_link
-    ? 'File an issue at https://tinyurl.com/github-stats-forge-bug'
-    : '';
+  const report = reportable ? 'File an issue at https://tinyurl.com/github-stats-forge-bug' : '';
 
   return renderMarkup(
     el(

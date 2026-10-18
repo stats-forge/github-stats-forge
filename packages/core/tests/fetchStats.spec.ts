@@ -330,7 +330,7 @@ describe('Test fetchStats', () => {
       .reply(200, { error: 'Some test error message' });
 
     await expect(fetchStatsWith({ include_all_commits: true })).rejects.toMatchObject({
-      reason: 'search_count_unavailable',
+      reason: 'stats_search_count_unavailable',
     });
   });
 

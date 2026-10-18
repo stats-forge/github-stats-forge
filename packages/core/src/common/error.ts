@@ -49,29 +49,29 @@ interface FailureData {
   /** What the query asked for, as "the ___ using the GraphQL API" reads. */
   graphql_failed: { subject: string };
   invalid_affiliation: undefined;
-  invalid_organization: undefined;
   /** The param a check rejected, and the check's own wording of why. */
   invalid_param: { param: string; detail: string };
   invalid_username: undefined;
-  invalid_wakatime_host: undefined;
-  issues_forbidden: undefined;
-  members_forbidden: undefined;
   /** Every param missing, first the one at fault, and where to read how to pass them. */
   missing_param: { params: Array<string>; hint?: string | undefined };
-  /** The card, as "Could not render ___ card." reads. */
-  no_stats: { card: string };
-  no_stats_or_rank: undefined;
   /** The identity param the deployment refused. */
   not_allowed: { param: string };
-  organization_not_found: undefined;
+  org_activity_issues_forbidden: undefined;
+  org_invalid: undefined;
+  org_members_forbidden: undefined;
+  /** The card, as "Could not render ___ card." reads. */
+  org_no_stats: { card: string };
+  org_not_found: undefined;
   rate_limited: undefined;
   repo_not_found: undefined;
-  search_count_unavailable: undefined;
+  repo_unexpected_response: undefined;
+  stats_no_stats_or_rank: undefined;
+  stats_search_count_unavailable: undefined;
   tokens_missing: undefined;
   tokens_rejected: undefined;
-  unexpected_repo_response: undefined;
   /** GitHub's own wording, when the query told it. */
   user_not_found: { message: string | undefined } | undefined;
+  wakatime_invalid_host: undefined;
   wakatime_unavailable: { username: string };
   wakatime_user_not_found: { username: string };
 }
@@ -166,11 +166,6 @@ class CardError extends Error {
       secondaryMessage: `Invalid owner affiliations. Valid values are: ${OWNER_AFFILIATIONS.join(', ')}`,
       param: 'affiliation',
     }),
-    invalid_organization: () => ({
-      code: 'invalid_param',
-      message: 'Invalid organization provided.',
-      param: 'org',
-    }),
     invalid_param: ({ param, detail }) => ({
       code: 'invalid_param',
       message: 'Something went wrong',
@@ -182,23 +177,6 @@ class CardError extends Error {
       message: 'Invalid username provided.',
       param: 'username',
     }),
-    invalid_wakatime_host: () => ({
-      code: 'invalid_param',
-      message: 'Invalid WakaTime host provided.',
-      param: 'wakatime_host',
-    }),
-    issues_forbidden: () => ({
-      code: 'forbidden',
-      message: 'Missing token permission',
-      secondaryMessage:
-        'The token needs read access to issues, or hide "issues_opened" and "issues_closed"',
-    }),
-    members_forbidden: () => ({
-      code: 'forbidden',
-      message: 'Missing token permission',
-      secondaryMessage:
-        'The token needs the organization "Members" permission, or drop "show=members"',
-    }),
     // the caller's to fix, so the card links its docs instead of asking for an issue
     missing_param: ({ params, hint }) => ({
       code: 'missing_param',
@@ -207,16 +185,6 @@ class CardError extends Error {
       param: params[0],
       reportable: false,
     }),
-    no_stats: ({ card }) => ({
-      code: 'invalid_param',
-      message: `Could not render ${card} card.`,
-      secondaryMessage: 'At least one stat is required.',
-    }),
-    no_stats_or_rank: () => ({
-      code: 'invalid_param',
-      message: 'Could not render stats card.',
-      secondaryMessage: 'Either stats or rank are required.',
-    }),
     // names neither the value nor the list: one is the caller's, the other the operator's
     not_allowed: ({ param }) => ({
       code: 'not_allowed',
@@ -224,7 +192,29 @@ class CardError extends Error {
       secondaryMessage: 'This deployment does not serve that account',
       param,
     }),
-    organization_not_found: () => ({
+    org_activity_issues_forbidden: () => ({
+      code: 'forbidden',
+      message: 'Missing token permission',
+      secondaryMessage:
+        'The token needs read access to issues, or hide "issues_opened" and "issues_closed"',
+    }),
+    org_invalid: () => ({
+      code: 'invalid_param',
+      message: 'Invalid organization provided.',
+      param: 'org',
+    }),
+    org_members_forbidden: () => ({
+      code: 'forbidden',
+      message: 'Missing token permission',
+      secondaryMessage:
+        'The token needs the organization "Members" permission, or drop "show=members"',
+    }),
+    org_no_stats: ({ card }) => ({
+      code: 'invalid_param',
+      message: `Could not render ${card} card.`,
+      secondaryMessage: 'At least one stat is required.',
+    }),
+    org_not_found: () => ({
       code: 'not_found',
       message: 'Organization not found',
       secondaryMessage: 'Make sure the provided organization exists and is not a user',
@@ -241,7 +231,18 @@ class CardError extends Error {
       message: 'Repository not found',
       secondaryMessage: 'Make sure the provided username and repository are correct',
     }),
-    search_count_unavailable: () => ({
+    repo_unexpected_response: () => ({
+      code: 'upstream',
+      message: 'Unexpected behavior',
+      secondaryMessage: CardError.#TRY_AGAIN_LATER,
+      reportable: false,
+    }),
+    stats_no_stats_or_rank: () => ({
+      code: 'invalid_param',
+      message: 'Could not render stats card.',
+      secondaryMessage: 'Either stats or rank are required.',
+    }),
+    stats_search_count_unavailable: () => ({
       code: 'upstream',
       message: 'Could not fetch data from GitHub REST API.',
       secondaryMessage: CardError.#TRY_AGAIN_LATER,
@@ -259,17 +260,16 @@ class CardError extends Error {
       secondaryMessage:
         'Replace the expired or revoked PAT_* variables in your deployment environment',
     }),
-    unexpected_repo_response: () => ({
-      code: 'upstream',
-      message: 'Unexpected behavior',
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
-      reportable: false,
-    }),
     // a login that resolves to nothing, or to an organization
     user_not_found: (data) => ({
       code: 'not_found',
       message: data?.message || 'Could not fetch user.',
       secondaryMessage: 'Make sure the provided username is not an organization',
+    }),
+    wakatime_invalid_host: () => ({
+      code: 'invalid_param',
+      message: 'Invalid WakaTime host provided.',
+      param: 'wakatime_host',
     }),
     wakatime_unavailable: ({ username }) => ({
       code: 'upstream',
@@ -291,7 +291,8 @@ class CardError extends Error {
   readonly reportable: boolean;
   #reason: FailureReason | undefined;
 
-  constructor(message: string, init: CardErrorInit) {
+  // only `because`, `from` and `fromGraphQL` build one, so every failure has a reason or is wrapped
+  private constructor(message: string, init: CardErrorInit) {
     // `cause` is installed by its presence, so an absent one must not be passed as undefined
     super(message, init.cause === undefined ? undefined : { cause: init.cause });
     this.name = 'CardError';

@@ -141,7 +141,7 @@ describe('WakaTime fetcher', () => {
     await expect(
       fetchWakatimeStats({ username: 'user', wakatime_host }, config),
     ).rejects.toMatchObject({
-      reason: 'invalid_wakatime_host',
+      reason: 'wakatime_invalid_host',
     });
   });
 
