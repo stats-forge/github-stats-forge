@@ -301,8 +301,8 @@ the documentation's markdown, which Dependabot could not.
   dev dependency reaches no consumer.
 - **The workflow's cron is the heartbeat; the config's `schedule` is the gate.** A per-manager window
   must contain the time the workflow fires, so windows are day-wide.
-- **A dev dependency automerges once `CI OK` is green** on a minor, patch, pin or digest ([#137]).
-  Majors and `dependencies` bumps stay manual.
+- **A dev dependency or a GitHub Actions update automerges once `CI OK` is green** on a minor,
+  patch, pin or digest ([#137]). Majors and `dependencies` bumps stay manual.
 - **Check a config change with `renovate-config-validator`, and nothing else on this checkout.**
   `RENOVATE_PLATFORM=local` reverts tracked files and removes untracked ones; run it on a copy.
 - **A later `packageRules` entry wins**, so the held-back rules sit after the groups.
