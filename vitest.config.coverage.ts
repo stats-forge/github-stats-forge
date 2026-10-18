@@ -1,15 +1,5 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, mergeConfig } from 'vitest/config';
 
-export default defineConfig({
-  test: {
-    coverage: {
-      enabled: true,
-    },
-    projects: [
-      'packages/core/vitest.config.ts',
-      'packages/catalog/vitest.config.ts',
-      'packages/cli/vitest.config.ts',
-      'apps/server/vitest.config.ts',
-    ],
-  },
-});
+import root from './vitest.config.ts';
+
+export default mergeConfig(root, defineConfig({ test: { coverage: { enabled: true } } }));
