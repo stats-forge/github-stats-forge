@@ -58,7 +58,7 @@ jobs:
       # start other workflows, so CI would never run on the generated PRs.
       - name: Setup release helper
         id: release-helper
-        uses: marcalexiei/github-actions/setup-github-app-user-bot@9ded13ab164dfe9b64cc973d440b629ec1940d8d # v2.4.0
+        uses: marcalexiei/github-actions/setup-github-app-user-bot@92c64c084d3479cff756151cb8163d03608f2acd # v2.4.2
         with:
           app-id: ${{ vars.HELPER_APP_ID }}
           private-key: ${{ secrets.HELPER_PRIVATE_KEY }}
