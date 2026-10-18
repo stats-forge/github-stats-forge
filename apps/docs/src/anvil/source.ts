@@ -41,7 +41,7 @@ const PROBLEMS: Record<ErrorCode, string> = {
   missing_param: 'The card cannot be drawn without this',
   not_allowed: 'This deployment does not serve that account',
   not_found: 'GitHub has nothing by that name',
-  no_tokens: 'No GitHub token is configured',
+  no_tokens: 'No usable GitHub token is configured',
   rate_limited: 'Every token is spent for now',
   upstream: 'GitHub answered with something unusable',
 };

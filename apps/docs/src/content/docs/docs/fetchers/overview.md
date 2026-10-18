@@ -56,8 +56,9 @@ import type { StatsData, TopLangData } from '@stats-forge/github-stats-forge-cor
 ## Tokens
 
 `retryer` is exported here as well. It is what walks the tokens in a `CardConfig`, moving to the
-next when one is rate limited, and it is what the fetchers already run inside — you need it only
-if you are writing a fetcher of your own.
+next when one is rate limited or rejected, and it is what the fetchers already run inside — you
+need it only if you are writing a fetcher of your own. When GitHub rejects every token, it fails
+with `no_tokens` rather than `rate_limited`.
 
 :::note
 A request that never reached GitHub is retried with the same token after 100ms, 1s and 3s, and
