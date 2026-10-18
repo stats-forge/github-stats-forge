@@ -56,6 +56,18 @@ describe('Test fetchRepo', () => {
     expect(repo).toStrictEqual(data_repo.repository);
   });
 
+  it.each([
+    ['repo', { username: 'anuraghazra' }],
+    ['repo', { username: 'anuraghazra', reponame: 'anuraghazra/' }],
+    ['username', { reponame: 'convoychat' }],
+  ])('should report a missing %s as a missing param (%o)', async (param, options) => {
+    await expect(fetchRepo(options, config)).rejects.toMatchObject({
+      code: 'missing_param',
+      param,
+    });
+    expect(mock.history.post).toHaveLength(0);
+  });
+
   it('should throw error if user is found but repo is null', async () => {
     mock
       .onPost('https://api.github.com/graphql')
