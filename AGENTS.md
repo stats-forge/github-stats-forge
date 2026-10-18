@@ -73,7 +73,9 @@ directories, and what must be known before choosing one:
   handlers), with `common/` for shared helpers, `themes/` for the theme table and `graphql/` for
   query text and its generated types.
 - **A card is a folder under `cards/`**: its renderer as `index.ts`, its translations as
-  `locales.ts`. Only `cards/options.ts` sits loose beside them ([#61]).
+  `locales.ts`. Only `cards/options.ts` sits loose beside them ([#61]). A card too big for one file
+  moves its layouts beside `index.ts`, which keeps the options and the render — see
+  `top-languages/layouts.ts` and `geometry.ts`.
 - **Every source file is TypeScript**, `packages/cli/bin.js` excepted — see `packages/cli/AGENTS.md`.
   Generators are covered by a `tsconfig.scripts.json`, so CI typechecks them ([#39]).
 
