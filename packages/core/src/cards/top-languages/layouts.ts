@@ -389,6 +389,7 @@ const renderCompactLayout = (
  */
 const renderDonutVerticalLayout = (
   langs: Array<Lang>,
+  width: number,
   totalLanguageSize: number,
   valueFormat: TopLangValueFormat,
   hideValues?: boolean,
@@ -419,7 +420,7 @@ const renderDonutVerticalLayout = (
         'g',
         { class: 'stagger', style: `animation-delay: ${delay}ms` },
         el('circle', {
-          cx: 150,
+          cx: width / 2,
           cy: 100,
           r: radius,
           fill: 'transparent',
@@ -468,13 +469,14 @@ const renderDonutVerticalLayout = (
  */
 const renderPieLayout = (
   langs: Array<Lang>,
+  width: number,
   totalLanguageSize: number,
   valueFormat: TopLangValueFormat,
   hideValues?: boolean,
 ): MarkupElement => {
   // Pie chart radius and center coordinates
   const radius = 90;
-  const centerX = 150;
+  const centerX = width / 2;
   const centerY = 100;
 
   // Start angle for the pie chart parts

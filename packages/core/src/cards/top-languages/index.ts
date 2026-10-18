@@ -161,6 +161,16 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
+  /** @returns The card width the two-column list needs, padding included. */
+  const compactListWidth = (hideProgress: boolean | undefined): number =>
+    measureCompactList(langs, {
+      totalSize: totalLanguageSize,
+      hideProgress,
+      hideValues: hide_values,
+      valueFormat: value_format,
+    }).width +
+    CARD_STYLE.padding.x * 2;
+
   let finalLayout: Child;
   if (langs.length === 0) {
     height = COMPACT_LAYOUT_BASE_HEIGHT;
@@ -170,19 +180,21 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     });
   } else if (layout === 'pie') {
     height = calculatePieLayoutHeight(langs.length);
-    finalLayout = renderPieLayout(langs, totalLanguageSize, value_format, hide_values);
+    width = fitWidth(width, compactListWidth(false));
+    finalLayout = renderPieLayout(langs, width, totalLanguageSize, value_format, hide_values);
   } else if (layout === 'donut-vertical') {
     height = calculateDonutVerticalLayoutHeight(langs.length);
-    finalLayout = renderDonutVerticalLayout(langs, totalLanguageSize, value_format, hide_values);
+    width = fitWidth(width, compactListWidth(false));
+    finalLayout = renderDonutVerticalLayout(
+      langs,
+      width,
+      totalLanguageSize,
+      value_format,
+      hide_values,
+    );
   } else if (layout === 'compact' || hide_progress === true) {
     height = calculateCompactLayoutHeight(langs.length) + (hide_progress ? -25 : 0);
-    const listWidth = measureCompactList(langs, {
-      totalSize: totalLanguageSize,
-      hideProgress: hide_progress,
-      hideValues: hide_values,
-      valueFormat: value_format,
-    }).width;
-    width = fitWidth(width, listWidth + CARD_STYLE.padding.x * 2);
+    width = fitWidth(width, compactListWidth(hide_progress));
 
     finalLayout = renderCompactLayout(
       langs,
