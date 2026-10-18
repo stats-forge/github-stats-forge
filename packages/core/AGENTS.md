@@ -84,21 +84,23 @@ render functions typed values; defaults stay with the renderer.
   answered once.
   - **`CardError.from(err)` wraps anything else as `upstream`, which is retryable** — a permanent
     failure has to throw a `CardError` to be reported as one.
-- **Every error table is a `static #` field of `CardError`, so no message string leaves the class.**
-- **A failure is thrown by its reason: `CardError.because(reason, data)`.** Its code and both lines
-  live in `CardError.#FAILURES` and nowhere else, and tests assert on `reason`, not on the text.
-  `from` is the only other way to build one; `fromGraphQL` picks the reason for a query's
-  `errors`. The constructor is `private`, so `tsc` holds every caller to that.
+- **Every failure lives in one structure, the module-level `FAILURES` in `common/error.ts`.** Its
+  code and both lines live there and nowhere else, and nothing exports it.
+  - **It is not a `static #` field because the types derive from it**: TypeScript cannot query a
+    `#` field's type, and a TS-`private` static is emitted untyped in the `.d.ts`, which would
+    turn a consumer's `FailureReason` into `string | number | symbol`.
+  - **An entry is a function from its data to a `Failure`**, so a line built from data reads as one
+    template. Its parameter is what the reason needs — none, required, or optional (`data?`) — and
+    `because` takes exactly that, so a missing param or username fails `tsc`. Pass in only what
+    the table cannot word itself.
+  - **`FailureReason` is derived from `CardError.because`**, never written out.
   - **A reason only one card family throws is prefixed with it** (`gist_`, `org_`,
-    `org_activity_`, `repo_`, `stats_`, `wakatime_`), so the sorted table groups by owner; one
-    shared code throws keeps a plain name.
-  - **Each entry of `#FAILURES` is a function from the reason's data to the failure**, so a line
-    built from data reads as one template.
-  - **`FailureData` says what each reason needs** — `undefined` for nothing, an object to require
-    it, `| undefined` to take it optionally — and `because` demands exactly that, so a missing
-    param or username fails `tsc`. Pass in only what the table cannot word itself.
-  - **`FailureReason` is `keyof FailureData`**, because a type cannot reach a `#` field.
-  - **`reason` is set by `because` alone**, so it can never disagree with the code.
+    `org_activity_`, `repo_`, `stats_`, `wakatime_`), so the table groups by owner; one shared code
+    throws keeps a plain name.
+- **A failure is thrown by its reason: `CardError.because(reason, …data)`**, and tests assert on
+  `reason`, not on the text. `from` is the only other way to build one; `fromGraphQL` picks the
+  reason for a query's `errors`. The constructor is `private`, so `tsc` holds every caller to that,
+  and `reason` is set by `because` alone, so it can never disagree with the code.
 - **`CardError.reportable` decides the error card's report line, and each failure declares it**:
   `reportable: false` for a spent rate limit, upstream's own outage, a missing param (whose card
   links the docs) and whatever `from` wraps.
