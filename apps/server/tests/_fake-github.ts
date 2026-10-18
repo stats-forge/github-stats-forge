@@ -6,7 +6,7 @@
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 
-import { CardCache } from '../src/cache.ts';
+import { CardCache, STALE_WHILE_REVALIDATE } from '../src/cache.ts';
 import type { ServerOptions } from '../src/handler.ts';
 
 /** The gist the success cases draw, trimmed to what the card reads. */
@@ -66,7 +66,7 @@ const fakeGitHub = (body: unknown): FakeGitHub => {
 };
 
 /** A cache big enough that nothing under test is evicted for want of room. */
-const testCache = (): CardCache => new CardCache(100);
+const testCache = (): CardCache => new CardCache(100, STALE_WHILE_REVALIDATE);
 
 /**
  * @returns Options whose transport answers `body`, and the transport itself. Defaulted to a

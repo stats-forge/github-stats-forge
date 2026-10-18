@@ -51,7 +51,7 @@ describe(cacheKey, () => {
 describe(CardCache, () => {
   it('forgets an entry once its TTL has run out', () => {
     vi.useFakeTimers();
-    const cache = new CardCache(10);
+    const cache = new CardCache(10, STALE_WHILE_REVALIDATE);
     cache.set('k', success, 60);
 
     vi.advanceTimersByTime(59_000);
@@ -62,14 +62,14 @@ describe(CardCache, () => {
   });
 
   it('stores nothing when caching is off', () => {
-    const cache = new CardCache(10);
+    const cache = new CardCache(10, STALE_WHILE_REVALIDATE);
     cache.set('k', success, 0);
 
     expect(cache.size).toBe(0);
   });
 
   it('drops the oldest entry rather than growing past its cap', () => {
-    const cache = new CardCache(3);
+    const cache = new CardCache(3, STALE_WHILE_REVALIDATE);
     for (const key of ['a', 'b', 'c', 'd']) {
       cache.set(key, success, 60);
     }
@@ -81,7 +81,7 @@ describe(CardCache, () => {
 
   it('sweeps what has expired before evicting anything still fresh', () => {
     vi.useFakeTimers();
-    const cache = new CardCache(3);
+    const cache = new CardCache(3, STALE_WHILE_REVALIDATE);
     cache.set('stale', success, 60);
     cache.set('b', success, 3600);
     cache.set('c', success, 3600);
@@ -95,7 +95,7 @@ describe(CardCache, () => {
 
   it('keeps an expired success through the stale window, for getStale alone', () => {
     vi.useFakeTimers();
-    const cache = new CardCache(10);
+    const cache = new CardCache(10, STALE_WHILE_REVALIDATE);
     cache.set('k', success, 60);
 
     vi.advanceTimersByTime(61_000);
@@ -108,10 +108,25 @@ describe(CardCache, () => {
 
   it('never keeps an error stale', () => {
     vi.useFakeTimers();
-    const cache = new CardCache(10);
+    const cache = new CardCache(10, STALE_WHILE_REVALIDATE);
     cache.set('k', failure(true), 60);
 
     vi.advanceTimersByTime(61_000);
     expect(cache.getStale('k')).toBeUndefined();
+  });
+
+  it('keeps no stale card when its window is 0, and reads a negative one as 0', () => {
+    vi.useFakeTimers();
+    const none = new CardCache(10, 0);
+    const negative = new CardCache(10, -60);
+    none.set('k', success, 60);
+    negative.set('k', success, 60);
+
+    vi.advanceTimersByTime(30_000);
+    expect(negative.get('k')).toBeDefined();
+
+    vi.advanceTimersByTime(31_000);
+    expect(none.getStale('k')).toBeUndefined();
+    expect(negative.getStale('k')).toBeUndefined();
   });
 });

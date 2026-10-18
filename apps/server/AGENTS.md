@@ -52,8 +52,8 @@ the tokens and allowlists, and `ApiResult` already says what failed and whether 
 - **One render per key at a time.** `createHandler` shares an in-flight render, so concurrent
   requests for one card cost one GitHub call.
 - **`CardCache` is never `undefined`.** A TTL of `0` stores nothing, so the number is the one switch.
-- **A success is kept for `STALE_WHILE_REVALIDATE` past its TTL, to answer for a redraw that fails
-  retryably.** `get` sees only fresh entries and `getStale` the rest; a retryable error never
+- **A success is kept for `STALE_SECONDS` past its TTL (`STALE_WHILE_REVALIDATE` by default, `0`
+  for none), to answer for a redraw that fails retryably.** `get` sees only fresh entries and `getStale` the rest; a retryable error never
   overwrites the kept card, the stale answer lives for `TTL.retryableError`, and `cache_seconds=0`
   refuses it like any held copy. An error is never kept stale, and eviction gives up a stale card
   before a fresh one.

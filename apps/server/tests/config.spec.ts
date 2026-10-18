@@ -1,7 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import type { ApiResult } from '@stats-forge/github-stats-forge-core/api';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { readSettings } from '../src/config.ts';
 import { DEFAULT_HOST, DEFAULT_PORT } from '../src/health.ts';
+
+const success: ApiResult = { status: 'success', content: '<svg />' };
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe(readSettings, () => {
   it('defaults to the port and host the image exposes', () => {
@@ -41,5 +48,18 @@ describe(readSettings, () => {
   it('answers with real status codes only when asked to', () => {
     expect(readSettings({}).options.strictHttpStatus).toBe(false);
     expect(readSettings({ STRICT_HTTP_STATUS: 'true' }).options.strictHttpStatus).toBe(true);
+  });
+
+  it('keeps the last good card a day past its TTL unless STALE_SECONDS says otherwise', () => {
+    vi.useFakeTimers();
+    const kept = readSettings({}).options.cache;
+    const none = readSettings({ STALE_SECONDS: '0' }).options.cache;
+    kept.set('k', success, 60);
+    none.set('k', success, 60);
+
+    vi.advanceTimersByTime(61_000);
+
+    expect(kept.getStale('k')).toBeDefined();
+    expect(none.getStale('k')).toBeUndefined();
   });
 });
