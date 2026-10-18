@@ -31,7 +31,7 @@ const fetchWakatimeStats = async (
     throw CardError.because('invalid_username');
   }
   if (wakatime_host && !HOSTNAME_PATTERN.test(wakatime_host)) {
-    throw CardError.because('invalid_wakatime_host');
+    throw CardError.because('wakatime_invalid_host');
   }
 
   const domain = wakatime_host || 'wakatime.com';

@@ -196,7 +196,7 @@ const totalItemsFetcher = async (
   const totalCount = res.data.total_count;
   if (typeof totalCount !== 'number' || Number.isNaN(totalCount)) {
     logger.error(`GitHub error: ${JSON.stringify(res.data)}`);
-    throw CardError.because('search_count_unavailable');
+    throw CardError.because('stats_search_count_unavailable');
   }
   return totalCount;
 };

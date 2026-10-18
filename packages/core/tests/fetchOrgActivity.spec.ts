@@ -204,7 +204,7 @@ describe(fetchOrgActivity, () => {
 
     await expect(fetchOrgActivity({ org: 'vitest-dev' }, config)).rejects.toMatchObject({
       code: 'forbidden',
-      reason: 'issues_forbidden',
+      reason: 'org_activity_issues_forbidden',
     });
   });
 
@@ -263,7 +263,7 @@ describe(fetchOrgActivity, () => {
 
     await expect(fetchOrgActivity({ org: 'marcalexiei' }, config)).rejects.toMatchObject({
       code: 'not_found',
-      reason: 'organization_not_found',
+      reason: 'org_not_found',
     });
   });
 

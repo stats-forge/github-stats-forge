@@ -6,7 +6,7 @@
  * The fetchers throw this rather than a bare `Error`, so a host is told what failed.
  * Anything else that escapes is wrapped as `upstream` by `from`, which is retryable —
  * so a permanent failure has to throw a `CardError` to be reported as one.
- * A failure is thrown by its reason, so its wording lives here and nowhere else.
+ * A failure is thrown by its reason, and `FAILURES` below is the only place it is worded.
  */
 
 import { OWNER_AFFILIATIONS } from './constants.ts';
@@ -33,57 +33,6 @@ type ErrorCode =
   /** GitHub or WakaTime answered with something unusable, or could not be reached at all. */
   | 'upstream';
 
-/**
- * What each failure needs from the site that throws it: `undefined` for none, an object to
- * require it, an object or `undefined` to take it optionally.
- */
-interface FailureData {
-  gist_no_files: undefined;
-  gist_not_found: undefined;
-  /** What GitHub said, when it said anything. */
-  gist_unavailable: { message: string | undefined };
-  /** The first error GitHub answered a query with, and the response's status text. */
-  github_error: { message: string; statusText: string };
-  /** The transport failure the last retry ended on. */
-  github_unreachable: { cause: unknown };
-  /** What the query asked for, as "the ___ using the GraphQL API" reads. */
-  graphql_failed: { subject: string };
-  invalid_affiliation: undefined;
-  invalid_organization: undefined;
-  /** The param a check rejected, and the check's own wording of why. */
-  invalid_param: { param: string; detail: string };
-  invalid_username: undefined;
-  invalid_wakatime_host: undefined;
-  issues_forbidden: undefined;
-  members_forbidden: undefined;
-  /** Every param missing, first the one at fault, and where to read how to pass them. */
-  missing_param: { params: Array<string>; hint?: string | undefined };
-  /** The card, as "Could not render ___ card." reads. */
-  no_stats: { card: string };
-  no_stats_or_rank: undefined;
-  /** The identity param the deployment refused. */
-  not_allowed: { param: string };
-  organization_not_found: undefined;
-  rate_limited: undefined;
-  repo_not_found: undefined;
-  search_count_unavailable: undefined;
-  tokens_missing: undefined;
-  tokens_rejected: undefined;
-  unexpected_repo_response: undefined;
-  /** GitHub's own wording, when the query told it. */
-  user_not_found: { message: string | undefined } | undefined;
-  wakatime_unavailable: { username: string };
-  wakatime_user_not_found: { username: string };
-}
-
-/** The name of a failure. */
-type FailureReason = keyof FailureData;
-
-/** The data argument `because` takes for a reason: none, required, or optional. */
-type FailureArgs<TReason extends FailureReason> = undefined extends FailureData[TReason]
-  ? [data?: FailureData[TReason]]
-  : [data: FailureData[TReason]];
-
 /** What a failure is, once it reaches the api layer. */
 interface CardErrorInit {
   /** Why it failed. */
@@ -103,6 +52,181 @@ interface Failure extends CardErrorInit {
   message: string;
 }
 
+/** The second line of upstream's own outage, which no issue could fix. */
+const TRY_AGAIN_LATER = 'Please try again later';
+
+/** Every failure, by reason, worded from the data its throw site gives. */
+const FAILURES = {
+  // a gist with nothing to render will not gain a file on a retry
+  gist_no_files: (): Failure => ({ code: 'not_found', message: 'Gist has no files' }),
+  gist_not_found: (): Failure => ({
+    code: 'not_found',
+    message: 'Gist not found',
+    secondaryMessage: 'Make sure the provided gist ID is correct',
+  }),
+  /** What GitHub said, when it said anything. */
+  gist_unavailable: ({ message }: { message: string | undefined }): Failure => ({
+    code: 'upstream',
+    message: message ?? 'Could not fetch gist.',
+    secondaryMessage: TRY_AGAIN_LATER,
+    reportable: false,
+  }),
+  /** The first error GitHub answered a query with, and the response's status text. */
+  github_error: ({ message, statusText }: { message: string; statusText: string }): Failure => ({
+    code: 'upstream',
+    // the card has one line for it, and GitHub's wording can run past that
+    message: wrapTextMultiline(message, 525, 12)[0] ?? '',
+    secondaryMessage: statusText,
+  }),
+  /** The transport failure the last retry ended on. */
+  github_unreachable: ({ cause }: { cause: unknown }): Failure => ({
+    code: 'upstream',
+    message: 'Could not reach GitHub',
+    secondaryMessage: TRY_AGAIN_LATER,
+    cause,
+    reportable: false,
+  }),
+  /** What the query asked for, as "the ___ using the GraphQL API" reads. */
+  graphql_failed: ({ subject }: { subject: string }): Failure => ({
+    code: 'upstream',
+    message: `Something went wrong while trying to retrieve the ${subject} using the GraphQL API.`,
+    secondaryMessage: TRY_AGAIN_LATER,
+    reportable: false,
+  }),
+  invalid_affiliation: (): Failure => ({
+    code: 'invalid_param',
+    message: 'Something went wrong',
+    secondaryMessage: `Invalid owner affiliations. Valid values are: ${OWNER_AFFILIATIONS.join(', ')}`,
+    param: 'affiliation',
+  }),
+  /** The param a check rejected, and the check's own wording of why. */
+  invalid_param: ({ param, detail }: { param: string; detail: string }): Failure => ({
+    code: 'invalid_param',
+    message: 'Something went wrong',
+    secondaryMessage: detail,
+    param,
+  }),
+  invalid_username: (): Failure => ({
+    code: 'invalid_param',
+    message: 'Invalid username provided.',
+    param: 'username',
+  }),
+  // the caller's to fix, so the card links its docs instead of asking for an issue
+  /** Every param missing, first the one at fault, and where to read how to pass them. */
+  missing_param: ({
+    params,
+    hint,
+  }: {
+    params: Array<string>;
+    hint?: string | undefined;
+  }): Failure => ({
+    code: 'missing_param',
+    message: `Missing params ${params.map((param) => `"${param}"`).join(', ')} make sure you pass the parameters in URL`,
+    secondaryMessage: hint,
+    param: params[0],
+    reportable: false,
+  }),
+  // names neither the value nor the list: one is the caller's, the other the operator's
+  /** The identity param the deployment refused. */
+  not_allowed: ({ param }: { param: string }): Failure => ({
+    code: 'not_allowed',
+    message: 'Not allowed',
+    secondaryMessage: 'This deployment does not serve that account',
+    param,
+  }),
+  org_activity_issues_forbidden: (): Failure => ({
+    code: 'forbidden',
+    message: 'Missing token permission',
+    secondaryMessage:
+      'The token needs read access to issues, or hide "issues_opened" and "issues_closed"',
+  }),
+  org_invalid: (): Failure => ({
+    code: 'invalid_param',
+    message: 'Invalid organization provided.',
+    param: 'org',
+  }),
+  org_members_forbidden: (): Failure => ({
+    code: 'forbidden',
+    message: 'Missing token permission',
+    secondaryMessage:
+      'The token needs the organization "Members" permission, or drop "show=members"',
+  }),
+  /** The card, as "Could not render ___ card." reads. */
+  org_no_stats: ({ card }: { card: string }): Failure => ({
+    code: 'invalid_param',
+    message: `Could not render ${card} card.`,
+    secondaryMessage: 'At least one stat is required.',
+  }),
+  org_not_found: (): Failure => ({
+    code: 'not_found',
+    message: 'Organization not found',
+    secondaryMessage: 'Make sure the provided organization exists and is not a user',
+  }),
+  rate_limited: (): Failure => ({
+    code: 'rate_limited',
+    message: 'Downtime due to GitHub API rate limiting',
+    secondaryMessage: 'You can deploy own instance or wait until public will be no longer limited',
+    reportable: false,
+  }),
+  repo_not_found: (): Failure => ({
+    code: 'not_found',
+    message: 'Repository not found',
+    secondaryMessage: 'Make sure the provided username and repository are correct',
+  }),
+  repo_unexpected_response: (): Failure => ({
+    code: 'upstream',
+    message: 'Unexpected behavior',
+    secondaryMessage: TRY_AGAIN_LATER,
+    reportable: false,
+  }),
+  stats_no_stats_or_rank: (): Failure => ({
+    code: 'invalid_param',
+    message: 'Could not render stats card.',
+    secondaryMessage: 'Either stats or rank are required.',
+  }),
+  stats_search_count_unavailable: (): Failure => ({
+    code: 'upstream',
+    message: 'Could not fetch data from GitHub REST API.',
+    secondaryMessage: TRY_AGAIN_LATER,
+    reportable: false,
+  }),
+  tokens_missing: (): Failure => ({
+    code: 'no_tokens',
+    message: 'No GitHub API tokens found',
+    secondaryMessage:
+      'Please add an env variable called PAT_1 with your GitHub API token in your deployment environment',
+  }),
+  tokens_rejected: (): Failure => ({
+    code: 'no_tokens',
+    message: 'Every GitHub API token was rejected',
+    secondaryMessage:
+      'Replace the expired or revoked PAT_* variables in your deployment environment',
+  }),
+  // a login that resolves to nothing, or to an organization
+  /** GitHub's own wording, when the query told it. */
+  user_not_found: (data?: { message: string | undefined }): Failure => ({
+    code: 'not_found',
+    message: data?.message || 'Could not fetch user.',
+    secondaryMessage: 'Make sure the provided username is not an organization',
+  }),
+  wakatime_invalid_host: (): Failure => ({
+    code: 'invalid_param',
+    message: 'Invalid WakaTime host provided.',
+    param: 'wakatime_host',
+  }),
+  wakatime_unavailable: ({ username }: { username: string }): Failure => ({
+    code: 'upstream',
+    message: `Could not fetch the WakaTime stats of '${username}'`,
+    secondaryMessage: TRY_AGAIN_LATER,
+    reportable: false,
+  }),
+  wakatime_user_not_found: ({ username }: { username: string }): Failure => ({
+    code: 'not_found',
+    message: `Could not resolve to a User with the login of '${username}'`,
+    secondaryMessage: 'Make sure you have a public WakaTime profile',
+  }),
+};
+
 /** Everything this package throws. */
 class CardError extends Error {
   /**
@@ -121,169 +245,6 @@ class CardError extends Error {
     upstream: true,
   };
 
-  /** The second line of upstream's own outage, which no issue could fix. */
-  static readonly #TRY_AGAIN_LATER = 'Please try again later';
-
-  /** Every failure, by reason, worded from the data its throw site gives. */
-  static readonly #FAILURES: {
-    readonly [R in FailureReason]: (data: FailureData[R]) => Failure;
-  } = {
-    // a gist with nothing to render will not gain a file on a retry
-    gist_no_files: () => ({ code: 'not_found', message: 'Gist has no files' }),
-    gist_not_found: () => ({
-      code: 'not_found',
-      message: 'Gist not found',
-      secondaryMessage: 'Make sure the provided gist ID is correct',
-    }),
-    gist_unavailable: ({ message }) => ({
-      code: 'upstream',
-      message: message ?? 'Could not fetch gist.',
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
-      reportable: false,
-    }),
-    github_error: ({ message, statusText }) => ({
-      code: 'upstream',
-      // the card has one line for it, and GitHub's wording can run past that
-      message: wrapTextMultiline(message, 525, 12)[0] ?? '',
-      secondaryMessage: statusText,
-    }),
-    github_unreachable: ({ cause }) => ({
-      code: 'upstream',
-      message: 'Could not reach GitHub',
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
-      cause,
-      reportable: false,
-    }),
-    graphql_failed: ({ subject }) => ({
-      code: 'upstream',
-      message: `Something went wrong while trying to retrieve the ${subject} using the GraphQL API.`,
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
-      reportable: false,
-    }),
-    invalid_affiliation: () => ({
-      code: 'invalid_param',
-      message: 'Something went wrong',
-      secondaryMessage: `Invalid owner affiliations. Valid values are: ${OWNER_AFFILIATIONS.join(', ')}`,
-      param: 'affiliation',
-    }),
-    invalid_organization: () => ({
-      code: 'invalid_param',
-      message: 'Invalid organization provided.',
-      param: 'org',
-    }),
-    invalid_param: ({ param, detail }) => ({
-      code: 'invalid_param',
-      message: 'Something went wrong',
-      secondaryMessage: detail,
-      param,
-    }),
-    invalid_username: () => ({
-      code: 'invalid_param',
-      message: 'Invalid username provided.',
-      param: 'username',
-    }),
-    invalid_wakatime_host: () => ({
-      code: 'invalid_param',
-      message: 'Invalid WakaTime host provided.',
-      param: 'wakatime_host',
-    }),
-    issues_forbidden: () => ({
-      code: 'forbidden',
-      message: 'Missing token permission',
-      secondaryMessage:
-        'The token needs read access to issues, or hide "issues_opened" and "issues_closed"',
-    }),
-    members_forbidden: () => ({
-      code: 'forbidden',
-      message: 'Missing token permission',
-      secondaryMessage:
-        'The token needs the organization "Members" permission, or drop "show=members"',
-    }),
-    // the caller's to fix, so the card links its docs instead of asking for an issue
-    missing_param: ({ params, hint }) => ({
-      code: 'missing_param',
-      message: `Missing params ${params.map((param) => `"${param}"`).join(', ')} make sure you pass the parameters in URL`,
-      secondaryMessage: hint,
-      param: params[0],
-      reportable: false,
-    }),
-    no_stats: ({ card }) => ({
-      code: 'invalid_param',
-      message: `Could not render ${card} card.`,
-      secondaryMessage: 'At least one stat is required.',
-    }),
-    no_stats_or_rank: () => ({
-      code: 'invalid_param',
-      message: 'Could not render stats card.',
-      secondaryMessage: 'Either stats or rank are required.',
-    }),
-    // names neither the value nor the list: one is the caller's, the other the operator's
-    not_allowed: ({ param }) => ({
-      code: 'not_allowed',
-      message: 'Not allowed',
-      secondaryMessage: 'This deployment does not serve that account',
-      param,
-    }),
-    organization_not_found: () => ({
-      code: 'not_found',
-      message: 'Organization not found',
-      secondaryMessage: 'Make sure the provided organization exists and is not a user',
-    }),
-    rate_limited: () => ({
-      code: 'rate_limited',
-      message: 'Downtime due to GitHub API rate limiting',
-      secondaryMessage:
-        'You can deploy own instance or wait until public will be no longer limited',
-      reportable: false,
-    }),
-    repo_not_found: () => ({
-      code: 'not_found',
-      message: 'Repository not found',
-      secondaryMessage: 'Make sure the provided username and repository are correct',
-    }),
-    search_count_unavailable: () => ({
-      code: 'upstream',
-      message: 'Could not fetch data from GitHub REST API.',
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
-      reportable: false,
-    }),
-    tokens_missing: () => ({
-      code: 'no_tokens',
-      message: 'No GitHub API tokens found',
-      secondaryMessage:
-        'Please add an env variable called PAT_1 with your GitHub API token in your deployment environment',
-    }),
-    tokens_rejected: () => ({
-      code: 'no_tokens',
-      message: 'Every GitHub API token was rejected',
-      secondaryMessage:
-        'Replace the expired or revoked PAT_* variables in your deployment environment',
-    }),
-    unexpected_repo_response: () => ({
-      code: 'upstream',
-      message: 'Unexpected behavior',
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
-      reportable: false,
-    }),
-    // a login that resolves to nothing, or to an organization
-    user_not_found: (data) => ({
-      code: 'not_found',
-      message: data?.message || 'Could not fetch user.',
-      secondaryMessage: 'Make sure the provided username is not an organization',
-    }),
-    wakatime_unavailable: ({ username }) => ({
-      code: 'upstream',
-      message: `Could not fetch the WakaTime stats of '${username}'`,
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
-      reportable: false,
-    }),
-    wakatime_user_not_found: ({ username }) => ({
-      code: 'not_found',
-      message: `Could not resolve to a User with the login of '${username}'`,
-      secondaryMessage: 'Make sure you have a public WakaTime profile',
-    }),
-  };
-
   readonly code: ErrorCode;
   readonly secondaryMessage: string | undefined;
   readonly param: string | undefined;
@@ -291,7 +252,8 @@ class CardError extends Error {
   readonly reportable: boolean;
   #reason: FailureReason | undefined;
 
-  constructor(message: string, init: CardErrorInit) {
+  // only `because`, `from` and `fromGraphQL` build one, so every failure has a reason or is wrapped
+  private constructor(message: string, init: CardErrorInit) {
     // `cause` is installed by its presence, so an absent one must not be passed as undefined
     super(message, init.cause === undefined ? undefined : { cause: init.cause });
     this.name = 'CardError';
@@ -316,13 +278,13 @@ class CardError extends Error {
    *
    * @returns The error.
    */
-  static because<TReason extends FailureReason>(
+  static because<TReason extends keyof typeof FAILURES>(
     reason: TReason,
-    ...[data]: FailureArgs<TReason>
+    ...data: Parameters<(typeof FAILURES)[TReason]>
   ): CardError {
-    const word: (data: FailureData[TReason]) => Failure = CardError.#FAILURES[reason];
-    // `FailureArgs` makes `data` required wherever `FailureData` has no `undefined`
-    const { message, ...init } = word(data as FailureData[TReason]);
+    // one entry's own signature, which `data` was checked against at the call site
+    const word = FAILURES[reason] as (...args: typeof data) => Failure;
+    const { message, ...init } = word(...data);
     const error = new CardError(message, init);
     error.#reason = reason;
     return error;
@@ -341,7 +303,7 @@ class CardError extends Error {
     const message = err instanceof Error ? err.message : 'An unknown error occurred';
     return new CardError(message, {
       code: 'upstream',
-      secondaryMessage: CardError.#TRY_AGAIN_LATER,
+      secondaryMessage: TRY_AGAIN_LATER,
       reportable: false,
     });
   }
@@ -368,6 +330,9 @@ class CardError extends Error {
     return CardError.because('graphql_failed', { subject });
   }
 }
+
+/** The name of a failure, as `CardError.because` takes it. */
+type FailureReason = Parameters<typeof CardError.because>[0];
 
 export type { ErrorCode, FailureReason };
 

@@ -92,10 +92,10 @@ describe('Test renderError', () => {
     );
   });
 
-  it('offers no report line when the host turns it off', () => {
+  it('offers no report line for a failure that is not reportable', () => {
     document.body.innerHTML = renderError({
       message: 'Nope',
-      renderOptions: { show_repo_link: false },
+      renderOptions: { reportable: false },
     });
     expect(screen.queryByTestId('report')).not.toBeInTheDocument();
   });

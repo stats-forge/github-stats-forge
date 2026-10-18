@@ -235,7 +235,7 @@ const renderCard = (
   const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
 
   if (visibleStats.length === 0) {
-    throw CardError.because('no_stats', { card: 'organization' });
+    throw CardError.because('org_no_stats', { card: 'organization' });
   }
 
   const width = card_width && !Number.isNaN(card_width) ? card_width : CARD_DEFAULT_WIDTH;

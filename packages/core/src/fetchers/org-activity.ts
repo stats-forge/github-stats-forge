@@ -139,7 +139,7 @@ const fetchOrgActivity = async (
   }
   // `./fetchers` is a public export, so the login is checked here as well as at the api boundary.
   if (!GITHUB_USERNAME_PATTERN.test(org)) {
-    throw CardError.because('invalid_organization');
+    throw CardError.because('org_invalid');
   }
 
   const { range, days: window } = windowOf(days, from, to);
@@ -163,20 +163,20 @@ const fetchOrgActivity = async (
     // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
     // words for a user query, so this endpoint's own wording is thrown instead.
     if (res.data.errors[0]?.type === 'NOT_FOUND') {
-      throw CardError.because('organization_not_found');
+      throw CardError.because('org_not_found');
     }
     throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization activity');
   }
 
   const { data } = res.data;
   if (!data.organization) {
-    throw CardError.because('organization_not_found');
+    throw CardError.because('org_not_found');
   }
 
   const issuesUnavailable = issuesRefused(data.issuesOpened, data.issuesClosed);
   if (issuesUnavailable) {
     if (require_issues) {
-      throw CardError.because('issues_forbidden');
+      throw CardError.because('org_activity_issues_forbidden');
     }
     logger.error(
       `Issue counts dropped: this token may not read issues, so GitHub answered the issue searches for ${org} with pull requests. Grant the token read access to issues to draw those two rows.`,
