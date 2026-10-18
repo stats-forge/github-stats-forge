@@ -53,6 +53,7 @@ assistive technology cannot reach the text inside an image role.
 
 | Code            | What happened                                      | Retryable |
 | --------------- | -------------------------------------------------- | --------- |
+| `forbidden`     | The token may not read a stat the query asked for  | yes       |
 | `invalid_param` | A parameter is malformed or not renderable         | no        |
 | `missing_param` | A parameter the card cannot render without         | no        |
 | `not_allowed`   | The deployment does not serve that account or gist | no        |
