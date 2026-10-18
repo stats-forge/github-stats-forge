@@ -82,14 +82,16 @@ describe(CardCache, () => {
   it('sweeps what has expired before evicting anything still fresh', () => {
     vi.useFakeTimers();
     const cache = new CardCache(3, STALE_WHILE_REVALIDATE);
-    cache.set('stale', success, 60);
+    // not the oldest, so evicting the oldest instead of sweeping would drop `b` and fail here
     cache.set('b', success, 3600);
+    cache.set('expired', success, 60);
     cache.set('c', success, 3600);
 
     vi.advanceTimersByTime(61_000);
     cache.set('d', success, 3600);
 
     expect(cache.get('b')).toBeDefined();
+    expect(cache.get('c')).toBeDefined();
     expect(cache.get('d')).toBeDefined();
   });
 

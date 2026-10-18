@@ -1,8 +1,8 @@
-import { chmod, mkdir, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createHandler } from '../src/handler.ts';
 import { createStaticHandler } from '../src/static.ts';
@@ -16,7 +16,8 @@ let root: string;
 let site: (pathname: string) => Promise<Response | undefined>;
 
 beforeAll(async () => {
-  root = join(tmpdir(), `stats-forge-site-${String(process.pid)}`);
+  // a fresh directory: one left by an earlier run holds a file this cannot write over
+  root = await mkdtemp(join(tmpdir(), 'stats-forge-site-'));
   await mkdir(join(root, '_astro'), { recursive: true });
   await mkdir(join(root, 'docs'), { recursive: true });
 
@@ -30,6 +31,10 @@ beforeAll(async () => {
   await chmod(join(root, 'unreadable.txt'), 0o000);
 
   site = createStaticHandler(root);
+});
+
+afterAll(async () => {
+  await rm(root, { recursive: true, force: true });
 });
 
 describe(createStaticHandler, () => {

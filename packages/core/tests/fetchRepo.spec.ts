@@ -89,7 +89,7 @@ describe('Test fetchRepo', () => {
   it('should throw error if repository is private', async () => {
     mock.onPost('https://api.github.com/graphql').reply(200, {
       data: {
-        user: { repository: { ...data_repo, isPrivate: true } },
+        user: { repository: { ...data_repo.repository, isPrivate: true } },
         organization: null,
       },
     });

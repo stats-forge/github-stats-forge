@@ -49,14 +49,14 @@ describe(resolveTokens, () => {
 
 describe(loadEnvFile, () => {
   it('loads the PAT the file carries', () => {
+    // unset first, since a file never overrides a variable already set; restored by `afterEach`
+    vi.stubEnv('PAT_1', undefined);
     const dir = mkdtempSync(join(tmpdir(), 'stats-forge-cli-'));
     const file = join(dir, '.env');
     writeFileSync(file, 'PAT_1=from-file\n');
 
     expect(loadEnvFile(file, true)).toBe(true);
     expect(process.env['PAT_1']).toBe('from-file');
-
-    delete process.env['PAT_1'];
   });
 
   it('passes over a default file that is not there', () => {
