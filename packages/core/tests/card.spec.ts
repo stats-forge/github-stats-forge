@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { Card } from '../src/common/Card.ts';
 import { getCardColors } from '../src/common/color.ts';
 import { icons } from '../src/common/icons.ts';
+import { measureText } from '../src/common/text.ts';
 
 describe(Card, () => {
   afterEach(() => {
@@ -59,6 +60,35 @@ describe(Card, () => {
 
     document.body.innerHTML = card.render(``);
     expect(queryByTestId(document.body, 'card-title')).toBeInTheDocument();
+  });
+
+  it.each([
+    { icon: true, room: 225 },
+    { icon: false, room: 250 },
+  ])('should shrink a title too long for the card into its room (icon $icon)', ({ icon, room }) => {
+    const title = 'Οι περισσότερο χρησιμοποιούμενες γλώσσες';
+    const card = new Card({
+      width: 300,
+      customTitle: title,
+      titlePrefixIcon: icon ? icons.repo : undefined,
+    });
+
+    document.body.innerHTML = card.render(``);
+    const header = screen.getByTestId('header');
+    expect(header).toHaveTextContent(title);
+    const size = Number(
+      /font-size: (?<size>[\d.]+)px/u.exec(header.getAttribute('style') ?? '')?.groups?.['size'],
+    );
+    expect(size).toBeLessThan(18);
+    // The semibold header draws about a tenth wider than `measureText`'s regular widths.
+    expect(measureText(title, size) * 1.1).toBeLessThanOrEqual(room);
+  });
+
+  it('should leave a title that fits at its own size', () => {
+    const card = new Card({ width: 300, customTitle: 'Most Used Languages' });
+
+    document.body.innerHTML = card.render(``);
+    expect(screen.getByTestId('header')).not.toHaveAttribute('style');
   });
 
   it('title should have prefix icon', () => {

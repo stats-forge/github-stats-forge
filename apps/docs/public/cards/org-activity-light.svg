@@ -80,7 +80,7 @@
       </svg>
     </g>
     <g transform="translate(25, 0)">
-      <text x="0" y="0" class="header" data-testid="header">The Forge Guild&#39;s organization activity (last 30 days)</text>
+      <text x="0" y="0" class="header" data-testid="header" style="font-size: 16.8px">The Forge Guild&#39;s organization activity (last 30 days)</text>
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
   </g>
