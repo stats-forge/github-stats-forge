@@ -800,6 +800,8 @@ describe('Test renderTopLanguages', () => {
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     const langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames[1]).toHaveTextContent('javascript');
@@ -810,6 +812,8 @@ describe('Test renderTopLanguages', () => {
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     const langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames).toHaveLength(3);
@@ -821,6 +825,8 @@ describe('Test renderTopLanguages', () => {
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     const langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames[1]).toHaveTextContent('javascript');
@@ -833,6 +839,8 @@ describe('Test renderTopLanguages', () => {
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     let langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames[1]).toHaveTextContent('javascript');
