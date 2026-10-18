@@ -4,22 +4,26 @@ import { describe, expect, it } from 'vitest';
 
 import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
 import {
+  cartesianToPolar,
+  degreesToRadians,
+  getCircleLength,
+  polarToCartesian,
+  radiansToDegrees,
+} from '../src/cards/top-languages/geometry.ts';
+import {
   MIN_CARD_WIDTH,
+  getDefaultLanguagesCountByLayout,
+  renderTopLanguages,
+  trimTopLanguages,
+} from '../src/cards/top-languages/index.ts';
+import {
   calculateCompactLayoutHeight,
   calculateDonutLayoutHeight,
   calculateDonutVerticalLayoutHeight,
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
-  cartesianToPolar,
-  degreesToRadians,
-  getCircleLength,
-  getDefaultLanguagesCountByLayout,
   getLongestLang,
-  polarToCartesian,
-  radiansToDegrees,
-  renderTopLanguages,
-  trimTopLanguages,
-} from '../src/cards/top-languages/index.ts';
+} from '../src/cards/top-languages/layouts.ts';
 import type { TopLangData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
