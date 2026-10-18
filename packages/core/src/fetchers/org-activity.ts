@@ -2,7 +2,7 @@ import type { CardConfig } from '../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
 import type { GitHubDateRange } from '../common/date.ts';
 import { toSearchDate } from '../common/date.ts';
-import { CardError, ISSUES_FORBIDDEN, ORGANIZATION_NOT_FOUND } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, HttpResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
@@ -11,15 +11,11 @@ import { retryer } from '../common/retryer.ts';
 import { GetOrganizationActivityDocument } from '../graphql/generated/org-activity.ts';
 import type { GetOrganizationActivityQuery } from '../graphql/generated/org-activity.ts';
 
-import { graphqlError } from './graphql-error.ts';
 import type { OrgActivityData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(GetOrganizationActivityDocument, 'token');
 
 const urlExample = '/api/org-activity?org=ORG_NAME';
-
-const ORGANIZATION_ACTIVITY_ERROR =
-  'Something went wrong while trying to retrieve the organization activity using the GraphQL API.';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -139,14 +135,11 @@ const fetchOrgActivity = async (
   config: CardConfig,
 ): Promise<OrgActivityData> => {
   if (!org) {
-    throw CardError.missingParam(['org'], urlExample);
+    throw CardError.because('missing_param', { params: ['org'], hint: urlExample });
   }
   // `./fetchers` is a public export, so the login is checked here as well as at the api boundary.
   if (!GITHUB_USERNAME_PATTERN.test(org)) {
-    throw new CardError('Invalid organization provided.', {
-      code: 'invalid_param',
-      param: 'org',
-    });
+    throw CardError.because('invalid_organization');
   }
 
   const { range, days: window } = windowOf(days, from, to);
@@ -167,29 +160,23 @@ const fetchOrgActivity = async (
   );
 
   if (res.data.errors) {
-    // A login that is a user, or nothing at all, answers NOT_FOUND — which `graphqlError`
+    // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
     // words for a user query, so this endpoint's own wording is thrown instead.
     if (res.data.errors[0]?.type === 'NOT_FOUND') {
-      throw new CardError('Organization not found', {
-        code: 'not_found',
-        secondaryMessage: ORGANIZATION_NOT_FOUND,
-      });
+      throw CardError.because('organization_not_found');
     }
-    throw graphqlError(res.data.errors, res.statusText, ORGANIZATION_ACTIVITY_ERROR);
+    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization activity');
   }
 
   const { data } = res.data;
   if (!data.organization) {
-    throw new CardError('Organization not found', {
-      code: 'not_found',
-      secondaryMessage: ORGANIZATION_NOT_FOUND,
-    });
+    throw CardError.because('organization_not_found');
   }
 
   const issuesUnavailable = issuesRefused(data.issuesOpened, data.issuesClosed);
   if (issuesUnavailable) {
     if (require_issues) {
-      throw CardError.forbidden(ISSUES_FORBIDDEN);
+      throw CardError.because('issues_forbidden');
     }
     logger.error(
       `Issue counts dropped: this token may not read issues, so GitHub answered the issue searches for ${org} with pull requests. Grant the token read access to issues to draw those two rows.`,

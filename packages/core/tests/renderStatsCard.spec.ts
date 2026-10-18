@@ -4,7 +4,6 @@ import { describe, expect, it } from 'vitest';
 
 import { stats as statsApi } from '../src/api/stats.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
-import { CardError } from '../src/common/error.ts';
 import type { StatsData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -522,12 +521,7 @@ describe('Test renderStatsCard', () => {
         hide: [...renderStatsCard.OPTIONS.hide],
         hide_rank: true,
       }),
-    ).toThrow(
-      new CardError('Could not render stats card.', {
-        code: 'invalid_param',
-        secondaryMessage: 'Either stats or rank are required.',
-      }),
-    );
+    ).toThrow(expect.objectContaining({ reason: 'no_stats_or_rank' }));
   });
 });
 

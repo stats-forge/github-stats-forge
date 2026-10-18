@@ -1,6 +1,6 @@
 import type { CardConfig } from '../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import { CardError, MEMBERS_FORBIDDEN, ORGANIZATION_NOT_FOUND } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import type { GraphQLResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
@@ -11,15 +11,11 @@ import type {
   OrgRepoInfoFragment,
 } from '../graphql/generated/organization.ts';
 
-import { graphqlError } from './graphql-error.ts';
 import type { OrganizationData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(GetOrganizationDocument, 'token');
 
 const urlExample = '/api/org?org=ORG_NAME';
-
-const ORGANIZATION_ERROR =
-  'Something went wrong while trying to retrieve the organization data using the GraphQL API.';
 
 /**
  * Pages of repositories the walk asks for, 100 each.
@@ -99,14 +95,11 @@ const fetchOrganization = async (
   config: CardConfig,
 ): Promise<OrganizationData> => {
   if (!org) {
-    throw CardError.missingParam(['org'], urlExample);
+    throw CardError.because('missing_param', { params: ['org'], hint: urlExample });
   }
   // `./fetchers` is a public export, so the login is checked here as well as at the api boundary.
   if (!GITHUB_USERNAME_PATTERN.test(org)) {
-    throw new CardError('Invalid organization provided.', {
-      code: 'invalid_param',
-      param: 'org',
-    });
+    throw CardError.because('invalid_organization');
   }
 
   const repos: Array<OrgRepoInfoFragment> = [];
@@ -123,19 +116,16 @@ const fetchOrganization = async (
       config,
     );
     if (res.data.errors) {
-      // A login that is a user, or nothing at all, answers NOT_FOUND — which `graphqlError`
+      // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
       // words for a user query, so this endpoint's own wording is thrown instead.
       if (res.data.errors[0]?.type === 'NOT_FOUND') {
-        throw new CardError('Organization not found', {
-          code: 'not_found',
-          secondaryMessage: ORGANIZATION_NOT_FOUND,
-        });
+        throw CardError.because('organization_not_found');
       }
       if (!onlyMembersForbidden(res.data.errors)) {
-        throw graphqlError(res.data.errors, res.statusText, ORGANIZATION_ERROR);
+        throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization data');
       }
       if (require_members) {
-        throw CardError.forbidden(MEMBERS_FORBIDDEN);
+        throw CardError.because('members_forbidden');
       }
       // the walk can page five times, and one refusal is worth saying once
       if (!membersForbidden) {
@@ -148,10 +138,7 @@ const fetchOrganization = async (
 
     organization = res.data.data.organization ?? undefined;
     if (!organization) {
-      throw new CardError('Organization not found', {
-        code: 'not_found',
-        secondaryMessage: ORGANIZATION_NOT_FOUND,
-      });
+      throw CardError.because('organization_not_found');
     }
 
     repos.push(...(organization.repositories.nodes ?? []).filter((node) => node !== null));

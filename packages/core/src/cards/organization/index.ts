@@ -6,14 +6,8 @@ import { CardError } from '../../common/error.ts';
 import { icons } from '../../common/icons.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
-import {
-  createTextNode,
-  flexLayout,
-  formatCount,
-  measureText,
-  NUMBER_FORMATS,
-  wrapTextMultiline,
-} from '../../common/render.ts';
+import { createTextNode, flexLayout, formatCount, NUMBER_FORMATS } from '../../common/render.ts';
+import { measureText, wrapTextMultiline } from '../../common/text.ts';
 import type { OrganizationData } from '../../fetchers/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
@@ -241,10 +235,7 @@ const renderCard = (
   const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
 
   if (visibleStats.length === 0) {
-    throw new CardError('Could not render organization card.', {
-      code: 'invalid_param',
-      secondaryMessage: 'At least one stat is required.',
-    });
+    throw CardError.because('no_stats', { card: 'organization' });
   }
 
   const width = card_width && !Number.isNaN(card_width) ? card_width : CARD_DEFAULT_WIDTH;

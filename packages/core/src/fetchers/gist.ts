@@ -1,5 +1,5 @@
 import type { CardConfig } from '../common/config.ts';
-import { CardError, GIST_NOT_FOUND } from '../common/error.ts';
+import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
 import { retryer } from '../common/retryer.ts';
 import { GistInfoDocument } from '../graphql/generated/gist.ts';
@@ -45,25 +45,19 @@ const fetchGist = async (
   config: CardConfig,
 ): Promise<GistData> => {
   if (!id) {
-    throw CardError.missingParam(['id'], '/api/gist?id=GIST_ID');
+    throw CardError.because('missing_param', { params: ['id'], hint: '/api/gist?id=GIST_ID' });
   }
   const res = await retryer(fetcher, { gistName: id }, config);
   if (res.data.errors) {
-    throw new CardError(res.data.errors[0]?.message ?? 'Could not fetch gist.', {
-      code: 'upstream',
-    });
+    throw CardError.because('gist_unavailable', { message: res.data.errors[0]?.message });
   }
   const { gist } = res.data.data.viewer;
   if (!gist) {
-    throw new CardError('Gist not found', {
-      code: 'not_found',
-      secondaryMessage: GIST_NOT_FOUND,
-    });
+    throw CardError.because('gist_not_found');
   }
   const firstFile = gist.files?.[0];
   if (!firstFile?.name) {
-    // A gist with nothing to render will not gain a file on a retry.
-    throw new CardError('Gist has no files', { code: 'not_found' });
+    throw CardError.because('gist_no_files');
   }
   return {
     name: firstFile.name,

@@ -51,7 +51,8 @@ root `AGENTS.md`.
     to English. It is worth doing once the parenthetical has its own translated key.
 - **The error card's report line sits under the message because it was measured not to fit beside
   the title** ([#58]). Re-measure in a canvas before moving it. It carries `data-testid="report"`,
-  and is omitted for an upstream failure or when `show_repo_link` is off.
+  and is omitted when `show_repo_link` is off, which `errorResult` turns off for a failure that is
+  not `CardError.reportable`.
 
 ## Card branding
 

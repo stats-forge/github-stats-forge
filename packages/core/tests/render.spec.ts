@@ -1,8 +1,8 @@
 import { queryByTestId, screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
-import { TRY_AGAIN_LATER } from '../src/common/error.ts';
-import { renderError, splitWrappedText, wrapTextMultiline } from '../src/common/render.ts';
+import { renderError } from '../src/common/render.ts';
+import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
 
 describe('Test splitWrappedText', () => {
   it('should return an empty array for empty text', () => {
@@ -92,14 +92,7 @@ describe('Test renderError', () => {
     );
   });
 
-  it('offers no report line for a failure the reader cannot report', () => {
-    // Upstream's own outages, and whatever the host says not to link from.
-    document.body.innerHTML = renderError({
-      message: 'Nope',
-      secondaryMessage: TRY_AGAIN_LATER,
-    });
-    expect(screen.queryByTestId('report')).not.toBeInTheDocument();
-
+  it('offers no report line when the host turns it off', () => {
     document.body.innerHTML = renderError({
       message: 'Nope',
       renderOptions: { show_repo_link: false },

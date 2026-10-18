@@ -2,7 +2,7 @@ import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
 
 import { OWNER_AFFILIATIONS } from './constants.ts';
 import { getEmoji } from './emojiMap.ts';
-import { CardError, INVALID_AFFILIATION } from './error.ts';
+import { CardError } from './error.ts';
 
 /**
  * Returns boolean if value is either "true" or "false" else the value as it is.
@@ -123,7 +123,7 @@ const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAf
 
   // Check if ownerAffiliations contains valid values.
   if (!normalized.every((value) => isOwnerAffiliation(value))) {
-    throw CardError.invalidParam('affiliation', INVALID_AFFILIATION);
+    throw CardError.because('invalid_affiliation');
   }
   return normalized;
 };

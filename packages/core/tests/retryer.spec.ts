@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { CardError, TOKENS_REJECTED } from '../src/common/error.ts';
+import { CardError } from '../src/common/error.ts';
 import { retryer } from '../src/common/retryer.ts';
 
 import { testConfig } from './_config.ts';
@@ -68,9 +68,9 @@ describe('Test Retryer', () => {
   });
 
   it('retryer should throw specific error if maximum retries reached', async () => {
-    await expect(retryer(fetcherFail, {}, testConfig)).rejects.toThrow(
-      'Downtime due to GitHub API rate limiting',
-    );
+    await expect(retryer(fetcherFail, {}, testConfig)).rejects.toMatchObject({
+      reason: 'rate_limited',
+    });
 
     expect(fetcherFail).toHaveBeenCalledTimes(2);
   });
@@ -82,8 +82,7 @@ describe('Test Retryer', () => {
 
     await expect(retryer(fetcherBadCredentials, {}, testConfig)).rejects.toMatchObject({
       code: 'no_tokens',
-      message: 'Every GitHub API token was rejected',
-      secondaryMessage: TOKENS_REJECTED,
+      reason: 'tokens_rejected',
     });
 
     expect(fetcherBadCredentials).toHaveBeenCalledTimes(2);
@@ -158,10 +157,7 @@ describe('Test Retryer', () => {
   });
 
   it('retryer should not retry a failure that already named itself', async () => {
-    const rejected = new CardError('Invalid username provided.', {
-      code: 'invalid_param',
-      param: 'username',
-    });
+    const rejected = CardError.because('invalid_username');
     const fetcherRejecting = vi.fn().mockRejectedValue(rejected) as unknown as Fetcher;
 
     await expect(retryer(fetcherRejecting, {}, testConfig)).rejects.toBe(rejected);

@@ -15,7 +15,7 @@ export type { ParamKind, ParamShape } from './params.ts';
 export { CardConfig } from '../common/config.ts';
 export type { CardConfigInit, PersonalAccessToken } from '../common/config.ts';
 export type { FetchLike } from '../common/http.ts';
-export type { ErrorCode } from '../common/error.ts';
+export type { ErrorCode, FailureReason } from '../common/error.ts';
 
 export { COLOR_PARAM_KEYS } from '../common/color.ts';
 export { themes } from '../themes/index.ts';

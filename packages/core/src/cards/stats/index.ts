@@ -10,7 +10,8 @@ import { commonLocales } from '../../common/locales.ts';
 import type { Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue } from '../../common/ops.ts';
-import { NUMBER_FORMATS, createTextNode, flexLayout, measureText } from '../../common/render.ts';
+import { NUMBER_FORMATS, createTextNode, flexLayout } from '../../common/render.ts';
+import { measureText } from '../../common/text.ts';
 import type { StatsData } from '../../fetchers/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { atRule, cssComment, el, rule } from '../../markup/index.ts';
@@ -466,10 +467,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
 
   if (visibleStats.length === 0 && hide_rank) {
-    throw new CardError('Could not render stats card.', {
-      code: 'invalid_param',
-      secondaryMessage: 'Either stats or rank are required.',
-    });
+    throw CardError.because('no_stats_or_rank');
   }
 
   // check if all used labels are short

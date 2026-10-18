@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CardError, ISSUES_FORBIDDEN } from '../src/common/error.ts';
+import { CardError } from '../src/common/error.ts';
 import { fetchOrgActivity } from '../src/fetchers/org-activity.ts';
 import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-activity.ts';
 
@@ -204,7 +204,7 @@ describe(fetchOrgActivity, () => {
 
     await expect(fetchOrgActivity({ org: 'vitest-dev' }, config)).rejects.toMatchObject({
       code: 'forbidden',
-      secondaryMessage: ISSUES_FORBIDDEN,
+      reason: 'issues_forbidden',
     });
   });
 
@@ -263,7 +263,7 @@ describe(fetchOrgActivity, () => {
 
     await expect(fetchOrgActivity({ org: 'marcalexiei' }, config)).rejects.toMatchObject({
       code: 'not_found',
-      secondaryMessage: 'Make sure the provided organization exists and is not a user',
+      reason: 'organization_not_found',
     });
   });
 
