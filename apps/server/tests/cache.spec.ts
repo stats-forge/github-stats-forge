@@ -1,7 +1,7 @@
 import type { ApiResult } from '@stats-forge/github-stats-forge-core/api';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CardCache, cacheKey, ttlFor } from '../src/cache.ts';
+import { CardCache, STALE_WHILE_REVALIDATE, cacheKey, ttlFor } from '../src/cache.ts';
 
 const success: ApiResult = { status: 'success', content: '<svg />' };
 
@@ -91,5 +91,27 @@ describe(CardCache, () => {
 
     expect(cache.get('b')).toBeDefined();
     expect(cache.get('d')).toBeDefined();
+  });
+
+  it('keeps an expired success through the stale window, for getStale alone', () => {
+    vi.useFakeTimers();
+    const cache = new CardCache(10);
+    cache.set('k', success, 60);
+
+    vi.advanceTimersByTime(61_000);
+    expect(cache.get('k')).toBeUndefined();
+    expect(cache.getStale('k')).toMatchObject({ result: success, age: 61 });
+
+    vi.advanceTimersByTime(STALE_WHILE_REVALIDATE * 1000);
+    expect(cache.getStale('k')).toBeUndefined();
+  });
+
+  it('never keeps an error stale', () => {
+    vi.useFakeTimers();
+    const cache = new CardCache(10);
+    cache.set('k', failure(true), 60);
+
+    vi.advanceTimersByTime(61_000);
+    expect(cache.getStale('k')).toBeUndefined();
   });
 });

@@ -7,7 +7,7 @@ import type { ApiResult, CardConfig, ErrorCode } from '@stats-forge/github-stats
 import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 
 import { TTL, cacheControl, cacheKey, parseInteger, ttlFor } from './cache.ts';
-import type { CardCache } from './cache.ts';
+import type { CacheHit, CardCache } from './cache.ts';
 import { HEALTH_PATH } from './health.ts';
 import { CARD_ROUTES, normalizePath } from './routes.ts';
 import type { CardHandler } from './routes.ts';
@@ -76,6 +76,9 @@ const problem = (
     },
   });
 
+/** Where an answer came from: drawn now, held and fresh, or held past its TTL through a failure. */
+type Served = { from: 'miss' } | { from: 'hit' | 'stale'; age: number };
+
 /**
  * The drawn card, or the drawn error, with the truth about it in the headers.
  *
@@ -84,8 +87,7 @@ const problem = (
 const cardResponse = (
   result: ApiResult,
   ttl: number,
-  /** Seconds this answer has been held, `undefined` when it was just drawn. */
-  age: number | undefined,
+  served: Served,
   strictHttpStatus: boolean,
 ): Response => {
   const headers = new Headers({
@@ -94,12 +96,12 @@ const cardResponse = (
     'content-security-policy': CARD_CSP,
     'cache-control': cacheControl(ttl),
     'card-status': result.status,
-    'card-cache': age === undefined ? 'miss' : 'hit',
+    'card-cache': served.from,
   });
 
-  if (age !== undefined) {
+  if (served.from !== 'miss') {
     // a downstream cache subtracts this from `max-age`, so a held answer does not claim a full life
-    headers.set('age', String(age));
+    headers.set('age', String(served.age));
   }
 
   if (result.status === 'error') {
@@ -149,8 +151,14 @@ const finish = async (
   return new Response(null, { status: response.status, headers });
 };
 
+/** A fresh draw, and the last good card it failed to replace, when it failed retryably. */
+interface Drawn {
+  result: ApiResult;
+  stale: CacheHit | undefined;
+}
+
 /** The cards being drawn right now, so N requests arriving during one render share it. */
-type InFlight = Map<string, Promise<ApiResult>>;
+type InFlight = Map<string, Promise<Drawn>>;
 
 /**
  * A card, drawn once however many requests for it arrive meanwhile, and held under the
@@ -164,17 +172,22 @@ const drawCard = (
   query: Record<string, string>,
   options: ServerOptions,
   inFlight: InFlight,
-): Promise<ApiResult> => {
+): Promise<Drawn> => {
   const pending = inFlight.get(key);
   if (pending !== undefined) {
     return pending;
   }
 
-  const draw = async (): Promise<ApiResult> => {
+  const draw = async (): Promise<Drawn> => {
     try {
       const result = await render(query, options.config);
-      options.cache.set(key, result, ttlFor(result, options.cacheSeconds));
-      return result;
+      // an outage keeps the last good card, which a retryable error would otherwise overwrite
+      const stale =
+        result.status === 'error' && result.retryable ? options.cache.getStale(key) : undefined;
+      if (stale === undefined) {
+        options.cache.set(key, result, ttlFor(result, options.cacheSeconds));
+      }
+      return { result, stale };
     } finally {
       inFlight.delete(key);
     }
@@ -229,13 +242,28 @@ const route = async (
 
   const hit = wanted === 0 ? undefined : options.cache.get(key);
   if (hit) {
-    return cardResponse(hit.result, ttlFor(hit.result, wanted), hit.age, options.strictHttpStatus);
+    return cardResponse(
+      hit.result,
+      ttlFor(hit.result, wanted),
+      { from: 'hit', age: hit.age },
+      options.strictHttpStatus,
+    );
   }
 
   const query = queryOf(url.searchParams);
-  const result = await drawCard(render, key, query, options, inFlight);
+  const { result, stale } = await drawCard(render, key, query, options, inFlight);
 
-  return cardResponse(result, ttlFor(result, wanted), undefined, options.strictHttpStatus);
+  // a short life, so the next request tries GitHub again; `0` refuses a held copy, stale or not
+  if (stale && wanted !== 0) {
+    return cardResponse(
+      stale.result,
+      TTL.retryableError,
+      { from: 'stale', age: stale.age },
+      options.strictHttpStatus,
+    );
+  }
+
+  return cardResponse(result, ttlFor(result, wanted), { from: 'miss' }, options.strictHttpStatus);
 };
 
 /**
