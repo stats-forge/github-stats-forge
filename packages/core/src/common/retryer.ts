@@ -1,5 +1,5 @@
 import type { CardConfig } from './config.ts';
-import { CardError } from './error.ts';
+import { CardError, TOKENS_REJECTED } from './error.ts';
 import type { FetcherContext, HttpResponse } from './http.ts';
 import { logger } from './log.ts';
 
@@ -77,6 +77,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
   }
   const startPAT = getRandomInt(PATs.length);
   let transientFailures = 0;
+  let rejectedPATs = 0;
 
   for (let attempt = 0; attempt - transientFailures < PATs.length; attempt += 1) {
     // a transport failure is not the token's fault, so it does not spend a turn of the rotation
@@ -129,11 +130,20 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 
     if (isBadCredential || isAccountSuspended) {
       logger.log(`${currentPAT.name} Failed due to bad credentials`);
+      rejectedPATs += 1;
       continue;
     }
 
     // anything else — including an HTTP error — is the caller's to interpret
     return response;
+  }
+
+  // a lapsed token is the operator's to replace, which no amount of waiting out a rate limit fixes
+  if (rejectedPATs === PATs.length) {
+    throw new CardError('Every GitHub API token was rejected', {
+      code: 'no_tokens',
+      secondaryMessage: TOKENS_REJECTED,
+    });
   }
 
   throw new CardError('Downtime due to GitHub API rate limiting', {

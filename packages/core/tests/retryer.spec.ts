@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { CardError } from '../src/common/error.ts';
+import { CardError, TOKENS_REJECTED } from '../src/common/error.ts';
 import { retryer } from '../src/common/retryer.ts';
 
 import { testConfig } from './_config.ts';
@@ -73,6 +73,37 @@ describe('Test Retryer', () => {
     );
 
     expect(fetcherFail).toHaveBeenCalledTimes(2);
+  });
+
+  it('retryer should report every token rejected as no_tokens, not a rate limit', async () => {
+    const fetcherBadCredentials = vi.fn().mockResolvedValue({
+      data: { message: 'Bad credentials' },
+    }) as unknown as Fetcher;
+
+    await expect(retryer(fetcherBadCredentials, {}, testConfig)).rejects.toMatchObject({
+      code: 'no_tokens',
+      message: 'Every GitHub API token was rejected',
+      secondaryMessage: TOKENS_REJECTED,
+    });
+
+    expect(fetcherBadCredentials).toHaveBeenCalledTimes(2);
+  });
+
+  it('retryer should report a rate limit when only some tokens were rejected', async () => {
+    const fetcherOneRejected = vi.fn((_vars, token: string) =>
+      Promise.resolve({
+        data:
+          token === 'dummyPAT1'
+            ? { message: 'Sorry. Your account was suspended.' }
+            : { errors: [{ type: 'RATE_LIMITED' }] },
+      }),
+    ) as unknown as Fetcher;
+
+    await expect(retryer(fetcherOneRejected, {}, testConfig)).rejects.toMatchObject({
+      code: 'rate_limited',
+    });
+
+    expect(fetcherOneRejected).toHaveBeenCalledTimes(2);
   });
 
   it('retryer should retry a transient error after a delay', async () => {

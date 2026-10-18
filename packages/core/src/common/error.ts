@@ -13,6 +13,10 @@ import { OWNER_AFFILIATIONS } from './constants.ts';
 /** A general message to ask user to try again later. */
 const TRY_AGAIN_LATER = 'Please try again later';
 
+/** The second line when GitHub rejected every token, rather than none being set. */
+const TOKENS_REJECTED =
+  'Replace the expired or revoked PAT_* variables in your deployment environment';
+
 /** The second line for an identity a pinned deployment does not serve. */
 const NOT_ALLOWED = 'This deployment does not serve that account';
 
@@ -28,7 +32,7 @@ type ErrorCode =
   | 'not_allowed'
   /** The user, repository or gist does not exist. */
   | 'not_found'
-  /** The deployment has no usable GitHub token — retryable, the fix being a token on the next start. */
+  /** No GitHub token is set, or GitHub rejected every one — retryable, the fix being a token on the next start. */
   | 'no_tokens'
   /** Every token is rate limited. */
   | 'rate_limited'
@@ -202,6 +206,7 @@ export {
   ORGANIZATION_NOT_FOUND,
   REPO_NOT_FOUND,
   SECONDARY_ERROR_MESSAGES,
+  TOKENS_REJECTED,
   TRY_AGAIN_LATER,
   USER_NOT_FOUND,
   WAKATIME_USER_NOT_FOUND,
