@@ -232,7 +232,7 @@ const trimTopLanguages = (
  *
  * @returns Display value.
  */
-const getDisplayValue = (size: number, percentages: number, format: string): string => {
+const getDisplayValue = (size: number, percentages: number, format: TopLangValueFormat): string => {
   if (format === 'bytes') {
     return formatBytes(size);
   }
@@ -274,7 +274,7 @@ const createProgressTextNode = ({
   name: string;
   size: number;
   totalSize: number;
-  valueFormat: string;
+  valueFormat: TopLangValueFormat;
   hideValues?: boolean | undefined;
   index: number;
 }): MarkupElement => {
@@ -319,7 +319,7 @@ const createCompactLangNode = ({
   totalSize: number;
   hideProgress?: boolean | undefined;
   hideValues?: boolean | undefined;
-  valueFormat?: string | undefined;
+  valueFormat?: TopLangValueFormat | undefined;
   index: number;
 }): MarkupElement => {
   const percentages = (lang.size / totalSize) * 100;
@@ -354,7 +354,7 @@ const createLanguageTextNode = ({
   totalSize: number;
   hideProgress?: boolean | undefined;
   hideValues?: boolean | undefined;
-  valueFormat?: string | undefined;
+  valueFormat?: TopLangValueFormat | undefined;
 }): Array<Child> => {
   const longestLang = getLongestLang(langs);
   const chunked = chunkArray(langs, langs.length / 2);
@@ -392,7 +392,7 @@ const createDonutLanguagesNode = ({
   langs: Array<Lang>;
   totalSize: number;
   hideValues?: boolean | undefined;
-  valueFormat?: string | undefined;
+  valueFormat?: TopLangValueFormat | undefined;
 }): Array<Child> =>
   flexLayout({
     items: langs.map((lang, index) =>
@@ -418,7 +418,7 @@ const renderNormalLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
-  valueFormat: string,
+  valueFormat: TopLangValueFormat,
   hideValues?: boolean,
 ): Array<Child> =>
   flexLayout({
@@ -448,7 +448,7 @@ const renderCompactLayout = (
   width: number,
   totalLanguageSize: number,
   hideProgress?: boolean,
-  valueFormat = 'percent',
+  valueFormat: TopLangValueFormat = 'percent',
   hideValues?: boolean,
 ): Array<Child> => {
   const paddingRight = 50;
@@ -505,7 +505,7 @@ const renderCompactLayout = (
 const renderDonutVerticalLayout = (
   langs: Array<Lang>,
   totalLanguageSize: number,
-  valueFormat: string,
+  valueFormat: TopLangValueFormat,
   hideValues?: boolean,
 ): MarkupElement => {
   // Donut vertical chart radius and total length
@@ -584,7 +584,7 @@ const renderDonutVerticalLayout = (
 const renderPieLayout = (
   langs: Array<Lang>,
   totalLanguageSize: number,
-  valueFormat: string,
+  valueFormat: TopLangValueFormat,
   hideValues?: boolean,
 ): MarkupElement => {
   // Pie chart radius and center coordinates
@@ -722,7 +722,7 @@ const renderDonutLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
-  valueFormat: string,
+  valueFormat: TopLangValueFormat,
   hideValues?: boolean,
 ): Array<Child> => {
   if (!Number.isFinite(width)) {
