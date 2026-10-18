@@ -22,8 +22,8 @@ import {
   calculateDonutVerticalLayoutHeight,
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
-  getLongestLang,
 } from '../src/cards/top-languages/layouts.ts';
+import { measureText } from '../src/common/text.ts';
 import type { TopLangData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -87,11 +87,6 @@ const langPercentFromPieLayoutSvg = (d: string, centerX: number, centerY: number
 };
 
 describe('Test renderTopLanguages helper functions', () => {
-  it('getLongestLang', () => {
-    const langArray = Object.values(langs);
-    expect(getLongestLang(langArray)).toBe(langs.javascript);
-  });
-
   it('degreesToRadians', () => {
     expect(degreesToRadians(0)).toBeCloseTo(0);
     expect(degreesToRadians(90)).toBeCloseTo(Math.PI / 2);
@@ -478,6 +473,38 @@ describe('Test renderTopLanguages', () => {
     expect(langNames[2]).toHaveTextContent('css 20.00%');
     expect(progresses[2]).toHaveAttribute('width', '50');
   });
+
+  it.each([
+    { hide_values: false, card_width: undefined, width: 400 },
+    { hide_values: true, card_width: undefined, width: 400 },
+    { hide_values: false, card_width: 320, width: 335 },
+    { hide_values: false, card_width: 450, width: 450 },
+  ])(
+    'should fit a long name in the compact second column (hide_values $hide_values, card_width $card_width)',
+    ({ hide_values, card_width, width }) => {
+      const data = {
+        ...langs,
+        jupyter: { color: '#f80', name: 'Jupyter Notebook', size: 50, count: 1 },
+      } satisfies TopLangData;
+      document.body.innerHTML = renderTopLanguages(data, {
+        layout: 'compact',
+        hide_values,
+        card_width,
+      });
+
+      // The list starts at the card's left padding; the second column at its own offset.
+      const card = document.querySelector('svg');
+      const columnOffset = Number(
+        /translate\((?<x>[\d.]+), 0\)/u.exec(screen.getByTestId('lang-items').innerHTML)?.groups?.[
+          'x'
+        ],
+      );
+      const label = hide_values ? 'Jupyter Notebook' : 'Jupyter Notebook 9.09%';
+      expect(screen.getAllByTestId('lang-name')[3]).toHaveTextContent(label);
+      expect(card).toHaveAttribute('width', String(width));
+      expect(25 + columnOffset + 15 + measureText(label, 11)).toBeLessThanOrEqual(width - 25);
+    },
+  );
 
   it('should render with layout donut', () => {
     document.body.innerHTML = renderTopLanguages(langs, { layout: 'donut' });
