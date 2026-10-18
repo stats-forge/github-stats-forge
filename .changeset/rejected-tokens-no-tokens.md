@@ -5,6 +5,4 @@
 
 fix: report every token GitHub rejected as `no_tokens`, not a rate limit
 
-An expired or revoked token used to draw "Downtime due to GitHub API rate limiting", which waiting
-never fixes.
-The card now says every token was rejected and asks for them to be replaced.
+An expired or revoked token now asks to be replaced instead of to be waited out.

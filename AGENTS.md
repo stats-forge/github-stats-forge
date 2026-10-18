@@ -82,8 +82,9 @@ directories, and what must be known before choosing one:
 ## Changesets
 
 - **The summary's first line is a conventional commit with no scope** — `feat: …`, `fix!: …` —
-  because it lands verbatim in the changelog under the package's own name ([#78]). Blank line, then
-  a few lines of prose.
+  because it lands verbatim in the changelog under the package's own name ([#78]).
+- **The body is one or two lines, or none when the first line says it all.** Only what a consumer
+  must know to act; the reasoning belongs in the commit or the PR.
 - **The packages are pre-1.0, so a breaking change is `minor`**, not `major` ([#15]).
 - **A dependent package needs no entry of its own**; `updateInternalDependencies` bumps it.
 - **A visitor-visible `apps/docs` change is a server changeset** ([#86]): the image ships the site,
