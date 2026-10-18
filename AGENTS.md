@@ -94,8 +94,8 @@ directories, and what must be known before choosing one:
 Run from the **repo root** unless stated otherwise.
 
 ```sh
-pnpm test                 # vitest, whole workspace
-pnpm test:coverage        # vitest with the coverage config
+pnpm test                 # vitest, whole workspace, one run (`pnpm exec vitest` watches)
+pnpm test:coverage        # the same run, with the coverage config
 pnpm typecheck            # build, then tsc over the packages and scripts/
 pnpm lint                 # oxlint over the whole workspace
 pnpm lint:ci              # oxlint --format=github (what CI runs, for annotations)

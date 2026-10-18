@@ -13,4 +13,4 @@ pre-commit:
       run: pnpm run lint
 
     - name: test
-      run: pnpm exec vitest --run
+      run: pnpm test
