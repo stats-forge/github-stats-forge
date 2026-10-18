@@ -77,7 +77,7 @@ puts the truth in headers:
 | `Card-Status`      | `success` or `error`                               |
 | `Card-Error-Code`  | why it failed                                      |
 | `Card-Error-Param` | the parameter at fault, when the failure names one |
-| `Card-Cache`       | `hit` or `miss`                                    |
+| `Card-Cache`       | `hit`, `miss` or `stale`                           |
 
 Set `STRICT_HTTP_STATUS=true` and it answers with the code the failure deserves instead — `400`,
 `403`, `404`, `429`, `500`, `502` — which is what you want for anything that is not a README.
@@ -223,6 +223,8 @@ changelog entry for what moved in it.
 A card is held for ten hours by default, a failure that might fix itself for ten minutes, and one that will not for an hour.
 So a README seen a thousand times costs one GitHub request rather than a thousand,
 and the instance stays inside its rate limit without anything being configured.
+
+If GitHub fails while a card is being redrawn, the last good card is served for up to a day longer.
 
 `?cache_seconds=1800` on a card asks for a shorter life, within the four-hour to twenty-four-hour range a card is clamped to.
 `CACHE_SECONDS=0` turns the whole thing off, headers and all, which is what makes an instance debuggable while you are setting it up.

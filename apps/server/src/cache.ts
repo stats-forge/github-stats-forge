@@ -24,7 +24,10 @@ const TTL = {
 const MIN_CACHE_SECONDS = 4 * HOUR;
 const MAX_CACHE_SECONDS = 24 * HOUR;
 
-/** How long a stale card may still be served while a fresh one is fetched. */
+/**
+ * How long a stale card may still be served while a fresh one is fetched, downstream and here:
+ * a held success outlives its TTL by this much, to answer for a redraw that fails.
+ */
 const STALE_WHILE_REVALIDATE = 24 * HOUR;
 
 /**
@@ -85,11 +88,13 @@ const cacheKey = (path: string, params: URLSearchParams): string => {
   return `${path}?${keyed.toString()}`;
 };
 
-/** A stored answer, when it was drawn, and when it stops being servable. */
+/** A stored answer, when it was drawn, when it stops being fresh, and when it stops being kept. */
 interface CacheEntry {
   result: ApiResult;
   storedAt: number;
   expiresAt: number;
+  /** `expiresAt` for an error, which is never served stale. */
+  staleUntil: number;
 }
 
 /** A hit: the answer, and how long ago it was drawn. */
@@ -101,7 +106,8 @@ interface CacheHit {
 
 /**
  * The rendered answers this process is holding: a hot README costs one GitHub request per TTL
- * instead of one per view. Per-instance, and lost on restart.
+ * instead of one per view, and keeps its last good card through an outage. Per-instance, and lost
+ * on restart.
  */
 class CardCache {
   readonly #entries = new Map<string, CacheEntry>();
@@ -111,25 +117,29 @@ class CardCache {
     this.#maxEntries = maxEntries;
   }
 
-  /** How many answers are held, expired ones included until the next sweep. */
+  /** How many answers are held, stale ones and those past keeping included until the next sweep. */
   get size(): number {
     return this.#entries.size;
   }
 
   /** @returns The stored answer, or `undefined` when there is none or it has expired. */
   get(key: string): CacheHit | undefined {
-    const entry = this.#entries.get(key);
-    if (!entry) {
+    const entry = this.#kept(key);
+    if (!entry || entry.expiresAt <= Date.now()) {
       return undefined;
     }
 
-    const now = Date.now();
-    if (entry.expiresAt <= now) {
-      this.#entries.delete(key);
+    return CardCache.#hit(entry);
+  }
+
+  /** @returns A success that has expired but is still kept, for a redraw that just failed. */
+  getStale(key: string): CacheHit | undefined {
+    const entry = this.#kept(key);
+    if (entry?.result.status !== 'success') {
       return undefined;
     }
 
-    return { result: entry.result, age: Math.floor((now - entry.storedAt) / 1000) };
+    return CardCache.#hit(entry);
   }
 
   /** Stores the answer for `ttlSeconds`; a TTL of `0` stores nothing. */
@@ -143,10 +153,30 @@ class CardCache {
     this.#entries.delete(key);
 
     const storedAt = Date.now();
-    this.#entries.set(key, { result, storedAt, expiresAt: storedAt + ttlSeconds * 1000 });
+    const expiresAt = storedAt + ttlSeconds * 1000;
+    const staleUntil =
+      result.status === 'success' ? expiresAt + STALE_WHILE_REVALIDATE * 1000 : expiresAt;
+    this.#entries.set(key, { result, storedAt, expiresAt, staleUntil });
   }
 
-  /** Drops what has expired, then the oldest of what is left, until there is room for one more. */
+  /** @returns The entry, unless it is past keeping, which it then forgets. */
+  #kept(key: string): CacheEntry | undefined {
+    const entry = this.#entries.get(key);
+    if (entry && entry.staleUntil <= Date.now()) {
+      this.#entries.delete(key);
+      return undefined;
+    }
+    return entry;
+  }
+
+  static #hit(entry: CacheEntry): CacheHit {
+    return { result: entry.result, age: Math.floor((Date.now() - entry.storedAt) / 1000) };
+  }
+
+  /**
+   * Drops what is past keeping, then what has expired, then the oldest of what is left, until
+   * there is room for one more: a stale card is the first thing worth giving up.
+   */
   #sweep(): void {
     if (this.#entries.size < this.#maxEntries) {
       return;
@@ -154,6 +184,15 @@ class CardCache {
 
     const now = Date.now();
     for (const [key, entry] of this.#entries) {
+      if (entry.staleUntil <= now) {
+        this.#entries.delete(key);
+      }
+    }
+
+    for (const [key, entry] of this.#entries) {
+      if (this.#entries.size < this.#maxEntries) {
+        return;
+      }
       if (entry.expiresAt <= now) {
         this.#entries.delete(key);
       }
@@ -168,10 +207,13 @@ class CardCache {
   }
 }
 
+export type { CacheHit };
+
 export {
   CardCache,
   MAX_CACHE_SECONDS,
   MIN_CACHE_SECONDS,
+  STALE_WHILE_REVALIDATE,
   TTL,
   cacheControl,
   cacheKey,

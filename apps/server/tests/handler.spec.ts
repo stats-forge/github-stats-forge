@@ -1,7 +1,8 @@
+import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 import type { ErrorCode } from '@stats-forge/github-stats-forge-core/api';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { MAX_CACHE_SECONDS, MIN_CACHE_SECONDS, TTL } from '../src/cache.ts';
+import { MAX_CACHE_SECONDS, MIN_CACHE_SECONDS, STALE_WHILE_REVALIDATE, TTL } from '../src/cache.ts';
 import { STRICT_STATUS, createHandler } from '../src/handler.ts';
 import type { ServerOptions } from '../src/handler.ts';
 
@@ -388,5 +389,89 @@ describe('CORS', () => {
 
     expect(response.headers.get('access-control-allow-origin')).toBe('https://example.test');
     expect(response.headers.get('access-control-expose-headers')).toContain('Card-Error-Code');
+  });
+});
+
+/**
+ * @returns Options whose GitHub answers the gist until `goDown` is called, then fails with an
+ * upstream error at once.
+ */
+const outage = (): { options: ServerOptions; goDown: () => void } => {
+  let down = false;
+  const { options } = optionsAnswering(GIST_REPLY);
+  const config = new CardConfig({
+    pats: [{ name: 'PAT_1', value: 'token' }],
+    fetch: (): Promise<Response> =>
+      Promise.resolve(
+        Response.json(
+          down ? { errors: [{ type: 'INTERNAL', message: 'Something went wrong' }] } : GIST_REPLY,
+        ),
+      ),
+  });
+
+  return {
+    options: { ...options, config },
+    goDown: () => {
+      down = true;
+    },
+  };
+};
+
+describe('an outage', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('serves the last good card, briefly, while a redraw fails', async () => {
+    vi.useFakeTimers();
+    const { options, goDown } = outage();
+    await get(GIST_URL, options);
+
+    vi.advanceTimersByTime((TTL.success + 1) * 1000);
+    goDown();
+    const response = await get(GIST_URL, options);
+
+    expect(response.headers.get('card-status')).toBe('success');
+    expect(response.headers.get('card-cache')).toBe('stale');
+    expect(response.headers.get('age')).toBe(String(TTL.success + 1));
+    expect(response.headers.get('cache-control')).toContain(`max-age=${TTL.retryableError}`);
+  });
+
+  it('keeps that card for the next request rather than the error that failed to replace it', async () => {
+    vi.useFakeTimers();
+    const { options, goDown } = outage();
+    await get(GIST_URL, options);
+
+    vi.advanceTimersByTime((TTL.success + 1) * 1000);
+    goDown();
+    await get(GIST_URL, options);
+    const response = await get(GIST_URL, options);
+
+    expect(response.headers.get('card-cache')).toBe('stale');
+  });
+
+  it('refuses the stale card to a caller that asked for no held copy', async () => {
+    vi.useFakeTimers();
+    const { options, goDown } = outage();
+    await get(GIST_URL, options);
+
+    vi.advanceTimersByTime((TTL.success + 1) * 1000);
+    goDown();
+    const response = await get(`${GIST_URL}&cache_seconds=0`, options);
+
+    expect(response.headers.get('card-status')).toBe('error');
+    expect(response.headers.get('card-cache')).toBe('miss');
+  });
+
+  it('answers the error once the stale window is over', async () => {
+    vi.useFakeTimers();
+    const { options, goDown } = outage();
+    await get(GIST_URL, options);
+
+    vi.advanceTimersByTime((TTL.success + STALE_WHILE_REVALIDATE + 1) * 1000);
+    goDown();
+    const response = await get(GIST_URL, options);
+
+    expect(response.headers.get('card-status')).toBe('error');
   });
 });
