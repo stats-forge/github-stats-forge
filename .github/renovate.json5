@@ -80,6 +80,12 @@
       matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
       automerge: true,
     },
+    // A workflow's actions and runners reach only CI, which `CI OK` itself exercises.
+    {
+      matchManagers: ['github-actions'],
+      matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
+      automerge: true,
+    },
 
     // A runtime dependency is installed alongside the package, so its bump is that package's
     // release; `updateInternalDependencies: patch` carries it to the dependents. Dev dependencies
