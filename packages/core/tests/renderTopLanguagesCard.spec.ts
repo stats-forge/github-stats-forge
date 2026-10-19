@@ -833,6 +833,16 @@ describe('Test renderTopLanguages', () => {
     expect(langNames[2]).toHaveTextContent('css');
   });
 
+  it('should hide stats values when hide_values is true (donut-vertical layout)', () => {
+    document.body.innerHTML = renderTopLanguages(langs, {
+      layout: 'donut-vertical',
+      hide_values: true,
+    });
+
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
+    expect(screen.queryAllByTestId('lang-name')).toHaveLength(3);
+  });
+
   it('should hide stats values when hide_values is true (pie layout)', () => {
     document.body.innerHTML = renderTopLanguages(langs, {
       layout: 'pie',
