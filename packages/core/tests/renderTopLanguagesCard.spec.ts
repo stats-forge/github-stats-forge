@@ -25,7 +25,7 @@ import { measureText } from '../src/common/text.ts';
 import type { Lang, TopLangData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue, draw, translateOf, xOf } from './_card.ts';
+import { cssValue, draw, exactly, translateOf, xOf } from './_card.ts';
 import { approxNumber } from './utils.ts';
 
 const langs = {
@@ -86,7 +86,7 @@ const expectLabels = (expected: Array<string>): void => {
   const labels = screen.queryAllByTestId('lang-name');
   expect(labels).toHaveLength(expected.length);
   for (const [index, text] of expected.entries()) {
-    expect(labels[index]).toHaveTextContent(text);
+    expect(labels[index]).toHaveTextContent(exactly(text));
   }
 };
 
@@ -312,10 +312,9 @@ describe('Test renderTopLanguages', () => {
       const card = draw(renderTopLanguages(withJupyter, { layout, hide_values, card_width }));
 
       const text = hide_values ? 'Jupyter Notebook' : 'Jupyter Notebook 9.09%';
-      const label = screen.getAllByTestId('lang-name').at(3);
-      expect(label).toHaveTextContent(text);
+      const label = screen.getByText(exactly(text));
       expect(card).toHaveAttribute('width', String(width));
-      expect(xOf(label as Element) + measureText(text, 11)).toBeLessThanOrEqual(width - 25);
+      expect(xOf(label) + measureText(text, 11)).toBeLessThanOrEqual(width - 25);
     },
   );
 
@@ -451,7 +450,7 @@ describe('Test renderTopLanguages', () => {
   });
 
   it.each([false, true])(
-    'should render a full pie (circle) if one language is 100%% (hide_values %s)',
+    'should render a full pie (circle) for a single language (hide_values %s)',
     (hide_values) => {
       draw(renderTopLanguages({ HTML: langs.HTML }, { layout: 'pie', hide_values }));
 
@@ -520,8 +519,6 @@ describe('Test renderTopLanguages', () => {
       draw(renderTopLanguages(langs, { layout, hide_values: true }));
 
       expectLabels(['HTML', 'javascript', 'css']);
-      // a label matches by substring, so it is the list as a whole that must carry no value
-      expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     },
   );
 

@@ -5,7 +5,7 @@ import { renderStatsCard } from '../src/cards/stats/index.ts';
 import type { StatsData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue, draw, drawnIds, translateOf } from './_card.ts';
+import { cssValue, draw, drawnIds, exactly, translateOf } from './_card.ts';
 
 const stats: StatsData = {
   login: 'anuraghazra',
@@ -111,7 +111,7 @@ describe('Test renderStatsCard', () => {
     ['contributed_to_all_time', '500'],
   ] as const)('should show the %s stat when the show list names it', (stat, value) => {
     draw(renderStatsCard(stats, { show: [stat] }));
-    expect(screen.getByTestId(stat)).toHaveTextContent(value);
+    expect(screen.getByTestId(stat)).toHaveTextContent(exactly(value));
   });
 
   it('leaves out a stat that is both shown and hidden', () => {

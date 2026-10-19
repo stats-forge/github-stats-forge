@@ -233,12 +233,13 @@ their reasons in `oxlint.config.ts`.
 
 - **A test that can pass without the code it covers is a bug** ([#287]). Break the code, or flip
   the input, and watch a new assertion fail before trusting it. `toHaveTextContent` matches a
-  substring, and an accepted query asserts `upstream`, since a rejection is an error too.
+  substring, so give it `exactly(text)`; an accepted query asserts `upstream`, since a rejection
+  is an error too.
 - **A test restores what it changes in an `afterEach`, never on its own last line** ([#287]), where
   a failed assertion skips it: fake timers, spies, `vi.stubEnv` for an env var, a `mkdtemp` dir.
 - **A card spec reads the drawn card through `tests/_card.ts`, a fetcher spec its requests through
-  `tests/_fetch-mock.ts`** ([#288]): `draw`, `cssValue(selector, property)`, `drawnIds`, `xOf`,
-  `GRAPHQL`, `graphqlBody`. Extend them rather than writing a local copy.
+  `tests/_fetch-mock.ts`** ([#288]): `draw`, `cssValue(selector, property)`, `drawnIds`,
+  `exactly`, `xOf`, `GRAPHQL`, `graphqlBody`. Extend them rather than writing a local copy.
 - **A param's validation is tested once, in `apiParams.spec.ts`**, not again in each card's spec.
 - **`src` never imports a test helper or a test library**; `no-restricted-imports` in
   `oxlint.config.ts` enforces it ([#288]).

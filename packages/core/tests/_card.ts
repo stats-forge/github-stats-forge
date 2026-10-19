@@ -56,6 +56,9 @@ const xOf = (element: Element): number => {
   return x;
 };
 
+/** @returns A `toHaveTextContent` matcher for `text` alone, which a plain string matches inside. */
+const exactly = (text: string): RegExp => new RegExp(`^${RegExp.escape(text)}$`, 'u');
+
 /** @returns Those of `ids` the drawn card carries a test id for, in the order given. */
 const drawnIds = (ids: ReadonlyArray<string>): Array<string> =>
   ids.filter((id) => screen.queryByTestId(id) !== null);
@@ -70,4 +73,4 @@ const noMotionRules = (): number =>
   (document.querySelector('style')?.textContent ?? '').split('animation-duration: 0s !important')
     .length - 1;
 
-export { cssValue, draw, drawnIds, noMotionRules, translateOf, xOf };
+export { cssValue, draw, drawnIds, exactly, noMotionRules, translateOf, xOf };
