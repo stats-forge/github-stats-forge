@@ -16,6 +16,8 @@ type CardCSSBuilder = (colors: CardColors) => Array<CssChild>;
 const TITLE_ICON_GAP = 25;
 /** `measureText` reads regular widths; the semibold header draws about a tenth wider. */
 const TITLE_SEMIBOLD_WIDENING = 1.1;
+/** Below this a shrunk title stops being readable, so a card narrower still crops it. */
+const TITLE_MIN_FONT_SIZE = CARD_STYLE.fontSize.title / 2;
 
 /** Stops every animation, whether the reader asked or the card did. */
 const NO_MOTION = {
@@ -163,7 +165,10 @@ class Card {
     const estimate = measureText(this.title, CARD_STYLE.fontSize.title) * TITLE_SEMIBOLD_WIDENING;
     // Shrunk rather than cut, so a long name or translation is still read whole; a smaller font,
     // unlike `textLength`, cannot stretch a title the estimate overrated.
-    const fontSize = Math.floor((CARD_STYLE.fontSize.title * room * 10) / estimate) / 10;
+    const fontSize = Math.max(
+      TITLE_MIN_FONT_SIZE,
+      Math.floor((CARD_STYLE.fontSize.title * room * 10) / estimate) / 10,
+    );
 
     return el(
       'g',

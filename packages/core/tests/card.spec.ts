@@ -84,6 +84,13 @@ describe(Card, () => {
     expect(measureText(title, size) * 1.1).toBeLessThanOrEqual(room);
   });
 
+  it.each([1, 100])('should shrink no smaller than 9px, cropping instead (width %i)', (width) => {
+    const card = new Card({ width, customTitle: 'Most Used Languages' });
+
+    document.body.innerHTML = card.render(``);
+    expect(screen.getByTestId('header')).toHaveAttribute('style', 'font-size: 9px');
+  });
+
   it('should leave a title that fits at its own size', () => {
     const card = new Card({ width: 300, customTitle: 'Most Used Languages' });
 
