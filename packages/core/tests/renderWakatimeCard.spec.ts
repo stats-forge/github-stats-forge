@@ -52,7 +52,7 @@ describe('Test Render WakaTime Card', () => {
       const data = structuredClone(wakaTimeData.data);
       data.languages = data.languages.map((lang) => ({
         ...lang,
-        name: `${lang.name} Extended Long Name`,
+        name: `${lang.name} With An Extended And Very Long Name`,
       }));
       document.body.innerHTML = renderWakatimeCard(data, { layout: 'compact', card_width });
 
