@@ -1,5 +1,5 @@
 import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
+import { Card, titleFits } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
 import { formatRange } from '../../common/date.ts';
@@ -24,10 +24,6 @@ const STAT_ROW_X = 25;
 const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */
 const LABEL_VALUE_GAP = 16;
-
-const TITLE_FONT_SIZE = CARD_STYLE.fontSize.title;
-/** What `Card`'s title layout reserves for the prefix icon, so the title text starts past it. */
-const TITLE_ICON_COLUMN = 25;
 
 /** Stats the card draws only when `show` names them. */
 const SHOW_STATS = ['discussions_started', 'commits'] as const;
@@ -75,15 +71,16 @@ const defaultTitleFor = (
   t: Localized<typeof orgActivityCardLocales>,
   name: string,
   { days, range }: Pick<OrgActivityData, 'days' | 'range'>,
-  contentWidth: number,
+  cardWidth: number,
 ): string => {
   const window =
     days === undefined ? ` (${formatRange(range)})` : ` (${t.lastDays({ count: days })})`;
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const named = `${t.title({ name, apostrophe })}${window}`;
-  return measureText(named, TITLE_FONT_SIZE) <= contentWidth
-    ? named
-    : `${t.titleUnnamed()}${window}`;
+  if (titleFits(named, cardWidth)) {
+    return named;
+  }
+  return `${t.titleUnnamed()}${window}`;
 };
 
 /**
@@ -249,12 +246,7 @@ const renderCard = (
 
   const card = new Card({
     customTitle: title,
-    defaultTitle: defaultTitleFor(
-      t,
-      name,
-      { days, range },
-      width - 2 * CARD_STYLE.padding.x - TITLE_ICON_COLUMN,
-    ),
+    defaultTitle: defaultTitleFor(t, name, { days, range }, width),
     titlePrefixIcon: CARD_ICON.orgActivity,
     width,
     height,
