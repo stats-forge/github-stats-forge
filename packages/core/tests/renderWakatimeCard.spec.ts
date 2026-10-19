@@ -83,6 +83,19 @@ describe('Test Render WakaTime Card', () => {
     expect(data.languages.map(({ percent }) => percent)).toStrictEqual(percents);
   });
 
+  it('should move the compact right column out by half of what a card_width adds', () => {
+    document.body.innerHTML = renderWakatimeCard(structuredClone(wakaTimeData.data), {
+      layout: 'compact',
+      card_width: 600,
+    });
+
+    // 230 on the default 500, plus half the extra 100
+    expect(screen.getAllByTestId('lang-name')[1]?.parentElement).toHaveAttribute(
+      'transform',
+      'translate(280, 25)',
+    );
+  });
+
   it('should hide languages when hide is passed', () => {
     document.body.innerHTML = renderWakatimeCard(wakaTimeData.data, {
       hide_langs: ['YAML', 'Other'],
