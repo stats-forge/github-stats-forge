@@ -12,7 +12,7 @@
 
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -92,52 +92,55 @@ const main = async (): Promise<void> => {
 
   const scratch = await mkdtemp(join(tmpdir(), 'stats-forge-docs-'));
   const failures: Array<string> = [];
+  try {
+    /** A failure is collected rather than thrown, so one bad card does not stop the rest. */
+    const renderThemed = async (
+      saved: SavedCard,
+      theme: string,
+      out: string,
+      label: string,
+    ): Promise<void> => {
+      const slug = label.replaceAll(/\W/g, '-');
+      const config = join(scratch, `${slug}.json`);
+      await writeFile(config, JSON.stringify({ ...saved, theme }), 'utf8');
 
-  /** A failure is collected rather than thrown, so one bad card does not stop the rest. */
-  const renderThemed = async (
-    saved: SavedCard,
-    theme: string,
-    out: string,
-    label: string,
-  ): Promise<void> => {
-    const slug = label.replaceAll(/\W/g, '-');
-    const config = join(scratch, `${slug}.json`);
-    await writeFile(config, JSON.stringify({ ...saved, theme }), 'utf8');
+      // under --check the card is drawn beside the committed one and compared, never written over it
+      const target = values.check ? join(scratch, `${slug}.svg`) : out;
+      const error = await render(config, target, values.check);
+      if (error !== undefined) {
+        failures.push(`${label}: ${error}`);
+        return;
+      }
 
-    // under --check the card is drawn beside the committed one and compared, never written over it
-    const target = values.check ? join(scratch, `${slug}.svg`) : out;
-    const error = await render(config, target, values.check);
-    if (error !== undefined) {
-      failures.push(`${label}: ${error}`);
-      return;
-    }
+      if (values.check) {
+        const committed = await readFile(out, 'utf8').catch(() => '');
+        if (committed !== (await readFile(target, 'utf8'))) {
+          failures.push(`${label}: ${relative(DOCS_DIR, out)} is out of date`);
+        }
+      }
+    };
 
-    if (values.check) {
-      const committed = await readFile(out, 'utf8').catch(() => '');
-      if (committed !== (await readFile(target, 'utf8'))) {
-        failures.push(`${label}: ${relative(DOCS_DIR, out)} is out of date`);
+    /** @returns The saved card that file holds. */
+    const readCard = async (name: string): Promise<SavedCard> =>
+      JSON.parse(await readFile(join(CARDS_DIR, `${name}.json`), 'utf8')) as SavedCard;
+
+    for (const name of wanted) {
+      const saved = await readCard(name);
+
+      for (const [mode, theme] of Object.entries(CARD_THEMES) as Array<[CardMode, string]>) {
+        await renderThemed(saved, theme, join(OUT_DIR, `${name}-${mode}.svg`), `${name} (${mode})`);
       }
     }
-  };
 
-  /** @returns The saved card that file holds. */
-  const readCard = async (name: string): Promise<SavedCard> =>
-    JSON.parse(await readFile(join(CARDS_DIR, `${name}.json`), 'utf8')) as SavedCard;
-
-  for (const name of wanted) {
-    const saved = await readCard(name);
-
-    for (const [mode, theme] of Object.entries(CARD_THEMES) as Array<[CardMode, string]>) {
-      await renderThemed(saved, theme, join(OUT_DIR, `${name}-${mode}.svg`), `${name} (${mode})`);
+    // The theme page's samples, only when this run covered the card they draw.
+    if (wanted.includes(SAMPLE_CARD)) {
+      const saved = await readCard(SAMPLE_CARD);
+      for (const theme of SAMPLE_THEMES) {
+        await renderThemed(saved, theme, join(THEMES_OUT_DIR, `${theme}.svg`), `theme ${theme}`);
+      }
     }
-  }
-
-  // The theme page's samples, only when this run covered the card they draw.
-  if (wanted.includes(SAMPLE_CARD)) {
-    const saved = await readCard(SAMPLE_CARD);
-    for (const theme of SAMPLE_THEMES) {
-      await renderThemed(saved, theme, join(THEMES_OUT_DIR, `${theme}.svg`), `theme ${theme}`);
-    }
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
   }
 
   if (failures.length > 0) {
