@@ -110,11 +110,9 @@ describe('test renderOrgActivityCard', () => {
   });
 
   it('should drop the possessive s from a name that ends in one', () => {
-    document.body.innerHTML = renderOrgActivityCard({ ...data, name: 'Rollup Plugins' });
+    document.body.innerHTML = renderOrgActivityCard({ ...data, name: 'Rollups' });
 
-    expect(document.querySelector('.header')).toHaveTextContent(
-      "Rollup Plugins' organization activity",
-    );
+    expect(document.querySelector('.header')).toHaveTextContent("Rollups' organization activity");
   });
 
   it('should keep the window when the name makes the title too wide', () => {

@@ -20,10 +20,13 @@
       fill: #2f80ed;
       opacity: 0.08;
     }
+    .header {
+      font-size: 16.8px;
+    }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
       .header {
-        font-size: 15.5px;
+        font-size: 14.4px;
       }
     }
     .stat {

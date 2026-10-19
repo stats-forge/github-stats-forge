@@ -1,5 +1,5 @@
 import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
+import { Card, titleFits } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { formatYears } from '../../common/date.ts';
 import { kFormatter } from '../../common/fmt.ts';
@@ -18,9 +18,6 @@ import { contributedToCardLocales } from './locales.ts';
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.wide;
 const MIN_CARD_WIDTH = 340;
 
-const TITLE_FONT_SIZE = CARD_STYLE.fontSize.title;
-/** What `Card`'s title layout reserves for the prefix icon, so the title text starts past it. */
-const TITLE_ICON_COLUMN = 25;
 const NAME_FONT_SIZE = CARD_STYLE.fontSize.meta;
 
 /** Room kept at the right edge for the contribution count. */
@@ -61,10 +58,13 @@ interface ContributedToCardOptions extends CommonCardOptions {
 const defaultTitleFor = (
   t: Localized<typeof contributedToCardLocales>,
   login: string,
-  contentWidth: number,
+  cardWidth: number,
 ): string => {
   const named = t.title({ login });
-  return measureText(named, TITLE_FONT_SIZE) <= contentWidth ? named : t.titleUnnamed();
+  if (titleFits(named, cardWidth)) {
+    return named;
+  }
+  return t.titleUnnamed();
 };
 
 /**
@@ -269,7 +269,7 @@ const renderContributedToCard = (
 
   const card = new Card({
     customTitle: title,
-    defaultTitle: defaultTitleFor(t, login, contentWidth - TITLE_ICON_COLUMN),
+    defaultTitle: defaultTitleFor(t, login, width),
     titlePrefixIcon: CARD_ICON.contributedTo,
     width,
     height,

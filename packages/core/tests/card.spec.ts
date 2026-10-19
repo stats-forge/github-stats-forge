@@ -2,9 +2,18 @@ import { queryByTestId, screen } from '@testing-library/dom';
 import { cssToObject } from '@uppercod/css-to-object';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { Card } from '../src/common/Card.ts';
+import { Card, titleFits } from '../src/common/Card.ts';
 import { getCardColors } from '../src/common/color.ts';
 import { icons } from '../src/common/icons.ts';
+import { measureText } from '../src/common/text.ts';
+
+/** @returns Every `.header` font-size the drawn style sets, in px: the shrink, then Firefox's. */
+const headerSizes = (): Array<number> =>
+  [
+    ...(document.querySelector('style')?.textContent ?? '').matchAll(
+      /\.header \{\s*font-size: (?<px>[\d.]+)px;/gu,
+    ),
+  ].map((match) => Number(match.groups?.['px']));
 
 describe(Card, () => {
   afterEach(() => {
@@ -59,6 +68,54 @@ describe(Card, () => {
 
     document.body.innerHTML = card.render(``);
     expect(queryByTestId(document.body, 'card-title')).toBeInTheDocument();
+  });
+
+  it.each([
+    { icon: true, room: 225 },
+    { icon: false, room: 250 },
+  ])(
+    'should shrink a title too long for the card to fill its room (icon $icon)',
+    ({ icon, room }) => {
+      const title = 'Οι περισσότερο χρησιμοποιούμενες γλώσσες';
+      const card = new Card({
+        width: 300,
+        customTitle: title,
+        titlePrefixIcon: icon ? icons.repo : undefined,
+      });
+
+      document.body.innerHTML = card.render(``);
+      expect(screen.getByTestId('header')).toHaveTextContent(title);
+      expect(screen.getByTestId('header')).not.toHaveAttribute('style');
+      const [size = 0, firefox] = headerSizes();
+      // The semibold header draws about a tenth wider than `measureText`'s regular widths.
+      expect(measureText(title, size) * 1.1).toBeLessThanOrEqual(room);
+      expect(measureText(title, size + 0.1) * 1.1).toBeGreaterThan(room);
+      // Firefox lays the title out wider, so it keeps the ratio its own 15.5px has to 18px.
+      expect(firefox).toBe(Math.floor((size * 15.5 * 10) / 18) / 10);
+    },
+  );
+
+  it.each([1, 100])('should shrink no smaller than 9px, cropping instead (width %i)', (width) => {
+    const card = new Card({ width, customTitle: 'Most Used Languages' });
+
+    document.body.innerHTML = card.render(``);
+    expect(headerSizes()).toStrictEqual([9, 7.7]);
+  });
+
+  it('should leave a title that fits at its own size', () => {
+    const card = new Card({ width: 300, customTitle: 'Most Used Languages' });
+
+    document.body.innerHTML = card.render(``);
+    expect(headerSizes()).toStrictEqual([15.5]);
+  });
+
+  it('should count a title as fitting while it shrinks no further than 16px', () => {
+    const title = 'Most Used Languages';
+    // padding on both sides, the icon's column, then the semibold width at 16px
+    const at16 = 50 + 25 + (measureText(title, 18) * 1.1 * 16) / 18;
+
+    expect(titleFits(title, Math.ceil(at16) + 1)).toBe(true);
+    expect(titleFits(title, Math.floor(at16) - 1)).toBe(false);
   });
 
   it('title should have prefix icon', () => {

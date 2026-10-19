@@ -5,11 +5,54 @@ import { CARD_STYLE, firefoxFontSize, font } from './brand.ts';
 import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.ts';
 import type { CardColors } from './color.ts';
 import { flexLayout } from './render.ts';
+import { measureText } from './text.ts';
 
 /**
  * Builds the card CSS for one color scheme from that scheme's resolved colors.
  */
 type CardCSSBuilder = (colors: CardColors) => Array<CssChild>;
+
+/** How far the title sits right of the icon before it. */
+const TITLE_ICON_GAP = 25;
+/** `measureText` reads regular widths; the semibold header draws about a tenth wider. */
+const TITLE_SEMIBOLD_WIDENING = 1.1;
+/** Below this a shrunk title stops being readable, so a card narrower still crops it. */
+const TITLE_MIN_FONT_SIZE = CARD_STYLE.fontSize.title / 2;
+
+/** @returns How wide the semibold title draws at its own size. */
+const titleWidth = (title: string): number =>
+  measureText(title, CARD_STYLE.fontSize.title) * TITLE_SEMIBOLD_WIDENING;
+
+/** @returns What a title room leaves on a card of `width`, beside an icon if it has one. */
+const titleRoom = (width: number, withIcon: boolean): number =>
+  width - CARD_STYLE.padding.x * 2 - (withIcon ? TITLE_ICON_GAP : 0);
+
+/**
+ * Shrunk rather than cut, so a long name or translation is still read whole; a smaller font,
+ * unlike `textLength`, cannot stretch a title the estimate overrated.
+ *
+ * @returns The px size a title too wide for `room` is drawn at, or `undefined` when it fits.
+ */
+const shrunkTitleSize = (title: string, room: number): number | undefined => {
+  const width = titleWidth(title);
+  if (width <= room) {
+    return undefined;
+  }
+  return Math.max(
+    TITLE_MIN_FONT_SIZE,
+    Math.floor((CARD_STYLE.fontSize.title * room * 10) / width) / 10,
+  );
+};
+
+/**
+ * For a card with a shorter title to fall back on: a name shrunk past the lead size reads worse
+ * than no name.
+ *
+ * @returns Whether `title` fits a card of `width`, beside the icon, at the lead size or larger.
+ */
+const titleFits = (title: string, width: number): boolean =>
+  (shrunkTitleSize(title, titleRoom(width, true)) ?? CARD_STYLE.fontSize.title) >=
+  CARD_STYLE.fontSize.lead;
 
 /** Stops every animation, whether the reader asked or the card did. */
 const NO_MOTION = {
@@ -175,9 +218,18 @@ class Card {
               },
               this.titlePrefixIcon,
             ),
-          el('text', { x: 0, y: 0, class: 'header', 'data-testid': 'header' }, this.title),
+          el(
+            'text',
+            {
+              x: 0,
+              y: 0,
+              class: 'header',
+              'data-testid': 'header',
+            },
+            this.title,
+          ),
         ],
-        gap: 25,
+        gap: TITLE_ICON_GAP,
       }),
       el('rect', {
         'data-testid': 'title-accent',
@@ -285,6 +337,15 @@ class Card {
       throw new Error(`Invalid background color: ${String(this.colors.light.bgColor)}`);
     }
 
+    const shrunk = shrunkTitleSize(
+      this.title,
+      titleRoom(this.width, Boolean(this.titlePrefixIcon)),
+    );
+    const firefoxSize =
+      shrunk === undefined
+        ? CARD_STYLE.titleFirefoxSize
+        : Math.floor((shrunk * CARD_STYLE.titleFirefoxSize * 10) / CARD_STYLE.fontSize.title) / 10;
+
     return renderMarkup(
       el(
         'svg',
@@ -320,7 +381,9 @@ class Card {
             fill: this.colors.light.titleColor,
             opacity: CARD_STYLE.band.opacity,
           }),
-          firefoxFontSize(['.header'], CARD_STYLE.titleFirefoxSize),
+          shrunk !== undefined && rule('.header', { 'font-size': `${String(shrunk)}px` }),
+          // Not a style attribute, which would outrank Firefox's smaller size.
+          firefoxFontSize(['.header'], firefoxSize),
           this.css,
           this.renderDarkMediaBlock(),
           getAnimations(),
@@ -357,4 +420,4 @@ class Card {
   }
 }
 
-export { Card };
+export { Card, titleFits };
