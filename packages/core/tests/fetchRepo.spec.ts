@@ -57,9 +57,9 @@ describe('Test fetchRepo', () => {
   });
 
   it.each([
-    ['repo', { username: 'anuraghazra' }],
+    ['repo', { username: 'anuraghazra', reponame: undefined }],
     ['repo', { username: 'anuraghazra', reponame: 'anuraghazra/' }],
-    ['username', { reponame: 'convoychat' }],
+    ['username', { username: undefined, reponame: 'convoychat' }],
   ])('should report a missing %s as a missing param (%o)', async (param, options) => {
     await expect(fetchRepo(options, config)).rejects.toMatchObject({
       code: 'missing_param',
