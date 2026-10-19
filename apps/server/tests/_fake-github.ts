@@ -6,13 +6,16 @@
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 
+// Type-only, by path: core keeps its generated query types and test helpers out of its exports.
+import type { GistInfoQuery } from '../../../packages/core/src/graphql/generated/gist.ts';
+import type { GraphQLBody, GraphQLErrorBody } from '../../../packages/core/tests/_fetch-mock.ts';
 import { CardCache, STALE_WHILE_REVALIDATE } from '../src/cache.ts';
 import type { ServerOptions } from '../src/handler.ts';
 
 /** The gist the success cases draw, trimmed to what the card reads. */
 const GIST_ID = '1f13e82cb48a9058ebcbf4945f5a1c20';
 
-const GIST_REPLY = {
+const GIST_REPLY: GraphQLBody<GistInfoQuery> = {
   data: {
     viewer: {
       gist: {
@@ -27,13 +30,15 @@ const GIST_REPLY = {
 };
 
 /** The same gist id, resolving to nothing. */
-const GIST_NOT_FOUND_REPLY = { data: { viewer: { gist: null } } };
+const GIST_NOT_FOUND_REPLY: GraphQLBody<GistInfoQuery> = { data: { viewer: { gist: null } } };
 
 /** GitHub failing at once, which a dropped request would not: the retryer waits one out for seconds. */
-const UPSTREAM_ERROR_REPLY = { errors: [{ type: 'INTERNAL', message: 'Something went wrong' }] };
+const UPSTREAM_ERROR_REPLY: GraphQLErrorBody = {
+  errors: [{ type: 'INTERNAL', message: 'Something went wrong' }],
+};
 
 /** GitHub answering that every token is spent. */
-const RATE_LIMITED_REPLY = {
+const RATE_LIMITED_REPLY: GraphQLErrorBody = {
   errors: [{ type: 'RATE_LIMITED', message: 'API rate limit exceeded' }],
 };
 
@@ -103,6 +108,5 @@ export {
   RATE_LIMITED_REPLY,
   UPSTREAM_ERROR_REPLY,
   optionsAnswering,
-  testCache,
   testOptions,
 };

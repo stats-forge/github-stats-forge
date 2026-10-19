@@ -70,15 +70,6 @@ describe(readSavedCard, () => {
     });
   });
 
-  it('reads a file written by hand', async () => {
-    const file = join(dir(), 'by-hand.json');
-    writeFileSync(file, '{ "version": 1, "card": "gist", "id": "abc123" }');
-
-    await expect(readSavedCard(file)).resolves.toMatchObject({
-      options: { id: 'abc123' },
-    });
-  });
-
   it('says so when the file is not JSON', async () => {
     const file = join(dir(), 'broken.json');
     writeFileSync(file, '{ not json');
@@ -93,7 +84,7 @@ describe(readSavedCard, () => {
     await expect(readSavedCard(file)).rejects.toThrow(/names no card/);
   });
 
-  it('does not read the envelope keys back as options', async () => {
+  it('reads a file written by hand, without reading its envelope back as options', async () => {
     const file = join(dir(), 'envelope.json');
     writeFileSync(file, '{ "version": 1, "card": "gist", "id": "abc123" }');
 

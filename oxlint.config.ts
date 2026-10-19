@@ -127,7 +127,7 @@ export default defineConfig({
         // The rule counts the `?.` and `??` that `noUncheckedIndexedAccess` forces.
         'vitest/no-conditional-in-test': 'off',
 
-        // The XSS suite asserts through a helper.
+        // The XSS suite and the top-languages card assert through a helper.
         'vitest/expect-expect': [
           'error',
           {
@@ -137,6 +137,7 @@ export default defineConfig({
               'assert',
               'assertType',
               'expectNoScript',
+              'expectLabels',
             ],
           },
         ],
@@ -155,6 +156,27 @@ export default defineConfig({
           'document',
           'globalThis',
           'navigator',
+        ],
+      },
+    },
+    {
+      // What ships never reaches into what tests it: a test helper is not built, published or typed for it.
+      files: ['packages/*/src/**', 'apps/*/src/**'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['**/tests/**', '**/e2e/**'],
+                message: 'Test helpers are for tests; move what src needs into src.',
+              },
+              {
+                group: ['vitest', 'vitest/*', '@testing-library/*', '@playwright/test'],
+                message: 'A test library is a dev dependency, absent wherever src runs.',
+              },
+            ],
+          },
         ],
       },
     },

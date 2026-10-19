@@ -1,13 +1,11 @@
 import { screen } from '@testing-library/dom';
-import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
-import { stats as statsApi } from '../src/api/stats.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import type { StatsData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { testConfig } from './_config.ts';
+import { cssValue, draw, drawnIds, exactly, translateOf } from './_card.ts';
 
 const stats: StatsData = {
   login: 'anuraghazra',
@@ -33,152 +31,127 @@ const stats: StatsData = {
   rank: { level: 'A+', percentile: 40 },
 };
 
-/** The x of an element's own `translate(...)`, which is how a card positions a group. */
-const translateX = (el: Element | null | undefined): number =>
-  Number(/translate\((?<x>-?[\d.]+)/.exec(el?.getAttribute('transform') ?? '')?.groups?.['x']);
+/** Every stat row the card can draw, in the order it draws them. */
+const ALL_STATS = [
+  'stars',
+  'commits',
+  'prs',
+  'issues',
+  'contributed_to',
+  'reviews',
+  'discussions_started',
+  'discussions_answered',
+  'prs_merged',
+  'prs_merged_percentage',
+  'contributions',
+  'contributed_to_all_time',
+];
 
 describe('Test renderStatsCard', () => {
   it('should render correctly', () => {
-    document.body.innerHTML = renderStatsCard(stats);
+    const card = draw(renderStatsCard(stats));
 
-    expect(document.querySelector('.header')).toHaveTextContent("Anurag Hazra's GitHub Stats");
-
-    expect(document.querySelector('svg')).toHaveAttribute('height', '189');
-    expect(screen.getByTestId('stars')).toHaveTextContent('100');
-    expect(screen.getByTestId('commits')).toHaveTextContent('200');
-    expect(screen.getByTestId('issues')).toHaveTextContent('300');
-    expect(screen.getByTestId('prs')).toHaveTextContent('400');
-    expect(screen.getByTestId('contributed_to')).toHaveTextContent('500');
+    expect(document.querySelector('.header')).toHaveTextContent(
+      exactly("Anurag Hazra's GitHub Stats"),
+    );
+    expect(card).toHaveAttribute('height', '189');
+    expect(screen.getByTestId('stars')).toHaveTextContent(exactly('100'));
+    expect(screen.getByTestId('commits')).toHaveTextContent(exactly('200'));
+    expect(screen.getByTestId('issues')).toHaveTextContent(exactly('300'));
+    expect(screen.getByTestId('prs')).toHaveTextContent(exactly('400'));
+    expect(screen.getByTestId('contributed_to')).toHaveTextContent(exactly('500'));
     expect(screen.queryByTestId('card-bg')).toBeInTheDocument();
     expect(screen.queryByTestId('rank-circle')).toBeInTheDocument();
-
-    // Default hidden stats
-    expect(screen.queryByTestId('reviews')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('discussions_started')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('discussions_answered')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs_merged')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs_merged_percentage')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('contributions')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('contributed_to_all_time')).not.toBeInTheDocument();
+    expect(drawnIds(ALL_STATS)).toStrictEqual([
+      'stars',
+      'commits',
+      'prs',
+      'issues',
+      'contributed_to',
+    ]);
   });
 
-  it('should have proper name apostrophe', () => {
-    document.body.innerHTML = renderStatsCard({ ...stats, name: 'Anil Das' });
-
-    expect(document.querySelector('.header')).toHaveTextContent("Anil Das' GitHub Stats");
-
-    document.body.innerHTML = renderStatsCard({ ...stats, name: 'Felix' });
-
-    expect(document.querySelector('.header')).toHaveTextContent("Felix's GitHub Stats");
+  it.each([
+    ['Anil Das', "Anil Das' GitHub Stats"],
+    ['Felix', "Felix's GitHub Stats"],
+  ])('should give %s the right apostrophe', (name, title) => {
+    draw(renderStatsCard({ ...stats, name }));
+    expect(document.querySelector('.header')).toHaveTextContent(title);
   });
 
   it('should hide individual stats', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      hide: ['issues', 'prs', 'contributed_to'],
-    });
+    const card = draw(renderStatsCard(stats, { hide: ['issues', 'prs', 'contributed_to'] }));
 
-    // height should be 150 because we clamped it.
-    expect(document.querySelector('svg')).toHaveAttribute('height', '150');
-
-    expect(screen.queryByTestId('stars')).toBeInTheDocument();
-    expect(screen.queryByTestId('commits')).toBeInTheDocument();
-    expect(screen.queryByTestId('issues')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('contributed_to')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('reviews')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('discussions_started')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('discussions_answered')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs_merged')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs_merged_percentage')).not.toBeInTheDocument();
+    // the floor height, since two rows would make a stub of a card
+    expect(card).toHaveAttribute('height', '150');
+    expect(drawnIds(ALL_STATS)).toStrictEqual(['stars', 'commits']);
   });
 
   it('should show additional stats', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      show: [
-        'reviews',
-        'discussions_started',
-        'discussions_answered',
-        'prs_merged',
-        'prs_merged_percentage',
-      ],
-    });
+    const show = [
+      'reviews',
+      'discussions_started',
+      'discussions_answered',
+      'prs_merged',
+      'prs_merged_percentage',
+    ] as const;
+    const card = draw(renderStatsCard(stats, { show: [...show] }));
 
-    expect(document.querySelector('svg')).toHaveAttribute('height', '314');
-
-    expect(screen.queryByTestId('stars')).toBeInTheDocument();
-    expect(screen.queryByTestId('commits')).toBeInTheDocument();
-    expect(screen.queryByTestId('issues')).toBeInTheDocument();
-    expect(screen.queryByTestId('prs')).toBeInTheDocument();
-    expect(screen.queryByTestId('contributed_to')).toBeInTheDocument();
-    expect(screen.queryByTestId('reviews')).toBeInTheDocument();
-    expect(screen.queryByTestId('discussions_started')).toBeInTheDocument();
-    expect(screen.queryByTestId('discussions_answered')).toBeInTheDocument();
-    expect(screen.queryByTestId('prs_merged')).toBeInTheDocument();
-    expect(screen.queryByTestId('prs_merged_percentage')).toBeInTheDocument();
+    expect(card).toHaveAttribute('height', '314');
+    expect(drawnIds(ALL_STATS)).toStrictEqual([
+      'stars',
+      'commits',
+      'prs',
+      'issues',
+      'contributed_to',
+      ...show,
+    ]);
   });
 
-  it('should show contributions stat when included in show list', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      show: ['contributions'],
-    });
-
-    expect(screen.getByTestId('contributions').textContent).toBe('5k');
-  });
-
-  it('should show contributed_to_all_time stat when included in show list', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      show: ['contributed_to_all_time'],
-    });
-
-    expect(screen.getByTestId('contributed_to_all_time')).toHaveTextContent('500');
+  it.each([
+    ['contributions', '5k'],
+    ['contributed_to_all_time', '500'],
+  ] as const)('should show the %s stat when the show list names it', (stat, value) => {
+    draw(renderStatsCard(stats, { show: [stat] }));
+    expect(screen.getByTestId(stat)).toHaveTextContent(exactly(value));
   });
 
   it('leaves out a stat that is both shown and hidden', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      show: ['contributed_to_all_time'],
-      hide: ['contributed_to_all_time'],
-    });
+    draw(
+      renderStatsCard(stats, {
+        show: ['contributed_to_all_time'],
+        hide: ['contributed_to_all_time'],
+      }),
+    );
 
     expect(screen.queryByTestId('contributed_to_all_time')).not.toBeInTheDocument();
   });
 
-  it('names the scope of a search stat, and counts several', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      show: ['prs_opened'],
-      scope: ['vitest-dev/*'],
-    });
-    expect(document.querySelector('svg')).toHaveTextContent('PRs Created (vitest-dev/*)');
-
-    document.body.innerHTML = renderStatsCard(stats, {
-      show: ['prs_opened'],
-      scope: ['me/dotfiles', 'vitest-dev/*'],
-    });
-    expect(document.querySelector('svg')).toHaveTextContent('PRs Created (2 scopes)');
+  it.each([
+    [['vitest-dev/*'], 'PRs Created (vitest-dev/*)'],
+    [['me/dotfiles', 'vitest-dev/*'], 'PRs Created (2 scopes)'],
+  ])('names the scope of a search stat, and counts several (%j)', (scope, label) => {
+    expect(draw(renderStatsCard(stats, { show: ['prs_opened'], scope }))).toHaveTextContent(label);
   });
 
   it('names the scope on the commits line only when commits are counted by search', () => {
-    document.body.innerHTML = renderStatsCard(stats, { scope: ['vitest-dev/*'] });
+    draw(renderStatsCard(stats, { scope: ['vitest-dev/*'] }));
     expect(screen.getByTestId('commits').closest('g')).not.toHaveTextContent('vitest-dev');
 
-    document.body.innerHTML = renderStatsCard(stats, {
-      include_all_commits: true,
-      scope: ['vitest-dev/*'],
-    });
-    expect(document.querySelector('svg')).toHaveTextContent('(vitest-dev/*)');
+    const card = draw(
+      renderStatsCard(stats, { include_all_commits: true, scope: ['vitest-dev/*'] }),
+    );
+    expect(card).toHaveTextContent('(vitest-dev/*)');
   });
 
   it('should hide_rank', () => {
-    document.body.innerHTML = renderStatsCard(stats, { hide_rank: true });
-
+    draw(renderStatsCard(stats, { hide_rank: true }));
     expect(screen.queryByTestId('rank-circle')).not.toBeInTheDocument();
   });
 
   it('should render with custom width set', () => {
-    document.body.innerHTML = renderStatsCard(stats);
-    expect(document.querySelector('svg')).toHaveAttribute('width', '500');
-
-    document.body.innerHTML = renderStatsCard(stats, { card_width: 500 });
-    expect(document.querySelector('svg')).toHaveAttribute('width', '500');
+    expect(draw(renderStatsCard(stats))).toHaveAttribute('width', '500');
+    expect(draw(renderStatsCard(stats, { card_width: 500 }))).toHaveAttribute('width', '500');
   });
 
   // An explicit width is the caller's, so it is honoured however narrow, whatever else is drawn.
@@ -190,180 +163,114 @@ describe('Test renderStatsCard', () => {
   ])(
     'should honour a card_width however narrow (hide_rank $hide_rank, show_icons $show_icons)',
     (options) => {
-      document.body.innerHTML = renderStatsCard(stats, { card_width: 1, ...options });
-      expect(document.querySelector('svg')).toHaveAttribute('width', '1');
+      expect(draw(renderStatsCard(stats, { card_width: 1, ...options }))).toHaveAttribute(
+        'width',
+        '1',
+      );
     },
   );
 
   it('should render default colors properly', () => {
-    document.body.innerHTML = renderStatsCard(stats);
+    draw(renderStatsCard(stats));
 
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.textContent ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const statClassStyles = host?.['.stat '];
-    const iconClassStyles = host?.['.icon '];
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe('#2f80ed');
-    expect(statClassStyles?.['fill']?.trim()).toBe('#434d58');
-    expect(iconClassStyles?.['fill']?.trim()).toBe('#4c71f2');
+    expect(cssValue('.header', 'fill')).toBe('#2f80ed');
+    expect(cssValue('.stat', 'fill')).toBe('#434d58');
+    expect(cssValue('.icon', 'fill')).toBe('#4c71f2');
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fffefe');
   });
 
   it('should render custom colors properly', () => {
-    const customColors = {
-      title_color: '5a0',
-      icon_color: '1b998b',
-      text_color: '9991',
-      bg_color: '252525',
-    };
+    draw(
+      renderStatsCard(stats, {
+        title_color: '5a0',
+        icon_color: '1b998b',
+        text_color: '9991',
+        bg_color: '252525',
+      }),
+    );
 
-    document.body.innerHTML = renderStatsCard(stats, { ...customColors });
-
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const statClassStyles = host?.['.stat '];
-    const iconClassStyles = host?.['.icon '];
-
-    const { title_color, text_color, icon_color } = customColors;
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe(`#${title_color}`);
-    expect(statClassStyles?.['fill']?.trim()).toBe(`#${text_color}`);
-    expect(iconClassStyles?.['fill']?.trim()).toBe(`#${icon_color}`);
+    expect(cssValue('.header', 'fill')).toBe('#5a0');
+    expect(cssValue('.stat', 'fill')).toBe('#9991');
+    expect(cssValue('.icon', 'fill')).toBe('#1b998b');
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
   });
 
   it('should render custom colors with themes', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      title_color: '5a0',
-      theme: 'radical',
-    });
+    draw(renderStatsCard(stats, { title_color: '5a0', theme: 'radical' }));
 
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const statClassStyles = host?.['.stat '];
-    const iconClassStyles = host?.['.icon '];
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe('#5a0');
-    expect(statClassStyles?.['fill']?.trim()).toBe(`#${themes.radical.text_color}`);
-    expect(iconClassStyles?.['fill']?.trim()).toBe(`#${themes.radical.icon_color}`);
+    expect(cssValue('.header', 'fill')).toBe('#5a0');
+    expect(cssValue('.stat', 'fill')).toBe(`#${themes.radical.text_color}`);
+    expect(cssValue('.icon', 'fill')).toBe(`#${themes.radical.icon_color}`);
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${themes.radical.bg_color}`);
   });
 
-  it('should render with all the themes', () => {
-    for (const [name, themeData] of Object.entries(themes)) {
-      document.body.innerHTML = renderStatsCard(stats, {
-        theme: name,
-      });
+  it.each(Object.entries(themes))('should render with the %s theme', (theme, colors) => {
+    draw(renderStatsCard(stats, { theme }));
 
-      const styleTag = document.querySelector('style');
-      const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-      const host = stylesObject[':host'];
-      const headerClassStyles = host?.['.header '];
-      const statClassStyles = host?.['.stat '];
-      const iconClassStyles = host?.['.icon '];
-
-      const { title_color, text_color, icon_color, bg_color } = themeData;
-
-      expect(headerClassStyles?.['fill']?.trim()).toBe(`#${title_color}`);
-      expect(statClassStyles?.['fill']?.trim()).toBe(`#${text_color}`);
-      expect(iconClassStyles?.['fill']?.trim()).toBe(`#${icon_color}`);
-      const backgroundElement = screen.queryByTestId('card-bg');
-      const backgroundElementFill = backgroundElement?.getAttribute('fill');
-      expect([`#${bg_color}`, 'url(#gradient)']).toContain(backgroundElementFill);
-    }
+    expect(cssValue('.header', 'fill')).toBe(`#${colors.title_color}`);
+    expect(cssValue('.stat', 'fill')).toBe(`#${colors.text_color}`);
+    expect(cssValue('.icon', 'fill')).toBe(`#${colors.icon_color}`);
+    expect([`#${colors.bg_color}`, 'url(#gradient)']).toContain(
+      screen.queryByTestId('card-bg')?.getAttribute('fill'),
+    );
   });
 
   it('should render custom colors with themes and fallback to default colors if invalid', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      title_color: 'invalid color',
-      text_color: 'invalid color',
-      theme: 'radical',
-    });
-
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const statClassStyles = host?.['.stat '];
-    const iconClassStyles = host?.['.icon '];
+    draw(
+      renderStatsCard(stats, {
+        title_color: 'invalid color',
+        text_color: 'invalid color',
+        theme: 'radical',
+      }),
+    );
 
     // invalid overrides fall back to the default theme; the un-overridden
     // icon/bg come from the requested `radical` theme
-    const { title_color, text_color } = themes.default;
-    const { icon_color, bg_color } = themes.radical;
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe(`#${title_color}`);
-    expect(statClassStyles?.['fill']?.trim()).toBe(`#${text_color}`);
-    expect(iconClassStyles?.['fill']?.trim()).toBe(`#${icon_color}`);
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${bg_color}`);
+    expect(cssValue('.header', 'fill')).toBe(`#${themes.default.title_color}`);
+    expect(cssValue('.stat', 'fill')).toBe(`#${themes.default.text_color}`);
+    expect(cssValue('.icon', 'fill')).toBe(`#${themes.radical.icon_color}`);
+    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${themes.radical.bg_color}`);
   });
 
   it('should render custom ring_color properly', () => {
-    const customColors = {
-      title_color: '5a0',
-      ring_color: '0000ff',
-      icon_color: '1b998b',
-      text_color: '9991',
-      bg_color: '252525',
-    };
+    draw(
+      renderStatsCard(stats, {
+        title_color: '5a0',
+        ring_color: '0000ff',
+        icon_color: '1b998b',
+        text_color: '9991',
+        bg_color: '252525',
+      }),
+    );
 
-    document.body.innerHTML = renderStatsCard(stats, { ...customColors });
-
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const statClassStyles = host?.['.stat '];
-    const iconClassStyles = host?.['.icon '];
-    const rankCircleStyles = host?.['.rank-circle '];
-    const rankCircleRimStyles = host?.['.rank-circle-rim '];
-
-    const { title_color, text_color, icon_color, ring_color } = customColors;
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe(`#${title_color}`);
-    expect(statClassStyles?.['fill']?.trim()).toBe(`#${text_color}`);
-    expect(iconClassStyles?.['fill']?.trim()).toBe(`#${icon_color}`);
-    expect(rankCircleStyles?.['stroke']?.trim()).toBe(`#${ring_color}`);
-    expect(rankCircleRimStyles?.['stroke']?.trim()).toBe(`#${ring_color}`);
+    expect(cssValue('.header', 'fill')).toBe('#5a0');
+    expect(cssValue('.stat', 'fill')).toBe('#9991');
+    expect(cssValue('.icon', 'fill')).toBe('#1b998b');
+    expect(cssValue('.rank-circle', 'stroke')).toBe('#0000ff');
+    expect(cssValue('.rank-circle-rim', 'stroke')).toBe('#0000ff');
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
   });
 
   it('should render icons correctly', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      show_icons: true,
-    });
+    draw(renderStatsCard(stats, { show_icons: true }));
 
     const stars = screen.getByTestId('stars');
     expect(screen.queryAllByTestId('icon')[0]).toBeInTheDocument();
-    expect(stars).toBeInTheDocument();
-    // the label
+    // the label, moved right to make room for the icon
     expect(stars.previousElementSibling).toHaveAttribute('x', '25');
   });
 
   it('should not have icons if show_icons is false', () => {
-    document.body.innerHTML = renderStatsCard(stats, { show_icons: false });
+    draw(renderStatsCard(stats, { show_icons: false }));
 
     const stars = screen.getByTestId('stars');
     expect(screen.queryAllByTestId('icon')).toHaveLength(0);
-    expect(stars).toBeInTheDocument();
-    // the label
+    // the label, where it starts with no icon before it
     expect(stars.previousElementSibling).not.toHaveAttribute('x');
   });
 
   it('should right-align every value on one anchor, clear of the rank ring', () => {
-    document.body.innerHTML = renderStatsCard(stats);
+    draw(renderStatsCard(stats));
 
     // One row per stat, so a default stat missing from `renderStatsCard.OPTIONS.hide` fails here.
     expect(document.querySelectorAll('.stagger')).toHaveLength(renderStatsCard.OPTIONS.hide.length);
@@ -377,117 +284,90 @@ describe('Test renderStatsCard', () => {
   });
 
   it('should keep the values off the labels on a card too narrow for the ring', () => {
-    document.body.innerHTML = renderStatsCard(stats, { card_width: 200 });
+    draw(renderStatsCard(stats, { card_width: 200 }));
 
     // Too narrow for the gutter, so the anchor sits just after the longest label instead.
     expect(screen.getByTestId('stars')).toHaveAttribute('x', '173');
   });
 
   it('should render the labels lighter than the values', () => {
-    document.body.innerHTML = renderStatsCard(stats);
+    draw(renderStatsCard(stats));
 
     expect(screen.getByTestId('stars')).toHaveClass('bold');
     expect(document.querySelector('.stagger > .stat')).toHaveClass('not_bold');
   });
 
-  it('should auto resize if hide_rank is true', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      hide_rank: true,
-    });
-
-    expect(document.querySelector('svg')).toHaveAttribute('width', '300');
-  });
-
-  it('should auto resize if hide_rank is true & title is set', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      hide_rank: true,
-      title: 'Hello world',
-    });
-
-    expect(document.querySelector('svg')).toHaveAttribute('width', '300');
-  });
+  it.each([{}, { title: 'Hello world' }])(
+    'should auto resize if hide_rank is true (%o)',
+    (options) => {
+      expect(draw(renderStatsCard(stats, { hide_rank: true, ...options }))).toHaveAttribute(
+        'width',
+        '300',
+      );
+    },
+  );
 
   it('should render translations', () => {
-    document.body.innerHTML = renderStatsCard(stats, { locale: 'cn' });
-    expect(document.querySelector('.header')).toHaveTextContent('Anurag Hazra 的 GitHub 统计数据');
-    expect(document.querySelector('g:not([transform])>.stagger>.stat.not_bold')).toHaveTextContent(
-      '获标星数:',
+    draw(renderStatsCard(stats, { locale: 'cn' }));
+
+    expect(document.querySelector('.header')).toHaveTextContent(
+      exactly('Anurag Hazra 的 GitHub 统计数据'),
     );
-    expect(
-      document.querySelector('g[transform="translate(0, 25)"]>.stagger>.stat.not_bold'),
-    ).toHaveTextContent('累计提交总数 (去年):');
-    expect(
-      document.querySelector('g[transform="translate(0, 50)"]>.stagger>.stat.not_bold'),
-    ).toHaveTextContent('发起的 PR 总数:');
-    expect(
-      document.querySelector('g[transform="translate(0, 75)"]>.stagger>.stat.not_bold'),
-    ).toHaveTextContent('提出的 issue 总数:');
-    expect(
-      document.querySelector('g[transform="translate(0, 100)"]>.stagger>.stat.not_bold'),
-    ).toHaveTextContent('贡献的项目数（去年）:');
+    const labels = document.querySelectorAll('.stagger > .stat.not_bold');
+    expect(labels[0]).toHaveTextContent(exactly('获标星数:'));
+    expect(labels[1]).toHaveTextContent(exactly('累计提交总数 (去年):'));
+    expect(labels[2]).toHaveTextContent(exactly('发起的 PR 总数:'));
+    expect(labels[3]).toHaveTextContent(exactly('提出的 issue 总数:'));
+    expect(labels[4]).toHaveTextContent(exactly('贡献的项目数（去年）:'));
   });
 
   it('should render without rounding', () => {
-    document.body.innerHTML = renderStatsCard(stats, { border_radius: 0 });
+    draw(renderStatsCard(stats, { border_radius: 0 }));
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
-    document.body.innerHTML = renderStatsCard(stats, {});
+    draw(renderStatsCard(stats));
     expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
   });
 
-  it('should shorten values', () => {
-    // a copy: the fixture is shared, and every later test reads its 200
-    const data = { ...stats, totalCommits: 1999 };
-
-    document.body.innerHTML = renderStatsCard(data);
-    expect(screen.getByTestId('commits')).toHaveTextContent('2k');
-    document.body.innerHTML = renderStatsCard(data, { number_format: 'long' });
-    expect(screen.getByTestId('commits')).toHaveTextContent('1999');
-    document.body.innerHTML = renderStatsCard(data, { number_precision: 2 });
-    expect(screen.getByTestId('commits')).toHaveTextContent('2.00k');
-    document.body.innerHTML = renderStatsCard(data, {
-      number_format: 'long',
-      number_precision: 2,
-    });
-    expect(screen.getByTestId('commits')).toHaveTextContent('1999');
+  it.each([
+    [{}, '2k'],
+    [{ number_format: 'long' }, '1999'],
+    [{ number_precision: 2 }, '2.00k'],
+    [{ number_format: 'long', number_precision: 2 }, '1999'],
+  ] as const)('should shorten values (%o)', (options, commits) => {
+    draw(renderStatsCard({ ...stats, totalCommits: 1999 }, options));
+    expect(screen.getByTestId('commits')).toHaveTextContent(commits);
   });
 
   it('should center the rank ring between the values and the card edge', () => {
-    document.body.innerHTML = renderStatsCard(stats);
-
-    const width = Number(document.querySelector('svg')?.getAttribute('width'));
+    const card = draw(renderStatsCard(stats));
+    const width = Number(card.getAttribute('width'));
 
     // a value is right-anchored, so its own x is where the value column stops
     const value = screen.getByTestId('stars');
     expect(value).toHaveAttribute('text-anchor', 'end');
-    const valuesEnd = translateX(value.closest('g')) + Number(value.getAttribute('x'));
+    const valuesEnd = translateOf(value.closest('g')).x + Number(value.getAttribute('x'));
 
     const rim = document.querySelector('.rank-circle-rim');
     const ringCenter =
-      translateX(screen.getByTestId('rank-circle')) + Number(rim?.getAttribute('cx'));
+      translateOf(screen.getByTestId('rank-circle')).x + Number(rim?.getAttribute('cx'));
     const radius = Number(rim?.getAttribute('r'));
 
     expect(ringCenter - radius - valuesEnd).toBeCloseTo(width - (ringCenter + radius));
   });
 
   it('should render default rank icon with level A+', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      rank_icon: 'default',
-    });
-    expect(screen.getByTestId('level-rank-icon')).toHaveTextContent('A+');
+    draw(renderStatsCard(stats, { rank_icon: 'default' }));
+    expect(screen.getByTestId('level-rank-icon')).toHaveTextContent(exactly('A+'));
   });
 
   it('should render github rank icon', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      rank_icon: 'github',
-    });
+    draw(renderStatsCard(stats, { rank_icon: 'github' }));
     expect(screen.queryByTestId('github-rank-icon')).toBeInTheDocument();
   });
 
   it('should show the rank percentile', () => {
-    document.body.innerHTML = renderStatsCard(stats, {
-      rank_icon: 'percentile',
-    });
-    expect(screen.getByTestId('percentile-top-header')).toHaveTextContent('Top');
+    draw(renderStatsCard(stats, { rank_icon: 'percentile' }));
+    expect(screen.getByTestId('percentile-top-header')).toHaveTextContent(exactly('Top'));
 
     const percentileRankValue = screen.getByTestId('percentile-rank-value');
     expect(percentileRankValue).toHaveClass('rank-percentile-text');
@@ -496,19 +376,7 @@ describe('Test renderStatsCard', () => {
 
   it('should throw error if all stats and rank icon are hidden', () => {
     expect(() =>
-      renderStatsCard(stats, {
-        hide: [...renderStatsCard.OPTIONS.hide],
-        hide_rank: true,
-      }),
+      renderStatsCard(stats, { hide: [...renderStatsCard.OPTIONS.hide], hide_rank: true }),
     ).toThrow(expect.objectContaining({ reason: 'stats_no_stats_or_rank' }));
-  });
-});
-
-describe('test stats API', () => {
-  it('should return a permanent error for an invalid color parameter', async () => {
-    const result = await statsApi({ username: 'user', title_color: 'not-a-color' }, testConfig);
-
-    expect(result.status).toBe('error');
-    expect(result.content).toContain(`Invalid color input for parameter &#34;title_color&#34;`);
   });
 });

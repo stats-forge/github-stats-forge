@@ -10,6 +10,7 @@ import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';
+import type { GraphQLErrorBody } from './_fetch-mock.ts';
 
 // Nothing here is about fetching: every request is answered with an upstream failure at once,
 // so a query that got past validation is a temporary error. Not a dropped request, which the
@@ -38,7 +39,9 @@ const withUser = (endpoint: string): Record<string, string> => {
 };
 
 beforeAll(() => {
-  mock.onPost().reply(200, { errors: [{ type: 'INTERNAL', message: 'Upstream is down' }] });
+  mock.onPost().reply(200, {
+    errors: [{ type: 'INTERNAL', message: 'Upstream is down' }],
+  } satisfies GraphQLErrorBody);
   mock.onGet().reply(502);
   // the GraphQL answer is logged as GitHub's error, which is the point of answering it
   vi.spyOn(console, 'error').mockReturnValue();
@@ -100,16 +103,6 @@ describe('api query schemas', () => {
     expect(result.content).toContain('Invalid number input for parameter &#34;border_radius&#34;');
   });
 
-  it('keeps the coercion the card performs, so 10px is 10', async () => {
-    const result = await endpoints.stats({
-      username: 'anuraghazra',
-      border_radius: '10px',
-    });
-
-    // the stubbed fetch fails, but the param got past validation
-    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
-  });
-
   it.each(['card_width', 'number_precision'])(
     'rejects a %s with no number in it by naming the param',
     async (param) => {
@@ -128,6 +121,8 @@ describe('api query schemas', () => {
     ['stats', 'card_width', '9'.repeat(400)],
     ['stats', 'number_precision', '-1'],
     ['stats', 'border_radius', '-4'],
+    // a unit with no number before it
+    ['stats', 'border_radius', 'px'],
     ['top-langs', 'langs_count', '5abc'],
     ['top-langs', 'langs_count', '2.5'],
     ['top-langs', 'size_weight', '0.5px'],
@@ -137,23 +132,43 @@ describe('api query schemas', () => {
     expect(result).toMatchObject({ error: { code: 'invalid_param', param } });
   });
 
+  // The stubbed fetch fails, so a query that got past validation is an upstream error.
   it.each([
-    ['stats', 'card_width', '500PX'],
-    ['stats', 'number_precision', '0'],
-    ['stats', 'border_radius', '4.5px'],
-    ['top-langs', 'size_weight', '.5'],
-    ['top-langs', 'count_weight', '0'],
-  ] as const)('%s accepts %s %j', async (endpoint, param, value) => {
-    const result = await endpoints[endpoint]({ username: 'anuraghazra', [param]: value });
+    ['stats', 'reads a length with its unit, so 10px is 10', { border_radius: '10px' }],
+    ['stats', 'reads an integer the way parseInt does, so 500px is 500', { card_width: '500px' }],
+    ['stats', 'takes the unit in any case', { card_width: '500PX' }],
+    ['stats', 'takes zero where zero means something', { number_precision: '0' }],
+    ['stats', 'takes a fractional length', { border_radius: '4.5px' }],
+    ['top-langs', 'takes a weight with no leading zero', { size_weight: '.5' }],
+    ['top-langs', 'takes a weight of zero', { count_weight: '0' }],
+    [
+      'stats',
+      'reads a list typed with spaces and a trailing comma',
+      { show: 'prs_merged, reviews,', exclude_repo: 'a, b' },
+    ],
+    [
+      'stats',
+      'takes any stat in either list, whatever its default',
+      { show: 'stars,reviews', hide: 'reviews,contributed_to' },
+    ],
+    [
+      'stats',
+      'matches a closed list case-insensitively',
+      { show: 'PRS_MERGED', affiliation: 'owner,Collaborator' },
+    ],
+    [
+      'stats',
+      'reads an empty boolean as set, and any other empty param as absent',
+      { hide_border: '', theme: '', card_width: '', show: '', from: '' },
+    ],
+    [
+      'top-langs',
+      'matches booleans and fixed values case-insensitively',
+      { hide_title: 'TRUE', layout: 'Donut', theme: 'Dark' },
+    ],
+  ] as const)('%s %s', async (endpoint, _what, query) => {
+    const result = await endpoints[endpoint]({ username: 'anuraghazra', ...query });
 
-    // the stubbed fetch fails, but the param got past validation
-    expect(result).toMatchObject({ error: { code: 'upstream' } });
-  });
-
-  it('reads an integer the way parseInt does, so 500px is 500', async () => {
-    const result = await endpoints.stats({ username: 'anuraghazra', card_width: '500px' });
-
-    // the stubbed fetch fails, but the param got past validation
     expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
@@ -166,39 +181,6 @@ describe('api query schemas', () => {
 
     expect(result).toMatchObject({ status: 'error', error: { code: 'invalid_param', param } });
     expect(result.content).toContain(`Incorrect ${param} input`);
-  });
-
-  it('reads a list typed with spaces and a trailing comma', async () => {
-    const result = await endpoints.stats({
-      username: 'anuraghazra',
-      show: 'prs_merged, reviews,',
-      exclude_repo: 'a, b',
-    });
-
-    // the stubbed fetch fails, but the params got past validation
-    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
-  });
-
-  it('takes any stat in either list, whatever its default', async () => {
-    const result = await endpoints.stats({
-      username: 'anuraghazra',
-      show: 'stars,reviews',
-      hide: 'reviews,contributed_to',
-    });
-
-    // the stubbed fetch fails, but the params got past validation
-    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
-  });
-
-  it('matches a closed list case-insensitively', async () => {
-    const result = await endpoints.stats({
-      username: 'anuraghazra',
-      show: 'PRS_MERGED',
-      affiliation: 'owner,Collaborator',
-    });
-
-    // the stubbed fetch fails, but the params got past validation
-    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
   it.each(['yes', '1'])('rejects the boolean %j by naming the param', async (value) => {
@@ -225,32 +207,6 @@ describe('api query schemas', () => {
     expect(
       resolveEmpty({ hide_border: '', theme: '', card_width: '', username: 'x' }, statsApi.PARAMS),
     ).toStrictEqual({ hide_border: 'true', username: 'x' });
-  });
-
-  it('reads an empty boolean as a flag that is set, and any other empty param as absent', async () => {
-    const result = await endpoints.stats({
-      username: 'anuraghazra',
-      hide_border: '',
-      theme: '',
-      card_width: '',
-      show: '',
-      from: '',
-    });
-
-    // the stubbed fetch fails, but the params got past validation
-    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
-  });
-
-  it('matches booleans and fixed values case-insensitively', async () => {
-    const result = await endpoints['top-langs']({
-      username: 'anuraghazra',
-      hide_title: 'TRUE',
-      layout: 'Donut',
-      theme: 'Dark',
-    });
-
-    // the stubbed fetch fails, but the params got past validation
-    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
   it.each([

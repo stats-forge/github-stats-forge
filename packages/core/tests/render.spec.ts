@@ -1,10 +1,12 @@
-import { queryByTestId, screen } from '@testing-library/dom';
+import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderError } from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
 
-describe('Test splitWrappedText', () => {
+import { exactly } from './_card.ts';
+
+describe(splitWrappedText, () => {
   it('should return an empty array for empty text', () => {
     expect(splitWrappedText('', 10, 200)).toStrictEqual([]);
   });
@@ -36,12 +38,11 @@ describe('Test splitWrappedText', () => {
   });
 });
 
-describe('Test wrapTextMultiline', () => {
+describe(wrapTextMultiline, () => {
   it('should not wrap small texts', () => {
-    {
-      const multiLineText = wrapTextMultiline('Small text should not wrap', 130, 11, 3);
-      expect(multiLineText).toStrictEqual(['Small text should not wrap']);
-    }
+    expect(wrapTextMultiline('Small text should not wrap', 130, 11, 3)).toStrictEqual([
+      'Small text should not wrap',
+    ]);
   });
 
   it('should wrap large texts', () => {
@@ -67,28 +68,27 @@ describe('Test wrapTextMultiline', () => {
   });
 });
 
-describe('Test renderError', () => {
+describe(renderError, () => {
   it('should contain error messages', () => {
     document.body.innerHTML = renderError({ message: 'Something went wrong' });
-    expect(queryByTestId(document.body, 'message')?.children[0]).toHaveTextContent(
-      /Something went wrong/gim,
+    expect(screen.getByTestId('message').children[0]).toHaveTextContent(
+      exactly('Something went wrong'),
     );
-    expect(queryByTestId(document.body, 'message')?.children[1]).toBeEmptyDOMElement();
+    expect(screen.getByTestId('message').children[1]).toBeEmptyDOMElement();
 
-    // Secondary message
     document.body.innerHTML = renderError({
       message: 'Something went wrong',
       secondaryMessage: 'Secondary Message',
     });
-    expect(queryByTestId(document.body, 'message')?.children[1]).toHaveTextContent(
-      /Secondary Message/gim,
+    expect(screen.getByTestId('message').children[1]).toHaveTextContent(
+      exactly('Secondary Message'),
     );
   });
 
   it('points a reader at this project, on its own line', () => {
     document.body.innerHTML = renderError({ message: 'Nope' });
     expect(screen.getByTestId('report')).toHaveTextContent(
-      'File an issue at https://tinyurl.com/github-stats-forge-bug',
+      exactly('File an issue at https://tinyurl.com/github-stats-forge-bug'),
     );
   });
 

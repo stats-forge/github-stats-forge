@@ -1,391 +1,229 @@
 import { screen } from '@testing-library/dom';
-import { cssToObject } from '@uppercod/css-to-object';
 import { describe, expect, it } from 'vitest';
 
-import { pin as pinApi } from '../src/api/pin.ts';
 import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { repoCardLocales } from '../src/cards/repo/locales.ts';
 import { measureText } from '../src/common/text.ts';
 import type { RepositoryData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { testConfig } from './_config.ts';
+import { cssValue, draw, drawnIds, exactly, noMotionRules, translateOf } from './_card.ts';
 
-const data_repo: { repository: RepositoryData } = {
-  repository: {
-    nameWithOwner: 'anuraghazra/convoychat',
-    name: 'convoychat',
-    description: 'Help us take over the world! React + TS + GraphQL Chat App',
-    primaryLanguage: {
-      color: '#2b7489',
-      id: 'MDg6TGFuZ3VhZ2UyODc=',
-      name: 'TypeScript',
-    },
-    isPrivate: false,
-    isArchived: false,
-    isTemplate: false,
-    stargazerCount: 38_000,
-    forkCount: 100,
-  },
+const repo: RepositoryData = {
+  nameWithOwner: 'anuraghazra/convoychat',
+  name: 'convoychat',
+  description: 'Help us take over the world! React + TS + GraphQL Chat App',
+  primaryLanguage: { color: '#2b7489', id: 'MDg6TGFuZ3VhZ2UyODc=', name: 'TypeScript' },
+  isPrivate: false,
+  isArchived: false,
+  isTemplate: false,
+  stargazerCount: 38_000,
+  forkCount: 100,
 };
 
-/**
- * The reduced-motion media block carries the same declaration as the unconditional rule, so
- * finding it at all proves nothing about the option.
- *
- * @returns 1 when only reduced-motion stops the animation, 2 when the card stops it outright.
- */
-const noMotionRules = (): number =>
-  (document.querySelector('style')?.innerHTML.split('animation-duration: 0s !important').length ??
-    1) - 1;
+const PANGRAM =
+  'The quick brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet';
 
 // Semibold Helvetica Neue measured 1.097 times `measureText` in Chromium.
 const ink = (text: string): number => measureText(text, 12) * 1.1;
-const translateX = (node: Element | null): number =>
-  Number(
-    /translate\((?<x>[\d.-]+)/.exec(node?.getAttribute('transform') ?? '')?.groups?.['x'] ?? 0,
-  );
 
 describe('Test renderRepoCard', () => {
   it('should render correctly', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository);
+    draw(renderRepoCard(repo));
 
     const header = document.querySelector('.header');
-
-    expect(header).toHaveTextContent('convoychat');
+    expect(header).toHaveTextContent(exactly('convoychat'));
     expect(header).not.toHaveTextContent('anuraghazra');
     expect(document.querySelector('.description')).toHaveTextContent(
       // no space between "Chat" and "App" because there's a line break there
       'Help us take over the world! React + TS + GraphQL ChatApp',
     );
-    expect(screen.queryByTestId('stargazers')).toHaveTextContent('38k');
-    expect(screen.queryByTestId('forkcount')).toHaveTextContent('100');
-    expect(screen.queryByTestId('lang-name')).toHaveTextContent('TypeScript');
+    expect(screen.queryByTestId('stargazers')).toHaveTextContent(exactly('38k'));
+    expect(screen.queryByTestId('forkcount')).toHaveTextContent(exactly('100'));
+    expect(screen.queryByTestId('lang-name')).toHaveTextContent(exactly('TypeScript'));
     expect(screen.queryByTestId('lang-color')).toHaveAttribute('fill', '#2b7489');
   });
 
   it('should display username in title (full repo name)', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      show_owner: true,
-    });
-    expect(document.querySelector('.header')).toHaveTextContent('anuraghazra/convoychat');
+    draw(renderRepoCard(repo, { show_owner: true }));
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('anuraghazra/convoychat'));
   });
 
   it('should trim header', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      name: 'some-really-long-repo-name-for-test-purposes',
-    });
-
+    draw(renderRepoCard({ ...repo, name: 'some-really-long-repo-name-for-test-purposes' }));
     expect(document.querySelector('.header')).toHaveTextContent(
-      'some-really-long-repo-name-for-test...',
+      exactly('some-really-long-repo-name-for-test...'),
     );
   });
 
   it('should trim description', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      description:
-        'The quick brown fox jumps over the lazy dog is an English-language pangram—a sentence that contains all of the letters of the English alphabet',
-    });
+    draw(renderRepoCard({ ...repo, description: PANGRAM }));
 
     const lines = document.querySelectorAll('.description tspan');
-    expect(lines[0]).toHaveTextContent('The quick brown fox jumps over the lazy dog is an');
-    expect(lines[1]).toHaveTextContent('English-language pangram—a sentence that contains all of');
-
-    // Should not trim
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      description: 'Small text should not trim',
-    });
-
-    expect(document.querySelector('.description')).toHaveTextContent('Small text should not trim');
-  });
-
-  it('should render emojis', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      description: 'This is a text with a :poop: poo emoji',
-    });
-
-    // poop emoji may not show in all editors but it's there between "a" and "poo"
-    expect(document.querySelector('.description')).toHaveTextContent(
-      'This is a text with a 💩 poo emoji',
+    expect(lines[0]).toHaveTextContent(
+      exactly('The quick brown fox jumps over the lazy dog is an'),
+    );
+    expect(lines[1]).toHaveTextContent(
+      exactly('English-language pangram—a sentence that contains all of'),
     );
   });
 
-  it('should hide language if primaryLanguage is null & fallback to correct values', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      primaryLanguage: null,
-    });
+  it('should not trim a short description', () => {
+    draw(renderRepoCard({ ...repo, description: 'Small text should not trim' }));
+    expect(document.querySelector('.description')).toHaveTextContent(
+      exactly('Small text should not trim'),
+    );
+  });
 
-    expect(screen.queryByTestId('primary-lang')).toBeNull();
+  it('should render emojis', () => {
+    draw(renderRepoCard({ ...repo, description: 'This is a text with a :poop: poo emoji' }));
 
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      primaryLanguage: { color: null, name: null },
-    });
+    // poop emoji may not show in all editors but it's there between "a" and "poo"
+    expect(document.querySelector('.description')).toHaveTextContent(
+      exactly('This is a text with a 💩 poo emoji'),
+    );
+  });
+
+  it('should hide language if primaryLanguage is null', () => {
+    draw(renderRepoCard({ ...repo, primaryLanguage: null }));
+    expect(screen.queryByTestId('primary-lang')).not.toBeInTheDocument();
+  });
+
+  it('should fall back for a language with no name or color', () => {
+    draw(renderRepoCard({ ...repo, primaryLanguage: { color: null, name: null } }));
 
     expect(screen.queryByTestId('primary-lang')).toBeInTheDocument();
     expect(screen.queryByTestId('lang-color')).toHaveAttribute('fill', '#333');
-
-    expect(screen.queryByTestId('lang-name')).toHaveTextContent('Unspecified');
+    expect(screen.queryByTestId('lang-name')).toHaveTextContent(exactly('Unspecified'));
   });
 
   it('should render default colors properly', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository);
+    draw(renderRepoCard(repo));
 
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const descClassStyles = host?.['.description '];
-    const iconClassStyles = host?.['.icon '];
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe('#2f80ed');
-    expect(descClassStyles?.['fill']?.trim()).toBe('#434d58');
-    expect(iconClassStyles?.['fill']?.trim()).toBe('#586069');
+    expect(cssValue('.header', 'fill')).toBe('#2f80ed');
+    expect(cssValue('.description', 'fill')).toBe('#434d58');
+    expect(cssValue('.icon', 'fill')).toBe('#586069');
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fffefe');
   });
 
   it('should render custom colors properly', () => {
-    const customColors = {
-      title_color: '5a0',
-      icon_color: '1b998b',
-      text_color: '9991',
-      bg_color: '252525',
-    };
+    draw(
+      renderRepoCard(repo, {
+        title_color: '5a0',
+        icon_color: '1b998b',
+        text_color: '9991',
+        bg_color: '252525',
+      }),
+    );
 
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      ...customColors,
-    });
-
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const descClassStyles = host?.['.description '];
-    const iconClassStyles = host?.['.icon '];
-
-    const { title_color, text_color, icon_color } = customColors;
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe(`#${title_color}`);
-    expect(descClassStyles?.['fill']?.trim()).toBe(`#${text_color}`);
-    expect(iconClassStyles?.['fill']?.trim()).toBe(`#${icon_color}`);
+    expect(cssValue('.header', 'fill')).toBe('#5a0');
+    expect(cssValue('.description', 'fill')).toBe('#9991');
+    expect(cssValue('.icon', 'fill')).toBe('#1b998b');
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
   });
 
-  it('should render with all the themes', () => {
-    for (const [name, themeData] of Object.entries(themes)) {
-      document.body.innerHTML = renderRepoCard(data_repo.repository, {
-        theme: name,
-      });
+  it.each(Object.entries(themes))('should render with the %s theme', (theme, colors) => {
+    draw(renderRepoCard(repo, { theme }));
 
-      const styleTag = document.querySelector('style');
-      const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-      const host = stylesObject[':host'];
-      const headerClassStyles = host?.['.header '];
-      const descClassStyles = host?.['.description '];
-      const iconClassStyles = host?.['.icon '];
-
-      const { title_color, text_color, icon_color, bg_color } = themeData;
-
-      expect(headerClassStyles?.['fill']?.trim()).toBe(`#${title_color}`);
-      expect(descClassStyles?.['fill']?.trim()).toBe(`#${text_color}`);
-      expect(iconClassStyles?.['fill']?.trim()).toBe(`#${icon_color}`);
-
-      const backgroundElement = screen.queryByTestId('card-bg');
-      const backgroundElementFill = backgroundElement?.getAttribute('fill');
-      expect([`#${bg_color}`, 'url(#gradient)']).toContain(backgroundElementFill);
-    }
+    expect(cssValue('.header', 'fill')).toBe(`#${colors.title_color}`);
+    expect(cssValue('.description', 'fill')).toBe(`#${colors.text_color}`);
+    expect(cssValue('.icon', 'fill')).toBe(`#${colors.icon_color}`);
+    expect([`#${colors.bg_color}`, 'url(#gradient)']).toContain(
+      screen.queryByTestId('card-bg')?.getAttribute('fill'),
+    );
   });
 
   it('should render custom colors with themes', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      title_color: '5a0',
-      theme: 'radical',
-    });
+    draw(renderRepoCard(repo, { title_color: '5a0', theme: 'radical' }));
 
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const descClassStyles = host?.['.description '];
-    const iconClassStyles = host?.['.icon '];
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe('#5a0');
-    expect(descClassStyles?.['fill']?.trim()).toBe(`#${themes.radical.text_color}`);
-    expect(iconClassStyles?.['fill']?.trim()).toBe(`#${themes.radical.icon_color}`);
+    expect(cssValue('.header', 'fill')).toBe('#5a0');
+    expect(cssValue('.description', 'fill')).toBe(`#${themes.radical.text_color}`);
+    expect(cssValue('.icon', 'fill')).toBe(`#${themes.radical.icon_color}`);
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${themes.radical.bg_color}`);
   });
 
   it('should render custom colors with themes and fallback to default colors if invalid', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      title_color: 'invalid color',
-      text_color: 'invalid color',
-      theme: 'radical',
-    });
-
-    const styleTag = document.querySelector('style');
-    const stylesObject = cssToObject(styleTag?.innerHTML ?? '');
-
-    const host = stylesObject[':host'];
-    const headerClassStyles = host?.['.header '];
-    const descClassStyles = host?.['.description '];
-    const iconClassStyles = host?.['.icon '];
+    draw(
+      renderRepoCard(repo, {
+        title_color: 'invalid color',
+        text_color: 'invalid color',
+        theme: 'radical',
+      }),
+    );
 
     // invalid overrides fall back to the default theme; the un-overridden
     // icon/bg come from the requested `radical` theme
-    const { title_color, text_color } = themes.default;
-    const { icon_color, bg_color } = themes.radical;
-
-    expect(headerClassStyles?.['fill']?.trim()).toBe(`#${title_color}`);
-    expect(descClassStyles?.['fill']?.trim()).toBe(`#${text_color}`);
-    expect(iconClassStyles?.['fill']?.trim()).toBe(`#${icon_color}`);
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${bg_color}`);
+    expect(cssValue('.header', 'fill')).toBe(`#${themes.default.title_color}`);
+    expect(cssValue('.description', 'fill')).toBe(`#${themes.default.text_color}`);
+    expect(cssValue('.icon', 'fill')).toBe(`#${themes.radical.icon_color}`);
+    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${themes.radical.bg_color}`);
   });
 
-  it('should not render star count or fork count if either of the are zero', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      stargazerCount: 0,
-    });
+  it.each([
+    { stargazerCount: 0, forkCount: 100, drawn: ['forkcount'] },
+    { stargazerCount: 1, forkCount: 0, drawn: ['stargazers'] },
+    { stargazerCount: 0, forkCount: 0, drawn: [] },
+  ])(
+    'should draw a count only when it is not zero ($stargazerCount stars, $forkCount forks)',
+    ({ stargazerCount, forkCount, drawn }) => {
+      draw(renderRepoCard({ ...repo, stargazerCount, forkCount }));
+      expect(drawnIds(['stargazers', 'forkcount'])).toStrictEqual(drawn);
+    },
+  );
 
-    expect(screen.queryByTestId('stargazers')).toBeNull();
-    expect(screen.queryByTestId('forkcount')).toBeInTheDocument();
-
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      stargazerCount: 1,
-      forkCount: 0,
-    });
-
-    expect(screen.queryByTestId('stargazers')).toBeInTheDocument();
-    expect(screen.queryByTestId('forkcount')).toBeNull();
-
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      stargazerCount: 0,
-      forkCount: 0,
-    });
-
-    expect(screen.queryByTestId('stargazers')).toBeNull();
-    expect(screen.queryByTestId('forkcount')).toBeNull();
+  it.each([
+    [{ isArchived: true }, 'en', 'Archived'],
+    [{ isTemplate: true }, 'en', 'Template'],
+    [{ isArchived: true }, 'cn', '已归档'],
+    [{ isTemplate: true }, 'cn', '模板'],
+  ])('should render the badge for %o in %s', (flag, locale, badge) => {
+    draw(renderRepoCard({ ...repo, ...flag }, { locale }));
+    expect(screen.queryByTestId('badge')).toHaveTextContent(badge);
   });
 
-  it('should render badges', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      isArchived: true,
-    });
-
-    expect(screen.queryByTestId('badge')).toHaveTextContent('Archived');
-
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      isTemplate: true,
-    });
-    expect(screen.queryByTestId('badge')).toHaveTextContent('Template');
-  });
-
-  it('should not render template', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-    });
-    expect(screen.queryByTestId('badge')).toBeNull();
-  });
-
-  it('should render translated badges', () => {
-    document.body.innerHTML = renderRepoCard(
-      {
-        ...data_repo.repository,
-        isArchived: true,
-      },
-      {
-        locale: 'cn',
-      },
-    );
-
-    expect(screen.queryByTestId('badge')).toHaveTextContent('已归档');
-
-    document.body.innerHTML = renderRepoCard(
-      {
-        ...data_repo.repository,
-        isTemplate: true,
-      },
-      {
-        locale: 'cn',
-      },
-    );
-    expect(screen.queryByTestId('badge')).toHaveTextContent('模板');
+  it('should render no badge for a repository that is neither archived nor a template', () => {
+    draw(renderRepoCard(repo));
+    expect(screen.queryByTestId('badge')).not.toBeInTheDocument();
   });
 
   it('should render without rounding', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      border_radius: 0,
-    });
+    draw(renderRepoCard(repo, { border_radius: 0 }));
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {});
+    draw(renderRepoCard(repo));
     expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
   });
 
   it('should animate by default', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository);
-
+    draw(renderRepoCard(repo));
     expect(noMotionRules()).toBe(1);
   });
 
   it('should draw the card with no animation when disable_animations is true', () => {
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      disable_animations: true,
-    });
-
+    draw(renderRepoCard(repo, { disable_animations: true }));
     expect(noMotionRules()).toBe(2);
   });
 
   it('should fallback to default description', () => {
-    document.body.innerHTML = renderRepoCard({
-      ...data_repo.repository,
-      description: null,
-      isArchived: true,
-    });
-    expect(document.querySelector('.description')).toHaveTextContent('No description provided');
+    draw(renderRepoCard({ ...repo, description: null, isArchived: true }));
+    expect(document.querySelector('.description')).toHaveTextContent(
+      exactly('No description provided'),
+    );
   });
 
-  it('should have correct height with specified `description_lines_count` parameter', () => {
-    // Testing short description
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      description_lines_count: 1,
-    });
-    expect(document.querySelector('svg')).toHaveAttribute('height', '120');
-    document.body.innerHTML = renderRepoCard(data_repo.repository, {
-      description_lines_count: 3,
-    });
-    expect(document.querySelector('svg')).toHaveAttribute('height', '150');
-
-    // Testing long description
-    const longDescription =
-      "A tool that will make a lot of iPhone/iPad developers' life easier. It shares your app over-the-air in a WiFi network. Bonjour is used and no configuration is needed.";
-    document.body.innerHTML = renderRepoCard(
-      { ...data_repo.repository, description: longDescription },
-      {
-        description_lines_count: 3,
-      },
-    );
-    expect(document.querySelector('svg')).toHaveAttribute('height', '150');
-    document.body.innerHTML = renderRepoCard(
-      { ...data_repo.repository, description: longDescription },
-      {
-        description_lines_count: 1,
-      },
-    );
-    expect(document.querySelector('svg')).toHaveAttribute('height', '120');
-  });
+  // The height follows the lines asked for, whether the description fills them or not.
+  it.each([
+    ['short', repo.description, 1, '120'],
+    ['short', repo.description, 3, '150'],
+    ['long', PANGRAM, 1, '120'],
+    ['long', PANGRAM, 3, '150'],
+  ])(
+    'should size a %s description to description_lines_count %i',
+    (_length, description, description_lines_count, height) => {
+      expect(
+        draw(renderRepoCard({ ...repo, description }, { description_lines_count })),
+      ).toHaveAttribute('height', height);
+    },
+  );
 
   describe('every `show` stat at once', () => {
     const showStats = renderRepoCard.OPTIONS.show;
@@ -401,7 +239,7 @@ describe('Test renderRepoCard', () => {
       ),
     ];
     const repository: RepositoryData = {
-      ...data_repo.repository,
+      ...repo,
       totalPRsAuthored: 1_234_567,
       totalPRsCommented: 4_567_890,
       totalPRsReviewed: 9876,
@@ -410,20 +248,16 @@ describe('Test renderRepoCard', () => {
     };
 
     it.each(locales)('keeps labels clear of values (%s)', (locale) => {
-      document.body.innerHTML = renderRepoCard(repository, {
-        show: [...showStats],
-        locale,
-        number_format: 'long',
-      });
-
-      const card = document.querySelector('svg');
+      const card = draw(
+        renderRepoCard(repository, { show: [...showStats], locale, number_format: 'long' }),
+      );
       expect(card).toHaveAttribute('width', '500');
 
       const rows = showStats.map((id) => {
         const value = screen.getByTestId(id);
         const row = value.closest('.stagger');
         // `-3` is the stats group, `25` the row's own offset.
-        const x = -3 + translateX(row?.parentElement ?? null) + 25;
+        const x = -3 + translateOf(row?.parentElement).x + 25;
         const label = row?.querySelector('text')?.textContent ?? '';
         const valueRight = x + Number(value.getAttribute('x'));
         return {
@@ -446,21 +280,5 @@ describe('Test renderRepoCard', () => {
         expect(row.left).toBeGreaterThan(firstColumnRight);
       }
     });
-  });
-});
-
-describe('test pin API', () => {
-  it('should return a permanent error for an invalid color parameter', async () => {
-    const result = await pinApi(
-      {
-        username: 'user',
-        repo: 'repo',
-        title_color: 'not-a-color',
-      },
-      testConfig,
-    );
-
-    expect(result.status).toBe('error');
-    expect(result.content).toContain(`Invalid color input for parameter &#34;title_color&#34;`);
   });
 });

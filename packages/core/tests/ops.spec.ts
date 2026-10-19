@@ -10,8 +10,8 @@ import {
   parseEmojis,
 } from '../src/common/ops.ts';
 
-describe('Test ops.js', () => {
-  it('should test parseBoolean', () => {
+describe('common/ops', () => {
+  it('reads a boolean, in any case, and nothing else as one', () => {
     expect(parseBoolean(true)).toBe(true);
     expect(parseBoolean(false)).toBe(false);
 
@@ -36,7 +36,7 @@ describe('Test ops.js', () => {
     expect(isExcluded('smith/tongs')).toBe(false);
   });
 
-  it('should test parseArray', () => {
+  it('splits a list on commas, dropping the blanks', () => {
     expect(parseArray('a,b,c')).toStrictEqual(['a', 'b', 'c']);
     expect(parseArray('a, b ,c')).toStrictEqual(['a', 'b', 'c']);
     expect(parseArray('a,,b,')).toStrictEqual(['a', 'b']);
@@ -45,25 +45,25 @@ describe('Test ops.js', () => {
     expect(parseArray(undefined)).toStrictEqual([]);
   });
 
-  it('should test clampValue', () => {
+  it('clamps a value, and reads NaN as the minimum', () => {
     expect(clampValue(5, 1, 10)).toBe(5);
     expect(clampValue(0, 1, 10)).toBe(1);
     expect(clampValue(15, 1, 10)).toBe(10);
     expect(clampValue(Number.NaN, 2, 5)).toBe(2);
   });
 
-  it('should test lowercaseTrim', () => {
+  it('lowercases and trims', () => {
     expect(lowercaseTrim('  Hello World  ')).toBe('hello world');
     expect(lowercaseTrim('already lower')).toBe('already lower');
   });
 
-  it('should test chunkArray', () => {
+  it('chunks an array, the last chunk taking the rest', () => {
     expect(chunkArray([1, 2, 3, 4, 5], 2)).toStrictEqual([[1, 2], [3, 4], [5]]);
     expect(chunkArray([1, 2, 3, 4, 5], 1)).toStrictEqual([[1], [2], [3], [4], [5]]);
     expect(chunkArray([1, 2, 3, 4, 5], 10)).toStrictEqual([[1, 2, 3, 4, 5]]);
   });
 
-  it('should test parseEmojis', () => {
+  it('replaces emoji shortcodes, and drops one it does not know', () => {
     // unknown emoji name is stripped
     expect(parseEmojis('Hello :nonexistent:')).toBe('Hello ');
     expect(parseEmojis('I :heart: OSS')).toBe('I ❤️ OSS');

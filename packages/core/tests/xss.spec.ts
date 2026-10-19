@@ -7,37 +7,48 @@ import { stats } from '../src/api/stats.ts';
 import { topLangs } from '../src/api/top-langs.ts';
 import { wakatime } from '../src/api/wakatime.ts';
 import { CardConfig } from '../src/common/config.ts';
+import type {
+  GistData,
+  RepositoryData,
+  StatsData,
+  TopLangData,
+  WakaTimeData,
+} from '../src/fetchers/types.ts';
+
+// Hoisted with the mocks, which run before anything else in the file is defined.
+const { SCRIPT } = vi.hoisted(() => ({ SCRIPT: "<script>alert('xss')</script>" }));
 
 vi.mock(import('../src/fetchers/gist.ts'), () => ({
   fetchGist: vi.fn().mockResolvedValue({
-    name: "<script>alert('xss')</script>",
-    nameWithOwner: "<script>alert('xss')</script>",
-    description: "<script>alert('xss')</script>",
-    language: "<script>alert('xss')</script>",
+    name: SCRIPT,
+    nameWithOwner: SCRIPT,
+    description: SCRIPT,
+    language: SCRIPT,
     starsCount: 163,
     forksCount: 19,
-  }),
+  } satisfies GistData),
 }));
 
 vi.mock(import('../src/fetchers/repo.ts'), () => ({
   fetchRepo: vi.fn().mockResolvedValue({
-    nameWithOwner: "<script>alert('xss')</script>",
-    name: "<script>alert('xss')</script>",
-    description: "<script>alert('xss')</script>",
-    primaryLanguage: {
-      color: '#2b7489',
-      id: "<script>alert('xss')</script>",
-      name: "<script>alert('xss')</script>",
-    },
+    nameWithOwner: SCRIPT,
+    name: SCRIPT,
+    description: SCRIPT,
+    primaryLanguage: { color: '#2b7489', id: SCRIPT, name: SCRIPT },
+    isPrivate: false,
+    isArchived: false,
+    isTemplate: false,
     stargazerCount: 38_000,
     forkCount: 100,
-  }),
+  } satisfies RepositoryData),
 }));
 
 vi.mock(import('../src/fetchers/stats.ts'), () => ({
   fetchStats: vi.fn().mockResolvedValue({
-    name: "<script>alert('xss')</script>",
+    login: 'user',
+    name: SCRIPT,
     totalStars: 100,
+    commitsRange: undefined,
     totalCommits: 200,
     totalIssues: 300,
     totalPRs: 400,
@@ -47,90 +58,41 @@ vi.mock(import('../src/fetchers/stats.ts'), () => ({
     totalDiscussionsStarted: 10,
     totalDiscussionsAnswered: 50,
     contributedTo: 500,
+    allTimeContributedTo: 500,
+    totalPRsAuthored: 100,
+    totalPRsCommented: 100,
+    totalPRsReviewed: 100,
+    totalIssuesAuthored: 100,
+    totalIssuesCommented: 100,
+    totalContributions: 5000,
     rank: { level: 'A+', percentile: 40 },
-  }),
+  } satisfies StatsData),
 }));
 
 vi.mock(import('../src/fetchers/top-languages.ts'), () => ({
   fetchTopLanguages: vi.fn().mockResolvedValue({
-    HTML: { color: '#0f0', name: "<script>alert('xss')</script>", size: 200 },
-    javascript: {
-      color: '#0ff',
-      name: "<script>alert('xss')</script>",
-      size: 200,
-    },
-    css: { color: '#ff0', name: 'css', size: 100 },
-  }),
+    HTML: { color: '#0f0', name: SCRIPT, size: 200, count: 1 },
+    javascript: { color: '#0ff', name: SCRIPT, size: 200, count: 1 },
+    css: { color: '#ff0', name: 'css', size: 100, count: 1 },
+  } satisfies TopLangData),
 }));
 
-vi.mock(import('../src/fetchers/wakatime.ts'), () => ({
-  fetchWakatimeStats: vi.fn().mockResolvedValue({
-    categories: [
-      {
-        digital: '22:40',
-        hours: 22,
-        minutes: 40,
-        name: 'Coding',
-        percent: 100,
-        text: '22 hrs 40 mins',
-        total_seconds: 81_643.570077,
-      },
-    ],
-    editors: [
-      {
-        digital: '22:40',
-        hours: 22,
-        minutes: 40,
-        name: 'VS Code',
-        percent: 100,
-        text: '22 hrs 40 mins',
-        total_seconds: 81_643.570077,
-      },
-    ],
-    languages: [
-      {
-        digital: '0:19',
-        hours: 0,
-        minutes: 19,
-        name: 'Other',
-        percent: 1.43,
-        text: '19 mins',
-        total_seconds: 1170.434361,
-      },
-      {
-        digital: '0:01',
-        hours: 0,
-        minutes: 1,
-        name: "<script>alert('xss')</script>",
-        percent: 0.1,
-        text: '1 min',
-        total_seconds: 83.293809,
-      },
-    ],
-    operating_systems: [
-      {
-        digital: '22:40',
-        hours: 22,
-        minutes: 40,
-        name: 'Mac',
-        percent: 100,
-        text: '22 hrs 40 mins',
-        total_seconds: 81_643.570077,
-      },
-    ],
-    is_coding_activity_visible: true,
-    is_other_usage_visible: true,
-    human_readable_daily_average: '4 hrs 28 mins',
-    human_readable_total: '22 hrs 21 mins',
-    range: 'last_7_days',
-    username: "<script>alert('xss')</script>",
-  }),
-}));
+vi.mock(import('../src/fetchers/wakatime.ts'), async () => {
+  const { wakaTimeData } = await import('./_wakatime.ts');
+  const { data } = wakaTimeData;
+  return {
+    fetchWakatimeStats: vi.fn().mockResolvedValue({
+      ...data,
+      username: SCRIPT,
+      languages: data.languages.map((language) => ({ ...language, name: SCRIPT })),
+    } satisfies WakaTimeData),
+  };
+});
 
 // Unused: every fetcher is mocked, so no request is made.
 const config = new CardConfig({ pats: [{ name: 'PAT_1', value: 'token' }] });
 
-const xssPayloads = ["<script>alert('xss')</script>", "\"><script>alert('xss')</script>"];
+const xssPayloads = [SCRIPT, `">${SCRIPT}`];
 
 /**
  * Renders the result into the document and fails if a script survived.

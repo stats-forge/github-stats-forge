@@ -1,4 +1,5 @@
-import { cards, findCard, OPTION_GROUPS } from '@stats-forge/github-stats-forge-catalog';
+import { findCard } from '@stats-forge/github-stats-forge-catalog';
+import type { CardOption } from '@stats-forge/github-stats-forge-catalog';
 import { describe, expect, it } from 'vitest';
 
 import type { Answer } from '../src/query.ts';
@@ -50,11 +51,11 @@ describe(toQuery, () => {
 });
 
 describe(describeAnswer, () => {
-  const option = {
+  const option: CardOption = {
     name: 'show_icons',
     label: 'Show icons',
-    kind: 'boolean' as const,
-    group: 'display' as const,
+    kind: 'boolean',
+    group: 'display',
   };
 
   it('reads a boolean back as yes or no', () => {
@@ -93,41 +94,6 @@ describe(defaultFileName, () => {
   });
 });
 
-describe('the card catalog', () => {
-  it('gives every card a unique id', () => {
-    const ids = cards.map((card) => card.id);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
-  it('names every option once per card', () => {
-    for (const card of cards) {
-      const names = [...card.required, ...card.options].map((option) => option.name);
-      expect(new Set(names).size, `${card.id} repeats an option`).toBe(names.length);
-    }
-  });
-
-  it('gives every choice option its choices', () => {
-    for (const card of cards) {
-      for (const option of card.options.filter((entry) => entry.kind === 'choice')) {
-        expect(option.choices?.length, `${card.id}.${option.name}`).toBeGreaterThan(0);
-      }
-    }
-  });
-
-  it('gives every option a section the menu knows how to head', () => {
-    const headed = new Set(OPTION_GROUPS.map((section) => section.group));
-    for (const card of cards) {
-      for (const option of card.options) {
-        expect(headed, `${card.id}.${option.name}`).toContain(option.group);
-      }
-    }
-  });
-
-  it('answers to an unknown card with nothing', () => {
-    expect(findCard('not-a-card')).toBeUndefined();
-  });
-});
-
 describe(toQueryString, () => {
   it('writes the query with the leading ? the action and a card URL both carry', () => {
     expect(toQueryString({ username: 'anuraghazra', theme: 'dark' })).toBe(
@@ -146,7 +112,11 @@ describe(toQueryString, () => {
 
 describe(fromQueryString, () => {
   it('reads back what toQueryString wrote', () => {
-    const query = { username: 'anuraghazra', theme: 'dark', title: 'My Stats & More' };
+    const query: Record<string, string> = {
+      username: 'anuraghazra',
+      theme: 'dark',
+      title: 'My Stats & More',
+    };
 
     expect(fromQueryString(toQueryString(query))).toStrictEqual(query);
   });

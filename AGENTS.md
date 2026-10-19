@@ -231,6 +231,18 @@ flags are in `tsconfig.base.json`; the lint-enforced style (`Array<T>`, `_`-pref
 Rules oxlint already enforces — the `.spec.ts` suffix, and the vitest rules switched off — carry
 their reasons in `oxlint.config.ts`.
 
+- **A test that can pass without the code it covers is a bug** ([#287]). Break the code, or flip
+  the input, and watch a new assertion fail before trusting it. `toHaveTextContent` matches a
+  substring, so give it `exactly(text)` unless the assertion is about part of a longer text, such
+  as a `<desc>`; an accepted query asserts `upstream`, since a rejection is an error too.
+- **A test restores what it changes in an `afterEach`, never on its own last line** ([#287]), where
+  a failed assertion skips it: fake timers, spies, `vi.stubEnv` for an env var, a `mkdtemp` dir.
+- **A card spec reads the drawn card through `tests/_card.ts`, a fetcher spec its requests through
+  `tests/_fetch-mock.ts`** ([#288]): `draw`, `cssValue(selector, property)`, `drawnIds`,
+  `exactly`, `xOf`, `GRAPHQL`, `graphqlBody`. Extend them rather than writing a local copy.
+- **A param's validation is tested once, in `apiParams.spec.ts`**, not again in each card's spec.
+- **`src` never imports a test helper or a test library**; `no-restricted-imports` in
+  `oxlint.config.ts` enforces it ([#288]).
 - **Assert on DOM nodes with jest-dom matchers, never by reading the node yourself** —
   `toHaveTextContent`, `toHaveAttribute`, `toBeInTheDocument`. **Never write
   `expect(queryBy…(…)).toBeDefined()`**: `null` is defined, so it cannot fail. For array indices,
@@ -259,8 +271,13 @@ their reasons in `oxlint.config.ts`.
 - Mock with the typesafe `vi.mock(import("…"), factory)`, keeping the static import for its types.
 - jest-dom's matchers are registered and typed by importing `@testing-library/jest-dom/vitest` in
   `packages/core/tests/_setup.ts`.
-- **Type test fixtures** (`const data: StatsData = …`); a `Record` fixture you read by dot uses
-  `satisfies` instead, to keep its concrete keys.
+- **Type every piece of test data** (`const data: StatsData = …`); a `Record` fixture you read by
+  dot uses `satisfies` instead, to keep its concrete keys. That includes what reaches the code
+  through an untyped seam ([#288]): a mock's reply body (`GraphQLBody<Query>`, `GraphQLErrorBody`,
+  `Refused`, `SearchBody` from `_fetch-mock.ts`) and a `vi.fn()`'s resolved value, which is
+  `vi.fn<typeof fn>()` or a `satisfies`. Never cast a fake through `unknown` to make it fit.
+- **A fixture two specs share lives in an `_`-prefixed module, never in a spec** ([#288]): vitest
+  collects the tests of any spec another one imports, and runs them twice.
 
 ## Comments
 
@@ -352,3 +369,5 @@ pnpm is **12.x** ([#110]). `pnpm-workspace.yaml` carries the reason beside each 
 [#225]: https://github.com/stats-forge/github-stats-forge/pull/225
 [#226]: https://github.com/stats-forge/github-stats-forge/pull/226
 [#254]: https://github.com/stats-forge/github-stats-forge/pull/254
+[#287]: https://github.com/stats-forge/github-stats-forge/pull/287
+[#288]: https://github.com/stats-forge/github-stats-forge/pull/288

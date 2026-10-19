@@ -75,7 +75,9 @@ describe('the catalog', () => {
   it('offers no empty list of choices, which would draw a control nothing can be picked from', () => {
     const empty = cards
       .flatMap((card) => card.options)
-      .filter((option) => option.choices?.length === 0);
+      .filter((option) => option.kind === 'choice' || option.choices !== undefined)
+      .filter((option) => !option.choices?.length)
+      .map((option) => option.name);
 
     expect(empty).toStrictEqual([]);
   });
