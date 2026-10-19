@@ -483,6 +483,7 @@ describe('Test renderTopLanguages', () => {
     { layout: 'pie', hide_values: false, card_width: 320, width: 335 },
     { layout: 'donut-vertical', hide_values: false, card_width: undefined, width: 400 },
     { layout: 'donut-vertical', hide_values: true, card_width: undefined, width: 400 },
+    { layout: 'donut-vertical', hide_values: false, card_width: 320, width: 335 },
   ] as const)(
     'should fit a long name in the $layout second column (hide_values $hide_values, card_width $card_width)',
     ({ layout, hide_values, card_width, width }) => {
@@ -678,6 +679,14 @@ describe('Test renderTopLanguages', () => {
       screen.getAllByTestId('lang-pie')[0]?.getAttribute('d') ?? '',
     );
     expect(d[0]).toBe(centre);
+  });
+
+  it('should centre a single-language pie on a card_width', () => {
+    document.body.innerHTML = renderTopLanguages(
+      { HTML: langs.HTML },
+      { layout: 'pie', card_width: 500 },
+    );
+    expect(screen.getByTestId('lang-pie')).toHaveAttribute('cx', '250');
   });
 
   it('should render with layout pie', () => {
