@@ -1,100 +1,80 @@
 # AGENTS.md
 
-Guidance for Claude Code when working in this repository.
-
-Written in the spirit of **compounding engineering**: every review, bug and correction becomes a
-rule the tooling applies next time
-([Every, _Compound Engineering_](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents)).
-Each rule links the change that produced it; the full story is in that change, not here.
-
-Scope split: **this file holds the durable rules**; work not yet done lives in `.claude/scratch/`
-(untracked). Rules go here, pending work goes there; don't duplicate across the two.
+Guidance for Claude Code in this repository, kept in the spirit of **compounding engineering**
+([Every](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents)): every
+review, bug and correction becomes a rule, and each rule links the change holding its full story.
+Durable rules live here; pending work lives in `.claude/scratch/` (untracked).
 
 ## Before you change anything
 
-- **Don't commit, push, open a PR or comment on one unless asked.** The repo owner usually does
-  that; leave changes in the working tree, and when a branch is wanted, say which commits are on it.
-- **A change to `packages/*` carries a changeset, written without being asked** ([#15]); a change to
-  `apps/docs` a visitor would notice carries one on the _server_ ([#86]). See [Changesets](#changesets).
-- **Run `pnpm check-all` before handing work over.** It is every check CI runs.
-- **Never put a token in a command the documentation tells someone to run** ([#107]).
-- **Redraw `apps/docs/public/cards` with `pnpm docs:cards` when a card's output changes**; CI fails
-  on a stale preview ([#225]).
-- **Never hand-edit `packages/core/src/graphql/generated/**`** — change the `.graphql` and regenerate.
-- **Keep the rule files true.** Fix a rule in the same change that broke it; no need to ask.
+- **Don't commit, push, open a PR or comment on one unless asked.** When a branch is wanted, say
+  which commits are on it.
+- **A change to `packages/*` carries a changeset, unasked** ([#15]); a visitor-visible `apps/docs`
+  change carries one on the server ([#86]). See [Changesets](#changesets).
+- **Run `pnpm check-all` before handing work over**: it is every check CI runs.
+- **Redraw `apps/docs/public/cards` with `pnpm docs:cards` when a card's output changes** ([#225]).
+- **Never hand-edit `packages/core/src/graphql/generated/**`**; change the `.graphql` and regenerate.
+- **Keep the rule files true**: fix a rule in the change that broke it, unasked.
 
 ## What this is
 
-`github-stats-forge` — a pnpm monorepo holding the library that renders GitHub stats as SVG cards,
-the catalog of what each card accepts, the CLI that writes one to a file, the server that serves them
-over HTTP, and the site that documents them all.
+A pnpm monorepo: the library that renders GitHub stats as SVG cards, the catalog of what each card
+accepts, a CLI, an HTTP server, and the documentation site.
 
-| Path               | What it is                                                                                                    |
-| ------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `packages/core`    | The library: fetchers, card renderers, themes, api handlers                                                   |
-| `packages/catalog` | What each card accepts: every option's param, label, kind and accepted values                                 |
-| `packages/cli`     | `github-stats-forge`: prompts through a card's options, writes the SVG, saves and reloads a card's config     |
-| `apps/server`      | The HTTP server over core's api handlers, and the container image it ships in; **published to GHCR, not npm** |
-| `apps/docs`        | The documentation site — Astro + Starlight, every page markdown; **not published**                            |
-| `scripts/`         | Repo-level tooling — `check-all.ts`, via `tsconfig.scripts.json`                                              |
+| Path               | What it is                                                              |
+| ------------------ | ----------------------------------------------------------------------- |
+| `packages/core`    | The library: fetchers, card renderers, themes, api handlers             |
+| `packages/catalog` | What each card accepts: every option's param, label, kind and values    |
+| `packages/cli`     | `github-stats-forge`: prompts for a card's options, writes the SVG      |
+| `apps/server`      | The HTTP server over core's api handlers; **an image on GHCR, not npm** |
+| `apps/docs`        | The site, Astro + Starlight; **not published**                          |
+| `scripts/`         | Repo tooling such as `check-all.ts`, via `tsconfig.scripts.json`        |
 
-**What a thing publishes to decides its rules, not which folder it sits in** ([#79]).
+**What a thing publishes to decides its rules, not its folder** ([#79]):
 
-- A package under `packages/` goes to npm: it carries a changeset and a `lint:publish`.
-- `apps/docs` publishes nothing and carries neither.
-- `apps/server` publishes an image: it carries a changeset and no `lint:publish`, and is released
-  with the npm packages under the version changesets set.
+- `packages/*` go to npm and carry a changeset and a `lint:publish`; `apps/server` carries a
+  changeset only, releasing with the npm packages; `apps/docs` carries neither.
 - `build:packages` and `lint:publish` stay filtered to `./packages/*`. The root `typecheck` covers
-  the packages, both apps and `scripts/`; the root vitest projects the packages and `apps/server`.
-  `scripts/` has no tests.
-- **`privatePackages: { version: true, tag: true }` plus a `version` field on
-  `apps/server/package.json` is what releases the server.** `apps/docs` has no `version` field, on
-  purpose. `tag: true` cannot leak a private package onto npm — changesets drops every `private`
-  package before publishing — it adds the git tag and the GitHub release ([#133]).
-- **`updateInternalDependencies: patch` means a core release bumps its dependents**, so a card
-  change reaches the image without naming the server. Confirm with `pnpm exec changeset status`.
+  the packages, both apps and `scripts/`; the root vitest the packages and `apps/server`.
+- **`privatePackages: { version: true, tag: true }` plus a `version` on `apps/server/package.json`
+  releases the server** ([#133]); `apps/docs` has no `version`, on purpose. `tag: true` only adds the
+  git tag and release: changesets never publishes a `private` package.
+- **`updateInternalDependencies: patch` bumps a core release's dependents**, so a card change reaches
+  the image unnamed. Confirm with `pnpm exec changeset status`.
 
-**A rule about one directory lives in that directory** ([#106]). This file holds what crosses
-directories, and what must be known before choosing one:
+**A rule about one directory lives in that directory** ([#106]). Each `AGENTS.md` has a one-line
+`CLAUDE.md` importing it, since Claude Code discovers only `CLAUDE.md`.
 
-| File                                | What it covers                                                       |
-| ----------------------------------- | -------------------------------------------------------------------- |
-| `packages/core/AGENTS.md`           | The api layer as the trust boundary, and the generated GraphQL types |
-| `packages/core/src/cards/AGENTS.md` | Card branding, card text and translations                            |
-| `packages/catalog/AGENTS.md`        | The catalog of what each card accepts                                |
-| `packages/cli/AGENTS.md`            | The CLI                                                              |
-| `apps/server/AGENTS.md`             | The server and the container image it ships in                       |
-| `apps/docs/AGENTS.md`               | The documentation site                                               |
-| `apps/docs/src/anvil/AGENTS.md`     | The anvil, its controls and its browser tests                        |
+| File                                | Covers                                                   |
+| ----------------------------------- | -------------------------------------------------------- |
+| `packages/core/AGENTS.md`           | The api layer as trust boundary; generated GraphQL types |
+| `packages/core/src/cards/AGENTS.md` | Card branding, text and translations                     |
+| `packages/catalog/AGENTS.md`        | The catalog                                              |
+| `packages/cli/AGENTS.md`            | The CLI                                                  |
+| `apps/server/AGENTS.md`             | The server and its image                                 |
+| `apps/docs/AGENTS.md`               | The site                                                 |
+| `apps/docs/src/anvil/AGENTS.md`     | The anvil and its browser tests                          |
 
-- **Each `AGENTS.md` has a one-line `CLAUDE.md` beside it that imports it.** Claude Code discovers
-  `CLAUDE.md`, not `AGENTS.md` (verified on 2.1.263), so the stub is what loads the rules.
-- `packages/core/src` is `fetchers/` (network) → `cards/` (SVG render) → `api/` (query-string
-  handlers), with `common/` for shared helpers, `themes/` for the theme table and `graphql/` for
-  query text and its generated types.
-- **A card is a folder under `cards/`**: its renderer as `index.ts`, its translations as
-  `locales.ts`. Only `cards/options.ts` sits loose beside them ([#61]). A card too big for one file
-  moves its layouts beside `index.ts`, which keeps the options and the render — see
-  `top-languages/layouts.ts` and `geometry.ts`.
-- **Every source file is TypeScript**, `packages/cli/bin.js` excepted — see `packages/cli/AGENTS.md`.
-  Generators are covered by a `tsconfig.scripts.json`, so CI typechecks them ([#39]).
+- `packages/core/src` is `fetchers/` (network) → `cards/` (render) → `api/` (query-string handlers),
+  plus `common/`, `themes/` and `graphql/`.
+- **A card is a folder under `cards/`**: `index.ts` renders, `locales.ts` translates; only
+  `cards/options.ts` sits loose ([#61]). A card too big for one file moves its layouts beside
+  `index.ts`, as `top-languages/` does.
+- **Every source file is TypeScript** except `packages/cli/bin.js`; generators are typechecked
+  through a `tsconfig.scripts.json` ([#39]).
 
 ## Changesets
 
-- **The summary's first line is a conventional commit with no scope** — `feat: …`, `fix!: …` —
-  because it lands verbatim in the changelog under the package's own name ([#78]).
-- **The body is one or two lines, or none when the first line says it all.** Only what a consumer
-  must know to act; the reasoning belongs in the commit or the PR.
-- **The packages are pre-1.0, so a breaking change is `minor`**, not `major` ([#15]).
-- **A dependent package needs no entry of its own**; `updateInternalDependencies` bumps it.
-- **A visitor-visible `apps/docs` change is a server changeset** ([#86]): the image ships the site,
-  and `apps/docs` has no `version`, so a docs-only changeset has nothing to bump.
-- **A pure tooling change that leaves the published output alone may go without one** — that is
-  the owner's call, so ask.
+- **The first line is a conventional commit with no scope** (`feat: …`, `fix!: …`): it lands in the
+  changelog under the package's name ([#78]). The body is one or two lines a consumer must act on,
+  or none.
+- **Pre-1.0, a breaking change is `minor`** ([#15]). A dependent package needs no entry of its own.
+- **A visitor-visible `apps/docs` change is a server changeset** ([#86]): the image ships the site.
+- **A tooling change that leaves the published output alone may go without one**: ask the owner.
 
 ## Commands
 
-Run from the **repo root** unless stated otherwise.
+Run from the repo root.
 
 ```sh
 pnpm test                 # vitest, whole workspace, one run (`pnpm exec vitest` watches)
@@ -126,223 +106,163 @@ pnpm --filter ./packages/core/ run generate-graphql-types   # rewrite src/graphq
 pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fails on drift
 ```
 
-- **`pnpm run docs` needs the `run`.** `docs` is a pnpm builtin, so bare `pnpm docs` never reaches
-  the script — and still exits 0 ([#58]).
-- **`check-all` stops at the first failure; `-k` runs the whole list.** Keep `scripts/check-all.ts`
-  in step with `.github/workflows/ci.yml`, or a check fails after the push instead of before it.
-- Per-package typecheck: `pnpm exec tsc -p tsconfig.typecheck.json`.
-- **A lint script is per-package only when the tool is** ([#42]). oxlint sweeps the workspace in one
-  pass from the root; `lint:publish` examines one tarball, so each package owns it and the root runs
-  `pnpm -r --filter "./packages/*" run lint:publish`, covering a new package the day it appears.
-- **Task ordering is `pnpm -r`'s topological order, not a task runner's.** `typecheck` builds first
-  because each `tsconfig.typecheck.json` resolves core through its built `.d.ts`. turbo was removed
-  for costing more than it saved ([#41]); measure before reinstating one.
-- **vitest applies the `@stats/source` condition only when it is also under
-  `ssr.resolve.conditions`** — see `packages/cli/vitest.config.ts`. Running `pnpm exec vitest`
-  inside a package is the quick way to iterate on one suite.
+- **`pnpm run docs` needs the `run`**: `docs` is a pnpm builtin, and bare `pnpm docs` exits 0 ([#58]).
+- **`check-all` stops at the first failure; `-k` runs them all.** Keep `scripts/check-all.ts` in step
+  with `.github/workflows/ci.yml`.
+- One package: `pnpm exec tsc -p tsconfig.typecheck.json`, or `pnpm exec vitest` inside it.
+- **A lint script is per-package only when the tool is** ([#42]): oxlint runs once from the root;
+  `lint:publish` checks one tarball, so the root runs it through `pnpm -r --filter "./packages/*"`.
+- **Ordering is `pnpm -r`'s topological order**; `typecheck` builds first because each
+  `tsconfig.typecheck.json` resolves core through its `.d.ts`. turbo cost more than it saved ([#41]);
+  measure before reinstating one.
+- **vitest applies `@stats/source` only when it is also under `ssr.resolve.conditions`**; see
+  `packages/cli/vitest.config.ts`.
 
 ## Documentation and previews
 
 - **A token never appears in a command the docs tell someone to run** ([#107]): it lands in shell
-  history and `docker inspect`. Show `--env-file cards.env`, a pass-through `-e PAT_1`, a secret
-  manager, or `--pat "$token"`; link the self-hosting page's "Where the token lives" rather than
-  restating it.
-- **`apps/docs/public/cards` is committed, so redraw it when a card's output changes** ([#225]).
-  `pnpm docs:cards` renders `apps/docs/cards` through the built CLI with `fetch` answered by the
-  fictional account in `apps/docs/scripts/fixtures.ts`: no token, deterministic output, and
-  `pnpm docs:cards:check` fails in CI on drift. Each fixture is typed as its query's generated
-  result, so **a `.graphql` change fails `pnpm typecheck` until `fixtures.ts` follows it**.
-- **Prose never states a count that grows with the code** — "the [themes]", not a number ([#220]).
-  Only generated pages, such as `customization/themes.md`, may.
-- **Don't call the person reading the docs "the reader"** ([#30]): say **the browser** where the
-  subject is the user agent, and **you**, **anyone** or **a visitor** where it is a person.
-  `screen reader` stays.
-- **`pnpm test:live` is the one check that touches the live APIs, and it is not in CI** ([#226]).
-  `apps/docs/scripts/test-live.ts` draws each card with the anvil's `maximal` options for real
-  accounts (overridable with the `LIVE_TEST_*` variables) and asserts only that it drew, since live
-  numbers drift.
-  - **`.github/workflows/test-live.yml` runs it with the `LIVE_TEST_PAT` secret of the `test-live`
-    environment**, weekly, on demand, and on a push to `main` touching `fetchers/`, `graphql/` or the
-    test. It stays out of `ci.yml` so a GitHub outage cannot fail an unrelated PR, and off PRs since
-    a run on one hit the token's rate limit ([#254]).
-  - **The secret is a personal access token, because the docs tell people to use one**: classic with
-    `read:org`, or fine-grained with the organization as owner and `Members: read`. The workflow's
-    `GITHUB_TOKEN` cannot draw the gist or org cards.
-- **Every untracked working file lives in `.claude/scratch/`**; the rule files are the exception.
+  history and `docker inspect`. Show `--env-file cards.env`, `-e PAT_1`, a secret manager or
+  `--pat "$token"`, and link the self-hosting page's "Where the token lives".
+- **`pnpm docs:cards` draws `apps/docs/cards` through the built CLI against the fictional account in
+  `apps/docs/scripts/fixtures.ts`** ([#225]): no token, deterministic, and `docs:cards:check` fails CI
+  on drift. The fixtures are typed as their queries' results, so a `.graphql` change fails
+  `pnpm typecheck` until they follow.
+- **Prose never states a count that grows with the code** ([#220]); only generated pages may.
+- **Never call the person reading the docs "the reader"** ([#30]): say the browser for the user
+  agent, and you, anyone or a visitor for a person. `screen reader` stays.
+- **`pnpm test:live` alone touches the live APIs, and is not in CI** ([#226]). It draws each card with
+  the anvil's `maximal` options (accounts overridable with `LIVE_TEST_*`) and asserts only that it drew.
+  - **`.github/workflows/test-live.yml` runs it weekly, on demand, and on a push to `main` touching
+    `fetchers/`, `graphql/` or the test**, with the `test-live` environment's `LIVE_TEST_PAT`. It stays
+    off PRs, where it hit the rate limit ([#254]), and out of `ci.yml`, so an outage fails no PR.
+  - **That secret is a PAT, as the docs advise**: classic with `read:org`, or fine-grained owned by
+    the organization with `Members: read`. `GITHUB_TOKEN` cannot draw the gist or org cards.
+- **Every untracked working file lives in `.claude/scratch/`**, the rule files excepted.
 
-## TypeScript conventions
+## TypeScript
 
-TypeScript is **7.x**, and `oxlint-tsgolint` tracks the same major so the two agree. The strict
-flags are in `tsconfig.base.json`; the lint-enforced style (`Array<T>`, `_`-prefixed unused args,
-`@ts-expect-error <description>`, no nullish values in template literals) is in
-`@marcalexiei/oxlint-config/typescript`.
+TypeScript is **7.x**, with `oxlint-tsgolint` on the same major. The strict flags are in
+`tsconfig.base.json`, the lint-enforced style in `@marcalexiei/oxlint-config/typescript`.
 
-- **A relative import names the file that exists, so the extension is `.ts`** ([#42]), allowed by
-  `allowImportingTsExtensions` plus `rewriteRelativeImportExtensions`.
-  - **Only the `.js` emit is rewritten; the `.d.ts` emit still says `./x.ts`.** Don't fix those by
-    hand and don't drop `lint:publish` — it is the only check standing between this convention and
-    a consumer whose toolchain is less forgiving than `tsc`.
-  - **The GraphQL generator carries the extension twice**: `importExtension: '.ts'` and the
-    `prepend` literal in `packages/core/scripts/generate-graphql-types.ts`.
-- **Never widen a signature to keep an old test compiling — adapt the test.** Type a function to
-  what its production call sites pass; upstream had to narrow `trimTopLanguages` back in its PR #476.
-  Add `?: T | undefined` or `Partial<…>` only for a real caller forwarding `undefined`.
-- **Declare only the params you read, and validate nothing you don't use.** A validated-but-unread
-  `locale` once rejected a query for an option that could not change the output.
-- **Colocate card options**: `interface XCardOptions extends CommonCardOptions {…}` in the card's
-  `index.ts`, not exported. `cards/options.ts` holds only the shared base and `CardOptions<T>`; the
-  `ThemeName` union lives in `themes/index.ts`.
-- **`CommonCardOptions` extends `ColorParams`**: every card forwards its options into
-  `getLightDarkColors`, so the `_light` / `_dark` params are part of its contract.
-- **What one card exports and another imports moves to `common/`.** Ask before moving.
-- **One export style per module** ([#39]): a name, or a default, never both.
-- **A function that branches gets a block body: each outcome an `if` with an early `return`.** Not
-  an arrow expression body built from a ternary, and never a nested ternary anywhere; a one-line body
-  with no branching is fine. Type-level conditional types are the exception, having no `if`.
-- **An untyped dependency gets a `declare module` shim** — `@uppercod/css-to-object` →
-  `tests/_css-to-object.d.ts`. A runtime dependency's shim lives under `src/`, where the build sees it.
-- **A dependency whose whole body is one literal is inlined** ([#31]), as `GITHUB_USERNAME_PATTERN`
-  replaced `github-username-regex`. Read a small package before adding it; if copying costs a line
-  and the licence allows it, copy it.
+- **A relative import names the `.ts` file** ([#42]), through `allowImportingTsExtensions` and
+  `rewriteRelativeImportExtensions`. Only the `.js` emit is rewritten: the `.d.ts` still says
+  `./x.ts`, so don't fix it by hand, and keep `lint:publish`, which guards consumers against it. The
+  GraphQL generator sets the extension twice: `importExtension` and the `prepend` literal in
+  `packages/core/scripts/generate-graphql-types.ts`.
+- **Never widen a signature to keep a test compiling; adapt the test.** Type a function to what its
+  callers pass; `?: T | undefined` or `Partial<…>` only for a real caller forwarding `undefined`.
+- **Declare only the params you read, and validate nothing you don't use.**
+- **A card's options are `interface XCardOptions extends CommonCardOptions` in its `index.ts`**,
+  unexported. `cards/options.ts` holds only the shared base and `CardOptions<T>`; `ThemeName` lives in
+  `themes/index.ts`. `CommonCardOptions` extends `ColorParams`: every card forwards into
+  `getLightDarkColors`.
+- **What one card exports and another imports moves to `common/`**; ask first.
+- **One export style per module**: named or default, never both ([#39]).
+- **A function that branches gets a block body with an early `return` per outcome**, never a
+  ternary expression body, and never a nested ternary. Conditional types are exempt.
+- **An untyped dependency gets a `declare module` shim** (`tests/_css-to-object.d.ts`); a runtime
+  dependency's lives under `src/`.
+- **A dependency whose body is one literal is inlined** ([#31]): read a small package before adding it.
 
-### tsconfig layout and emit
+### tsconfig
 
-- **Emit is opt-in.** `tsconfig.base.json` sets `noEmit`; only each published package's
-  `tsconfig.build.json` opts back in, and those are byte-identical. Don't repeat `noEmit`, and don't
-  put an `outDir` on a config that cannot emit.
-- **`noCheck: true` in the build configs means a green build proves nothing** — run `pnpm check-all`.
-- **Each `tsconfig.typecheck.json` only clears `customConditions`**, so the check resolves siblings
-  through built `.d.ts` as a consumer would. `apps/docs` has none: it is not published, and
-  typechecks against core's source — though its `astro build` needs the packages built.
-- **When build output is wrong, check what the editor's `tsconfig.json` emits first.** A stray
-  `outDir` there once wrote tests into `build/`.
-- **No project references**, so don't reach for `composite: true`.
-
-### Strict-mode friction to expect
-
-- `noUncheckedIndexedAccess`: `lines[i] += s` becomes `lines[i] = (lines[i] ?? "") + s`; a lookup
-  feeding a non-optional return needs a guard.
-- `noPropertyAccessFromIndexSignature`: read a `Record` through brackets or `Object.entries`.
-- `exactOptionalPropertyTypes`: declare the receiving param `?: T | undefined` when a real caller
-  forwards `undefined`, or `NonNullable<…>` when it never does — after re-reading the widening rule.
+- **Emit is opt-in**: `tsconfig.base.json` sets `noEmit`, and only each package's identical
+  `tsconfig.build.json` emits. No `outDir` on a config that cannot emit.
+- **The build configs set `noCheck`**, so a green build proves nothing.
+- **Each `tsconfig.typecheck.json` only clears `customConditions`**, resolving siblings through their
+  `.d.ts` as a consumer would. `apps/docs` checks against core's source and has none.
+- **Wrong build output? Check what the editor's `tsconfig.json` emits first**: a stray `outDir` once
+  wrote tests into `build/`.
+- **No project references**, so no `composite: true`.
+- Strict-mode friction: `noUncheckedIndexedAccess` needs a guard or a `?? ''`;
+  `noPropertyAccessFromIndexSignature` reads a `Record` by brackets; `exactOptionalPropertyTypes`
+  takes `?: T | undefined` for a real `undefined`, else `NonNullable<…>`.
 
 ## Testing
 
-Rules oxlint already enforces — the `.spec.ts` suffix, and the vitest rules switched off — carry
-their reasons in `oxlint.config.ts`.
+oxlint enforces the `.spec.ts` suffix and the vitest rules; their reasons are in `oxlint.config.ts`.
 
-- **A test that can pass without the code it covers is a bug** ([#287]). Break the code, or flip
-  the input, and watch a new assertion fail before trusting it. `toHaveTextContent` matches a
-  substring, so give it `exactly(text)` unless the assertion is about part of a longer text, such
-  as a `<desc>`; an accepted query asserts `upstream`, since a rejection is an error too.
-- **A test restores what it changes in an `afterEach`, never on its own last line** ([#287]), where
-  a failed assertion skips it: fake timers, spies, `vi.stubEnv` for an env var, a `mkdtemp` dir.
-- **A card spec reads the drawn card through `tests/_card.ts`, a fetcher spec its requests through
-  `tests/_fetch-mock.ts`** ([#288]): `draw`, `cssValue(selector, property)`, `drawnIds`,
-  `exactly`, `xOf`, `GRAPHQL`, `graphqlBody`. Extend them rather than writing a local copy.
-- **A param's validation is tested once, in `apiParams.spec.ts`**, not again in each card's spec.
-- **`src` never imports a test helper or a test library**; `no-restricted-imports` in
-  `oxlint.config.ts` enforces it ([#288]).
-- **Assert on DOM nodes with jest-dom matchers, never by reading the node yourself** —
-  `toHaveTextContent`, `toHaveAttribute`, `toBeInTheDocument`. **Never write
-  `expect(queryBy…(…)).toBeDefined()`**: `null` is defined, so it cannot fail. For array indices,
-  assert `toHaveLength(n)` on the `queryAllBy*` result.
-- **Card tests assert on the rendered DOM, not snapshots**; the one exception is
-  `renderWakatimeCard.spec.ts.snap`.
-- **Snapshots are byte-exact.** The formatter can reflow a `${cond ? a : b}` inside a renderer's
-  template literal onto its own line, injecting whitespace into the SVG; hoist such expressions into
-  a `const`, and diff the snapshots after any card edit.
-- **A test that provokes a diagnostic silences it with `vi.spyOn(console, …)`**, saying why ([#79]).
-  `common/log.ts` reads `console` at call time so the spy works; run
-  `vitest run --disable-console-intercept` to see what the suite prints.
-- **A test that needs an upstream failure answers one; it never drops the request.** A rejected
-  fetch, `networkError()` or a `FetchMock` with no handler is a transport failure, which the
-  retryer waits out for 4.1s — one such suite once took 62s of a 63s run. Answer GitHub with an
-  `errors` body or WakaTime with a `502`; when the transport failure is the subject, use fake
-  timers, as `retryer.spec.ts` does.
-- **`packages/core` runs on `pool: 'vmThreads'`, and `isolate: false` is not an option** ([#122]):
-  the `fetchTopLanguages` error tests share module state once files stop being isolated.
-  `fsModuleCache` was measured and gained nothing. Re-measure before re-litigating either.
-- **The type test is `fetchRepo.types.spec-d.ts`**, which vitest's own `typecheck.include` would not
-  collect ([#132]). `tsc` checks it; enabling vitest's typecheck means setting `typecheck.include`.
-- Use the `@testing-library/dom` **`screen` API**, and cache a repeated same-id query.
-  `querySelector` is fine; prefer it to `getElementsByClassName`, and type it
-  `querySelector<HTMLElement>(…)` when you need `.style`.
-- Mock with the typesafe `vi.mock(import("…"), factory)`, keeping the static import for its types.
-- jest-dom's matchers are registered and typed by importing `@testing-library/jest-dom/vitest` in
+- **A test that can pass without the code it covers is a bug** ([#287]): break the code and watch it
+  fail. `toHaveTextContent` matches a substring, so give it `exactly(text)` unless the assertion is
+  about part of a longer text, such as a `<desc>`; an accepted query asserts `upstream`, since a
+  rejection is an error too.
+- **Restore what a test changes in an `afterEach`** ([#287]): timers, spies, `vi.stubEnv`, a
+  `mkdtemp` dir. Never on its last line, which a failure skips.
+- **Card specs read the card through `tests/_card.ts`, fetcher specs their requests through
+  `tests/_fetch-mock.ts`** ([#288]); extend them rather than copy them.
+- **A param's validation is tested once, in `apiParams.spec.ts`.**
+- **`src` never imports a test helper or library**; `no-restricted-imports` enforces it ([#288]).
+- **Assert with jest-dom matchers**, never by reading the node. `expect(queryBy…()).toBeDefined()`
+  cannot fail; count with `toHaveLength` on `queryAllBy*`.
+- **Card tests assert on the DOM, not snapshots**, bar `renderWakatimeCard.spec.ts.snap`. Snapshots are
+  byte-exact: hoist a `${cond ? a : b}` out of a renderer's template literal, which the formatter may
+  reflow into the SVG.
+- **A test that provokes a diagnostic silences it with `vi.spyOn(console, …)`, saying why** ([#79]);
+  `--disable-console-intercept` shows what the suite prints.
+- **A test needing an upstream failure answers one**: an `errors` body for GitHub, a `502` for
+  WakaTime. A dropped request makes the retryer wait 4.1s; test that with fake timers, as
+  `retryer.spec.ts` does.
+- **`packages/core` runs `pool: 'vmThreads'`; `isolate: false` breaks the `fetchTopLanguages` error
+  tests** ([#122]), and `fsModuleCache` gained nothing. Re-measure before revisiting either.
+- **The type test is `fetchRepo.types.spec-d.ts`**, checked by `tsc`; vitest would need
+  `typecheck.include` ([#132]).
+- Use `@testing-library/dom`'s `screen`, caching a repeated query, and `querySelector<HTMLElement>`
+  over `getElementsByClassName`. Mock with `vi.mock(import('…'), factory)`. jest-dom registers in
   `packages/core/tests/_setup.ts`.
-- **Type every piece of test data** (`const data: StatsData = …`); a `Record` fixture you read by
-  dot uses `satisfies` instead, to keep its concrete keys. That includes what reaches the code
-  through an untyped seam ([#288]): a mock's reply body (`GraphQLBody<Query>`, `GraphQLErrorBody`,
-  `Refused`, `SearchBody` from `_fetch-mock.ts`) and a `vi.fn()`'s resolved value, which is
-  `vi.fn<typeof fn>()` or a `satisfies`. Never cast a fake through `unknown` to make it fit.
-- **A fixture two specs share lives in an `_`-prefixed module, never in a spec** ([#288]): vitest
-  collects the tests of any spec another one imports, and runs them twice.
+- **Type every piece of test data** ([#288]), including a mock's reply body (`GraphQLBody<Query>`,
+  `GraphQLErrorBody`, `Refused`, `SearchBody`) and a `vi.fn<typeof fn>()`'s value. A `Record` read by
+  dot uses `satisfies`. Never cast a fake through `unknown`.
+- **A fixture two specs share lives in an `_` module, never a spec** ([#288]): vitest runs an
+  imported spec's tests twice.
 
 ## Comments
 
-**A comment states the reason, never the behaviour.** Write it, then delete every sentence the code
-already says; what survives is usually one line.
+**A comment states the reason, never the behaviour**, usually in one line.
 
-- **A `@file` block is the first thing in its file**, after any shebang and before the imports
-  ([#79]). Nothing enforces it.
-- **There are no `@param` tags; `@returns` stays** ([#39]). Under TypeScript a `@param` restated the
-  signature and nothing checked it.
-- **A doc block is a summary, then `@returns`**, plus `@see` / `@example` / `@deprecated` where they
-  earn it.
-- **A note about one parameter or property goes on that declaration as a `/** */`**, where an editor
-  shows it on hover — not as a tag, and not as a `//` comment.
-- **Keep what the type cannot say**: a range, an ordering, a unit, a fallback, a format guarantee or
-  a side effect.
-- **Domain interfaces** (`CardColors`, …) document their members inline with `/** */`.
-- **When stripping tags mechanically, check for an orphaned continuation line.**
-- The jsdoc rules on are in `oxlint.config.ts`. `require-returns-type` stays off because the
-  signature carries the type; `require-returns` stays off because adding tags everywhere is a
-  bigger decision than a lint rule should make.
+- **A `@file` block comes first**, after any shebang ([#79]).
+- **No `@param` tags; `@returns` stays** ([#39]). A doc block is a summary, then `@returns`, plus
+  `@see`, `@example` or `@deprecated` where earned.
+- **A note on one parameter or property is a `/** */` on that declaration**, shown on hover; domain
+  interfaces (`CardColors`, …) document their members that way.
+- **Keep what the type cannot say**: a range, ordering, unit, fallback, format or side effect.
+- When stripping tags mechanically, check for an orphaned continuation line.
+- `require-returns-type` and `require-returns` stay off: the signature carries the type, and tags
+  everywhere is a bigger decision than a rule.
 
 ## Linting and formatting
 
-oxlint (type-aware, via `oxlint-tsgolint`) and oxfmt replaced eslint and prettier ([#39]). Their
-configs extend the owner's `@marcalexiei/oxlint-config` and `@marcalexiei/oxfmt-config`, developed
-in the sibling `void-0-configs` checkout.
+oxlint (type-aware, via `oxlint-tsgolint`) and oxfmt replaced eslint and prettier ([#39]), extending
+`@marcalexiei/oxlint-config` and `@marcalexiei/oxfmt-config` from the sibling `void-0-configs`.
 
-- **When the shared config is wrong, fix it there**, not with a workaround here.
-- **Every local override carries its reason, in `oxlint.config.ts`.** An override with no reason is
-  a silenced rule.
-- **Prefer a rule option to switching a rule off.**
-- **`import/no-cycle` has no exemptions.** Untangle a cycle rather than disable the rule for it.
-- **The autofixer is not a review.** Typecheck and test after `oxlint --fix`, and read the diff.
+- **Fix a wrong shared config there**, not here.
+- **Every local override carries its reason in `oxlint.config.ts`**; prefer a rule option to
+  switching a rule off.
+- **`import/no-cycle` has no exemptions**: untangle the cycle.
+- **The autofixer is not a review**: typecheck, test and read the diff after `oxlint --fix`.
 
 ## Dependencies and pnpm
 
-**Renovate keeps the dependencies current, self-hosted from `.github/workflows/renovate.yml`**
-([#114]). Its config is `.github/renovate.json5`; its `customManagers` also move the version pins in
-the documentation's markdown, which Dependabot could not.
+**Renovate runs self-hosted from `.github/workflows/renovate.yml`, configured by
+`.github/renovate.json5`** ([#114]); its `customManagers` also move the docs' version pins.
 
-- **It is self-hosted because `postUpgradeTasks` is a self-hosted-only option**, and that is what
-  writes a changeset. The one allowed command is `.github/scripts/renovate-changeset.sh`, listed in
-  `RENOVATE_ALLOWED_COMMANDS`.
-- **A `dependencies` bump in `packages/*` writes its own `patch` changeset; nothing else does.** A
-  dev dependency reaches no consumer.
-- **The workflow's cron is the heartbeat; the config's `schedule` is the gate.** A per-manager window
-  must contain the time the workflow fires, so windows are day-wide.
-- **A dev dependency or a GitHub Actions update automerges once `CI OK` is green** on a minor,
-  patch, pin or digest ([#137]). Majors and `dependencies` bumps stay manual.
-- **Check a config change with `renovate-config-validator`, and nothing else on this checkout.**
-  `RENOVATE_PLATFORM=local` reverts tracked files and removes untracked ones; run it on a copy.
-- **A later `packageRules` entry wins**, so the held-back rules sit after the groups.
+- **Self-hosted for `postUpgradeTasks`**: its one allowed command,
+  `.github/scripts/renovate-changeset.sh`, writes a `patch` changeset for a `dependencies` bump in
+  `packages/*`, the only bump that reaches a consumer.
+- **The workflow's cron fires; the config's `schedule` gates**, so per-manager windows are day-wide.
+- **Dev dependency and Actions minors, patches, pins and digests automerge on a green `CI OK`**
+  ([#137]); majors and `dependencies` stay manual. A later `packageRules` entry wins, so the
+  held-back rules sit last.
+- **Check the config with `renovate-config-validator` only**: `RENOVATE_PLATFORM=local` reverts
+  tracked files and deletes untracked ones, so run it on a copy.
 
-pnpm is **12.x** ([#110]). `pnpm-workspace.yaml` carries the reason beside each setting.
+pnpm is **12.x** ([#110]); `pnpm-workspace.yaml` gives each setting's reason, and rejects an unknown key.
 
-- **Two renames stop applying silently**: v11's `onlyBuiltDependencies` → `allowBuilds`, and v12's
-  `--frozen-lockfile false` → `--no-frozen-lockfile`. v12 does reject an unknown key in
-  `pnpm-workspace.yaml`.
-- **`allowBuilds` lists only packages still in the graph.** Check with `pnpm why <pkg>`.
-- **A stale lockfile can hold a package nothing depends on.** Delete `node_modules` **and**
-  `pnpm-lock.yaml`, then reinstall; deleting the lockfile alone reuses what is installed.
-- **`minimumReleaseAge` exempts only the first-party configs, by name** ([#216]): the cooling-off
-  period is there to catch a third-party publish going bad.
-- **Nothing polices an override.** Check one with `pnpm why <pkg>` when you touch it ([#80]).
+- **Two renames fail silently**: v11's `onlyBuiltDependencies` → `allowBuilds`, and v12's
+  `--frozen-lockfile false` → `--no-frozen-lockfile`.
+- **`allowBuilds` and the overrides list only packages still in the graph**: check with
+  `pnpm why <pkg>`, since nothing polices an override ([#80]).
+- **A stale lockfile can hold an orphan**: delete `node_modules` and `pnpm-lock.yaml`, then reinstall.
+- **`minimumReleaseAge` exempts the first-party configs alone, by name** ([#216]).
 
 [#15]: https://github.com/stats-forge/github-stats-forge/pull/15
 [#30]: https://github.com/stats-forge/github-stats-forge/pull/30
