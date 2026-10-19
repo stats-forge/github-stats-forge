@@ -34,11 +34,7 @@ type TopLangLayout = (typeof TOP_LANG_LAYOUTS)[number];
 const TOP_LANG_VALUE_FORMATS = ['percent', 'bytes'] as const;
 type TopLangValueFormat = (typeof TOP_LANG_VALUE_FORMATS)[number];
 
-/** Where a compact row's label starts, clear of its dot. */
-const COMPACT_LABEL_X = 15;
 const COMPACT_MIN_COLUMN_GAP = 150;
-/** Air between the first column's widest label and the second column. */
-const COMPACT_COLUMN_AIR = 5;
 
 /**
  * Calculates height for the compact layout.
@@ -211,11 +207,15 @@ const measureCompactList = (
     Math.max(
       ...column.map(
         (lang) =>
-          COMPACT_LABEL_X + measureText(compactLabel(lang, options), CARD_STYLE.fontSize.micro),
+          CARD_STYLE.compactList.labelX +
+          measureText(compactLabel(lang, options), CARD_STYLE.fontSize.micro),
       ),
     ),
   );
-  const gap = Math.max(COMPACT_MIN_COLUMN_GAP, (columnWidths[0] ?? 0) + COMPACT_COLUMN_AIR);
+  const gap = Math.max(
+    COMPACT_MIN_COLUMN_GAP,
+    (columnWidths[0] ?? 0) + CARD_STYLE.compactList.columnAir,
+  );
   const width = gap * (columns.length - 1) + (columnWidths.at(-1) ?? 0);
   return { columns, gap, width };
 };
@@ -239,7 +239,7 @@ const createCompactLangNode = ({
     el('circle', { cx: 5, cy: 6, r: 5, fill: color }),
     el(
       'text',
-      { 'data-testid': 'lang-name', x: COMPACT_LABEL_X, y: 10, class: 'lang-name' },
+      { 'data-testid': 'lang-name', x: CARD_STYLE.compactList.labelX, y: 10, class: 'lang-name' },
       compactLabel(lang, options),
     ),
   );

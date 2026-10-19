@@ -65,6 +65,14 @@ const CARD_STYLE = {
     bodyOffsetY: 55,
   },
 
+  /** A two-column language list, each row a dot then its label. */
+  compactList: {
+    /** Where a row's label starts, clear of its dot. */
+    labelX: 15,
+    /** Air between the first column's widest label and the second column. */
+    columnAir: 5,
+  },
+
   /** How far a stat row's ink reaches below its own top: the icon box, which outruns the text. */
   statRowInk: 16,
 

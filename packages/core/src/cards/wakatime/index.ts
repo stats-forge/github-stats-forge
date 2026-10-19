@@ -30,10 +30,6 @@ const TOTAL_TEXT_WIDTH = 275;
 const COMPACT_LEFT_X = 25;
 /** Where the right column sits on a default-width card, while the left column leaves it room. */
 const COMPACT_RIGHT_X = 230;
-/** Where a compact row's label starts, clear of its dot. */
-const COMPACT_LABEL_X = 15;
-/** Air between the left column's widest label and the right column. */
-const COMPACT_COLUMN_AIR = 5;
 
 /** Layouts the card can draw; the api validates `layout` against this. */
 const WAKATIME_LAYOUTS = ['compact', 'normal'] as const;
@@ -110,7 +106,7 @@ const measureCompactColumns = ({
       0,
       ...column.map(
         (lang) =>
-          COMPACT_LABEL_X +
+          CARD_STYLE.compactList.labelX +
           measureText(compactLabel(lang, value_format), CARD_STYLE.fontSize.micro),
       ),
     );
@@ -118,7 +114,7 @@ const measureCompactColumns = ({
   const right = langs.filter((_, index) => index % 2 === 1);
   const rightX = Math.max(
     COMPACT_RIGHT_X + (width - DEFAULT_CARD_WIDTH) / 2,
-    COMPACT_LEFT_X + widest(left) + COMPACT_COLUMN_AIR,
+    COMPACT_LEFT_X + widest(left) + CARD_STYLE.compactList.columnAir,
   );
   return {
     rightX,
@@ -157,7 +153,7 @@ const createCompactLangNode = ({
     el('circle', { cx: 5, cy: 6, r: 5, fill: color }),
     el(
       'text',
-      { 'data-testid': 'lang-name', x: COMPACT_LABEL_X, y: 10, class: 'lang-name' },
+      { 'data-testid': 'lang-name', x: CARD_STYLE.compactList.labelX, y: 10, class: 'lang-name' },
       compactLabel(lang, value_format),
     ),
   );
