@@ -10,6 +10,7 @@ import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';
+import type { GraphQLErrorBody } from './_fetch-mock.ts';
 
 // Nothing here is about fetching: every request is answered with an upstream failure at once,
 // so a query that got past validation is a temporary error. Not a dropped request, which the
@@ -38,7 +39,9 @@ const withUser = (endpoint: string): Record<string, string> => {
 };
 
 beforeAll(() => {
-  mock.onPost().reply(200, { errors: [{ type: 'INTERNAL', message: 'Upstream is down' }] });
+  mock.onPost().reply(200, {
+    errors: [{ type: 'INTERNAL', message: 'Upstream is down' }],
+  } satisfies GraphQLErrorBody);
   mock.onGet().reply(502);
   // the GraphQL answer is logged as GitHub's error, which is the point of answering it
   vi.spyOn(console, 'error').mockReturnValue();

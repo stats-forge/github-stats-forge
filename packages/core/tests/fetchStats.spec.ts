@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { calculateRank } from '../src/calculateRank.ts';
 import type { CardConfig } from '../src/common/config.ts';
-import type { GraphQLResponse } from '../src/common/http.ts';
+import type { GitHubDateRange } from '../src/common/date.ts';
 import { fetchStats } from '../src/fetchers/stats.ts';
 import type { StatsData } from '../src/fetchers/types.ts';
 import type { ContributionsQuery } from '../src/graphql/contributionsDocument.ts';
@@ -16,14 +16,13 @@ import type { ReposContributedToQuery } from '../src/graphql/reposContributedToD
 
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
+import type { GraphQLBody, GraphQLErrorBody, SearchBody } from './_fetch-mock.ts';
 
 vi.mock(import('../src/common/log.ts'), async () => {
   const { createLoggerMock } = await import('./utils.ts');
   return createLoggerMock();
 });
 
-/** Body of a GraphQL response, as the mocked endpoint returns it. */
-type GraphQLBody<TResult> = GraphQLResponse<TResult>['data'];
 /** A query's `user`, when the lookup succeeded. */
 type QueryUser<TResult extends { user: unknown }> = NonNullable<TResult['user']>;
 
@@ -201,6 +200,9 @@ const error: GraphQLBody<UserInfoQuery> = {
   ],
 };
 
+/** The commit search's answer: a thousand commits. */
+const commits_1000: SearchBody = { total_count: 1000 };
+
 const mock = new FetchMock();
 const baseConfig = testConfig.with({ fetch: mock.fetch });
 
@@ -310,7 +312,7 @@ describe('Test fetchStats', () => {
   it('should fetch total commits', async () => {
     mock
       .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
-      .reply(200, { total_count: 1000 });
+      .reply(200, commits_1000);
 
     const stats = await fetchStatsWith({ include_all_commits: true });
     expect(stats).toStrictEqual(
@@ -327,7 +329,7 @@ describe('Test fetchStats', () => {
   it('should throw specific error when include_all_commits true and API returns error', async () => {
     mock
       .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
-      .reply(200, { error: 'Some test error message' });
+      .reply(200, { error: 'Some test error message' } satisfies SearchBody);
 
     await expect(fetchStatsWith({ include_all_commits: true })).rejects.toMatchObject({
       reason: 'stats_search_count_unavailable',
@@ -339,7 +341,7 @@ describe('Test fetchStats', () => {
     async (entry) => {
       mock
         .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
-        .reply(200, { total_count: 1000 });
+        .reply(200, commits_1000);
 
       const stats = await fetchStatsWith({
         include_all_commits: true,
@@ -426,7 +428,7 @@ describe('Test fetchStats', () => {
   });
 
   it('should count commits over the range alone, both ends named', async () => {
-    const range = {
+    const range: GitHubDateRange = {
       from: new Date(Date.UTC(2003, 0, 1)),
       to: new Date(Date.UTC(2003, 11, 31, 23, 59, 59)),
     };
@@ -477,7 +479,7 @@ describe('Test fetchStats', () => {
           {
             data: null,
             errors: [{ message: 'Some test GraphQL error' }],
-          },
+          } satisfies GraphQLErrorBody,
         ];
       }
       return [200, req.query.includes('totalCommitContributions') ? data_stats : data_repo];
@@ -492,7 +494,7 @@ describe('Test fetchStats', () => {
     mock.onPost(GRAPHQL).reply((cfg) => {
       const req = graphqlBody(cfg);
       if (req.query.includes('contributionCalendar')) {
-        return [200, { data: null, errors: [{ type: 'SOME_ERROR' }] }];
+        return [200, { data: null, errors: [{ type: 'SOME_ERROR' }] } satisfies GraphQLErrorBody];
       }
       return [200, req.query.includes('totalCommitContributions') ? data_stats : data_repo];
     });
@@ -588,7 +590,7 @@ describe('Test fetchStats', () => {
         for (let i = 0; i < rangeCount; i += 1) {
           ranges[`range_${i}`] = saturatedRange;
         }
-        return [200, { data: { user: ranges } }];
+        return [200, { data: { user: ranges } } satisfies GraphQLBody<ReposContributedToQuery>];
       }
       return [200, data_stats];
     });

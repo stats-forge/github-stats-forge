@@ -1,4 +1,5 @@
 import { findCard } from '@stats-forge/github-stats-forge-catalog';
+import type { CardOption } from '@stats-forge/github-stats-forge-catalog';
 import { describe, expect, it } from 'vitest';
 
 import type { Answer } from '../src/query.ts';
@@ -50,11 +51,11 @@ describe(toQuery, () => {
 });
 
 describe(describeAnswer, () => {
-  const option = {
+  const option: CardOption = {
     name: 'show_icons',
     label: 'Show icons',
-    kind: 'boolean' as const,
-    group: 'display' as const,
+    kind: 'boolean',
+    group: 'display',
   };
 
   it('reads a boolean back as yes or no', () => {
@@ -111,7 +112,11 @@ describe(toQueryString, () => {
 
 describe(fromQueryString, () => {
   it('reads back what toQueryString wrote', () => {
-    const query = { username: 'anuraghazra', theme: 'dark', title: 'My Stats & More' };
+    const query: Record<string, string> = {
+      username: 'anuraghazra',
+      theme: 'dark',
+      title: 'My Stats & More',
+    };
 
     expect(fromQueryString(toQueryString(query))).toStrictEqual(query);
   });

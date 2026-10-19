@@ -6,6 +6,7 @@ import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-
 
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
+import type { GraphQLBody, SearchBody } from './_fetch-mock.ts';
 
 const COMMIT_SEARCH = /^https:\/\/api\.github\.com\/search\/commits/;
 
@@ -164,7 +165,7 @@ describe(fetchOrgActivity, () => {
 
   it('searches commits separately when they are asked for', async () => {
     mock.onPost(GRAPHQL).reply(200, answer());
-    mock.onGet(COMMIT_SEARCH).reply(200, { total_count: 204 });
+    mock.onGet(COMMIT_SEARCH).reply(200, { total_count: 204 } satisfies SearchBody);
 
     const data = await fetchOrgActivity({ org: 'vitest-dev', include_commits: true }, config);
 
@@ -179,7 +180,7 @@ describe(fetchOrgActivity, () => {
     vi.spyOn(console, 'error').mockReturnValue();
 
     mock.onPost(GRAPHQL).reply(200, answer({ prsOpened: 12 }));
-    mock.onGet(COMMIT_SEARCH).reply(200, { message: 'Validation Failed' });
+    mock.onGet(COMMIT_SEARCH).reply(200, { message: 'Validation Failed' } satisfies SearchBody);
 
     const data = await fetchOrgActivity({ org: 'vitest-dev', include_commits: true }, config);
 
@@ -256,7 +257,7 @@ describe(fetchOrgActivity, () => {
           message: "Could not resolve to an Organization with the login of 'marcalexiei'.",
         },
       ],
-    });
+    } satisfies GraphQLBody<Partial<GetOrganizationActivityQuery>>);
 
     await expect(fetchOrgActivity({ org: 'marcalexiei' }, config)).rejects.toMatchObject({
       code: 'not_found',
@@ -270,7 +271,7 @@ describe(fetchOrgActivity, () => {
     mock.onPost(GRAPHQL).reply(200, {
       data: { organization: null },
       errors: [{ type: 'FORBIDDEN', message: 'Resource not accessible by integration' }],
-    });
+    } satisfies GraphQLBody<Partial<GetOrganizationActivityQuery>>);
 
     await expect(fetchOrgActivity({ org: 'vitest-dev' }, config)).rejects.toMatchObject({
       code: 'upstream',

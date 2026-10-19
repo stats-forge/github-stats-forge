@@ -1,4 +1,4 @@
-import type { FetchLike } from '../src/common/http.ts';
+import type { FetchLike, GraphQLResponse } from '../src/common/http.ts';
 
 /** A request the mock was asked to send, as the assertions read it back. */
 interface MockRequest {
@@ -151,6 +151,27 @@ class FetchMock {
   }
 }
 
+/** A GraphQL answer as GitHub sends it, for a query whose result is `TResult`. */
+type GraphQLBody<TResult> = GraphQLResponse<TResult>['data'];
+
+/** A GraphQL answer that carries only errors, as a query GitHub refused outright gets. */
+type GraphQLErrorBody = Omit<GraphQLBody<unknown>, 'data'> & { data?: null };
+
+/**
+ * `T` with the fields in `K` nulled: how GitHub answers a field it refused, the schema's non-null
+ * notwithstanding, while still answering the rest and saying why in `errors`.
+ */
+type Refused<T, K extends keyof T> = Omit<T, K> & Record<K, null>;
+
+/** A REST search answer: the count the fetchers read, or what GitHub said instead of one. */
+interface SearchBody {
+  total_count?: number;
+  incomplete_results?: boolean;
+  items?: Array<unknown>;
+  message?: string;
+  error?: string;
+}
+
 /** GitHub's GraphQL endpoint, which every fetcher but the commit search and WakaTime posts to. */
 const GRAPHQL = 'https://api.github.com/graphql';
 
@@ -170,3 +191,4 @@ const graphqlBody = (
 };
 
 export { FetchMock, GRAPHQL, graphqlBody };
+export type { GraphQLBody, GraphQLErrorBody, Refused, SearchBody };

@@ -2,9 +2,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { logger } from '../src/common/log.ts';
 import { fetchTopLanguages } from '../src/fetchers/top-languages.ts';
+import type { TopLanguagesQuery } from '../src/graphql/generated/top-languages.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
+import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
 import { approxNumber } from './utils.ts';
 
 vi.mock(import('../src/common/log.ts'), async () => {
@@ -23,7 +25,7 @@ afterEach(() => {
 });
 
 // The languages interleave, so a count taken from anything but the language's own entry is wrong.
-const data_langs = {
+const data_langs: GraphQLBody<TopLanguagesQuery> = {
   data: {
     user: {
       repositories: {
@@ -62,12 +64,11 @@ const data_langs = {
   },
 };
 
-const error = {
+const error: GraphQLErrorBody = {
   errors: [
     {
       type: 'NOT_FOUND',
       path: ['user'],
-      locations: [],
       message: "Could not resolve to a User with the login of 'noname'.",
     },
   ],
@@ -182,7 +183,7 @@ describe('FetchTopLanguages', () => {
   it('should throw other errors with their message', async () => {
     mock.onPost(GRAPHQL).reply(200, {
       errors: [{ message: 'Some test GraphQL error' }],
-    });
+    } satisfies GraphQLErrorBody);
 
     await expect(fetchTopLanguages({ username: 'anuraghazra' }, config)).rejects.toThrow(
       'Some test GraphQL error',
@@ -194,7 +195,7 @@ describe('FetchTopLanguages', () => {
   it('should throw error with specific message when error does not contain message property', async () => {
     mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'TEST' }],
-    });
+    } satisfies GraphQLErrorBody);
 
     await expect(fetchTopLanguages({ username: 'anuraghazra' }, config)).rejects.toMatchObject({
       reason: 'graphql_failed',

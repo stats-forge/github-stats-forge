@@ -1,20 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CardConfig } from '../src/common/config.ts';
-import type { GraphQLResponse } from '../src/common/http.ts';
 import { fetchContributedTo } from '../src/fetchers/contributed-to.ts';
 import type { UserContributionYearsQuery } from '../src/graphql/generated/contributed-to.ts';
 import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.ts';
 
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
+import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
 
 vi.mock(import('../src/common/log.ts'), async () => {
   const { createLoggerMock } = await import('./utils.ts');
   return createLoggerMock();
 });
-
-/** Body of a GraphQL response, as the mocked endpoint returns it. */
-type GraphQLBody<TResult> = GraphQLResponse<TResult>['data'];
 
 const years: GraphQLBody<UserContributionYearsQuery> = {
   data: {
@@ -73,7 +70,7 @@ const mockGraphQL = (): void => {
  *
  * @returns How many range queries were sent.
  */
-const mockRangesAfter = (failures: Array<[number, unknown?]>): (() => number) => {
+const mockRangesAfter = (failures: Array<[number, GraphQLErrorBody?]>): (() => number) => {
   let rangeQueries = 0;
   mock.reset();
   mock.onPost(GRAPHQL).reply((request) => {
@@ -88,7 +85,7 @@ const mockRangesAfter = (failures: Array<[number, unknown?]>): (() => number) =>
       return failure;
     }
 
-    const ranges: Record<string, unknown> = {};
+    const ranges: NonNullable<ReposContributedToQuery['user']> = {};
     for (let i = 0; i < (query.match(/range_\d+:/g) ?? []).length; i += 1) {
       ranges[`range_${i}`] = {
         commitContributionsByRepository: [
@@ -98,7 +95,7 @@ const mockRangesAfter = (failures: Array<[number, unknown?]>): (() => number) =>
         pullRequestContributionsByRepository: [],
       };
     }
-    return [200, { data: { user: ranges } }];
+    return [200, { data: { user: ranges } } satisfies GraphQLBody<ReposContributedToQuery>];
   });
   return () => rangeQueries;
 };
@@ -300,7 +297,7 @@ describe('test fetchContributedTo', () => {
       errors: [
         { type: 'NOT_FOUND', message: "Could not resolve to a User with the login of 'x'." },
       ],
-    });
+    } satisfies GraphQLBody<UserContributionYearsQuery>);
 
     await expect(fetchContributedTo({ username: 'x' }, config)).rejects.toThrow(
       'Could not resolve to a User',

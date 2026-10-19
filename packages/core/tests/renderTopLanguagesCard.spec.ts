@@ -22,7 +22,7 @@ import {
   calculatePieLayoutHeight,
 } from '../src/cards/top-languages/layouts.ts';
 import { measureText } from '../src/common/text.ts';
-import type { TopLangData } from '../src/fetchers/types.ts';
+import type { Lang, TopLangData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { cssValue, draw, translateOf, xOf } from './_card.ts';
@@ -224,7 +224,7 @@ describe('Test renderTopLanguages', () => {
   it('should resize the height correctly depending on langs', () => {
     expect(draw(renderTopLanguages(langs))).toHaveAttribute('height', '190');
 
-    const python = { color: '#ff0', name: 'python', size: 100, count: 1 };
+    const python: Lang = { color: '#ff0', name: 'python', size: 100, count: 1 };
     expect(draw(renderTopLanguages({ ...langs, python }))).toHaveAttribute('height', '230');
   });
 

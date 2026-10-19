@@ -17,6 +17,7 @@ import { wakatime } from '../src/api/wakatime.ts';
 import { CardConfig } from '../src/common/config.ts';
 
 import { FetchMock } from './_fetch-mock.ts';
+import type { GraphQLErrorBody } from './_fetch-mock.ts';
 
 const OWNER = 'marcalexiei';
 const GIST_ID = '1f13e82cb48a9058ebcbf4945f5a1c20';
@@ -28,9 +29,9 @@ const GIST_ID = '1f13e82cb48a9058ebcbf4945f5a1c20';
 const noRequests = new FetchMock();
 
 beforeAll(() => {
-  noRequests
-    .onAny()
-    .reply(200, { errors: [{ type: 'INTERNAL', message: 'Something went wrong' }] });
+  noRequests.onAny().reply(200, {
+    errors: [{ type: 'INTERNAL', message: 'Something went wrong' }],
+  } satisfies GraphQLErrorBody);
 });
 
 afterEach(() => {

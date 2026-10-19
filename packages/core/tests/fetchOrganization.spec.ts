@@ -9,6 +9,7 @@ import type {
 
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
+import type { GraphQLBody, Refused } from './_fetch-mock.ts';
 
 /**
  * One page of the repository walk, as GitHub answers it.
@@ -27,7 +28,7 @@ const page = ({
   endCursor?: string | null;
   totalCount?: number;
   name?: string | null;
-}): { data: GetOrganizationQuery } => ({
+}): GraphQLBody<{ organization: Organization }> => ({
   data: {
     organization: {
       login: 'vitest-dev',
@@ -44,8 +45,14 @@ const page = ({
   },
 });
 
-const typescript = { name: 'TypeScript', color: '#3178c6' };
-const rust = { name: 'Rust', color: '#dea584' };
+type Language = NonNullable<OrgRepoInfoFragment['primaryLanguage']>;
+type Organization = NonNullable<GetOrganizationQuery['organization']>;
+
+/** An organization answer whose member count the token was refused. */
+type MembersRefusedBody = GraphQLBody<{ organization: Refused<Organization, 'membersWithRole'> }>;
+
+const typescript: Language = { name: 'TypeScript', color: '#3178c6' };
+const rust: Language = { name: 'Rust', color: '#dea584' };
 
 /**
  * One repository of a page, with every count the fragment asks for.
@@ -223,7 +230,7 @@ describe(fetchOrganization, () => {
           message: 'Resource not accessible by integration',
         },
       ],
-    });
+    } satisfies MembersRefusedBody);
 
     await expect(
       fetchOrganization({ org: 'vitest-dev', require_members: true }, config),
@@ -245,7 +252,7 @@ describe(fetchOrganization, () => {
           message: 'Resource not accessible by integration',
         },
       ],
-    });
+    } satisfies MembersRefusedBody);
 
     await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
       publicMembers: null,
@@ -268,7 +275,7 @@ describe(fetchOrganization, () => {
           message: 'Resource not accessible by integration',
         },
       ],
-    });
+    } satisfies GraphQLBody<GetOrganizationQuery>);
 
     await expect(fetchOrganization({ org: 'vitest-dev' }, config)).rejects.toMatchObject({
       code: 'upstream',
@@ -284,7 +291,7 @@ describe(fetchOrganization, () => {
           message: "Could not resolve to an Organization with the login of 'marcalexiei'.",
         },
       ],
-    });
+    } satisfies GraphQLBody<GetOrganizationQuery>);
 
     await expect(fetchOrganization({ org: 'marcalexiei' }, config)).rejects.toMatchObject({
       code: 'not_found',

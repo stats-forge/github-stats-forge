@@ -270,8 +270,13 @@ their reasons in `oxlint.config.ts`.
 - Mock with the typesafe `vi.mock(import("…"), factory)`, keeping the static import for its types.
 - jest-dom's matchers are registered and typed by importing `@testing-library/jest-dom/vitest` in
   `packages/core/tests/_setup.ts`.
-- **Type test fixtures** (`const data: StatsData = …`); a `Record` fixture you read by dot uses
-  `satisfies` instead, to keep its concrete keys.
+- **Type every piece of test data** (`const data: StatsData = …`); a `Record` fixture you read by
+  dot uses `satisfies` instead, to keep its concrete keys. That includes what reaches the code
+  through an untyped seam ([#288]): a mock's reply body (`GraphQLBody<Query>`, `GraphQLErrorBody`,
+  `Refused`, `SearchBody` from `_fetch-mock.ts`) and a `vi.fn()`'s resolved value, which is
+  `vi.fn<typeof fn>()` or a `satisfies`. Never cast a fake through `unknown` to make it fit.
+- **A fixture two specs share lives in an `_`-prefixed module, never in a spec** ([#288]): vitest
+  collects the tests of any spec another one imports, and runs them twice.
 
 ## Comments
 

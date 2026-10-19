@@ -5,7 +5,7 @@ import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
 import { measureText } from '../src/common/text.ts';
 
 import { draw, xOf } from './_card.ts';
-import { wakaTimeData } from './fetchWakatime.spec.ts';
+import { wakaTimeData } from './_wakatime.ts';
 
 /** @returns Where a compact label's ink ends across the card. */
 const rightEdge = (label: HTMLElement): number => xOf(label) + measureText(label.textContent, 11);

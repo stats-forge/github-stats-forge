@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { fetchGist } from '../src/fetchers/gist.ts';
+import type { GistInfoQuery } from '../src/graphql/generated/gist.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
+import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
 
-const gist_data = {
+const gist_data: GraphQLBody<GistInfoQuery> = {
   data: {
     viewer: {
       gist: {
@@ -53,7 +55,7 @@ const gist_data = {
   },
 };
 
-const gist_not_found_data = {
+const gist_not_found_data: GraphQLBody<GistInfoQuery> = {
   data: {
     viewer: {
       gist: null,
@@ -61,7 +63,7 @@ const gist_not_found_data = {
   },
 };
 
-const gist_errors_data = {
+const gist_errors_data: GraphQLErrorBody = {
   errors: [
     {
       message: 'Some test GraphQL error',

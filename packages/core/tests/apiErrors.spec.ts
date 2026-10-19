@@ -9,9 +9,14 @@ import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 import { CardError } from '../src/common/error.ts';
+import type { GistInfoQuery } from '../src/graphql/generated/gist.ts';
+import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-activity.ts';
+import type { GetOrganizationQuery } from '../src/graphql/generated/organization.ts';
+import type { GetRepoQuery } from '../src/graphql/generated/repo.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
+import type { GraphQLBody, GraphQLErrorBody, Refused } from './_fetch-mock.ts';
 
 vi.mock(import('../src/common/log.ts'), async () => {
   const { createLoggerMock } = await import('./utils.ts');
@@ -52,7 +57,7 @@ describe('api errors', () => {
     // answered, not dropped: the retryer waits a dropped request out for seconds
     mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'INTERNAL', message: 'Something went wrong' }],
-    });
+    } satisfies GraphQLErrorBody);
 
     const result = await statsApi({ username: 'anuraghazra' }, config);
 
@@ -66,7 +71,7 @@ describe('api errors', () => {
   it('does not mark a missing user retryable', async () => {
     mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'NOT_FOUND', message: 'Could not resolve to a User.' }],
-    });
+    } satisfies GraphQLErrorBody);
 
     const result = await statsApi({ username: 'not-a-user' }, config);
 
@@ -78,7 +83,9 @@ describe('api errors', () => {
   });
 
   it('does not mark a repository that does not exist retryable', async () => {
-    mock.onPost(GRAPHQL).reply(200, { data: { user: { repository: null }, organization: null } });
+    mock.onPost(GRAPHQL).reply(200, {
+      data: { user: { repository: null }, organization: null },
+    } satisfies GraphQLBody<GetRepoQuery>);
 
     const result = await pinApi({ username: 'anuraghazra', repo: 'not-a-repo' }, config);
 
@@ -90,7 +97,9 @@ describe('api errors', () => {
   });
 
   it('does not mark a gist that does not exist retryable', async () => {
-    mock.onPost(GRAPHQL).reply(200, { data: { viewer: { gist: null } } });
+    mock
+      .onPost(GRAPHQL)
+      .reply(200, { data: { viewer: { gist: null } } } satisfies GraphQLBody<GistInfoQuery>);
 
     const result = await gistApi({ id: 'not-a-gist' }, config);
 
@@ -137,7 +146,7 @@ describe('api errors', () => {
 
 describe('a stat the token may not read', () => {
   /** The organization activity answer a token refused issues gets: pull requests under both labels. */
-  const issuesAnsweredWithPRs = {
+  const issuesAnsweredWithPRs: GraphQLBody<GetOrganizationActivityQuery> = {
     data: {
       organization: { login: 'vitest-dev', name: 'Vitest' },
       prsOpened: { issueCount: 157 },
@@ -149,7 +158,9 @@ describe('a stat the token may not read', () => {
   };
 
   /** The organization answer a token refused the member count gets: the org, and one field's error. */
-  const membersRefused = {
+  const membersRefused: GraphQLBody<{
+    organization: Refused<NonNullable<GetOrganizationQuery['organization']>, 'membersWithRole'>;
+  }> = {
     data: {
       organization: {
         login: 'vitest-dev',

@@ -4,8 +4,10 @@ import { calculateRank } from '../src/calculateRank.ts';
 
 import { approxNumber } from './utils.ts';
 
+type RankInput = Parameters<typeof calculateRank>[0];
+
 /** What `calculateRank` reads, with nothing contributed. */
-const NOBODY = {
+const NOBODY: RankInput = {
   all_commits: false,
   commits: 0,
   prs: 0,
@@ -63,10 +65,13 @@ describe(calculateRank, () => {
       'S',
       0.4578556547153667,
     ],
-  ])('ranks %s', (_who, stats, level, percentile) => {
-    expect(calculateRank({ ...NOBODY, ...stats })).toStrictEqual({
-      level,
-      percentile: approxNumber(percentile),
-    });
-  });
+  ] satisfies Array<[string, Partial<RankInput>, string, number]>)(
+    'ranks %s',
+    (_who, stats, level, percentile) => {
+      expect(calculateRank({ ...NOBODY, ...stats })).toStrictEqual({
+        level,
+        percentile: approxNumber(percentile),
+      });
+    },
+  );
 });
