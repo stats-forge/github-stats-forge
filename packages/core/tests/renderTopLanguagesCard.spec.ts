@@ -661,20 +661,23 @@ describe('Test renderTopLanguages', () => {
     expect(HTMLLangPercent).toBeCloseTo(100);
   });
 
-  it('should centre the pie and the vertical donut on a widened card', () => {
-    const data = {
-      ...langs,
-      jupyter: { color: '#f80', name: 'Jupyter Notebook', size: 50, count: 1 },
-    } satisfies TopLangData;
+  const withLongName = {
+    ...langs,
+    jupyter: { color: '#f80', name: 'Jupyter Notebook', size: 50, count: 1 },
+  } satisfies TopLangData;
 
-    document.body.innerHTML = renderTopLanguages(data, { layout: 'donut-vertical' });
-    expect(screen.getAllByTestId('lang-donut')[0]).toHaveAttribute('cx', '200');
+  it.each([
+    { what: 'a widened card', data: withLongName, card_width: undefined, centre: 200 },
+    { what: 'a card_width', data: langs, card_width: 500, centre: 250 },
+  ])('should centre the pie and the vertical donut on $what', ({ data, card_width, centre }) => {
+    document.body.innerHTML = renderTopLanguages(data, { layout: 'donut-vertical', card_width });
+    expect(screen.getAllByTestId('lang-donut')[0]).toHaveAttribute('cx', String(centre));
 
-    document.body.innerHTML = renderTopLanguages(data, { layout: 'pie' });
+    document.body.innerHTML = renderTopLanguages(data, { layout: 'pie', card_width });
     const d = getNumbersFromSvgPathDefinitionAttribute(
       screen.getAllByTestId('lang-pie')[0]?.getAttribute('d') ?? '',
     );
-    expect(d[0]).toBe(200);
+    expect(d[0]).toBe(centre);
   });
 
   it('should render with layout pie', () => {
