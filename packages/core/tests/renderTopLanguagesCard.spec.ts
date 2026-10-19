@@ -475,22 +475,23 @@ describe('Test renderTopLanguages', () => {
   });
 
   it.each([
-    { hide_values: false, card_width: undefined, width: 400 },
-    { hide_values: true, card_width: undefined, width: 400 },
-    { hide_values: false, card_width: 320, width: 335 },
-    { hide_values: false, card_width: 450, width: 450 },
-  ])(
-    'should fit a long name in the compact second column (hide_values $hide_values, card_width $card_width)',
-    ({ hide_values, card_width, width }) => {
+    { layout: 'compact', hide_values: false, card_width: undefined, width: 400 },
+    { layout: 'compact', hide_values: true, card_width: undefined, width: 400 },
+    { layout: 'compact', hide_values: false, card_width: 320, width: 335 },
+    { layout: 'compact', hide_values: false, card_width: 450, width: 450 },
+    { layout: 'pie', hide_values: false, card_width: undefined, width: 400 },
+    { layout: 'pie', hide_values: false, card_width: 320, width: 335 },
+    { layout: 'donut-vertical', hide_values: false, card_width: undefined, width: 400 },
+    { layout: 'donut-vertical', hide_values: true, card_width: undefined, width: 400 },
+    { layout: 'donut-vertical', hide_values: false, card_width: 320, width: 335 },
+  ] as const)(
+    'should fit a long name in the $layout second column (hide_values $hide_values, card_width $card_width)',
+    ({ layout, hide_values, card_width, width }) => {
       const data = {
         ...langs,
         jupyter: { color: '#f80', name: 'Jupyter Notebook', size: 50, count: 1 },
       } satisfies TopLangData;
-      document.body.innerHTML = renderTopLanguages(data, {
-        layout: 'compact',
-        hide_values,
-        card_width,
-      });
+      document.body.innerHTML = renderTopLanguages(data, { layout, hide_values, card_width });
 
       // The list starts at the card's left padding; the second column at its own offset.
       const card = document.querySelector('svg');
@@ -659,6 +660,33 @@ describe('Test renderTopLanguages', () => {
       totalCircleLength,
     );
     expect(HTMLLangPercent).toBeCloseTo(100);
+  });
+
+  const withLongName = {
+    ...langs,
+    jupyter: { color: '#f80', name: 'Jupyter Notebook', size: 50, count: 1 },
+  } satisfies TopLangData;
+
+  it.each([
+    { what: 'a widened card', data: withLongName, card_width: undefined, centre: 200 },
+    { what: 'a card_width', data: langs, card_width: 500, centre: 250 },
+  ])('should centre the pie and the vertical donut on $what', ({ data, card_width, centre }) => {
+    document.body.innerHTML = renderTopLanguages(data, { layout: 'donut-vertical', card_width });
+    expect(screen.getAllByTestId('lang-donut')[0]).toHaveAttribute('cx', String(centre));
+
+    document.body.innerHTML = renderTopLanguages(data, { layout: 'pie', card_width });
+    const d = getNumbersFromSvgPathDefinitionAttribute(
+      screen.getAllByTestId('lang-pie')[0]?.getAttribute('d') ?? '',
+    );
+    expect(d[0]).toBe(centre);
+  });
+
+  it('should centre a single-language pie on a card_width', () => {
+    document.body.innerHTML = renderTopLanguages(
+      { HTML: langs.HTML },
+      { layout: 'pie', card_width: 500 },
+    );
+    expect(screen.getByTestId('lang-pie')).toHaveAttribute('cx', '250');
   });
 
   it('should render with layout pie', () => {
