@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -6,8 +6,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { loadEnvFile, resolveTokens, tokensFromEnv } from '../src/tokens.ts';
 
+const dirs: Array<string> = [];
+
 afterEach(() => {
   vi.unstubAllEnvs();
+  for (const dir of dirs.splice(0)) {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 describe(tokensFromEnv, () => {
@@ -52,6 +57,7 @@ describe(loadEnvFile, () => {
     // unset first, since a file never overrides a variable already set; restored by `afterEach`
     vi.stubEnv('PAT_1', undefined);
     const dir = mkdtempSync(join(tmpdir(), 'stats-forge-cli-'));
+    dirs.push(dir);
     const file = join(dir, '.env');
     writeFileSync(file, 'PAT_1=from-file\n');
 

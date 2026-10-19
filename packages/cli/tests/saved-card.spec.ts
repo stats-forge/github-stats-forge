@@ -1,15 +1,28 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
 import { CARD_FILE_VERSION, findCard } from '@stats-forge/github-stats-forge-catalog';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from '../src/saved-card.ts';
 
-const dir = (): string => mkdtempSync(join(tmpdir(), 'stats-forge-saved-'));
+const dirs: Array<string> = [];
+
+/** @returns A new temporary directory, removed after the test. */
+const dir = (): string => {
+  const made = mkdtempSync(join(tmpdir(), 'stats-forge-saved-'));
+  dirs.push(made);
+  return made;
+};
+
+afterEach(() => {
+  for (const made of dirs.splice(0)) {
+    rmSync(made, { recursive: true, force: true });
+  }
+});
 
 /**
  * @returns The card, which the catalog always has.
