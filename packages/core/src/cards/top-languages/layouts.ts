@@ -3,8 +3,7 @@ import { isPrefixedHexColor } from '../../common/color.ts';
 import { formatBytes } from '../../common/fmt.ts';
 import { DEFAULT_LANG_COLOR } from '../../common/languageColors.ts';
 import { chunkArray } from '../../common/ops.ts';
-import { createProgressNode, flexLayout } from '../../common/render.ts';
-import { measureText } from '../../common/text.ts';
+import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
 import type { Lang } from '../../fetchers/types.ts';
 import type { Child, MarkupElement } from '../../markup/index.ts';
 import { el } from '../../markup/index.ts';
@@ -204,13 +203,7 @@ const measureCompactList = (
 ): { columns: Array<Array<Lang>>; gap: number; width: number } => {
   const columns = chunkArray(langs, langs.length / 2);
   const columnWidths = columns.map((column) =>
-    Math.max(
-      ...column.map(
-        (lang) =>
-          CARD_STYLE.compactList.labelX +
-          measureText(compactLabel(lang, options), CARD_STYLE.fontSize.micro),
-      ),
-    ),
+    compactColumnWidth(column.map((lang) => compactLabel(lang, options))),
   );
   const gap = Math.max(
     COMPACT_MIN_COLUMN_GAP,

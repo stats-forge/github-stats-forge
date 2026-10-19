@@ -5,8 +5,7 @@ import { getLanguageColor } from '../../common/languageColors.ts';
 import { commonLocales } from '../../common/locales.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
-import { createProgressNode, flexLayout } from '../../common/render.ts';
-import { measureText } from '../../common/text.ts';
+import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
 import type { WakaTimeData, WakaTimeLang } from '../../fetchers/types.ts';
 import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
@@ -27,7 +26,6 @@ const PROGRESSBAR_PADDING = 130;
 const HIDDEN_PROGRESSBAR_PADDING = 170;
 const COMPACT_LAYOUT_PROGRESSBAR_PADDING = 25;
 const TOTAL_TEXT_WIDTH = 275;
-const COMPACT_LEFT_X = 25;
 /** Where the right column sits on a default-width card, while the left column leaves it room. */
 const COMPACT_RIGHT_X = 230;
 
@@ -102,19 +100,12 @@ const measureCompactColumns = ({
   width: number;
 }): { rightX: number; width: number } => {
   const widest = (column: Array<WakaTimeLang>): number =>
-    Math.max(
-      0,
-      ...column.map(
-        (lang) =>
-          CARD_STYLE.compactList.labelX +
-          measureText(compactLabel(lang, value_format), CARD_STYLE.fontSize.micro),
-      ),
-    );
+    compactColumnWidth(column.map((lang) => compactLabel(lang, value_format)));
   const left = langs.filter((_, index) => index % 2 === 0);
   const right = langs.filter((_, index) => index % 2 === 1);
   const rightX = Math.max(
     COMPACT_RIGHT_X + (width - DEFAULT_CARD_WIDTH) / 2,
-    COMPACT_LEFT_X + widest(left) + CARD_STYLE.compactList.columnAir,
+    CARD_STYLE.padding.x + widest(left) + CARD_STYLE.compactList.columnAir,
   );
   return {
     rightX,
@@ -179,7 +170,7 @@ const createLanguageTextNode = ({
     const isLeft = index % 2 === 0;
     return createCompactLangNode({
       lang,
-      x: isLeft ? COMPACT_LEFT_X : rightX,
+      x: isLeft ? CARD_STYLE.padding.x : rightX,
       y: y + LINE_HEIGHT * Math.floor(index / 2),
       value_format,
     });
@@ -245,15 +236,17 @@ const createTextNode = ({
 };
 
 /**
- * Recalculating percentages so that, compact layout's progress bar does not break when
- * hiding languages.
+ * Rescales the percentages to the languages kept, so the compact progress bar still fills.
+ *
+ * @returns Copies of the languages, leaving the caller's data as it was.
  */
-const recalculatePercentages = (languages: Array<WakaTimeLang>): void => {
+const recalculatePercentages = <Lang extends WakaTimeLang>(languages: Array<Lang>): Array<Lang> => {
   const totalSum = languages.reduce((sum, language) => sum + language.percent, 0);
   const weight = Number((100 / totalSum).toFixed(2));
-  for (const language of languages) {
-    language.percent = Number((language.percent * weight).toFixed(2));
-  }
+  return languages.map((language) => ({
+    ...language,
+    percent: Number((language.percent * weight).toFixed(2)),
+  }));
 };
 
 /**
@@ -340,8 +333,7 @@ const renderCard = (
 
   // Since the percentages are sorted in descending order, we can just
   // slice from the beginning without sorting.
-  languages = languages.slice(0, langs_count);
-  recalculatePercentages(languages);
+  languages = recalculatePercentages(languages.slice(0, langs_count));
 
   const t = localize(wakatimeCardLocales, locale);
   const commonT = localize(commonLocales, locale);

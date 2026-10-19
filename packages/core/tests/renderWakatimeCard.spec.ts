@@ -72,6 +72,17 @@ describe('Test Render WakaTime Card', () => {
     },
   );
 
+  it("should leave the caller's percentages as they were", () => {
+    const data = structuredClone(wakaTimeData.data);
+    // its own percentages, so dropping the last always rescales the rest
+    data.languages = data.languages.map((lang, index) => ({ ...lang, percent: 50 - index * 10 }));
+    const percents = data.languages.map(({ percent }) => percent);
+
+    renderWakatimeCard(data, { layout: 'compact', langs_count: 2 });
+
+    expect(data.languages.map(({ percent }) => percent)).toStrictEqual(percents);
+  });
+
   it('should hide languages when hide is passed', () => {
     document.body.innerHTML = renderWakatimeCard(wakaTimeData.data, {
       hide_langs: ['YAML', 'Other'],

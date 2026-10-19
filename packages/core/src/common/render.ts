@@ -1,9 +1,11 @@
 import type { Child, MarkupElement } from '../markup/index.ts';
 import { el, renderMarkup, rule, style } from '../markup/index.ts';
 
+import { CARD_STYLE } from './brand.ts';
 import { getCardColors, isPrefixedHexColor } from './color.ts';
 import { kFormatter } from './fmt.ts';
 import { clampValue } from './ops.ts';
+import { measureText } from './text.ts';
 
 /**
  * Auto layout utility, allows us to layout things vertically or horizontally with
@@ -407,7 +409,17 @@ const renderError = ({
   );
 };
 
+/** @returns How wide a compact list column draws: its widest label, past the row's dot. */
+const compactColumnWidth = (labels: Array<string>): number =>
+  Math.max(
+    0,
+    ...labels.map(
+      (label) => CARD_STYLE.compactList.labelX + measureText(label, CARD_STYLE.fontSize.micro),
+    ),
+  );
+
 export {
+  compactColumnWidth,
   formatCount,
   NUMBER_FORMATS,
   renderError,
