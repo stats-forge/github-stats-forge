@@ -233,8 +233,8 @@ their reasons in `oxlint.config.ts`.
 
 - **A test that can pass without the code it covers is a bug** ([#287]). Break the code, or flip
   the input, and watch a new assertion fail before trusting it. `toHaveTextContent` matches a
-  substring, so give it `exactly(text)`; an accepted query asserts `upstream`, since a rejection
-  is an error too.
+  substring, so give it `exactly(text)` unless the assertion is about part of a longer text, such
+  as a `<desc>`; an accepted query asserts `upstream`, since a rejection is an error too.
 - **A test restores what it changes in an `afterEach`, never on its own last line** ([#287]), where
   a failed assertion skips it: fake timers, spies, `vi.stubEnv` for an env var, a `mkdtemp` dir.
 - **A card spec reads the drawn card through `tests/_card.ts`, a fetcher spec its requests through

@@ -7,7 +7,7 @@ import { measureText } from '../src/common/text.ts';
 import type { RepositoryData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue, draw, drawnIds, noMotionRules, translateOf } from './_card.ts';
+import { cssValue, draw, drawnIds, exactly, noMotionRules, translateOf } from './_card.ts';
 
 const repo: RepositoryData = {
   nameWithOwner: 'anuraghazra/convoychat',
@@ -32,27 +32,27 @@ describe('Test renderRepoCard', () => {
     draw(renderRepoCard(repo));
 
     const header = document.querySelector('.header');
-    expect(header).toHaveTextContent('convoychat');
+    expect(header).toHaveTextContent(exactly('convoychat'));
     expect(header).not.toHaveTextContent('anuraghazra');
     expect(document.querySelector('.description')).toHaveTextContent(
       // no space between "Chat" and "App" because there's a line break there
       'Help us take over the world! React + TS + GraphQL ChatApp',
     );
-    expect(screen.queryByTestId('stargazers')).toHaveTextContent('38k');
-    expect(screen.queryByTestId('forkcount')).toHaveTextContent('100');
-    expect(screen.queryByTestId('lang-name')).toHaveTextContent('TypeScript');
+    expect(screen.queryByTestId('stargazers')).toHaveTextContent(exactly('38k'));
+    expect(screen.queryByTestId('forkcount')).toHaveTextContent(exactly('100'));
+    expect(screen.queryByTestId('lang-name')).toHaveTextContent(exactly('TypeScript'));
     expect(screen.queryByTestId('lang-color')).toHaveAttribute('fill', '#2b7489');
   });
 
   it('should display username in title (full repo name)', () => {
     draw(renderRepoCard(repo, { show_owner: true }));
-    expect(document.querySelector('.header')).toHaveTextContent('anuraghazra/convoychat');
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('anuraghazra/convoychat'));
   });
 
   it('should trim header', () => {
     draw(renderRepoCard({ ...repo, name: 'some-really-long-repo-name-for-test-purposes' }));
     expect(document.querySelector('.header')).toHaveTextContent(
-      'some-really-long-repo-name-for-test...',
+      exactly('some-really-long-repo-name-for-test...'),
     );
   });
 
@@ -60,13 +60,19 @@ describe('Test renderRepoCard', () => {
     draw(renderRepoCard({ ...repo, description: PANGRAM }));
 
     const lines = document.querySelectorAll('.description tspan');
-    expect(lines[0]).toHaveTextContent('The quick brown fox jumps over the lazy dog is an');
-    expect(lines[1]).toHaveTextContent('English-language pangram—a sentence that contains all of');
+    expect(lines[0]).toHaveTextContent(
+      exactly('The quick brown fox jumps over the lazy dog is an'),
+    );
+    expect(lines[1]).toHaveTextContent(
+      exactly('English-language pangram—a sentence that contains all of'),
+    );
   });
 
   it('should not trim a short description', () => {
     draw(renderRepoCard({ ...repo, description: 'Small text should not trim' }));
-    expect(document.querySelector('.description')).toHaveTextContent('Small text should not trim');
+    expect(document.querySelector('.description')).toHaveTextContent(
+      exactly('Small text should not trim'),
+    );
   });
 
   it('should render emojis', () => {
@@ -74,7 +80,7 @@ describe('Test renderRepoCard', () => {
 
     // poop emoji may not show in all editors but it's there between "a" and "poo"
     expect(document.querySelector('.description')).toHaveTextContent(
-      'This is a text with a 💩 poo emoji',
+      exactly('This is a text with a 💩 poo emoji'),
     );
   });
 
@@ -88,7 +94,7 @@ describe('Test renderRepoCard', () => {
 
     expect(screen.queryByTestId('primary-lang')).toBeInTheDocument();
     expect(screen.queryByTestId('lang-color')).toHaveAttribute('fill', '#333');
-    expect(screen.queryByTestId('lang-name')).toHaveTextContent('Unspecified');
+    expect(screen.queryByTestId('lang-name')).toHaveTextContent(exactly('Unspecified'));
   });
 
   it('should render default colors properly', () => {
@@ -199,7 +205,9 @@ describe('Test renderRepoCard', () => {
 
   it('should fallback to default description', () => {
     draw(renderRepoCard({ ...repo, description: null, isArchived: true }));
-    expect(document.querySelector('.description')).toHaveTextContent('No description provided');
+    expect(document.querySelector('.description')).toHaveTextContent(
+      exactly('No description provided'),
+    );
   });
 
   // The height follows the lines asked for, whether the description fills them or not.

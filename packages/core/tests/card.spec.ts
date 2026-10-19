@@ -6,7 +6,7 @@ import { getCardColors } from '../src/common/color.ts';
 import { icons } from '../src/common/icons.ts';
 import { measureText } from '../src/common/text.ts';
 
-import { cssValue, draw } from './_card.ts';
+import { cssValue, draw, exactly } from './_card.ts';
 
 /** @returns Every `.header` font-size the drawn style sets, in px: the shrink, then Firefox's. */
 const headerSizes = (): Array<number> =>
@@ -44,7 +44,7 @@ describe(Card, () => {
     });
 
     draw(card.render(``));
-    expect(screen.queryByTestId('card-title')).toHaveTextContent('custom title');
+    expect(screen.queryByTestId('card-title')).toHaveTextContent(exactly('custom title'));
   });
 
   it('should set custom title', () => {
@@ -52,7 +52,7 @@ describe(Card, () => {
     card.setTitle('custom title');
 
     draw(card.render(``));
-    expect(screen.queryByTestId('card-title')).toHaveTextContent('custom title');
+    expect(screen.queryByTestId('card-title')).toHaveTextContent(exactly('custom title'));
   });
 
   it('should hide title', () => {

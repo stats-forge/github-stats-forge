@@ -5,7 +5,7 @@ import { renderGistCard } from '../src/cards/gist/index.ts';
 import type { GistData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue, draw, drawnIds, noMotionRules } from './_card.ts';
+import { cssValue, draw, drawnIds, exactly, noMotionRules } from './_card.ts';
 
 const data: GistData = {
   name: 'test',
@@ -21,27 +21,27 @@ describe('test renderGistCard', () => {
     draw(renderGistCard(data));
 
     const header = document.querySelector('.header');
-    expect(header).toHaveTextContent('test');
+    expect(header).toHaveTextContent(exactly('test'));
     expect(header).not.toHaveTextContent('anuraghazra');
     expect(document.querySelector('.description')).toHaveTextContent(
       // Between "Python" and "programs" there is a line break caused by: </tspan><tspan dy="1.2em" x="25">
       'Small <b>test</b> repository with different Pythonprograms.',
     );
-    expect(screen.queryByTestId('starsCount')).toHaveTextContent('163');
-    expect(screen.queryByTestId('forksCount')).toHaveTextContent('19');
-    expect(screen.queryByTestId('lang-name')).toHaveTextContent('Python');
+    expect(screen.queryByTestId('starsCount')).toHaveTextContent(exactly('163'));
+    expect(screen.queryByTestId('forksCount')).toHaveTextContent(exactly('19'));
+    expect(screen.queryByTestId('lang-name')).toHaveTextContent(exactly('Python'));
     expect(screen.queryByTestId('lang-color')).toHaveAttribute('fill', '#3572A5');
   });
 
   it('should display username in title if show_owner is true', () => {
     draw(renderGistCard(data, { show_owner: true }));
-    expect(document.querySelector('.header')).toHaveTextContent('anuraghazra/test');
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('anuraghazra/test'));
   });
 
   it('should trim header if name is too long', () => {
     draw(renderGistCard({ ...data, name: 'some-really-long-repo-name-for-test-purposes' }));
     expect(document.querySelector('.header')).toHaveTextContent(
-      'some-really-long-repo-name-for-test...',
+      exactly('some-really-long-repo-name-for-test...'),
     );
   });
 
@@ -55,13 +55,19 @@ describe('test renderGistCard', () => {
     );
 
     const lines = document.querySelectorAll('.description tspan');
-    expect(lines[0]).toHaveTextContent('The quick brown fox jumps over the lazy dog is an');
-    expect(lines[1]).toHaveTextContent('English-language pangram—a sentence that contains all of');
+    expect(lines[0]).toHaveTextContent(
+      exactly('The quick brown fox jumps over the lazy dog is an'),
+    );
+    expect(lines[1]).toHaveTextContent(
+      exactly('English-language pangram—a sentence that contains all of'),
+    );
   });
 
   it('should not trim description if it is short', () => {
     draw(renderGistCard({ ...data, description: 'Small text should not trim' }));
-    expect(document.querySelector('.description')).toHaveTextContent('Small text should not trim');
+    expect(document.querySelector('.description')).toHaveTextContent(
+      exactly('Small text should not trim'),
+    );
   });
 
   it('should render emojis in description', () => {
@@ -72,7 +78,7 @@ describe('test renderGistCard', () => {
       }),
     );
     expect(document.querySelector('.description')).toHaveTextContent(
-      'This is a test gist description with ❤️ emoji.',
+      exactly('This is a test gist description with ❤️ emoji.'),
     );
   });
 
@@ -160,6 +166,8 @@ describe('test renderGistCard', () => {
 
   it('should fallback to default description', () => {
     draw(renderGistCard({ ...data, description: null }));
-    expect(document.querySelector('.description')).toHaveTextContent('No description provided');
+    expect(document.querySelector('.description')).toHaveTextContent(
+      exactly('No description provided'),
+    );
   });
 });

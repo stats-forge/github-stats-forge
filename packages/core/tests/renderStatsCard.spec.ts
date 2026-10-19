@@ -51,13 +51,15 @@ describe('Test renderStatsCard', () => {
   it('should render correctly', () => {
     const card = draw(renderStatsCard(stats));
 
-    expect(document.querySelector('.header')).toHaveTextContent("Anurag Hazra's GitHub Stats");
+    expect(document.querySelector('.header')).toHaveTextContent(
+      exactly("Anurag Hazra's GitHub Stats"),
+    );
     expect(card).toHaveAttribute('height', '189');
-    expect(screen.getByTestId('stars')).toHaveTextContent('100');
-    expect(screen.getByTestId('commits')).toHaveTextContent('200');
-    expect(screen.getByTestId('issues')).toHaveTextContent('300');
-    expect(screen.getByTestId('prs')).toHaveTextContent('400');
-    expect(screen.getByTestId('contributed_to')).toHaveTextContent('500');
+    expect(screen.getByTestId('stars')).toHaveTextContent(exactly('100'));
+    expect(screen.getByTestId('commits')).toHaveTextContent(exactly('200'));
+    expect(screen.getByTestId('issues')).toHaveTextContent(exactly('300'));
+    expect(screen.getByTestId('prs')).toHaveTextContent(exactly('400'));
+    expect(screen.getByTestId('contributed_to')).toHaveTextContent(exactly('500'));
     expect(screen.queryByTestId('card-bg')).toBeInTheDocument();
     expect(screen.queryByTestId('rank-circle')).toBeInTheDocument();
     expect(drawnIds(ALL_STATS)).toStrictEqual([
@@ -308,13 +310,15 @@ describe('Test renderStatsCard', () => {
   it('should render translations', () => {
     draw(renderStatsCard(stats, { locale: 'cn' }));
 
-    expect(document.querySelector('.header')).toHaveTextContent('Anurag Hazra 的 GitHub 统计数据');
+    expect(document.querySelector('.header')).toHaveTextContent(
+      exactly('Anurag Hazra 的 GitHub 统计数据'),
+    );
     const labels = document.querySelectorAll('.stagger > .stat.not_bold');
-    expect(labels[0]).toHaveTextContent('获标星数:');
-    expect(labels[1]).toHaveTextContent('累计提交总数 (去年):');
-    expect(labels[2]).toHaveTextContent('发起的 PR 总数:');
-    expect(labels[3]).toHaveTextContent('提出的 issue 总数:');
-    expect(labels[4]).toHaveTextContent('贡献的项目数（去年）:');
+    expect(labels[0]).toHaveTextContent(exactly('获标星数:'));
+    expect(labels[1]).toHaveTextContent(exactly('累计提交总数 (去年):'));
+    expect(labels[2]).toHaveTextContent(exactly('发起的 PR 总数:'));
+    expect(labels[3]).toHaveTextContent(exactly('提出的 issue 总数:'));
+    expect(labels[4]).toHaveTextContent(exactly('贡献的项目数（去年）:'));
   });
 
   it('should render without rounding', () => {
@@ -353,7 +357,7 @@ describe('Test renderStatsCard', () => {
 
   it('should render default rank icon with level A+', () => {
     draw(renderStatsCard(stats, { rank_icon: 'default' }));
-    expect(screen.getByTestId('level-rank-icon')).toHaveTextContent('A+');
+    expect(screen.getByTestId('level-rank-icon')).toHaveTextContent(exactly('A+'));
   });
 
   it('should render github rank icon', () => {
@@ -363,7 +367,7 @@ describe('Test renderStatsCard', () => {
 
   it('should show the rank percentile', () => {
     draw(renderStatsCard(stats, { rank_icon: 'percentile' }));
-    expect(screen.getByTestId('percentile-top-header')).toHaveTextContent('Top');
+    expect(screen.getByTestId('percentile-top-header')).toHaveTextContent(exactly('Top'));
 
     const percentileRankValue = screen.getByTestId('percentile-rank-value');
     expect(percentileRankValue).toHaveClass('rank-percentile-text');

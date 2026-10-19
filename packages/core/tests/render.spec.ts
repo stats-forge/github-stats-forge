@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { renderError } from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
 
+import { exactly } from './_card.ts';
+
 describe(splitWrappedText, () => {
   it('should return an empty array for empty text', () => {
     expect(splitWrappedText('', 10, 200)).toStrictEqual([]);
@@ -69,20 +71,24 @@ describe(wrapTextMultiline, () => {
 describe(renderError, () => {
   it('should contain error messages', () => {
     document.body.innerHTML = renderError({ message: 'Something went wrong' });
-    expect(screen.getByTestId('message').children[0]).toHaveTextContent('Something went wrong');
+    expect(screen.getByTestId('message').children[0]).toHaveTextContent(
+      exactly('Something went wrong'),
+    );
     expect(screen.getByTestId('message').children[1]).toBeEmptyDOMElement();
 
     document.body.innerHTML = renderError({
       message: 'Something went wrong',
       secondaryMessage: 'Secondary Message',
     });
-    expect(screen.getByTestId('message').children[1]).toHaveTextContent('Secondary Message');
+    expect(screen.getByTestId('message').children[1]).toHaveTextContent(
+      exactly('Secondary Message'),
+    );
   });
 
   it('points a reader at this project, on its own line', () => {
     document.body.innerHTML = renderError({ message: 'Nope' });
     expect(screen.getByTestId('report')).toHaveTextContent(
-      'File an issue at https://tinyurl.com/github-stats-forge-bug',
+      exactly('File an issue at https://tinyurl.com/github-stats-forge-bug'),
     );
   });
 

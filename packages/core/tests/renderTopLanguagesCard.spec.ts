@@ -204,7 +204,7 @@ describe('Test renderTopLanguages', () => {
   it('should render correctly', () => {
     draw(renderTopLanguages(langs));
 
-    expect(screen.queryByTestId('header')).toHaveTextContent('Most Used Languages');
+    expect(screen.queryByTestId('header')).toHaveTextContent(exactly('Most Used Languages'));
     expectLabels(['HTML', 'javascript', 'css']);
 
     const progresses = screen.queryAllByTestId('lang-progress');
@@ -287,7 +287,7 @@ describe('Test renderTopLanguages', () => {
   it('should render with layout compact', () => {
     draw(renderTopLanguages(langs, { layout: 'compact' }));
 
-    expect(screen.queryByTestId('header')).toHaveTextContent('Most Used Languages');
+    expect(screen.queryByTestId('header')).toHaveTextContent(exactly('Most Used Languages'));
     expectLabels(SLICES.map(({ label }) => label));
 
     const progresses = screen.queryAllByTestId('lang-progress');
@@ -321,7 +321,7 @@ describe('Test renderTopLanguages', () => {
   it('should render with layout donut', () => {
     draw(renderTopLanguages(langs, { layout: 'donut' }));
 
-    expect(screen.queryByTestId('header')).toHaveTextContent('Most Used Languages');
+    expect(screen.queryByTestId('header')).toHaveTextContent(exactly('Most Used Languages'));
     expectLabels(SLICES.map(({ label }) => label));
 
     const slices = screen.queryAllByTestId('lang-donut');
@@ -390,7 +390,7 @@ describe('Test renderTopLanguages', () => {
   it('should render with layout donut vertical', () => {
     draw(renderTopLanguages(langs, { layout: 'donut-vertical' }));
 
-    expect(screen.queryByTestId('header')).toHaveTextContent('Most Used Languages');
+    expect(screen.queryByTestId('header')).toHaveTextContent(exactly('Most Used Languages'));
     expectLabels(SLICES.map(({ label }) => label));
 
     const rings = screen.queryAllByTestId('lang-donut');
@@ -434,7 +434,7 @@ describe('Test renderTopLanguages', () => {
   it('should render with layout pie', () => {
     draw(renderTopLanguages(langs, { layout: 'pie' }));
 
-    expect(screen.queryByTestId('header')).toHaveTextContent('Most Used Languages');
+    expect(screen.queryByTestId('header')).toHaveTextContent(exactly('Most Used Languages'));
     expectLabels(SLICES.map(({ label }) => label));
 
     const slices = screen.queryAllByTestId('lang-pie');
@@ -464,7 +464,7 @@ describe('Test renderTopLanguages', () => {
 
   it('should render a translated title', () => {
     draw(renderTopLanguages(langs, { locale: 'cn' }));
-    expect(document.querySelector('.header')).toHaveTextContent('最常用的语言');
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('最常用的语言'));
   });
 
   it('should render without rounding', () => {
@@ -485,7 +485,7 @@ describe('Test renderTopLanguages', () => {
 
   it('should show "No languages data." message instead of empty card when nothing to show', () => {
     draw(renderTopLanguages({}));
-    expect(document.querySelector('.stat')).toHaveTextContent('No languages data.');
+    expect(document.querySelector('.stat')).toHaveTextContent(exactly('No languages data.'));
   });
 
   it.each([

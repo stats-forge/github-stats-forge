@@ -6,7 +6,7 @@ import { CardError } from '../src/common/error.ts';
 import type { OrgActivityData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue } from './_card.ts';
+import { cssValue, exactly } from './_card.ts';
 
 const data: OrgActivityData = {
   login: 'vitest-dev',
@@ -25,10 +25,10 @@ describe('test renderOrgActivityCard', () => {
   it('should draw the four stats it always draws, and no more', () => {
     document.body.innerHTML = renderOrgActivityCard(data);
 
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent('267');
-    expect(screen.queryByTestId('prs_merged')).toHaveTextContent('169');
-    expect(screen.queryByTestId('issues_opened')).toHaveTextContent('82');
-    expect(screen.queryByTestId('issues_closed')).toHaveTextContent('66');
+    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('267'));
+    expect(screen.queryByTestId('prs_merged')).toHaveTextContent(exactly('169'));
+    expect(screen.queryByTestId('issues_opened')).toHaveTextContent(exactly('82'));
+    expect(screen.queryByTestId('issues_closed')).toHaveTextContent(exactly('66'));
 
     expect(screen.queryByTestId('discussions_started')).not.toBeInTheDocument();
     expect(screen.queryByTestId('commits')).not.toBeInTheDocument();
@@ -39,8 +39,8 @@ describe('test renderOrgActivityCard', () => {
       show: ['discussions_started', 'commits'],
     });
 
-    expect(screen.queryByTestId('discussions_started')).toHaveTextContent('9');
-    expect(screen.queryByTestId('commits')).toHaveTextContent('204');
+    expect(screen.queryByTestId('discussions_started')).toHaveTextContent(exactly('9'));
+    expect(screen.queryByTestId('commits')).toHaveTextContent(exactly('204'));
   });
 
   it('should leave out the stats `hide` names', () => {
@@ -62,8 +62,8 @@ describe('test renderOrgActivityCard', () => {
 
     expect(screen.queryByTestId('issues_opened')).not.toBeInTheDocument();
     expect(screen.queryByTestId('issues_closed')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent('267');
-    expect(screen.queryByTestId('prs_merged')).toHaveTextContent('169');
+    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('267'));
+    expect(screen.queryByTestId('prs_merged')).toHaveTextContent(exactly('169'));
   });
 
   it('should leave out a commit count nobody fetched, even when `show` names it', () => {
@@ -90,7 +90,7 @@ describe('test renderOrgActivityCard', () => {
     document.body.innerHTML = renderOrgActivityCard(data);
 
     expect(document.querySelector('.header')).toHaveTextContent(
-      "Vitest's organization activity (last 30 days)",
+      exactly("Vitest's organization activity (last 30 days)"),
     );
   });
 
@@ -123,7 +123,7 @@ describe('test renderOrgActivityCard', () => {
     });
 
     expect(document.querySelector('.header')).toHaveTextContent(
-      'Organization activity (last 30 days)',
+      exactly('Organization activity (last 30 days)'),
     );
     expect(document.querySelector('.header')).not.toHaveTextContent('An organization with');
   });
@@ -131,7 +131,7 @@ describe('test renderOrgActivityCard', () => {
   it('should take a custom title', () => {
     document.body.innerHTML = renderOrgActivityCard(data, { title: 'How we are doing' });
 
-    expect(document.querySelector('.header')).toHaveTextContent('How we are doing');
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('How we are doing'));
   });
 
   it('should give the title icon its own color, and hold its slot either way', () => {
@@ -143,13 +143,13 @@ describe('test renderOrgActivityCard', () => {
 
   it('should abbreviate a count, and write it out in full when the format is long', () => {
     document.body.innerHTML = renderOrgActivityCard({ ...data, prsOpened: 1204 });
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent('1.2k');
+    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('1.2k'));
 
     document.body.innerHTML = renderOrgActivityCard(
       { ...data, prsOpened: 1204 },
       { number_format: 'long' },
     );
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent('1204');
+    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('1204'));
   });
 
   it('should hide the stat icons when asked, without dropping their rows', () => {

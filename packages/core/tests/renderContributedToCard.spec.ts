@@ -5,7 +5,7 @@ import { MIN_CARD_WIDTH, renderContributedToCard } from '../src/cards/contribute
 import type { ContributedToData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue } from './_card.ts';
+import { cssValue, exactly } from './_card.ts';
 
 const data: ContributedToData = {
   login: 'anuraghazra',
@@ -24,19 +24,19 @@ describe('test renderContributedToCard', () => {
 
     const names = screen.queryAllByTestId('repo-name');
     expect(names).toHaveLength(3);
-    expect(names[0]).toHaveTextContent('vitest-dev/vitest');
-    expect(names[2]).toHaveTextContent('sveltejs/svelte');
+    expect(names[0]).toHaveTextContent(exactly('vitest-dev/vitest'));
+    expect(names[2]).toHaveTextContent(exactly('sveltejs/svelte'));
 
     const counts = screen.queryAllByTestId('repo-contributions');
-    expect(counts[0]).toHaveTextContent('128');
-    expect(counts[2]).toHaveTextContent('16');
+    expect(counts[0]).toHaveTextContent(exactly('128'));
+    expect(counts[2]).toHaveTextContent(exactly('16'));
   });
 
   it('should name the account in the title', () => {
     document.body.innerHTML = renderContributedToCard(data);
 
     expect(document.querySelector('.header')).toHaveTextContent(
-      'Repositories anuraghazra contributed to',
+      exactly('Repositories anuraghazra contributed to'),
     );
   });
 
@@ -46,7 +46,9 @@ describe('test renderContributedToCard', () => {
       login: 'a-login-of-the-thirty-nine-characters-x',
     });
 
-    expect(document.querySelector('.header')).toHaveTextContent('Repositories contributed to');
+    expect(document.querySelector('.header')).toHaveTextContent(
+      exactly('Repositories contributed to'),
+    );
   });
 
   it('should give the title icon its own color, and hold its slot either way', () => {
@@ -59,7 +61,7 @@ describe('test renderContributedToCard', () => {
   it('should take a custom title', () => {
     document.body.innerHTML = renderContributedToCard(data, { title: 'Where I work' });
 
-    expect(document.querySelector('.header')).toHaveTextContent('Where I work');
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('Where I work'));
   });
 
   it('should size the first bar full and the rest against it', () => {
@@ -98,14 +100,14 @@ describe('test renderContributedToCard', () => {
     document.body.innerHTML = renderContributedToCard(data);
 
     expect(screen.queryByTestId('footer')).toHaveTextContent(
-      'top 3 of 37 repositories · 2022–2024',
+      exactly('top 3 of 37 repositories · 2022–2024'),
     );
   });
 
   it('should drop the "top n of" when it shows every repository found', () => {
     document.body.innerHTML = renderContributedToCard({ ...data, totalRepos: 3 });
 
-    expect(screen.queryByTestId('footer')).toHaveTextContent('3 repositories · 2022–2024');
+    expect(screen.queryByTestId('footer')).toHaveTextContent(exactly('3 repositories · 2022–2024'));
   });
 
   it('should render an empty state rather than a bare footer', () => {
@@ -115,7 +117,7 @@ describe('test renderContributedToCard', () => {
       totalRepos: 0,
     });
 
-    expect(screen.queryByTestId('no-repos')).toHaveTextContent('No contributions found');
+    expect(screen.queryByTestId('no-repos')).toHaveTextContent(exactly('No contributions found'));
     expect(screen.queryByTestId('repo-name')).not.toBeInTheDocument();
     expect(screen.queryByTestId('footer')).toHaveTextContent('0 repositories');
   });

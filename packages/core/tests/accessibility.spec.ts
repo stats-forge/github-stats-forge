@@ -16,7 +16,7 @@ import type {
   WakaTimeData,
 } from '../src/fetchers/types.ts';
 
-import { draw } from './_card.ts';
+import { draw, exactly } from './_card.ts';
 
 const gistData: GistData = {
   name: 'test',
@@ -158,8 +158,10 @@ describe('card accessibility', () => {
     );
 
     expect(svg).toHaveAttribute('role', 'img');
-    expect(document.querySelector('title#title-id')).toHaveTextContent('Something went wrong');
-    expect(document.querySelector('desc#desc-id')).toHaveTextContent('Try again');
+    expect(document.querySelector('title#title-id')).toHaveTextContent(
+      exactly('Something went wrong'),
+    );
+    expect(document.querySelector('desc#desc-id')).toHaveTextContent(exactly('Try again'));
   });
 });
 
