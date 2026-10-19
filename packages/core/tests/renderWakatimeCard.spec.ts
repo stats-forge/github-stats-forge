@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
+import { measureText } from '../src/common/text.ts';
 
 import { testConfig } from './_config.ts';
 import { wakaTimeData } from './fetchWakatime.spec.ts';
@@ -43,6 +44,43 @@ describe('Test Render WakaTime Card', () => {
 
     // and the stacked segments start where it does, rather than under its left edge
     expect(screen.getAllByTestId('lang-progress')[0]).toHaveAttribute('x', '25');
+  });
+
+  it.each([undefined, 400])(
+    'should keep long compact labels clear of each other and inside the card (card_width %s)',
+    (card_width) => {
+      const data = structuredClone(wakaTimeData.data);
+      data.languages = data.languages.map((lang) => ({
+        ...lang,
+        name: `${lang.name} With An Extended And Very Long Name`,
+      }));
+      document.body.innerHTML = renderWakatimeCard(data, { layout: 'compact', card_width });
+
+      const width = Number(document.querySelector('svg')?.getAttribute('width'));
+      const rows = screen.getAllByTestId('lang-name').map((label) => {
+        const x = Number(
+          /translate\((?<x>[\d.]+),/u.exec(label.parentElement?.getAttribute('transform') ?? '')
+            ?.groups?.['x'],
+        );
+        return { left: x, right: x + 15 + measureText(label.textContent, 11) };
+      });
+      const [left, right] = [0, 1].map((column) => rows.filter((_, i) => i % 2 === column));
+      const rightX = Math.min(...(right ?? []).map((row) => row.left));
+
+      expect(Math.max(...(left ?? []).map((row) => row.right))).toBeLessThan(rightX);
+      expect(Math.max(...(right ?? []).map((row) => row.right))).toBeLessThanOrEqual(width - 25);
+    },
+  );
+
+  it("should leave the caller's percentages as they were", () => {
+    const data = structuredClone(wakaTimeData.data);
+    // its own percentages, so dropping the last always rescales the rest
+    data.languages = data.languages.map((lang, index) => ({ ...lang, percent: 50 - index * 10 }));
+    const percents = data.languages.map(({ percent }) => percent);
+
+    renderWakatimeCard(data, { layout: 'compact', langs_count: 2 });
+
+    expect(data.languages.map(({ percent }) => percent)).toStrictEqual(percents);
   });
 
   it('should hide languages when hide is passed', () => {

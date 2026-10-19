@@ -3,8 +3,7 @@ import { isPrefixedHexColor } from '../../common/color.ts';
 import { formatBytes } from '../../common/fmt.ts';
 import { DEFAULT_LANG_COLOR } from '../../common/languageColors.ts';
 import { chunkArray } from '../../common/ops.ts';
-import { createProgressNode, flexLayout } from '../../common/render.ts';
-import { measureText } from '../../common/text.ts';
+import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
 import type { Lang } from '../../fetchers/types.ts';
 import type { Child, MarkupElement } from '../../markup/index.ts';
 import { el } from '../../markup/index.ts';
@@ -34,11 +33,7 @@ type TopLangLayout = (typeof TOP_LANG_LAYOUTS)[number];
 const TOP_LANG_VALUE_FORMATS = ['percent', 'bytes'] as const;
 type TopLangValueFormat = (typeof TOP_LANG_VALUE_FORMATS)[number];
 
-/** Where a compact row's label starts, clear of its dot. */
-const COMPACT_LABEL_X = 15;
 const COMPACT_MIN_COLUMN_GAP = 150;
-/** Air between the first column's widest label and the second column. */
-const COMPACT_COLUMN_AIR = 5;
 
 /**
  * Calculates height for the compact layout.
@@ -208,14 +203,12 @@ const measureCompactList = (
 ): { columns: Array<Array<Lang>>; gap: number; width: number } => {
   const columns = chunkArray(langs, langs.length / 2);
   const columnWidths = columns.map((column) =>
-    Math.max(
-      ...column.map(
-        (lang) =>
-          COMPACT_LABEL_X + measureText(compactLabel(lang, options), CARD_STYLE.fontSize.micro),
-      ),
-    ),
+    compactColumnWidth(column.map((lang) => compactLabel(lang, options))),
   );
-  const gap = Math.max(COMPACT_MIN_COLUMN_GAP, (columnWidths[0] ?? 0) + COMPACT_COLUMN_AIR);
+  const gap = Math.max(
+    COMPACT_MIN_COLUMN_GAP,
+    (columnWidths[0] ?? 0) + CARD_STYLE.compactList.columnAir,
+  );
   const width = gap * (columns.length - 1) + (columnWidths.at(-1) ?? 0);
   return { columns, gap, width };
 };
@@ -239,7 +232,7 @@ const createCompactLangNode = ({
     el('circle', { cx: 5, cy: 6, r: 5, fill: color }),
     el(
       'text',
-      { 'data-testid': 'lang-name', x: COMPACT_LABEL_X, y: 10, class: 'lang-name' },
+      { 'data-testid': 'lang-name', x: CARD_STYLE.compactList.labelX, y: 10, class: 'lang-name' },
       compactLabel(lang, options),
     ),
   );
