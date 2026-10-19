@@ -181,41 +181,19 @@ describe('Test renderStatsCard', () => {
     expect(document.querySelector('svg')).toHaveAttribute('width', '500');
   });
 
-  it('should render with custom width set and limit minimum width', () => {
-    document.body.innerHTML = renderStatsCard(stats, { card_width: 1 });
-    expect(document.querySelector('svg')).toHaveAttribute('width', '1');
-
-    // Test default minimum card width without rank circle.
-    document.body.innerHTML = renderStatsCard(stats, {
-      card_width: 1,
-      hide_rank: true,
-    });
-    expect(document.querySelector('svg')).toHaveAttribute('width', '1');
-
-    // Test minimum card width with rank and icons.
-    document.body.innerHTML = renderStatsCard(stats, {
-      card_width: 1,
-      hide_rank: true,
-      show_icons: true,
-    });
-    expect(document.querySelector('svg')).toHaveAttribute('width', '1');
-
-    // Test minimum card width with icons but without rank.
-    document.body.innerHTML = renderStatsCard(stats, {
-      card_width: 1,
-      hide_rank: false,
-      show_icons: true,
-    });
-    expect(document.querySelector('svg')).toHaveAttribute('width', '1');
-
-    // Test minimum card width without icons or rank.
-    document.body.innerHTML = renderStatsCard(stats, {
-      card_width: 1,
-      hide_rank: false,
-      show_icons: false,
-    });
-    expect(document.querySelector('svg')).toHaveAttribute('width', '1');
-  });
+  // An explicit width is the caller's, so it is honoured however narrow, whatever else is drawn.
+  it.each([
+    { hide_rank: false, show_icons: false },
+    { hide_rank: true, show_icons: false },
+    { hide_rank: true, show_icons: true },
+    { hide_rank: false, show_icons: true },
+  ])(
+    'should honour a card_width however narrow (hide_rank $hide_rank, show_icons $show_icons)',
+    (options) => {
+      document.body.innerHTML = renderStatsCard(stats, { card_width: 1, ...options });
+      expect(document.querySelector('svg')).toHaveAttribute('width', '1');
+    },
+  );
 
   it('should render default colors properly', () => {
     document.body.innerHTML = renderStatsCard(stats);
@@ -457,15 +435,16 @@ describe('Test renderStatsCard', () => {
   });
 
   it('should shorten values', () => {
-    stats.totalCommits = 1999;
+    // a copy: the fixture is shared, and every later test reads its 200
+    const data = { ...stats, totalCommits: 1999 };
 
-    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(data);
     expect(screen.getByTestId('commits')).toHaveTextContent('2k');
-    document.body.innerHTML = renderStatsCard(stats, { number_format: 'long' });
+    document.body.innerHTML = renderStatsCard(data, { number_format: 'long' });
     expect(screen.getByTestId('commits')).toHaveTextContent('1999');
-    document.body.innerHTML = renderStatsCard(stats, { number_precision: 2 });
+    document.body.innerHTML = renderStatsCard(data, { number_precision: 2 });
     expect(screen.getByTestId('commits')).toHaveTextContent('2.00k');
-    document.body.innerHTML = renderStatsCard(stats, {
+    document.body.innerHTML = renderStatsCard(data, {
       number_format: 'long',
       number_precision: 2,
     });

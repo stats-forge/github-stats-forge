@@ -369,8 +369,7 @@ describe('Test fetchStats', () => {
   });
 
   it("should fetch one page of stars if 'FETCH_MULTI_PAGE_STARS' env variable is not set", async () => {
-    config = baseConfig.with({ fetchMultiPageStars: 1 });
-
+    // `beforeEach` leaves the default config in place, which is what this one is about
     const stats = await fetchStats({ username: 'anuraghazra' }, config);
     expect(stats).toStrictEqual(expectedStats());
   });

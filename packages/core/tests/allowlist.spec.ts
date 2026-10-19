@@ -3,7 +3,7 @@
  * any request reaches GitHub, and every card has to declare which of its params is the identity.
  */
 
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { ApiResult } from '../src/api/api-result.ts';
 import { contributedTo } from '../src/api/contributed-to.ts';
@@ -31,6 +31,10 @@ beforeAll(() => {
   noRequests
     .onAny()
     .reply(200, { errors: [{ type: 'INTERNAL', message: 'Something went wrong' }] });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 const pinned = new CardConfig({
@@ -110,7 +114,8 @@ describe('a deployment pinned by ALLOWLIST', () => {
 
     const result = await stats({ username: 'anuraghazra' }, open);
 
-    expect(result).not.toMatchObject({ error: { code: 'not_allowed' } });
+    // allowed, so it gets as far as the transport and fails there instead
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
   it('guards the gist card with its own list, not the username one', async () => {

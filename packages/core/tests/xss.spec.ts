@@ -141,248 +141,26 @@ const expectNoScript = (result: ApiResult): void => {
   expect(svg?.querySelector('script')).toBeNull();
 };
 
-/**
- * @returns One `[param, payload]` case per payload, for `it.each`.
- */
-const casesFor = (params: Array<string>): Array<[string, string]> =>
-  params.flatMap((param) => xssPayloads.map((payload): [string, string] => [param, payload]));
+/** Each endpoint, the param that names whose card it is, and what else it needs to render. */
+const endpoints = [
+  { name: 'stats', handler: stats, identity: 'username', base: {} },
+  { name: 'top-langs', handler: topLangs, identity: 'username', base: {} },
+  { name: 'pin', handler: pin, identity: 'repo', base: { username: 'user' } },
+  { name: 'gist', handler: gist, identity: 'id', base: {} },
+  { name: 'wakatime', handler: wakatime, identity: 'username', base: {} },
+];
 
-describe('XSS prevention - stats API', () => {
-  const apiParamNames = [
-    'hide',
-    'hide_title',
-    'hide_border',
-    'card_width',
-    'hide_rank',
-    'show_icons',
-    'include_all_commits',
-    'from',
-    'to',
-    'title_color',
-    'ring_color',
-    'icon_color',
-    'text_color',
-    'bg_color',
-    'theme',
-    'exclude_repo',
-    'title',
-    'locale',
-    'disable_animations',
-    'border_radius',
-    'number_format',
-    'role',
-    'number_precision',
-    'border_color',
-    'rank_icon',
-    'show',
-    'title_color_light',
-    'ring_color_light',
-    'icon_color_light',
-    'text_color_light',
-    'bg_color_light',
-    'border_color_light',
-    'theme_light',
-    'title_color_dark',
-    'ring_color_dark',
-    'icon_color_dark',
-    'text_color_dark',
-    'bg_color_dark',
-    'border_color_dark',
-    'theme_dark',
-  ];
+describe.each(endpoints)('XSS prevention - $name API', ({ handler, identity, base }) => {
+  // Every param the endpoint declares, read off its schema so a new one is covered the day it lands.
+  const cases = Object.keys(handler.PARAMS)
+    .filter((param) => param !== identity)
+    .flatMap((param) => xssPayloads.map((payload): [string, string] => [param, payload]));
 
-  it.each(casesFor(apiParamNames))('should prevent XSS via %s (%s)', async (param, payload) => {
-    const query: Record<string, string> = {
-      username: 'user',
-      [param]: payload,
-    };
-    expectNoScript(await stats(query, config));
+  it.each(cases)('should prevent XSS via %s (%s)', async (param, payload) => {
+    expectNoScript(await handler({ ...base, [identity]: 'user', [param]: payload }, config));
   });
 
-  it.each(xssPayloads)('should prevent XSS via username (%s)', async (payload) => {
-    expectNoScript(await stats({ username: payload }, config));
-  });
-});
-
-describe('XSS prevention - top-langs API', () => {
-  const apiParamNames = [
-    'hide_langs',
-    'hide_title',
-    'hide_border',
-    'card_width',
-    'title_color',
-    'text_color',
-    'bg_color',
-    'prog_bar_bg_color',
-    'theme',
-    'layout',
-    'langs_count',
-    'exclude_repo',
-    'size_weight',
-    'count_weight',
-    'title',
-    'locale',
-    'border_radius',
-    'border_color',
-    'role',
-    'disable_animations',
-    'hide_progress',
-    'hide_values',
-    'value_format',
-    'title_color_light',
-    'text_color_light',
-    'bg_color_light',
-    'border_color_light',
-    'prog_bar_bg_color_light',
-    'theme_light',
-    'title_color_dark',
-    'text_color_dark',
-    'bg_color_dark',
-    'border_color_dark',
-    'prog_bar_bg_color_dark',
-    'theme_dark',
-  ];
-
-  it.each(casesFor(apiParamNames))('should prevent XSS via %s (%s)', async (param, payload) => {
-    const query: Record<string, string> = {
-      username: 'user',
-      [param]: payload,
-    };
-    expectNoScript(await topLangs(query, config));
-  });
-
-  it.each(xssPayloads)('should prevent XSS via username (%s)', async (payload) => {
-    expectNoScript(await topLangs({ username: payload }, config));
-  });
-});
-
-describe('XSS prevention - pin API', () => {
-  const apiParamNames = [
-    'username',
-    'hide_border',
-    'title_color',
-    'icon_color',
-    'text_color',
-    'bg_color',
-    'card_width',
-    'theme',
-    'show_owner',
-    'show',
-    'show_icons',
-    'number_format',
-    'locale',
-    'border_radius',
-    'border_color',
-    'description_lines_count',
-    'disable_animations',
-    'title_color_light',
-    'icon_color_light',
-    'text_color_light',
-    'bg_color_light',
-    'border_color_light',
-    'theme_light',
-    'title_color_dark',
-    'icon_color_dark',
-    'text_color_dark',
-    'bg_color_dark',
-    'border_color_dark',
-    'theme_dark',
-  ];
-
-  it.each(casesFor(apiParamNames))('should prevent XSS via %s (%s)', async (param, payload) => {
-    const query: Record<string, string> = { repo: 'repo', [param]: payload };
-    expectNoScript(await pin(query, config));
-  });
-
-  it.each(xssPayloads)('should prevent XSS via repo (%s)', async (payload) => {
-    expectNoScript(await pin({ repo: payload }, config));
-  });
-});
-
-describe('XSS prevention - gist API', () => {
-  const apiParamNames = [
-    'title_color',
-    'icon_color',
-    'text_color',
-    'bg_color',
-    'theme',
-    'locale',
-    'border_radius',
-    'border_color',
-    'show_owner',
-    'hide_border',
-    'disable_animations',
-    'title_color_light',
-    'icon_color_light',
-    'text_color_light',
-    'bg_color_light',
-    'border_color_light',
-    'theme_light',
-    'title_color_dark',
-    'icon_color_dark',
-    'text_color_dark',
-    'bg_color_dark',
-    'border_color_dark',
-    'theme_dark',
-  ];
-
-  it.each(casesFor(apiParamNames))('should prevent XSS via %s (%s)', async (param, payload) => {
-    const query: Record<string, string> = {
-      id: 'test-id',
-      [param]: payload,
-    };
-    expectNoScript(await gist(query, config));
-  });
-
-  it.each(xssPayloads)('should prevent XSS via id (%s)', async (payload) => {
-    expectNoScript(await gist({ id: payload }, config));
-  });
-});
-
-describe('XSS prevention - wakatime API', () => {
-  const apiParamNames = [
-    'title_color',
-    'icon_color',
-    'hide_border',
-    'card_width',
-    'text_color',
-    'bg_color',
-    'theme',
-    'hide_title',
-    'hide_progress',
-    'title',
-    'locale',
-    'layout',
-    'langs_count',
-    'hide_langs',
-    'wakatime_host',
-    'border_radius',
-    'border_color',
-    'value_format',
-    'disable_animations',
-    'title_color_light',
-    'icon_color_light',
-    'text_color_light',
-    'bg_color_light',
-    'border_color_light',
-    'theme_light',
-    'title_color_dark',
-    'icon_color_dark',
-    'text_color_dark',
-    'bg_color_dark',
-    'border_color_dark',
-    'theme_dark',
-  ];
-
-  it.each(casesFor(apiParamNames))('should prevent XSS via %s (%s)', async (param, payload) => {
-    const query: Record<string, string> = {
-      username: 'user',
-      [param]: payload,
-    };
-    expectNoScript(await wakatime(query, config));
-  });
-
-  it.each(xssPayloads)('should prevent XSS via username (%s)', async (payload) => {
-    expectNoScript(await wakatime({ username: payload }, config));
+  it.each(xssPayloads)(`should prevent XSS via ${identity} (%s)`, async (payload) => {
+    expectNoScript(await handler({ ...base, [identity]: payload }, config));
   });
 });

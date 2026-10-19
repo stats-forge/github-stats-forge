@@ -26,8 +26,16 @@ const endpoints = {
   wakatime: (query: Record<string, string>): Promise<ApiResult> => wakatimeApi(query, config),
 };
 
-const withUser = (endpoint: string): Record<string, string> =>
-  endpoint === 'gist' ? { id: 'abc123' } : { username: 'anuraghazra' };
+/** @returns The params that say whose card it is, which every endpoint needs to get past validation. */
+const withUser = (endpoint: string): Record<string, string> => {
+  if (endpoint === 'gist') {
+    return { id: 'abc123' };
+  }
+  if (endpoint === 'pin') {
+    return { username: 'anuraghazra', repo: 'convoychat' };
+  }
+  return { username: 'anuraghazra' };
+};
 
 beforeAll(() => {
   mock.onPost().reply(200, { errors: [{ type: 'INTERNAL', message: 'Upstream is down' }] });
@@ -64,7 +72,7 @@ describe('api query schemas', () => {
       });
 
       // the stubbed fetch fails, so anything that got past validation is temporary
-      expect(result.status).toBe('error');
+      expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
     },
   );
 
@@ -99,7 +107,7 @@ describe('api query schemas', () => {
     });
 
     // the stubbed fetch fails, but the param got past validation
-    expect(result.status).toBe('error');
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
   it.each(['card_width', 'number_precision'])(

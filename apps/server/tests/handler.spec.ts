@@ -26,6 +26,12 @@ const GIST_URL = `http://localhost/api/gist?id=${GIST_ID}`;
 const get = (url: string, options: ServerOptions, method = 'GET'): Promise<Response> =>
   createHandler(options)(new Request(url, { method }));
 
+// here rather than at the end of a test, where a failed assertion would skip it
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+
 describe('routing', () => {
   it('answers a path no card is served at with JSON, not a card', async () => {
     const response = await get('http://localhost/api/nothing', testOptions());
@@ -193,8 +199,6 @@ describe('STRICT_HTTP_STATUS', () => {
 
     expect(response.status).toBe(429);
     expect(response.headers.get('retry-after')).toBe(String(TTL.retryableError));
-
-    vi.restoreAllMocks();
   });
 
   it('is off by default, so a README shows the error card rather than a broken image', async () => {
@@ -340,8 +344,6 @@ describe('the in-process cache', () => {
 
     expect(github.calls).toHaveLength(1);
     expect(later.headers.get('card-cache')).toBe('hit');
-
-    vi.useRealTimers();
   });
 
   it('draws once for requests that arrive while the first is still drawing', async () => {
@@ -370,8 +372,6 @@ describe('the in-process cache', () => {
 
     expect(first.headers.get('age')).toBeNull();
     expect(second.headers.get('age')).toBe('60');
-
-    vi.useRealTimers();
   });
 });
 
@@ -418,10 +418,6 @@ const outage = (): { options: ServerOptions; goDown: () => void } => {
 };
 
 describe('an outage', () => {
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('serves the last good card, briefly, while a redraw fails', async () => {
     vi.useFakeTimers();
     const { options, goDown } = outage();

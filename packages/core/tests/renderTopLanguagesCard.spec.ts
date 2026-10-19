@@ -794,12 +794,31 @@ describe('Test renderTopLanguages', () => {
     expect(langNames[2]).toHaveTextContent('css 100.0 B');
   });
 
+  it.each([
+    { hide_progress: false, width: '400' },
+    { hide_progress: true, width: '300' },
+  ])(
+    'should measure the compact list without its values when hide_progress is $hide_progress',
+    ({ hide_progress, width }) => {
+      const data = {
+        ...langs,
+        powershell: { color: '#012456', name: 'PowerShell', size: 50, count: 1 },
+      } satisfies TopLangData;
+
+      document.body.innerHTML = renderTopLanguages(data, { layout: 'compact', hide_progress });
+
+      expect(document.querySelector('svg')).toHaveAttribute('width', width);
+    },
+  );
+
   it('should hide stats values when hide_values is true (compact layout)', () => {
     document.body.innerHTML = renderTopLanguages(langs, {
       layout: 'compact',
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     const langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames[1]).toHaveTextContent('javascript');
@@ -810,6 +829,8 @@ describe('Test renderTopLanguages', () => {
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     const langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames).toHaveLength(3);
@@ -821,10 +842,22 @@ describe('Test renderTopLanguages', () => {
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     const langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames[1]).toHaveTextContent('javascript');
     expect(langNames[2]).toHaveTextContent('css');
+  });
+
+  it('should hide stats values when hide_values is true (donut-vertical layout)', () => {
+    document.body.innerHTML = renderTopLanguages(langs, {
+      layout: 'donut-vertical',
+      hide_values: true,
+    });
+
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
+    expect(screen.queryAllByTestId('lang-name')).toHaveLength(3);
   });
 
   it('should hide stats values when hide_values is true (pie layout)', () => {
@@ -833,6 +866,8 @@ describe('Test renderTopLanguages', () => {
       hide_values: true,
     });
 
+    // a label matches by substring, so it is the list as a whole that must carry no value
+    expect(screen.getByTestId('lang-items')).not.toHaveTextContent('%');
     let langNames = screen.queryAllByTestId('lang-name');
     expect(langNames[0]).toHaveTextContent('HTML');
     expect(langNames[1]).toHaveTextContent('javascript');
