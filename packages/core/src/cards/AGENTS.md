@@ -2,6 +2,8 @@
 
 > Scoped to this tree; the repo-wide rules are in the root `AGENTS.md`.
 
+After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapshots.
+
 ## Card text and translations
 
 - **Every word a card draws comes from its locale table** ([#49]): labels, titles, empty states,
@@ -13,7 +15,8 @@
 - **Draw through `localize`, naming each wording where it is drawn** ([#65]):
   `const t = localize(statCardLocales, locale)`, then `t.totalStars()`. Keys are camelCase and carry
   no card name.
-  - A drawing helper takes `Localized<typeof xCardLocales>`, spelled out, never a per-card alias.
+  - A drawing helper takes `Localized<typeof xCardLocales>`, spelled out. Don't invent a per-card
+    alias; if one ever earns its keep, mirror `Localized`, not `Locale`, which is the language tag.
   - **Two cards' tables are never merged**: their `title` keys collide. Shared wordings live in
     `common/locales.ts`, read as `commonT`; a card never imports another card's table.
 - **A table is declared with `defineLocales`** ([#61]), whose `<const Table>` keeps the literals that
@@ -22,9 +25,9 @@
 - **A translation owns its word order and placeholders**: it may use fewer than `en`, never others.
   `tests/locales.spec.ts` checks that, and every locale name.
 - **A number-dependent wording is plural forms** ([#61]), `{ one, other }` picked by
-  `Intl.PluralRules`, and **a whole phrase is one key**, never a `label: value` assembled in the card.
-  The parenthesised year is the exception: leave it until the parenthetical has its own translated
-  key, or every locale regresses to English.
+  `Intl.PluralRules` for the locale the wording came from, and **a whole phrase is one key**, never
+  a `label: value` assembled in the card. The parenthesised year is the exception: leave it until
+  the parenthetical has its own translated key, or every locale regresses to English.
 - **The error card's report line sits under the message, measured not to fit beside the title**
   ([#58]); re-measure in a canvas before moving it. It is `data-testid="report"`, drawn when the
   failure's `CardError.reportable` is on.

@@ -10,9 +10,9 @@ The cards have rules of their own, in `src/cards/AGENTS.md`.
 every default to the renderer (gist's default theme is `default_repocard`, which only the card knows).
 
 - **The allowlists are enforced here, before the render** ([#79]). `cardHandler`'s second argument
-  maps a param to `'username'` or `'gist'`; a refusal is `not_allowed` and costs no rate-limit point.
-  The map rides on the handler as `IDENTITIES`, and `tests/allowlist.spec.ts` asserts every card
-  declares one.
+  maps a param to `'username'` or `'gist'`; a refusal is `not_allowed` and costs no rate-limit
+  point. Naming a param the schema lacks is a compile error. The map rides on the handler as
+  `IDENTITIES`, and `tests/allowlist.spec.ts` asserts every card declares one.
   - **A config field only an uncalled method reads is a security bug knip won't flag**:
     `CardConfig.isAllowed` enforced nothing until [#79].
   - **`ALLOWLIST` holds every GitHub login, users' and organizations', matched case-insensitively**,
@@ -29,8 +29,9 @@ every default to the renderer (gist's default theme is `default_repocard`, which
   other empty param absent. No helper handles `''` itself.
 - **A malformed param is a permanent `invalid_param`, raised at the boundary**: a render-time throw
   reports a retryable error. Name the param, never echo the value.
-- **A number is digits only, plus an optional `px` on a length.** `intParam` and `numberParam` take a
-  `min` (an integer's defaults to 1) and a `px` flag; `parseFloat` read `1e3` as 1000 and `5abc` as 5.
+- **A number is digits only, plus an optional `px` on a length.** `intParam` and `numberParam` take
+  a `min` (an integer's defaults to 1) and a `px` flag; `parseFloat` read `1e3` as 1000 and `5abc`
+  as 5, and a negative width drew a broken SVG.
 
 ### How an endpoint is built
 
@@ -45,7 +46,8 @@ every default to the renderer (gist's default theme is `default_repocard`, which
 - **The query type comes from the schema**, so a consumer is checked at its call site.
 - **A card's accepted values ride on its renderer as `OPTIONS`, keyed by option name** ([#46]). The
   handler spreads them, adds only the fetcher's own (`affiliation`), and reads them back, as in
-  `enumParam(renderStatsCard.OPTIONS.rank_icon)`.
+  `enumParam(renderStatsCard.OPTIONS.rank_icon)`; a UI reads `stats.OPTIONS.rank_icon` off the
+  function it calls.
 - **A closed-set list is an `enumListParam` in `OPTIONS`** ([#230]). `show` and `hide` accept every
   stat the card draws, and the handler fetches only what is drawn; the second argument is what a
   form offers. Each card checks `show` through a `shows()` typed to its own list.
@@ -64,7 +66,8 @@ every default to the renderer (gist's default theme is `default_repocard`, which
 - **Every failure lives in the module-level `FAILURES`, unexported.** Not a `static #` field: the
   types derive from it, a `#` field's type cannot be queried, and a TS-`private` one emits untyped.
   - **An entry is a function from its data to a `Failure`**; its parameter is what the reason needs,
-    and `because` takes exactly that, so a missing value fails `tsc`.
+    and `because` takes exactly that, so a missing value fails `tsc`. Pass in only what the table
+    cannot word itself.
   - **`FailureReason` derives from `CardError.because`**, never written out.
   - **A reason one card family throws carries its prefix** (`gist_`, `org_`, `org_activity_`,
     `repo_`, `stats_`, `wakatime_`); a shared one keeps a plain name.
@@ -90,7 +93,8 @@ every default to the renderer (gist's default theme is `default_repocard`, which
 - **A searchable count is an aliased `search` field** ([#106]): any number cost one point together.
   `toSearchDate` formats a qualifier's date.
 - **A search a permission can change says what it matched** ([#113]): a token refused issues answers
-  `is:issue` with pull requests, so each issue search asks for `nodes { __typename }`.
+  `is:issue` with pull requests, so each issue search asks for `nodes { __typename }` and checks it
+  got an `Issue`.
 - **A stat asked for and refused is a `forbidden` reason, not a missing row** ([#113]); its second
   line names the permission and the option that drops the stat.
   - **The api layer decides whether it was asked for** and hands the fetcher one boolean

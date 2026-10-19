@@ -21,7 +21,8 @@ builds and runs it against the root `.env`.
   - **`--options` layers over `--config`**, and `--print-query` prints the merge.
   - **A saved card or a pasted query seeds the menu**; `askRequired` asks only for what is missing.
 - **A saved card file is a query string in JSON** ([#111]): each option a string on the root,
-  non-strings dropped on read, `card` and `version` reserved.
+  non-strings dropped on read, `card` and `version` reserved. `params` stays the word for the query
+  on its way to a handler.
 - **`CARD_FILE_VERSION` refuses a higher number and reads an absent one as 1.** Bump it with any
   change of shape, and ship the migration.
 - **The menu stays open after a render, its cursor in place.**
@@ -32,15 +33,16 @@ builds and runs it against the root `.env`.
   and `Separator` comes from `@inquirer/select`; Renovate groups them, as they share `@inquirer/core`.
 - **A numeric option uses `@inquirer/number`, stepping by `numericStep`** ([#89]), since its default
   step of `1` refuses a fraction. So `10px` cannot be typed for `border_radius`, though the api takes it.
-- **No other prompts**: nothing is multi-line, and the menu wants a select.
+- **No other prompts**: nothing is multi-line, the menu wants a select, and prefix type-ahead
+  already reaches every theme.
 - **A `list` option with `choices` is a checkbox** ([#46]); give `choices` only when every value is
   known. A saved list is split back, so the boxes reopen ticked.
 - **The menu is grouped, and `group` on `CardOption` is required** ([#76]). The required params are a
   `CardField`, asked first; empty sections drop, and the shared options lead so the theme heads the
   colors.
 - **The actions sit first, under their own heading** ([#76]), so `g`, `s`, `p` and `q` reach them
-  from anywhere. Not `indexMode: 'number'`, whose numbers shift as the list scrolls. The list is as
-  tall as the terminal.
+  from anywhere; an action added below the sections would lose that. Not `indexMode: 'number'`,
+  whose numbers shift as the list scrolls. The list is as tall as the terminal.
 
 ## Rejected
 

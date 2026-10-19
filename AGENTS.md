@@ -7,8 +7,8 @@ Durable rules live here; pending work lives in `.claude/scratch/` (untracked).
 
 ## Before you change anything
 
-- **Don't commit, push, open a PR or comment on one unless asked.** When a branch is wanted, say
-  which commits are on it.
+- **Don't commit, push, open a PR or comment on one unless asked.** Leave changes in the working
+  tree, and when a branch is wanted, say which commits are on it.
 - **A change to `packages/*` carries a changeset, unasked** ([#15]); a visitor-visible `apps/docs`
   change carries one on the server ([#86]). See [Changesets](#changesets).
 - **Run `pnpm check-all` before handing work over**: it is every check CI runs.
@@ -35,7 +35,8 @@ accepts, a CLI, an HTTP server, and the documentation site.
 - `packages/*` go to npm and carry a changeset and a `lint:publish`; `apps/server` carries a
   changeset only, releasing with the npm packages; `apps/docs` carries neither.
 - `build:packages` and `lint:publish` stay filtered to `./packages/*`. The root `typecheck` covers
-  the packages, both apps and `scripts/`; the root vitest the packages and `apps/server`.
+  the packages, both apps and `scripts/`; the root vitest the packages and `apps/server`. `scripts/`
+  has no tests.
 - **`privatePackages: { version: true, tag: true }` plus a `version` on `apps/server/package.json`
   releases the server** ([#133]); `apps/docs` has no `version`, on purpose. `tag: true` only adds the
   git tag and release: changesets never publishes a `private` package.
@@ -59,7 +60,7 @@ accepts, a CLI, an HTTP server, and the documentation site.
   plus `common/`, `themes/` and `graphql/`.
 - **A card is a folder under `cards/`**: `index.ts` renders, `locales.ts` translates; only
   `cards/options.ts` sits loose ([#61]). A card too big for one file moves its layouts beside
-  `index.ts`, as `top-languages/` does.
+  `index.ts`, which keeps the options and the render, as `top-languages/` does.
 - **Every source file is TypeScript** except `packages/cli/bin.js`; generators are typechecked
   through a `tsconfig.scripts.json` ([#39]).
 
@@ -130,8 +131,9 @@ pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fail
 - **Prose never states a count that grows with the code** ([#220]); only generated pages may.
 - **Never call the person reading the docs "the reader"** ([#30]): say the browser for the user
   agent, and you, anyone or a visitor for a person. `screen reader` stays.
-- **`pnpm test:live` alone touches the live APIs, and is not in CI** ([#226]). It draws each card with
-  the anvil's `maximal` options (accounts overridable with `LIVE_TEST_*`) and asserts only that it drew.
+- **`pnpm test:live` alone touches the live APIs, and is not in CI** ([#226]). It draws each card
+  with the anvil's `maximal` options (accounts overridable with `LIVE_TEST_*`) and asserts only that
+  it drew, since live numbers drift.
   - **`.github/workflows/test-live.yml` runs it weekly, on demand, and on a push to `main` touching
     `fetchers/`, `graphql/` or the test**, with the `test-live` environment's `LIVE_TEST_PAT`. It stays
     off PRs, where it hit the rate limit ([#254]), and out of `ci.yml`, so an outage fails no PR.
@@ -142,7 +144,9 @@ pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fail
 ## TypeScript
 
 TypeScript is **7.x**, with `oxlint-tsgolint` on the same major. The strict flags are in
-`tsconfig.base.json`, the lint-enforced style in `@marcalexiei/oxlint-config/typescript`.
+`tsconfig.base.json`; the lint-enforced style (`Array<T>`, `_`-prefixed unused args,
+`@ts-expect-error <description>`, no nullish values in template literals) is in
+`@marcalexiei/oxlint-config/typescript`.
 
 - **A relative import names the `.ts` file** ([#42]), through `allowImportingTsExtensions` and
   `rewriteRelativeImportExtensions`. Only the `.js` emit is rewritten: the `.d.ts` still says
@@ -150,7 +154,8 @@ TypeScript is **7.x**, with `oxlint-tsgolint` on the same major. The strict flag
   GraphQL generator sets the extension twice: `importExtension` and the `prepend` literal in
   `packages/core/scripts/generate-graphql-types.ts`.
 - **Never widen a signature to keep a test compiling; adapt the test.** Type a function to what its
-  callers pass; `?: T | undefined` or `Partial<…>` only for a real caller forwarding `undefined`.
+  production call sites pass; `?: T | undefined` or `Partial<…>` only for a real caller forwarding
+  `undefined`.
 - **Declare only the params you read, and validate nothing you don't use.**
 - **A card's options are `interface XCardOptions extends CommonCardOptions` in its `index.ts`**,
   unexported. `cards/options.ts` holds only the shared base and `CardOptions<T>`; `ThemeName` lives in
@@ -162,12 +167,14 @@ TypeScript is **7.x**, with `oxlint-tsgolint` on the same major. The strict flag
   ternary expression body, and never a nested ternary. Conditional types are exempt.
 - **An untyped dependency gets a `declare module` shim** (`tests/_css-to-object.d.ts`); a runtime
   dependency's lives under `src/`.
-- **A dependency whose body is one literal is inlined** ([#31]): read a small package before adding it.
+- **A dependency whose body is one literal is inlined** ([#31]): read a small package before adding
+  it, and if copying costs a line and the licence allows it, copy it.
 
 ### tsconfig
 
 - **Emit is opt-in**: `tsconfig.base.json` sets `noEmit`, and only each package's identical
-  `tsconfig.build.json` emits. No `outDir` on a config that cannot emit.
+  `tsconfig.build.json` emits. Don't repeat `noEmit`, and put no `outDir` on a config that cannot
+  emit.
 - **The build configs set `noCheck`**, so a green build proves nothing.
 - **Each `tsconfig.typecheck.json` only clears `customConditions`**, resolving siblings through their
   `.d.ts` as a consumer would. `apps/docs` checks against core's source and has none.
@@ -180,7 +187,8 @@ TypeScript is **7.x**, with `oxlint-tsgolint` on the same major. The strict flag
 
 ## Testing
 
-oxlint enforces the `.spec.ts` suffix and the vitest rules; their reasons are in `oxlint.config.ts`.
+The rules oxlint already enforces (the `.spec.ts` suffix, and the vitest rules switched off) carry
+their reasons in `oxlint.config.ts`.
 
 - **A test that can pass without the code it covers is a bug** ([#287]): break the code and watch it
   fail. `toHaveTextContent` matches a substring, so give it `exactly(text)` unless the assertion is
@@ -194,24 +202,26 @@ oxlint enforces the `.spec.ts` suffix and the vitest rules; their reasons are in
 - **`src` never imports a test helper or library**; `no-restricted-imports` enforces it ([#288]).
 - **Assert with jest-dom matchers**, never by reading the node. `expect(queryBy…()).toBeDefined()`
   cannot fail; count with `toHaveLength` on `queryAllBy*`.
-- **Card tests assert on the DOM, not snapshots**, bar `renderWakatimeCard.spec.ts.snap`. Snapshots are
-  byte-exact: hoist a `${cond ? a : b}` out of a renderer's template literal, which the formatter may
-  reflow into the SVG.
+- **Card tests assert on the DOM, not snapshots**, bar `renderWakatimeCard.spec.ts.snap`. Snapshots
+  are byte-exact, so diff them after any card edit, and hoist a `${cond ? a : b}` out of a
+  renderer's template literal, which the formatter may reflow into the SVG.
 - **A test that provokes a diagnostic silences it with `vi.spyOn(console, …)`, saying why** ([#79]);
   `--disable-console-intercept` shows what the suite prints.
-- **A test needing an upstream failure answers one**: an `errors` body for GitHub, a `502` for
-  WakaTime. A dropped request makes the retryer wait 4.1s; test that with fake timers, as
-  `retryer.spec.ts` does.
+- **A test needing an upstream failure answers one; it never drops the request**: an `errors` body
+  for GitHub, a `502` for WakaTime. A rejected fetch, `networkError()` or a `FetchMock` with no
+  handler is a transport failure, which the retryer waits out for 4.1s; when the transport failure
+  is the subject, use fake timers, as `retryer.spec.ts` does.
 - **`packages/core` runs `pool: 'vmThreads'`; `isolate: false` breaks the `fetchTopLanguages` error
   tests** ([#122]), and `fsModuleCache` gained nothing. Re-measure before revisiting either.
 - **The type test is `fetchRepo.types.spec-d.ts`**, checked by `tsc`; vitest would need
   `typecheck.include` ([#132]).
-- Use `@testing-library/dom`'s `screen`, caching a repeated query, and `querySelector<HTMLElement>`
-  over `getElementsByClassName`. Mock with `vi.mock(import('…'), factory)`. jest-dom registers in
-  `packages/core/tests/_setup.ts`.
+- Use `@testing-library/dom`'s `screen`, caching a repeated query. `querySelector` beats
+  `getElementsByClassName`; type it `querySelector<HTMLElement>` when you need `.style`. Mock with
+  `vi.mock(import('…'), factory)`. jest-dom registers in `packages/core/tests/_setup.ts`.
 - **Type every piece of test data** ([#288]), including a mock's reply body (`GraphQLBody<Query>`,
-  `GraphQLErrorBody`, `Refused`, `SearchBody`) and a `vi.fn<typeof fn>()`'s value. A `Record` read by
-  dot uses `satisfies`. Never cast a fake through `unknown`.
+  `GraphQLErrorBody`, `Refused`, `SearchBody`) and a `vi.fn()`'s resolved value, through
+  `vi.fn<typeof fn>()` or a `satisfies`. A `Record` read by dot uses `satisfies`. Never cast a fake
+  through `unknown`.
 - **A fixture two specs share lives in an `_` module, never a spec** ([#288]): vitest runs an
   imported spec's tests twice.
 
@@ -222,8 +232,8 @@ oxlint enforces the `.spec.ts` suffix and the vitest rules; their reasons are in
 - **A `@file` block comes first**, after any shebang ([#79]).
 - **No `@param` tags; `@returns` stays** ([#39]). A doc block is a summary, then `@returns`, plus
   `@see`, `@example` or `@deprecated` where earned.
-- **A note on one parameter or property is a `/** */` on that declaration**, shown on hover; domain
-  interfaces (`CardColors`, …) document their members that way.
+- **A note on one parameter or property is a `/** */` on that declaration**, shown on hover, not a
+  tag or a `//` comment; domain interfaces (`CardColors`, …) document their members that way.
 - **Keep what the type cannot say**: a range, ordering, unit, fallback, format or side effect.
 - When stripping tags mechanically, check for an orphaned continuation line.
 - `require-returns-type` and `require-returns` stay off: the signature carries the type, and tags
@@ -261,7 +271,8 @@ pnpm is **12.x** ([#110]); `pnpm-workspace.yaml` gives each setting's reason, an
   `--frozen-lockfile false` → `--no-frozen-lockfile`.
 - **`allowBuilds` and the overrides list only packages still in the graph**: check with
   `pnpm why <pkg>`, since nothing polices an override ([#80]).
-- **A stale lockfile can hold an orphan**: delete `node_modules` and `pnpm-lock.yaml`, then reinstall.
+- **A stale lockfile can hold an orphan**: delete `node_modules` and `pnpm-lock.yaml`, then
+  reinstall; deleting the lockfile alone reuses what is installed.
 - **`minimumReleaseAge` exempts the first-party configs alone, by name** ([#216]).
 
 [#15]: https://github.com/stats-forge/github-stats-forge/pull/15

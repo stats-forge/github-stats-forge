@@ -48,8 +48,9 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
 
 - **Which themes a card may wear is ported from `ghse`'s wizard**: pairs of `X` and `X_repocard`, each
   side offering its half, grouped light, either-way, dark. `ghse`'s hidden themes are **not** copied.
-- **A card's `category` (`user`, `repo`, `org`) picks its picker heading and its theme half** ([#64]);
-  a gist is `repo`. `CARD_GROUPS` orders like `themeGroups`, dropping empty headings.
+- **A card's `category` (`user`, `repo`, `org`) picks its picker heading and its theme half**
+  ([#64]); a gist is `repo`. `CARD_GROUPS` is built like `themeGroups`: order from `GROUP_LABELS`,
+  the catalog's order inside, empty headings dropped.
 - **The cards are grouped alike in the picker, the sidebar (`astro.config.ts`) and the overview**
   ([#105]). A card page's title is the card's name without "card". Only `Fetchers` opens folded, and
   cards and fetchers stay apart, split by audience.
@@ -126,8 +127,8 @@ check of the anvil in a browser**.
 - **Take the newest `@playwright/test` older than `minimumReleaseAge`**, never an exclusion.
 - **`excludeFiles: ['apps/docs/e2e/**']` keeps vitest's rules off it** ([#132]).
 - **One test asserts the privacy claim**, saying first which source draws: it records every request
-  while drawing every card, and fails on any leaving the origin **or reaching `/api/**`**, comparing
-  `new URL(…).origin`.
+  while drawing every card, and fails on any leaving the origin **or reaching `/api/**`**. It
+  compares `new URL(…).origin`, taken once, never URL prefixes.
 - **A copy test grants clipboard permission; a download is read by `fetch`ing the anchor's blob URL
   inside the page.**
 - **The drawn card is `[data-anvil="preview"] .anvil-card > svg`**, a direct child: a card's icons are

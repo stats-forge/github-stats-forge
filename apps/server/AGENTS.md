@@ -8,16 +8,18 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 
 ## Never
 
-- **Log a query value or a token.** One JSON line per request on stdout, built from the response's
-  headers; `PersonalAccessToken` carries the env var's `name` for this.
-- **Add a build step.** Node strips the types and `--conditions=@stats/source` points at core's
-  source, so the image runs the repository. A rolldown bundle was removed: nobody could diff it, and
-  its `resolve.conditionNames` fails quietly when misspelt `conditions`.
-- **Let a rejection escape the adapter**: Node 24 dies on one. A throwing handler answers `500`,
-  `static.ts` answers `undefined` for what it cannot read, and `tests/node.spec.ts` covers the catch.
-- **Add a framework or a dependency**: `node:http` plus `URL` is the surface. Should middleware ever
+- **Never log a query value or a token.** One JSON line per request on stdout, built from the
+  response's headers; `PersonalAccessToken` carries the env var's `name` for this.
+- **Never add a build step.** Node strips the types and `--conditions=@stats/source` points at
+  core's source, so the image runs the repository. A rolldown bundle was removed: nobody could diff
+  it, and its `resolve.conditionNames` fails quietly when misspelt `conditions`.
+- **Never let a rejection escape the adapter**: Node 24 dies on one. A throwing handler answers
+  `500`, `static.ts` answers `undefined` for what it cannot read, and `tests/node.spec.ts` covers
+  the catch.
+- **No framework and no dependency**: `node:http` plus `URL` is the surface. Should middleware ever
   justify one, Hono speaks `Request`/`Response`; Express does not.
-- **Prefix a header with `X-`** (RFC 6648), `X-Content-Type-Options` excepted.
+- **No `X-` prefix on a header** (RFC 6648), `X-Content-Type-Options` excepted, being that header's
+  registered name.
 
 ## Shape
 
@@ -43,8 +45,9 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 - **`CardCache` is never `undefined`**: a TTL of `0` stores nothing.
 - **A success is kept `STALE_SECONDS` past its TTL** (`STALE_WHILE_REVALIDATE` by default, `0` for
   none) to answer for a redraw that fails retryably. `get` sees the fresh entries and `getStale` the
-  rest; a retryable error never overwrites the kept card, which then lives `TTL.retryableError`, and
-  `cache_seconds=0` refuses it. An error is never kept stale, and eviction drops stale before fresh.
+  rest; a retryable error never overwrites the kept card, the stale answer is sent with
+  `TTL.retryableError`, and `cache_seconds=0` refuses it. An error is never kept stale, and eviction
+  drops stale before fresh.
 
 ## The site it carries
 

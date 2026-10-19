@@ -53,10 +53,12 @@ carries a server changeset.
   `![alt](/cards/<name>.svg)` into the light and dark pair, adding the base and the SVG's size and
   hiding the dark copy with `aria-hidden`. It **throws when the pair is missing**. A theme sample is
   one image; `SAMPLE_THEMES` in `src/constants.ts` feeds both generators.
-- **`<!-- api: fetchStats -->` becomes that fetcher's reference at build time** ([#50]), read through
-  the TypeScript checker on `typescript/unstable/sync` (TypeDoc's peer range excludes TypeScript 7).
-  **A fetcher with no page fails the build.** `astro dev` needs a restart to see a doc-comment edit,
-  live refresh having cost more than restarts. For the cards, a hand-written table beats a generated one.
+- **Each fetcher has its own page, and `<!-- api: fetchStats -->` becomes its reference at build
+  time** ([#50]), read through the TypeScript checker on `typescript/unstable/sync` (TypeDoc's peer
+  range excludes TypeScript 7). **A fetcher with no page fails the build.** `astro dev` needs a
+  restart to see a doc-comment edit, live refresh having cost more than restarts. Weigh the cost
+  before extending this to the cards: a hand-written table with real prose beats a generated one
+  full of dashes.
 - **`<!-- demo: cli -->` is a recorded screen capture** ([#98]), placed by `remark-cli-demo.ts`; don't
   bring back the CSS replay.
   - **A new file extension goes in both static tables**, `apps/server/src/static.ts` and
@@ -65,8 +67,8 @@ carries a server changeset.
     `controls`, a `poster`, `preload="metadata"`, and a written `width` and `height`.
   - **Edit the recording, never CSS over it, and re-cut the poster with every change**, measuring a
     band to paint out from decoded frames.
-- **The site links to the GitHub Action rather than documenting it** ([#50]): nothing here could check
-  a copy of its inputs.
+- **The GitHub Action is the recommended way to use the cards, and the site links to it rather than
+  documenting it** ([#50]): nothing here could check a copy of its inputs.
 - **A diagram is a fenced `text` block, not mermaid**; copy the one on `light-and-dark.md`.
 
 ## Look and chrome
@@ -88,9 +90,9 @@ carries a server changeset.
     keep the menu and search on the first row.
 - **`PageTitle` puts a section trail, read from the sidebar, above a card page's title** ([#105]).
 - **`SocialIcons` is Starlight's plus `target="_blank"`**; re-copy it when Starlight changes it.
-- **`Head` adds the `og:image` Starlight omits** ([#63]): absolute, a PNG, sized from the imported
-  `public/social-preview.png`. The image build rewrites canonical, `og:url` and `og:image` to Pages
-  from `PAGES_SITE` and `PAGES_BASE`.
+- **`Head` adds the `og:image` Starlight omits** ([#63]): absolute, and a PNG, since scrapers take
+  PNG or JPEG and never SVG, sized from the imported `public/social-preview.png`. The image build
+  rewrites canonical, `og:url` and `og:image` to Pages from `PAGES_SITE` and `PAGES_BASE`.
 
 [#50]: https://github.com/stats-forge/github-stats-forge/pull/50
 [#58]: https://github.com/stats-forge/github-stats-forge/pull/58
