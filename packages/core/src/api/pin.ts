@@ -62,6 +62,7 @@ const renderPin = cardHandler(
         include_prs_reviewed: show.includes('prs_reviewed'),
         include_issues_authored: show.includes('issues_opened'),
         include_issues_commented: show.includes('issues_commented'),
+        include_topics: show.includes('topics'),
       },
       config,
     );

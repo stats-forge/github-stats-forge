@@ -13,11 +13,13 @@ export type RepoInfoFragment = {
   description: string | null;
   forkCount: number;
   primaryLanguage: { color: string | null; id: string; name: string } | null;
+  repositoryTopics?: { nodes: Array<{ topic: { name: string } } | null> | null };
 };
 
 export type GetRepoQueryVariables = Exact<{
   login: string;
   repo: string;
+  includeTopics: boolean;
 }>;
 
 export type GetRepoQuery = {
@@ -32,6 +34,7 @@ export type GetRepoQuery = {
       description: string | null;
       forkCount: number;
       primaryLanguage: { color: string | null; id: string; name: string } | null;
+      repositoryTopics?: { nodes: Array<{ topic: { name: string } } | null> | null };
     } | null;
   } | null;
   organization: {
@@ -45,12 +48,13 @@ export type GetRepoQuery = {
       description: string | null;
       forkCount: number;
       primaryLanguage: { color: string | null; id: string; name: string } | null;
+      repositoryTopics?: { nodes: Array<{ topic: { name: string } } | null> | null };
     } | null;
   } | null;
 };
 
 export const GetRepoDocument = graphqlDocument<GetRepoQuery, GetRepoQueryVariables>(`
-query getRepo($login: String!, $repo: String!) {
+query getRepo($login: String!, $repo: String!, $includeTopics: Boolean!) {
   user(login: $login) {
     repository(name: $repo) {
       ...RepoInfo
@@ -76,4 +80,11 @@ fragment RepoInfo on Repository {
     name
   }
   forkCount
+  repositoryTopics(first: 20) @include(if: $includeTopics) {
+    nodes {
+      topic {
+        name
+      }
+    }
+  }
 }`);

@@ -50,6 +50,35 @@ describe('Test fetchRepo', () => {
     expect(repo).toStrictEqual(repository);
   });
 
+  it('should ask for no topics unless told to', async () => {
+    mock.onPost(GRAPHQL).reply(200, data_user);
+
+    await fetchRepo({ username: 'anuraghazra', reponame: 'convoychat' }, config);
+
+    expect(JSON.parse(mock.history.post[0]?.data ?? '{}')).toMatchObject({
+      variables: { includeTopics: false },
+    });
+  });
+
+  it('should flatten the topics to their names when told to fetch them', async () => {
+    const repositoryTopics = {
+      nodes: [{ topic: { name: 'chat' } }, null, { topic: { name: 'react' } }],
+    };
+    mock.onPost(GRAPHQL).reply(200, {
+      data: { user: { repository: { ...repository, repositoryTopics } }, organization: null },
+    });
+
+    const repo = await fetchRepo(
+      { username: 'anuraghazra', reponame: 'convoychat', include_topics: true },
+      config,
+    );
+
+    expect(JSON.parse(mock.history.post[0]?.data ?? '{}')).toMatchObject({
+      variables: { includeTopics: true },
+    });
+    expect(repo).toStrictEqual({ ...repository, topics: ['chat', 'react'] });
+  });
+
   it.each([
     ['repo', { username: 'anuraghazra', reponame: undefined }],
     ['repo', { username: 'anuraghazra', reponame: 'anuraghazra/' }],

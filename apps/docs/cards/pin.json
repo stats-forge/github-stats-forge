@@ -3,5 +3,6 @@
   "card": "pin",
   "username": "ember-smith",
   "repo": "quench",
-  "show_owner": "true"
+  "show_owner": "true",
+  "show": "topics"
 }

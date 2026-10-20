@@ -15,11 +15,11 @@ on:
 
 permissions: {}
 
-# Skips the pre-commit hook — see ../CONTRIBUTING.md, "Workflows That Commit".
 defaults:
   run:
     shell: bash
 
+# Skips the pre-commit hook — see ../CONTRIBUTING.md, "Workflows That Commit".
 env:
   LEFTHOOK: 0
 

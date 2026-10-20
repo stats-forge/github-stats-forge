@@ -37,13 +37,14 @@ const INK_SCALE = 1.05;
 const widest = (texts: Array<string>): number =>
   Math.max(...texts.map((text) => measureText(text, CARD_STYLE.fontSize.small))) * INK_SCALE;
 
-/** Stats the card draws only when `show` names them. */
+/** What the card draws only when `show` names it: the topics, and a row per stat. */
 const REPO_SHOW_STATS = [
   'prs_opened',
   'prs_commented',
   'prs_reviewed',
   'issues_opened',
   'issues_commented',
+  'topics',
 ] as const;
 type RepoShowStat = (typeof REPO_SHOW_STATS)[number];
 
@@ -101,6 +102,49 @@ const getBadgeSVG = (label: string, xOffset = 0): MarkupElement => {
 };
 
 /**
+ * Draws as many of the topics as fit in one row of `width`, in GitHub's order.
+ *
+ * @returns The row, and the topics it drew.
+ */
+const getTopicsRow = (
+  topics: Array<string>,
+  width: number,
+): { row: MarkupElement; drawn: Array<string> } => {
+  const { height, paddingX, gap } = CARD_STYLE.topic;
+  const pills: Array<MarkupElement> = [];
+  const drawn: Array<string> = [];
+  let x = 0;
+  for (const topic of topics) {
+    const pillWidth =
+      Math.ceil(measureText(topic, CARD_STYLE.fontSize.micro) * INK_SCALE) + 2 * paddingX;
+    if (x + pillWidth > width) {
+      break;
+    }
+    pills.push(
+      el(
+        'g',
+        { 'data-testid': 'topic', transform: `translate(${x}, 0)` },
+        el('rect', { width: pillWidth, height, rx: height / 2, ry: height / 2 }),
+        el(
+          'text',
+          {
+            x: pillWidth / 2,
+            y: height / 2,
+            'dominant-baseline': 'central',
+            'text-anchor': 'middle',
+          },
+          topic,
+        ),
+      ),
+    );
+    drawn.push(topic);
+    x += pillWidth + gap;
+  }
+
+  return { row: el('g', { class: 'topic' }, pills), drawn };
+};
+
+/**
  * Renders repository card details.
  *
  * @returns Repository card SVG object.
@@ -120,6 +164,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     totalPRsReviewed,
     totalIssuesAuthored,
     totalIssuesCommented,
+    topics = [],
   } = repo;
   const {
     hide_border = false,
@@ -262,6 +307,12 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const descriptionLinesCount = description_lines_count
     ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
     : multiLineDescription.length;
+  const { row: topicsRow, drawn: drawnTopics } = getTopicsRow(
+    shows('topics') ? topics : [],
+    descriptionBoxWidth,
+  );
+  const topicsHeight = drawnTopics.length > 0 ? CARD_STYLE.topic.rowHeight : 0;
+
   const descriptionSvg = el(
     'text',
     { class: 'description', x: X_OFFSET, y: -5 },
@@ -273,7 +324,11 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       ? -7 + (Math.ceil(statItems.length / 2) + 1) * EXTRA_LINE_HEIGHT
       : 0;
   const height =
-    (descriptionLinesCount > 1 ? 120 : 110) + descriptionLinesCount * lineHeight + extraHeight;
+    (descriptionLinesCount > 1 ? 120 : 110) +
+    descriptionLinesCount * lineHeight +
+    topicsHeight +
+    extraHeight;
+  const languageRowY = height - 75 - extraHeight;
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
@@ -331,7 +386,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   card.setHideBorder(hide_border);
   card.setHideTitle(false);
   card.setCSS({
-    light: ({ textColor, iconColor }) => [
+    light: ({ textColor, titleColor, iconColor }) => [
       rule('.description', {
         font: font('regular', 'meta'),
         fill: textColor,
@@ -348,8 +403,10 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular }),
       rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
       rule('.icon', { fill: iconColor, display: 'block' }),
+      rule('.topic rect', { fill: titleColor, opacity: CARD_STYLE.topic.opacity }),
+      rule('.topic text', { font: font('regular', 'micro'), fill: titleColor }),
     ],
-    dark: ({ textColor, iconColor }) => [
+    dark: ({ textColor, titleColor, iconColor }) => [
       rule('.description', {
         fill: textColor,
       }),
@@ -358,6 +415,8 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       rule('.badge text', { fill: textColor }),
       rule('.stat', { fill: textColor }),
       rule('.icon', { fill: iconColor }),
+      rule('.topic rect', { fill: titleColor }),
+      rule('.topic text', { fill: titleColor }),
     ],
   });
 
@@ -372,7 +431,9 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   // announce themselves in English over a card rendered in another language.
   card.setAccessibilityLabel({
     title: card.title,
-    desc: [`${desc}.`, primaryLanguage ? langName : '', extraStatLabels].filter(Boolean).join(', '),
+    desc: [`${desc}.`, primaryLanguage ? langName : '', ...drawnTopics, extraStatLabels]
+      .filter(Boolean)
+      .join(', '),
   });
 
   let badge: Child;
@@ -385,7 +446,17 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   return card.render([
     badge,
     descriptionSvg,
-    el('g', { transform: `translate(30, ${height - 75 - extraHeight})` }, starAndForkCount),
+    // the row sits in the room it added, above the language row
+    drawnTopics.length > 0
+      ? el(
+          'g',
+          {
+            transform: `translate(${X_OFFSET}, ${languageRowY - CARD_STYLE.topic.rowHeight - CARD_STYLE.topic.height})`,
+          },
+          topicsRow,
+        )
+      : undefined,
+    el('g', { transform: `translate(30, ${languageRowY})` }, starAndForkCount),
     extraItems,
   ]);
 };

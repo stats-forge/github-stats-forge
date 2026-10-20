@@ -225,8 +225,47 @@ describe('Test renderRepoCard', () => {
     },
   );
 
+  describe('topics', () => {
+    const topics = ['react', 'typescript', 'graphql'];
+
+    it('should draw the topics show names, in order, in a row of their own', () => {
+      const card = draw(renderRepoCard({ ...repo, topics }, { show: ['topics'] }));
+
+      const drawn = screen.getAllByTestId('topic');
+      expect(drawn).toHaveLength(topics.length);
+      for (const [index, topic] of topics.entries()) {
+        expect(drawn[index]).toHaveTextContent(exactly(topic));
+      }
+      expect(card).toHaveAttribute('height', '166');
+      expect(document.querySelector('desc')).toHaveTextContent('react, typescript, graphql');
+    });
+
+    it.each([
+      ['show does not name them', { ...repo, topics }, {}],
+      ['the repository has none', repo, { show: ['topics'] }],
+    ])('should draw no row when %s', (_case, data, options) => {
+      const card = draw(renderRepoCard(data, options));
+
+      expect(screen.queryAllByTestId('topic')).toHaveLength(0);
+      expect(card).toHaveAttribute('height', '140');
+    });
+
+    it('should stop at the first topic that does not fit', () => {
+      const many = Array.from({ length: 20 }, (_, i) => `a-rather-long-topic-${i}`);
+      draw(renderRepoCard({ ...repo, topics: many }, { show: ['topics'] }));
+
+      const drawn = screen.getAllByTestId('topic');
+      expect(drawn.length).toBeLessThan(many.length);
+      const last = drawn.at(-1);
+      const right =
+        translateOf(last).x + Number(last?.querySelector('rect')?.getAttribute('width'));
+      expect(right).toBeLessThanOrEqual(400 - 2 * 25);
+      expect(document.querySelector('desc')).not.toHaveTextContent(many[drawn.length] ?? '');
+    });
+  });
+
   describe('every `show` stat at once', () => {
-    const showStats = renderRepoCard.OPTIONS.show;
+    const showStats = renderRepoCard.OPTIONS.show.filter((id) => id !== 'topics');
     const locales = [
       ...new Set(
         [

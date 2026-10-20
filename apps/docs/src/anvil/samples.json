@@ -264,7 +264,31 @@
               "color": "#dea584",
               "id": "MDg6TGFuZ3VhZ2UyNTA="
             },
-            "forkCount": 312
+            "forkCount": 312,
+            "repositoryTopics": {
+              "nodes": [
+                {
+                  "topic": {
+                    "name": "testing"
+                  }
+                },
+                {
+                  "topic": {
+                    "name": "ci"
+                  }
+                },
+                {
+                  "topic": {
+                    "name": "flaky-tests"
+                  }
+                },
+                {
+                  "topic": {
+                    "name": "rust"
+                  }
+                }
+              ]
+            }
           }
         },
         "organization": null

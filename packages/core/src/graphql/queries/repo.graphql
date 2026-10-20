@@ -12,9 +12,16 @@ fragment RepoInfo on Repository {
     name
   }
   forkCount
+  repositoryTopics(first: 20) @include(if: $includeTopics) {
+    nodes {
+      topic {
+        name
+      }
+    }
+  }
 }
 
-query getRepo($login: String!, $repo: String!) {
+query getRepo($login: String!, $repo: String!, $includeTopics: Boolean!) {
   user(login: $login) {
     repository(name: $repo) {
       ...RepoInfo

@@ -400,6 +400,9 @@ const getRepo = (): Body<GetRepoQuery> => ({
           'Tempers flaky test suites :fire: reruns them, quarantines the stubborn ones and reports the tests that only fail on Fridays.',
         primaryLanguage: { ...language('Rust'), id: 'MDg6TGFuZ3VhZ2UyNTA=' },
         forkCount: 312,
+        repositoryTopics: {
+          nodes: ['testing', 'ci', 'flaky-tests', 'rust'].map((name) => ({ topic: { name } })),
+        },
       },
     },
     organization: null,
