@@ -173,9 +173,12 @@ const fetchTotalItems = (
  *
  * @returns True on a 422 whose errors say the listed users cannot be searched.
  */
-const isUnsearchableUser = ({ status, data }: FetcherResponse): boolean =>
-  status === 422 &&
-  (data.errors ?? []).some(({ message }) => message?.includes('cannot be searched') === true);
+const isUnsearchableUser = ({ status, data }: FetcherResponse): boolean => {
+  if (status !== 422) {
+    return false;
+  }
+  return (data.errors ?? []).some(({ message }) => message?.includes('cannot be searched'));
+};
 
 /**
  * Fetch a total count for a given username via the REST search API.
