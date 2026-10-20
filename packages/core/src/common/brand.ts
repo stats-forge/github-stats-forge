@@ -84,6 +84,18 @@ const CARD_STYLE = {
     gap: 9,
   },
 
+  /** A repository topic, a tinted pill in one row under the description. */
+  topic: {
+    height: 18,
+    /** Air either side of the name, inside the pill. */
+    paddingX: 8,
+    gap: 6,
+    /** A step stronger than the band's, so a pill reads on its own. */
+    opacity: 0.12,
+    /** What the row adds to the card's height. */
+    rowHeight: 26,
+  },
+
   /** The rule under the title icon, sitting inside the band. */
   accent: {
     width: 32,

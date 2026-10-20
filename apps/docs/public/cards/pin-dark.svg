@@ -1,6 +1,6 @@
-<svg width="400" height="140" viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+<svg width="400" height="166" viewBox="0 0 400 166" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">ember-smith/quench</title>
-  <desc id="desc-id">Tempers flaky test suites 🔥 reruns them, quarantines the stubborn ones and reports the tests that only fail on Fridays.., Rust</desc>
+  <desc id="desc-id">Tempers flaky test suites 🔥 reruns them, quarantines the stubborn ones and reports the tests that only fail on Fridays.., Rust, testing, ci, flaky-tests, rust</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
@@ -62,6 +62,14 @@
       fill: #79ff97;
       display: block;
     }
+    .topic rect {
+      fill: #fff;
+      opacity: 0.12;
+    }
+    .topic text {
+      font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #fff;
+    }
     /* Animations */
     @keyframes scaleInAnimation {
       from {
@@ -101,7 +109,27 @@
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <text class="description" x="25" y="-5"><tspan dy="1.2em" x="25">Tempers flaky test suites 🔥 reruns them, quarantines the</tspan><tspan dy="1.2em" x="25">stubborn ones and reports the tests that only fail on Fridays.</tspan></text>
-    <g transform="translate(30, 65)">
+    <g transform="translate(25, 47)">
+      <g class="topic">
+        <g data-testid="topic" transform="translate(0, 0)">
+          <rect width="51" height="18" rx="9" ry="9" />
+          <text x="25.5" y="9" dominant-baseline="central" text-anchor="middle">testing</text>
+        </g>
+        <g data-testid="topic" transform="translate(57, 0)">
+          <rect width="25" height="18" rx="9" ry="9" />
+          <text x="12.5" y="9" dominant-baseline="central" text-anchor="middle">ci</text>
+        </g>
+        <g data-testid="topic" transform="translate(88, 0)">
+          <rect width="68" height="18" rx="9" ry="9" />
+          <text x="34" y="9" dominant-baseline="central" text-anchor="middle">flaky-tests</text>
+        </g>
+        <g data-testid="topic" transform="translate(162, 0)">
+          <rect width="36" height="18" rx="9" ry="9" />
+          <text x="18" y="9" dominant-baseline="central" text-anchor="middle">rust</text>
+        </g>
+      </g>
+    </g>
+    <g transform="translate(30, 91)">
       <g>
         <g data-testid="primary-lang">
           <circle data-testid="lang-color" cx="0" cy="-5" r="6" fill="#dea584" />
@@ -130,7 +158,7 @@
       </g>
     </g>
     <svg x="0" y="0">
-      <g transform="translate(-3, 88)" />
+      <g transform="translate(-3, 114)" />
     </svg>
   </g>
 </svg>
