@@ -203,6 +203,20 @@ const error: GraphQLBody<UserInfoQuery> = {
 /** The commit search's answer: a thousand commits. */
 const commits_1000: SearchBody = { total_count: 1000 };
 
+/** What a search answers for a user it will not search, though GraphQL found them. */
+const unsearchable_user: SearchBody = {
+  message: 'Validation Failed',
+  errors: [
+    {
+      message:
+        'The listed users cannot be searched either because the users do not exist or you do not have permission to view the users.',
+      resource: 'Search',
+      field: 'q',
+      code: 'invalid',
+    },
+  ],
+};
+
 const mock = new FetchMock();
 const baseConfig = testConfig.with({ fetch: mock.fetch });
 
@@ -330,6 +344,34 @@ describe('Test fetchStats', () => {
     mock
       .onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra')
       .reply(200, { error: 'Some test error message' } satisfies SearchBody);
+
+    await expect(fetchStatsWith({ include_all_commits: true })).rejects.toMatchObject({
+      reason: 'stats_search_count_unavailable',
+    });
+  });
+
+  it('should count 0 for every search GitHub will not run for the user', async () => {
+    mock.onGet(/^https:\/\/api\.github\.com\/search\//).reply(422, unsearchable_user);
+
+    const stats = await fetchStatsWith({
+      include_all_commits: true,
+      include_prs_authored: true,
+      include_prs_commented: true,
+      include_prs_reviewed: true,
+      include_issues_authored: true,
+      include_issues_commented: true,
+    });
+    expect(stats).toStrictEqual(
+      expectedStats({ totalCommits: 0 }, { all_commits: true, commits: 0 }),
+    );
+    expect(mock.history.get).toHaveLength(6);
+  });
+
+  it('should still throw on a validation failure that is not about the user', async () => {
+    mock.onGet('https://api.github.com/search/commits?per_page=1&q=author:anuraghazra').reply(422, {
+      message: 'Validation Failed',
+      errors: [{ message: 'The search is longer than 256 characters.' }],
+    } satisfies SearchBody);
 
     await expect(fetchStatsWith({ include_all_commits: true })).rejects.toMatchObject({
       reason: 'stats_search_count_unavailable',
