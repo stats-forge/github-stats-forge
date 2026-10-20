@@ -13,6 +13,9 @@ the progress bars show.
 ?username=octocat&langs_count=6
 ```
 
+When you have more languages than `langs_count`, the rest are drawn as one last row, **Other**,
+so each share is a share of all your code rather than of the languages shown.
+
 ## Required
 
 | Option     | What it is                             |
@@ -61,7 +64,7 @@ Two languages can rank differently depending on what you mean by "most".
 | Option               | Values                                            | What it does                              |
 | -------------------- | ------------------------------------------------- | ----------------------------------------- |
 | `layout`             | `normal` `compact` `donut` `donut-vertical` `pie` | The shape of the card                     |
-| `langs_count`        | a number                                          | How many languages to show                |
+| `langs_count`        | a number                                          | How many languages to name before Other   |
 | `hide_langs`         | language names                                    | Languages to leave out                    |
 | `exclude_repo`       | `owner/name` or `name`                            | Repositories to leave out                 |
 | `size_weight`        | a number                                          | Weight given to a language's size         |

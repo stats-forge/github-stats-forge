@@ -51,6 +51,9 @@ const langCardLocales = defineLocales({
     no: 'Mest brukte språk',
     be: 'Найбольш ужываныя мовы',
   },
+  others: {
+    en: 'Other',
+  },
   noData: {
     en: 'No languages data.',
     ar: 'لا توجد بيانات للغات.',

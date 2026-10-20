@@ -56,35 +56,39 @@ interface TopLangOptions extends CommonCardOptions {
 }
 
 /**
- * Trim top languages to lang_count while also hiding certain languages.
+ * Trim top languages to lang_count while also hiding certain languages. What the count cuts is
+ * folded into one last language, so each share stays a share of everything shown or folded.
  *
  * @returns Trimmed top languages and total size.
  */
 const trimTopLanguages = (
   topLangs: TopLangData,
   langs_count: number,
-  hide?: Array<string>,
+  hide: Array<string> | undefined,
+  /** The folded language's name, in the card's locale. */
+  othersName: string,
 ): { langs: Array<Lang>; totalLanguageSize: number } => {
-  let langs = Object.values(topLangs);
-  const langsToHide: Record<string, boolean> = {};
+  const langsToHide = new Set(hide?.map((name) => lowercaseTrim(name)));
   const langsCount = clampValue(langs_count, 1, MAXIMUM_LANGS_COUNT);
 
-  // populate langsToHide map for quick lookup while filtering out
-  if (hide) {
-    for (const langName of hide) {
-      langsToHide[lowercaseTrim(langName)] = true;
-    }
+  const shown = Object.values(topLangs)
+    .toSorted((a, b) => b.size - a.size)
+    .filter((lang) => !langsToHide.has(lowercaseTrim(lang.name)));
+  const others = shown.splice(langsCount);
+
+  const totalLanguageSize = [...shown, ...others].reduce((acc, curr) => acc + curr.size, 0);
+  if (others.length === 0) {
+    return { langs: shown, totalLanguageSize };
   }
 
-  // filter out languages to be hidden
-  langs = langs
-    .toSorted((a, b) => b.size - a.size)
-    .filter((lang) => !langsToHide[lowercaseTrim(lang.name)])
-    .slice(0, langsCount);
-
-  const totalLanguageSize = langs.reduce((acc, curr) => acc + curr.size, 0);
-
-  return { langs, totalLanguageSize };
+  // a null color draws in the layouts' default grey
+  const folded: Lang = {
+    name: othersName,
+    color: null,
+    size: others.reduce((acc, curr) => acc + curr.size, 0),
+    count: others.reduce((acc, curr) => acc + curr.count, 0),
+  };
+  return { langs: [...shown, folded], totalLanguageSize };
 };
 
 /**
@@ -151,7 +155,12 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
 
   const t = localize(langCardLocales, locale);
 
-  const { langs, totalLanguageSize } = trimTopLanguages(topLangs, langs_count, hide_langs);
+  const { langs, totalLanguageSize } = trimTopLanguages(
+    topLangs,
+    langs_count,
+    hide_langs,
+    t.others(),
+  );
 
   let width: number = DEFAULT_CARD_WIDTH;
   if (card_width && !Number.isNaN(card_width)) {

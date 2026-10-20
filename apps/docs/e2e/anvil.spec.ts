@@ -303,7 +303,8 @@ test('a number field reaches the renderer', async ({ page }) => {
 
   const saved = await savedCard(page);
   expect(chosen(saved)).toEqual({ layout: 'compact', langs_count: '3' });
-  await expect(drawnCard(page).locator('[data-testid="lang-name"]')).toHaveCount(3);
+  // three named, and Other for the rest
+  await expect(drawnCard(page).locator('[data-testid="lang-name"]')).toHaveCount(4);
 });
 
 test('a numeric field steps as coarsely as its param is read', async ({ page }) => {
