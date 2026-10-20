@@ -1,6 +1,6 @@
-<svg width="400" height="186" viewBox="0 0 400 186" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+<svg width="300" height="211" viewBox="0 0 300 211" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">Most Used Languages</title>
-  <desc id="desc-id">Rust 28.34%, TypeScript 20.84%, Go 18.84%, Python 10.74%, Jupyter Notebook 7.89%, Svelte 4.84%, Lua 4.39%, Elixir 4.11%</desc>
+  <desc id="desc-id">Rust 26.23%, TypeScript 19.29%, Go 17.44%, Python 9.94%, Jupyter Notebook 7.30%, Svelte 4.47%, Lua 4.06%, Elixir 3.81%, Other 7.46%</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
@@ -96,8 +96,8 @@
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="399" fill="#151515" stroke-opacity="1" />
-  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h383a8 8 0 0 1 8 8v37.5h-399z" />
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="299" fill="#151515" stroke-opacity="1" />
+  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h283a8 8 0 0 1 8 8v37.5h-299z" />
   <g data-testid="card-title" transform="translate(25, 30)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -112,66 +112,73 @@
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg data-testid="lang-items" x="25">
       <mask id="rect-mask">
-        <rect x="0" y="0" width="350" height="8" fill="white" rx="5" />
+        <rect x="0" y="0" width="250" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="99.21" height="8" fill="#dea584" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="99.21" y="0" width="72.95" height="8" fill="#3178c6" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="172.16" y="0" width="65.94" height="8" fill="#00ADD8" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="238.1" y="0" width="37.6" height="8" fill="#3572A5" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="275.7" y="0" width="27.62" height="8" fill="#DA5B0B" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="303.32" y="0" width="16.92" height="8" fill="#ff3e00" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="320.24" y="0" width="15.37" height="8" fill="#000080" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="335.61" y="0" width="14.39" height="8" fill="#6e4a7e" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="65.58" height="8" fill="#dea584" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="65.58" y="0" width="48.22" height="8" fill="#3178c6" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="113.8" y="0" width="43.59" height="8" fill="#00ADD8" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="157.39" y="0" width="24.85" height="8" fill="#3572A5" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="182.23999999999998" y="0" width="18.26" height="8" fill="#DA5B0B" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="200.49999999999997" y="0" width="11.19" height="8" fill="#ff3e00" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="211.68999999999997" y="0" width="10.16" height="8" fill="#000080" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="221.84999999999997" y="0" width="19.509999999999998" height="8" fill="#6e4a7e" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="231.35999999999996" y="0" width="18.64" height="8" fill="#858585" />
       <g transform="translate(0, 25)">
         <g>
           <g>
             <g class="stagger" style="animation-delay: 450ms">
               <circle cx="5" cy="6" r="5" fill="#dea584" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust 28.34%</text>
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust 26.23%</text>
             </g>
           </g>
           <g transform="translate(0, 25)">
             <g class="stagger" style="animation-delay: 600ms">
               <circle cx="5" cy="6" r="5" fill="#3178c6" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 20.84%</text>
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 19.29%</text>
             </g>
           </g>
           <g transform="translate(0, 50)">
             <g class="stagger" style="animation-delay: 750ms">
               <circle cx="5" cy="6" r="5" fill="#00ADD8" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Go 18.84%</text>
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Go 17.44%</text>
             </g>
           </g>
           <g transform="translate(0, 75)">
             <g class="stagger" style="animation-delay: 900ms">
               <circle cx="5" cy="6" r="5" fill="#3572A5" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Python 10.74%</text>
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Python 9.94%</text>
+            </g>
+          </g>
+          <g transform="translate(0, 100)">
+            <g class="stagger" style="animation-delay: 1050ms">
+              <circle cx="5" cy="6" r="5" fill="#DA5B0B" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Jupyter Notebook 7.30%</text>
             </g>
           </g>
         </g>
         <g transform="translate(150, 0)">
           <g>
             <g class="stagger" style="animation-delay: 450ms">
-              <circle cx="5" cy="6" r="5" fill="#DA5B0B" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Jupyter Notebook 7.89%</text>
+              <circle cx="5" cy="6" r="5" fill="#ff3e00" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 4.47%</text>
             </g>
           </g>
           <g transform="translate(0, 25)">
             <g class="stagger" style="animation-delay: 600ms">
-              <circle cx="5" cy="6" r="5" fill="#ff3e00" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Svelte 4.84%</text>
+              <circle cx="5" cy="6" r="5" fill="#000080" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Lua 4.06%</text>
             </g>
           </g>
           <g transform="translate(0, 50)">
             <g class="stagger" style="animation-delay: 750ms">
-              <circle cx="5" cy="6" r="5" fill="#000080" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Lua 4.39%</text>
+              <circle cx="5" cy="6" r="5" fill="#6e4a7e" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Elixir 3.81%</text>
             </g>
           </g>
           <g transform="translate(0, 75)">
             <g class="stagger" style="animation-delay: 900ms">
-              <circle cx="5" cy="6" r="5" fill="#6e4a7e" />
-              <text data-testid="lang-name" x="15" y="10" class="lang-name">Elixir 4.11%</text>
+              <circle cx="5" cy="6" r="5" fill="#858585" />
+              <text data-testid="lang-name" x="15" y="10" class="lang-name">Other 7.46%</text>
             </g>
           </g>
         </g>

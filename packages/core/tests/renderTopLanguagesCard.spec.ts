@@ -163,29 +163,43 @@ describe('Test renderTopLanguages helper functions', () => {
     expect(getCircleLength(radius)).toBeCloseTo(length);
   });
 
-  it('trimTopLanguages', () => {
-    expect(trimTopLanguages({}, 5)).toStrictEqual({ langs: [], totalLanguageSize: 0 });
-    expect(trimTopLanguages({ javascript: langs.javascript }, 5)).toStrictEqual({
-      langs: [langs.javascript],
-      totalLanguageSize: 200,
-    });
-    expect(trimTopLanguages({ javascript: langs.javascript, HTML: langs.HTML }, 5)).toStrictEqual({
-      langs: [langs.javascript, langs.HTML],
-      totalLanguageSize: 400,
-    });
-    expect(trimTopLanguages(langs, 5)).toStrictEqual({
-      langs: Object.values(langs),
-      totalLanguageSize: 500,
-    });
-    expect(trimTopLanguages(langs, 2)).toStrictEqual({
-      langs: Object.values(langs).slice(0, 2),
-      totalLanguageSize: 400,
-    });
-    expect(trimTopLanguages(langs, 5, ['javascript'])).toStrictEqual({
-      langs: [langs.HTML, langs.css],
-      totalLanguageSize: 300,
-    });
-  });
+  it.each([
+    ['nothing', {}, 5, undefined, [], 0],
+    ['one language', { javascript: langs.javascript }, 5, undefined, [langs.javascript], 200],
+    [
+      'two languages',
+      { javascript: langs.javascript, HTML: langs.HTML },
+      5,
+      undefined,
+      [langs.javascript, langs.HTML],
+      400,
+    ],
+    ['every language', langs, 5, undefined, Object.values(langs), 500],
+    [
+      'what the count cuts as Other',
+      langs,
+      2,
+      undefined,
+      [langs.HTML, langs.javascript, { name: 'Other', color: null, size: 100, count: 1 }],
+      500,
+    ],
+    [
+      'a hidden language nowhere, not even in Other',
+      langs,
+      1,
+      ['javascript'],
+      [langs.HTML, { name: 'Other', color: null, size: 100, count: 1 }],
+      300,
+    ],
+  ] satisfies Array<[string, TopLangData, number, Array<string> | undefined, Array<Lang>, number]>)(
+    'trimTopLanguages keeps %s',
+    (_case, data, count, hide, expected, totalLanguageSize) => {
+      expect(trimTopLanguages(data, count, hide, 'Other')).toStrictEqual({
+        langs: expected,
+        totalLanguageSize,
+      });
+    },
+  );
 
   it.each([
     [{ layout: 'normal' }, 5],
@@ -475,12 +489,25 @@ describe('Test renderTopLanguages', () => {
   });
 
   it.each([
-    [{ langs_count: 1 }, 1],
+    [{ langs_count: 1 }, ['HTML', 'Other']],
     // the count is of what is left once `hide_langs` has taken its share
-    [{ hide_langs: ['HTML'], langs_count: 2 }, 2],
-  ])('should render langs with specified langs_count (%o)', (options, count) => {
+    [{ hide_langs: ['HTML'], langs_count: 2 }, ['javascript', 'css']],
+    [{ langs_count: 2, locale: 'it' }, ['HTML', 'javascript', 'Other']],
+  ])('should render langs with specified langs_count (%o)', (options, names) => {
     draw(renderTopLanguages(langs, options));
-    expect(screen.queryAllByTestId('lang-name')).toHaveLength(count);
+    const drawn = screen.queryAllByTestId('lang-name');
+    expect(drawn).toHaveLength(names.length);
+    for (const [index, name] of names.entries()) {
+      expect(drawn[index]).toHaveTextContent(exactly(name));
+    }
+  });
+
+  it('should keep each share a share of every language, Other included', () => {
+    draw(renderTopLanguages(langs, { langs_count: 2, layout: 'compact' }));
+    expectLabels(['HTML 40.00%', 'javascript 40.00%', 'Other 20.00%']);
+    expect(document.querySelector('desc')).toHaveTextContent(
+      exactly('HTML 40.00%, javascript 40.00%, Other 20.00%'),
+    );
   });
 
   it('should show "No languages data." message instead of empty card when nothing to show', () => {
