@@ -9,6 +9,8 @@ import type {
   TopLanguagesRepositoryFragment,
 } from '../graphql/generated/top-languages.ts';
 
+import { withNotebooksRecounted } from './jupyter.ts';
+import type { NOTEBOOK_COUNTS } from './jupyter.ts';
 import type { Lang, TopLangData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(TopLanguagesDocument, 'token');
@@ -25,12 +27,15 @@ const fetchTopLanguages = async (
     size_weight = 1,
     count_weight = 0,
     ownerAffiliations = [],
+    notebooks,
   }: {
     username: string | undefined;
     exclude_repo?: Array<string>;
     size_weight?: number | undefined;
     count_weight?: number | undefined;
     ownerAffiliations?: Array<string>;
+    /** `code` recounts each repository's notebooks by the language of their code cells. */
+    notebooks?: (typeof NOTEBOOK_COUNTS)[number] | undefined;
   },
   config: CardConfig,
 ): Promise<TopLangData> => {
@@ -53,15 +58,19 @@ const fetchTopLanguages = async (
   }
 
   const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);
-  const repoNodes = (res.data.data.user?.repositories.nodes ?? []).filter(
-    (node): node is TopLanguagesRepositoryFragment => !!node && !isExcluded(node.nameWithOwner),
-  );
+  const repoEdges = (res.data.data.user?.repositories.nodes ?? [])
+    .filter(
+      (node): node is TopLanguagesRepositoryFragment => !!node && !isExcluded(node.nameWithOwner),
+    )
+    .map(({ nameWithOwner, languages }) => ({
+      nameWithOwner,
+      edges: (languages?.edges ?? []).filter((edge): edge is TopLanguageFragment => !!edge),
+    }));
+  const repositories =
+    notebooks === 'code' ? await withNotebooksRecounted(repoEdges, config) : repoEdges;
 
   const languageEdges: Array<TopLanguageFragment> = [];
-  for (const repo of repoNodes) {
-    const edges = (repo.languages?.edges ?? []).filter(
-      (edge): edge is TopLanguageFragment => !!edge,
-    );
+  for (const { edges } of repositories) {
     if (edges.length > 0) {
       languageEdges.unshift(...edges);
     }

@@ -64,9 +64,9 @@ jobs:
         run: pnpm --filter ./packages/core/ run generate-language-colors
 
       # A change to packages/* without one is invisible in the published CHANGELOG.
-      - name: Add a changeset if the language colors changed
+      - name: Add a changeset if the language colors or aliases changed
         run: |
-          if [ -z "$(git status --porcelain packages/core/src/common/languageColors.json)" ]; then
+          if [ -z "$(git status --porcelain packages/core/src/common/languageColors.json packages/core/src/common/languageAliases.json)" ]; then
             exit 0
           fi
           pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat: update language colors

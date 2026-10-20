@@ -16,6 +16,7 @@ import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 import type { WakaTimeData } from '@stats-forge/github-stats-forge-core/fetchers';
 
 import type { GraphQLResponse } from '../../../packages/core/src/common/http.ts';
+import type { GitTree } from '../../../packages/core/src/fetchers/jupyter.ts';
 import type { ContributionsQuery } from '../../../packages/core/src/graphql/contributionsDocument.ts';
 import type { UserContributionYearsQuery } from '../../../packages/core/src/graphql/generated/contributed-to.ts';
 import type { GistInfoQuery } from '../../../packages/core/src/graphql/generated/gist.ts';
@@ -545,6 +546,30 @@ const wakatime = (): { data: WakaTimeData } => {
   };
 };
 
+/** The one notebook every repository holds, which only `slag` is asked for. */
+const NOTEBOOK_SHA = '5a6f'.repeat(10);
+
+const gitTree = (): GitTree => ({
+  truncated: false,
+  tree: [
+    { path: 'README.md', type: 'blob', sha: 'e'.repeat(40), size: 2100 },
+    { path: 'notebooks/annealing.ipynb', type: 'blob', sha: NOTEBOOK_SHA, size: 142_000 },
+  ],
+});
+
+/** Python by kernel; the tree's size stands for the plot GitHub counted, which this elides. */
+const notebook = (): unknown => ({
+  metadata: { kernelspec: { name: 'python3', language: 'python' } },
+  cells: [
+    { cell_type: 'markdown', source: ['# Annealing curves\n'] },
+    {
+      cell_type: 'code',
+      source: ['import slag\n', 'curve = slag.anneal(steps=400)\n', 'curve.plot()\n'],
+      outputs: [{ output_type: 'display_data', data: { 'image/png': 'iVBORw0KGgo…' } }],
+    },
+  ],
+});
+
 /** Answered by operation name; the two built at runtime read their ranges off the query. */
 const GRAPHQL: Readonly<Record<string, (query: string) => unknown>> = {
   gistInfo,
@@ -583,6 +608,14 @@ const fixtureFetch: FetchLike = (input, init) => {
 
   if (url.pathname.startsWith('/api/v1/users/')) {
     return Promise.resolve(Response.json(wakatime()));
+  }
+
+  if (url.pathname.includes('/git/trees/')) {
+    return Promise.resolve(Response.json(gitTree()));
+  }
+
+  if (url.pathname.includes('/git/blobs/')) {
+    return Promise.resolve(Response.json(notebook()));
   }
 
   if (url.pathname.startsWith('/search/')) {
