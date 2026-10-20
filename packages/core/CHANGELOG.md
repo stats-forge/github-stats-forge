@@ -1,5 +1,46 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.10.0
+
+### Minor Changes
+
+- [#270](https://github.com/stats-forge/github-stats-forge/pull/270) [`2e48bfd`](https://github.com/stats-forge/github-stats-forge/commit/2e48bfd7d8056c7e6f9440c8e9c3e9f87ad5676e) - refactor!: throw every failure by name, through `CardError.because`
+
+  `CardError.forbidden`, `notAllowed`, `invalidParam` and `missingParam` are gone; call `CardError.because(reason, data)`.
+  A missing repository now always says "Repository not found".
+
+- [#292](https://github.com/stats-forge/github-stats-forge/pull/292) [`002e2bc`](https://github.com/stats-forge/github-stats-forge/commit/002e2bce4e4b8fff8a2f62a6d327e45e1de620a5) - feat: draw a repository's topics on the pin card with `show=topics`
+
+  `fetchRepo` takes `include_topics` and returns them as `topics`.
+
+- [#293](https://github.com/stats-forge/github-stats-forge/pull/293) [`de87c16`](https://github.com/stats-forge/github-stats-forge/commit/de87c16f5b83d1aabd1c435392bf59481548a0df) - feat: fold the languages `langs_count` cuts into an Other row on the top-languages card
+
+  Shares stay a share of every language. `trimTopLanguages` now takes the Other row's name.
+
+### Patch Changes
+
+- [#280](https://github.com/stats-forge/github-stats-forge/pull/280) [`27d572d`](https://github.com/stats-forge/github-stats-forge/commit/27d572df10b7a92ddc05ebd653cf6e9ca4ca9e2f) - fix: widen the compact top-languages card to fit its longest label
+
+  A name such as "Jupyter Notebook" no longer runs past the card's edge.
+
+- [#260](https://github.com/stats-forge/github-stats-forge/pull/260) [`6de4809`](https://github.com/stats-forge/github-stats-forge/commit/6de4809d0ff10b8db279b228327fca606abf9664) - fix: point the error card's report line at https://tinyurl.com/github-stats-forge-bug
+
+- [#284](https://github.com/stats-forge/github-stats-forge/pull/284) [`52a093b`](https://github.com/stats-forge/github-stats-forge/commit/52a093b7e05f926593b432d8c671f974c235f160) - fix: shrink a card title too long for its card instead of cropping it
+
+- [#283](https://github.com/stats-forge/github-stats-forge/pull/283) [`c4f3f00`](https://github.com/stats-forge/github-stats-forge/commit/c4f3f007cc1e30e770828f4af7cca462baf8d482) - fix: widen the top-languages pie and vertical donut to fit their longest label
+
+  Both now centre on the card's width, so a `card_width` wider than 300 moves the chart to the middle.
+
+- [#269](https://github.com/stats-forge/github-stats-forge/pull/269) [`8a23daf`](https://github.com/stats-forge/github-stats-forge/commit/8a23daf3e805b1ed0c456267db262aa4bd918f01) - fix: report every token GitHub rejected as `no_tokens`, not a rate limit
+
+  An expired or revoked token now asks to be replaced instead of to be waited out.
+
+- [#294](https://github.com/stats-forge/github-stats-forge/pull/294) [`73db019`](https://github.com/stats-forge/github-stats-forge/commit/73db01923b9ded6c13fd422d5ff13c77dede1e21) - fix: count 0 for a search GitHub will not run for the user, instead of failing the stats card
+
+- [#285](https://github.com/stats-forge/github-stats-forge/pull/285) [`941efec`](https://github.com/stats-forge/github-stats-forge/commit/941efec1e355dd95fe27fca99f8a6443cf65d736) - fix: keep long language names in the compact WakaTime card from running into each other
+
+  A compact `card_width` too narrow for the labels is widened to fit them, and the card no longer rewrites the percentages of the data it is given.
+
 ## 0.9.0
 
 ### Minor Changes

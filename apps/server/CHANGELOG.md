@@ -1,5 +1,29 @@
 # @stats-forge/github-stats-server
 
+## 0.6.0
+
+### Minor Changes
+
+- [#276](https://github.com/stats-forge/github-stats-forge/pull/276) [`3238d0a`](https://github.com/stats-forge/github-stats-forge/commit/3238d0a62ce9ea9fa9c42368338c79985bbbc806) - feat: answer with the last good card while a redraw fails
+
+  It stands in for the error card for up to a day.
+
+- [#278](https://github.com/stats-forge/github-stats-forge/pull/278) [`b4badf3`](https://github.com/stats-forge/github-stats-forge/commit/b4badf3c0596d1d60e29db1510f40bd03eb120d5) - feat: set how long the last good card covers a failing redraw, with `STALE_SECONDS`
+
+  It defaults to a day; `0` turns the fallback off.
+
+### Patch Changes
+
+- [#273](https://github.com/stats-forge/github-stats-forge/pull/273) [`1264b6a`](https://github.com/stats-forge/github-stats-forge/commit/1264b6ae96bc3b2f9ae56cbc37d70f0c141abd61) - docs: list `forbidden` among the library's error codes
+
+- [#269](https://github.com/stats-forge/github-stats-forge/pull/269) [`8a23daf`](https://github.com/stats-forge/github-stats-forge/commit/8a23daf3e805b1ed0c456267db262aa4bd918f01) - fix: report every token GitHub rejected as `no_tokens`, not a rate limit
+
+  An expired or revoked token now asks to be replaced instead of to be waited out.
+
+- [#277](https://github.com/stats-forge/github-stats-forge/pull/277) [`149603e`](https://github.com/stats-forge/github-stats-forge/commit/149603e58b95d9adca601857cccf9300218329a2) - docs: cut the self-hosting page down to what it needs
+- Updated dependencies [[`2e48bfd`](https://github.com/stats-forge/github-stats-forge/commit/2e48bfd7d8056c7e6f9440c8e9c3e9f87ad5676e), [`27d572d`](https://github.com/stats-forge/github-stats-forge/commit/27d572df10b7a92ddc05ebd653cf6e9ca4ca9e2f), [`6de4809`](https://github.com/stats-forge/github-stats-forge/commit/6de4809d0ff10b8db279b228327fca606abf9664), [`52a093b`](https://github.com/stats-forge/github-stats-forge/commit/52a093b7e05f926593b432d8c671f974c235f160), [`c4f3f00`](https://github.com/stats-forge/github-stats-forge/commit/c4f3f007cc1e30e770828f4af7cca462baf8d482), [`002e2bc`](https://github.com/stats-forge/github-stats-forge/commit/002e2bce4e4b8fff8a2f62a6d327e45e1de620a5), [`8a23daf`](https://github.com/stats-forge/github-stats-forge/commit/8a23daf3e805b1ed0c456267db262aa4bd918f01), [`73db019`](https://github.com/stats-forge/github-stats-forge/commit/73db01923b9ded6c13fd422d5ff13c77dede1e21), [`de87c16`](https://github.com/stats-forge/github-stats-forge/commit/de87c16f5b83d1aabd1c435392bf59481548a0df), [`941efec`](https://github.com/stats-forge/github-stats-forge/commit/941efec1e355dd95fe27fca99f8a6443cf65d736)]:
+  - @stats-forge/github-stats-forge-core@0.10.0
+
 ## 0.5.0
 
 ### Minor Changes
