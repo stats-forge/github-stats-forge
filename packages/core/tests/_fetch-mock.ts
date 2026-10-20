@@ -170,6 +170,7 @@ interface SearchBody {
   items?: Array<unknown>;
   message?: string;
   error?: string;
+  errors?: Array<{ message: string; resource?: string; field?: string; code?: string }>;
 }
 
 /** GitHub's GraphQL endpoint, which every fetcher but the commit search and WakaTime posts to. */

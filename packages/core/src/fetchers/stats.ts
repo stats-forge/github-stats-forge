@@ -168,6 +168,19 @@ const fetchTotalItems = (
   );
 
 /**
+ * Whether a search failed because GitHub will not search the user,
+ * rather than because it could not parse a query of ours.
+ *
+ * @returns True on a 422 whose errors say the listed users cannot be searched.
+ */
+const isUnsearchableUser = ({ status, data }: FetcherResponse): boolean => {
+  if (status !== 422) {
+    return false;
+  }
+  return (data.errors ?? []).some(({ message }) => message?.includes('cannot be searched'));
+};
+
+/**
  * Fetch a total count for a given username via the REST search API.
  *
  * The GraphQL API can't return this.
@@ -191,6 +204,12 @@ const totalItemsFetcher = async (
   } catch (error) {
     logger.log(error);
     throw error;
+  }
+
+  // a user GraphQL resolved can still be one search refuses, and one count should not fail the card
+  if (isUnsearchableUser(res)) {
+    logger.log(`GitHub search refused '${username}'; counting ${search.filter} as 0.`);
+    return 0;
   }
 
   const totalCount = res.data.total_count;
