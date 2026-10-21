@@ -65,7 +65,7 @@ jobs:
           if [ -z "$(git status --porcelain packages/core/src/common/emojiMap.json)" ]; then
             exit 0
           fi
-          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat(core): update emoji map
+          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat: update emoji map
 
           Regenerated from the [GitHub shortcode preset in emojibase](https://github.com/milesj/emojibase/blob/master/packages/data/en/shortcodes/github.raw.json).'
 

@@ -64,7 +64,7 @@ jobs:
           if [ -z "$(git status --porcelain packages/core/src/common/languageColors.json)" ]; then
             exit 0
           fi
-          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat(core): update language colors
+          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat: update language colors
 
           Regenerated from the [upstream linguist languages file](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml).'
 
