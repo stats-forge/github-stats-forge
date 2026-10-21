@@ -81,7 +81,7 @@ jobs:
           delete-branch: true
           title: 'feat(core): update language colors'
           body: >-
-            The [generate-language-colors](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-language-colors.yml)
+            The [update-language-colors](${{ github.server_url }}/${{ github.repository }}/actions/workflows/update-language-colors.yml)
             workflow detected changes in the [upstream languages JSON file](https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml)
             and regenerated the local language colors JSON file.
           labels: 'ci'

@@ -82,7 +82,7 @@ jobs:
           delete-branch: true
           title: 'feat(core): update emoji map'
           body: >-
-            The [generate-emoji-map](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-emoji-map.yml)
+            The [update-emoji-map](${{ github.server_url }}/${{ github.repository }}/actions/workflows/update-emoji-map.yml)
             workflow detected changes in the [upstream emojibase data](https://www.npmjs.com/package/emojibase-data)
             and regenerated the local emoji map JSON file.
           labels: 'ci'
