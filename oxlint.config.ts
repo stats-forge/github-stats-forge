@@ -1,4 +1,5 @@
 import { baseConfig } from '@marcalexiei/oxlint-config/base';
+import { nodeConfig } from '@marcalexiei/oxlint-config/node';
 import { typescriptConfig } from '@marcalexiei/oxlint-config/typescript';
 import { vitestConfig } from '@marcalexiei/oxlint-config/vitest';
 import { defineConfig } from 'oxlint';
@@ -196,6 +197,27 @@ export default defineConfig({
       files: ['apps/docs/src/anvil/controls.ts'],
       rules: {
         'import/no-unassigned-import': 'off',
+      },
+    },
+    {
+      // Only these run on Node alone; core's sources also run in the browser.
+      files: [
+        '**/*.config.ts',
+        'scripts/**',
+        'apps/*/scripts/**',
+        'packages/*/scripts/**',
+        'apps/server/src/**',
+        'packages/cli/src/**',
+        'packages/cli/bin.js',
+      ],
+      ...nodeConfig,
+    },
+    {
+      // A library must still load through `require(esm)`, which top-level await breaks; the CLI is an entry point.
+      files: ['packages/core/src/**', 'packages/catalog/src/**'],
+      plugins: ['node'],
+      rules: {
+        'node/no-top-level-await': 'error',
       },
     },
     {
