@@ -103,9 +103,17 @@
       },
     },
 
+    // The CI matrix's runners, kept apart from the documentation's pins below.
+    {
+      matchManagers: ['custom.regex'],
+      matchDatasources: ['github-runners'],
+      semanticCommitType: 'ci',
+    },
+
     // The documentation's own pins.
     {
       matchManagers: ['custom.regex'],
+      matchDatasources: ['github-tags'],
       semanticCommitType: 'docs',
       semanticCommitScope: null,
       commitMessageTopic: 'the {{{depName}}} example',
@@ -138,6 +146,17 @@
       ],
       datasourceTemplate: 'github-tags',
       versioningTemplate: 'github-actions',
+    },
+    // The `github-actions` manager reads a literal `runs-on`, never a `matrix.os` list.
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/^\\.github/workflows/[^/]+\\.ya?ml$/'],
+      matchStringsStrategy: 'recursive',
+      matchStrings: [
+        'os: \\[[^\\]]*\\]',
+        '(?<depName>ubuntu|macos|windows)-(?<currentValue>[\\d.]+)',
+      ],
+      datasourceTemplate: 'github-runners',
     },
   ],
 }
