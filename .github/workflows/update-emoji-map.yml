@@ -65,7 +65,7 @@ jobs:
           if [ -z "$(git status --porcelain packages/core/src/common/emojiMap.json)" ]; then
             exit 0
           fi
-          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat(core): update emoji map
+          pnpm exec changeset add --patch @stats-forge/github-stats-forge-core -m 'feat: update emoji map
 
           Regenerated from the [GitHub shortcode preset in emojibase](https://github.com/milesj/emojibase/blob/master/packages/data/en/shortcodes/github.raw.json).'
 
@@ -82,7 +82,7 @@ jobs:
           delete-branch: true
           title: 'feat(core): update emoji map'
           body: >-
-            The [generate-emoji-map](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-emoji-map.yml)
+            The [update-emoji-map](${{ github.server_url }}/${{ github.repository }}/actions/workflows/update-emoji-map.yml)
             workflow detected changes in the [upstream emojibase data](https://www.npmjs.com/package/emojibase-data)
             and regenerated the local emoji map JSON file.
           labels: 'ci'

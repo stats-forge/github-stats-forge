@@ -18,11 +18,11 @@ concurrency:
 
 permissions: {}
 
-# Skips the pre-commit hook — see ../CONTRIBUTING.md, "Workflows That Commit".
 defaults:
   run:
     shell: bash
 
+# Skips the pre-commit hook — see ../CONTRIBUTING.md, "Workflows That Commit".
 env:
   LEFTHOOK: 0
 
@@ -43,7 +43,6 @@ jobs:
 
     outputs:
       published: ${{ steps.changesets.outputs.published }}
-
       publishedPackages: ${{ steps.changesets.outputs['published-packages'] }}
 
     steps:
@@ -196,11 +195,3 @@ jobs:
         with:
           github-token: ${{ steps.release-helper.outputs.token }}
           published-packages: ${{ needs.release.outputs.publishedPackages }}
-
-  on-ci-fail:
-    name: 'Failure'
-    runs-on: ubuntu-26.04
-    timeout-minutes: 1
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-    steps:
-      - run: echo "CI failed. Release will not run"
