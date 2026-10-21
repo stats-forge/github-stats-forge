@@ -14,6 +14,11 @@ on:
     # Monthly: emojibase follows Unicode releases, which land about once a year.
     - cron: '30 4 1 * *'
 
+# A dispatch racing the schedule would push to the same branch at once.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions: {}
 
 defaults:

@@ -13,6 +13,11 @@ on:
     #        * *  *   * *
     - cron: '45 22 */7 * *'
 
+# A dispatch racing the schedule would push to the same branch at once.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions: {}
 
 defaults:
