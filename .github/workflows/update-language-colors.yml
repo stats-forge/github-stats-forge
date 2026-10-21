@@ -1,4 +1,4 @@
-name: Update supported languages
+name: Update language colors
 on:
   workflow_dispatch:
   schedule:
@@ -55,7 +55,7 @@ jobs:
         with:
           save-cache: false
 
-      - name: Run update-languages-json.js script
+      - name: Run generate-language-colors script
         run: pnpm --filter ./packages/core/ run generate-language-colors
 
       # A change to packages/* without one is invisible in the published CHANGELOG.
