@@ -1,5 +1,19 @@
 # @stats-forge/github-stats-server
 
+## 0.7.0
+
+### Minor Changes
+
+- [#295](https://github.com/stats-forge/github-stats-forge/pull/295) [`20ec447`](https://github.com/stats-forge/github-stats-forge/commit/20ec447ab6537555b853d48cd9ddb041d45d7dbf) - feat: add `notebooks=code` to the top-languages card, counting notebooks' code cells as their kernel's language
+
+### Patch Changes
+
+- [#301](https://github.com/stats-forge/github-stats-forge/pull/301) [`a92307c`](https://github.com/stats-forge/github-stats-forge/commit/a92307c6aba4b56509609e67f06abff11ba79c06) - build: run the image on Node.js 24.22.1, a security release
+
+- [#301](https://github.com/stats-forge/github-stats-forge/pull/301) [`a92307c`](https://github.com/stats-forge/github-stats-forge/commit/a92307c6aba4b56509609e67f06abff11ba79c06) - docs: pin the stats-forge/github-stats-forge-action example to v0.10.0
+- Updated dependencies [[`20ec447`](https://github.com/stats-forge/github-stats-forge/commit/20ec447ab6537555b853d48cd9ddb041d45d7dbf)]:
+  - @stats-forge/github-stats-forge-core@0.11.0
+
 ## 0.6.0
 
 ### Minor Changes

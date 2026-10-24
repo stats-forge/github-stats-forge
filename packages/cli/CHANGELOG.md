@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.6.6
+
+### Patch Changes
+
+- Updated dependencies [[`20ec447`](https://github.com/stats-forge/github-stats-forge/commit/20ec447ab6537555b853d48cd9ddb041d45d7dbf)]:
+  - @stats-forge/github-stats-forge-core@0.11.0
+  - @stats-forge/github-stats-forge-catalog@0.2.0
+
 ## 0.6.5
 
 ### Patch Changes
