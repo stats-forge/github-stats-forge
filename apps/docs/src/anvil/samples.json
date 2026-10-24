@@ -344,6 +344,55 @@
       }
     }
   },
+  "git/blobs": {
+    "status": 200,
+    "body": {
+      "metadata": {
+        "kernelspec": {
+          "name": "python3",
+          "language": "python"
+        }
+      },
+      "cells": [
+        {
+          "cell_type": "markdown",
+          "source": ["# Annealing curves\n"]
+        },
+        {
+          "cell_type": "code",
+          "source": ["import slag\n", "curve = slag.anneal(steps=400)\n", "curve.plot()\n"],
+          "outputs": [
+            {
+              "output_type": "display_data",
+              "data": {
+                "image/png": "iVBORw0KGgo…"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "git/trees": {
+    "status": 200,
+    "body": {
+      "truncated": false,
+      "tree": [
+        {
+          "path": "README.md",
+          "type": "blob",
+          "sha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "size": 2100
+        },
+        {
+          "path": "notebooks/annealing.ipynb",
+          "type": "blob",
+          "sha": "5a6f5a6f5a6f5a6f5a6f5a6f5a6f5a6f5a6f5a6f",
+          "size": 142000
+        }
+      ]
+    }
+  },
   "search/commits|author": {
     "status": 200,
     "body": {

@@ -295,6 +295,13 @@ const CARDS: ReadonlyArray<CardKind> = [
         group: 'data',
         choices: topLangs.OPTIONS.affiliation,
       },
+      {
+        name: 'notebooks',
+        label: 'Count Jupyter notebooks by',
+        kind: 'choice',
+        group: 'data',
+        choices: topLangs.OPTIONS.notebooks,
+      },
       { name: 'title', label: 'Card title', kind: 'text', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', kind: 'boolean', group: 'text' },
       { name: 'card_width', label: 'Card width', kind: 'integer', group: 'text' },

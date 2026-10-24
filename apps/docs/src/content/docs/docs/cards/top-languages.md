@@ -59,6 +59,29 @@ Two languages can rank differently depending on what you mean by "most".
 | `size_weight=0&count_weight=1` | How many repositories use the language |
 | `size_weight=1&count_weight=1` | Both, multiplied together              |
 
+## Jupyter notebooks
+
+GitHub counts a whole `.ipynb` file as Jupyter Notebook, saved outputs included, so one notebook
+full of plots can outweigh the language it is written in. Hiding Jupyter Notebook drops those bytes
+without giving the code back to Python.
+
+```text
+?username=octocat&notebooks=code
+```
+
+`notebooks=code` reads the notebooks of each repository GitHub says has some, and counts their
+code cells as the kernel's language: Python, R, Julia and so on. Markdown cells and outputs count
+for nothing. A cell starting with a `%%` magic such as `%%bash` counts as that language. One whose
+body is text, such as `%%latex` or `%%writefile`, counts for nothing, as does one in a language
+GitHub's bar leaves out, such as `%%sql`. A kernel the card does not recognize stays Jupyter
+Notebook, without its outputs.
+
+The default, `notebooks=github`, keeps GitHub's count, because `code` costs requests on top of the
+card's usual one: one per repository to list its notebooks, for at most 10 repositories, and one per
+notebook, for at most 25 notebooks. A repository it cannot read in full keeps GitHub's count: one
+with more notebooks than are left to read, a notebook over 2 MB or one it cannot download, or a
+notebook GitHub leaves out of its count, such as one under `docs/` or marked vendored.
+
 ## Options
 
 | Option               | Values                                            | What it does                              |
@@ -74,6 +97,7 @@ Two languages can rank differently depending on what you mean by "most".
 | `hide_values`        | `true` `false`                                    | Drop the numbers                          |
 | `prog_bar_bg_color`  | a hex color                                       | The unfilled part of each bar             |
 | `affiliation`        | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count                  |
+| `notebooks`          | `github` `code`                                   | How notebooks count                       |
 | `disable_animations` | `true` `false`                                    | Draw the card with no animation           |
 
 Plus the [common options](../../customization/common-options/) every card takes,

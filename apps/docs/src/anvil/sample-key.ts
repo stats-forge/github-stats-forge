@@ -6,8 +6,11 @@
  * exact-match key would miss most of the option space.
  */
 
-/** The one call that is neither GraphQL nor a REST search: wakatime's own endpoint. */
+/** wakatime's own endpoint, which is neither GraphQL nor a GitHub REST call. */
 const WAKATIME_KEY = 'wakatime';
+
+/** A repository's tree or one of its blobs, keyed without the repository or the blob it names. */
+const GIT_OBJECT = /^\/repos\/[^/]+\/[^/]+\/git\/(?<kind>trees|blobs)\//;
 
 /** Scoped to whatever was chosen, so they cannot be part of a key. */
 const SCOPE_QUALIFIERS = new Set(['repo', 'owner']);
@@ -120,6 +123,11 @@ const sampleKey = (url: string, init?: RequestInit): string | undefined => {
 
   if (parsed.pathname.startsWith('/search/')) {
     return searchKey(parsed);
+  }
+
+  const gitObject = GIT_OBJECT.exec(parsed.pathname)?.groups?.['kind'];
+  if (gitObject !== undefined) {
+    return `git/${gitObject}`;
   }
 
   return graphqlKey(typeof init?.body === 'string' ? init.body : undefined);

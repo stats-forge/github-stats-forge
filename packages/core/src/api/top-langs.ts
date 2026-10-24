@@ -2,6 +2,7 @@ import * as z from 'zod/mini';
 
 import { renderTopLanguages } from '../cards/top-languages/index.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
+import { NOTEBOOK_COUNTS } from '../fetchers/jupyter.ts';
 import { fetchTopLanguages } from '../fetchers/top-languages.ts';
 
 import { cardHandler } from './handler.ts';
@@ -31,6 +32,7 @@ const topLangsQuery = z.object({
   size_weight: numberParam(),
   count_weight: numberParam(),
   affiliation: enumListParam(OWNER_AFFILIATIONS),
+  notebooks: enumParam(NOTEBOOK_COUNTS),
   hide_progress: booleanParam,
   hide_values: booleanParam,
   value_format: enumParam(renderTopLanguages.OPTIONS.value_format),
@@ -60,6 +62,7 @@ const renderTopLangs = cardHandler(
       locale,
       border_radius,
       affiliation,
+      notebooks,
       disable_animations,
       hide_progress,
       hide_values,
@@ -75,6 +78,7 @@ const renderTopLangs = cardHandler(
         size_weight,
         count_weight,
         ownerAffiliations: affiliation,
+        notebooks,
       },
       config,
     );
@@ -103,5 +107,9 @@ const renderTopLangs = cardHandler(
  * A UI reads them off the function it calls: `topLangs.OPTIONS.layout`.
  */
 export const topLangs = Object.assign(renderTopLangs, {
-  OPTIONS: { ...renderTopLanguages.OPTIONS, affiliation: OWNER_AFFILIATIONS },
+  OPTIONS: {
+    ...renderTopLanguages.OPTIONS,
+    affiliation: OWNER_AFFILIATIONS,
+    notebooks: NOTEBOOK_COUNTS,
+  },
 });

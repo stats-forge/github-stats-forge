@@ -62,7 +62,7 @@ const EXTRAS: Readonly<Record<string, AnvilExtras>> = {
     docs: 'top-languages',
     category: 'user',
     identity: { username: SAMPLE.username },
-    maximal: {},
+    maximal: { notebooks: 'code' },
   },
   pin: {
     docs: 'repo-pin',

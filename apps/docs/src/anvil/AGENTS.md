@@ -36,6 +36,8 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
     fields collapsed, not each field;
   - a REST search keys on its path and **qualifier names**, dropping `repo:` and `owner:`, keeping
     `type:`;
+  - a git tree or blob keys on its kind alone (`git/trees`, `git/blobs`), every repository sharing
+    one notebook;
   - ranges alias by position (`range_0`, …), and `createSampleFetch` re-aliases to the count asked.
 - **The page says what that costs**: options changing how a card is drawn are exact; options
   changing what is counted leave the sample numbers alone.
