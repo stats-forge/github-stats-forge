@@ -1,20 +1,15 @@
 name: Release
 
-# workflow_run is restricted to the main branch and guarded at the job level
-# with `github.event.workflow_run.head_repository.full_name == github.repository`
-# to prevent fork PRs from triggering the release job.
 on:
-  workflow_run: # zizmor: ignore[dangerous-triggers]
-    workflows:
-      - CI
-    types:
-      - completed
+  push:
     branches:
       - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
+  # queue every push: without it, a newer run replaces the waiting one and that release is skipped
+  queue: max
 
 permissions: {}
 
@@ -32,7 +27,6 @@ jobs:
 
     environment: release-npm
 
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
 
@@ -43,7 +37,7 @@ jobs:
 
     outputs:
       published: ${{ steps.changesets.outputs.published }}
-      # `[]` when the guard skips the action, so the image job's `fromJSON` still parses.
+      # `[]` when the action sets no list, so the image job's `fromJSON` still parses.
       publishedPackages: ${{ steps.changesets.outputs['published-packages'] || '[]' }}
 
     steps:
@@ -56,30 +50,13 @@ jobs:
           app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
           private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
 
-      # Pinned to the commit CI passed on, after two quick merges had both runs release the
-      # later one. changesets/action resets to `github.sha` regardless — main's tip under
-      # `workflow_run` — which a shallow clone cannot resolve once the two differ.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
           fetch-depth: 0
 
-      # Versioning resets to main's tip, so a stale run leaves it to the tip's own run; publishing doesn't reset.
-      - name: Skip versioning if main has moved on
-        id: guard
-        env:
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          TIP_SHA: ${{ github.sha }}
-        run: |
-          if [ "$HEAD_SHA" != "$TIP_SHA" ] && find .changeset -maxdepth 1 -name '*.md' ! -name README.md | grep -q .; then
-            echo "main has moved on to $TIP_SHA; its own run versions these changesets."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Install Dependencies
-        if: ${{ steps.guard.outputs.skip != 'true' }}
         uses: marcalexiei/github-actions/setup-node-and-pnpm@92c64c084d3479cff756151cb8163d03608f2acd # v2.4.2
         with:
           save-cache: false
@@ -88,7 +65,6 @@ jobs:
       # version is not yet on npm, in dependency order.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        if: ${{ steps.guard.outputs.skip != 'true' }}
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           github-token: ${{ steps.release-helper.outputs.token }}
@@ -108,7 +84,7 @@ jobs:
       contents: read # to check out the repository
       packages: write # to push the image to GHCR
     with:
-      ref: ${{ github.event.workflow_run.head_sha }}
+      ref: ${{ github.sha }}
 
   # Changesets writes the changelog and nothing else, so nothing on the release says which image
   # it is. Runs after the push, so the reference it adds is one that already resolves.
@@ -172,7 +148,7 @@ jobs:
       pages: write # to publish to GitHub Pages (actions/deploy-pages)
       id-token: write # to verify the deployment originates from this workflow
     with:
-      ref: ${{ github.event.workflow_run.head_sha }}
+      ref: ${{ github.sha }}
 
   # Its own job, so a comment that fails is a red job to re-run rather than an error swallowed
   # inside a green release: the packages are already on npm by the time it runs.
@@ -201,7 +177,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
           fetch-depth: 0 # the commenter reads the history before the release commit
 
