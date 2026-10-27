@@ -28,33 +28,23 @@ one list, under the heading that says what it governs:
 | Text and size     | The title, the width, the number format, the locale                         |
 | Colors and border | The theme and every color, a card's own ones included                       |
 
-A section none of a card's options fall under is dropped,
-so the gist pin counts nothing and has no "What it counts".
+A section a card has no options for is dropped. The three actions sit above them, under a heading of their own.
 
-The three actions sit above those sections under an "Actions" heading of their own,
-so nothing in the menu is unheaded.
-
-Arrow keys move, and typing jumps to the first row whose label starts with what you typed.
-That is what keeps the actions one key away however far down the list you are: `g` reaches "Generate the card", `s` "Save these options" and `q` "Quit".
-An option nothing has answered reads a dimmed `—`, so what you have set stands out.
+Arrow keys move, and typing jumps to the first row starting with what you typed, so the actions are
+one key away: `g` "Generate the card", `s` "Save these options", `q` "Quit". An option nothing has
+answered reads a dimmed `—`.
 
 ## A token
 
-Every card but WakaTime reads the GitHub API, which needs a personal access token.
-A classic token with no scopes at all is enough — the cards only read public data.
-
-The CLI looks for one in this order:
+Every card but WakaTime needs a [GitHub token](../tokens/). The CLI looks for one in this order:
 
 1. `--pat <token>`, repeatable, when you want to pass it explicitly.
 2. `PAT_1`, `PAT_2`, … in the environment.
 3. `PAT_1` in a `.env` file next to you, or the one `--env-file` names.
 4. A prompt, if it still has none.
 
-A token spelled out on the command line lands in your shell history, so prefer `--pat "$token"` —
-or the env file, the environment, or the prompt, which hides what you type.
-
-Several tokens are not redundancy for its own sake: a card that exhausts one moves to the next,
-which matters for the stats card, whose extra stats each cost a request.
+A token spelled out on the command line lands in your shell history, so prefer `--pat "$token"`, or
+the prompt, which hides what you type.
 
 ## Flags
 
@@ -84,14 +74,9 @@ The menu can write what you answered to a file:
 }
 ```
 
-It is a query string in JSON — every value a string, exactly as the endpoint receives it — so it
-reads like the URL it stands for and survives being edited by hand. `card` says which card the
-options belong to, and `version` which shape of the file it is; those two are the only keys that
-are not options.
-
-`version` is what lets the format change later without a file becoming a guess: a file naming a
-higher number than the CLI knows is refused with a message saying so, rather than rendered from
-options it might have read wrong. A file without one is read as version 1.
+It is a query string in JSON, every value a string, so it survives being edited by hand. `card`
+and `version` are the only keys that are not options. A `version` higher than the CLI knows is
+refused rather than guessed at; a file without one is read as version 1.
 
 Load it again with `--config`, and the menu opens on those answers.
 Add `--generate` and it renders and exits, which is what a script or a scheduled job wants:
@@ -145,11 +130,4 @@ npx @stats-forge/github-stats-forge-cli --config card.json --options '?theme=dar
 
 ## In a README
 
-The output is a plain SVG file. Commit it and reference it like any other image:
-
-```md
-![My GitHub stats](./stats.svg)
-```
-
-See [In a README](../in-your-readme/) for a light and dark pair, two cards side by
-side, and a workflow that redraws them on a schedule.
+The SVG goes in a README like any image: see [In a README](../in-your-readme/).

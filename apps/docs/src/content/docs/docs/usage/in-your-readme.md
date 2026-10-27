@@ -9,8 +9,7 @@ A card is a plain SVG file. Commit it and reference it like any other image:
 ![My GitHub stats](./cards/stats.svg)
 ```
 
-That is the whole of it for one card, whatever drew the file: [the action](https://github.com/stats-forge/github-stats-forge-action), which is the
-recommended way to keep it drawn, or [the CLI](../cli/). The rest of this page is what people
+That is the whole of it for one card, whether [the action](https://github.com/stats-forge/github-stats-forge-action) or [the CLI](../cli/) drew the file. The rest of this page is what people
 usually want next.
 
 ## Where to keep them
@@ -24,25 +23,14 @@ A directory of saved cards beside a directory of rendered ones keeps the two str
     stats.svg         what it rendered
 ```
 
-The JSON is the card you can edit and re-render; the SVG is what the README points at.
-Both belong in the repository — a browser fetches the SVG, not the CLI.
-[The action](https://github.com/stats-forge/github-stats-forge-action) keeps its options in the
-workflow instead, so it writes only the SVG.
+The JSON is what you edit and re-render; the SVG is what the README points at. Both belong in the
+repository. [The action](https://github.com/stats-forge/github-stats-forge-action) keeps its
+options in the workflow instead, so it writes only the SVG.
 
 ## Light and dark
 
-GitHub serves READMEs in whichever theme is set, and a card drawn for one looks wrong in
-the other. Render it twice, then let the browser pick:
-
-```sh
-npx @stats-forge/github-stats-forge-cli --config .github/cards/stats-light.json \
-  --generate --out .github/cards/stats-light.svg
-npx @stats-forge/github-stats-forge-cli --config .github/cards/stats-dark.json \
-  --generate --out .github/cards/stats-dark.svg
-```
-
-The two saved cards differ in one option — `"theme": "default"` against `"theme": "dark"` — and
-the README picks between them with `<picture>`:
+A card drawn for one GitHub theme looks wrong in the other. Render it twice, from two
+[saved cards](../cli/#saving-a-card) that differ only in `theme`, and let `<picture>` pick:
 
 ```html
 <picture>
@@ -51,16 +39,8 @@ the README picks between them with `<picture>`:
 </picture>
 ```
 
-Only the `<img>` needs the `alt`; it is the one a screen reader announces, and the one shown
-anywhere `<picture>` is not understood.
-
-This site does the same thing with every card on it, which is why each example changes when you
-switch the theme in the header.
-
-That is the recommended way, and there are four others —
-[`theme_light` / `theme_dark`](../../customization/light-and-dark/#both-modes-in-one-card) in a
-single file, GitHub's `#gh-dark-mode-only` tag, the `transparent` theme, and an alpha channel on
-any theme. [Light and dark mode](../../customization/light-and-dark/) weighs them up.
+That is the recommended way; [Light and dark mode](../../customization/light-and-dark/) weighs it
+against the four others, such as both palettes in a single file.
 
 ## Two cards side by side
 
@@ -70,14 +50,12 @@ Markdown puts consecutive images on one line if nothing separates them:
 ![Stats](./cards/stats.svg)![Top languages](./cards/top-langs.svg)
 ```
 
-That is enough for two cards of the same height. For anything else — differing sizes, links,
-centring, a light and dark pair per card — see
-[Aligning cards](../../customization/aligning-cards/), which is the whole subject.
+That is enough for two cards of the same height. For anything else, see
+[Aligning cards](../../customization/aligning-cards/).
 
 ## Linking a card
 
-Wrap it, the way any image is linked — a pinned repository card pointing at that repository is
-the usual case:
+Wrap it, as any image is linked:
 
 ```md
 [![quench](./cards/pin.svg)](https://github.com/ember-smith/quench)
@@ -85,11 +63,10 @@ the usual case:
 
 ## Keeping it current
 
-A committed SVG holds the numbers from the day it was rendered, so redraw it on a schedule if that
-matters. [The GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action)
-is the recommended way to do it, one step per card, and its own README has the inputs. This is the
-same thing with the CLI, which is what the [contributed to](../../cards/contributed-to/) card still
-needs:
+A committed SVG holds the numbers from the day it was rendered, so redraw it on a schedule.
+[The GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action) is the
+recommended way, one step per card. This is the same with the CLI, which the
+[contributed to](../../cards/contributed-to/) card still needs:
 
 ```yaml
 name: Refresh cards
@@ -128,23 +105,12 @@ jobs:
           git push
 ```
 
-The two `actions/*` steps name a commit rather than a tag, with the release alongside as a
-comment. A tag can be moved to point at other code, so a pin is what GitHub's hardening guide
-asks for; take a newer one from each action's releases page when you copy this.
+Each `uses:` names a commit, since a tag can be moved; take a newer one from each action's
+releases page when you copy this. `CARDS_TOKEN` is a repository secret holding a
+[GitHub token](../tokens/). Weekly suits most profiles: every run is a commit and spends rate
+limit.
 
-`CARDS_TOKEN` is a personal access token with no scopes — the cards read public data only.
-The workflow's own `GITHUB_TOKEN` cannot be used for the rendering: it is scoped to this
-repository, and a stats card asks about an account.
+## If a card looks wrong
 
-Pick an interval that matches how fast the numbers move. Daily is more commits than most profiles
-justify, and every run spends rate limit.
-
-## If a card looks wrong on GitHub
-
-- **It renders here but not there.** GitHub serves images through a proxy that caches them; a card
-  you have just replaced can be the old one for a while. A hard refresh does not clear it — wait,
-  or rename the file.
-- **The animation does not play.** Some contexts strip it. Render with `disable_animations=true`
-  so the card is drawn in its final state rather than its first frame.
-- **The text is cut off.** The renderer wraps and truncates to a fixed width. Raise `card_width`,
-  or shorten what goes in it — a `title`, fewer `show` entries.
+See [Troubleshooting](../troubleshooting/) for an error card, a stale image on GitHub, or text
+that is cut off.

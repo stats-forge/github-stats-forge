@@ -1,6 +1,6 @@
 ---
 title: Locales
-description: The 47 locales a card's own text can be drawn in, and what happens to an untranslated string.
+description: The locales a card's own text can be drawn in, and what happens to an untranslated string.
 ---
 
 Every word a card draws itself — a title, a label, an empty state, and the description a screen
@@ -10,8 +10,7 @@ reader gets — comes from a translation table. `locale` picks which one:
 ?username=octocat&locale=es
 ```
 
-An unknown code is an error reading `Locale not found`, not a silent fallback to English:
-a card drawn in the wrong language is worse than a card that says why it could not be.
+An unknown code is an error reading `Locale not found`, not a silent fallback to English.
 
 ## Available locales
 
@@ -22,9 +21,8 @@ a card drawn in the wrong language is worse than a card that says why it could n
 
 ## What is not translated yet
 
-A string added to a card is written in English first and translated afterwards, so a locale can be
-missing a key that `en` has. When that happens the card draws the English string for that one line
-and renders normally — it does not fail, and it does not fall back to English for the whole card.
+A string is written in English first and translated afterwards, so a locale can lack one. The card
+then draws that one line in English, and the rest in the locale asked for.
 
 Two things are deliberately never translated:
 

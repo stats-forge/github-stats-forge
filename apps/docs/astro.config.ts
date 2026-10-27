@@ -114,12 +114,14 @@ export default defineConfig({
             'docs/usage/in-your-readme',
             'docs/usage/library',
             'docs/usage/self-hosting',
+            'docs/usage/tokens',
+            'docs/usage/troubleshooting',
           ],
         },
         {
           label: 'Fetchers',
           // Reference for a library consumer, not for someone putting a card in a README — and
-          // ten of the sidebar's twenty-eight links. Folded, so the cards stay in one screen.
+          // many of the sidebar's links. Folded, so the cards stay in one screen.
           collapsed: true,
           items: [
             'docs/fetchers/overview',

@@ -3,19 +3,13 @@ title: Overview
 description: What the cards are, how to draw one, and where the rest of the documentation is.
 ---
 
-GitHub Stats Forge renders GitHub stats as SVG cards:
-your contribution stats, the languages you write most, the repositories you contribute to,
-pinned repositories, gists, an organization's totals and WakaTime coding time.
+GitHub Stats Forge renders GitHub stats as SVG cards.
 
 ![The stats card](/cards/stats.svg)
 
-Every card on this site was rendered by the CLI from a saved configuration,
-so what you see is what the tool produces — not a screenshot.
-
 ## The cards
 
-Which card you want starts with what it is about — a person, one repository or gist, or a whole
-organization. The anvil and the sidebar group them the same way.
+Grouped by what a card is about, as the sidebar and the anvil group them.
 
 ### User
 
@@ -42,24 +36,17 @@ organization. The anvil and the sidebar group them the same way.
 
 ## Getting a card
 
-There are three ways in, and none of them needs a server.
+**[The GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action)** is
+the recommended way: it renders your cards on a schedule and commits the SVGs, so nothing has to be
+up when someone reads your profile.
 
-**From a workflow — the recommended one.**
-[The GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action) renders
-your cards on a schedule and commits the SVGs, so your README points at files in your own
-repository. Nothing has to be up when someone reads your profile, and a failure lands in a job log
-rather than in a broken image. Its own README documents the inputs it takes.
-
-**From the terminal**, which writes an SVG next to you:
+**[The CLI](usage/cli/)** writes an SVG next to you, and is how you settle on a card's options:
 
 ```sh
 npx @stats-forge/github-stats-forge-cli
 ```
 
-It asks which card, asks for the options that card takes, and saves what you answered
-so the same card can be redrawn later. See [The CLI](usage/cli/).
-
-**From code**, which is what the action and any self-hosted endpoint do underneath:
+**[The library](usage/library/)** is what the action and the CLI call:
 
 ```js
 import { CardConfig, stats } from '@stats-forge/github-stats-forge-core/api';
@@ -68,17 +55,14 @@ const config = new CardConfig({ pats: [{ name: 'PAT_1', value: process.env.PAT_1
 const result = await stats({ username: 'octocat' }, config);
 ```
 
-See [The library](usage/library/).
-
-**From your own server**, which draws a card at the moment someone looks at it:
+**[Your own server](usage/self-hosting/)** draws a card the moment someone looks at it, and serves
+this site and the card builder with your real numbers:
 
 ```sh
 docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server
 ```
 
-The image serves every card as an endpoint, and carries this documentation and the card builder
-with it — the builder drawing from your instance, with your real numbers. `cards.env` is where
-the token goes, keeping it out of your shell history. See [Self-hosting](usage/self-hosting/).
+Every card but WakaTime needs a [GitHub token](usage/tokens/).
 
 ## Customizing one
 

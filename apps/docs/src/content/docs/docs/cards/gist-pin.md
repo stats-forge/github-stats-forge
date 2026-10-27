@@ -20,13 +20,10 @@ its first file's name, its description, its language, and its stars and forks.
 
 ## Options
 
-| Option               | Values         | What it does                              |
-| -------------------- | -------------- | ----------------------------------------- |
-| `show_owner`         | `true` `false` | Put the owner's login above the gist name |
-| `disable_animations` | `true` `false` | Draw the card with no animation           |
+| Option       | Values         | What it does                              |
+| ------------ | -------------- | ----------------------------------------- |
+| `show_owner` | `true` `false` | Put the owner's login above the gist name |
 
-Plus the [common options](../../customization/common-options/) every card takes,
-and `locale`.
+Plus the [common options](../../customization/common-options/).
 
-Note that this card's default theme is `default_repocard` rather than `default` —
-the two differ only in the icon color.
+Its default theme is `default_repocard`, which differs from `default` only in the icon color.

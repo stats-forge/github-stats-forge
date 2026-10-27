@@ -21,12 +21,9 @@ choose:
 </picture>
 ```
 
-**This is the recommendation.** Each file is a plain card with nothing clever in it, the choice
-happens before anything is fetched, and it is the approach GitHub documents.
-Only the `<img>` takes the `alt` — it is what a screen reader announces.
-
-This site is built the same way: every card on it is two files, which is why they all change when
-you switch the theme in the header.
+**This is the recommendation.** Each file is a plain card, the choice happens before anything is
+fetched, and it is the approach GitHub documents. Only the `<img>` takes the `alt`: it is what a
+screen reader announces. Every card on this site is drawn this way.
 
 ## Both modes in one card
 
@@ -50,8 +47,8 @@ rendered from options that name both:
 }
 ```
 
-The advantage is that it is not GitHub-specific: one file works in a README, on a sponsors page,
-in a blog post, anywhere an image goes — including the places `<picture>` is stripped.
+It is not GitHub-specific: one file works anywhere an image goes, including where `<picture>` is
+stripped.
 
 :::note
 The switch follows the **browser or OS** colour scheme, not the theme you picked in GitHub's
@@ -99,15 +96,7 @@ under 50% opacity a neutral one, since the page behind decides.
 
 </div>
 
-Written out, lowest to highest:
-
-1. the default theme
-2. `theme`
-3. `theme_light` / `theme_dark`
-4. a general colour param — `title_color`, `bg_color`, …
-5. the matching `*_light` / `*_dark` colour param
-
-So the two can be mixed: a light and a dark theme, with one colour pinned across both.
+So the two mix: a light and a dark theme, with one colour pinned across both.
 
 ```json
 {
@@ -117,10 +106,8 @@ So the two can be mixed: a light and a dark theme, with one colour pinned across
 }
 ```
 
-Anything a mode does not override falls back to the general params, so `bg_color_dark` on its own
-changes one colour in dark mode and leaves every other colour as the base theme drew it.
-And if no `_light` or `_dark` param is given at all, the card carries no dark-mode block — it is a
-single-palette card, exactly as before.
+`bg_color_dark` on its own changes one colour in dark mode and leaves the rest as the base theme
+drew it.
 
 ## GitHub's theme context tag
 
@@ -133,9 +120,8 @@ to an image shows it only on that GitHub mode:
 ![My GitHub stats](./cards/stats-light.svg#gh-light-mode-only)
 ```
 
-Unlike the media feature, this follows the **GitHub** setting rather than the browser's. It is the
-older mechanism, both images are fetched, and screen readers meet the same card twice —
-prefer `<picture>` unless you specifically need the GitHub theme.
+This follows the **GitHub** setting rather than the browser's, but both images are fetched and a
+screen reader meets the card twice: prefer `<picture>` unless you need the GitHub setting.
 
 ## The transparent theme
 
@@ -149,9 +135,8 @@ rendered with `"theme": "transparent"`.
 
 ![The stats card in the transparent theme](/themes/transparent.svg)
 
-One file, no switching, and nothing GitHub-specific — at the cost of the palette being chosen for
-you. The text colours have to read against both backgrounds, which is what makes this theme look
-washed out against a strong one.
+One file and nothing GitHub-specific, but its text colours must read on both backgrounds, so it
+looks washed out against a strong one.
 
 ## An alpha channel on any theme
 
@@ -164,9 +149,8 @@ A `bg_color` with eight hex digits carries alpha, and `00000000` is fully see-th
 
 rendered with `"theme": "tokyonight", "bg_color": "00000000"`.
 
-This is the escape hatch when `transparent`'s own colours are not the ones you want. The border is
-handled for you: a background under 50% opacity gets a neutral translucent border rather than the
-light or dark one the card would otherwise pick, since the page behind it decides the contrast.
+Reach for it when `transparent`'s own colours are not the ones you want; the border turns neutral,
+as described above.
 
 ## Which to use
 

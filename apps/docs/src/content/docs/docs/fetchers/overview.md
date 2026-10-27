@@ -66,6 +66,3 @@ fails as `upstream` only once those are spent — so a brief network problem cos
 seconds rather than the whole render. A request a transport of your own aborted is never retried:
 your timeout is the budget, and retrying inside it would spend it several times over.
 :::
-
-A token is never logged; the name of the variable it came from is, so a failing token can be found
-without its value reaching a log.

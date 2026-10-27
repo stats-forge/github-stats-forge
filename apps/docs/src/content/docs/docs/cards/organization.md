@@ -9,11 +9,6 @@ and how much is open across them.
 Releases, commits, public members, the most common language and the founding year are there for
 the asking.
 
-:::note
-`show=members` needs the organization **Members** permission; the public totals need nothing
-extra. See [the token it needs](#the-token-it-needs).
-:::
-
 ![The organization card](/cards/organization.svg)
 
 ```text
@@ -34,31 +29,16 @@ extra. See [the token it needs](#the-token-it-needs).
 | `hide`             | `repos` `stars` `forks` `watchers` `open_issues` `open_prs` | Leave these stats out                         |
 | `show_icons`       | `true` `false`                                              | Show an icon beside each stat (on by default) |
 | `hide_description` | `true` `false`                                              | Leave the organization's description out      |
-| `title`            | any text                                                    | Replace the card's title                      |
-| `hide_title`       | `true` `false`                                              | Drop the title, its icon and its band         |
-| `card_width`       | a number                                                    | Card width in pixels                          |
-| `number_format`    | `short` `long`                                              | `18.7k` or `18724`                            |
-| `number_precision` | `0` `1` `2`                                                 | Decimals kept when a count is abbreviated     |
 
 `show` and `hide` each take any stat the card draws; a stat named in both is left out.
 
-Plus the [common options](../../customization/common-options/) every card takes,
-and `locale`.
+Plus the [common options](../../customization/common-options/).
 
 ## The token it needs
 
-Organization data is granted separately from personal data, so a token that draws your stats
-card need not draw this one.
-
-| Token                   | What it needs                                                      |
-| ----------------------- | ------------------------------------------------------------------ |
-| Classic PAT             | nothing for the public totals; `read:org` for `show=members`       |
-| Fine-grained PAT        | the **organization** as its resource owner, which the org approves |
-| GitHub App installation | the app installed on the organization                              |
-| Actions `GITHUB_TOKEN`  | repository-scoped, so it cannot read the member count              |
-
-`show=members` is refused without the organization `Members` permission. Private repositories
-are counted only by a token that can see them.
+A classic token with no scopes draws the public totals; `show=members` needs the organization
+**Members** permission, and draws an error without it. See
+[the organization cards](../../usage/tokens/#the-organization-cards) for each kind of token.
 
 ## What the totals count
 
@@ -71,7 +51,7 @@ An organization with more gets its summed totals written as `18.7k+`:
 a lower bound, since the repositories past the 500th are the least-starred ones.
 The repository count is GitHub's own, so it is never short.
 
-Three of them are worth spelling out:
+Three of them need spelling out:
 
 - **Commits** counts the default branch of each repository — every author, merges included, and
   whatever history a repository was imported with. It is a measure of how much code has moved
@@ -80,9 +60,3 @@ Three of them are worth spelling out:
 - **Members** counts the people whose membership the organization shows publicly.
   Membership is private by default, so it is usually fewer people than the organization has —
   and `0` for an organization whose members are all private.
-  It is also the one stat a token can be refused:
-  reading it needs the organization `Members` permission,
-  which a GitHub App installation token does not carry by default.
-  Asking for the row a token cannot read — `show=members` — draws an error saying so,
-  rather than a card quietly missing the stat you asked for.
-  Drop `members` from `show` and the rest of the card renders from the same token.

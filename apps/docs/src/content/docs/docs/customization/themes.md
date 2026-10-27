@@ -17,7 +17,7 @@ rather than a lock: see [Common options](../common-options/) for the color param
 
 ## A few of them, drawn
 
-The same stats card, rendered by the CLI in six of the themes below.
+The same stats card, rendered by the CLI in a few of the themes below.
 
 ### `default`
 

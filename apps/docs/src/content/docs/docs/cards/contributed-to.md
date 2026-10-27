@@ -35,14 +35,12 @@ The year marks along each row come from this range, so narrowing it narrows them
 
 ## Options
 
-| Option               | Values                          | What it does                                             |
-| -------------------- | ------------------------------- | -------------------------------------------------------- |
-| `repos_count`        | a number                        | How many repositories to list                            |
-| `include_own_repos`  | `true` `false`                  | Count your own repositories too, not only other people's |
-| `exclude_repo`       | `owner/name` or `name`          | Repositories to leave out                                |
-| `from` / `to`        | `2024`, `2024-03`, `2024-03-15` | The range contributions are counted in                   |
-| `hide_years`         | `true` `false`                  | Drop the per-year marks                                  |
-| `disable_animations` | `true` `false`                  | Draw the card with no animation                          |
+| Option              | Values                          | What it does                                             |
+| ------------------- | ------------------------------- | -------------------------------------------------------- |
+| `repos_count`       | a number                        | How many repositories to list                            |
+| `include_own_repos` | `true` `false`                  | Count your own repositories too, not only other people's |
+| `exclude_repo`      | `owner/name` or `name`          | Repositories to leave out                                |
+| `from` / `to`       | `2024`, `2024-03`, `2024-03-15` | The range contributions are counted in                   |
+| `hide_years`        | `true` `false`                  | Drop the per-year marks                                  |
 
-Plus the [common options](../../customization/common-options/) every card takes,
-and `locale`.
+Plus the [common options](../../customization/common-options/).

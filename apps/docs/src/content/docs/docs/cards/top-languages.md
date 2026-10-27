@@ -84,21 +84,19 @@ notebook GitHub leaves out of its count, such as one under `docs/` or marked ven
 
 ## Options
 
-| Option               | Values                                            | What it does                              |
-| -------------------- | ------------------------------------------------- | ----------------------------------------- |
-| `layout`             | `normal` `compact` `donut` `donut-vertical` `pie` | The shape of the card                     |
-| `langs_count`        | a number                                          | How many languages to name before Other   |
-| `hide_langs`         | language names                                    | Languages to leave out                    |
-| `exclude_repo`       | `owner/name` or `name`                            | Repositories to leave out                 |
-| `size_weight`        | a number                                          | Weight given to a language's size         |
-| `count_weight`       | a number                                          | Weight given to its repository count      |
-| `value_format`       | `percent` `bytes`                                 | What the value beside each language reads |
-| `hide_progress`      | `true` `false`                                    | Drop the bars and keep the names          |
-| `hide_values`        | `true` `false`                                    | Drop the numbers                          |
-| `prog_bar_bg_color`  | a hex color                                       | The unfilled part of each bar             |
-| `affiliation`        | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count                  |
-| `notebooks`          | `github` `code`                                   | How notebooks count                       |
-| `disable_animations` | `true` `false`                                    | Draw the card with no animation           |
+| Option              | Values                                            | What it does                              |
+| ------------------- | ------------------------------------------------- | ----------------------------------------- |
+| `layout`            | `normal` `compact` `donut` `donut-vertical` `pie` | The shape of the card                     |
+| `langs_count`       | a number                                          | How many languages to name before Other   |
+| `hide_langs`        | language names                                    | Languages to leave out                    |
+| `exclude_repo`      | `owner/name` or `name`                            | Repositories to leave out                 |
+| `size_weight`       | a number                                          | Weight given to a language's size         |
+| `count_weight`      | a number                                          | Weight given to its repository count      |
+| `value_format`      | `percent` `bytes`                                 | What the value beside each language reads |
+| `hide_progress`     | `true` `false`                                    | Drop the bars and keep the names          |
+| `hide_values`       | `true` `false`                                    | Drop the numbers                          |
+| `prog_bar_bg_color` | a hex color                                       | The unfilled part of each bar             |
+| `affiliation`       | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count                  |
+| `notebooks`         | `github` `code`                                   | How notebooks count                       |
 
-Plus the [common options](../../customization/common-options/) every card takes,
-and `locale`.
+Plus the [common options](../../customization/common-options/).

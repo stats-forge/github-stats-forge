@@ -80,7 +80,7 @@ Everything but `PAT_1` is optional.
 | `STALE_SECONDS`          | `86400`            | how long a held card covers a failing redraw; `0` for none   |
 | `CORS_ORIGIN`            | —                  | the one origin allowed to read a card from script            |
 
-A classic token with no scopes is enough: the cards read public data only.
+See [GitHub tokens](../tokens/) for which token each card needs.
 
 ## Where the token lives
 
@@ -172,4 +172,4 @@ caching off.
 ![your stats](https://cards.example.com/api/stats?username=you&theme=tokyonight)
 ```
 
-Everything on [In your README](../in-your-readme/) applies unchanged.
+Everything on [In a README](../in-your-readme/) applies unchanged.
