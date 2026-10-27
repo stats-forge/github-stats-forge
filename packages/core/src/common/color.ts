@@ -93,25 +93,46 @@ const hexChannels = (hex: string): [number, number, number, number] => {
   return [channel(0), channel(1), channel(2), expanded.length === 8 ? channel(3) : 1];
 };
 
+type BackgroundTone = 'light' | 'dark' | 'translucent';
+
+/**
+ * @returns Whether the background reads light, dark, or lets the page behind it show through.
+ */
+const backgroundTone = (bgColor: string | Array<string>): BackgroundTone => {
+  // A gradient is judged by its first stop.
+  const hex = typeof bgColor === 'string' ? bgColor : `#${bgColor[1] ?? ''}`;
+  if (!isPrefixedHexColor(hex)) {
+    return 'light';
+  }
+
+  const [r, g, b, a] = hexChannels(hex);
+  if (a < 0.5) {
+    return 'translucent';
+  }
+
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5 ? 'dark' : 'light';
+};
+
+const BORDER_BY_TONE: Readonly<Record<BackgroundTone, string>> = {
+  light: LIGHT_BG_BORDER,
+  dark: DARK_BG_BORDER,
+  translucent: TRANSLUCENT_BG_BORDER,
+};
+
+/** A progress bar's empty track, as bright as `#ddd` is dark on a light card. */
+const PROG_BAR_BG_BY_TONE: Readonly<Record<BackgroundTone, string>> = {
+  light: '#ddd',
+  dark: '#ffffff33',
+  translucent: '#8b949e59',
+};
+
 /**
  * Derives a border from the background, so a dark card never gets a light hairline.
  *
  * @returns A translucent `#`-prefixed hex border color.
  */
-const borderColorFor = (bgColor: string | Array<string>): string => {
-  // A gradient is judged by its first stop.
-  const hex = typeof bgColor === 'string' ? bgColor : `#${bgColor[1] ?? ''}`;
-  if (!isPrefixedHexColor(hex)) {
-    return LIGHT_BG_BORDER;
-  }
-
-  const [r, g, b, a] = hexChannels(hex);
-  if (a < 0.5) {
-    return TRANSLUCENT_BG_BORDER;
-  }
-
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5 ? DARK_BG_BORDER : LIGHT_BG_BORDER;
-};
+const borderColorFor = (bgColor: string | Array<string>): string =>
+  BORDER_BY_TONE[backgroundTone(bgColor)];
 
 /**
  * Resolved card colors for a single color scheme, as written into the SVG.
@@ -200,8 +221,11 @@ const getCardColors = ({
   const borderColor = fallbackColor(border_color || themeBorderColor, borderColorFor(bgColor));
   // No theme defines `ring_color`, so it falls back to the title color.
   const ringColor = fallbackColor(ring_color, titleColor);
-  // No theme defines `prog_bar_bg_color`, so it falls back to "#ddd".
-  const progBarBgColor = fallbackColor(prog_bar_bg_color, '#ddd');
+  // No theme defines `prog_bar_bg_color`, so it follows the background, as the border does.
+  const progBarBgColor = fallbackColor(
+    prog_bar_bg_color,
+    PROG_BAR_BG_BY_TONE[backgroundTone(bgColor)],
+  );
 
   if (
     typeof titleColor !== 'string' ||

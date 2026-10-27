@@ -306,8 +306,7 @@ const renderContributedToCard = (
       }),
       firefoxFontSize(['.repo-name', '.count'], 'small'),
       rule('.year-on', { fill: titleColor }),
-      // a year with no contribution reads off the text color, not `progBarBgColor`:
-      // on a dark theme that color is a light grey, and the empty marks came out looking filled
+      // a year with no contribution reads off the text color, so it fades with the text on any theme
       rule('.year-off', { fill: textColor, opacity: 0.25 }),
       rule('.progress-background', { fill: progBarBgColor }),
       rule('.lang-progress', {
@@ -322,8 +321,7 @@ const renderContributedToCard = (
       rule('.count', { fill: textColor }),
       rule('.footer', { fill: textColor }),
       rule('.year-on', { fill: titleColor }),
-      // a year with no contribution reads off the text color, not `progBarBgColor`:
-      // on a dark theme that color is a light grey, and the empty marks came out looking filled
+      // a year with no contribution reads off the text color, so it fades with the text on any theme
       rule('.year-off', { fill: textColor, opacity: 0.25 }),
       rule('.progress-background', { fill: progBarBgColor }),
       rule('.lang-progress', { fill: titleColor }),
