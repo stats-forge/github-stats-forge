@@ -44,8 +44,7 @@ Anything else it can show is opt-in through [`show`](#showing-more-stats).
 | `contributions`           | Contributions in the counted range                            |
 | `contributed_to_all_time` | Repositories contributed to, across every year of the account |
 
-Each extra stat costs another request, so a card asking for all of them is slower than one asking
-for none.
+Each extra stat costs another request, so ask only for what you draw.
 
 ## Hiding the default stats
 
@@ -70,12 +69,8 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 | `scope`               | `owner/name` `owner/*`                            | Where the search-based stats count                      |
 | `affiliation`         | `OWNER` `COLLABORATOR` `ORGANIZATION_MEMBER`      | Which repositories count towards the stars and the rank |
 | `include_own_repos`   | `true` `false`                                    | Count contributions to your own repositories            |
-| `number_format`       | `short` `long`                                    | `1.5k` or `1500`                                        |
-| `number_precision`    | a number                                          | Decimals kept when abbreviating                         |
-| `disable_animations`  | `true` `false`                                    | Draw the card with no animation                         |
 
-Plus the [common options](../../customization/common-options/) every card takes,
-and `locale`.
+Plus the [common options](../../customization/common-options/).
 
 ## Scoping the search stats
 
@@ -102,10 +97,9 @@ contributed to are counted across the whole of GitHub whatever `affiliation` say
 ?username=octocat&affiliation=OWNER,ORGANIZATION_MEMBER
 ```
 
-Widening it moves two numbers rather than one: the stars, and the rank they feed into.
-Adding `ORGANIZATION_MEMBER` counts the stars of every repository in every organization you
-belong to, which is usually a far larger total than your own. `hide=stars` takes the line
-off the card, but the stars still count towards the rank.
+Widening it moves the stars and the rank they feed into: `ORGANIZATION_MEMBER` counts the stars of
+every repository in every organization you belong to. `hide=stars` takes the line off the card,
+but the stars still count towards the rank.
 
 ## The range
 

@@ -73,7 +73,7 @@ const render = (): string => {
     '',
     '## A few of them, drawn',
     '',
-    'The same stats card, rendered by the CLI in six of the themes below.',
+    'The same stats card, rendered by the CLI in a few of the themes below.',
     '',
     ...SAMPLE_THEMES.flatMap((name) => [
       `### \`${name}\``,

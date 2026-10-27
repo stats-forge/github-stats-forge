@@ -24,9 +24,8 @@ them — and the configuration for the deployment. The handlers are `stats`, `to
 Nothing in the library reads `process.env`. The host builds the configuration and passes it in,
 which is what lets the same code run in an action, on a server and in a browser.
 
-This is the layer underneath the rest: [the GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action), the recommended
-way to put a card in a repository, is these handlers and a step that writes the file. Reach for the
-library when you want a card somewhere the action cannot go.
+[The GitHub Stats Forge action](https://github.com/stats-forge/github-stats-forge-action) is these
+handlers and a step that writes the file; reach for the library where the action cannot go.
 
 ## What comes back
 
@@ -62,8 +61,8 @@ assistive technology cannot reach the text inside an image role.
 | `rate_limited`  | Every token is rate limited                        | yes       |
 | `upstream`      | GitHub or WakaTime failed to answer usably         | yes       |
 
-A host branches on the code rather than on the message, and uses `retryable` to decide between
-caching the failure and trying again.
+Branch on the code, never the message, and on `retryable` to choose between caching the failure
+and trying again. [Troubleshooting](../troubleshooting/) has what each card reads.
 
 ## Configuring a deployment
 
@@ -93,15 +92,10 @@ configure through the environment. A `PAT_` variable set to nothing is skipped.
 A configuration is immutable. `config.with({ pats })` returns a copy, which is how a host swaps in
 a token belonging to the request rather than to the deployment.
 
-An allowlist is enforced by the api handlers, before anything is fetched, so an identity the
-deployment does not serve fails as `not_allowed` and spends no rate limit. It covers every
-GitHub login — `username` and the organization card's `org` — and the gist card's `id`. It does
-**not** cover the wakatime card, whose `username` is a WakaTime profile rather than a GitHub
-login. Calling a render function directly bypasses the check: it lives at the api layer,
-which is where a query stops being untrusted.
-
-A token is never logged. The name it came from is, so a failing token can be found without its
-value ending up in a log.
+The handlers check an allowlist before fetching anything, so an identity the deployment does not
+serve fails as `not_allowed` and spends no rate limit. It covers `username`, the organization
+cards' `org` and the gist card's `id`, but **not** the WakaTime card, whose `username` is a
+WakaTime profile. Calling a render function directly skips the check.
 
 ## The options, as data
 
@@ -120,17 +114,13 @@ for (const option of card.options) {
 }
 ```
 
-A handler takes a query string, so anything that offers those params to somebody — a form, a
-generator, an editor — has to know what each one is called and what it accepts. That list is a
-package of its own: it reads its accepted values off the handlers themselves, so it cannot offer
-a value the api would reject, and it carries core and nothing else. The CLI's prompts and this
-site's card builder are two forms over the same list.
+Anything offering those params to somebody — a form, a generator, an editor — needs each one's name
+and accepted values. The catalog holds them, read off the handlers' own `OPTIONS`
+(`topLangs.OPTIONS.layout` is what `?layout=` accepts), so it cannot offer a value the api would
+reject. The CLI's prompts and this site's card builder are both forms over it.
 
-`card.render` is the handler above, so a form can draw what it is building; `card.needsToken`
-says whether that costs a GitHub token.
-
-The accepted values come off the handlers, which is where the catalog reads them: each carries an
-`OPTIONS` keyed by the param it governs, so `topLangs.OPTIONS.layout` is what `?layout=` accepts.
+`card.render` is the handler, so a form can draw what it is building; `card.needsToken` says
+whether that costs a GitHub token.
 
 ## Other entry points
 

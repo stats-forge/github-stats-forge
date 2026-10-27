@@ -32,15 +32,6 @@ description, as many as fit. `prs_opened`, `prs_commented`, `prs_reviewed`, `iss
 | `show_owner`              | `true` `false` | Put the owner's login above the repository name |
 | `show`                    | the list above | Topics and extra counts to draw                 |
 | `show_icons`              | `true` `false` | Draw an icon beside each count                  |
-| `description_lines_count` | a number       | How many lines the description wraps to         |
-| `number_format`           | `short` `long` | `1.5k` or `1500`                                |
-| `number_precision`        | `0` `1` `2`    | Decimals kept when a count is abbreviated       |
-| `disable_animations`      | `true` `false` | Draw the card with no animation                 |
+| `description_lines_count` | a number       | Lines the description wraps to, then is cut     |
 
-Plus the [common options](../../customization/common-options/) every card takes,
-and `locale`.
-
-## Wrapping the description
-
-The renderer wraps the description to the card's width and cuts it after
-`description_lines_count` lines, so the card looks the same wherever it is shown.
+Plus the [common options](../../customization/common-options/).
