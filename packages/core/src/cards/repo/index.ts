@@ -396,10 +396,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       rule('.badge rect', { opacity: 0.2, stroke: textColor }),
       rule('.badge text', { fill: textColor }),
       rule('.stat', { font: font('regular', 'small'), fill: textColor }),
-      rule('.stagger', {
-        opacity: 0,
-        animation: 'fadeInAnimation 0.3s ease-in-out forwards',
-      }),
+      rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
       rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular }),
       rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
       rule('.icon', { fill: iconColor, display: 'block' }),

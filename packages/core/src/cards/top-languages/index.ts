@@ -260,9 +260,9 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
       firefoxFontSize(['.stat'], 'small'),
       rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
       rule('.lang-name', { font: font('regular', 'micro'), fill: textColor }),
-      rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
-      rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out forwards' }),
-      rule('.lang-progress', { animation: 'growWidthAnimation 0.6s ease-in-out forwards' }),
+      rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
+      rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out backwards' }),
+      rule('.lang-progress', { animation: 'growWidthAnimation 0.6s ease-in-out backwards' }),
       rule('.progress-background', { fill: progBarBgColor }),
     ],
     dark: ({ textColor, progBarBgColor }) => [

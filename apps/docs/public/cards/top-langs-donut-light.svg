@@ -5,16 +5,16 @@
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #2f80ed;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-band {
       fill: #2f80ed;
@@ -60,14 +60,13 @@
       fill: #434d58;
     }
     .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
     #rect-mask rect {
-      animation: slideInAnimation 1s ease-in-out forwards;
+      animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
+      animation: growWidthAnimation 0.6s ease-in-out backwards;
     }
     .progress-background {
       fill: #ddd;

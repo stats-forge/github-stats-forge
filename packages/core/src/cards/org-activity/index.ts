@@ -100,7 +100,7 @@ const getStyles = ({
     fill: textColor,
     'font-variant-numeric': 'tabular-nums',
   }),
-  rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
+  rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
   rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular, opacity: 0.75 }),
   rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   rule('.icon', { fill: iconColor, opacity: 0.75, display: show_icons ? 'block' : 'none' }),

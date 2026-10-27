@@ -5,16 +5,16 @@
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #70a5fd;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
       fill: #bf91f3;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
       fill: #bf91f3;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-band {
       fill: #70a5fd;
@@ -38,13 +38,13 @@
       }
     }
     .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
     .rank-text {
       font: 700 22px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #38bdae;
-      animation: scaleInAnimation 0.3s ease-in-out forwards;
+      transform: translate(-5px, 5px);
+      animation: scaleInAnimation 0.3s ease-in-out backwards;
     }
     .rank-percentile-header {
       font-size: 14px;
@@ -80,7 +80,8 @@
       opacity: 1;
       transform-origin: -10px 8px;
       transform: rotate(-90deg);
-      animation: rankAnimation 0.8s forwards ease-in-out;
+      stroke-dashoffset: 1.6119832056967587;
+      animation: rankAnimation 0.8s backwards ease-in-out;
     }
     @keyframes rankAnimation {
       from {

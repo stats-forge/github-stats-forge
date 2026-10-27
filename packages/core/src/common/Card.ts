@@ -62,6 +62,8 @@ const NO_MOTION = {
 
 /**
  * Retrieves css animations for a card.
+ * Each fills `backwards` over a base style that is its last frame, so a renderer that skips
+ * animations still draws the whole card.
  *
  * @returns Animation css.
  */
@@ -364,18 +366,18 @@ class Card {
           rule('.header', {
             font: font('semibold', 'title'),
             fill: this.colors.light.titleColor,
-            animation: 'fadeInAnimation 0.8s ease-in-out forwards',
+            animation: 'fadeInAnimation 0.8s ease-in-out backwards',
           }),
           cssComment(
             'The icon reads against the title rather than with it, so it keeps its own color.',
           ),
           rule('.title-icon', {
             fill: this.colors.light.iconColor,
-            animation: 'fadeInAnimation 0.8s ease-in-out forwards',
+            animation: 'fadeInAnimation 0.8s ease-in-out backwards',
           }),
           rule('.title-accent', {
             fill: this.colors.light.iconColor,
-            animation: 'fadeInAnimation 0.8s ease-in-out forwards',
+            animation: 'fadeInAnimation 0.8s ease-in-out backwards',
           }),
           rule('.title-band', {
             fill: this.colors.light.titleColor,
