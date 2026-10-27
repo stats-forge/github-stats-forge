@@ -53,6 +53,8 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 - **Two things moving with one width are derived from it the same way**, as the rank ring and the
   values both come off `RANK_GUTTER`; so are a width and a height ([#219]), the donut's card height
   following its fixed ring and its list.
+- **An animation fills `backwards` over a base style that is its last frame** ([#311]), never
+  `forwards` from a hidden one: a renderer that skips animations still draws the whole card.
 
 [#49]: https://github.com/stats-forge/github-stats-forge/pull/49
 [#51]: https://github.com/stats-forge/github-stats-forge/pull/51
@@ -61,3 +63,4 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 [#65]: https://github.com/stats-forge/github-stats-forge/pull/65
 [#123]: https://github.com/stats-forge/github-stats-forge/pull/123
 [#219]: https://github.com/stats-forge/github-stats-forge/pull/219
+[#311]: https://github.com/stats-forge/github-stats-forge/pull/311
