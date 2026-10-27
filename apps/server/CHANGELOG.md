@@ -1,5 +1,11 @@
 # @stats-forge/github-stats-server
 
+## 0.7.1
+
+### Patch Changes
+
+- [#309](https://github.com/stats-forge/github-stats-forge/pull/309) [`d138cc2`](https://github.com/stats-forge/github-stats-forge/commit/d138cc224fe97b6faaac838bf0067dc6a35d7179) - docs: add GitHub tokens and troubleshooting pages, and shorten the rest
+
 ## 0.7.0
 
 ### Minor Changes
