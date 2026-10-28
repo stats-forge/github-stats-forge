@@ -120,6 +120,8 @@ describe(getCardColors, () => {
     expect(getCardColors({ bg_color: '0d1117' }).progBarBgColor).toBe('#ffffff33');
     expect(getCardColors({ bg_color: 'ffffff' }).progBarBgColor).toBe('#ddd');
     expect(getCardColors({ bg_color: 'ffffff00' }).progBarBgColor).toBe('#8b949e59');
+    expect(getCardColors({ bg_color: '90,000000,ffffff' }).progBarBgColor).toBe('#ffffff33');
+    expect(getCardColors({ bg_color: '90,ffffff,000000' }).progBarBgColor).toBe('#ddd');
     expect(getCardColors({ theme: 'dark', prog_bar_bg_color: '333' }).progBarBgColor).toBe('#333');
   });
 
