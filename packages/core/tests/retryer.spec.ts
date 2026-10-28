@@ -32,12 +32,21 @@ const answer = (data: FetcherResponse<Payload>['data']): FetcherResponse<Payload
   data,
 });
 
+/** Resolves to the rejection reason, so a rejection is handled while timers advance. */
+async function settle(promise: Promise<unknown>): Promise<unknown> {
+  try {
+    return await promise;
+  } catch (error) {
+    return error;
+  }
+}
+
 const OK = answer({ value: 'ok' });
 const RATE_LIMITED = answer({ errors: [{ type: 'RATE_LIMITED' }] });
 
 /** @returns A fetcher answering `first` on its first try, and `OK` after. */
 const failingOnce = (first: FetcherResponse<Payload> | Error): ReturnType<typeof vi.fn<Fetcher>> =>
-  vi.fn<Fetcher>((_variables, _token, { retries }) => {
+  vi.fn<Fetcher>(async (_variables, _token, { retries }) => {
     if (retries > 0) {
       return Promise.resolve(OK);
     }
@@ -94,7 +103,7 @@ describe(retryer, () => {
   });
 
   it('reports a rate limit when only some tokens were rejected', async () => {
-    const fetcher = vi.fn<Fetcher>((_variables, token) => {
+    const fetcher = vi.fn<Fetcher>(async (_variables, token) => {
       if (token === 'dummyPAT1') {
         return Promise.resolve(answer({ message: 'Sorry. Your account was suspended.' }));
       }
@@ -122,7 +131,7 @@ describe(retryer, () => {
     const fetcher = vi.fn<Fetcher>().mockRejectedValue(networkError);
 
     // caught now, asserted at the end: the rejection would be unhandled while timers advance
-    const settled = retryer(fetcher, {}, testConfig).catch((error: unknown) => error);
+    const settled = settle(retryer(fetcher, {}, testConfig));
 
     await vi.advanceTimersByTimeAsync(100);
     expect(fetcher).toHaveBeenCalledTimes(2);
@@ -153,7 +162,7 @@ describe(retryer, () => {
   it('keeps the PAT through a transient error and switches it on a rate limit', async () => {
     vi.useFakeTimers();
     const tokens: Array<string> = [];
-    const fetcher = vi.fn<Fetcher>((_variables, token, { retries }) => {
+    const fetcher = vi.fn<Fetcher>(async (_variables, token, { retries }) => {
       tokens.push(token);
       if (retries === 0) {
         return Promise.resolve(RATE_LIMITED);
@@ -181,7 +190,7 @@ describe(retryer, () => {
     const userConfig = testConfig.with({
       pats: [{ name: 'user PAT from database', value: 'user-pat-token' }],
     });
-    const fetcher = vi.fn<Fetcher>((_variables, token) => Promise.resolve(answer({ token })));
+    const fetcher = vi.fn<Fetcher>(async (_variables, token) => Promise.resolve(answer({ token })));
 
     await expect(retryer(fetcher, {}, userConfig)).resolves.toStrictEqual(
       answer({ token: 'user-pat-token' }),

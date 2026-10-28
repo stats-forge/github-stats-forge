@@ -24,7 +24,10 @@ const sampleConfig = new CardConfig({
  *
  * @returns The rendered card, or the rendered error. Throws only when `cardId` is not a card.
  */
-const renderSampleCard = (cardId: string, options: Record<string, string>): Promise<ApiResult> => {
+const renderSampleCard = async (
+  cardId: string,
+  options: Record<string, string>,
+): Promise<ApiResult> => {
   const card = findCard(cardId);
   if (card === undefined) {
     throw new Error(`No card called "${cardId}"`);

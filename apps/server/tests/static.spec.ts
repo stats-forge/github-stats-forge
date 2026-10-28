@@ -102,7 +102,7 @@ describe(createStaticHandler, () => {
 });
 
 /** A site holding a file exactly where a card is served, which must never win. */
-const shadowingCard = (pathname: string): Promise<Response | undefined> =>
+const shadowingCard = async (pathname: string): Promise<Response | undefined> =>
   Promise.resolve(pathname === '/api/gist' ? new Response('the site won') : undefined);
 
 describe('the site inside the server', () => {

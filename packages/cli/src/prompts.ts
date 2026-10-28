@@ -21,7 +21,7 @@ import type { Answer } from './query.ts';
 import { describeAnswer, toParam, UNSET } from './query.ts';
 
 /** @returns The card to render. */
-export const pickCard = (): Promise<CardKind> =>
+export const pickCard = async (): Promise<CardKind> =>
   select({
     message: 'Which card?',
     choices: cards.map((card) => ({ name: card.label, value: card })),

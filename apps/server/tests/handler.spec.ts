@@ -22,7 +22,7 @@ const GIST_URL = `http://localhost/api/gist?id=${GIST_ID}`;
 /**
  * @returns The answer to one request, with the handler bound to `options`.
  */
-const get = (url: string, options: ServerOptions, method = 'GET'): Promise<Response> =>
+const get = async (url: string, options: ServerOptions, method = 'GET'): Promise<Response> =>
   createHandler(options)(new Request(url, { method }));
 
 // here rather than at the end of a test, where a failed assertion would skip it
@@ -400,7 +400,7 @@ const outage = (): { options: ServerOptions; goDown: () => void } => {
   const { options } = optionsAnswering(GIST_REPLY);
   const config = new CardConfig({
     pats: [{ name: 'PAT_1', value: 'token' }],
-    fetch: (): Promise<Response> =>
+    fetch: async (): Promise<Response> =>
       Promise.resolve(
         Response.json(
           down ? { errors: [{ type: 'INTERNAL', message: 'Something went wrong' }] } : GIST_REPLY,

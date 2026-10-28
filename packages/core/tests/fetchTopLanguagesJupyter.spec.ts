@@ -143,7 +143,7 @@ const tiny_notebook: Notebook = {
   cells: [{ cell_type: 'code', source: 'x = 1' }],
 };
 
-const fetchWithJupyter = (): ReturnType<typeof fetchTopLanguages> =>
+const fetchWithJupyter = async (): ReturnType<typeof fetchTopLanguages> =>
   fetchTopLanguages({ username: 'anuraghazra', notebooks: 'code' }, config);
 
 /** @returns Each language's size, which is what a recount changes. */

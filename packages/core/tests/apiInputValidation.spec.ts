@@ -22,26 +22,26 @@ const config = new CardConfig({ pats: [{ name: 'PAT_1', value: 'token' }] });
  * so the rejection cannot be blamed on another param.
  */
 const endpoints: Array<[string, string, (value: string) => Promise<ApiResult>]> = [
-  ['gist', 'id', (id) => gist({ id }, config)],
-  ['pin', 'repo', (repo) => pin({ repo }, config)],
+  ['gist', 'id', async (id) => gist({ id }, config)],
+  ['pin', 'repo', async (repo) => pin({ repo }, config)],
 ];
 
 /** Every endpoint whose `username` is a GitHub login. */
 const githubUsernameEndpoints: Array<[string, (username: string) => Promise<ApiResult>]> = [
-  ['top-langs', (username) => topLangs({ username }, config)],
-  ['contributed-to', (username) => contributedTo({ username }, config)],
-  ['stats', (username) => stats({ username }, config)],
-  ['pin', (username) => pin({ username }, config)],
+  ['top-langs', async (username) => topLangs({ username }, config)],
+  ['contributed-to', async (username) => contributedTo({ username }, config)],
+  ['stats', async (username) => stats({ username }, config)],
+  ['pin', async (username) => pin({ username }, config)],
 ];
 
 /** Both ends of the range, on each card that counts within one. */
 const rangeParams: Array<[string, string, (value: string) => Promise<ApiResult>]> = [
-  ['contributed-to', 'from', (from) => contributedTo({ username: 'user', from }, config)],
-  ['contributed-to', 'to', (to) => contributedTo({ username: 'user', to }, config)],
-  ['stats', 'from', (from) => stats({ username: 'user', from }, config)],
-  ['stats', 'to', (to) => stats({ username: 'user', to }, config)],
-  ['org-activity', 'from', (from) => orgActivity({ org: 'org', from }, config)],
-  ['org-activity', 'to', (to) => orgActivity({ org: 'org', to }, config)],
+  ['contributed-to', 'from', async (from) => contributedTo({ username: 'user', from }, config)],
+  ['contributed-to', 'to', async (to) => contributedTo({ username: 'user', to }, config)],
+  ['stats', 'from', async (from) => stats({ username: 'user', from }, config)],
+  ['stats', 'to', async (to) => stats({ username: 'user', to }, config)],
+  ['org-activity', 'from', async (from) => orgActivity({ org: 'org', from }, config)],
+  ['org-activity', 'to', async (to) => orgActivity({ org: 'org', to }, config)],
 ];
 
 // Within the safe set, but not logins GitHub can issue: a hyphen may not lead, trail or double.
@@ -104,8 +104,8 @@ describe('API input validation', () => {
   });
 
   const rangeEndpoints: Array<[string, (query: Record<string, string>) => Promise<ApiResult>]> = [
-    ['stats', (query) => stats(query, config)],
-    ['contributed-to', (query) => contributedTo(query, config)],
+    ['stats', async (query) => stats(query, config)],
+    ['contributed-to', async (query) => contributedTo(query, config)],
   ];
 
   it.each(rangeEndpoints)('%s: rejects a from after its to', async (_endpoint, send) => {

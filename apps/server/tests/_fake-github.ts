@@ -57,7 +57,7 @@ const fakeGitHub = (body: unknown): FakeGitHub => {
 
   return {
     calls,
-    fetch: (url) => {
+    fetch: async (url) => {
       calls.push(url);
       if (body instanceof Error) {
         return Promise.reject(body);

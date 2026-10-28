@@ -6,5 +6,5 @@
 
 import { fixtureFetch } from './fixtures.ts';
 
-globalThis.fetch = (input, init): Promise<Response> =>
+globalThis.fetch = async (input, init): Promise<Response> =>
   fixtureFetch(input instanceof Request ? input.url : String(input), init);

@@ -146,7 +146,7 @@ interface SearchVariables {
  *
  * @returns The search response, carrying `total_count`.
  */
-const fetchTotalItems = (
+const fetchTotalItems = async (
   { type, filter, scope }: SearchVariables,
   token: string,
   { fetch }: FetcherContext,

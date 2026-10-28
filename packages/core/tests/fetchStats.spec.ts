@@ -223,7 +223,7 @@ const baseConfig = testConfig.with({ fetch: mock.fetch });
 let config: CardConfig;
 
 /** `fetchStats` for the mocked user, with only the options a test changes spelled out. */
-const fetchStatsWith = (
+const fetchStatsWith = async (
   options: Omit<Parameters<typeof fetchStats>[0], 'username'>,
 ): ReturnType<typeof fetchStats> => fetchStats({ username: 'anuraghazra', ...options }, config);
 

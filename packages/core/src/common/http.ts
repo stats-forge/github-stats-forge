@@ -12,7 +12,7 @@ type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
  * Resolves the global `fetch` at call time rather than capturing it on import,
  * so a host that patches the global afterwards is still picked up.
  */
-const defaultFetch: FetchLike = (input, init) => fetch(input, init);
+const defaultFetch: FetchLike = async (input, init) => fetch(input, init);
 
 /**
  * A response, parsed.
@@ -79,7 +79,7 @@ const createGraphQLFetcher =
     document: GraphQLDocument<TResult, TVariables>,
     scheme: 'bearer' | 'token',
   ) =>
-  (
+  async (
     variables: TVariables,
     token: string,
     { fetch }: FetcherContext,
