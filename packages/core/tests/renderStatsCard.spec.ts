@@ -251,6 +251,17 @@ describe('Test renderStatsCard', () => {
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
   });
 
+  it('should draw its rank at its last frame where animations do not run', () => {
+    draw(renderStatsCard(stats));
+
+    const css = document.querySelector('style')?.textContent ?? '';
+    const ringEnd = /rankAnimation[^}]*\}[^}]*to \{\s*stroke-dashoffset: (?<end>[\d.]+)/u.exec(css)
+      ?.groups?.['end'];
+    expect(ringEnd).toMatch(/^\d/u);
+    expect(cssValue('.rank-circle', 'stroke-dashoffset')).toBe(ringEnd);
+    expect(cssValue('.rank-text', 'transform')).toBe('translate(-5px, 5px)');
+  });
+
   it('should render icons correctly', () => {
     draw(renderStatsCard(stats, { show_icons: true }));
 

@@ -265,7 +265,7 @@ const getStyles = ({ textColor }: { textColor: string }): Array<CssChild> => {
       fill: textColor,
     }),
     firefoxFontSize(['.stat'], 'small'),
-    rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
+    rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
     rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular }),
     rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   ];
@@ -488,9 +488,9 @@ const renderCard = (
         rule('to', { width: '100%' }),
       ),
       rule('.lang-name', { font: font('regular', 'micro'), fill: textColor }),
-      rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out forwards' }),
+      rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out backwards' }),
       rule('.lang-progress', {
-        animation: 'growWidthAnimation 0.6s ease-in-out forwards',
+        animation: 'growWidthAnimation 0.6s ease-in-out backwards',
         fill: titleColor,
       }),
       rule('.progress-background', { fill: progressBackground(titleColor, textColor) }),

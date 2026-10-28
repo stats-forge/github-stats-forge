@@ -8,16 +8,16 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #2f80ed;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-band {
       fill: #2f80ed;
@@ -40,8 +40,7 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
       }
     }
     .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
     .not_bold {
       font-weight: 400;
@@ -70,10 +69,10 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
       fill: #434d58;
     }
     #rect-mask rect {
-      animation: slideInAnimation 1s ease-in-out forwards;
+      animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
+      animation: growWidthAnimation 0.6s ease-in-out backwards;
       fill: #2f80ed;
     }
     .progress-background {
@@ -125,7 +124,7 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
           <svg width="225" x="110" y="4">
             <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
             <svg data-testid="lang-progress" width="89.38%">
-              <rect height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
+              <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
           </svg>
         </g>
@@ -137,7 +136,7 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
           <svg width="225" x="110" y="4">
             <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
             <svg data-testid="lang-progress" width="6.25%">
-              <rect height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
+              <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>
           </svg>
         </g>
@@ -156,16 +155,16 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #2f80ed;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-band {
       fill: #2f80ed;
@@ -188,8 +187,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       }
     }
     .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
     .not_bold {
       font-weight: 400;
@@ -218,10 +216,10 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       fill: #434d58;
     }
     #rect-mask rect {
-      animation: slideInAnimation 1s ease-in-out forwards;
+      animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
+      animation: growWidthAnimation 0.6s ease-in-out backwards;
       fill: #2f80ed;
     }
     .progress-background {
@@ -293,16 +291,16 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #2f80ed;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-band {
       fill: #2f80ed;
@@ -325,8 +323,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       }
     }
     .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
     .not_bold {
       font-weight: 400;
@@ -355,10 +352,10 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       fill: #434d58;
     }
     #rect-mask rect {
-      animation: slideInAnimation 1s ease-in-out forwards;
+      animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
+      animation: growWidthAnimation 0.6s ease-in-out backwards;
       fill: #2f80ed;
     }
     .progress-background {
@@ -430,16 +427,16 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #ffffff;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
       fill: #ffffff;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
       fill: #ffffff;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-band {
       fill: #ffffff;
@@ -462,8 +459,7 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
       }
     }
     .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
     .not_bold {
       font-weight: 400;
@@ -492,10 +488,10 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
       fill: #ffffff;
     }
     #rect-mask rect {
-      animation: slideInAnimation 1s ease-in-out forwards;
+      animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
+      animation: growWidthAnimation 0.6s ease-in-out backwards;
       fill: #ffffff;
     }
     .progress-background {
@@ -554,7 +550,7 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
           <svg width="225" x="110" y="4">
             <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
             <svg data-testid="lang-progress" width="89.38%">
-              <rect height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
+              <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
           </svg>
         </g>
@@ -566,7 +562,7 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
           <svg width="225" x="110" y="4">
             <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
             <svg data-testid="lang-progress" width="6.25%">
-              <rect height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
+              <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>
           </svg>
         </g>
@@ -585,16 +581,16 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #2f80ed;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
       fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out forwards;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-band {
       fill: #2f80ed;
@@ -617,8 +613,7 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
       }
     }
     .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
     .not_bold {
       font-weight: 400;
@@ -647,10 +642,10 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
       fill: #434d58;
     }
     #rect-mask rect {
-      animation: slideInAnimation 1s ease-in-out forwards;
+      animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
+      animation: growWidthAnimation 0.6s ease-in-out backwards;
       fill: #2f80ed;
     }
     .progress-background {
@@ -702,7 +697,7 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
           <svg width="225" x="110" y="4">
             <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
             <svg data-testid="lang-progress" width="89.38%">
-              <rect height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
+              <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
           </svg>
         </g>
@@ -714,7 +709,7 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
           <svg width="225" x="110" y="4">
             <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
             <svg data-testid="lang-progress" width="6.25%">
-              <rect height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
+              <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>
           </svg>
         </g>

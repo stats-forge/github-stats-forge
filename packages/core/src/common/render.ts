@@ -126,6 +126,7 @@ const createProgressNode = ({
       'svg',
       { 'data-testid': 'lang-progress', width: `${progressPercentage}%` },
       el('rect', {
+        width: '100%',
         height: 8,
         fill: color,
         rx: 5,

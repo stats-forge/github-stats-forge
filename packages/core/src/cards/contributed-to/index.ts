@@ -312,9 +312,9 @@ const renderContributedToCard = (
       rule('.progress-background', { fill: progBarBgColor }),
       rule('.lang-progress', {
         fill: titleColor,
-        animation: 'growWidthAnimation 0.6s ease-in-out forwards',
+        animation: 'growWidthAnimation 0.6s ease-in-out backwards',
       }),
-      rule('.stagger', { opacity: 0, animation: 'fadeInAnimation 0.3s ease-in-out forwards' }),
+      rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
       rule('.icon', { fill: iconColor, display: 'block' }),
     ],
     dark: ({ textColor, titleColor, iconColor, progBarBgColor }) => [

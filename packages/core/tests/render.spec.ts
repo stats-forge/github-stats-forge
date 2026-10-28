@@ -1,10 +1,11 @@
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
-import { renderError } from '../src/common/render.ts';
+import { createProgressNode, renderError } from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
+import { renderMarkup } from '../src/markup/index.ts';
 
-import { exactly } from './_card.ts';
+import { draw, exactly } from './_card.ts';
 
 describe(splitWrappedText, () => {
   it('should return an empty array for empty text', () => {
@@ -65,6 +66,18 @@ describe(wrapTextMultiline, () => {
     expect(multiLineText).toHaveLength(3);
     // Plain characters: the escaping happens when the line is serialized into the card.
     expect(multiLineText[0]).toHaveLength(11);
+  });
+});
+
+describe(createProgressNode, () => {
+  // the bar grows to this width, so a renderer that skips the animation still draws it whole
+  it('should draw the fill at its full width', () => {
+    draw(
+      `<svg>${renderMarkup(createProgressNode({ x: 0, y: 0, width: 200, color: '#f00', progress: 40, delay: 0 }))}</svg>`,
+    );
+
+    expect(screen.getByTestId('lang-progress')).toHaveAttribute('width', '40%');
+    expect(document.querySelector('.lang-progress')).toHaveAttribute('width', '100%');
   });
 });
 
