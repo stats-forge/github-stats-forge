@@ -25,8 +25,8 @@ also names the reason in a header, and [the library](../library/#error-codes) as
 
 - **The old card is still showing.** GitHub serves images through a proxy that caches them, and a
   hard refresh does not clear it: wait, or rename the file.
-- **The animation does not play.** Some contexts strip it. Render with `disable_animations=true`
-  so the card is drawn in its final state rather than its first frame.
+- **The animation does not play.** Some contexts strip it, and the card is then drawn in its final
+  state, so nothing is missing.
 - **The text is cut off.** Raise `card_width` where the card takes it, or shorten what goes in it: a `title`, fewer `show`
   entries.
 - **Two cards sit on separate lines.** They are wider than the window: see
