@@ -68,7 +68,7 @@ describe(getCardColors, () => {
       iconColor: '#79ff97',
       bgColor: '#151515',
       borderColor: '#ffffff26',
-      progBarBgColor: '#ddd',
+      progBarBgColor: '#ffffff33',
     });
   });
 
@@ -114,6 +114,15 @@ describe(getCardColors, () => {
     expect(getCardColors({ bg_color: 'ffffff00' }).borderColor).toBe('#8b949e59');
     // A gradient is judged by its first stop.
     expect(getCardColors({ bg_color: '90,000000,ffffff' }).borderColor).toBe('#ffffff26');
+  });
+
+  it('should derive the progress track from the background when nothing defines one', () => {
+    expect(getCardColors({ bg_color: '0d1117' }).progBarBgColor).toBe('#ffffff33');
+    expect(getCardColors({ bg_color: 'ffffff' }).progBarBgColor).toBe('#ddd');
+    expect(getCardColors({ bg_color: 'ffffff00' }).progBarBgColor).toBe('#8b949e59');
+    expect(getCardColors({ bg_color: '90,000000,ffffff' }).progBarBgColor).toBe('#ffffff33');
+    expect(getCardColors({ bg_color: '90,ffffff,000000' }).progBarBgColor).toBe('#ddd');
+    expect(getCardColors({ theme: 'dark', prog_bar_bg_color: '333' }).progBarBgColor).toBe('#333');
   });
 
   it('should keep a border named by the theme or the user', () => {
