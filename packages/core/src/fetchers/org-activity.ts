@@ -79,7 +79,7 @@ const issuesRefused = (...searches: Array<GetOrganizationActivityQuery['issuesOp
  *
  * @returns The REST search response, carrying `total_count`.
  */
-const fetchCommitCount = (
+const fetchCommitCount = async (
   { org, range }: { org: string; range: GitHubDateRange },
   token: string,
   { fetch }: FetcherContext,

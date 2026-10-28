@@ -85,7 +85,7 @@ const createNodeServer = (handler: FetchHandler, logging: boolean): Server => {
  *
  * @returns Resolves once the listener is closed, or once `timeoutMs` has run out.
  */
-const closeGracefully = (server: Server, timeoutMs: number): Promise<void> =>
+const closeGracefully = async (server: Server, timeoutMs: number): Promise<void> =>
   new Promise((resolve) => {
     const forced = setTimeout(() => {
       server.closeAllConnections();

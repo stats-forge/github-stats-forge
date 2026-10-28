@@ -212,7 +212,7 @@ const headers = (token: string, accept: string): HeadersInit => ({
   Authorization: `token ${token}`,
 });
 
-const fetchTree = (
+const fetchTree = async (
   { nameWithOwner }: { nameWithOwner: string },
   token: string,
   { fetch }: FetcherContext,
@@ -222,7 +222,7 @@ const fetchTree = (
   });
 
 /** The raw media type answers with the notebook itself, which is JSON, rather than base64. */
-const fetchBlob = (
+const fetchBlob = async (
   { nameWithOwner, sha }: { nameWithOwner: string; sha: string },
   token: string,
   { fetch }: FetcherContext,
@@ -250,7 +250,7 @@ const inPool = async <T, R>(
     }
   };
   await Promise.all(
-    Array.from({ length: REQUEST_CONCURRENCY }, () =>
+    Array.from({ length: REQUEST_CONCURRENCY }, async () =>
       worker().catch((error: unknown) => {
         failed = true;
         throw error;
@@ -384,7 +384,7 @@ const withNotebooksRecounted = async (
       return [{ nameWithOwner, jupyterBytes: jupyter.size }];
     })
     .slice(0, MAX_TREES_PER_CARD);
-  const listed = await inPool(candidates, ({ nameWithOwner, jupyterBytes }) =>
+  const listed = await inPool(candidates, async ({ nameWithOwner, jupyterBytes }) =>
     listNotebooks(nameWithOwner, jupyterBytes, config).catch(keepGitHubsCount(nameWithOwner)),
   );
 

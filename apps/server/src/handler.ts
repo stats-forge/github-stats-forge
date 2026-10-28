@@ -166,7 +166,7 @@ type InFlight = Map<string, Promise<Drawn>>;
  *
  * @returns The answer.
  */
-const drawCard = (
+const drawCard = async (
   render: CardHandler,
   key: string,
   query: Record<string, string>,

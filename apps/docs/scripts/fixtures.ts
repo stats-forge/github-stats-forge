@@ -603,7 +603,7 @@ const searchKind = (url: URL): string => {
  *
  * @returns A `fetch` that answers the anvil's requests from the fictional account.
  */
-const fixtureFetch: FetchLike = (input, init) => {
+const fixtureFetch: FetchLike = async (input, init) => {
   const url = new URL(input);
 
   if (url.pathname.startsWith('/api/v1/users/')) {

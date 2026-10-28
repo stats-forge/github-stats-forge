@@ -9,7 +9,7 @@ import { closeGracefully, createNodeServer } from '../src/node.ts';
 import { testOptions } from './_fake-github.ts';
 
 /** @returns The server, listening on a free port. */
-const listen = (server: Server): Promise<number> =>
+const listen = async (server: Server): Promise<number> =>
   new Promise((resolve) => {
     server.listen(0, '127.0.0.1', () => {
       resolve((server.address() as AddressInfo).port);
@@ -38,7 +38,7 @@ test('answers the health check over a real listener', async () => {
 test('answers 500 rather than dying when the handler throws', async () => {
   // the failure is reported on stderr; nothing here asserts on that
   vi.spyOn(process.stderr, 'write').mockReturnValue(true);
-  const server = createNodeServer(() => Promise.reject(new Error('boom')), false);
+  const server = createNodeServer(async () => Promise.reject(new Error('boom')), false);
   const port = await listen(server);
 
   try {

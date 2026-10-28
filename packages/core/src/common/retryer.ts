@@ -17,7 +17,7 @@ interface ResponseErrors {
 const TRANSIENT_RETRY_DELAYS_MS = [100, 1000, 3000];
 
 // not `node:timers/promises`: the anvil runs this library in a browser
-const sleep = (ms: number): Promise<void> =>
+const sleep = async (ms: number): Promise<void> =>
   new Promise((resolve) => {
     setTimeout(resolve, ms);
   });

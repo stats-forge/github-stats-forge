@@ -57,7 +57,7 @@ const withRanges = (body: unknown, wanted: number): unknown => {
  */
 const createSampleFetch =
   (samples: Samples) =>
-  (url: string, init?: RequestInit): Promise<Response> => {
+  async (url: string, init?: RequestInit): Promise<Response> => {
     const key = sampleKey(url, init);
     const sample = key === undefined ? undefined : samples[key];
 

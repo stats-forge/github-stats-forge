@@ -41,7 +41,7 @@ interface SavedCard extends Record<string, string | number> {
  *
  * @returns Nothing when it rendered, or why it did not.
  */
-const render = (config: string, out: string, quiet: boolean): Promise<string | undefined> => {
+const render = async (config: string, out: string, quiet: boolean): Promise<string | undefined> => {
   const args = ['--import', FIXTURE_FETCH, CLI, '--config', config, '--generate', '--out', out];
 
   return new Promise((resolve) => {

@@ -51,7 +51,7 @@ interface Registrar {
 /** Turns either `reply` form — a status plus a body, or a function — into one reply function. */
 const asReplyFn =
   (statusOrFn: number | ReplyFn, body: unknown): ReplyFn =>
-  (request) =>
+  async (request) =>
     typeof statusOrFn === 'function' ? statusOrFn(request) : [statusOrFn, body];
 
 /**

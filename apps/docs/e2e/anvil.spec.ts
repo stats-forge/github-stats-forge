@@ -87,7 +87,7 @@ const setDropdown = async (page: Page, option: string, value: string): Promise<v
 };
 
 /** Switches card, which is the pick that reflows the whole pane. */
-const setCard = (page: Page, id: string): Promise<void> => setDropdown(page, 'card', id);
+const setCard = async (page: Page, id: string): Promise<void> => setDropdown(page, 'card', id);
 
 /** The query box, which is the native input inside the Web Awesome field. */
 const queryBox = (page: Page): Locator => page.locator('wa-input[data-option="extra"] input');
@@ -118,7 +118,7 @@ const setBoolean = async (page: Page, option: string, state: string): Promise<vo
 const statusLine = (page: Page): Locator => page.locator('[data-anvil="status"]');
 
 /** @returns Whether the tooltip for the element with this id is showing. */
-const tooltipOpen = (page: Page, id: string): Promise<boolean> =>
+const tooltipOpen = async (page: Page, id: string): Promise<boolean> =>
   page
     .locator(`wa-tooltip[for="${id}"]`)
     .evaluate((element) => (element as HTMLElement & { open: boolean }).open);
@@ -139,7 +139,7 @@ test('shows what each theme looks like beside its name', async ({ page }) => {
 });
 
 test('offers only the half of each theme pair the card wears', async ({ page }) => {
-  const values = (): Promise<Array<string>> =>
+  const values = async (): Promise<Array<string>> =>
     dropdown(page, 'theme')
       .locator('wa-option')
       .evaluateAll((rows) => rows.map((row) => (row as HTMLElement & { value: string }).value));
@@ -396,7 +396,7 @@ test('the required params are in the file, and the reader owns them', async ({ p
   expect(await savedParam(page, 'username')).toBe('ember-smith');
 
   await field(page, 'username').fill('octocat');
-  await expect.poll(() => savedParam(page, 'username')).toBe('octocat');
+  await expect.poll(async () => savedParam(page, 'username')).toBe('octocat');
 
   // And the preview is unmoved by it: a recording answers what a request asks, not who it asks for.
   await expect(drawnCard(page)).toBeVisible();
@@ -415,7 +415,7 @@ test('a card identified by more than one param gets a field for each', async ({ 
   await expect(field(page, 'repo')).toHaveValue('quench');
 
   await field(page, 'repo').fill('github-stats-forge');
-  await expect.poll(() => savedParam(page, 'repo')).toBe('github-stats-forge');
+  await expect.poll(async () => savedParam(page, 'repo')).toBe('github-stats-forge');
 });
 
 test('emptying a required param draws the error the CLI would report', async ({ page }) => {
@@ -446,7 +446,7 @@ test('the source badge explains itself on hover', async ({ page }) => {
 
   expect(await tooltipOpen(page, 'anvil-source')).toBe(false);
   await badge.hover();
-  await expect.poll(() => tooltipOpen(page, 'anvil-source')).toBe(true);
+  await expect.poll(async () => tooltipOpen(page, 'anvil-source')).toBe(true);
 });
 
 test("the page's description is on the page, not only in its meta", async ({ page }) => {
@@ -463,7 +463,7 @@ test('typing an identity param leaves the drawn card alone', async ({ page }) =>
   });
 
   await field(page, 'username').fill('octocat');
-  await expect.poll(() => savedParam(page, 'username')).toBe('octocat');
+  await expect.poll(async () => savedParam(page, 'username')).toBe('octocat');
   await expect(drawnCard(page)).toHaveAttribute('data-marked', 'yes');
 
   // While an option that does change the card still replaces it.
@@ -517,7 +517,7 @@ test('the copy button puts that same file on the clipboard', async ({ context, p
   const shown = (await page.locator('[data-anvil="output"]').textContent()) ?? '';
 
   await copy.click();
-  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  const copied = await page.evaluate(async () => navigator.clipboard.readText());
   expect(copied.trim()).toBe(shown.trim());
 
   // The button keeps its name. It used to retitle itself to "Copied", which changes a control's
@@ -555,7 +555,7 @@ test("the toast's close button stays visible while hovered", async ({ context, p
   const item = page.locator('wa-toast-item').first();
   await item.waitFor();
 
-  const closeColor = (): Promise<string> =>
+  const closeColor = async (): Promise<string> =>
     item.evaluate((element) => {
       const button = element.shadowRoot?.querySelector('[part~="close-button"]');
       return button === null || button === undefined ? '' : getComputedStyle(button).color;
@@ -618,7 +618,7 @@ test('the closed theme select shows the theme it is set to', async ({ page }) =>
 test('the source badge is reachable by keyboard', async ({ page }) => {
   // `tabindex="0"` on the badge exists for exactly this: the detail cannot be hover-only.
   await page.locator('#anvil-source').focus();
-  await expect.poll(() => tooltipOpen(page, 'anvil-source')).toBe(true);
+  await expect.poll(async () => tooltipOpen(page, 'anvil-source')).toBe(true);
 });
 
 test('the file on offer is the file the CLI reads', async ({ page }) => {
@@ -655,10 +655,10 @@ test('the file is named after the card and whoever it is for', async ({ page }) 
 
   // A typed subject reaches a file name, so what a file system reads specially is dropped.
   await field(page, 'repo').fill('../My Repo!');
-  await expect.poll(() => download.getAttribute('download')).toBe('My-Repo-pin-config.json');
+  await expect.poll(async () => download.getAttribute('download')).toBe('My-Repo-pin-config.json');
 
   await field(page, 'repo').fill('');
-  await expect.poll(() => download.getAttribute('download')).toBe('pin-config.json');
+  await expect.poll(async () => download.getAttribute('download')).toBe('pin-config.json');
 });
 
 test('stands the card on the ground its own theme implies', async ({ page }) => {
@@ -708,7 +708,7 @@ test('a background of your own wins over the theme, once it is a colour', async 
 
   // Half a hex names no colour, so the ground holds until there is one to read.
   await queryBox(page).fill('bg_color=0d');
-  await expect.poll(() => savedParam(page, 'bg_color')).toBe('0d');
+  await expect.poll(async () => savedParam(page, 'bg_color')).toBe('0d');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
 
   await queryBox(page).fill('bg_color=0d1117');
@@ -721,7 +721,7 @@ test('a per-scheme background leaves the ground alone, the card following the br
   // With a `_light` or `_dark` background the card carries a `prefers-color-scheme` block, so
   // neither ground is the one it will be seen on and the page does not choose for you.
   await queryBox(page).fill('bg_color_dark=0d1117');
-  await expect.poll(() => savedParam(page, 'bg_color_dark')).toBe('0d1117');
+  await expect.poll(async () => savedParam(page, 'bg_color_dark')).toBe('0d1117');
 
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
 });
@@ -743,7 +743,7 @@ test('a redraw from the recording never flashes the indicator', async ({ page })
    */
   await expect(page.locator('[data-anvil="root"]')).toHaveAttribute('data-source', 'sample');
 
-  const flashes = (): Promise<Array<string>> =>
+  const flashes = async (): Promise<Array<string>> =>
     page.evaluate(() => (globalThis as unknown as { busySeen: Array<string> }).busySeen);
 
   await previewFrame(page).evaluate((element) => {
@@ -779,18 +779,18 @@ test('the backdrop says it follows the theme, and gives the detail on hover', as
 
   expect(await tooltipOpen(page, 'anvil-backdrop-note')).toBe(false);
   await badge.hover();
-  await expect.poll(() => tooltipOpen(page, 'anvil-backdrop-note')).toBe(true);
+  await expect.poll(async () => tooltipOpen(page, 'anvil-backdrop-note')).toBe(true);
 
   // And reachable without a pointer, as the source badge is.
   await page.keyboard.press('Escape');
   await badge.focus();
-  await expect.poll(() => tooltipOpen(page, 'anvil-backdrop-note')).toBe(true);
+  await expect.poll(async () => tooltipOpen(page, 'anvil-backdrop-note')).toBe(true);
 });
 
 test('the frame holds its size under the shortest card', async ({ page }) => {
   // It was its own padding until the first card landed — too small a box to hold the indicator
   // that says one is coming — and it resized on every card switch.
-  const height = (): Promise<number> =>
+  const height = async (): Promise<number> =>
     previewFrame(page).evaluate((element) => element.getBoundingClientRect().height);
 
   expect(await height()).toBeGreaterThanOrEqual(MIN_FRAME);

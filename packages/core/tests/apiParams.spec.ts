@@ -20,11 +20,12 @@ const config = testConfig.with({ fetch: mock.fetch });
 
 /** Every endpoint, called the way its own signature allows. */
 const endpoints = {
-  stats: (query: Record<string, string>): Promise<ApiResult> => statsApi(query, config),
-  pin: (query: Record<string, string>): Promise<ApiResult> => pinApi(query, config),
-  'top-langs': (query: Record<string, string>): Promise<ApiResult> => topLangsApi(query, config),
-  gist: (query: Record<string, string>): Promise<ApiResult> => gistApi(query, config),
-  wakatime: (query: Record<string, string>): Promise<ApiResult> => wakatimeApi(query, config),
+  stats: async (query: Record<string, string>): Promise<ApiResult> => statsApi(query, config),
+  pin: async (query: Record<string, string>): Promise<ApiResult> => pinApi(query, config),
+  'top-langs': async (query: Record<string, string>): Promise<ApiResult> =>
+    topLangsApi(query, config),
+  gist: async (query: Record<string, string>): Promise<ApiResult> => gistApi(query, config),
+  wakatime: async (query: Record<string, string>): Promise<ApiResult> => wakatimeApi(query, config),
 };
 
 /** @returns The params that say whose card it is, which every endpoint needs to get past validation. */

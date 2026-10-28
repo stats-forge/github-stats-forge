@@ -52,7 +52,7 @@ const fromEnv = (value: string | undefined): string | undefined => {
  */
 const withTimeout =
   (timeoutMs: number): FetchLike =>
-  (input, init) =>
+  async (input, init) =>
     fetch(input, { ...init, signal: AbortSignal.timeout(timeoutMs) });
 
 /**

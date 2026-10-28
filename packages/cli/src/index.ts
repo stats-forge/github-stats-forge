@@ -79,7 +79,7 @@ const renderAndWrite = async (
   config: CardConfig,
   out: string | undefined,
 ): Promise<{ written: string } | { failed: string }> => {
-  const result = await withSpinner(`Rendering the ${card.id} card`, () =>
+  const result = await withSpinner(`Rendering the ${card.id} card`, async () =>
     card.render(query, config),
   );
 

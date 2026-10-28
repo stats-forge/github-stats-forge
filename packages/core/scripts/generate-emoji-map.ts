@@ -23,7 +23,7 @@ const { version } = await fetchJson<{ version: string }>(
 );
 console.log(`emojibase-data@${version}`);
 
-const emojibase = <T>(name: string): Promise<T> =>
+const emojibase = async <T>(name: string): Promise<T> =>
   fetchJson<T>(`https://cdn.jsdelivr.net/npm/emojibase-data@${version}/en/${name}.json`);
 
 const [shortcodes, compact] = await Promise.all([
