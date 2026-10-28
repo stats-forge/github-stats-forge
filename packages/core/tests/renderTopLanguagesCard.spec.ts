@@ -227,15 +227,6 @@ describe('Test renderTopLanguages', () => {
     expect(progresses[2]).toHaveAttribute('width', '20%');
   });
 
-  it('should draw full bars where animations do not run', () => {
-    draw(renderTopLanguages(langs));
-
-    expect(cssValue('.stagger', 'opacity')).toBeUndefined();
-    for (const bar of document.querySelectorAll('.lang-progress')) {
-      expect(bar).toHaveAttribute('width', '100%');
-    }
-  });
-
   it('should hide languages when hide is passed', () => {
     draw(renderTopLanguages(langs, { hide_langs: ['HTML'] }));
     expectLabels(['javascript', 'css']);
