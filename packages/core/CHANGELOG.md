@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.11.1
+
+### Patch Changes
+
+- [#311](https://github.com/stats-forge/github-stats-forge/pull/311) [`04216e9`](https://github.com/stats-forge/github-stats-forge/commit/04216e9f12ea5eb2f40b6970bd542f0851b58f06) - fix: draw every row, bar and rank ring where CSS animations do not run
+
+- [#312](https://github.com/stats-forge/github-stats-forge/pull/312) [`b89961a`](https://github.com/stats-forge/github-stats-forge/commit/b89961a1e0d0f81d860106b44184790c19501f76) - fix: follow the background for a progress bar's empty track, so a dark card no longer gets a light one
+
 ## 0.11.0
 
 ### Minor Changes

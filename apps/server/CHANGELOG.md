@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-server
 
+## 0.7.2
+
+### Patch Changes
+
+- [#314](https://github.com/stats-forge/github-stats-forge/pull/314) [`d057382`](https://github.com/stats-forge/github-stats-forge/commit/d0573820ab69ef4d3b240b5289e83e1b7ab01e11) - docs: drop the `disable_animations` advice for a card whose animation is stripped
+- Updated dependencies [[`04216e9`](https://github.com/stats-forge/github-stats-forge/commit/04216e9f12ea5eb2f40b6970bd542f0851b58f06), [`b89961a`](https://github.com/stats-forge/github-stats-forge/commit/b89961a1e0d0f81d860106b44184790c19501f76)]:
+  - @stats-forge/github-stats-forge-core@0.11.1
+
 ## 0.7.1
 
 ### Patch Changes

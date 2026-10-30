@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.6.7
+
+### Patch Changes
+
+- [#331](https://github.com/stats-forge/github-stats-forge/pull/331) [`d8b8a14`](https://github.com/stats-forge/github-stats-forge/commit/d8b8a1455f9210886c5f2bc3b0f69332ef3150f6) - fix: update inquirer and zod
+- Updated dependencies [[`04216e9`](https://github.com/stats-forge/github-stats-forge/commit/04216e9f12ea5eb2f40b6970bd542f0851b58f06), [`b89961a`](https://github.com/stats-forge/github-stats-forge/commit/b89961a1e0d0f81d860106b44184790c19501f76)]:
+  - @stats-forge/github-stats-forge-core@0.11.1
+
 ## 0.6.6
 
 ### Patch Changes
