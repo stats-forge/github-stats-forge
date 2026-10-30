@@ -262,6 +262,9 @@ oxlint (type-aware, via `oxlint-tsgolint`) and oxfmt replaced eslint and prettie
 - **Dev dependency and Actions minors, patches, pins and digests automerge on a green `CI OK`**
   ([#137]); majors and `dependencies` stay manual. A later `packageRules` entry wins, so the
   held-back rules sit last.
+  - **`CI OK` gates through `marcalexiei/github-actions/check-needs`, never `needs.*.result`**
+    ([#328]): a matrix leg no runner picked up is cancelled, yet leaves its matrix at `success`.
+    It judges only the jobs in its `needs`, so a new job goes there too.
 - **Check the config with `renovate-config-validator` only**: `RENOVATE_PLATFORM=local` reverts
   tracked files and deletes untracked ones, so run it on a copy.
 
@@ -302,3 +305,4 @@ pnpm is **12.x** ([#110]); `pnpm-workspace.yaml` gives each setting's reason, an
 [#254]: https://github.com/stats-forge/github-stats-forge/pull/254
 [#287]: https://github.com/stats-forge/github-stats-forge/pull/287
 [#288]: https://github.com/stats-forge/github-stats-forge/pull/288
+[#328]: https://github.com/stats-forge/github-stats-forge/pull/328
