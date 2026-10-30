@@ -1,10 +1,13 @@
+import { screen } from '@testing-library/dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { contributedTo } from '../src/api/contributed-to.ts';
 import { CardConfig } from '../src/common/config.ts';
 import { fetchContributedTo } from '../src/fetchers/contributed-to.ts';
 import type { UserContributionYearsQuery } from '../src/graphql/generated/contributed-to.ts';
 import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.ts';
 
+import { draw, exactly } from './_card.ts';
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
 
@@ -302,5 +305,28 @@ describe('test fetchContributedTo', () => {
     await expect(fetchContributedTo({ username: 'x' }, config)).rejects.toThrow(
       'Could not resolve to a User',
     );
+  });
+});
+
+describe('the contributed-to endpoint', () => {
+  beforeEach(() => {
+    mock.reset();
+    mockGraphQL();
+  });
+
+  it('hands the fetcher and the card their own params', async () => {
+    const result = await contributedTo(
+      { username: 'anuraghazra', exclude_repo: 'other/repo2', hide_years: 'true', title: 'Mine' },
+      config,
+    );
+
+    expect(result.status).toBe('success');
+    draw(result.content);
+    // exclude_repo reaches the fetcher; hide_years and title reach the card
+    const names = screen.getAllByTestId('repo-name');
+    expect(names).toHaveLength(1);
+    expect(names[0]).toHaveTextContent(exactly('org/repo1'));
+    expect(screen.queryByTestId('year-strip')).not.toBeInTheDocument();
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('Mine'));
   });
 });
