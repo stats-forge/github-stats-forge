@@ -26,7 +26,7 @@ const encodeHTML = (str: string): string => {
     return str;
   }
 
-  return str.replace(TO_ENCODE, (char) =>
+  return str.replaceAll(TO_ENCODE, (char) =>
     char === BACKSPACE ? '' : `&#${char.codePointAt(0) ?? 0};`,
   );
 };

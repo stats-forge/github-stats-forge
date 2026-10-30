@@ -130,7 +130,7 @@ const PLACEHOLDER = /\{(?<name>\w+)\}/g;
  * @returns The wording as the card draws it.
  */
 const interpolate = (phrase: string, key: string, values: ReadValues): string =>
-  phrase.replace(PLACEHOLDER, (_placeholder, name: string) => {
+  phrase.replaceAll(PLACEHOLDER, (_placeholder, name: string) => {
     const value = values?.[name];
     if (value === undefined) {
       throw new Error(`'${key}' needs a value for '{${name}}'`);
