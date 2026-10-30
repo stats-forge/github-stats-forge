@@ -35,6 +35,24 @@ test('answers the health check over a real listener', async () => {
   }
 });
 
+test.each([
+  { logging: true, lines: 1 },
+  { logging: false, lines: 0 },
+])('writes $lines log lines for a request when logging is $logging', async ({ logging, lines }) => {
+  const write = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+  const server = createNodeServer(createHandler(testOptions()), logging);
+  const port = await listen(server);
+
+  try {
+    await fetch(`http://127.0.0.1:${port}/healthz`);
+
+    const logged = write.mock.calls.filter(([chunk]) => String(chunk).includes('"/healthz"'));
+    expect(logged).toHaveLength(lines);
+  } finally {
+    await closeGracefully(server, 1000);
+  }
+});
+
 test('answers 500 rather than dying when the handler throws', async () => {
   // the failure is reported on stderr; nothing here asserts on that
   vi.spyOn(process.stderr, 'write').mockReturnValue(true);
