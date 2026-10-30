@@ -16,10 +16,14 @@
   },
   "license": "MIT",
   "author": {
-    "name": "Anurag Hazra",
-    "url": "https://github.com/anuraghazra/"
+    "name": "Marco Pasqualetti",
+    "url": "https://github.com/marcalexiei"
   },
   "contributors": [
+    {
+      "name": "Anurag Hazra",
+      "url": "https://github.com/anuraghazra/"
+    },
     {
       "name": "Rick Staa",
       "url": "https://github.com/rickstaa"
@@ -31,10 +35,6 @@
     {
       "name": "Abhijit Gupta",
       "url": "https://github.com/avgupta456"
-    },
-    {
-      "name": "Marco Pasqualetti",
-      "url": "https://github.com/marcalexiei"
     },
     {
       "name": "martin-mfg",
