@@ -10,7 +10,7 @@ carries a server changeset.
 
 - **A card example is drawn by the CLI, never by hand or at build time** ([#50]).
   `apps/docs/cards/*.json` holds theme-less saved cards; `pnpm docs:cards` draws each per site theme
-  into `public/cards/<name>-{light,dark}.svg`, against `scripts/fixtures.ts` loaded through
+  into `public/cards/<name>-{light,dark}.svg`, against `src/anvil/fixtures.ts` loaded through
   `node --import scripts/fixture-fetch.ts` ([#225]). `docs:cards:check` fails on any difference.
 - **`customization/themes.md` is generated** by `scripts/generate-themes-page.ts` through oxfmt's
   API; `check-themes-page` fails on drift.

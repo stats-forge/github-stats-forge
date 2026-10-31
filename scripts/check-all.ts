@@ -20,7 +20,7 @@ const CHECKS: Record<string, Array<string>> = {
   publish: ['run', 'lint:publish'],
   'graphql types': ['--filter', './packages/core', 'run', 'check-graphql-types'],
   'themes page': ['--filter', './apps/docs', 'run', 'check-themes-page'],
-  'anvil samples': ['--filter', './apps/docs', 'run', 'check-anvil-samples'],
+  anvil: ['--filter', './apps/docs', 'run', 'check-anvil'],
   // after `typecheck`, which leaves the CLI built for it
   'card previews': ['--filter', './apps/docs', 'run', 'check-cards'],
   'docs site': ['run', 'docs:build'],

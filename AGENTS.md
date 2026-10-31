@@ -125,7 +125,7 @@ pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fail
   history and `docker inspect`. Show `--env-file cards.env`, `-e PAT_1`, a secret manager or
   `--pat "$token"`, and link the self-hosting page's "Where the token lives".
 - **`pnpm docs:cards` draws `apps/docs/cards` through the built CLI against the fictional account in
-  `apps/docs/scripts/fixtures.ts`** ([#225]): no token, deterministic, and `docs:cards:check` fails CI
+  `apps/docs/src/anvil/fixtures.ts`** ([#225]): no token, deterministic, and `docs:cards:check` fails CI
   on drift. The fixtures are typed as their queries' results, so a `.graphql` change fails
   `pnpm typecheck` until they follow.
 - **Prose never states a count that grows with the code** ([#220]); only generated pages may.

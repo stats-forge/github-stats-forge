@@ -13,7 +13,7 @@ import { org, orgActivity, pin, stats } from '@stats-forge/github-stats-forge-co
 import type { CardCategory } from './themes.ts';
 
 /**
- * The fictional account every sample is drawn from. `scripts/fixtures.ts` answers as this
+ * The fictional account every sample is drawn from. `fixtures.ts` answers as this
  * account would, and seeds each card's identity fields with these.
  */
 const SAMPLE = {

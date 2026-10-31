@@ -75,7 +75,7 @@ Each of these is a separate file holding its own copy of "every card there is".
     the handler never reads throws at import.
 11. `apps/server/src/routes.ts` — the path, and the count in its `@file` block.
 12. `apps/docs/src/anvil/cards.ts` — the `EXTRAS` entry: `docs` slug, `category`, `identity`
-    seeds and `maximal`, the params that turn on everything the recorder must capture.
+    seeds and `maximal`, the params that turn on every request the card can make.
 13. `apps/docs/astro.config.ts` — **two** sidebar entries, the card page and the fetcher page.
 14. The four tables: `docs/index.md`, `docs/fetchers/overview.md`,
     `docs/usage/self-hosting.md` and `apps/server/README.md`.
@@ -88,16 +88,15 @@ Each of these is a separate file holding its own copy of "every card there is".
 16. `apps/docs/src/content/docs/docs/fetchers/fetch-<name>.md` — **the docs build fails
     without this**, naming the file to write. It carries `<!-- api: fetchName -->`, which is
     expanded at build time; the prose around it is hand-written.
-17. A fixture for each new request in `apps/docs/scripts/fixtures.ts`, answering for the
+17. A fixture for each new request in `apps/docs/src/anvil/fixtures.ts`, answering for the
     fictional account and picked so the card's options have something to show. Type its return
     as `Body<XQuery>`, the result core generates for the card's query, so `pnpm typecheck` holds
-    the fixture to the query from then on. The generators throw naming any request the fixtures
-    cannot answer.
+    the fixture to the query from then on. `pnpm docs:cards` and
+    `pnpm --filter ./apps/docs run check-anvil` fail naming any request the fixtures cannot answer.
 18. `apps/docs/cards/<card>.json` — a saved card, no theme, naming the `SAMPLE` identities from
-    `apps/docs/src/anvil/cards.ts`. Then `pnpm docs:cards` and
-    `pnpm --filter ./apps/docs run generate-anvil-samples` — neither needs a token.
+    `apps/docs/src/anvil/cards.ts`. Then `pnpm docs:cards`, which needs no token.
 
-**Both generators are deterministic**, the fixtures being fixed, so a regeneration changes only
+**`pnpm docs:cards` is deterministic**, the fixtures being fixed, so a regeneration changes only
 what the new card added — or what a change to an existing card's output really moved. A diff in a
 preview you did not touch is a finding, not noise.
 
@@ -137,4 +136,4 @@ Five places, and the anvil is free:
 
 The anvil builds its control from the card catalog, so it needs nothing. If the option changes
 _what is fetched_ rather than what is drawn, add it to that card's `maximal` in
-`apps/docs/src/anvil/cards.ts` and re-record the samples.
+`apps/docs/src/anvil/cards.ts`, and answer any request it adds in `apps/docs/src/anvil/fixtures.ts`.

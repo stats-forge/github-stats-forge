@@ -3,7 +3,7 @@
  * @file Draws every card against the real GitHub and WakaTime APIs, and fails on any that does not.
  *
  * Everything else here runs on made-up data — core's and the server's tests mock `fetch`, and the
- * site's samples and previews come from `fixtures.ts` — so this is the one check
+ * site's anvil and previews come from `fixtures.ts` — so this is the one check
  * that the live APIs still answer the way core reads them. Each card is drawn with the anvil's
  * `maximal` options, so every request a card can make is made. Only success is asserted: live
  * numbers drift, so the output is never compared.

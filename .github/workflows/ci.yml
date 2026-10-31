@@ -126,10 +126,9 @@ jobs:
       - name: Lint (generated theme page)
         run: pnpm --filter ./apps/docs run check-themes-page
 
-      # The anvil's samples are the only thing standing between a changed query and a page that
-      # cannot draw; this also fails when they differ from what their generator writes.
-      - name: Lint (anvil samples)
-        run: pnpm --filter ./apps/docs run check-anvil-samples
+      # Draws every card as the anvil does, so a fixture a changed query outgrew fails here.
+      - name: Lint (anvil)
+        run: pnpm --filter ./apps/docs run check-anvil
 
       # Once, for both the previews and the site; `code-checks` typechecks the site.
       - name: Build packages

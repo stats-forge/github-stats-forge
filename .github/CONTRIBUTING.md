@@ -49,7 +49,7 @@ pnpm docs:cards   # redraw the card previews the pages show
 ```
 
 The previews are committed, so redraw them when a card's output changes.
-They are drawn from a made-up account in `apps/docs/scripts/fixtures.ts`, so no token is needed,
+They are drawn from a made-up account in `apps/docs/src/anvil/fixtures.ts`, so no token is needed,
 and CI fails when one is out of date (`pnpm docs:cards:check`).
 
 Since nothing else here calls the real APIs, `pnpm test:live` draws every card from live data and fails on any that does not draw.

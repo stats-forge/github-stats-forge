@@ -19,26 +19,18 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
 - **Every Web Awesome icon slot is inline SVG, and the toast's `create()` gets no `icon`**: `wa-icon`
   fetches from Font Awesome's CDN. The privacy test holds it.
 - **It draws through core's public `./api` handlers**, with
-  `new CardConfig({ pats: [dummy], fetch: createSampleFetch(samples) })`: core's api does not grow, a
-  rejected option draws the real error card, and the SVG matches the CLI's.
-- **`samples.json` is generated from the fictional account, committed, never hand-edited** ([#225]).
-  `pnpm --filter ./apps/docs run generate-anvil-samples` drives every handler against
-  `scripts/fixtures.ts`, and a request the fixtures cannot answer throws. **Regenerate it whenever a
-  query changes.**
+  `new CardConfig({ pats: [dummy], fetch: orNotFound(fixtureFetch) })`: core's api does not grow,
+  a rejected option draws the real error card, and the SVG matches the CLI's.
+- **`fixtures.ts` is the fictional account, answering in the browser as `pnpm docs:cards` answers
+  the CLI** ([#225]). It throws on a request it cannot answer; `orNotFound` turns that into GitHub's
+  error, so the page draws an error card rather than waiting out the retryer.
   - **Fixture figures exercise the options**: stars that read differently under `number_format`, more
     languages than `langs_count`, more repositories than `repos_count`, a description that wraps.
-  - **`check-anvil-samples` guards it, tokenless, in CI and `check-all`**: `--check`, then a draw of
-    every card through the replay path.
+  - **`check-anvil` draws every card with its `maximal` options, tokenless, in CI and `check-all`**,
+    and checks that an unanswered request draws the not-found card at once.
   - Fixtures are typed as core's query results, so a field a query gains fails `pnpm typecheck`;
-    `check-graphql-types` ties the queries to GitHub.
-- **A request is keyed by what it asks** (`sample-key.ts`, shared by the generator and the transport):
-  - GraphQL keys on the **operation name** plus a hash of the query with **the whole run** of range
-    fields collapsed, not each field;
-  - a REST search keys on its path and **qualifier names**, dropping `repo:` and `owner:`, keeping
-    `type:`;
-  - a git tree or blob keys on its kind alone (`git/trees`, `git/blobs`), every repository sharing
-    one notebook;
-  - ranges alias by position (`range_0`, …), and `createSampleFetch` re-aliases to the count asked.
+    `check-graphql-types` ties the queries to GitHub. Its imports from core's source are type-only,
+    so they cost the bundle nothing.
 - **The page says what that costs**: options changing how a card is drawn are exact; options
   changing what is counted leave the sample numbers alone.
 - **The sample identity seeds the required fields** ([#225]): `SAMPLE` in `cards.ts`, imported by
