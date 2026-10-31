@@ -14,6 +14,9 @@ import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from './sav
 import { withSpinner } from './spinner.ts';
 import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.ts';
 
+/** Room for a slow connection, well short of undici's five minutes on a stalled one. */
+const REQUEST_TIMEOUT_MS = 30_000;
+
 const HELP = `github-stats-forge — render a GitHub stats card to a local SVG
 
 Usage
@@ -194,7 +197,7 @@ const main = async (): Promise<void> => {
     tokens = [{ name: 'prompt', value: typed }];
   }
 
-  const config = new CardConfig({ pats: tokens });
+  const config = new CardConfig({ pats: tokens, requestTimeoutMs: REQUEST_TIMEOUT_MS });
 
   // `--generate` renders what the file holds and stops: no menu, nothing to answer.
   if (saved && flags.generate) {

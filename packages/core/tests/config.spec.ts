@@ -1,11 +1,21 @@
 /**
  * @file What `CardConfig.fromEnv` takes from an environment it does not own, a container's
- * being shared with whatever else runs beside it.
+ * being shared with whatever else runs beside it, and the deadline it puts on each request.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { CardConfig } from '../src/common/config.ts';
+import type { FetchLike } from '../src/common/http.ts';
+
+/** A server that accepted the connection and then went quiet. */
+const stalled: FetchLike = async (_input, init) =>
+  new Promise((_resolve, reject) => {
+    // the reason is a `DOMException`, which this realm does not count as an `Error`
+    init?.signal?.addEventListener('abort', () => {
+      reject(init.signal?.reason as Error);
+    });
+  });
 
 describe('CardConfig.fromEnv', () => {
   it('reads the PAT_n names the CLI and the compose file write', () => {
@@ -40,5 +50,41 @@ describe('CardConfig.fromEnv', () => {
     });
 
     expect(config.pats).toStrictEqual([]);
+  });
+});
+
+describe('CardConfig.requestTimeoutMs', () => {
+  it('gives up on a request that never answers', async () => {
+    const config = new CardConfig({ fetch: stalled, requestTimeoutMs: 20 });
+
+    await expect(config.fetch('https://api.github.com/graphql')).rejects.toMatchObject({
+      name: 'TimeoutError',
+    });
+  });
+
+  it('keeps what the request carried, adding the deadline', async () => {
+    const transport = vi.fn<FetchLike>(async () => Promise.resolve(new Response('{}')));
+    const config = new CardConfig({ fetch: transport, requestTimeoutMs: 1000 });
+
+    await config.fetch('https://api.github.com/graphql', { method: 'POST', body: '{}' });
+
+    const [input, init] = transport.mock.calls[0] ?? [];
+    expect(input).toBe('https://api.github.com/graphql');
+    expect(init).toMatchObject({ method: 'POST', body: '{}' });
+    expect(init?.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('hands the transport over untouched when unset', () => {
+    expect(new CardConfig({ fetch: stalled }).fetch).toBe(stalled);
+  });
+
+  it('survives `with`, still around the transport it was given', async () => {
+    const config = new CardConfig({ fetch: stalled, requestTimeoutMs: 20 }).with({ pats: [] });
+
+    expect(config.requestTimeoutMs).toBe(20);
+    await expect(config.fetch('https://api.github.com/graphql')).rejects.toMatchObject({
+      name: 'TimeoutError',
+    });
+    expect(config.with({ requestTimeoutMs: undefined }).fetch).toBe(stalled);
   });
 });

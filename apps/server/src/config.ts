@@ -3,7 +3,6 @@
  */
 
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
-import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 
 import { CardCache, STALE_WHILE_REVALIDATE, parseInteger } from './cache.ts';
 import type { ServerOptions } from './handler.ts';
@@ -45,17 +44,6 @@ const fromEnv = (value: string | undefined): string | undefined => {
 };
 
 /**
- * A transport that gives up rather than waiting on GitHub forever. Core wraps the rejection as
- * `upstream`, so a timeout draws the retryable error card instead of holding the socket.
- *
- * @returns The transport to hand `CardConfig`.
- */
-const withTimeout =
-  (timeoutMs: number): FetchLike =>
-  async (input, init) =>
-    fetch(input, { ...init, signal: AbortSignal.timeout(timeoutMs) });
-
-/**
  * @returns What this deployment configured.
  */
 const readSettings = (env: Env): ServerSettings => {
@@ -68,7 +56,7 @@ const readSettings = (env: Env): ServerSettings => {
     logRequests: env['LOG_REQUESTS'] !== 'false',
     options: {
       config: CardConfig.fromEnv(env).with({
-        fetch: withTimeout(parseInteger(env['REQUEST_TIMEOUT_MS']) ?? DEFAULT_REQUEST_TIMEOUT_MS),
+        requestTimeoutMs: parseInteger(env['REQUEST_TIMEOUT_MS']) ?? DEFAULT_REQUEST_TIMEOUT_MS,
       }),
       strictHttpStatus: env['STRICT_HTTP_STATUS'] === 'true',
       // `0` is the one switch: it stores nothing as well as sending `no-store`

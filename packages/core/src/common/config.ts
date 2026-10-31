@@ -1,4 +1,4 @@
-import { defaultFetch } from './http.ts';
+import { defaultFetch, withTimeout } from './http.ts';
 import type { FetchLike } from './http.ts';
 
 type Env = Record<string, string | undefined>;
@@ -20,6 +20,7 @@ interface CardConfigInit {
   excludeRepositories?: ReadonlyArray<string>;
   fetchMultiPageStars?: number;
   fetch?: FetchLike;
+  requestTimeoutMs?: number | undefined;
 }
 
 /**
@@ -72,8 +73,12 @@ export class CardConfig {
   readonly excludeRepositories: ReadonlyArray<string>;
   /** Max pages of starred repos; `Infinity` means every page, `1` only the first. */
   readonly fetchMultiPageStars: number;
-  /** Transport every fetcher sends through; defaults to `globalThis.fetch`. */
+  /** Milliseconds each request may take before it fails as a `TimeoutError`; `undefined` waits. */
+  readonly requestTimeoutMs: number | undefined;
+  /** Transport every fetcher sends through, bounded by `requestTimeoutMs`; defaults to `globalThis.fetch`. */
   readonly fetch: FetchLike;
+  /** The transport as given, so `with` never wraps it twice. */
+  private readonly transport: FetchLike;
 
   constructor(init: CardConfigInit = {}) {
     this.pats = init.pats ?? [];
@@ -81,7 +86,9 @@ export class CardConfig {
     this.gistAllowlist = init.gistAllowlist;
     this.excludeRepositories = init.excludeRepositories ?? [];
     this.fetchMultiPageStars = init.fetchMultiPageStars ?? 1;
-    this.fetch = init.fetch ?? defaultFetch;
+    this.transport = init.fetch ?? defaultFetch;
+    this.requestTimeoutMs = init.requestTimeoutMs;
+    this.fetch = withTimeout(this.transport, this.requestTimeoutMs);
   }
 
   /** @returns Config for this deployment. */
@@ -114,7 +121,8 @@ export class CardConfig {
       gistAllowlist: this.gistAllowlist,
       excludeRepositories: this.excludeRepositories,
       fetchMultiPageStars: this.fetchMultiPageStars,
-      fetch: this.fetch,
+      fetch: this.transport,
+      requestTimeoutMs: this.requestTimeoutMs,
       ...overrides,
     });
   }

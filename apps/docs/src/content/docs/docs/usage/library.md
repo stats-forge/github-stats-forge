@@ -73,6 +73,7 @@ const config = new CardConfig({
   excludeRepositories: ['octocat/scratch'],
   fetchMultiPageStars: 1,
   fetch: myFetch,
+  requestTimeoutMs: 10_000,
 });
 ```
 
@@ -84,6 +85,7 @@ const config = new CardConfig({
 | `excludeRepositories` | Repositories left out of every card                                        |
 | `fetchMultiPageStars` | How many pages of starred repositories to read; `Infinity` for all         |
 | `fetch`               | The transport every request goes through — swap it to cache, mock or proxy |
+| `requestTimeoutMs`    | How long one request may wait before it fails as `upstream`; omit to wait  |
 
 `CardConfig.fromEnv(process.env)` builds the same thing from `PAT_1`…, `ALLOWLIST`,
 `GIST_ALLOWLIST`, `EXCLUDE_REPO` and `FETCH_MULTI_PAGE_STARS`, for a host that would rather
