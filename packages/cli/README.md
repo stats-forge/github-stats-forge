@@ -21,7 +21,7 @@ generate, look at it, change one option, generate again.
 ```
 ? Which card? Stats — commits, PRs, issues, reviews and a rank
 ? GitHub username anuraghazra
-? Stats — wrote stats-anuraghazra.svg — edit an option and generate again
+? Stats — wrote anuraghazra-stats.svg — edit an option and generate again
 ❯ Generate the card
   Quit
   Extra stats to show                    reviews,prs_merged

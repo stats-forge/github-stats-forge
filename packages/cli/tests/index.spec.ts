@@ -284,7 +284,7 @@ describe('the menu', () => {
 
     await run('--card', 'gist', '--pat', 'ghp_x');
 
-    expect(prompts.askSavePath).toHaveBeenCalledWith('gist-abc.json');
+    expect(prompts.askSavePath).toHaveBeenCalledWith('abc-gist-config.json');
     await expect(readSavedCard(path)).resolves.toMatchObject({ options: { id: 'abc' } });
   });
 

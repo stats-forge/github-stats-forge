@@ -1,10 +1,8 @@
-import { findCard } from '@stats-forge/github-stats-forge-catalog';
 import type { CardOption } from '@stats-forge/github-stats-forge-catalog';
 import { describe, expect, it } from 'vitest';
 
 import type { Answer } from '../src/query.ts';
 import {
-  defaultFileName,
   describeAnswer,
   fromQueryString,
   toParam,
@@ -65,32 +63,6 @@ describe(describeAnswer, () => {
 
   it('marks an option nothing has answered', () => {
     expect(describeAnswer(option, undefined)).toBe(UNSET);
-  });
-});
-
-describe(defaultFileName, () => {
-  it('names the file after the card and its subject', () => {
-    const stats = findCard('stats');
-    expect(stats && defaultFileName(stats, { username: 'anuraghazra' })).toBe(
-      'stats-anuraghazra.svg',
-    );
-  });
-
-  it('includes the repository for a pin', () => {
-    const pin = findCard('pin');
-    expect(pin && defaultFileName(pin, { username: 'anuraghazra', repo: 'convoychat' })).toBe(
-      'pin-anuraghazra-convoychat.svg',
-    );
-  });
-
-  it('keeps a gist id, which has no username', () => {
-    const gist = findCard('gist');
-    expect(gist && defaultFileName(gist, { id: 'bbfce31e' })).toBe('gist-bbfce31e.svg');
-  });
-
-  it('writes a name a shell can handle', () => {
-    const stats = findCard('stats');
-    expect(stats && defaultFileName(stats, { username: 'a b/c' })).toBe('stats-a-b-c.svg');
   });
 });
 

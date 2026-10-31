@@ -8,9 +8,11 @@
 
 import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import {
-  CARD_FILE_VERSION,
+  cardFileStem,
+  cardSubject,
   numericStep,
   OPTION_GROUPS,
+  savedCardText,
 } from '@stats-forge/github-stats-forge-catalog';
 import type { CardField } from '@stats-forge/github-stats-forge-catalog';
 import { queryOf } from '@stats-forge/github-stats-forge-core/api';
@@ -133,27 +135,8 @@ const toQuery = (state: State): Record<string, string> => {
   return query;
 };
 
-/**
- * The **last** of the card's required params, so a pin is named after the repository rather than
- * its owner.
- *
- * @returns What the card is about, or `''` when the field has been emptied.
- */
-const subjectOf = (state: State): string => {
-  const subject = state.card.required.at(-1);
-  return subject === undefined ? '' : (state.values[subject.name] ?? '');
-};
-
-/**
- * Anything a file system reads specially is dropped from the subject.
- *
- * @returns The file name, which is also what the `--config` line beneath the file says.
- */
-const fileName = (state: State): string => {
-  const typed = subjectOf(state);
-  const slug = typed.replaceAll(/[^\w.-]+/g, '-').replaceAll(/^[.-]+|[.-]+$/g, '');
-  return slug === '' ? `${state.card.id}-config.json` : `${slug}-${state.card.id}-config.json`;
-};
+/** @returns The saved file's name, which is also what the `--config` line beneath it says. */
+const fileName = (state: State): string => `${cardFileStem(state.card, state.values)}-config.json`;
 
 /** @returns The command that renders the saved file. */
 const command = (name: string): string =>
@@ -165,7 +148,7 @@ const command = (name: string): string =>
  * @returns The markdown that puts the card in a README.
  */
 const markdown = (state: State, url: string): string => {
-  const subject = subjectOf(state);
+  const subject = cardSubject(state.card, state.values);
   return `![${subject === '' ? state.card.id : `${subject} ${state.card.id}`}](${url})`;
 };
 
@@ -287,8 +270,7 @@ const mount = (root: HTMLElement): void => {
   let source: PreviewSource = servedByInstance ? serverSource : sampleSource;
 
   /** The saved-card file the current state stands for. */
-  const savedCard = (): string =>
-    `${JSON.stringify({ version: CARD_FILE_VERSION, card: state.card.id, ...toQuery(state) }, undefined, 2)}\n`;
+  const savedCard = (): string => savedCardText(state.card, toQuery(state));
 
   /** Writes the file beside the card. Never debounced: it is what a copy button reads. */
   const writeFile = (): void => {

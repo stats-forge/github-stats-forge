@@ -17,8 +17,8 @@ both read it; neither owns it** ([#126]).
 - **`numericStep` answers `1`, `'any'` or `undefined` for both forms** ([#89]), so neither branches on
   `kind` and misses a new one.
 - **No `min` or `max`**: the renderer already clamps.
-- **`CARD_FILE_VERSION` lives here**: the CLI and the anvil both write the file, and the CLI's
-  `src/index.ts` runs `main()` on import.
+- **The saved-card file lives here** (`CARD_FILE_VERSION`, `savedCardText`, `cardFileStem`): the CLI
+  and the anvil both write it and name it alike, and the CLI's `src/index.ts` runs `main()` on import.
 - **`tests/catalog.spec.ts` holds the list's invariants**: one entry per card, no param twice, no
   empty `choices`, a step that follows the kind, and each `render` matching its id.
 

@@ -12,20 +12,16 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
-import { CARD_FILE_VERSION, findCard } from '@stats-forge/github-stats-forge-catalog';
+import {
+  CARD_FILE_VERSION,
+  findCard,
+  savedCardText,
+} from '@stats-forge/github-stats-forge-catalog';
 
 import type { Answer } from './query.ts';
 
 /** Envelope keys, so a card's own options can never be named these. */
 const RESERVED: ReadonlySet<string> = new Set(['version', 'card']);
-
-/** A card and the answers it was rendered from: the shape of the file. */
-interface SavedCard extends Record<string, string | number> {
-  /** Which shape of this file it is; see {@link CARD_FILE_VERSION}. */
-  version: number;
-  /** Which card, by the id the catalog gives it. */
-  card: string;
-}
 
 /**
  * @returns Whether there is something there to load.
@@ -108,8 +104,7 @@ export const writeSavedCard = async (
   options: Record<string, string>,
 ): Promise<string> => {
   const file = resolve(process.cwd(), path);
-  const saved: SavedCard = { version: CARD_FILE_VERSION, card: card.id, ...options };
-  await writeFile(file, `${JSON.stringify(saved, null, 2)}\n`, 'utf8');
+  await writeFile(file, savedCardText(card, options), 'utf8');
   return file;
 };
 

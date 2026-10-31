@@ -649,14 +649,17 @@ test('the file is named after the card and whoever it is for', async ({ page }) 
     'npx @stats-forge/github-stats-forge-cli --config ember-smith-stats-config.json --generate',
   );
 
-  // The repository, not its owner: the last required param is what the card is about.
+  // The owner and the repository, so two owners' same-named repositories never share a file.
   await setCard(page, 'pin');
-  await expect(download).toHaveAttribute('download', 'quench-pin-config.json');
+  await expect(download).toHaveAttribute('download', 'ember-smith-quench-pin-config.json');
 
-  // A typed subject reaches a file name, so what a file system reads specially is dropped.
+  // A typed answer reaches a file name, so what a file system reads specially is dropped.
   await field(page, 'repo').fill('../My Repo!');
-  await expect.poll(async () => download.getAttribute('download')).toBe('My-Repo-pin-config.json');
+  await expect
+    .poll(async () => download.getAttribute('download'))
+    .toBe('ember-smith-My-Repo-pin-config.json');
 
+  await field(page, 'username').fill('');
   await field(page, 'repo').fill('');
   await expect.poll(async () => download.getAttribute('download')).toBe('pin-config.json');
 });
