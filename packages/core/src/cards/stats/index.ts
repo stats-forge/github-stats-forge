@@ -1,7 +1,6 @@
 import { CARD_ICON, CARD_STYLE } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
-import type { CardColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
 import { rankIcon } from '../../common/icons.ts';
 import { commonLocales } from '../../common/locales.ts';
@@ -137,6 +136,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   // check if all used labels are short
   const defaultTitle =
     visibleStats.length > 0 ? t.title({ name, apostrophe }) : t.rankTitle({ name, apostrophe });
+  const cardTitle = title ?? defaultTitle;
 
   const longLabels = visibleStats.some(([, stat]) => stat.label.length > 18);
 
@@ -152,8 +152,6 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   // the lower the user's percentile the better
   const progress = 100 - rank.percentile;
 
-  const calculateTextWidth = (): number => measureText(title || defaultTitle);
-
   const iconWidth = show_icons && visibleStats.length > 0 ? 16 + /* padding */ 1 : 0;
   // The icons ride inside the step's own slack, so a default card lands on the width grid;
   // only the minimum, which has no slack, still has to make room for them.
@@ -168,7 +166,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const fittedWidth = hide_rank
     ? Math.max(
         defaultCardWidth,
-        clampValue(50 /* padding */ + calculateTextWidth() * 2, CARD_MIN_WIDTH, Infinity) +
+        clampValue(50 /* padding */ + measureText(cardTitle) * 2, CARD_MIN_WIDTH, Infinity) +
           iconWidth,
       )
     : defaultCardWidth;
@@ -207,26 +205,32 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     }),
   );
 
+  // Accessibility Labels
+  const labels = visibleStats
+    .map(([key, stat]) => {
+      if (key === 'commits') {
+        const range = include_all_commits ? '' : getTotalCommitsRangeLabel(commitsRange, commonT);
+        return `${t.commits()} ${range} : ${stat.value}`;
+      }
+      return `${stat.label}: ${stat.value}`;
+    })
+    .join(', ');
+
   const card = new Card({
-    customTitle: title,
-    defaultTitle,
+    title: cardTitle,
     titlePrefixIcon: CARD_ICON.stats,
     width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
+    accessibleTitle: t.accessibilityTitle({ title: cardTitle, level: rank.level }),
+    description: labels,
+    hideBorder: hide_border,
+    hideTitle: hide_title,
+    animations: !disable_animations,
+    css: ({ ringColor, textColor, iconColor }): Array<CssChild> =>
+      getStyles({ ringColor, textColor, iconColor, show_icons, progress }),
   });
-
-  card.setHideBorder(hide_border);
-  card.setHideTitle(hide_title);
-  const cardStyles = ({ ringColor, textColor, iconColor }: CardColors): Array<CssChild> =>
-    getStyles({ ringColor, textColor, iconColor, show_icons, progress });
-
-  card.setCSS({ light: cardStyles, dark: cardStyles });
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
 
   /**
    * The ring sits halfway between where the values stop and the card's own edge, which is
@@ -252,22 +256,6 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       el('circle', { class: 'rank-circle', cx: -RANK_CIRCLE_CX_OFFSET, cy: 8, r: 40 }),
       el('g', { class: 'rank-text' }, rankIcon(rank_icon, rank.level, rank.percentile)),
     );
-
-  // Accessibility Labels
-  const labels = visibleStats
-    .map(([key, stat]) => {
-      if (key === 'commits') {
-        const range = include_all_commits ? '' : getTotalCommitsRangeLabel(commitsRange, commonT);
-        return `${t.commits()} ${range} : ${stat.value}`;
-      }
-      return `${stat.label}: ${stat.value}`;
-    })
-    .join(', ');
-
-  card.setAccessibilityLabel({
-    title: t.accessibilityTitle({ title: card.title, level: rank.level }),
-    desc: labels,
-  });
 
   return card.render([
     rankCircle,

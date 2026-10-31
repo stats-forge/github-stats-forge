@@ -9,6 +9,7 @@ import { parseEmojis } from '../../common/ops.ts';
 import { createLanguageNode, flexLayout, iconWithLabel } from '../../common/render.ts';
 import { wrapTextMultiline, measureText } from '../../common/text.ts';
 import type { GistData } from '../../fetchers/types.ts';
+import type { CssChild } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
@@ -88,22 +89,24 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   const header = show_owner ? nameWithOwner : name;
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated in its description.
   const card = new Card({
-    defaultTitle:
-      header.length > HEADER_MAX_LENGTH ? `${header.slice(0, HEADER_MAX_LENGTH)}...` : header,
+    title: header.length > HEADER_MAX_LENGTH ? `${header.slice(0, HEADER_MAX_LENGTH)}...` : header,
     titlePrefixIcon: CARD_ICON.gist,
     width: CARD_DEFAULT_WIDTH,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
-  });
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
-
-  card.setCSS({
-    light: ({ textColor, iconColor }) => [
+    description: t.accessibilityDesc({
+      desc,
+      language: languageName,
+      stars: totalStars,
+      forks: totalForks,
+    }),
+    hideBorder: hide_border,
+    animations: !disable_animations,
+    css: ({ textColor, iconColor }): Array<CssChild> => [
       rule('.description', {
         font: font('regular', 'meta'),
         fill: textColor,
@@ -111,27 +114,6 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
       rule('.gray', { font: font('regular', 'small'), fill: textColor }),
       rule('.icon', { fill: iconColor }),
     ],
-    dark: ({ textColor, iconColor }) => [
-      rule('.description', {
-        fill: textColor,
-      }),
-      rule('.gray', { fill: textColor }),
-      rule('.icon', { fill: iconColor }),
-    ],
-  });
-
-  card.setHideBorder(hide_border);
-
-  // `role="img"` hides the inner text from assistive tech, so everything the card
-  // shows has to be repeated here.
-  card.setAccessibilityLabel({
-    title: card.title,
-    desc: t.accessibilityDesc({
-      desc,
-      language: languageName,
-      stars: totalStars,
-      forks: totalForks,
-    }),
   });
 
   return card.render([

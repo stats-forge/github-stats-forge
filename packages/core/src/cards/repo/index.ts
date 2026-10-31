@@ -14,7 +14,7 @@ import {
 } from '../../common/render.ts';
 import { measureText, wrapTextMultiline } from '../../common/text.ts';
 import type { RepositoryData } from '../../fetchers/types.ts';
-import type { Child, MarkupElement } from '../../markup/index.ts';
+import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
@@ -371,22 +371,28 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     ),
   );
 
+  const extraStatLabels = Object.values(STATS)
+    .map((stat) => `${stat.label}: ${stat.value ?? 0}`)
+    .join(', ');
+
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated in its description.
+  // Only translated or language-neutral text: the card honours `locale`, and there is no
+  // translated vocabulary for "stars" or "forks", so those counts stay out rather than
+  // announce themselves in English over a card rendered in another language.
   const card = new Card({
-    defaultTitle: header.length > 35 ? `${header.slice(0, 35)}...` : header,
+    title: header.length > 35 ? `${header.slice(0, 35)}...` : header,
     titlePrefixIcon: CARD_ICON.repo,
     width: card_width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
-  });
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
-  card.setHideBorder(hide_border);
-  card.setHideTitle(false);
-  card.setCSS({
-    light: ({ textColor, titleColor, iconColor }) => [
+    description: [`${desc}.`, primaryLanguage ? langName : '', ...drawnTopics, extraStatLabels]
+      .filter(Boolean)
+      .join(', '),
+    hideBorder: hide_border,
+    animations: !disable_animations,
+    css: ({ textColor, titleColor, iconColor }): Array<CssChild> => [
       rule('.description', {
         font: font('regular', 'meta'),
         fill: textColor,
@@ -403,34 +409,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       rule('.topic rect', { fill: titleColor, opacity: CARD_STYLE.topic.opacity }),
       rule('.topic text', { font: font('regular', 'micro'), fill: titleColor }),
     ],
-    dark: ({ textColor, titleColor, iconColor }) => [
-      rule('.description', {
-        fill: textColor,
-      }),
-      rule('.gray', { fill: textColor }),
-      rule('.badge rect', { stroke: textColor }),
-      rule('.badge text', { fill: textColor }),
-      rule('.stat', { fill: textColor }),
-      rule('.icon', { fill: iconColor }),
-      rule('.topic rect', { fill: titleColor }),
-      rule('.topic text', { fill: titleColor }),
-    ],
-  });
-
-  const extraStatLabels = Object.values(STATS)
-    .map((stat) => `${stat.label}: ${stat.value ?? 0}`)
-    .join(', ');
-
-  // `role="img"` hides the inner text from assistive tech, so everything the card
-  // shows has to be repeated here.
-  // Only translated or language-neutral text: the card honours `locale`, and there is no
-  // translated vocabulary for "stars" or "forks", so those counts stay out rather than
-  // announce themselves in English over a card rendered in another language.
-  card.setAccessibilityLabel({
-    title: card.title,
-    desc: [`${desc}.`, primaryLanguage ? langName : '', ...drawnTopics, extraStatLabels]
-      .filter(Boolean)
-      .join(', '),
   });
 
   let badge: Child;

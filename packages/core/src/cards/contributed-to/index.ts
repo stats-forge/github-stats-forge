@@ -9,7 +9,7 @@ import { clampValue } from '../../common/ops.ts';
 import { createProgressNode } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { ContributedRepo, ContributedToData } from '../../fetchers/types.ts';
-import type { Child } from '../../markup/index.ts';
+import type { Child, CssChild } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
@@ -267,24 +267,35 @@ const renderContributedToCard = (
 
   const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated in its description — the year marks included, since they carry
+  // information no other element on the card does.
   const card = new Card({
-    customTitle: title,
-    defaultTitle: defaultTitleFor(t, login, width),
+    title: title ?? defaultTitleFor(t, login, width),
     titlePrefixIcon: CARD_ICON.contributedTo,
     width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
-  });
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
-
-  card.setHideBorder(hide_border);
-  card.setHideTitle(hide_title);
-  card.setCSS({
-    light: ({ textColor, titleColor, iconColor, progBarBgColor }) => [
+    description: [
+      ...repos.map((repo) =>
+        hide_years
+          ? t.accessibilityRepo({
+              repo: repo.nameWithOwner,
+              count: repo.contributions,
+            })
+          : t.accessibilityRepoYears({
+              repo: repo.nameWithOwner,
+              count: repo.contributions,
+              years: repo.years.join(', '),
+            }),
+      ),
+      footer,
+    ].join('; '),
+    hideBorder: hide_border,
+    hideTitle: hide_title,
+    animations: !disable_animations,
+    css: ({ textColor, titleColor, iconColor, progBarBgColor }): Array<CssChild> => [
       atRule(
         '@keyframes growWidthAnimation',
         rule('from', { width: 0 }),
@@ -316,39 +327,6 @@ const renderContributedToCard = (
       rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
       rule('.icon', { fill: iconColor, display: 'block' }),
     ],
-    dark: ({ textColor, titleColor, iconColor, progBarBgColor }) => [
-      rule('.repo-name', { fill: textColor }),
-      rule('.count', { fill: textColor }),
-      rule('.footer', { fill: textColor }),
-      rule('.year-on', { fill: titleColor }),
-      // a year with no contribution reads off the text color, so it fades with the text on any theme
-      rule('.year-off', { fill: textColor, opacity: 0.25 }),
-      rule('.progress-background', { fill: progBarBgColor }),
-      rule('.lang-progress', { fill: titleColor }),
-      rule('.icon', { fill: iconColor }),
-    ],
-  });
-
-  // `role="img"` hides the inner text from assistive tech, so everything the card
-  // shows has to be repeated here — the year marks included, since they carry
-  // information no other element on the card does.
-  card.setAccessibilityLabel({
-    title: card.title,
-    desc: [
-      ...repos.map((repo) =>
-        hide_years
-          ? t.accessibilityRepo({
-              repo: repo.nameWithOwner,
-              count: repo.contributions,
-            })
-          : t.accessibilityRepoYears({
-              repo: repo.nameWithOwner,
-              count: repo.contributions,
-              years: repo.years.join(', '),
-            }),
-      ),
-      footer,
-    ].join('; '),
   });
 
   return card.render(

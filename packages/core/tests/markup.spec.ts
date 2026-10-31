@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { atRule, cssComment, rule, el, renderMarkup, style } from '../src/markup/index.ts';
+import {
+  atRule,
+  changedBy,
+  cssComment,
+  rule,
+  el,
+  renderMarkup,
+  style,
+} from '../src/markup/index.ts';
 
 describe(renderMarkup, () => {
   it('should write one element per line, two spaces per level', () => {
@@ -109,5 +117,60 @@ describe(renderMarkup, () => {
       "<svg />
       "
     `);
+  });
+});
+
+/** @returns The override `next` makes of `base`, as the stylesheet it writes. */
+const written = (...[base, next]: Parameters<typeof changedBy>): string =>
+  renderMarkup(el('svg', {}, style(changedBy(base, next))));
+
+/** @returns One rule built for one scheme's fill. */
+const statRule = (fill: string): ReturnType<typeof rule> =>
+  rule('.stat', { font: '400 14px sans', fill });
+
+/** @returns One at-rule built for one scheme's fill. */
+const printRule = (fill: string): ReturnType<typeof atRule> =>
+  atRule('@media print', rule('.a', { fill, opacity: 1 }));
+
+/** @returns Keyframes whose first stop is built for one scheme's fill. */
+const growKeyframes = (fill: string): ReturnType<typeof atRule> =>
+  atRule('@keyframes grow', rule('from', { fill, opacity: 0 }), rule('to', { opacity: 1 }));
+
+describe(changedBy, () => {
+  it('keeps only the declarations the second build changes', () => {
+    const css = written([statRule('#000')], [statRule('#fff')]);
+    expect(css).toContain('.stat {');
+    expect(css).toContain('fill: #fff;');
+    expect(css).not.toContain('font');
+  });
+
+  it('drops a rule, an at-rule and a comment nothing changed', () => {
+    const same = [
+      cssComment('note'),
+      rule('.a', { opacity: 0.5 }),
+      atRule('@keyframes grow', rule('from', { width: 0 })),
+    ];
+
+    expect(written(same, same)).toBe('<svg />\n');
+  });
+
+  it('looks inside an at-rule', () => {
+    const css = written([printRule('#000')], [printRule('#fff')]);
+    expect(css).toContain('fill: #fff;');
+    expect(css).not.toContain('opacity');
+  });
+
+  it('keeps a changed @keyframes whole, since a later one replaces it', () => {
+    const css = written([growKeyframes('#000')], [growKeyframes('#fff')]);
+
+    expect(css).toContain('fill: #fff;');
+    expect(css).toContain('opacity: 0;');
+    expect(css).toContain('opacity: 1;');
+  });
+
+  it('keeps a node whole when the two builds do not line up', () => {
+    expect(written([rule('.a', { fill: '#000' })], [rule('.b', { fill: '#000' })])).toContain(
+      '.b {\n      fill: #000;',
+    );
   });
 });

@@ -456,24 +456,25 @@ const renderCard = (
       break;
   }
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated in its description.
   const card = new Card({
-    customTitle: title,
-    defaultTitle: titleText,
+    title: title ?? titleText,
     titlePrefixIcon: CARD_ICON.wakatime,
     width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
-  });
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
-
-  card.setHideBorder(hide_border);
-  card.setHideTitle(hide_title);
-  card.setCSS({
-    light: ({ titleColor, textColor }) => [
+    description:
+      filteredLanguages.length > 0
+        ? filteredLanguages
+            .map((lang) => `${lang.name}: ${formatLanguageValue({ value_format, lang })}`)
+            .join(', ')
+        : t.noCodingActivity(),
+    hideBorder: hide_border,
+    hideTitle: hide_title,
+    animations: !disable_animations,
+    css: ({ titleColor, textColor }): Array<CssChild> => [
       getStyles({ textColor }),
       atRule(
         '@keyframes slideInAnimation',
@@ -495,24 +496,6 @@ const renderCard = (
       }),
       rule('.progress-background', { fill: progressBackground(titleColor, textColor) }),
     ],
-    dark: ({ titleColor, textColor }) => [
-      getStyles({ textColor }),
-      rule('.lang-name', { fill: textColor }),
-      rule('.lang-progress', { fill: titleColor }),
-      rule('.progress-background', { fill: progressBackground(titleColor, textColor) }),
-    ],
-  });
-
-  // `role="img"` hides the inner text from assistive tech, so everything the card
-  // shows has to be repeated here.
-  card.setAccessibilityLabel({
-    title: card.title,
-    desc:
-      filteredLanguages.length > 0
-        ? filteredLanguages
-            .map((lang) => `${lang.name}: ${formatLanguageValue({ value_format, lang })}`)
-            .join(', ')
-        : t.noCodingActivity(),
   });
 
   return card.render(el('svg', { x: 0, y: 0, width: '100%' }, finalLayout));
