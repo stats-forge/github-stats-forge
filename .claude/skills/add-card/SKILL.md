@@ -70,10 +70,9 @@ each belong, and the cards have their own about branding and translated text.
 
 Each of these is a separate file holding its own copy of "every card there is".
 
-10. `packages/catalog/src/index.ts` — the catalog entry. `choices` always reads
-    `<handler>.OPTIONS.<param>`, never a literal. Every option needs a `group`.
-    A numeric option is `integer` or `number` according to how **core** reads it —
-    `intParam()` is an integer, `numberParam()` a number.
+10. `packages/catalog/src/index.ts` — the catalog entry: each option's `name`, `label`, `group` and
+    any `hint`. Its `kind` and `choices` are read off the handler's `PARAMS`, and naming a param
+    the handler never reads throws at import.
 11. `apps/server/src/routes.ts` — the path, and the count in its `@file` block.
 12. `apps/docs/src/anvil/cards.ts` — the `EXTRAS` entry: `docs` slug, `category`, `identity`
     seeds and `maximal`, the params that turn on everything the recorder must capture.
@@ -133,7 +132,7 @@ Five places, and the anvil is free:
 - the renderer's `OPTIONS`, if the option names a closed set of values
 - the card's own options interface and its destructuring, where the **default** lives
 - the api schema in `packages/core/src/api/<card>.ts` — parse, never default
-- `packages/catalog/src/index.ts`, with `choices` read off the handler
+- `packages/catalog/src/index.ts`, with a `label` and a `group`
 - the options table on the card's documentation page
 
 The anvil builds its control from the card catalog, so it needs nothing. If the option changes
