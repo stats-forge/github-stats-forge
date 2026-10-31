@@ -1,12 +1,9 @@
 import fs from 'node:fs';
 
+import { buildEmojiMap } from './emoji-map.ts';
+import type { Compact, Shortcodes } from './emoji-map.ts';
+
 const EMOJI_FILEPATH = './src/common/emojiMap.json';
-
-/** GitHub's shortcode preset, keyed by hexcode. */
-type Shortcodes = Record<string, string | Array<string>>;
-
-/** The hexcode -> unicode table, one entry per emoji. */
-type Compact = Array<{ hexcode: string; unicode: string }>;
 
 const fetchJson = async <T>(url: string): Promise<T> => {
   const response = await fetch(url);
@@ -31,25 +28,7 @@ const [shortcodes, compact] = await Promise.all([
   emojibase<Compact>('compact'),
 ]);
 
-const unicodeByHexcode = new Map(compact.map((emoji) => [emoji.hexcode, emoji.unicode]));
-
-const emojiMap: Record<string, string> = {};
-
-for (const [hexcode, names] of Object.entries(shortcodes)) {
-  const unicode = unicodeByHexcode.get(hexcode);
-  if (unicode === undefined) {
-    continue;
-  }
-  for (const name of Array.isArray(names) ? names : [names]) {
-    emojiMap[name] = unicode;
-  }
-}
-
-// A shortcode set this much smaller than GitHub's means the source changed shape.
-const total = Object.keys(emojiMap).length;
-if (total < 1500) {
-  throw new Error(`Only ${String(total)} shortcodes resolved; refusing to write.`);
-}
+const emojiMap = buildEmojiMap(shortcodes, compact);
 
 // Written the way the formatter would, so a regenerated file passes `format:check` as-is.
 fs.writeFileSync(EMOJI_FILEPATH, `${JSON.stringify(emojiMap, null, 2)}\n`);
