@@ -8,6 +8,7 @@ import {
   parseArray,
   parseBoolean,
   parseEmojis,
+  parseOwnerAffiliations,
 } from '../src/common/ops.ts';
 
 describe('common/ops', () => {
@@ -77,5 +78,17 @@ describe('common/ops', () => {
     expect(() => parseEmojis('')).toThrow(/parseEmoji/);
     // @ts-expect-error testing missing argument
     expect(() => parseEmojis()).toThrow(/parseEmoji/);
+  });
+
+  // the api layer rejects these first; this is for a caller of the fetchers directly
+  it('reads owner affiliations in any case, defaulting to the owner, and refuses others', () => {
+    expect(parseOwnerAffiliations([])).toStrictEqual(['OWNER']);
+    expect(parseOwnerAffiliations(['owner', 'Collaborator'])).toStrictEqual([
+      'OWNER',
+      'COLLABORATOR',
+    ]);
+    expect(() => parseOwnerAffiliations(['owner', 'stranger'])).toThrow(
+      expect.objectContaining({ reason: 'invalid_affiliation', param: 'affiliation' }),
+    );
   });
 });

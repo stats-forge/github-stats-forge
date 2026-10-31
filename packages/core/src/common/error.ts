@@ -173,12 +173,6 @@ const FAILURES = {
     message: 'Repository not found',
     secondaryMessage: 'Make sure the provided username and repository are correct',
   }),
-  repo_unexpected_response: (): Failure => ({
-    code: 'upstream',
-    message: 'Unexpected behavior',
-    secondaryMessage: TRY_AGAIN_LATER,
-    reportable: false,
-  }),
   stats_no_stats_or_rank: (): Failure => ({
     code: 'invalid_param',
     message: 'Could not render stats card.',

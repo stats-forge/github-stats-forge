@@ -83,52 +83,25 @@ const fetchRepo = async (
   );
 
   const { data } = res.data;
-
-  if (!data.user && !data.organization) {
+  // a login is a user or an organization, never both
+  const repository = (data.user ?? data.organization)?.repository;
+  if (!repository || repository.isPrivate) {
     throw CardError.because('repo_not_found');
   }
 
-  if (data.organization === null && data.user) {
-    const { repository } = data.user;
-    if (!repository || repository.isPrivate) {
-      throw CardError.because('repo_not_found');
-    }
-    const repoUserStats = await fetchRepoUserStats(
-      {
-        username: login,
-        scope: [`${repoOwner}/${repo}`],
-        include_prs_authored,
-        include_prs_commented,
-        include_prs_reviewed,
-        include_issues_authored,
-        include_issues_commented,
-      },
-      config,
-    );
-    return toRepositoryData(repository, repoUserStats);
-  }
-
-  if (data.user === null && data.organization) {
-    const { repository } = data.organization;
-    if (!repository || repository.isPrivate) {
-      throw CardError.because('repo_not_found');
-    }
-    const repoUserStats = await fetchRepoUserStats(
-      {
-        username: login,
-        scope: [`${repoOwner}/${repo}`],
-        include_prs_authored,
-        include_prs_commented,
-        include_prs_reviewed,
-        include_issues_authored,
-        include_issues_commented,
-      },
-      config,
-    );
-    return toRepositoryData(repository, repoUserStats);
-  }
-
-  throw CardError.because('repo_unexpected_response');
+  const repoUserStats = await fetchRepoUserStats(
+    {
+      username: login,
+      scope: [`${repoOwner}/${repo}`],
+      include_prs_authored,
+      include_prs_commented,
+      include_prs_reviewed,
+      include_issues_authored,
+      include_issues_commented,
+    },
+    config,
+  );
+  return toRepositoryData(repository, repoUserStats);
 };
 
 export { fetchRepo };
