@@ -30,4 +30,11 @@ describe('CardError.because', () => {
   it('carries no reason for a failure it only wrapped', () => {
     expect(CardError.from(new Error('Nope')).reason).toBeUndefined();
   });
+
+  it('wraps a thrown value that is not an error as upstream', () => {
+    expect(CardError.from('nope')).toMatchObject({
+      code: 'upstream',
+      message: 'An unknown error occurred',
+    });
+  });
 });

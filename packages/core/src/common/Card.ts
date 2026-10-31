@@ -269,21 +269,7 @@ class Card {
   }
 
   /** @returns The card's gradient definitions, or nothing when no color is a gradient. */
-  renderGradient(): Child {
-    if (
-      typeof this.colors.light.bgColor === 'object' &&
-      !isValidGradient(this.colors.light.bgColor)
-    ) {
-      throw new Error(`Invalid gradient: ${this.colors.light.bgColor.join(',')}`);
-    }
-    if (
-      this.colors.dark &&
-      typeof this.colors.dark.bgColor === 'object' &&
-      !isValidGradient(this.colors.dark.bgColor)
-    ) {
-      throw new Error(`Invalid dark gradient: ${this.colors.dark.bgColor.join(',')}`);
-    }
-
+  private renderGradient(): Child {
     const defs = [
       typeof this.colors.light.bgColor === 'object' &&
         buildGradientDef('gradient', this.colors.light.bgColor),
@@ -337,6 +323,13 @@ class Card {
         : isPrefixedHexColor(this.colors.light.bgColor))
     ) {
       throw new Error(`Invalid background color: ${String(this.colors.light.bgColor)}`);
+    }
+    if (
+      this.colors.dark &&
+      typeof this.colors.dark.bgColor === 'object' &&
+      !isValidGradient(this.colors.dark.bgColor)
+    ) {
+      throw new Error(`Invalid dark gradient: ${this.colors.dark.bgColor.join(',')}`);
     }
 
     const shrunk = shrunkTitleSize(

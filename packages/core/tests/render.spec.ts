@@ -1,7 +1,14 @@
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
-import { createProgressNode, renderError } from '../src/common/render.ts';
+import {
+  createLanguageNode,
+  createProgressNode,
+  createTextNode,
+  formatCount,
+  iconWithLabel,
+  renderError,
+} from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
 import { renderMarkup } from '../src/markup/index.ts';
 
@@ -136,5 +143,64 @@ describe(renderError, () => {
     document.body.innerHTML = errorSVG;
     const svg = document.querySelector('svg');
     expect(svg?.querySelector('img')).toBeNull();
+  });
+});
+
+describe(formatCount, () => {
+  it.each([
+    { format: 'short', precision: undefined, written: '1.2k' },
+    { format: 'short', precision: 2, written: '1.23k' },
+    { format: 'short', precision: 5, written: '1.23k' },
+    { format: 'short', precision: -1, written: '1k' },
+    { format: 'LONG', precision: 2, written: '1234' },
+  ])(
+    'writes 1234 as $written for $format with $precision decimals',
+    ({ format, precision, written }) => {
+      expect(formatCount(1234, format, precision)).toBe(written);
+    },
+  );
+});
+
+describe('the node builders', () => {
+  const progress = { x: 0, y: 0, width: 200, progress: 40, delay: 0 };
+  const text = {
+    icon: undefined,
+    label: 'Stars',
+    value: 3,
+    id: 'stars',
+    index: 0,
+    showIcons: false,
+    shiftValuePos: 0,
+    bold: false,
+    numberFormat: 'short',
+  };
+
+  // each value lands in an attribute, so anything else would be written into the SVG as is
+  it.each([
+    { what: 'language color', build: (): unknown => createLanguageNode('TypeScript', 'red') },
+    {
+      what: 'progress color',
+      build: (): unknown => createProgressNode({ ...progress, color: 'red' }),
+    },
+    { what: 'width', build: (): unknown => createProgressNode({ ...progress, width: Number.NaN }) },
+    { what: 'x', build: (): unknown => createProgressNode({ ...progress, x: Number.NaN }) },
+    { what: 'y', build: (): unknown => createProgressNode({ ...progress, y: Number.NaN }) },
+    { what: 'delay', build: (): unknown => createProgressNode({ ...progress, delay: Number.NaN }) },
+    { what: 'iconSize', build: (): unknown => iconWithLabel(undefined, 1, 'stars', Number.NaN) },
+    {
+      what: 'labelXOffset',
+      build: (): unknown => createTextNode({ ...text, labelXOffset: Number.NaN }),
+    },
+    {
+      what: 'shiftValuePos',
+      build: (): unknown => createTextNode({ ...text, shiftValuePos: Number.NaN }),
+    },
+    { what: 'index', build: (): unknown => createTextNode({ ...text, index: Number.NaN }) },
+    {
+      what: 'valueAnchorX',
+      build: (): unknown => createTextNode({ ...text, valueAnchorX: Number.NaN }),
+    },
+  ])('refuses an invalid $what', ({ what, build }) => {
+    expect(build).toThrow(`Invalid ${what}: `);
   });
 });

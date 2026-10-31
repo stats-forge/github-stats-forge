@@ -103,6 +103,20 @@ describe('Test fetchGist', () => {
     );
   });
 
+  it('should report a gist without files as not found', async () => {
+    const { gist } = gist_data.data.viewer;
+    if (!gist) {
+      throw new Error('the fixture has a gist');
+    }
+    mock.onPost(GRAPHQL).reply(200, {
+      data: { viewer: { gist: { ...gist, files: [] } } },
+    } satisfies GraphQLBody<GistInfoQuery>);
+
+    await expect(
+      fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config),
+    ).rejects.toMatchObject({ code: 'not_found', reason: 'gist_no_files' });
+  });
+
   it('should throw error if response contains them', async () => {
     mock.onPost(GRAPHQL).reply(200, gist_errors_data);
 

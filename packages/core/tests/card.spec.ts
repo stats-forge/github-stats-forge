@@ -251,4 +251,46 @@ describe(Card, () => {
       '#f00',
     );
   });
+
+  it('gives a shown title back the room hiding it took', () => {
+    const card = new Card({ height: 200 });
+    card.setHideTitle(true);
+    card.setHideTitle(false);
+
+    expect(draw(card.render(``))).toHaveAttribute('height', '200');
+  });
+
+  it('draws a dark gradient inside the dark color scheme only', () => {
+    const light = getCardColors({ theme: 'default' });
+    const card = new Card({
+      colors: { light, dark: { ...light, bgColor: ['45', 'fff', '000'] } },
+    });
+
+    draw(card.render(``));
+    expect(document.querySelector('defs #gradient-dark')).toBeInTheDocument();
+    expect(document.querySelector('defs #gradient')).not.toBeInTheDocument();
+    expect(document.querySelector('style')).toHaveTextContent(
+      /prefers-color-scheme: dark[^@]*url\(#gradient-dark\)/u,
+    );
+  });
+
+  it.each([
+    { what: 'a border radius that is not a number', init: { border_radius: Number.NaN } },
+    { what: 'a title color', colors: { titleColor: 'red' } },
+    { what: 'a border color', colors: { borderColor: 'red' } },
+    { what: 'a background color', colors: { bgColor: 'red' } },
+    { what: 'a light gradient', colors: { bgColor: ['45', 'fff'] } },
+    { what: 'a dark gradient', dark: { bgColor: ['45', 'fff'] } },
+  ])('refuses to draw $what it cannot write', ({ init, colors, dark }) => {
+    const light = getCardColors({ theme: 'default' });
+    const card = new Card({
+      ...init,
+      colors: {
+        light: { ...light, ...colors },
+        dark: dark ? { ...light, ...dark } : null,
+      },
+    });
+
+    expect(() => card.render(``)).toThrow(/^Invalid /u);
+  });
 });
