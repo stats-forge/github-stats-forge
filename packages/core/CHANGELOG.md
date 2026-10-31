@@ -1,5 +1,28 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.12.0
+
+### Minor Changes
+
+- [#354](https://github.com/stats-forge/github-stats-forge/pull/354) [`5800e80`](https://github.com/stats-forge/github-stats-forge/commit/5800e800cf67c2581c0714ae78e482fe1dbf5eb3) - feat: accept `1`/`0` and `on`/`off` for boolean params, beside `true`/`false`
+
+- [#340](https://github.com/stats-forge/github-stats-forge/pull/340) [`2b679cd`](https://github.com/stats-forge/github-stats-forge/commit/2b679cda913442276971a6d6e95171e3b6261602) - feat: add `CardConfig`'s `requestTimeoutMs`, failing a request still waiting after that many milliseconds
+
+- [#351](https://github.com/stats-forge/github-stats-forge/pull/351) [`a9e2d2c`](https://github.com/stats-forge/github-stats-forge/commit/a9e2d2cf2e2b2c50e854c767c5d88f0f6ca8d449) - refactor!: ask the fetchers for search counts with one `searches` list
+  `fetchStats`, `fetchRepo` and `fetchRepoUserStats` take `searches: ['prs_opened', …]` in place of the five `include_prs_*`/`include_issues_*` flags; `ownerAffiliations` takes `RepositoryAffiliation` values only.
+
+### Patch Changes
+
+- [#348](https://github.com/stats-forge/github-stats-forge/pull/348) [`15b4c78`](https://github.com/stats-forge/github-stats-forge/commit/15b4c7871a5853e8555e05104c77b56d94a9f7c5) - refactor: write a card's dark color scheme as only the declarations that differ from its light one
+
+- [#346](https://github.com/stats-forge/github-stats-forge/pull/346) [`83ad9d9`](https://github.com/stats-forge/github-stats-forge/commit/83ad9d93bdc3f9384480b48e3a437c8494af924d) - fix: refuse a gradient in any color but the background as `invalid_param`, rather than failing the whole request
+
+- [#334](https://github.com/stats-forge/github-stats-forge/pull/334) [`c04009c`](https://github.com/stats-forge/github-stats-forge/commit/c04009cbc7bb3baa8ea3d20e390e42cb75e4e219) - feat: update emoji map
+
+  Regenerated from the [GitHub shortcode preset in emojibase](https://github.com/milesj/emojibase/blob/master/packages/data/en/shortcodes/github.raw.json).
+
+- [#349](https://github.com/stats-forge/github-stats-forge/pull/349) [`7be6561`](https://github.com/stats-forge/github-stats-forge/commit/7be65615da0d7aecc673a0aca286663597becdbe) - refactor: hand each card's renderer the parsed params whole
+
 ## 0.11.1
 
 ### Patch Changes

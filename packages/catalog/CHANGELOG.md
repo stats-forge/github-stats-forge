@@ -1,5 +1,19 @@
 # @stats-forge/github-stats-forge-catalog
 
+## 0.3.0
+
+### Minor Changes
+
+- [#347](https://github.com/stats-forge/github-stats-forge/pull/347) [`8c10c7a`](https://github.com/stats-forge/github-stats-forge/commit/8c10c7a3e578b06dc7d298c11946ccb1e08a6587) - fix: name a card's files `<answers>-<card>`, as the site does, so a pin names its owner and two organizations' cards no longer share one file
+
+- [#350](https://github.com/stats-forge/github-stats-forge/pull/350) [`fd75afe`](https://github.com/stats-forge/github-stats-forge/commit/fd75afe99745f103944270adead9bbd92d82849e) - refactor!: read each option's kind and choices from core
+  `COMMON_OPTIONS` is no longer exported; read each card's options, shared ones included, off `cards`.
+
+### Patch Changes
+
+- Updated dependencies [[`5800e80`](https://github.com/stats-forge/github-stats-forge/commit/5800e800cf67c2581c0714ae78e482fe1dbf5eb3), [`15b4c78`](https://github.com/stats-forge/github-stats-forge/commit/15b4c7871a5853e8555e05104c77b56d94a9f7c5), [`2b679cd`](https://github.com/stats-forge/github-stats-forge/commit/2b679cda913442276971a6d6e95171e3b6261602), [`a9e2d2c`](https://github.com/stats-forge/github-stats-forge/commit/a9e2d2cf2e2b2c50e854c767c5d88f0f6ca8d449), [`83ad9d9`](https://github.com/stats-forge/github-stats-forge/commit/83ad9d93bdc3f9384480b48e3a437c8494af924d), [`c04009c`](https://github.com/stats-forge/github-stats-forge/commit/c04009cbc7bb3baa8ea3d20e390e42cb75e4e219), [`7be6561`](https://github.com/stats-forge/github-stats-forge/commit/7be65615da0d7aecc673a0aca286663597becdbe)]:
+  - @stats-forge/github-stats-forge-core@0.12.0
+
 ## 0.2.0
 
 ### Minor Changes
