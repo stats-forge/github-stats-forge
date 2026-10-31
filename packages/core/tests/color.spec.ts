@@ -310,12 +310,25 @@ describe(parseColorParams, () => {
     );
   });
 
-  it('should accept gradients', () => {
-    expect(invalidParam({ title_color: '90,f00,0f0', bg_color: 'fff' })).toBeNull();
+  it('should accept a gradient for the background', () => {
+    expect(invalidParam({ bg_color: '90,f00,0f0', bg_color_dark: '0,000,111' })).toBeNull();
   });
 
   it('should reject an invalid gradient', () => {
-    expect(invalidParam({ title_color: 'invalid,f00,0f0' })).toBe('title_color');
+    expect(invalidParam({ bg_color: 'invalid,f00,0f0' })).toBe('bg_color');
+  });
+
+  // only the background is drawn as a gradient; one anywhere else failed the draw itself
+  it.each([
+    'title_color',
+    'text_color',
+    'icon_color',
+    'border_color',
+    'ring_color',
+    'prog_bar_bg_color',
+    'title_color_dark',
+  ])('should reject a gradient as %s', (param) => {
+    expect(invalidParam({ [param]: '90,f00,0f0' })).toBe(param);
   });
 
   it('should check a theme param against the themes rather than as a color', () => {
