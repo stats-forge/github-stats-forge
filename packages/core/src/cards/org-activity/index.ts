@@ -1,7 +1,6 @@
 import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card, titleFits } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
-import type { CardColors } from '../../common/color.ts';
 import { formatRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
 import { icons } from '../../common/icons.ts';
@@ -244,31 +243,21 @@ const renderCard = (
     }),
   );
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated in its description.
   const card = new Card({
-    customTitle: title,
-    defaultTitle: defaultTitleFor(t, name, { days, range }, width),
+    title: title ?? defaultTitleFor(t, name, { days, range }, width),
     titlePrefixIcon: CARD_ICON.orgActivity,
     width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
-  });
-
-  card.setHideBorder(hide_border);
-  card.setHideTitle(hide_title);
-  const cardStyles = ({ textColor, iconColor }: CardColors): Array<CssChild> =>
-    getStyles({ textColor, iconColor, show_icons });
-  card.setCSS({ light: cardStyles, dark: cardStyles });
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
-
-  // `role="img"` hides the inner text from assistive tech, so everything the card
-  // shows has to be repeated here.
-  card.setAccessibilityLabel({
-    title: card.title,
-    desc: visibleStats.map(([, stat]) => `${stat.label}: ${String(stat.value)}`).join(', '),
+    description: visibleStats.map(([, stat]) => `${stat.label}: ${String(stat.value)}`).join(', '),
+    hideBorder: hide_border,
+    hideTitle: hide_title,
+    animations: !disable_animations,
+    css: ({ textColor, iconColor }): Array<CssChild> =>
+      getStyles({ textColor, iconColor, show_icons }),
   });
 
   return card.render(flexLayout({ items: statItems, gap: LINE_HEIGHT, direction: 'column' }));

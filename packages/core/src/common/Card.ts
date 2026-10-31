@@ -1,5 +1,5 @@
 import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
-import { atRule, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
+import { atRule, changedBy, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { CARD_STYLE, firefoxFontSize, font } from './brand.ts';
 import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.ts';
@@ -97,106 +97,76 @@ const buildGradientDef = (id: string, bgColor: Array<string>): MarkupElement => 
   );
 };
 
-class Card {
-  width: number;
-  height: number;
-  hideBorder: boolean;
-  hideTitle: boolean;
-  border_radius: number;
-  colors: { light: CardColors; dark: CardColors | null };
+/** Everything a card is drawn with; all but the title and its description have a default. */
+interface CardInit {
+  width?: number;
+  /** The height with the title shown; `hideTitle` takes the title's room off it. */
+  height?: number;
+  // `| undefined`: card callers forward possibly-undefined query options
+  border_radius?: number | undefined;
+  colors?: { light: CardColors; dark: CardColors | null };
   title: string;
-  css: Array<CssChild>;
-  darkCss: Array<CssChild>;
-  paddingX: number;
-  paddingY: number;
-  titlePrefixIcon: Child;
-  animations: boolean;
-  a11yTitle: string;
-  a11yDesc: string;
+  titlePrefixIcon?: Child;
+  /** What a screen reader announces first; the title unless a card has more to say. */
+  accessibleTitle?: string;
+  /** What a screen reader reads after it: the card's figures, in words. */
+  description: string;
+  hideBorder?: boolean;
+  hideTitle?: boolean;
+  animations?: boolean;
+  /** The card's own CSS, built once per color scheme; the dark block keeps only what changes. */
+  css?: CardCSSBuilder;
+}
 
-  /**
-   * Creates a new card instance.
-   */
+/** The room the title band takes, which a card without a title gives back. */
+const TITLE_ROOM = CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.x;
+
+class Card {
+  readonly width: number;
+  readonly height: number;
+  readonly hideBorder: boolean;
+  readonly hideTitle: boolean;
+  readonly border_radius: number;
+  readonly colors: { light: CardColors; dark: CardColors | null };
+  readonly title: string;
+  readonly css: Array<CssChild>;
+  readonly darkCss: Array<CssChild>;
+  readonly paddingX = CARD_STYLE.padding.x;
+  readonly paddingY = 30;
+  readonly titlePrefixIcon: Child;
+  readonly animations: boolean;
+  readonly a11yTitle: string;
+  readonly a11yDesc: string;
+
   constructor({
     width = 100,
     height = 100,
     border_radius = 8,
     colors = { light: getCardColors({}), dark: null },
-    customTitle,
-    defaultTitle = '',
+    title,
     titlePrefixIcon,
-  }: {
-    width?: number;
-    height?: number;
-    // `| undefined`: card callers forward possibly-undefined query options
-    border_radius?: number | undefined;
-    colors?: { light: CardColors; dark: CardColors | null };
-    customTitle?: string | undefined;
-    defaultTitle?: string;
-    titlePrefixIcon?: Child;
-  }) {
+    accessibleTitle = title,
+    description,
+    hideBorder = false,
+    hideTitle = false,
+    animations = true,
+    css = (): Array<CssChild> => [],
+  }: CardInit) {
     this.width = width;
-    this.height = height;
-
-    this.hideBorder = false;
-    this.hideTitle = false;
-
-    this.border_radius = Number.parseFloat(String(border_radius));
-
+    this.height = hideTitle ? height - TITLE_ROOM : height;
+    this.hideBorder = hideBorder;
+    this.hideTitle = hideTitle;
+    this.border_radius = border_radius;
     this.colors = colors;
-    this.title = customTitle ?? defaultTitle;
-
-    this.css = [];
-    this.darkCss = [];
-
-    this.paddingX = 25;
-    this.paddingY = 30;
+    this.title = title;
     this.titlePrefixIcon = titlePrefixIcon;
-    this.animations = true;
-    this.a11yTitle = '';
-    this.a11yDesc = '';
+    this.animations = animations;
+    this.a11yTitle = accessibleTitle;
+    this.a11yDesc = description;
+    this.css = css(colors.light);
+    this.darkCss = colors.dark ? changedBy(this.css, css(colors.dark)) : [];
   }
 
-  disableAnimations(): void {
-    this.animations = false;
-  }
-
-  setAccessibilityLabel({ title, desc }: { title: string; desc: string }): void {
-    this.a11yTitle = title;
-    this.a11yDesc = desc;
-  }
-
-  /**
-   * Sets the card CSS for light and dark mode.
-   *
-   * Each builder receives the colors of its own color scheme,
-   * so a card never handles a missing dark palette itself:
-   * `dark` runs only when the card has dark colors, and always with non-null ones.
-   */
-  setCSS({ light, dark }: { light: CardCSSBuilder; dark: CardCSSBuilder }): void {
-    this.css = light(this.colors.light);
-    this.darkCss = this.colors.dark ? dark(this.colors.dark) : [];
-  }
-
-  setHideBorder(value: boolean): void {
-    this.hideBorder = value;
-  }
-
-  setHideTitle(value: boolean): void {
-    if (value && !this.hideTitle) {
-      this.height -= 30;
-    }
-    if (!value && this.hideTitle) {
-      this.height += 30;
-    }
-    this.hideTitle = value;
-  }
-
-  setTitle(text: string): void {
-    this.title = text;
-  }
-
-  /** @returns The rendered card title. */
   renderTitle(): MarkupElement {
     return el(
       'g',
@@ -247,7 +217,10 @@ class Card {
 
   /** Where the body starts, and so where the title band ends. */
   private get bodyOffset(): number {
-    return this.hideTitle ? this.paddingX : this.paddingY + 25;
+    if (this.hideTitle) {
+      return CARD_STYLE.padding.x;
+    }
+    return CARD_STYLE.padding.bodyOffsetY;
   }
 
   /**

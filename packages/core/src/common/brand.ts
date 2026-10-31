@@ -58,10 +58,10 @@ const CARD_STYLE = {
    * against the 17px above its title.
    */
   padding: {
-    /** Matches `Card`'s own `paddingX`. */
+    /** The card's side padding, which `Card` reads as `paddingX`. */
     x: 25,
     bottom: 18,
-    /** Where `Card` puts the body while the title is shown; `setHideTitle` adjusts by the same 30. */
+    /** Where `Card` puts the body while the title is shown; a hidden title gives back all but `x`. */
     bodyOffsetY: 55,
   },
 

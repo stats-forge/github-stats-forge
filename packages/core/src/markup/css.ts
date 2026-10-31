@@ -114,5 +114,43 @@ const writeCss = (children: Array<CssChild>, depth: number, sink: Sink): void =>
   }
 };
 
-export { atRule, cssComment, rule, writeCss };
+/**
+ * Two builds of one stylesheet, as an override of the first by the second: the declarations the
+ * second changes, in the rules and at-rules they sit in. A node that does not line up is kept whole.
+ *
+ * @returns What `next` sets differently from `base`.
+ */
+const changedBy = (base: Array<CssChild>, next: Array<CssChild>): Array<CssNode> => {
+  const before = flatten(base);
+  return flatten(next).flatMap((node, index): Array<CssNode> => {
+    const was = before[index];
+    if (node.kind === 'rule' && was?.kind === 'rule' && was.selector === node.selector) {
+      const changed = (Object.keys(node.declarations) as Array<CssProperty>).filter(
+        (property) => node.declarations[property] !== was.declarations[property],
+      );
+      return [
+        rule(
+          node.selector,
+          Object.fromEntries(changed.map((property) => [property, node.declarations[property]])),
+        ),
+      ];
+    }
+    if (node.kind === 'at' && was?.kind === 'at' && was.prelude === node.prelude) {
+      // a later @keyframes replaces the earlier one whole, so it cannot be trimmed
+      if (node.prelude.startsWith('@keyframes')) {
+        if (JSON.stringify(flatten(was.children)) === JSON.stringify(flatten(node.children))) {
+          return [];
+        }
+        return [node];
+      }
+      return [atRule(node.prelude, changedBy(was.children, node.children))];
+    }
+    if (node.kind === 'comment') {
+      return [];
+    }
+    return [node];
+  });
+};
+
+export { atRule, changedBy, cssComment, rule, writeCss };
 export type { CssChild };

@@ -8,6 +8,10 @@ import { measureText } from '../src/common/text.ts';
 
 import { cssValue, draw, exactly } from './_card.ts';
 
+/** @returns A card with no title or description of its own, plus whatever `init` sets. */
+const blank = (init: Partial<ConstructorParameters<typeof Card>[0]> = {}): Card =>
+  new Card({ title: '', description: '', ...init });
+
 /** @returns Every `.header` font-size the drawn style sets, in px: the shrink, then Firefox's. */
 const headerSizes = (): Array<number> =>
   [
@@ -22,50 +26,37 @@ describe(Card, () => {
   });
 
   it('should hide border', () => {
-    const card = new Card({});
-    card.setHideBorder(true);
+    const card = blank({ hideBorder: true });
 
     draw(card.render(``));
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('stroke-opacity', '0');
   });
 
   it('should not hide border', () => {
-    const card = new Card({});
-    card.setHideBorder(false);
+    const card = blank({ hideBorder: false });
 
     draw(card.render(``));
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('stroke-opacity', '1');
   });
 
   it('should have a custom title', () => {
-    const card = new Card({
-      customTitle: 'custom title',
-      defaultTitle: 'default title',
+    const card = blank({
+      title: 'custom title',
     });
 
     draw(card.render(``));
     expect(screen.queryByTestId('card-title')).toHaveTextContent(exactly('custom title'));
   });
 
-  it('should set custom title', () => {
-    const card = new Card({});
-    card.setTitle('custom title');
-
-    draw(card.render(``));
-    expect(screen.queryByTestId('card-title')).toHaveTextContent(exactly('custom title'));
-  });
-
   it('should hide title', () => {
-    const card = new Card({});
-    card.setHideTitle(true);
+    const card = blank({ hideTitle: true });
 
     draw(card.render(``));
     expect(screen.queryByTestId('card-title')).toBeNull();
   });
 
   it('should not hide title', () => {
-    const card = new Card({});
-    card.setHideTitle(false);
+    const card = blank({ hideTitle: false });
 
     draw(card.render(``));
     expect(screen.queryByTestId('card-title')).toBeInTheDocument();
@@ -78,9 +69,9 @@ describe(Card, () => {
     'should shrink a title too long for the card to fill its room (icon $icon)',
     ({ icon, room }) => {
       const title = 'Οι περισσότερο χρησιμοποιούμενες γλώσσες';
-      const card = new Card({
+      const card = blank({
         width: 300,
-        customTitle: title,
+        title,
         titlePrefixIcon: icon ? icons.repo : undefined,
       });
 
@@ -97,14 +88,14 @@ describe(Card, () => {
   );
 
   it.each([1, 100])('should shrink no smaller than 9px, cropping instead (width %i)', (width) => {
-    const card = new Card({ width, customTitle: 'Most Used Languages' });
+    const card = blank({ width, title: 'Most Used Languages' });
 
     draw(card.render(``));
     expect(headerSizes()).toStrictEqual([9, 7.7]);
   });
 
   it('should leave a title that fits at its own size', () => {
-    const card = new Card({ width: 300, customTitle: 'Most Used Languages' });
+    const card = blank({ width: 300, title: 'Most Used Languages' });
 
     draw(card.render(``));
     expect(headerSizes()).toStrictEqual([15.5]);
@@ -120,25 +111,22 @@ describe(Card, () => {
   });
 
   it('title should have prefix icon', () => {
-    const card = new Card({ titlePrefixIcon: icons.repo });
+    const card = blank({ titlePrefixIcon: icons.repo });
 
     draw(card.render(``));
     expect(document.querySelector('.title-icon')).toBeInTheDocument();
   });
 
   it('should band the title, and drop the band along with the title', () => {
-    const card = new Card({ width: 200 });
-
-    draw(card.render(``));
+    draw(blank({ width: 200 }).render(``));
     expect(screen.getByTestId('title-band')).toBeInTheDocument();
 
-    card.setHideTitle(true);
-    draw(card.render(``));
+    draw(blank({ width: 200, hideTitle: true }).render(``));
     expect(screen.queryByTestId('title-band')).not.toBeInTheDocument();
   });
 
   it('should band the title in the title color and keep the icon out of it', () => {
-    const card = new Card({
+    const card = blank({
       titlePrefixIcon: icons.repo,
       colors: {
         light: getCardColors({ title_color: 'f00', icon_color: '0f0', theme: 'default' }),
@@ -153,7 +141,7 @@ describe(Card, () => {
   });
 
   it('should follow the card corners with the band, and square its foot', () => {
-    const card = new Card({ width: 200, border_radius: 8 });
+    const card = blank({ width: 200, border_radius: 8 });
 
     draw(card.render(``));
     // Rounded in at both top corners, then straight down to its foot at 46.
@@ -164,42 +152,40 @@ describe(Card, () => {
   });
 
   it('title should not have prefix icon', () => {
-    const card = new Card({});
+    const card = blank();
 
     draw(card.render(``));
     expect(document.querySelector('.title-icon')).not.toBeInTheDocument();
   });
 
   it('should have proper height, width', () => {
-    const card = new Card({ height: 200, width: 200 });
+    const card = blank({ height: 200, width: 200 });
     const svg = draw(card.render(``));
     expect(svg).toHaveAttribute('height', '200');
     expect(svg).toHaveAttribute('width', '200');
   });
 
   it('should have less height after title is hidden', () => {
-    const card = new Card({ height: 200 });
-    card.setHideTitle(true);
+    const card = blank({ height: 200, hideTitle: true });
 
     expect(draw(card.render(``))).toHaveAttribute('height', '170');
   });
 
   it('main-card-body should have proper when title is visible', () => {
-    const card = new Card({ height: 200 });
+    const card = blank({ height: 200 });
     draw(card.render(``));
     expect(screen.queryByTestId('main-card-body')).toHaveAttribute('transform', 'translate(0, 55)');
   });
 
   it('main-card-body should have proper position after title is hidden', () => {
-    const card = new Card({ height: 200 });
-    card.setHideTitle(true);
+    const card = blank({ height: 200, hideTitle: true });
 
     draw(card.render(``));
     expect(screen.queryByTestId('main-card-body')).toHaveAttribute('transform', 'translate(0, 25)');
   });
 
   it('should render with correct colors', () => {
-    const card = new Card({
+    const card = blank({
       height: 200,
       colors: {
         light: getCardColors({
@@ -219,7 +205,7 @@ describe(Card, () => {
   });
 
   it('should render gradient backgrounds', () => {
-    const card = new Card({
+    const card = blank({
       height: 200,
       colors: {
         light: getCardColors({
@@ -252,17 +238,9 @@ describe(Card, () => {
     );
   });
 
-  it('gives a shown title back the room hiding it took', () => {
-    const card = new Card({ height: 200 });
-    card.setHideTitle(true);
-    card.setHideTitle(false);
-
-    expect(draw(card.render(``))).toHaveAttribute('height', '200');
-  });
-
   it('draws a dark gradient inside the dark color scheme only', () => {
     const light = getCardColors({ theme: 'default' });
-    const card = new Card({
+    const card = blank({
       colors: { light, dark: { ...light, bgColor: ['45', 'fff', '000'] } },
     });
 
@@ -283,7 +261,7 @@ describe(Card, () => {
     { what: 'a dark gradient', dark: { bgColor: ['45', 'fff'] } },
   ])('refuses to draw $what it cannot write', ({ init, colors, dark }) => {
     const light = getCardColors({ theme: 'default' });
-    const card = new Card({
+    const card = blank({
       ...init,
       colors: {
         light: { ...light, ...colors },

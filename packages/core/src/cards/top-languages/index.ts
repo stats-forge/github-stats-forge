@@ -4,7 +4,7 @@ import { getLightDarkColors } from '../../common/color.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
 import type { Lang, TopLangData } from '../../fetchers/types.ts';
-import type { Child } from '../../markup/index.ts';
+import type { Child, CssChild } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
@@ -223,24 +223,22 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     finalLayout = renderNormalLayout(langs, width, totalLanguageSize, value_format, hide_values);
   }
 
+  // `role="img"` hides the inner text from assistive tech, so everything the card
+  // shows has to be repeated in its description.
   const card = new Card({
-    customTitle: title,
-    defaultTitle: t.title(),
+    title: title ?? t.title(),
     titlePrefixIcon: CARD_ICON.topLanguages,
     width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
-  });
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
-
-  card.setHideBorder(hide_border);
-  card.setHideTitle(hide_title);
-  card.setCSS({
-    light: ({ textColor, progBarBgColor }) => [
+    description: langs
+      .map((lang) => `${lang.name} ${((lang.size / totalLanguageSize) * 100).toFixed(2)}%`)
+      .join(', '),
+    hideBorder: hide_border,
+    hideTitle: hide_title,
+    animations: !disable_animations,
+    css: ({ textColor, progBarBgColor }): Array<CssChild> => [
       atRule(
         '@keyframes slideInAnimation',
         rule('from', { width: 0 }),
@@ -265,20 +263,6 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
       rule('.lang-progress', { animation: 'growWidthAnimation 0.6s ease-in-out backwards' }),
       rule('.progress-background', { fill: progBarBgColor }),
     ],
-    dark: ({ textColor, progBarBgColor }) => [
-      rule('.stat', { fill: textColor }),
-      rule('.lang-name', { fill: textColor }),
-      rule('.progress-background', { fill: progBarBgColor }),
-    ],
-  });
-
-  // `role="img"` hides the inner text from assistive tech, so everything the card
-  // shows has to be repeated here.
-  card.setAccessibilityLabel({
-    title: card.title,
-    desc: langs
-      .map((lang) => `${lang.name} ${((lang.size / totalLanguageSize) * 100).toFixed(2)}%`)
-      .join(', '),
   });
 
   if (layout === 'pie' || layout === 'donut-vertical') {
