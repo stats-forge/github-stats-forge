@@ -6,9 +6,10 @@ import { GetRepoDocument } from '../graphql/generated/repo.ts';
 import type { RepoInfoFragment } from '../graphql/generated/repo.ts';
 
 import { fetchRepoUserStats } from './stats.ts';
+import type { RepoUserSearch } from './stats.ts';
 import type { RepoUserStats, RepositoryData } from './types.ts';
 
-const fetcher = createGraphQLFetcher(GetRepoDocument, 'token');
+const fetcher = createGraphQLFetcher(GetRepoDocument);
 
 const urlExample = '/api/pin?username=USERNAME&repo=REPO_NAME';
 
@@ -36,20 +37,13 @@ const fetchRepo = async (
   {
     username,
     reponame,
-    include_prs_authored = false,
-    include_prs_commented = false,
-    include_prs_reviewed = false,
-    include_issues_authored = false,
-    include_issues_commented = false,
+    searches = [],
     include_topics = false,
   }: {
     username: string | undefined;
     reponame: string | undefined;
-    include_prs_authored?: boolean | undefined;
-    include_prs_commented?: boolean | undefined;
-    include_prs_reviewed?: boolean | undefined;
-    include_issues_authored?: boolean | undefined;
-    include_issues_commented?: boolean | undefined;
+    /** The search-based counts to fetch, within this repository. */
+    searches?: ReadonlyArray<RepoUserSearch>;
     include_topics?: boolean | undefined;
   },
   config: CardConfig,
@@ -93,11 +87,7 @@ const fetchRepo = async (
     {
       username: login,
       scope: [`${repoOwner}/${repo}`],
-      include_prs_authored,
-      include_prs_commented,
-      include_prs_reviewed,
-      include_issues_authored,
-      include_issues_commented,
+      searches,
     },
     config,
   );

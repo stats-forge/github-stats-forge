@@ -6,29 +6,10 @@ import {
   excludes,
   lowercaseTrim,
   parseArray,
-  parseBoolean,
   parseEmojis,
-  parseOwnerAffiliations,
 } from '../src/common/ops.ts';
 
 describe('common/ops', () => {
-  it('reads a boolean, in any case, and nothing else as one', () => {
-    expect(parseBoolean(true)).toBe(true);
-    expect(parseBoolean(false)).toBe(false);
-
-    expect(parseBoolean('true')).toBe(true);
-    expect(parseBoolean('false')).toBe(false);
-    expect(parseBoolean('True')).toBe(true);
-    expect(parseBoolean('False')).toBe(false);
-    expect(parseBoolean('TRUE')).toBe(true);
-    expect(parseBoolean('FALSE')).toBe(false);
-
-    expect(parseBoolean('1')).toBeUndefined();
-    expect(parseBoolean('0')).toBeUndefined();
-    expect(parseBoolean('')).toBeUndefined();
-    expect(parseBoolean(undefined)).toBeUndefined();
-  });
-
   it('should match an excluded repository by owner/name or by name, ignoring case', () => {
     const isExcluded = excludes(['Bellows', 'smith/Anvil']);
     expect(isExcluded('smith/bellows')).toBe(true);
@@ -78,17 +59,5 @@ describe('common/ops', () => {
     expect(() => parseEmojis('')).toThrow(/parseEmoji/);
     // @ts-expect-error testing missing argument
     expect(() => parseEmojis()).toThrow(/parseEmoji/);
-  });
-
-  // the api layer rejects these first; this is for a caller of the fetchers directly
-  it('reads owner affiliations in any case, defaulting to the owner, and refuses others', () => {
-    expect(parseOwnerAffiliations([])).toStrictEqual(['OWNER']);
-    expect(parseOwnerAffiliations(['owner', 'Collaborator'])).toStrictEqual([
-      'OWNER',
-      'COLLABORATOR',
-    ]);
-    expect(() => parseOwnerAffiliations(['owner', 'stranger'])).toThrow(
-      expect.objectContaining({ reason: 'invalid_affiliation', param: 'affiliation' }),
-    );
   });
 });

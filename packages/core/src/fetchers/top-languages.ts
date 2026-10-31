@@ -1,8 +1,10 @@
 import type { CardConfig } from '../common/config.ts';
+import { affiliationsOrOwner } from '../common/constants.ts';
 import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher } from '../common/http.ts';
-import { excludes, parseOwnerAffiliations } from '../common/ops.ts';
+import { excludes } from '../common/ops.ts';
 import { retryer } from '../common/retryer.ts';
+import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
 import { TopLanguagesDocument } from '../graphql/generated/top-languages.ts';
 import type {
   TopLanguageFragment,
@@ -13,7 +15,7 @@ import { withNotebooksRecounted } from './jupyter.ts';
 import type { NOTEBOOK_COUNTS } from './jupyter.ts';
 import type { Lang, TopLangData } from './types.ts';
 
-const fetcher = createGraphQLFetcher(TopLanguagesDocument, 'token');
+const fetcher = createGraphQLFetcher(TopLanguagesDocument);
 
 /**
  * Fetch top languages for a given username.
@@ -33,7 +35,8 @@ const fetchTopLanguages = async (
     exclude_repo?: Array<string>;
     size_weight?: number | undefined;
     count_weight?: number | undefined;
-    ownerAffiliations?: Array<string>;
+    /** Empty counts the user's own repositories alone. */
+    ownerAffiliations?: Array<RepositoryAffiliation>;
     /** `code` recounts each repository's notebooks by the language of their code cells. */
     notebooks?: (typeof NOTEBOOK_COUNTS)[number] | undefined;
   },
@@ -42,7 +45,7 @@ const fetchTopLanguages = async (
   if (!username) {
     throw CardError.because('missing_param', { params: ['username'] });
   }
-  const affiliations = parseOwnerAffiliations(ownerAffiliations);
+  const affiliations = affiliationsOrOwner(ownerAffiliations);
 
   const res = await retryer(
     fetcher,

@@ -1,6 +1,6 @@
 import { calculateRank } from '../calculateRank.ts';
 import type { CardConfig } from '../common/config.ts';
-import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
+import { affiliationsOrOwner, GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
 import type { GitHubDateRange } from '../common/date.ts';
 import {
   getWidestRange,
@@ -13,10 +13,11 @@ import { CardError } from '../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
 import { logger } from '../common/log.ts';
-import { buildSearchFilter, excludes, parseOwnerAffiliations } from '../common/ops.ts';
+import { buildSearchFilter, excludes } from '../common/ops.ts';
 import { retryer } from '../common/retryer.ts';
 import type { FetcherResponse } from '../common/retryer.ts';
 import { buildContributionsDocument } from '../graphql/contributionsDocument.ts';
+import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
 import { UserInfoDocument, UserReposDocument } from '../graphql/generated/stats.ts';
 import type {
   RangeContributionsFragment,
@@ -31,9 +32,9 @@ import type { RepoUserStats, StatsData } from './types.ts';
 /** The subset of the stats response `statsFetcher` returns and threads on. */
 type StatsFetcherResponse = Pick<GraphQLResponse<UserInfoQuery>, 'data' | 'statusText'>;
 
-const fetcher = createGraphQLFetcher(UserInfoDocument, 'bearer');
+const fetcher = createGraphQLFetcher(UserInfoDocument);
 /** Fetcher for the pages after the first, which only need `repositories`. */
-const reposFetcher = createGraphQLFetcher(UserReposDocument, 'bearer');
+const reposFetcher = createGraphQLFetcher(UserReposDocument);
 
 /**
  * Fetch stats information for a given username.
@@ -220,37 +221,37 @@ const totalItemsFetcher = async (
   return totalCount;
 };
 
-/** The flags that ask for a per-repository count, as the query names them. */
-interface RepoUserStatsFlags {
-  include_prs_authored?: boolean | undefined;
-  include_prs_commented?: boolean | undefined;
-  include_prs_reviewed?: boolean | undefined;
-  include_issues_authored?: boolean | undefined;
-  include_issues_commented?: boolean | undefined;
-}
+/** The counts the REST search API answers, named as the cards draw them, in the order they are fetched. */
+const REPO_USER_SEARCHES = [
+  'prs_opened',
+  'prs_commented',
+  'prs_reviewed',
+  'issues_opened',
+  'issues_commented',
+] as const;
 
-/** Each count the REST search API answers: the flag asking for it, and the qualifiers that find it. */
-const REPO_USER_SEARCHES: ReadonlyArray<
-  [flag: keyof RepoUserStatsFlags, stat: keyof RepoUserStats, filter: (username: string) => string]
-> = [
-  ['include_prs_authored', 'totalPRsAuthored', (username) => `author:${username}+type:pr`],
-  [
-    'include_prs_commented',
+type RepoUserSearch = (typeof REPO_USER_SEARCHES)[number];
+
+/** Each search's count, and the qualifiers that find it. */
+const SEARCHED: Record<
+  RepoUserSearch,
+  [stat: keyof RepoUserStats, filter: (username: string) => string]
+> = {
+  prs_opened: ['totalPRsAuthored', (username) => `author:${username}+type:pr`],
+  prs_commented: [
     'totalPRsCommented',
     (username) => `commenter:${username}+-author:${username}+type:pr`,
   ],
-  [
-    'include_prs_reviewed',
+  prs_reviewed: [
     'totalPRsReviewed',
     (username) => `reviewed-by:${username}+-author:${username}+type:pr`,
   ],
-  ['include_issues_authored', 'totalIssuesAuthored', (username) => `author:${username}+type:issue`],
-  [
-    'include_issues_commented',
+  issues_opened: ['totalIssuesAuthored', (username) => `author:${username}+type:issue`],
+  issues_commented: [
     'totalIssuesCommented',
     (username) => `commenter:${username}+-author:${username}+type:issue`,
   ],
-];
+};
 
 /**
  * Fetch the per-repository counts the REST search API answers, one request each.
@@ -261,17 +262,20 @@ const fetchRepoUserStats = async (
   {
     username,
     scope = [],
-    ...flags
-  }: RepoUserStatsFlags & {
+    searches = [],
+  }: {
     username: string;
     /** `owner/name` and `owner/*` entries the searches are narrowed to. */
     scope?: ReadonlyArray<string>;
+    /** The counts to fetch, one search each; the rest are left out. */
+    searches?: ReadonlyArray<RepoUserSearch>;
   },
   config: CardConfig,
 ): Promise<RepoUserStats> => {
   const stats: RepoUserStats = {};
-  for (const [flag, stat, filter] of REPO_USER_SEARCHES) {
-    if (flags[flag]) {
+  for (const search of REPO_USER_SEARCHES) {
+    if (searches.includes(search)) {
+      const [stat, filter] = SEARCHED[search];
       stats[stat] = await totalItemsFetcher(
         { username, scope, type: 'issues', filter: filter(username) },
         config,
@@ -300,7 +304,7 @@ const sumOverRanges = async (
     return 0;
   }
 
-  const contributionsFetcher = createGraphQLFetcher(buildContributionsDocument(ranges), 'bearer');
+  const contributionsFetcher = createGraphQLFetcher(buildContributionsDocument(ranges));
 
   const contribRes = await retryer(contributionsFetcher, { login: username }, config);
 
@@ -340,11 +344,7 @@ const fetchStats = async (
     from,
     to,
     scope = [],
-    include_prs_authored = false,
-    include_prs_commented = false,
-    include_prs_reviewed = false,
-    include_issues_authored = false,
-    include_issues_commented = false,
+    searches = [],
     ownerAffiliations = [],
     include_contributions = false,
     include_all_time_contribs = false,
@@ -362,12 +362,10 @@ const fetchStats = async (
     to?: Date | undefined;
     /** `owner/name` and `owner/*` entries the search-based counts are narrowed to. */
     scope?: ReadonlyArray<string>;
-    include_prs_authored?: boolean;
-    include_prs_commented?: boolean;
-    include_prs_reviewed?: boolean;
-    include_issues_authored?: boolean;
-    include_issues_commented?: boolean;
-    ownerAffiliations?: Array<string>;
+    /** The search-based counts to fetch; the rest stay 0. */
+    searches?: ReadonlyArray<RepoUserSearch>;
+    /** Empty counts the user's own repositories alone. */
+    ownerAffiliations?: Array<RepositoryAffiliation>;
     include_contributions?: boolean;
     include_all_time_contribs?: boolean;
     include_own_repos?: boolean | undefined;
@@ -401,7 +399,7 @@ const fetchStats = async (
     totalContributions: 0,
     rank: { level: 'C', percentile: 100 },
   };
-  const affiliations = parseOwnerAffiliations(ownerAffiliations);
+  const affiliations = affiliationsOrOwner(ownerAffiliations);
 
   // neither end given leaves GitHub's trailing year in place, which `userInfo` already carries
   const commitsRange = from === undefined && to === undefined ? undefined : toRange(from, to);
@@ -458,18 +456,7 @@ const fetchStats = async (
           )
         : user.commits.totalCommitContributions;
   }
-  const repoUserStats = await fetchRepoUserStats(
-    {
-      username,
-      scope,
-      include_prs_authored,
-      include_prs_commented,
-      include_prs_reviewed,
-      include_issues_authored,
-      include_issues_commented,
-    },
-    config,
-  );
+  const repoUserStats = await fetchRepoUserStats({ username, scope, searches }, config);
   Object.assign(stats, repoUserStats);
 
   stats.totalPRs = user.pullRequests.totalCount;
@@ -533,4 +520,5 @@ const fetchStats = async (
   return stats;
 };
 
-export { fetchStats, fetchRepoUserStats };
+export { fetchStats, fetchRepoUserStats, REPO_USER_SEARCHES };
+export type { RepoUserSearch };

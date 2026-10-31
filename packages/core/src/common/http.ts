@@ -86,10 +86,7 @@ type GraphQLResponse<TResult> = HttpResponse<{
  * @returns A fetcher `retryer` can drive.
  */
 const createGraphQLFetcher =
-  <TResult, TVariables>(
-    document: GraphQLDocument<TResult, TVariables>,
-    scheme: 'bearer' | 'token',
-  ) =>
+  <TResult, TVariables>(document: GraphQLDocument<TResult, TVariables>) =>
   async (
     variables: TVariables,
     token: string,
@@ -98,7 +95,7 @@ const createGraphQLFetcher =
     httpRequest(fetch, GITHUB_GRAPHQL_API, {
       method: 'POST',
       headers: {
-        Authorization: `${scheme} ${token}`,
+        Authorization: `bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ query: document.text, variables }),

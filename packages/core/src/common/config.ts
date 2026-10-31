@@ -1,5 +1,6 @@
 import { defaultFetch, withTimeout } from './http.ts';
 import type { FetchLike } from './http.ts';
+import { parseArray } from './ops.ts';
 
 type Env = Record<string, string | undefined>;
 
@@ -27,10 +28,7 @@ interface CardConfigInit {
  * @returns The comma-separated values, trimmed, or `undefined` when the variable is unset or empty.
  */
 const parseCsv = (value: string | undefined): Array<string> | undefined => {
-  const values = (value ?? '')
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter((entry) => entry !== '');
+  const values = parseArray(value);
   return values.length > 0 ? values : undefined;
 };
 
