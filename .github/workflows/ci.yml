@@ -29,6 +29,11 @@ jobs:
       matrix:
         node: [24, 26]
         os: [ubuntu-26.04, macos-26]
+        # coverage on one leg: what the tests reach does not vary by platform
+        include:
+          - node: 26
+            os: ubuntu-26.04
+            coverage: true
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
 
@@ -50,7 +55,9 @@ jobs:
         run: pnpm run build:packages
 
       - name: Run tests
-        run: pnpm run test
+        run: pnpm run "$TESTS"
+        env:
+          TESTS: ${{ matrix.coverage && 'test:coverage' || 'test' }}
 
   code-checks:
     name: Code checks
