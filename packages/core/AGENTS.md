@@ -22,9 +22,9 @@ every default to the renderer (gist's default theme is `default_repocard`, which
 - **A fetcher's shape check is not validation** ([#31]). `usernameParam` rejects a bad login before
   any request; a fetcher keeps its own guard (`./fetchers` is public) built on the shared pattern.
 - **A value outside what a param accepts is an error, never ignored** ([#229], [#230], [#231]).
-  Booleans are `true`/`false`; an `enumParam` or `enumListParam` matches case-insensitively and
-  yields its set's spelling. **Unknown params stay ignored**: a README appends `?v=2`, and the server
-  reads `cache_seconds`.
+  Booleans are `true`, `1` or `on` and `false`, `0` or `off`, in any case; an `enumParam` or
+  `enumListParam` matches case-insensitively and yields its set's spelling. **Unknown params stay
+  ignored**: a README appends `?v=2`, and the server reads `cache_seconds`.
 - **`resolveEmpty` resolves an empty value once, in the handler**: an empty boolean is `true`, any
   other empty param absent. No helper handles `''` itself.
 - **A malformed param is a permanent `invalid_param`, raised at the boundary**: a render-time throw

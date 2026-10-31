@@ -114,28 +114,17 @@ const rejects = (kind: Rejection, passes: (value: string) => boolean): z.core.$Z
   });
 
 /**
- * @returns `true` or `false` for those words in any case, else `undefined`.
- */
-const parseBoolean = (value: string | undefined): boolean | undefined => {
-  const lowered = value?.toLowerCase();
-  if (lowered === 'true') {
-    return true;
-  }
-  if (lowered === 'false') {
-    return false;
-  }
-  return undefined;
-};
-
-/**
- * `?x=true` / `?x=false`, in any case.
+ * `true`, `1` or `on`, and `false`, `0` or `off`, in any case.
  * Absent is `undefined`, which leaves the card's own default in place; anything else is rejected.
  */
 const booleanParam = kinded(
   'boolean',
-  z.pipe(
-    rawParam.check(rejects('boolean', (value) => parseBoolean(value) !== undefined)),
-    z.transform(parseBoolean),
+  z.optional(
+    z.stringbool({
+      truthy: ['true', '1', 'on'],
+      falsy: ['false', '0', 'off'],
+      error: (issue) => REJECTION_MESSAGES.boolean(String(issue.path?.[0] ?? '')),
+    }),
   ),
 );
 

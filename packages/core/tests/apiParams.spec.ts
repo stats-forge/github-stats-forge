@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import * as z from 'zod/mini';
 
 import type { ApiResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
-import { resolveEmpty } from '../src/api/params.ts';
+import { booleanParam, parseParams, resolveEmpty } from '../src/api/params.ts';
 import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
@@ -196,12 +197,28 @@ describe('api query schemas', () => {
     expect(result.content).toContain(`Incorrect ${param} input`);
   });
 
-  it.each(['yes', '1'])('rejects the boolean %j by naming the param', async (value) => {
-    const result = await endpoints.stats({ username: 'anuraghazra', show_icons: value });
-
-    expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'show_icons' } });
-    expect(result.content).toContain('Invalid boolean input for parameter &#34;show_icons&#34;');
+  it.each([
+    ['TRUE', true],
+    ['1', true],
+    ['on', true],
+    ['false', false],
+    ['0', false],
+    ['Off', false],
+  ] as const)('reads the boolean %j as %s', (value, read) => {
+    expect(parseParams(z.object({ flag: booleanParam }), { flag: value })).toStrictEqual({
+      flag: read,
+    });
   });
+
+  it.each(['yes', 'n', 'enabled', '2'])(
+    'rejects the boolean %j by naming the param',
+    async (value) => {
+      const result = await endpoints.stats({ username: 'anuraghazra', show_icons: value });
+
+      expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'show_icons' } });
+      expect(result.content).toContain('Invalid boolean input for parameter &#34;show_icons&#34;');
+    },
+  );
 
   it.each([
     ['theme', 'not_a_theme'],
