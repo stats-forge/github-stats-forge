@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-server
 
+## 0.7.3
+
+### Patch Changes
+
+- [#340](https://github.com/stats-forge/github-stats-forge/pull/340) [`2b679cd`](https://github.com/stats-forge/github-stats-forge/commit/2b679cda913442276971a6d6e95171e3b6261602) - docs: list `requestTimeoutMs` among `CardConfig`'s fields
+- Updated dependencies [[`5800e80`](https://github.com/stats-forge/github-stats-forge/commit/5800e800cf67c2581c0714ae78e482fe1dbf5eb3), [`15b4c78`](https://github.com/stats-forge/github-stats-forge/commit/15b4c7871a5853e8555e05104c77b56d94a9f7c5), [`2b679cd`](https://github.com/stats-forge/github-stats-forge/commit/2b679cda913442276971a6d6e95171e3b6261602), [`a9e2d2c`](https://github.com/stats-forge/github-stats-forge/commit/a9e2d2cf2e2b2c50e854c767c5d88f0f6ca8d449), [`83ad9d9`](https://github.com/stats-forge/github-stats-forge/commit/83ad9d93bdc3f9384480b48e3a437c8494af924d), [`c04009c`](https://github.com/stats-forge/github-stats-forge/commit/c04009cbc7bb3baa8ea3d20e390e42cb75e4e219), [`7be6561`](https://github.com/stats-forge/github-stats-forge/commit/7be65615da0d7aecc673a0aca286663597becdbe)]:
+  - @stats-forge/github-stats-forge-core@0.12.0
+
 ## 0.7.2
 
 ### Patch Changes
