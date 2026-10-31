@@ -188,6 +188,40 @@ jobs:
           curl -s -D- -o /dev/null 'http://127.0.0.1:9000/api/stats?username=x' | tee /dev/stderr | grep -q 'card-error-code: no_tokens'
           docker rm -f cards
 
+  github-actions-audit:
+    name: GitHub Actions audit
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      contents: read # required to check out the repository
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 2 # the parent the changed-paths step diffs against
+      - name: Check changed paths
+        id: changes
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        # a pull request checks out its merge commit, whose first parent is the base branch
+        run: |
+          if [ "${EVENT_NAME}" != pull_request ] || [ -n "$(git diff --name-only HEAD^1 HEAD -- .github)" ]; then
+            echo "github=true" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Run zizmor
+        if: ${{ steps.changes.outputs.github == 'true' }}
+        uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          advanced-security: false
+          annotations: true
+      - name: Run jactionlint
+        # still runs when zizmor fails, so one run reports both
+        if: ${{ !cancelled() && steps.changes.outputs.github == 'true' }}
+        uses: jdx/jactionlint@a65ab044e916760429068fe5794b8306abdfcbb9 # v2.3.0
+        with:
+          online: strict # a lookup it cannot make fails the job instead of being skipped
+
   ci-ok:
     name: CI OK
     runs-on: ubuntu-26.04
@@ -198,6 +232,7 @@ jobs:
       - code-checks
       - docs
       - image
+      - github-actions-audit
     permissions:
       actions: read # required to list the run's jobs
       contents: read # required to read the workflow file
