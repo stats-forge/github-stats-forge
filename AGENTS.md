@@ -60,7 +60,7 @@ accepts, a CLI, an HTTP server, and the documentation site.
   plus `common/`, `themes/` and `graphql/`.
 - **A card is a folder under `cards/`**: `index.ts` renders, `locales.ts` translates; only
   `cards/options.ts` sits loose ([#61]). A card too big for one file moves its layouts beside
-  `index.ts`, which keeps the options and the render, as `top-languages/` does.
+  `index.ts`, which keeps the options and the render, as `top-languages/` and `stats/` do.
 - **Every source file is TypeScript** except `packages/cli/bin.js`; generators are typechecked
   through a `tsconfig.scripts.json` ([#39]).
 
