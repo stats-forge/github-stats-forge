@@ -16,7 +16,7 @@ export default mergeConfig(
         thresholds: {
           'packages/core/src/**': { lines: 97, statements: 97, functions: 98, branches: 90 },
           'packages/catalog/src/**': { lines: 100, statements: 100, functions: 100 },
-          'packages/cli/src/**': { lines: 40, statements: 40, functions: 50, branches: 27 },
+          'packages/cli/src/**': { lines: 98, statements: 98, functions: 96, branches: 90 },
           'apps/server/src/**': { lines: 98, statements: 98, functions: 97, branches: 93 },
         },
       },
