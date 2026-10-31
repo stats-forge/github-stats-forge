@@ -1,8 +1,11 @@
+import { screen } from '@testing-library/dom';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { pin } from '../src/api/pin.ts';
 import { fetchRepo } from '../src/fetchers/repo.ts';
 import type { GetRepoQuery, RepoInfoFragment } from '../src/graphql/generated/repo.ts';
 
+import { draw, exactly } from './_card.ts';
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 import type { GraphQLBody } from './_fetch-mock.ts';
@@ -109,4 +112,27 @@ describe('Test fetchRepo', () => {
       ).rejects.toMatchObject({ reason: 'repo_not_found' });
     },
   );
+});
+
+describe('the pin endpoint', () => {
+  it('hands the fetcher and the card their own params', async () => {
+    const repositoryTopics = { nodes: [{ topic: { name: 'chat' } }] };
+    mock.onPost(GRAPHQL).reply(200, {
+      data: { user: { repository: { ...repository, repositoryTopics } }, organization: null },
+    } satisfies GraphQLBody<GetRepoQuery>);
+
+    const result = await pin(
+      { username: 'anuraghazra', repo: 'convoychat', show: 'topics', show_owner: 'true' },
+      config,
+    );
+
+    expect(result.status).toBe('success');
+    // show reaches both the fetcher and the card; show_owner reaches the card
+    expect(JSON.parse(mock.history.post[0]?.data ?? '{}')).toMatchObject({
+      variables: { includeTopics: true },
+    });
+    draw(result.content);
+    expect(screen.getAllByTestId('topic')).toHaveLength(1);
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('anuraghazra/convoychat'));
+  });
 });

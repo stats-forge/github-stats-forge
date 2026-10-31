@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { orgActivity } from '../src/api/org-activity.ts';
 import { CardError } from '../src/common/error.ts';
 import { fetchOrgActivity } from '../src/fetchers/org-activity.ts';
 import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-activity.ts';
 
+import { draw, exactly } from './_card.ts';
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 import type { GraphQLBody, SearchBody } from './_fetch-mock.ts';
@@ -289,4 +291,45 @@ describe(fetchOrgActivity, () => {
       param: 'org',
     });
   });
+});
+
+describe('the org activity endpoint', () => {
+  it.each([
+    { query: { show: 'commits' }, searches: 1 },
+    { query: { show: 'commits', hide: 'commits' }, searches: 0 },
+  ])('searches commits $searches times for $query', async ({ query, searches }) => {
+    mock.onPost(GRAPHQL).reply(200, answer());
+    mock.onGet(COMMIT_SEARCH).reply(200, { total_count: 204 } satisfies SearchBody);
+
+    const result = await orgActivity({ org: 'vitest-dev', ...query }, config);
+
+    expect(result.status).toBe('success');
+    expect(mock.history.get).toHaveLength(searches);
+  });
+
+  it('hands the card its own params', async () => {
+    mock.onPost(GRAPHQL).reply(200, answer());
+
+    const result = await orgActivity({ org: 'vitest-dev', title: 'Ours' }, config);
+
+    expect(result.status).toBe('success');
+    draw(result.content);
+    expect(document.querySelector('.header')).toHaveTextContent(exactly('Ours'));
+  });
+
+  it.each([
+    { hide: 'issues_opened', status: 'error' },
+    { hide: 'issues_opened,issues_closed', status: 'success' },
+  ])(
+    'answers $status from a token that may not read issues when hiding $hide',
+    async ({ hide, status }) => {
+      // silences the refusal the fetcher reports when both rows are hidden
+      vi.spyOn(console, 'error').mockReturnValue();
+      mock.onPost(GRAPHQL).reply(200, answer({ issuesOpened: 3, issueNode: 'PullRequest' }));
+
+      const result = await orgActivity({ org: 'vitest-dev', hide }, config);
+
+      expect(result.status).toBe(status);
+    },
+  );
 });
