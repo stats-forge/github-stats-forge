@@ -40,41 +40,12 @@ const contributedToQuery = z
 export const contributedTo = cardHandler(
   contributedToQuery,
   { username: 'username' },
-  async (
-    {
-      username,
-      locale,
-      repos_count,
-      include_own_repos,
-      exclude_repo,
-      from,
-      to,
-      hide_years,
-      hide_title,
-      hide_border,
-      card_width,
-      title,
-      border_radius,
-      disable_animations,
-    },
-    colors,
-    config,
-  ) => {
+  async (params, colors, config) => {
+    const { username, include_own_repos, repos_count, exclude_repo, from, to } = params;
     const data = await fetchContributedTo(
       { username, include_own_repos, repos_count, exclude_repo, from, to },
       config,
     );
-
-    return renderContributedToCard(data, {
-      ...colors,
-      locale,
-      hide_years,
-      hide_title,
-      hide_border,
-      card_width,
-      title,
-      border_radius,
-      disable_animations,
-    });
+    return renderContributedToCard(data, { ...params, ...colors });
   },
 );

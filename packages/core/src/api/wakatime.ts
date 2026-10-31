@@ -40,43 +40,10 @@ const renderWakatime = cardHandler(
   wakatimeQuery,
   // no allowlist: `username` is a WakaTime profile, not a GitHub login (see `apps/server/README.md`)
   {},
-  async (
-    {
-      username,
-      hide_border,
-      card_width,
-      hide_title,
-      hide_progress,
-      title,
-      locale,
-      layout,
-      langs_count,
-      hide_langs,
-      wakatime_host,
-      border_radius,
-      value_format,
-      disable_animations,
-    },
-    colors,
-    config,
-  ) => {
+  async (params, colors, config) => {
+    const { username, wakatime_host } = params;
     const stats = await fetchWakatimeStats({ username, wakatime_host }, config);
-
-    return renderWakatimeCard(stats, {
-      ...colors,
-      title,
-      hide_title,
-      hide_border,
-      card_width,
-      hide_langs,
-      hide_progress,
-      border_radius,
-      locale,
-      layout,
-      langs_count,
-      value_format,
-      disable_animations,
-    });
+    return renderWakatimeCard(stats, { ...params, ...colors });
   },
 );
 

@@ -56,7 +56,7 @@ interface RepoCardOptions extends CommonCardOptions {
   disable_animations: boolean;
   show_owner: boolean;
   description_lines_count: number;
-  card_width_input: number;
+  card_width: number;
   show: Array<string>;
   show_icons: boolean;
   number_format: string;
@@ -168,7 +168,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   } = repo;
   const {
     hide_border = false,
-    card_width_input,
+    card_width,
     show_owner = false,
     show = [],
     show_icons = true,
@@ -252,20 +252,18 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       widest(column.map((stat) => formatValue(stat.value ?? 0))),
   );
 
-  const widthInput = card_width_input && !Number.isNaN(card_width_input) ? card_width_input : 0;
   const defaultWidth = columns.length > 1 ? CARD_STYLE.width.wide : CARD_DEFAULT_WIDTH;
-  const statsArea = (widthInput || defaultWidth) - STAT_ROW_X - X_OFFSET;
+  const statsArea = (card_width ?? defaultWidth) - STAT_ROW_X - X_OFFSET;
   const secondColumnX = Math.ceil(
     Math.max((statsArea + STAT_COLUMN_GAP) / 2, firstColumnWidth + STAT_COLUMN_GAP),
   );
   const statsWidth = columns.length > 1 ? secondColumnX + secondColumnWidth : firstColumnWidth;
 
   // The default grows rather than overlap; a width asked for is kept, and the stats overflow it.
-  const card_width =
-    widthInput || Math.max(defaultWidth, Math.ceil(STAT_ROW_X + statsWidth + X_OFFSET));
+  const width = card_width ?? Math.max(defaultWidth, Math.ceil(STAT_ROW_X + statsWidth + X_OFFSET));
   const valueAnchors = [
     secondColumnX - STAT_COLUMN_GAP,
-    Math.ceil(Math.max(card_width - STAT_ROW_X - X_OFFSET - secondColumnX, secondColumnWidth)),
+    Math.ceil(Math.max(width - STAT_ROW_X - X_OFFSET - secondColumnX, secondColumnWidth)),
   ];
 
   const statItems = statList.map((stat, index) =>
@@ -293,7 +291,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const langName = primaryLanguage?.name || t.unspecifiedLanguage();
   const langColor = primaryLanguage?.color || '#333';
   const desc = parseEmojis(description || t.noDescription());
-  const descriptionBoxWidth = card_width - 2 * X_OFFSET;
+  const descriptionBoxWidth = width - 2 * X_OFFSET;
 
   const descriptionMaxLines = description_lines_count
     ? clampValue(description_lines_count, 1, DESCRIPTION_MAX_LINES)
@@ -383,7 +381,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const card = new Card({
     title: header.length > 35 ? `${header.slice(0, 35)}...` : header,
     titlePrefixIcon: CARD_ICON.repo,
-    width: card_width,
+    width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
@@ -413,9 +411,9 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
 
   let badge: Child;
   if (isTemplate) {
-    badge = getBadgeSVG(t.template(), card_width - CARD_DEFAULT_WIDTH);
+    badge = getBadgeSVG(t.template(), width - CARD_DEFAULT_WIDTH);
   } else if (isArchived) {
-    badge = getBadgeSVG(t.archived(), card_width - CARD_DEFAULT_WIDTH);
+    badge = getBadgeSVG(t.archived(), width - CARD_DEFAULT_WIDTH);
   }
 
   return card.render([
