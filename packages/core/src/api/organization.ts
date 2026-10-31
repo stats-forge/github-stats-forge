@@ -37,57 +37,19 @@ const orgQuery = z.object({
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderOrg = cardHandler(
-  orgQuery,
-  { org: 'username' },
-  async (
-    {
-      org,
-      hide,
-      show,
-      show_icons,
-      hide_title,
-      hide_border,
-      hide_description,
-      card_width,
-      title,
-      disable_animations,
-      number_format,
-      number_precision,
-      locale,
-      border_radius,
-    },
-    colors,
+const renderOrg = cardHandler(orgQuery, { org: 'username' }, async (params, colors, config) => {
+  const { org, show, hide } = params;
+  // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
+  const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
+
+  // the member count is the one stat a token can be refused, so only a query asking for
+  // it is told: `show=members` is what turns that refusal into an error card
+  const organizationData = await fetchOrganization(
+    { org, require_members: drawn.has('members') },
     config,
-  ) => {
-    // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
-    const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
-
-    // the member count is the one stat a token can be refused, so only a query asking for
-    // it is told: `show=members` is what turns that refusal into an error card
-    const organizationData = await fetchOrganization(
-      { org, require_members: drawn.has('members') },
-      config,
-    );
-
-    return renderOrganizationCard(organizationData, {
-      ...colors,
-      hide,
-      show,
-      show_icons,
-      hide_title,
-      hide_border,
-      hide_description,
-      card_width,
-      title,
-      disable_animations,
-      number_format,
-      number_precision,
-      locale,
-      border_radius,
-    });
-  },
-);
+  );
+  return renderOrganizationCard(organizationData, { ...params, ...colors });
+});
 
 /**
  * The card, and the values each of its options accepts, keyed by the option's own name.

@@ -46,31 +46,8 @@ const topLangsQuery = z.object({
 const renderTopLangs = cardHandler(
   topLangsQuery,
   { username: 'username' },
-  async (
-    {
-      username,
-      hide_langs,
-      hide_title,
-      hide_border,
-      card_width,
-      layout,
-      langs_count,
-      exclude_repo,
-      size_weight,
-      count_weight,
-      title,
-      locale,
-      border_radius,
-      affiliation,
-      notebooks,
-      disable_animations,
-      hide_progress,
-      hide_values,
-      value_format,
-    },
-    colors,
-    config,
-  ) => {
+  async (params, colors, config) => {
+    const { username, exclude_repo, size_weight, count_weight, affiliation, notebooks } = params;
     const topLangs = await fetchTopLanguages(
       {
         username,
@@ -82,23 +59,7 @@ const renderTopLangs = cardHandler(
       },
       config,
     );
-
-    return renderTopLanguages(topLangs, {
-      ...colors,
-      title,
-      hide_title,
-      hide_border,
-      card_width,
-      hide_langs,
-      layout,
-      langs_count,
-      border_radius,
-      locale,
-      disable_animations,
-      hide_progress,
-      hide_values,
-      value_format,
-    });
+    return renderTopLanguages(topLangs, { ...params, ...colors });
   },
 );
 

@@ -71,34 +71,19 @@ const statsQuery = z
 const renderStats = cardHandler(
   statsQuery,
   { username: 'username' },
-  async (
-    {
+  async (params, colors, config) => {
+    const {
       username,
-      scope,
-      hide,
-      hide_title,
-      hide_border,
-      card_width,
-      hide_rank,
-      show_icons,
       include_all_commits,
+      exclude_repo,
       from,
       to,
-      exclude_repo,
-      title,
-      locale,
-      disable_animations,
-      border_radius,
-      number_format,
+      scope,
       affiliation,
-      number_precision,
-      rank_icon,
       show,
+      hide,
       include_own_repos,
-    },
-    colors,
-    config,
-  ) => {
+    } = params;
     // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
     const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
 
@@ -126,25 +111,7 @@ const renderStats = cardHandler(
       config,
     );
 
-    return renderStatsCard(stats, {
-      ...colors,
-      hide,
-      show_icons,
-      hide_title,
-      hide_border,
-      card_width,
-      hide_rank,
-      include_all_commits,
-      title,
-      border_radius,
-      number_format,
-      number_precision,
-      locale,
-      disable_animations,
-      rank_icon,
-      show,
-      scope,
-    });
+    return renderStatsCard(stats, { ...params, ...colors });
   },
 );
 

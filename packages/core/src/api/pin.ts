@@ -34,25 +34,8 @@ const pinQuery = z.object({
 const renderPin = cardHandler(
   pinQuery,
   { username: 'username' },
-  async (
-    {
-      username,
-      repo,
-      hide_border,
-      card_width,
-      show_owner,
-      show,
-      show_icons,
-      number_format,
-      number_precision,
-      locale,
-      border_radius,
-      description_lines_count,
-      disable_animations,
-    },
-    colors,
-    config,
-  ) => {
+  async (params, colors, config) => {
+    const { username, repo, show } = params;
     const repoData = await fetchRepo(
       {
         username,
@@ -66,22 +49,7 @@ const renderPin = cardHandler(
       },
       config,
     );
-
-    return renderRepoCard(repoData, {
-      ...colors,
-      hide_border,
-      border_radius,
-      card_width_input: card_width,
-      show_owner,
-      show,
-      show_icons,
-      number_format,
-      number_precision,
-      username,
-      locale,
-      description_lines_count,
-      disable_animations,
-    });
+    return renderRepoCard(repoData, { ...params, ...colors });
   },
 );
 

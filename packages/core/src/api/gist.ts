@@ -18,24 +18,6 @@ const gistQuery = z.object({
  *
  * @returns The rendered card, or a rendered error.
  */
-export const gist = cardHandler(
-  gistQuery,
-  { id: 'gist' },
-  async (
-    { id, locale, border_radius, show_owner, hide_border, disable_animations },
-    colors,
-    config,
-  ) => {
-    const gistData = await fetchGist({ id }, config);
-
-    return renderGistCard(gistData, {
-      ...colors,
-      locale,
-      border_radius,
-      show_owner,
-
-      hide_border,
-      disable_animations,
-    });
-  },
+export const gist = cardHandler(gistQuery, { id: 'gist' }, async (params, colors, config) =>
+  renderGistCard(await fetchGist({ id: params.id }, config), { ...params, ...colors }),
 );
