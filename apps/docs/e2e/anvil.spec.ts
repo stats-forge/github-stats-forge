@@ -195,7 +195,7 @@ test('draws a card on arrival, with no card chosen', async ({ page }) => {
 });
 
 test('sends nothing anywhere while drawing every card', async ({ page }) => {
-  // the claim is the recording's, so state which source is drawing before asserting it
+  // the claim is the samples', so state which source is drawing before asserting it
   await expect(page.locator('[data-anvil="root"]')).toHaveAttribute('data-source', 'sample');
   await expect(page.locator('wa-select[data-option="source"]')).toHaveCount(0);
 
@@ -398,7 +398,7 @@ test('the required params are in the file, and the reader owns them', async ({ p
   await field(page, 'username').fill('octocat');
   await expect.poll(async () => savedParam(page, 'username')).toBe('octocat');
 
-  // And the preview is unmoved by it: a recording answers what a request asks, not who it asks for.
+  // And the preview is unmoved by it: the fixtures answer what a request asks, not who it asks for.
   await expect(drawnCard(page)).toBeVisible();
   await expect(drawnCard(page).getByTestId('card-title')).not.toContainText('octocat');
 });
@@ -430,7 +430,7 @@ test('emptying a required param draws the error the CLI would report', async ({ 
 
 test('the source badge explains itself on hover', async ({ page }) => {
   // The badge is the visible half; the tooltip's text is in the DOM either way, so nothing
-  // important is hover-only. The strings are the recording's, this build having no server.
+  // important is hover-only. The strings are the samples', this build having no server.
   // By id, not by class: the backdrop carries a badge of its own.
   const badge = page.locator('#anvil-source');
   const tooltip = page.locator('wa-tooltip[for="anvil-source"]');
@@ -734,10 +734,10 @@ test('says nothing about waiting once the card is up', async ({ page }) => {
   await expect(page.locator('.anvil-busy-chip')).toBeHidden();
 });
 
-test('a redraw from the recording never flashes the indicator', async ({ page }) => {
+test('a redraw from the samples never flashes the indicator', async ({ page }) => {
   /*
    * The held pause is what keeps an indicator off a draw that finishes in milliseconds, and a
-   * recorded one always does — so the guard is that nothing appeared at all, rather than that it
+   * sample one always does — so the guard is that nothing appeared at all, rather than that it
    * appeared and left. Each redraw below is waited on through the card itself, so by the time the
    * log is read the draw has resolved and its own timer is cancelled or fired.
    *

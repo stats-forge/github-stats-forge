@@ -56,7 +56,7 @@ const TOAST_PAUSE = 3000;
 /**
  * How long a draw may take before the preview says it is waiting.
  *
- * Held back rather than shown at once, and timed rather than asked of the source: a recording
+ * Held back rather than shown at once, and timed rather than asked of the source: a sample draw
  * finishes in a few milliseconds and so would only ever flicker, while an instance's cache hit is
  * nearly as quick and its GitHub call is not. What earns a spinner is a draw that is *taking* a
  * while, whoever started it.
@@ -321,7 +321,7 @@ const mount = (root: HTMLElement): void => {
       const next = `<div class="anvil-card">${shown.content}</div>`;
 
       /*
-       * Only when it differs. A recording is keyed by what a request asks, not who it asks for, so
+       * Only when it differs. The fixtures answer what a request asks, not who it asks for, so
        * typing a username replaced a card with its twin — read as "the numbers are yours now".
        */
       if (next !== drawn) {

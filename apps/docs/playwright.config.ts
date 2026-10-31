@@ -1,13 +1,13 @@
 /**
  * @file End-to-end tests for the anvil, which is the only page here that ships JavaScript.
  *
- * Nothing else checks it. The unit checks prove each card *can* be drawn from the recorded samples
- * (`check-anvil-samples`), and the build proves the page compiles — but only a browser proves that
+ * Nothing else checks it. The unit checks prove each card *can* be drawn from the fixtures
+ * (`check-anvil`), and the build proves the page compiles — but only a browser proves that
  * picking a card rebuilds the controls, that an option reaches the renderer, and that a rejected
  * one draws core's own error card instead of breaking the page.
  *
  * It runs against the built site rather than the dev server, so the bundle is what is tested — the
- * `samples.json` import and core's api both reach the browser through it. `e2e/serve.ts` is what
+ * fixtures and core's api both reach the browser through it. `e2e/serve.ts` is what
  * serves it, because `astro preview` daemonizes and so cannot be a `webServer`.
  */
 

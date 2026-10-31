@@ -4,7 +4,7 @@
  * replacing it here leaves the CLI itself untouched.
  */
 
-import { fixtureFetch } from './fixtures.ts';
+import { fixtureFetch } from '../src/anvil/fixtures.ts';
 
 globalThis.fetch = async (input, init): Promise<Response> =>
   fixtureFetch(input instanceof Request ? input.url : String(input), init);

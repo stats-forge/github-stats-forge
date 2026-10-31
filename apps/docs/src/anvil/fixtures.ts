@@ -15,21 +15,22 @@
 import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 import type { WakaTimeData } from '@stats-forge/github-stats-forge-core/fetchers';
 
-import type { GraphQLResponse } from '../../../packages/core/src/common/http.ts';
-import type { GitTree } from '../../../packages/core/src/fetchers/jupyter.ts';
-import type { ContributionsQuery } from '../../../packages/core/src/graphql/contributionsDocument.ts';
-import type { UserContributionYearsQuery } from '../../../packages/core/src/graphql/generated/contributed-to.ts';
-import type { GistInfoQuery } from '../../../packages/core/src/graphql/generated/gist.ts';
-import type { GetOrganizationActivityQuery } from '../../../packages/core/src/graphql/generated/org-activity.ts';
-import type { GetOrganizationQuery } from '../../../packages/core/src/graphql/generated/organization.ts';
-import type { GetRepoQuery } from '../../../packages/core/src/graphql/generated/repo.ts';
+import type { GraphQLResponse } from '../../../../packages/core/src/common/http.ts';
+import type { GitTree } from '../../../../packages/core/src/fetchers/jupyter.ts';
+import type { ContributionsQuery } from '../../../../packages/core/src/graphql/contributionsDocument.ts';
+import type { UserContributionYearsQuery } from '../../../../packages/core/src/graphql/generated/contributed-to.ts';
+import type { GistInfoQuery } from '../../../../packages/core/src/graphql/generated/gist.ts';
+import type { GetOrganizationActivityQuery } from '../../../../packages/core/src/graphql/generated/org-activity.ts';
+import type { GetOrganizationQuery } from '../../../../packages/core/src/graphql/generated/organization.ts';
+import type { GetRepoQuery } from '../../../../packages/core/src/graphql/generated/repo.ts';
 import type {
   RangeContributionsByRepoFragment,
   UserInfoQuery,
-} from '../../../packages/core/src/graphql/generated/stats.ts';
-import type { TopLanguagesQuery } from '../../../packages/core/src/graphql/generated/top-languages.ts';
-import type { ReposContributedToQuery } from '../../../packages/core/src/graphql/reposContributedToDocument.ts';
-import { SAMPLE } from '../src/anvil/cards.ts';
+} from '../../../../packages/core/src/graphql/generated/stats.ts';
+import type { TopLanguagesQuery } from '../../../../packages/core/src/graphql/generated/top-languages.ts';
+import type { ReposContributedToQuery } from '../../../../packages/core/src/graphql/reposContributedToDocument.ts';
+
+import { SAMPLE } from './cards.ts';
 
 const CONTRIBUTION_YEARS = [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
 
