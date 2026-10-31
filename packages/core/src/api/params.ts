@@ -11,7 +11,12 @@
 import * as z from 'zod/mini';
 
 import type { ColorParams } from '../common/color.ts';
-import { COLOR_PARAM_KEYS, THEME_PARAM_KEYS, isValidColorInput } from '../common/color.ts';
+import {
+  COLOR_PARAM_KEYS,
+  THEME_PARAM_KEYS,
+  isBareHexColor,
+  isValidBackground,
+} from '../common/color.ts';
 import {
   GITHUB_USERNAME_PATTERN,
   HOSTNAME_PATTERN,
@@ -400,12 +405,13 @@ const statRowParams = {
 /** Every color param an endpoint accepts, validated and picked in one pass. */
 const colorParamsSchema = z.object(
   Object.fromEntries(
-    COLOR_PARAM_KEYS.map((key) => [
-      key,
-      THEME_PARAM_KEYS.includes(key)
-        ? enumParam(Object.keys(themes))
-        : kinded('text', rawParam.check(rejects('color', isValidColorInput))),
-    ]),
+    COLOR_PARAM_KEYS.map((key) => {
+      if (THEME_PARAM_KEYS.includes(key)) {
+        return [key, enumParam(Object.keys(themes))];
+      }
+      const valid = key.startsWith('bg_color') ? isValidBackground : isBareHexColor;
+      return [key, kinded('text', rawParam.check(rejects('color', valid)))];
+    }),
   ),
 );
 

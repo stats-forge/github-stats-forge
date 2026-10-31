@@ -94,6 +94,18 @@ describe('api query schemas', () => {
     },
   );
 
+  it.each(Object.entries(endpoints))(
+    '%s refuses a gradient anywhere but the background, still drawing the error card',
+    async (name, call) => {
+      const result = await call({ ...withUser(name), title_color: '90,f00,0f0' });
+
+      expect(result).toMatchObject({
+        status: 'error',
+        error: { code: 'invalid_param', param: 'title_color' },
+      });
+    },
+  );
+
   it('rejects a malformed number by naming the param', async () => {
     const result = await endpoints.stats({
       username: 'anuraghazra',

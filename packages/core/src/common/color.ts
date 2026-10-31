@@ -10,7 +10,7 @@ const HEX_COLOR = /^(?<digits>[A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa
  *
  * @returns True if the value is a bare hex color.
  */
-const isBareHexColor = (value: unknown): boolean =>
+const isBareHexColor = (value: unknown): value is string =>
   typeof value === 'string' && HEX_COLOR.test(value);
 
 /**
@@ -42,36 +42,28 @@ const isValidGradient = (parts: Array<string>): boolean => {
 };
 
 /**
- * Checks if a string is a valid input for a color or gradient.
+ * Only the background is drawn as a gradient; every other color is one hex value.
  *
- * @returns True if the given string is a valid input.
+ * @returns Whether `color` is a bare hex color or a gradient.
  */
-const isValidColorInput = (color: string | null | undefined): boolean => {
-  if (color === null || color === undefined) {
-    return true;
-  }
-  return isValidGradient(color.split(',')) || isBareHexColor(color);
-};
+const isValidBackground = (color: string): boolean =>
+  isValidGradient(color.split(',')) || isBareHexColor(color);
 
-/**
- * Retrieves a gradient if color has more than one valid hex codes else a single color.
- *
- * @returns The gradient or color.
- */
-const fallbackColor = (
-  color: string | undefined,
-  fallback: string | Array<string>,
-): string | Array<string> => {
-  const colors = color ? color.split(',') : [];
-  if (colors.length > 1 && isValidGradient(colors)) {
-    return colors;
-  }
-
-  if (color !== undefined && isBareHexColor(color)) {
+/** @returns `color` as a `#`-prefixed hex color, or `fallback` when it is not a hex color. */
+const solidColor = (color: string | undefined, fallback: string): string => {
+  if (isBareHexColor(color)) {
     return `#${color}`;
   }
-
   return fallback;
+};
+
+/** @returns `color` as a gradient's parts or a `#`-prefixed hex color, else `fallback`. */
+const backgroundColor = (color: string | undefined, fallback: string): string | Array<string> => {
+  const parts = color?.split(',') ?? [];
+  if (isValidGradient(parts)) {
+    return parts;
+  }
+  return solidColor(color, fallback);
 };
 
 /** Border a light background gets when neither the user nor the theme names one. */
@@ -204,39 +196,28 @@ const getCardColors = ({
   const themeBorderColor = 'border_color' in selectedTheme ? selectedTheme.border_color : undefined;
 
   // Each color is the user's, else the selected theme's, else the default theme's.
-  const titleColor = fallbackColor(
+  const titleColor = solidColor(
     title_color || selectedTheme.title_color,
     `#${defaultTheme.title_color}`,
   );
-  const iconColor = fallbackColor(
+  const iconColor = solidColor(
     icon_color || selectedTheme.icon_color,
     `#${defaultTheme.icon_color}`,
   );
-  const textColor = fallbackColor(
+  const textColor = solidColor(
     text_color || selectedTheme.text_color,
     `#${defaultTheme.text_color}`,
   );
-  const bgColor = fallbackColor(bg_color || selectedTheme.bg_color, `#${defaultTheme.bg_color}`);
+  const bgColor = backgroundColor(bg_color || selectedTheme.bg_color, `#${defaultTheme.bg_color}`);
 
-  const borderColor = fallbackColor(border_color || themeBorderColor, borderColorFor(bgColor));
+  const borderColor = solidColor(border_color || themeBorderColor, borderColorFor(bgColor));
   // No theme defines `ring_color`, so it falls back to the title color.
-  const ringColor = fallbackColor(ring_color, titleColor);
+  const ringColor = solidColor(ring_color, titleColor);
   // No theme defines `prog_bar_bg_color`, so it follows the background, as the border does.
-  const progBarBgColor = fallbackColor(
+  const progBarBgColor = solidColor(
     prog_bar_bg_color,
     PROG_BAR_BG_BY_TONE[backgroundTone(bgColor)],
   );
-
-  if (
-    typeof titleColor !== 'string' ||
-    typeof textColor !== 'string' ||
-    typeof ringColor !== 'string' ||
-    typeof progBarBgColor !== 'string' ||
-    typeof iconColor !== 'string' ||
-    typeof borderColor !== 'string'
-  ) {
-    throw new TypeError('Unexpected behavior, all colors except background should be string.');
-  }
 
   return {
     titleColor,
@@ -327,7 +308,7 @@ const THEME_PARAM_KEYS: ReadonlyArray<keyof ColorParams> = [
 export type { CardColors, ColorParams };
 
 export {
-  isValidColorInput,
+  isValidBackground,
   THEME_PARAM_KEYS,
   getCardColors,
   getLightDarkColors,
