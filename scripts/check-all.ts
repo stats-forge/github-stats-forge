@@ -25,7 +25,7 @@ const CHECKS: Record<string, Array<string>> = {
   'card previews': ['--filter', './apps/docs', 'run', 'check-cards'],
   'docs site': ['run', 'docs:build'],
   knip: ['run', 'lint:knip'],
-  tests: ['run', 'test'],
+  tests: ['run', 'test:coverage'],
   // Last, and after `docs site`: it serves the build that check leaves behind.
   'anvil e2e': ['--filter', './apps/docs', 'run', 'test:e2e'],
 };

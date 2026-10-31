@@ -79,7 +79,7 @@ Run from the repo root.
 
 ```sh
 pnpm test                 # vitest, whole workspace, one run (`pnpm exec vitest` watches)
-pnpm test:coverage        # the same run, with the coverage config
+pnpm test:coverage        # the same run, failing under a package's coverage floor (one CI leg runs this)
 pnpm typecheck            # build, then tsc over the packages and scripts/
 pnpm lint                 # oxlint over the whole workspace
 pnpm lint:ci              # oxlint --format=github (what CI runs, for annotations)
@@ -199,6 +199,9 @@ their reasons in `oxlint.config.ts`.
 - **Card specs read the card through `tests/_card.ts`, fetcher specs their requests through
   `tests/_fetch-mock.ts`** ([#288]); extend them rather than copy them.
 - **A param's validation is tested once, in `apiParams.spec.ts`.**
+- **`test:coverage` fails under a package's floor in `vitest.config.coverage.ts`**: raise a floor
+  after adding tests, and lower one only with the owner. Every source file counts, so one no test
+  imports reads as 0% rather than vanishing.
 - **`src` never imports a test helper or library**; `no-restricted-imports` enforces it ([#288]).
 - **Assert with jest-dom matchers**, never by reading the node. `expect(queryBy…()).toBeDefined()`
   cannot fail; count with `toHaveLength` on `queryAllBy*`.
