@@ -1,23 +1,22 @@
-import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
+import { CARD_ICON, CARD_STYLE } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import type { CardColors } from '../../common/color.ts';
-import type { GitHubDateRange } from '../../common/date.ts';
-import { formatRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
-import { icons, rankIcon } from '../../common/icons.ts';
+import { rankIcon } from '../../common/icons.ts';
 import { commonLocales } from '../../common/locales.ts';
-import type { Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
-import { buildSearchFilter, clampValue } from '../../common/ops.ts';
+import { clampValue } from '../../common/ops.ts';
 import { NUMBER_FORMATS, createTextNode, flexLayout } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { StatsData } from '../../fetchers/types.ts';
-import type { Child, CssChild } from '../../markup/index.ts';
-import { atRule, cssComment, el, rule } from '../../markup/index.ts';
+import type { CssChild } from '../../markup/index.ts';
+import { el } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { statCardLocales } from './locales.ts';
+import { getTotalCommitsRangeLabel, HIDE_STATS, SHOW_STATS, statRows } from './rows.ts';
+import { getStyles } from './styles.ts';
 
 const CARD_MIN_WIDTH = 287;
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
@@ -40,30 +39,6 @@ const LABEL_VALUE_GAP = 16;
 const RANK_ICONS = ['default', 'github', 'percentile'] as const;
 type RankIcon = (typeof RANK_ICONS)[number];
 
-/** Stats the card draws only when `show` names them. */
-const SHOW_STATS = [
-  'contributions',
-  'prs_merged',
-  'prs_merged_percentage',
-  'reviews',
-  'discussions_started',
-  'discussions_answered',
-  'prs_opened',
-  'prs_commented',
-  'prs_reviewed',
-  'issues_opened',
-  'issues_commented',
-  'contributed_to_all_time',
-] as const;
-type ShowStat = (typeof SHOW_STATS)[number];
-
-/** Stats the card always draws, and so the ones `hide` has anything to remove. */
-const HIDE_STATS = ['stars', 'commits', 'prs', 'issues', 'contributed_to'] as const;
-type HideStat = (typeof HIDE_STATS)[number];
-
-/** Every stat the card can draw: the ones it always draws, plus the ones `show` adds. */
-type StatId = HideStat | ShowStat;
-
 /** The space between stat rows, which the card's height is measured on. */
 const LINE_HEIGHT = 25;
 
@@ -84,16 +59,6 @@ interface StatCardOptions extends CommonCardOptions {
   show: Array<string>;
   /** `owner/name` and `owner/*` entries the search-based stats were narrowed to, named in their labels. */
   scope: Array<string>;
-}
-
-/** Meta data for a stat, used to build its text node and accessibility label. */
-interface StatItem {
-  icon: Child;
-  label: string;
-  value: number | string;
-  id: string;
-  unitSymbol?: string;
-  link?: string;
 }
 
 /** Long locales that need more space for text. Keep sorted alphabetically. */
@@ -127,141 +92,12 @@ const LONG_LOCALES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Calculates progress along the boundary of the circle, i.e. its circumference.
- *
- * @returns Progress value.
- */
-const calculateCircleProgress = (value: number): number => {
-  const radius = 40;
-  const circumference = Math.PI * (radius * 2);
-  const clamped = Math.min(Math.max(value, 0), 100);
-
-  return ((100 - clamped) / 100) * circumference;
-};
-
-/**
- * Retrieves the animation to display progress along the circumference of circle
- * from the beginning to the given value in a clockwise direction.
- *
- * @returns Progress animation css.
- */
-const getProgressAnimation = ({ progress }: { progress: number }): CssChild =>
-  atRule(
-    '@keyframes rankAnimation',
-    rule('from', { 'stroke-dashoffset': calculateCircleProgress(0) }),
-    rule('to', { 'stroke-dashoffset': calculateCircleProgress(progress) }),
-  );
-
-/**
- * Retrieves CSS styles for a card.
- *
- * @returns Card CSS styles.
- */
-const getStyles = ({
-  textColor,
-  iconColor,
-  ringColor,
-  show_icons,
-  progress,
-}: {
-  textColor: string;
-  iconColor: string;
-  ringColor: string;
-  show_icons: boolean;
-  progress: number;
-}): Array<CssChild> => [
-  rule('.stat', {
-    font: font('regular', 'body'),
-    fill: textColor,
-    'font-variant-numeric': 'tabular-nums',
-  }),
-  firefoxFontSize(['.stat'], 'small'),
-  rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
-  rule('.rank-text', {
-    font: font('bold', 'display'),
-    fill: textColor,
-    transform: 'translate(-5px, 5px)',
-    animation: 'scaleInAnimation 0.3s ease-in-out backwards',
-  }),
-  rule('.rank-percentile-header', { 'font-size': `${String(CARD_STYLE.fontSize.body)}px` }),
-  rule('.rank-percentile-text', { 'font-size': `${String(CARD_STYLE.fontSize.lead)}px` }),
-  cssComment('Labels recede so that the values read first.'),
-  rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular, opacity: 0.75 }),
-  rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
-  rule('.icon', {
-    fill: iconColor,
-    opacity: 0.75,
-    display: show_icons ? 'block' : 'none',
-  }),
-  rule('.rank-circle-rim', {
-    stroke: ringColor,
-    fill: 'none',
-    'stroke-width': 4,
-    opacity: 0.15,
-  }),
-  rule('.rank-circle', {
-    stroke: ringColor,
-    'stroke-dasharray': 250,
-    fill: 'none',
-    'stroke-width': 4,
-    'stroke-linecap': 'round',
-    opacity: 1,
-    'transform-origin': '-10px 8px',
-    transform: 'rotate(-90deg)',
-    'stroke-dashoffset': calculateCircleProgress(progress),
-    animation: 'rankAnimation 0.8s backwards ease-in-out',
-  }),
-  getProgressAnimation({ progress }),
-];
-
-/**
- * @returns What the commit count covers, for the stat's label.
- */
-const getTotalCommitsRangeLabel = (
-  include_all_commits: boolean,
-  commitsRange: GitHubDateRange | undefined,
-  commonT: Localized<typeof commonLocales>,
-): string => {
-  if (include_all_commits) {
-    return '';
-  }
-
-  if (commitsRange) {
-    return ` (${formatRange(commitsRange)})`;
-  }
-
-  return ` (${commonT.lastYear()})`;
-};
-
-/**
  * Renders the stats card.
  *
  * @returns The stats card SVG object.
  */
 const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}): string => {
-  const {
-    login,
-    name,
-    totalStars,
-    totalCommits,
-    commitsRange,
-    totalIssues,
-    totalPRs,
-    totalPRsMerged,
-    mergedPRsPercentage,
-    totalReviews,
-    totalDiscussionsStarted,
-    totalDiscussionsAnswered,
-    contributedTo,
-    allTimeContributedTo,
-    totalPRsAuthored,
-    totalPRsCommented,
-    totalPRsReviewed,
-    totalIssuesAuthored,
-    totalIssuesCommented,
-    totalContributions,
-    rank,
-  } = stats;
+  const { name, commitsRange, rank } = stats;
   const {
     hide = [],
     show_icons = false,
@@ -283,185 +119,11 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
-  // Typed against the exported list, so a stat drawn here cannot be missing from it.
-  const shows = (stat: ShowStat): boolean => show.includes(stat);
-
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const t = localize(statCardLocales, locale);
   const commonT = localize(commonLocales, locale);
 
-  // Meta data for creating text nodes with createTextNode function
-  const repoFilter = encodeURIComponent(buildSearchFilter(scope));
-  /**
-   * A search stat's label, naming where it counted, since nothing else on the card says so.
-   *
-   * @returns The label, with the scope after it when there is one.
-   */
-  const scoped = (label: string): string => {
-    const [only] = scope;
-    if (only === undefined) {
-      return label;
-    }
-
-    if (scope.length === 1) {
-      return `${label} (${only})`;
-    }
-
-    return `${label} (${t.scopes({ count: scope.length })})`;
-  };
-
-  const STATS: Partial<Record<StatId, StatItem>> = {
-    stars: {
-      icon: icons.star,
-      label: t.totalStars(),
-      value: totalStars,
-      id: 'stars',
-    },
-  };
-
-  if (shows('contributions')) {
-    STATS['contributions'] = {
-      icon: icons.contributions,
-      label: t.contributions(),
-      value: totalContributions,
-      id: 'contributions',
-    };
-  }
-
-  STATS['commits'] = {
-    icon: icons.commits,
-    // counted by search only when it is all commits, which is when a scope reaches it
-    label: include_all_commits
-      ? scoped(t.commits())
-      : `${t.commits()}${getTotalCommitsRangeLabel(false, commitsRange, commonT)}`,
-    value: totalCommits,
-    id: 'commits',
-  };
-  STATS['prs'] = {
-    icon: icons.prs,
-    label: t.prs(),
-    value: totalPRs,
-    id: 'prs',
-  };
-
-  if (shows('prs_merged')) {
-    STATS['prs_merged'] = {
-      icon: icons.prs_merged,
-      label: t.prsMerged(),
-      value: totalPRsMerged,
-      id: 'prs_merged',
-    };
-  }
-
-  if (shows('prs_merged_percentage')) {
-    STATS['prs_merged_percentage'] = {
-      icon: icons.prs_merged_percentage,
-      label: t.prsMergedPercentage(),
-      value: mergedPRsPercentage.toFixed(
-        number_precision !== undefined && Number.isFinite(number_precision)
-          ? clampValue(number_precision, 0, 2)
-          : 2,
-      ),
-      id: 'prs_merged_percentage',
-      unitSymbol: '%',
-    };
-  }
-
-  if (shows('reviews')) {
-    STATS['reviews'] = {
-      icon: icons.reviews,
-      label: t.reviews(),
-      value: totalReviews,
-      id: 'reviews',
-    };
-  }
-
-  STATS['issues'] = {
-    icon: icons.issues,
-    label: t.issues(),
-    value: totalIssues,
-    id: 'issues',
-  };
-
-  if (shows('discussions_started')) {
-    STATS['discussions_started'] = {
-      icon: icons.discussions_started,
-      label: t.discussionsStarted(),
-      value: totalDiscussionsStarted,
-      id: 'discussions_started',
-    };
-  }
-  if (shows('discussions_answered')) {
-    STATS['discussions_answered'] = {
-      icon: icons.discussions_answered,
-      label: t.discussionsAnswered(),
-      value: totalDiscussionsAnswered,
-      id: 'discussions_answered',
-    };
-  }
-
-  const encodedUsername = encodeURIComponent(login);
-  if (shows('prs_opened')) {
-    STATS['prs_opened'] = {
-      icon: icons.prs,
-      label: scoped(t.prsOpened()),
-      value: totalPRsAuthored,
-      id: 'prs_opened',
-      link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
-    };
-  }
-  if (shows('prs_commented')) {
-    STATS['prs_commented'] = {
-      icon: icons.comments,
-      label: scoped(t.prsCommented()),
-      value: totalPRsCommented,
-      id: 'prs_commented',
-      link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
-    };
-  }
-  if (shows('prs_reviewed')) {
-    STATS['prs_reviewed'] = {
-      icon: icons.reviews,
-      label: scoped(t.prsReviewed()),
-      value: totalPRsReviewed,
-      id: 'prs_reviewed',
-      link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
-    };
-  }
-  if (shows('issues_opened')) {
-    STATS['issues_opened'] = {
-      icon: icons.issues,
-      label: scoped(t.issuesOpened()),
-      value: totalIssuesAuthored,
-      id: 'issues_opened',
-      link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
-    };
-  }
-  if (shows('issues_commented')) {
-    STATS['issues_commented'] = {
-      icon: icons.discussions_started,
-      label: scoped(t.issuesCommented()),
-      value: totalIssuesCommented,
-      id: 'issues_commented',
-      link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,
-    };
-  }
-
-  STATS['contributed_to'] = {
-    icon: icons.repo,
-    label: t.contributedTo(),
-    value: contributedTo,
-    id: 'contributed_to',
-  };
-
-  if (shows('contributed_to_all_time')) {
-    STATS['contributed_to_all_time'] = {
-      icon: icons.repo,
-      label: t.contributedToAllTime(),
-      value: allTimeContributedTo,
-      id: 'contributed_to_all_time',
-    };
-  }
+  const STATS = statRows(stats, { show, scope, include_all_commits, number_precision }, t, commonT);
 
   const isLongLocale = locale ? LONG_LOCALES.has(locale) : false;
 
@@ -595,11 +257,8 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const labels = visibleStats
     .map(([key, stat]) => {
       if (key === 'commits') {
-        return `${t.commits()} ${getTotalCommitsRangeLabel(
-          include_all_commits,
-          commitsRange,
-          commonT,
-        )} : ${stat.value}`;
+        const range = include_all_commits ? '' : getTotalCommitsRangeLabel(commitsRange, commonT);
+        return `${t.commits()} ${range} : ${stat.value}`;
       }
       return `${stat.label}: ${stat.value}`;
     })
