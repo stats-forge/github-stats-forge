@@ -594,3 +594,36 @@ export const cards: ReadonlyArray<CardKind> = CARDS.map((card) => ({
  * @returns The card, or `undefined` when nothing renders under that name.
  */
 export const findCard = (id: string): CardKind | undefined => cards.find((card) => card.id === id);
+
+/** @returns Each required answer given, in order, so a pin names its owner and its repository. */
+const requiredAnswers = (
+  card: CardKind,
+  query: Readonly<Record<string, string | undefined>>,
+): Array<string> =>
+  card.required.map(({ name }) => query[name] ?? '').filter((answer) => answer !== '');
+
+/** @returns What the card is about, as `owner/repo` for a pin, or `''` when nothing is given. */
+export const cardSubject = (
+  card: CardKind,
+  query: Readonly<Record<string, string | undefined>>,
+): string => requiredAnswers(card, query).join('/');
+
+/**
+ * Shared by the CLI and the anvil, so a card and its saved file are named alike wherever they
+ * were made. Anything a file system reads specially is dropped from each answer.
+ *
+ * @returns `<answers>-<card>`, or the card's id alone when no answer is given.
+ */
+export const cardFileStem = (
+  card: CardKind,
+  query: Readonly<Record<string, string | undefined>>,
+): string => {
+  const slugs = requiredAnswers(card, query)
+    .map((answer) => answer.replaceAll(/[^\w.-]+/g, '-').replaceAll(/^[.-]+|[.-]+$/g, ''))
+    .filter((slug) => slug !== '');
+  return [...slugs, card.id].join('-');
+};
+
+/** @returns The saved card file: its version, the card, then the options it was saved with. */
+export const savedCardText = (card: CardKind, options: Readonly<Record<string, string>>): string =>
+  `${JSON.stringify({ version: CARD_FILE_VERSION, card: card.id, ...options }, undefined, 2)}\n`;

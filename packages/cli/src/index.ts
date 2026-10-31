@@ -4,12 +4,12 @@ import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
-import { cards, findCard } from '@stats-forge/github-stats-forge-catalog';
+import { cardFileStem, cards, findCard } from '@stats-forge/github-stats-forge-catalog';
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
 import type { Menu } from './prompts.ts';
 import { askRequired, askSavePath, askToken, navigateOptions, pickCard } from './prompts.ts';
-import { defaultFileName, fromQueryString, toQuery, toQueryString } from './query.ts';
+import { fromQueryString, toQuery, toQueryString } from './query.ts';
 import { readSavedCard, savedCardExists, toAnswers, writeSavedCard } from './saved-card.ts';
 import { withSpinner } from './spinner.ts';
 import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.ts';
@@ -101,7 +101,7 @@ const renderAndWrite = async (
     return { failed: code };
   }
 
-  const file = resolve(process.cwd(), out ?? defaultFileName(card, query));
+  const file = resolve(process.cwd(), out ?? `${cardFileStem(card, query)}.svg`);
   await writeFile(file, result.content, 'utf8');
   const written = relative(process.cwd(), file);
   process.stdout.write(`Wrote ${written}\n`);
@@ -237,8 +237,7 @@ const main = async (): Promise<void> => {
     }
 
     if (action === 'save') {
-      const path =
-        savePath ?? (await askSavePath(defaultFileName(card, query).replace(/\.svg$/, '.json')));
+      const path = savePath ?? (await askSavePath(`${cardFileStem(card, query)}-config.json`));
       if (path) {
         savePath = path;
         const written = await writeSavedCard(path, card, query);

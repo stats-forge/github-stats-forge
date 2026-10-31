@@ -11,7 +11,27 @@ import {
 } from '@stats-forge/github-stats-forge-core/api';
 import { describe, expect, it } from 'vitest';
 
-import { cards, COMMON_OPTIONS, findCard, numericStep, OPTION_GROUPS } from '../src/index.ts';
+import type { CardKind } from '../src/index.ts';
+import {
+  CARD_FILE_VERSION,
+  cardFileStem,
+  cardSubject,
+  cards,
+  COMMON_OPTIONS,
+  findCard,
+  numericStep,
+  OPTION_GROUPS,
+  savedCardText,
+} from '../src/index.ts';
+
+/** @returns The catalog's card, which every spec here expects to exist. */
+const cardById = (id: string): CardKind => {
+  const found = findCard(id);
+  if (!found) {
+    throw new Error(`the catalog has a ${id} card`);
+  }
+  return found;
+};
 
 /** The endpoint each card renders through, and so the params it reads. */
 const ENDPOINTS = {
@@ -129,5 +149,49 @@ describe('the catalog', () => {
 
   it('renders nothing for a name no card answers to', () => {
     expect(findCard('nope')).toBeUndefined();
+  });
+});
+
+describe(cardFileStem, () => {
+  it.each([
+    { id: 'stats', query: { username: 'anuraghazra' }, stem: 'anuraghazra-stats' },
+    {
+      id: 'pin',
+      query: { username: 'anuraghazra', repo: 'convoychat' },
+      stem: 'anuraghazra-convoychat-pin',
+    },
+    { id: 'pin', query: { username: 'anuraghazra', repo: '' }, stem: 'anuraghazra-pin' },
+    { id: 'org', query: { org: 'stats-forge' }, stem: 'stats-forge-org' },
+    { id: 'gist', query: { id: 'bbfce31e' }, stem: 'bbfce31e-gist' },
+    { id: 'stats', query: { username: '../a b/c.' }, stem: 'a-b-c-stats' },
+    { id: 'stats', query: {}, stem: 'stats' },
+  ])('names $id after $query as $stem', ({ id, query, stem }) => {
+    expect(cardFileStem(cardById(id), query)).toBe(stem);
+  });
+
+  it('names a card that asks for nothing after the card alone', () => {
+    expect(cardFileStem({ ...cardById('stats'), required: [] }, { username: 'octocat' })).toBe(
+      'stats',
+    );
+  });
+});
+
+describe(cardSubject, () => {
+  it('names a pin by its owner and repository, as GitHub writes them', () => {
+    expect(cardSubject(cardById('pin'), { username: 'anuraghazra', repo: 'convoychat' })).toBe(
+      'anuraghazra/convoychat',
+    );
+  });
+
+  it('is empty while nothing is given', () => {
+    expect(cardSubject(cardById('stats'), { username: '' })).toBe('');
+  });
+});
+
+describe(savedCardText, () => {
+  it('writes the version and the card ahead of the options', () => {
+    expect(savedCardText(cardById('gist'), { id: 'abc', theme: 'dark' })).toBe(
+      `${JSON.stringify({ version: CARD_FILE_VERSION, card: 'gist', id: 'abc', theme: 'dark' }, undefined, 2)}\n`,
+    );
   });
 });

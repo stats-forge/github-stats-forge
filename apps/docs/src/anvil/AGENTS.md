@@ -101,9 +101,10 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
     seams: `part`, a `<small>` heading and `wa-divider` between groups.
 - **A boolean option is `default`, `on` or `off`**, `default` writing no param.
 - **A control carries `data-option="<param>"`, which the tests find**: `label` is not reflected.
-- **The saved file is `{subject}-{card}-config.json`** ([#67]), the subject the last required param,
-  slugged. `redraw` writes the heading, the `download` and the `--config` line together; the toasts
-  read the name at click time.
+- **The saved file is `{answers}-{card}-config.json`** ([#67]), each required answer slugged, so a
+  pin names its owner and two owners' same-named repositories never share a file. `redraw` writes
+  the heading, the `download` and the `--config` line together; the toasts read the name at click
+  time.
 - **Copy and download report through a `wa-toast`, and the buttons keep their names.** No `aria-live`
   on the stack (Web Awesome mirrors each toast into its own region); override the close button's hover
   colour (an e2e test checks it); keep the stack inside `[data-anvil="root"]`, where `mount` looks.

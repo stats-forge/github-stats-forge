@@ -9,7 +9,7 @@
  * the anvil's query box.
  */
 
-import type { CardKind, CardOption } from '@stats-forge/github-stats-forge-catalog';
+import type { CardOption } from '@stats-forge/github-stats-forge-catalog';
 import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 
 /** What a prompt answered, before it becomes a query param. */
@@ -55,20 +55,10 @@ export const describeAnswer = (option: CardOption, value: Answer): string => {
   if (param === undefined) {
     return UNSET;
   }
-  return option.kind === 'boolean' ? (value === true ? 'yes' : 'no') : param;
-};
-
-/**
- * The `.svg` file a card is written to when `--out` is not given.
- * Named after the card and whoever it is about, so a directory of them stays readable.
- *
- * @returns A file name, ending in `.svg`.
- */
-export const defaultFileName = (card: CardKind, query: Record<string, string>): string => {
-  const subject = query['username'] ?? query['id'] ?? 'card';
-  const { repo } = query;
-  const parts = [card.id, subject, repo].filter(Boolean).join('-');
-  return `${parts.replaceAll(/[^\w.-]/g, '-')}.svg`;
+  if (option.kind !== 'boolean') {
+    return param;
+  }
+  return value === true ? 'yes' : 'no';
 };
 
 /**
