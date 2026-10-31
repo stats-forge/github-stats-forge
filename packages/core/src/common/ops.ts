@@ -1,29 +1,4 @@
-import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
-
-import { OWNER_AFFILIATIONS } from './constants.ts';
 import { getEmoji } from './emojiMap.ts';
-import { CardError } from './error.ts';
-
-/**
- * Returns boolean if value is either "true" or "false" else the value as it is.
- *
- * @returns The parsed value.
- */
-const parseBoolean = (value: string | boolean | undefined): boolean | undefined => {
-  if (typeof value === 'boolean') {
-    return value;
-  }
-
-  if (typeof value === 'string') {
-    if (value.toLowerCase() === 'true') {
-      return true;
-    }
-    if (value.toLowerCase() === 'false') {
-      return false;
-    }
-  }
-  return undefined;
-};
 
 /**
  * A comma-separated list, as a URL is typed by hand: `a, b,` is `a` and `b`.
@@ -104,30 +79,6 @@ const parseEmojis = (str: string): string => {
   );
 };
 
-const isOwnerAffiliation = (value: string): value is RepositoryAffiliation =>
-  OWNER_AFFILIATIONS.some((affiliation) => affiliation === value);
-
-/**
- * Parse owner affiliations.
- *
- * @throws {CardError} If affiliations contains invalid values.
- *
- * @returns Parsed affiliations.
- */
-const parseOwnerAffiliations = (affiliations: Array<string>): Array<RepositoryAffiliation> => {
-  // `parseArray` returns an empty array for an absent param, so the default lands here.
-  const normalized =
-    affiliations.length > 0
-      ? affiliations.map((affiliation) => affiliation.toUpperCase())
-      : ['OWNER'];
-
-  // Check if ownerAffiliations contains valid values.
-  if (!normalized.every((value) => isOwnerAffiliation(value))) {
-    throw CardError.because('invalid_affiliation');
-  }
-  return normalized;
-};
-
 /**
  * The search qualifiers a scope reads as: `owner/*` is an owner, anything else a repository.
  *
@@ -139,13 +90,11 @@ const buildSearchFilter = (scope: ReadonlyArray<string>): string =>
     .join('');
 
 export {
-  parseBoolean,
   parseArray,
   excludes,
   clampValue,
   lowercaseTrim,
   chunkArray,
   parseEmojis,
-  parseOwnerAffiliations,
   buildSearchFilter,
 };

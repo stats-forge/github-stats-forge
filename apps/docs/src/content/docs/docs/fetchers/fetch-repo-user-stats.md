@@ -17,4 +17,4 @@ call it directly when you want the numbers and not the rest of the stats.
 
 ## Cost
 
-One search request per count asked for. Ask for none and it makes no request at all.
+One search request per entry of `searches`. Ask for none and it makes no request at all.

@@ -13,7 +13,7 @@ import type { GetOrganizationActivityQuery } from '../graphql/generated/org-acti
 
 import type { OrgActivityData } from './types.ts';
 
-const fetcher = createGraphQLFetcher(GetOrganizationActivityDocument, 'token');
+const fetcher = createGraphQLFetcher(GetOrganizationActivityDocument);
 
 const urlExample = '/api/org-activity?org=ORG_NAME';
 

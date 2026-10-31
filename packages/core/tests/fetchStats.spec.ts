@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { stats as statsApi } from '../src/api/stats.ts';
 import { calculateRank } from '../src/calculateRank.ts';
 import type { CardConfig } from '../src/common/config.ts';
 import type { GitHubDateRange } from '../src/common/date.ts';
@@ -355,11 +356,13 @@ describe('Test fetchStats', () => {
 
     const stats = await fetchStatsWith({
       include_all_commits: true,
-      include_prs_authored: true,
-      include_prs_commented: true,
-      include_prs_reviewed: true,
-      include_issues_authored: true,
-      include_issues_commented: true,
+      searches: [
+        'prs_opened',
+        'prs_commented',
+        'prs_reviewed',
+        'issues_opened',
+        'issues_commented',
+      ],
     });
     expect(stats).toStrictEqual(
       expectedStats({ totalCommits: 0 }, { all_commits: true, commits: 0 }),
@@ -484,6 +487,22 @@ describe('Test fetchStats', () => {
     expect(variables).toMatchObject({
       startTime: '2003-01-01T00:00:00Z',
       endTime: '2003-12-31T23:59:59Z',
+    });
+  });
+
+  it('counts only the user’s own repositories when no affiliation is named', async () => {
+    await fetchStatsWith({});
+
+    expect(graphqlBody(mock.history.post[0]).variables).toMatchObject({
+      ownerAffiliations: ['OWNER'],
+    });
+  });
+
+  it('counts the affiliations named in place of the owner’s', async () => {
+    await fetchStatsWith({ ownerAffiliations: ['COLLABORATOR'] });
+
+    expect(graphqlBody(mock.history.post[0]).variables).toMatchObject({
+      ownerAffiliations: ['COLLABORATOR'],
     });
   });
 
@@ -643,4 +662,25 @@ describe('Test fetchStats', () => {
     // rounds past MAX_RANGES_PER_REQUEST ranges take more than one request each
     expect(requestCount).toBe(12);
   });
+});
+
+describe('the stats endpoint', () => {
+  it.each([
+    { show: 'prs_reviewed', searches: 1 },
+    { show: undefined, searches: 0 },
+  ])(
+    'searches for reviewed PRs only when it draws them (show $show)',
+    async ({ show, searches }) => {
+      mock
+        .onGet(/^https:\/\/api\.github\.com\/search\/issues/)
+        .reply(200, { total_count: 3 } satisfies SearchBody);
+
+      const result = await statsApi({ username: 'anuraghazra', show }, config);
+
+      expect(result.status).toBe('success');
+      expect(mock.history.get.filter(({ url }) => url.includes('reviewed-by:'))).toHaveLength(
+        searches,
+      );
+    },
+  );
 });

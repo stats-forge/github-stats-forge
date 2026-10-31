@@ -2,6 +2,7 @@ import * as z from 'zod/mini';
 
 import { renderRepoCard } from '../cards/repo/index.ts';
 import { fetchRepo } from '../fetchers/repo.ts';
+import { REPO_USER_SEARCHES } from '../fetchers/stats.ts';
 
 import { cardHandler } from './handler.ts';
 import {
@@ -40,11 +41,7 @@ const renderPin = cardHandler(
       {
         username,
         reponame: repo,
-        include_prs_authored: show.includes('prs_opened'),
-        include_prs_commented: show.includes('prs_commented'),
-        include_prs_reviewed: show.includes('prs_reviewed'),
-        include_issues_authored: show.includes('issues_opened'),
-        include_issues_commented: show.includes('issues_commented'),
+        searches: REPO_USER_SEARCHES.filter((search) => show.includes(search)),
         include_topics: show.includes('topics'),
       },
       config,

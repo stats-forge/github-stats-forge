@@ -7,7 +7,7 @@ import type { GistFileInfoFragment } from '../graphql/generated/gist.ts';
 
 import type { GistData } from './types.ts';
 
-const fetcher = createGraphQLFetcher(GistInfoDocument, 'token');
+const fetcher = createGraphQLFetcher(GistInfoDocument);
 
 /**
  * This function calculates the primary language of a gist by files size.

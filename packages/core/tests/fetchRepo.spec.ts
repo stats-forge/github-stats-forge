@@ -8,7 +8,7 @@ import type { GetRepoQuery, RepoInfoFragment } from '../src/graphql/generated/re
 import { draw, exactly } from './_card.ts';
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
-import type { GraphQLBody } from './_fetch-mock.ts';
+import type { GraphQLBody, SearchBody } from './_fetch-mock.ts';
 
 const repository: RepoInfoFragment = {
   name: 'convoychat',
@@ -134,5 +134,22 @@ describe('the pin endpoint', () => {
     draw(result.content);
     expect(screen.getAllByTestId('topic')).toHaveLength(1);
     expect(document.querySelector('.header')).toHaveTextContent(exactly('anuraghazra/convoychat'));
+  });
+
+  it('searches only for the counts show names, within the repository', async () => {
+    mock.onPost(GRAPHQL).reply(200, data_user);
+    mock
+      .onGet(/^https:\/\/api\.github\.com\/search\/issues/)
+      .reply(200, { total_count: 3 } satisfies SearchBody);
+
+    const result = await pin(
+      { username: 'anuraghazra', repo: 'convoychat', show: 'prs_reviewed,topics' },
+      config,
+    );
+
+    expect(result.status).toBe('success');
+    expect(mock.history.get).toHaveLength(1);
+    expect(mock.history.get[0]?.url).toContain('repo:anuraghazra/convoychat');
+    expect(mock.history.get[0]?.url).toContain('reviewed-by:anuraghazra');
   });
 });

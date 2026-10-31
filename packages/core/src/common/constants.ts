@@ -25,7 +25,18 @@ const OWNER_AFFILIATIONS: Array<RepositoryAffiliation> = [
   'ORGANIZATION_MEMBER',
 ];
 
+/** @returns The affiliations asked for, or the user's own repositories when none are. */
+const affiliationsOrOwner = (
+  affiliations: Array<RepositoryAffiliation>,
+): Array<RepositoryAffiliation> => {
+  if (affiliations.length > 0) {
+    return affiliations;
+  }
+  return ['OWNER'];
+};
+
 export {
+  affiliationsOrOwner,
   GITHUB_EPOCH_YEAR,
   GITHUB_USERNAME_PATTERN,
   HOSTNAME_PATTERN,

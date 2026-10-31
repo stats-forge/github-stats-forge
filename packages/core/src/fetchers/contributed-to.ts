@@ -50,7 +50,7 @@ interface RepoContributions {
   years: Set<number>;
 }
 
-const yearsFetcher = createGraphQLFetcher(UserContributionYearsDocument, 'bearer');
+const yearsFetcher = createGraphQLFetcher(UserContributionYearsDocument);
 
 /**
  * The repositories a user contributed to across every contribution year, with what each one got.
@@ -88,7 +88,6 @@ const fetchReposContributedTo = async (
     const chunk = pending.slice(0, rangesPerRequest);
     const chunkFetcher = createGraphQLFetcher(
       buildReposContributedToDocument(chunk, includeOwnRepos),
-      'bearer',
     );
     const res = await retryer(
       chunkFetcher,

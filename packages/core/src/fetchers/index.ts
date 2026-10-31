@@ -4,6 +4,7 @@ export { fetchOrgActivity } from './org-activity.ts';
 export { fetchOrganization } from './organization.ts';
 export { fetchRepo } from './repo.ts';
 export { fetchRepoUserStats, fetchStats } from './stats.ts';
+export type { RepoUserSearch } from './stats.ts';
 export { fetchTopLanguages } from './top-languages.ts';
 export { fetchWakatimeStats } from './wakatime.ts';
 

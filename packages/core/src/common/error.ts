@@ -9,7 +9,6 @@
  * A failure is thrown by its reason, and `FAILURES` below is the only place it is worded.
  */
 
-import { OWNER_AFFILIATIONS } from './constants.ts';
 import type { GraphQLResponse } from './http.ts';
 import { logger } from './log.ts';
 import { wrapTextMultiline } from './text.ts';
@@ -92,12 +91,6 @@ const FAILURES = {
     message: `Something went wrong while trying to retrieve the ${subject} using the GraphQL API.`,
     secondaryMessage: TRY_AGAIN_LATER,
     reportable: false,
-  }),
-  invalid_affiliation: (): Failure => ({
-    code: 'invalid_param',
-    message: 'Something went wrong',
-    secondaryMessage: `Invalid owner affiliations. Valid values are: ${OWNER_AFFILIATIONS.join(', ')}`,
-    param: 'affiliation',
   }),
   /** The param a check rejected, and the check's own wording of why. */
   invalid_param: ({ param, detail }: { param: string; detail: string }): Failure => ({

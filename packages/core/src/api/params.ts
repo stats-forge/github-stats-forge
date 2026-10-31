@@ -25,7 +25,7 @@ import {
 import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
 import { isLocaleAvailable } from '../common/localize.ts';
-import { parseArray, parseBoolean } from '../common/ops.ts';
+import { parseArray } from '../common/ops.ts';
 import { NUMBER_FORMATS } from '../common/render.ts';
 import { themes } from '../themes/index.ts';
 
@@ -114,6 +114,20 @@ const rejects = (kind: Rejection, passes: (value: string) => boolean): z.core.$Z
   });
 
 /**
+ * @returns `true` or `false` for those words in any case, else `undefined`.
+ */
+const parseBoolean = (value: string | undefined): boolean | undefined => {
+  const lowered = value?.toLowerCase();
+  if (lowered === 'true') {
+    return true;
+  }
+  if (lowered === 'false') {
+    return false;
+  }
+  return undefined;
+};
+
+/**
  * `?x=true` / `?x=false`, in any case.
  * Absent is `undefined`, which leaves the card's own default in place; anything else is rejected.
  */
@@ -121,8 +135,7 @@ const booleanParam = kinded(
   'boolean',
   z.pipe(
     rawParam.check(rejects('boolean', (value) => parseBoolean(value) !== undefined)),
-    // Narrowed: `parseBoolean` also takes booleans, which a query string cannot hold.
-    z.transform((value: string | undefined) => parseBoolean(value)),
+    z.transform(parseBoolean),
   ),
 );
 

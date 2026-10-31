@@ -2,7 +2,7 @@ import * as z from 'zod/mini';
 
 import { renderStatsCard } from '../cards/stats/index.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
-import { fetchStats } from '../fetchers/stats.ts';
+import { fetchStats, REPO_USER_SEARCHES } from '../fetchers/stats.ts';
 
 import { cardHandler } from './handler.ts';
 import {
@@ -98,11 +98,7 @@ const renderStats = cardHandler(
         from,
         to,
         scope,
-        include_prs_authored: drawn.has('prs_opened'),
-        include_prs_commented: drawn.has('prs_commented'),
-        include_prs_reviewed: drawn.has('prs_reviewed'),
-        include_issues_authored: drawn.has('issues_opened'),
-        include_issues_commented: drawn.has('issues_commented'),
+        searches: REPO_USER_SEARCHES.filter((search) => drawn.has(search)),
         ownerAffiliations: affiliation,
         include_contributions: drawn.has('contributions'),
         include_all_time_contribs: drawn.has('contributed_to_all_time'),

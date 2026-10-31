@@ -14,9 +14,8 @@ That is what lets one option name any repository, rather than only one of the us
 
 ## The optional counts
 
-`include_prs_authored`, `include_prs_commented`, `include_prs_reviewed`,
-`include_issues_authored` and `include_issues_commented` each add a search request, scoped to this
-repository rather than to the user.
+Each entry of `searches` — `prs_opened`, `prs_commented`, `prs_reviewed`, `issues_opened` or
+`issues_commented` — adds a search request, scoped to this repository rather than to the user.
 
 `include_topics` asks the same request for the repository's topics, returned as `topics`, their
 names in GitHub's order.

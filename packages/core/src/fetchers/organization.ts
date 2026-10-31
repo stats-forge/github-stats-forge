@@ -13,7 +13,7 @@ import type {
 
 import type { OrganizationData } from './types.ts';
 
-const fetcher = createGraphQLFetcher(GetOrganizationDocument, 'token');
+const fetcher = createGraphQLFetcher(GetOrganizationDocument);
 
 const urlExample = '/api/org?org=ORG_NAME';
 
