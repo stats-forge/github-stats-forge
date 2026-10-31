@@ -68,7 +68,7 @@ describe('common/ops', () => {
     expect(parseEmojis('Hello :nonexistent:')).toBe('Hello ');
     expect(parseEmojis('I :heart: OSS')).toBe('I ❤️ OSS');
     // shortcodes GitHub spells with `+` or `-`
-    expect(parseEmojis(':+1: and :-1:')).toBe('👍️ and 👎️');
+    expect(parseEmojis(':+1: and :-1:')).toBe('👍 and 👎');
     expect(parseEmojis(':non-potable_water:')).toBe('🚱');
     // a flag and a recent addition, neither of which the old table carried
     expect(parseEmojis('made in :it:')).toBe('made in 🇮🇹');
