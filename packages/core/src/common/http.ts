@@ -15,6 +15,17 @@ type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 const defaultFetch: FetchLike = async (input, init) => fetch(input, init);
 
 /**
+ * @returns `fetchImpl`, giving up on each request after `timeoutMs`; `fetchImpl` itself without one.
+ */
+const withTimeout = (fetchImpl: FetchLike, timeoutMs: number | undefined): FetchLike => {
+  if (timeoutMs === undefined) {
+    return fetchImpl;
+  }
+  return async (input, init) =>
+    fetchImpl(input, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+};
+
+/**
  * A response, parsed.
  * A non-2xx is a value here rather than a throw:
  * the retryer reads the body of a rejected request to tell a spent token from a rate limit.
@@ -93,5 +104,5 @@ const createGraphQLFetcher =
       body: JSON.stringify({ query: document.text, variables }),
     });
 
-export { createGraphQLFetcher, defaultFetch, httpRequest };
+export { createGraphQLFetcher, defaultFetch, httpRequest, withTimeout };
 export type { FetcherContext, FetchLike, GraphQLResponse, HttpResponse };

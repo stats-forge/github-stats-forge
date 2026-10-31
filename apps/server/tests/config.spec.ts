@@ -45,6 +45,11 @@ describe(readSettings, () => {
     expect(settings.options.config.pats.map((pat) => pat.name)).toStrictEqual(['PAT_1']);
   });
 
+  it('gives each GitHub request 10 seconds unless REQUEST_TIMEOUT_MS says otherwise', () => {
+    expect(readSettings({}).options.config.requestTimeoutMs).toBe(10_000);
+    expect(readSettings({ REQUEST_TIMEOUT_MS: '2500' }).options.config.requestTimeoutMs).toBe(2500);
+  });
+
   it('answers with real status codes only when asked to', () => {
     expect(readSettings({}).options.strictHttpStatus).toBe(false);
     expect(readSettings({ STRICT_HTTP_STATUS: 'true' }).options.strictHttpStatus).toBe(true);
