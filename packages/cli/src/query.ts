@@ -55,10 +55,10 @@ export const describeAnswer = (option: CardOption, value: Answer): string => {
   if (param === undefined) {
     return UNSET;
   }
-  if (option.kind !== 'boolean') {
+  if (option.kind !== 'boolean' || typeof value !== 'boolean') {
     return param;
   }
-  return value === true ? 'yes' : 'no';
+  return value ? 'yes' : 'no';
 };
 
 /**

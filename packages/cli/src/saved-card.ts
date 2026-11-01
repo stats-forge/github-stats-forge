@@ -17,6 +17,7 @@ import {
   findCard,
   savedCardText,
 } from '@stats-forge/github-stats-forge-catalog';
+import { readBoolean } from '@stats-forge/github-stats-forge-core/api';
 
 import type { Answer } from './query.ts';
 
@@ -112,7 +113,7 @@ export const writeSavedCard = async (
  * Turns saved options back into answers the menu can show and edit.
  *
  * Everything on a query string is a string;
- * a boolean becomes one again, and a list splits back into its values,
+ * a boolean becomes one again as a card reads it, and a list splits back into its values,
  * so each prompt opens on the answer it was saved with.
  *
  * @returns The answers, ready for the menu.
@@ -124,8 +125,9 @@ export const toAnswers = (card: CardKind, options: Record<string, string>): Map<
 
   const toAnswer = (name: string, value: string): Answer => {
     switch (kinds.get(name)) {
+      // a word no card reads stays as written, so the render rejects it rather than the menu flipping it
       case 'boolean':
-        return value === 'true';
+        return readBoolean(value) ?? value;
 
       case 'list':
         return value
