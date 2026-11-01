@@ -1,29 +1,27 @@
 import fs from 'node:fs';
 
 import { fetchOk } from './download.ts';
-import { buildEmojiMap } from './emoji-map.ts';
-import type { Compact, Shortcodes } from './emoji-map.ts';
+import { buildEmojiMap, parseCompact, parseLatest, parseShortcodes } from './emoji-map.ts';
 
 const EMOJI_FILEPATH = './src/common/emojiMap.json';
 
-const fetchJson = async <T>(url: string): Promise<T> => {
+const fetchJson = async (url: string): Promise<unknown> => {
   const response = await fetchOk(url);
-  return (await response.json()) as T;
+  const data: unknown = await response.json();
+  return data;
 };
 
 // Resolved rather than pinned, so a Unicode major lands in the scheduled PR instead of
 // waiting for someone to notice. `emoji-name-map` sat nine majors behind for this reason.
-const { version } = await fetchJson<{ version: string }>(
-  'https://registry.npmjs.org/emojibase-data/latest',
-);
+const version = parseLatest(await fetchJson('https://registry.npmjs.org/emojibase-data/latest'));
 console.log(`emojibase-data@${version}`);
 
-const emojibase = async <T>(name: string): Promise<T> =>
-  fetchJson<T>(`https://cdn.jsdelivr.net/npm/emojibase-data@${version}/en/${name}.json`);
+const emojibase = async (name: string): Promise<unknown> =>
+  fetchJson(`https://cdn.jsdelivr.net/npm/emojibase-data@${version}/en/${name}.json`);
 
 const [shortcodes, compact] = await Promise.all([
-  emojibase<Shortcodes>('shortcodes/github'),
-  emojibase<Compact>('compact'),
+  emojibase('shortcodes/github').then(parseShortcodes),
+  emojibase('compact').then(parseCompact),
 ]);
 
 const emojiMap = buildEmojiMap(shortcodes, compact);

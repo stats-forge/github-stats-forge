@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildEmojiMap, MIN_SHORTCODES } from '../scripts/emoji-map.ts';
+import {
+  buildEmojiMap,
+  MIN_SHORTCODES,
+  parseCompact,
+  parseLatest,
+  parseShortcodes,
+} from '../scripts/emoji-map.ts';
 import type { Compact, Shortcodes } from '../scripts/emoji-map.ts';
 
 /** @returns `count` filler emoji, enough to clear the size guard. */
@@ -31,5 +37,28 @@ describe(buildEmojiMap, () => {
     expect(() => buildEmojiMap(shortcodes, compact)).toThrow(
       `Only ${String(MIN_SHORTCODES - 1)} shortcodes resolved; refusing to write.`,
     );
+  });
+});
+
+describe('parsing a download', () => {
+  it('reads what emojibase serves', () => {
+    expect(parseLatest({ version: '17.0.0', name: 'emojibase-data' })).toBe('17.0.0');
+    expect(parseShortcodes({ '1F44D': ['+1', 'thumbsup'], '1F600': 'grinning' })).toStrictEqual({
+      '1F44D': ['+1', 'thumbsup'],
+      '1F600': 'grinning',
+    });
+    expect(
+      parseCompact([{ hexcode: '1F600', unicode: '😀', label: 'grinning face' }]),
+    ).toStrictEqual([{ hexcode: '1F600', unicode: '😀' }]);
+  });
+
+  it.each<[string, (value: unknown) => unknown, unknown, string]>([
+    ['a registry error', parseLatest, { error: 'Not found' }, 'emojibase-data/latest'],
+    ['a shortcode that is a number', parseShortcodes, { '1F600': 1 }, 'shortcodes/github.json'],
+    ['shortcodes as a list', parseShortcodes, ['grinning'], 'shortcodes/github.json'],
+    ['an emoji without its unicode', parseCompact, [{ hexcode: '1F600' }], 'compact.json'],
+    ['a table keyed by hexcode', parseCompact, { '1F600': '😀' }, 'compact.json'],
+  ])('refuses %s', (_, parse, value, file) => {
+    expect(() => parse(value)).toThrow(`${file} is not shaped as expected:`);
   });
 });

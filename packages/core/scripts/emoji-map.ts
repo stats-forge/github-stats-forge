@@ -3,14 +3,49 @@
  * or disk, so it can be tested.
  */
 
-/** GitHub's shortcode preset, keyed by hexcode. */
-type Shortcodes = Record<string, string | Array<string>>;
+import * as z from 'zod/mini';
 
-/** The hexcode -> unicode table, one entry per emoji. */
-type Compact = Array<{ hexcode: string; unicode: string }>;
+/** The npm registry's `latest` document for emojibase-data, as far as this reads it. */
+const registryLatest = z.object({ version: z.string() });
+
+/** GitHub's shortcode preset, keyed by hexcode. */
+const githubShortcodes = z.record(z.string(), z.union([z.string(), z.array(z.string())]));
+
+/** The hexcode -> unicode table, one entry per emoji; the fields this does not read are dropped. */
+const compactTable = z.array(z.object({ hexcode: z.string(), unicode: z.string() }));
+
+type Shortcodes = z.infer<typeof githubShortcodes>;
+type Compact = z.infer<typeof compactTable>;
 
 /** Well under GitHub's set: fewer means the source changed shape. */
 const MIN_SHORTCODES = 1500;
+
+/**
+ * Check a download against its schema, so a reshaped one fails naming the field rather than
+ * somewhere inside {@link buildEmojiMap}.
+ *
+ * @throws {Error} When the value does not match.
+ *
+ * @returns The value, typed.
+ */
+const parseAs = <T>(schema: z.ZodMiniType<T>, value: unknown, what: string): T => {
+  const result = z.safeParse(schema, value);
+  if (!result.success) {
+    throw new Error(`${what} is not shaped as expected:\n${z.prettifyError(result.error)}`);
+  }
+  return result.data;
+};
+
+/** @returns The latest version's number. */
+const parseLatest = (value: unknown): string =>
+  parseAs(registryLatest, value, 'emojibase-data/latest').version;
+
+/** @returns The shortcodes, checked. */
+const parseShortcodes = (value: unknown): Shortcodes =>
+  parseAs(githubShortcodes, value, 'shortcodes/github.json');
+
+/** @returns The compact table, checked. */
+const parseCompact = (value: unknown): Compact => parseAs(compactTable, value, 'compact.json');
 
 /**
  * @throws {Error} When fewer than {@link MIN_SHORTCODES} shortcodes resolve.
@@ -38,5 +73,5 @@ const buildEmojiMap = (shortcodes: Shortcodes, compact: Compact): Record<string,
   return emojiMap;
 };
 
-export { buildEmojiMap, MIN_SHORTCODES };
+export { buildEmojiMap, MIN_SHORTCODES, parseCompact, parseLatest, parseShortcodes };
 export type { Compact, Shortcodes };
