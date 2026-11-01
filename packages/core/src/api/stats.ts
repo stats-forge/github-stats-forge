@@ -25,14 +25,18 @@ import {
 /** Every stat the card draws: `show` and `hide` each accept any of them. */
 const STATS = [...renderStatsCard.OPTIONS.hide, ...renderStatsCard.OPTIONS.show] as const;
 
-/** The stats counted by search, which `scope` narrows, with commits when `include_all_commits` is on. */
-const SEARCH_STATS = [
-  'prs_opened',
-  'prs_commented',
-  'prs_reviewed',
-  'issues_opened',
-  'issues_commented',
-] as const;
+/**
+ * A stat shown and hidden is not drawn, and a stat not drawn is not fetched.
+ *
+ * @returns The stats `show` adds that `hide` leaves in.
+ */
+const drawnStats = <TStat extends string>({
+  show,
+  hide,
+}: {
+  show: ReadonlyArray<TStat>;
+  hide: ReadonlyArray<string>;
+}): Set<TStat> => new Set(show.filter((stat) => !hide.includes(stat)));
 
 /** What the stats endpoint accepts, on top of the shared color params. */
 const statsQuery = z
@@ -56,11 +60,13 @@ const statsQuery = z
   })
   .check(ORDERED_RANGE)
   .check(
-    scopeNeedsSearch(
-      ({ show, hide, include_all_commits }) =>
-        SEARCH_STATS.some((stat) => show.includes(stat) && !hide.includes(stat)) ||
-        (include_all_commits === true && !hide.includes('commits')),
-    ),
+    scopeNeedsSearch((query) => {
+      const drawn = drawnStats(query);
+      return (
+        REPO_USER_SEARCHES.some((stat) => drawn.has(stat)) ||
+        (query.include_all_commits === true && !query.hide.includes('commits'))
+      );
+    }),
   );
 
 /**
@@ -80,12 +86,9 @@ const renderStats = cardHandler(
       to,
       scope,
       affiliation,
-      show,
-      hide,
       include_own_repos,
     } = params;
-    // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
-    const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
+    const drawn = drawnStats(params);
 
     const stats = await fetchStats(
       {

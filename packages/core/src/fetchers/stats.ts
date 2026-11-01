@@ -132,8 +132,8 @@ const statsFetcher = async (
 
 /** One REST search: which index, the qualifiers scoping it, and the ones naming what to count. */
 interface SearchVariables {
-  /** `commits` or `issues`, the latter covering pull requests too. */
-  type: string;
+  /** `issues` covers pull requests too. */
+  type: 'commits' | 'issues';
   /** Qualifiers appended after the scope, already `+`-joined. */
   filter: string;
   /** `owner/name` and `owner/*` entries the search is narrowed to. */

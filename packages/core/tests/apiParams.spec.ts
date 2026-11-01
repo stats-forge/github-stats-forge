@@ -8,6 +8,7 @@ import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
 import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
+import { REPO_USER_SEARCHES } from '../src/fetchers/stats.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';
@@ -195,6 +196,29 @@ describe('api query schemas', () => {
 
     expect(result).toMatchObject({ status: 'error', error: { code: 'invalid_param', param } });
     expect(result.content).toContain(`Incorrect ${param} input`);
+  });
+
+  it.each(REPO_USER_SEARCHES)(
+    'stats takes a scope when only %s is counted by search',
+    async (show) => {
+      const result = await endpoints.stats({
+        username: 'anuraghazra',
+        show,
+        scope: 'vitest-dev/*',
+      });
+
+      expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+    },
+  );
+
+  it('stats takes a scope when commits are counted by search', async () => {
+    const result = await endpoints.stats({
+      username: 'anuraghazra',
+      include_all_commits: 'true',
+      scope: 'vitest-dev/*',
+    });
+
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
   it.each([
