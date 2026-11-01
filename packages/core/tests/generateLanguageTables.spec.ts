@@ -52,8 +52,10 @@ describe(buildLanguageTables, () => {
 });
 
 describe(parseLanguages, () => {
-  it('reads a mapping of languages', () => {
-    expect(parseLanguages('Python:\n  type: programming\n  color: "#3572A5"\n')).toStrictEqual({
+  it('reads a mapping of languages, dropping the fields the tables do not read', () => {
+    const yaml = 'Python:\n  type: programming\n  color: "#3572A5"\n  extensions: [".py"]\n';
+
+    expect(parseLanguages(yaml)).toStrictEqual({
       Python: { type: 'programming', color: '#3572A5' },
     } satisfies Record<string, LinguistLanguage>);
   });
@@ -63,8 +65,9 @@ describe(parseLanguages, () => {
     ['an error page', '404: Not Found'],
     ['a plain-text body', 'Internal Server Error'],
     ['a list', '- Python\n- Go\n'],
+    ['an alias that is not a list', 'Python:\n  aliases: py\n'],
   ])('refuses %s', (_, yaml) => {
-    expect(() => parseLanguages(yaml)).toThrow('languages.yml is not a mapping of language names');
+    expect(() => parseLanguages(yaml)).toThrow('languages.yml is not a table of languages');
   });
 
   it.each([

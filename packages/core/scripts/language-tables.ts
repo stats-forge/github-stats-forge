@@ -4,16 +4,20 @@
  */
 
 import * as jsYaml from 'js-yaml';
+import * as z from 'zod/mini';
 
 /** GitHub's language bar shows only these; any other language is one it leaves out. */
 const COUNTED_TYPES = new Set(['programming', 'markup']);
 
-interface LinguistLanguage {
-  type?: string;
-  color?: string;
-  aliases?: Array<string>;
-  interpreters?: Array<string>;
-}
+/** The part of each `languages.yml` entry the tables read; the rest is dropped. */
+const linguistLanguage = z.object({
+  type: z.optional(z.string()),
+  color: z.optional(z.string()),
+  aliases: z.optional(z.array(z.string())),
+  interpreters: z.optional(z.array(z.string())),
+});
+
+type LinguistLanguage = z.infer<typeof linguistLanguage>;
 
 interface LanguageTables {
   /** Each language to its color, `undefined` for one linguist gives none. */
@@ -22,23 +26,20 @@ interface LanguageTables {
   aliases: Record<string, string | null>;
 }
 
-const isMapping = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-
 /**
  * Read linguist's `languages.yml`, refusing anything that is not a table of languages:
  * `404: Not Found` is valid YAML, and would have written an empty color table.
  *
- * @throws {Error} When the YAML is malformed, or is not a mapping of names to mappings.
+ * @throws {Error} When the YAML is malformed, or an entry is not shaped like a language.
  *
  * @returns Each language name to its entry.
  */
 const parseLanguages = (yaml: string): Record<string, LinguistLanguage> => {
-  const parsed: unknown = jsYaml.load(yaml);
-  if (!isMapping(parsed) || !Object.values(parsed).every((entry) => isMapping(entry))) {
-    throw new Error('languages.yml is not a mapping of language names');
+  const result = z.safeParse(z.record(z.string(), linguistLanguage), jsYaml.load(yaml));
+  if (!result.success) {
+    throw new Error(`languages.yml is not a table of languages:\n${z.prettifyError(result.error)}`);
   }
-  return parsed as Record<string, LinguistLanguage>;
+  return result.data;
 };
 
 /**
