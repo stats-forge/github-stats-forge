@@ -19,7 +19,8 @@ const linguistLanguage = z.object({
 
 const linguistLanguages = z.record(z.string(), linguistLanguage);
 
-type LinguistLanguage = z.infer<typeof linguistLanguage>;
+/** Each language name to its entry. */
+type LinguistLanguages = z.infer<typeof linguistLanguages>;
 
 interface LanguageTables {
   /** Each language to its color, `undefined` for one linguist gives none. */
@@ -29,14 +30,14 @@ interface LanguageTables {
 }
 
 /**
- * Read linguist's `languages.yml`, refusing anything that is not a table of languages:
- * `404: Not Found` is valid YAML, and would have written an empty color table.
+ * Read linguist's `languages.yml`, refusing a file it has reshaped, or a body that is not the file
+ * at all (`404: Not Found` is valid YAML), rather than writing a wrong table from it.
  *
  * @throws {Error} When the YAML is malformed, or an entry is not shaped like a language.
  *
  * @returns Each language name to its entry.
  */
-const parseLanguages = (yaml: string): z.infer<typeof linguistLanguages> => {
+const parseLanguages = (yaml: string): LinguistLanguages => {
   const result = z.safeParse(linguistLanguages, jsYaml.load(yaml));
   if (!result.success) {
     throw new Error(`languages.yml is not a table of languages:\n${z.prettifyError(result.error)}`);
@@ -49,7 +50,7 @@ const parseLanguages = (yaml: string): z.infer<typeof linguistLanguages> => {
  *
  * @returns Both tables, the aliases sorted by key.
  */
-const buildLanguageTables = (languages: Record<string, LinguistLanguage>): LanguageTables => {
+const buildLanguageTables = (languages: LinguistLanguages): LanguageTables => {
   const colors = Object.fromEntries(
     Object.entries(languages).map(([lang, { color }]) => [lang, color]),
   );
@@ -58,6 +59,9 @@ const buildLanguageTables = (languages: Record<string, LinguistLanguage>): Langu
   const aliases = new Map<string, string | null>();
   const countedName = (lang: string): string | null =>
     COUNTED_TYPES.has(languages[lang]?.type ?? '') ? lang : null;
+
+  // An interpreter names a language only where no name or alias does, and only one language claims it.
+  const claims = new Map<string, string | null>();
 
   for (const [lang, entry] of Object.entries(languages)) {
     for (const key of [lang, ...(entry.aliases ?? [])]) {
@@ -68,16 +72,12 @@ const buildLanguageTables = (languages: Record<string, LinguistLanguage>): Langu
       }
       aliases.set(lower, countedName(lang));
     }
-  }
-
-  // An interpreter names a language only where no name or alias does, and only one language claims it.
-  const claims = new Map<string, string | null>();
-  for (const [lang, entry] of Object.entries(languages)) {
     for (const interpreter of entry.interpreters ?? []) {
       const lower = interpreter.toLowerCase();
       claims.set(lower, claims.has(lower) ? null : lang);
     }
   }
+
   for (const [interpreter, lang] of claims) {
     if (lang !== null && !aliases.has(interpreter)) {
       aliases.set(interpreter, countedName(lang));
@@ -91,4 +91,4 @@ const buildLanguageTables = (languages: Record<string, LinguistLanguage>): Langu
 };
 
 export { buildLanguageTables, parseLanguages };
-export type { LinguistLanguage };
+export type { LinguistLanguages };

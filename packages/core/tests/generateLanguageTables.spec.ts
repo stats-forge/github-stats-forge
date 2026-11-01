@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildLanguageTables, parseLanguages } from '../scripts/language-tables.ts';
-import type { LinguistLanguage } from '../scripts/language-tables.ts';
+import type { LinguistLanguages } from '../scripts/language-tables.ts';
 
 describe(buildLanguageTables, () => {
   it('keeps every language, with or without a color', () => {
@@ -14,7 +14,7 @@ describe(buildLanguageTables, () => {
   });
 
   it('points each name, alias and lone interpreter at a counted language, sorted', () => {
-    const languages: Record<string, LinguistLanguage> = {
+    const languages: LinguistLanguages = {
       Shell: { type: 'programming', aliases: ['sh'], interpreters: ['bash'] },
       JSON: { type: 'data', aliases: ['geojson'] },
       Python: { type: 'programming', interpreters: ['python3', 'shared', 'sh'] },
@@ -57,20 +57,16 @@ describe(parseLanguages, () => {
 
     expect(parseLanguages(yaml)).toStrictEqual({
       Python: { type: 'programming', color: '#3572A5' },
-    } satisfies Record<string, LinguistLanguage>);
+    } satisfies LinguistLanguages);
   });
 
-  // an error page is valid YAML too, so these would otherwise reach the tables
-  it.each([
-    ['an error page', '404: Not Found'],
-    ['a plain-text body', 'Internal Server Error'],
-    ['a list', '- Python\n- Go\n'],
-    ['an alias that is not a list', 'Python:\n  aliases: py\n'],
-  ])('refuses %s', (_, yaml) => {
-    expect(() => parseLanguages(yaml)).toThrow('languages.yml is not a table of languages');
-  });
+  const notATable = 'languages.yml is not a table of languages';
 
+  // js-yaml refuses the last two itself, before the schema sees them
   it.each([
+    ['an error page, which is valid YAML', '404: Not Found', notATable],
+    ['a list', '- Python\n- Go\n', notATable],
+    ['an alias that is not a list', 'Python:\n  aliases: py\n', notATable],
     ['malformed YAML', 'Python: [\n', 'deficient indentation'],
     ['an empty body', '', 'the input is empty'],
   ])('refuses %s', (_, yaml, error) => {

@@ -1,15 +1,13 @@
 import fs from 'node:fs';
 
+import { fetchOk } from './download.ts';
 import { buildEmojiMap } from './emoji-map.ts';
 import type { Compact, Shortcodes } from './emoji-map.ts';
 
 const EMOJI_FILEPATH = './src/common/emojiMap.json';
 
 const fetchJson = async <T>(url: string): Promise<T> => {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`${String(response.status)} ${response.statusText} for ${url}`);
-  }
+  const response = await fetchOk(url);
   return (await response.json()) as T;
 };
 
