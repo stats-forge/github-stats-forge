@@ -202,7 +202,8 @@ their reasons in `oxlint.config.ts`.
 - **`test:coverage` fails under a package's floor in `vitest.config.coverage.ts`**: raise a floor
   after adding tests, and lower one only with the owner. Every source file counts, so one no test
   imports reads as 0% rather than vanishing.
-- **`src` never imports a test helper or library**; `no-restricted-imports` enforces it ([#288]).
+- **`src` never imports a test helper, a test library or a generator under `scripts/`**;
+  `no-restricted-imports` enforces it ([#288]).
 - **Assert with jest-dom matchers**, never by reading the node. `expect(queryBy…()).toBeDefined()`
   cannot fail; count with `toHaveLength` on `queryAllBy*`.
 - **Card tests assert on the DOM, not snapshots**, bar `renderWakatimeCard.spec.ts.snap`. Snapshots
