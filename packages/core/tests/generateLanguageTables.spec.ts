@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildLanguageTables } from '../scripts/language-tables.ts';
+import { buildLanguageTables, parseLanguages } from '../scripts/language-tables.ts';
 import type { LinguistLanguage } from '../scripts/language-tables.ts';
 
 describe(buildLanguageTables, () => {
@@ -48,5 +48,29 @@ describe(buildLanguageTables, () => {
     },
   ])('refuses $what', ({ languages, error }) => {
     expect(() => buildLanguageTables(languages)).toThrow(error);
+  });
+});
+
+describe(parseLanguages, () => {
+  it('reads a mapping of languages', () => {
+    expect(parseLanguages('Python:\n  type: programming\n  color: "#3572A5"\n')).toStrictEqual({
+      Python: { type: 'programming', color: '#3572A5' },
+    } satisfies Record<string, LinguistLanguage>);
+  });
+
+  // an error page is valid YAML too, so these would otherwise reach the tables
+  it.each([
+    ['an error page', '404: Not Found'],
+    ['a plain-text body', 'Internal Server Error'],
+    ['a list', '- Python\n- Go\n'],
+  ])('refuses %s', (_, yaml) => {
+    expect(() => parseLanguages(yaml)).toThrow('languages.yml is not a mapping of language names');
+  });
+
+  it.each([
+    ['malformed YAML', 'Python: [\n', 'deficient indentation'],
+    ['an empty body', '', 'the input is empty'],
+  ])('refuses %s', (_, yaml, error) => {
+    expect(() => parseLanguages(yaml)).toThrow(error);
   });
 });

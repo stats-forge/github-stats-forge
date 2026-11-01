@@ -3,6 +3,8 @@
  * no network or disk, so they can be tested.
  */
 
+import * as jsYaml from 'js-yaml';
+
 /** GitHub's language bar shows only these; any other language is one it leaves out. */
 const COUNTED_TYPES = new Set(['programming', 'markup']);
 
@@ -19,6 +21,25 @@ interface LanguageTables {
   /** Each name, alias and interpreter, lower-case, to the name; `null` for one the bar leaves out. */
   aliases: Record<string, string | null>;
 }
+
+const isMapping = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/**
+ * Read linguist's `languages.yml`, refusing anything that is not a table of languages:
+ * `404: Not Found` is valid YAML, and would have written an empty color table.
+ *
+ * @throws {Error} When the YAML is malformed, or is not a mapping of names to mappings.
+ *
+ * @returns Each language name to its entry.
+ */
+const parseLanguages = (yaml: string): Record<string, LinguistLanguage> => {
+  const parsed: unknown = jsYaml.load(yaml);
+  if (!isMapping(parsed) || !Object.values(parsed).every((entry) => isMapping(entry))) {
+    throw new Error('languages.yml is not a mapping of language names');
+  }
+  return parsed as Record<string, LinguistLanguage>;
+};
 
 /**
  * @throws {Error} When two names, or a name and an alias, collide case-insensitively.
@@ -68,5 +89,5 @@ const buildLanguageTables = (languages: Record<string, LinguistLanguage>): Langu
   };
 };
 
-export { buildLanguageTables };
+export { buildLanguageTables, parseLanguages };
 export type { LinguistLanguage };
