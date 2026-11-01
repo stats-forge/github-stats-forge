@@ -157,6 +157,21 @@ describe(toAnswers, () => {
     expect(answers.get('hide_rank')).toBe(false);
   });
 
+  it.each([
+    ['on', true],
+    ['1', true],
+    ['TRUE', true],
+    ['', true],
+    ['off', false],
+    ['0', false],
+  ])('reads the boolean %j as a card does', (value, read) => {
+    expect(toAnswers(card('stats'), { show_icons: value }).get('show_icons')).toBe(read);
+  });
+
+  it('keeps a word no boolean takes, for the render to reject', () => {
+    expect(toAnswers(card('stats'), { show_icons: 'yes' }).get('show_icons')).toBe('yes');
+  });
+
   it('splits a list back into its values', () => {
     const answers = toAnswers(card('stats'), { show: 'reviews, prs_merged', hide: '' });
 

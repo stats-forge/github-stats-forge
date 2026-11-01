@@ -103,6 +103,16 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
 };
 
 /**
+ * Words a rejection of one kind, naming the param from the issue's path.
+ *
+ * @returns An `error` option for a zod schema or check.
+ */
+const wordedAs =
+  (kind: Rejection) =>
+  (issue: { path?: ReadonlyArray<PropertyKey> | undefined }): string =>
+    REJECTION_MESSAGES[kind](String(issue.path?.[0] ?? ''));
+
+/**
  * A check that words its own rejection:
  * the message is built from the kind and the param's path rather than passed in.
  *
@@ -110,7 +120,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
  */
 const rejects = (kind: Rejection, passes: (value: string) => boolean): z.core.$ZodCheck<unknown> =>
   z.refine((value: unknown) => typeof value !== 'string' || passes(value), {
-    error: (issue) => REJECTION_MESSAGES[kind](String(issue.path?.[0] ?? '')),
+    error: wordedAs(kind),
   });
 
 /**
@@ -123,10 +133,23 @@ const booleanParam = kinded(
     z.stringbool({
       truthy: ['true', '1', 'on'],
       falsy: ['false', '0', 'off'],
-      error: (issue) => REJECTION_MESSAGES.boolean(String(issue.path?.[0] ?? '')),
+      error: wordedAs('boolean'),
     }),
   ),
 );
+
+/**
+ * Read one boolean value as a handler does, empty being set as {@link resolveEmpty} has it.
+ *
+ * @returns The boolean, or `undefined` for a word no boolean param accepts.
+ */
+const readBoolean = (value: string): boolean | undefined => {
+  if (value === '') {
+    return true;
+  }
+  const parsed = z.safeParse(booleanParam, value);
+  return parsed.success ? parsed.data : undefined;
+};
 
 /** Comma-separated values, empty when the param is absent. */
 const listParam = kinded('list', z.pipe(rawParam, z.transform(parseArray)));
@@ -526,6 +549,7 @@ export {
   numberParam,
   parseColorParams,
   parseParams,
+  readBoolean,
   resolveEmpty,
   safeListParam,
   safeParam,

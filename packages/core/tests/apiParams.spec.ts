@@ -3,7 +3,7 @@ import * as z from 'zod/mini';
 
 import type { ApiResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
-import { booleanParam, parseParams, resolveEmpty } from '../src/api/params.ts';
+import { booleanParam, parseParams, readBoolean, resolveEmpty } from '../src/api/params.ts';
 import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
@@ -208,6 +208,15 @@ describe('api query schemas', () => {
     expect(parseParams(z.object({ flag: booleanParam }), { flag: value })).toStrictEqual({
       flag: read,
     });
+  });
+
+  it.each([
+    ['On', true],
+    ['', true],
+    ['0', false],
+    ['yes', undefined],
+  ] as const)('reads one boolean value %j as a handler does', (value, read) => {
+    expect(readBoolean(value)).toBe(read);
   });
 
   it.each(['yes', 'n', 'enabled', '2'])(

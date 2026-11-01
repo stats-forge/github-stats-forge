@@ -61,6 +61,10 @@ describe(describeAnswer, () => {
     expect(describeAnswer(option, false)).toBe('no');
   });
 
+  it('shows a boolean it cannot read as written', () => {
+    expect(describeAnswer(option, 'maybe')).toBe('maybe');
+  });
+
   it('marks an option nothing has answered', () => {
     expect(describeAnswer(option, undefined)).toBe(UNSET);
   });
