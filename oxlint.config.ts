@@ -161,7 +161,7 @@ export default defineConfig({
       },
     },
     {
-      // What ships never reaches into what tests it: a test helper is not built, published or typed for it.
+      // What ships never reaches into its tests or generators, neither built nor published for it.
       files: ['packages/*/src/**', 'apps/*/src/**'],
       rules: {
         'no-restricted-imports': [
@@ -175,6 +175,10 @@ export default defineConfig({
               {
                 group: ['vitest', 'vitest/*', '@testing-library/*', '@playwright/test'],
                 message: 'A test library is a dev dependency, absent wherever src runs.',
+              },
+              {
+                group: ['**/scripts/**'],
+                message: 'A generator is not built or published; src reads the file it writes.',
               },
             ],
           },

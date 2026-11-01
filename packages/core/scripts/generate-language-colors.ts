@@ -1,19 +1,15 @@
 import fs from 'node:fs';
 
-import * as jsYaml from 'js-yaml';
-
-import { buildLanguageTables } from './language-tables.ts';
-import type { LinguistLanguage } from './language-tables.ts';
+import { fetchOk } from './download.ts';
+import { buildLanguageTables, parseLanguages } from './language-tables.ts';
 
 const LANGS_FILEPATH = './src/common/languageColors.json';
 const ALIASES_FILEPATH = './src/common/languageAliases.json';
 
-const response = await fetch(
+const response = await fetchOk(
   'https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml',
 );
-const languages = jsYaml.load(await response.text()) as Record<string, LinguistLanguage>;
-
-const { colors, aliases } = buildLanguageTables(languages);
+const { colors, aliases } = buildLanguageTables(parseLanguages(await response.text()));
 
 // Written the way the formatter would, so a regenerated file passes `format:check` as-is.
 fs.writeFileSync(LANGS_FILEPATH, `${JSON.stringify(colors, null, 2)}\n`);
