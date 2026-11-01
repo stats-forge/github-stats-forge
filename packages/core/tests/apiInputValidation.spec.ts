@@ -138,6 +138,15 @@ describe('API input validation', () => {
     expect(result.content).toContain('applies only to stats counted by search');
   });
 
+  it.each([
+    { show: 'prs_opened', hide: 'prs_opened' },
+    { include_all_commits: 'true', hide: 'commits' },
+  ])('stats: rejects a scope when the search stat is hidden (%j)', async (query) => {
+    const result = await stats({ username: 'user', scope: 'vitest-dev/*', ...query }, config);
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'scope' } });
+  });
+
   it('org-activity: rejects days together with a range', async () => {
     const result = await orgActivity({ org: 'vitest-dev', days: '30', from: '2024' }, config);
 
