@@ -7,8 +7,7 @@ const EMOJI_FILEPATH = './src/common/emojiMap.json';
 
 const fetchJson = async (url: string): Promise<unknown> => {
   const response = await fetchOk(url);
-  const data: unknown = await response.json();
-  return data;
+  return response.json();
 };
 
 // Resolved rather than pinned, so a Unicode major lands in the scheduled PR instead of
