@@ -17,6 +17,8 @@ const linguistLanguage = z.object({
   interpreters: z.optional(z.array(z.string())),
 });
 
+const linguistLanguages = z.record(z.string(), linguistLanguage);
+
 type LinguistLanguage = z.infer<typeof linguistLanguage>;
 
 interface LanguageTables {
@@ -34,8 +36,8 @@ interface LanguageTables {
  *
  * @returns Each language name to its entry.
  */
-const parseLanguages = (yaml: string): Record<string, LinguistLanguage> => {
-  const result = z.safeParse(z.record(z.string(), linguistLanguage), jsYaml.load(yaml));
+const parseLanguages = (yaml: string): z.infer<typeof linguistLanguages> => {
+  const result = z.safeParse(linguistLanguages, jsYaml.load(yaml));
   if (!result.success) {
     throw new Error(`languages.yml is not a table of languages:\n${z.prettifyError(result.error)}`);
   }
@@ -48,10 +50,9 @@ const parseLanguages = (yaml: string): Record<string, LinguistLanguage> => {
  * @returns Both tables, the aliases sorted by key.
  */
 const buildLanguageTables = (languages: Record<string, LinguistLanguage>): LanguageTables => {
-  const colors: Record<string, string | undefined> = {};
-  for (const [lang, entry] of Object.entries(languages)) {
-    colors[lang] = entry.color;
-  }
+  const colors = Object.fromEntries(
+    Object.entries(languages).map(([lang, { color }]) => [lang, color]),
+  );
 
   // A `Map`, so a key such as `constructor` is never read off `Object.prototype`.
   const aliases = new Map<string, string | null>();
@@ -70,16 +71,15 @@ const buildLanguageTables = (languages: Record<string, LinguistLanguage>): Langu
   }
 
   // An interpreter names a language only where no name or alias does, and only one language claims it.
-  const claims = new Map<string, Array<string>>();
+  const claims = new Map<string, string | null>();
   for (const [lang, entry] of Object.entries(languages)) {
     for (const interpreter of entry.interpreters ?? []) {
       const lower = interpreter.toLowerCase();
-      claims.set(lower, [...(claims.get(lower) ?? []), lang]);
+      claims.set(lower, claims.has(lower) ? null : lang);
     }
   }
-  for (const [interpreter, langs] of claims) {
-    const [lang] = langs;
-    if (!aliases.has(interpreter) && langs.length === 1 && lang !== undefined) {
+  for (const [interpreter, lang] of claims) {
+    if (lang !== null && !aliases.has(interpreter)) {
       aliases.set(interpreter, countedName(lang));
     }
   }

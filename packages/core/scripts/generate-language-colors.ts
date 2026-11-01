@@ -10,7 +10,7 @@ const LANGUAGES_URL =
 
 const response = await fetch(LANGUAGES_URL);
 if (!response.ok) {
-  throw new Error(`${String(response.status)} ${response.statusText} for ${LANGUAGES_URL}`);
+  throw new Error(`${String(response.status)} for ${LANGUAGES_URL}`);
 }
 
 const { colors, aliases } = buildLanguageTables(parseLanguages(await response.text()));
