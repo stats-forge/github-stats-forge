@@ -73,4 +73,8 @@ const noMotionRules = (): number =>
   (document.querySelector('style')?.textContent ?? '').split('animation-duration: 0s !important')
     .length - 1;
 
-export { cssValue, draw, drawnIds, exactly, noMotionRules, translateOf, xOf };
+/** @returns The light scheme's color for one heat stop: 0 the brightest, 2 the deepest. */
+const heatStop = (index: 0 | 1 | 2): string | null | undefined =>
+  document.querySelector(`#heat .heat-${String(index)}`)?.getAttribute('stop-color');
+
+export { cssValue, draw, drawnIds, exactly, heatStop, noMotionRules, translateOf, xOf };

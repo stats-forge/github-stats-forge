@@ -125,7 +125,7 @@ describe('Test Render WakaTime Card', () => {
     );
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     draw(renderWakatimeCard(wakaTimeData.data, {}));
-    expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '14');
   });
 
   it('should show "no coding activity this week" message when there has not been activity', () => {

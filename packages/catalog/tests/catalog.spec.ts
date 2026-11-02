@@ -173,8 +173,8 @@ describe(cardSubject, () => {
 
 describe(savedCardText, () => {
   it('writes the version and the card ahead of the options', () => {
-    expect(savedCardText(cardById('gist'), { id: 'abc', theme: 'dark' })).toBe(
-      `${JSON.stringify({ version: CARD_FILE_VERSION, card: 'gist', id: 'abc', theme: 'dark' }, undefined, 2)}\n`,
+    expect(savedCardText(cardById('gist'), { id: 'abc', theme: 'ember_dark' })).toBe(
+      `${JSON.stringify({ version: CARD_FILE_VERSION, card: 'gist', id: 'abc', theme: 'ember_dark' }, undefined, 2)}\n`,
     );
   });
 });

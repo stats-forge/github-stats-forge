@@ -2,7 +2,13 @@ import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
 import { atRule, changedBy, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { CARD_STYLE, firefoxFontSize, font } from './brand.ts';
-import { getCardColors, isPrefixedHexColor, isValidGradient } from './color.ts';
+import {
+  HEAT_ID,
+  HEAT_PAINT,
+  getCardColors,
+  isPrefixedHexColor,
+  isValidGradient,
+} from './color.ts';
 import type { CardColors } from './color.ts';
 import { flexLayout } from './render.ts';
 import { measureText } from './text.ts';
@@ -75,6 +81,7 @@ const getAnimations = (): Array<CssChild> => [
     rule('to', { transform: 'translate(-5px, 5px) scale(1)' }),
   ),
   atRule('@keyframes fadeInAnimation', rule('from', { opacity: 0 }), rule('to', { opacity: 1 })),
+  atRule('@keyframes trailAnimation', rule('from', { transform: 'scaleX(0)' })),
   atRule('@media (prefers-reduced-motion: reduce)', rule('*', NO_MOTION)),
 ];
 
@@ -97,6 +104,88 @@ const buildGradientDef = (id: string, bgColor: Array<string>): MarkupElement => 
   );
 };
 
+/** @returns The glow's opacity where it fades into the last stop, to three places. */
+const glowEdgeOpacity = (colors: CardColors): number =>
+  Math.round(colors.glowOpacity * CARD_STYLE.glow.edgeShare * 1000) / 1000;
+
+/**
+ * A heat stop. It carries the light color as an attribute, for a renderer that skips CSS,
+ * and a class the dark block recolors.
+ */
+const heatStop = (
+  offset: number,
+  colors: CardColors,
+  index: 0 | 1 | 2,
+  opacity?: number,
+): MarkupElement =>
+  el('stop', {
+    offset,
+    class: `heat-${String(index)}`,
+    'stop-color': colors.heat[index],
+    'stop-opacity': opacity,
+  });
+
+/**
+ * The heat gradients every card paints with, under the ids in {@link HEAT_ID}, and the bloom
+ * filter behind what burns.
+ *
+ * @returns The definitions.
+ */
+const renderHeatDefs = (colors: CardColors): Array<MarkupElement> => {
+  const stops = (): Array<MarkupElement> => [
+    heatStop(0, colors, 0),
+    heatStop(0.55, colors, 1),
+    heatStop(1, colors, 2),
+  ];
+
+  return [
+    el('linearGradient', { id: HEAT_ID.line, x1: 0, y1: 0, x2: 1, y2: 0 }, stops()),
+    el('linearGradient', { id: HEAT_ID.ring, x1: 0, y1: 1, x2: 1, y2: 0 }, stops()),
+    el('linearGradient', { id: HEAT_ID.trail, x1: 0, y1: 0, x2: 1, y2: 0 }, [
+      heatStop(0, colors, 0),
+      heatStop(0.3, colors, 1),
+      heatStop(0.7, colors, 2, 0.5),
+      heatStop(1, colors, 2, 0),
+    ]),
+    el('radialGradient', { id: HEAT_ID.glow, cx: 0.95, cy: 1.05, r: 0.8 }, [
+      el('stop', {
+        offset: 0,
+        class: 'glow-core',
+        'stop-color': colors.heat[1],
+        'stop-opacity': colors.glowOpacity,
+      }),
+      el('stop', {
+        offset: 0.45,
+        class: 'glow-edge',
+        'stop-color': colors.heat[2],
+        'stop-opacity': glowEdgeOpacity(colors),
+      }),
+      heatStop(1, colors, 2, 0),
+    ]),
+    el(
+      'filter',
+      { id: HEAT_ID.bloom, x: '-50%', y: '-50%', width: '200%', height: '200%' },
+      el('feGaussianBlur', { stdDeviation: CARD_STYLE.bloom.blur, result: 'bloom' }),
+      el(
+        'feMerge',
+        {},
+        el('feMergeNode', { in: 'bloom' }),
+        el('feMergeNode', { in: 'SourceGraphic' }),
+      ),
+    ),
+  ];
+};
+
+/** @returns The rules recoloring the heat stops, for the dark block. */
+const heatStopRules = (colors: CardColors): Array<CssChild> => [
+  colors.heat.map((color, index) => rule(`.heat-${String(index)}`, { 'stop-color': color })),
+  rule('.glow-core', { 'stop-color': colors.heat[1], 'stop-opacity': colors.glowOpacity }),
+  rule('.glow-edge', {
+    'stop-color': colors.heat[2],
+    'stop-opacity': glowEdgeOpacity(colors),
+  }),
+];
+
 /** Everything a card is drawn with; all but the title and its description have a default. */
 interface CardInit {
   width?: number;
@@ -118,7 +207,7 @@ interface CardInit {
   css?: CardCSSBuilder;
 }
 
-/** The room the title band takes, which a card without a title gives back. */
+/** The room the title takes, which a card without a title gives back. */
 const TITLE_ROOM = CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.x;
 
 class Card {
@@ -141,7 +230,7 @@ class Card {
   constructor({
     width = 100,
     height = 100,
-    border_radius = 8,
+    border_radius = 14,
     colors = { light: getCardColors({}), dark: null },
     title,
     titlePrefixIcon,
@@ -167,7 +256,22 @@ class Card {
     this.darkCss = colors.dark ? changedBy(this.css, css(colors.dark)) : [];
   }
 
-  renderTitle(): MarkupElement {
+  /**
+   * The trail starts under the icon and runs past the title's end, but never past the card's
+   * inner edge.
+   *
+   * @returns The title, its icon and the heat trail under them.
+   */
+  renderTitle(titleSize: number): MarkupElement {
+    const withIcon = Boolean(this.titlePrefixIcon);
+    const drawn = (titleWidth(this.title) * titleSize) / CARD_STYLE.fontSize.title;
+    const trailWidth = Math.min(
+      (withIcon ? TITLE_ICON_GAP : 0) +
+        Math.min(drawn, titleRoom(this.width, withIcon)) +
+        CARD_STYLE.accent.overrun,
+      this.width - this.paddingX * 2,
+    );
+
     return el(
       'g',
       {
@@ -208,14 +312,15 @@ class Card {
         class: 'title-accent',
         x: 0,
         y: CARD_STYLE.accent.y,
-        width: CARD_STYLE.accent.width,
+        width: Math.round(trailWidth * 10) / 10,
         height: CARD_STYLE.accent.height,
         rx: CARD_STYLE.accent.height / 2,
+        fill: HEAT_PAINT.trail,
       }),
     );
   }
 
-  /** Where the body starts, and so where the title band ends. */
+  /** Where the body starts. */
   private get bodyOffset(): number {
     if (this.hideTitle) {
       return CARD_STYLE.padding.x;
@@ -223,35 +328,18 @@ class Card {
     return CARD_STYLE.padding.bodyOffsetY;
   }
 
-  /**
-   * The band behind the title. Its top corners follow the card's own and its bottom
-   * ones stay square, so it meets the body as an edge rather than a floating box.
-   *
-   * @returns The rendered title band.
-   */
-  private renderTitleBand(): MarkupElement {
-    const height = this.bodyOffset - CARD_STYLE.band.gap;
-    const innerWidth = this.width - 1;
-    const r = Math.min(this.border_radius, height, innerWidth / 2);
-
-    return el('path', {
-      'data-testid': 'title-band',
-      class: 'title-band',
-      d: `M0.5 ${0.5 + r}a${r} ${r} 0 0 1 ${r} ${-r}h${innerWidth - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}v${height - r - 0.5}h${-innerWidth}z`,
-    });
-  }
-
-  /** @returns The card's gradient definitions, or nothing when no color is a gradient. */
-  private renderGradient(): Child {
-    const defs = [
+  /** @returns The card's gradient definitions: the heat, and the background's when it is one. */
+  private renderDefs(): MarkupElement {
+    return el(
+      'defs',
+      {},
+      renderHeatDefs(this.colors.light),
       typeof this.colors.light.bgColor === 'object' &&
         buildGradientDef('gradient', this.colors.light.bgColor),
       this.colors.dark &&
         typeof this.colors.dark.bgColor === 'object' &&
         buildGradientDef('gradient-dark', this.colors.dark.bgColor),
-    ].filter(Boolean);
-
-    return defs.length === 0 ? undefined : el('defs', {}, defs);
+    );
   }
 
   /**
@@ -270,10 +358,8 @@ class Card {
 
     return atRule(
       '@media (prefers-color-scheme: dark)',
-      rule('.header', { fill: this.colors.dark.titleColor }),
+      heatStopRules(this.colors.dark),
       rule('.title-icon', { fill: this.colors.dark.iconColor }),
-      rule('.title-accent', { fill: this.colors.dark.iconColor }),
-      rule('.title-band', { fill: this.colors.dark.titleColor }),
       rule('.card-bg', { fill: bgFill, stroke: this.colors.dark.borderColor }),
       this.darkCss,
     );
@@ -284,8 +370,9 @@ class Card {
     if (!Number.isFinite(this.border_radius)) {
       throw new TypeError(`Invalid border radius: "${this.border_radius}"`);
     }
-    if (!isPrefixedHexColor(this.colors.light.titleColor)) {
-      throw new Error(`Invalid title color: "${this.colors.light.titleColor}"`);
+    const badStop = this.colors.light.heat.find((stop) => !isPrefixedHexColor(stop));
+    if (badStop !== undefined) {
+      throw new Error(`Invalid heat color: "${badStop}"`);
     }
     if (!isPrefixedHexColor(this.colors.light.borderColor)) {
       throw new Error(`Invalid border color: "${this.colors.light.borderColor}"`);
@@ -314,6 +401,14 @@ class Card {
         ? CARD_STYLE.titleFirefoxSize
         : Math.floor((shrunk * CARD_STYLE.titleFirefoxSize * 10) / CARD_STYLE.fontSize.title) / 10;
 
+    const cardShape = {
+      x: 0.5,
+      y: 0.5,
+      rx: this.border_radius,
+      height: '99%',
+      width: this.width - 1,
+    };
+
     return renderMarkup(
       el(
         'svg',
@@ -331,7 +426,7 @@ class Card {
         style(
           rule('.header', {
             font: font('semibold', 'title'),
-            fill: this.colors.light.titleColor,
+            fill: HEAT_PAINT.line,
             animation: 'fadeInAnimation 0.8s ease-in-out backwards',
           }),
           cssComment(
@@ -342,12 +437,9 @@ class Card {
             animation: 'fadeInAnimation 0.8s ease-in-out backwards',
           }),
           rule('.title-accent', {
-            fill: this.colors.light.iconColor,
-            animation: 'fadeInAnimation 0.8s ease-in-out backwards',
-          }),
-          rule('.title-band', {
-            fill: this.colors.light.titleColor,
-            opacity: CARD_STYLE.band.opacity,
+            'transform-box': 'fill-box',
+            'transform-origin': 'left center',
+            animation: 'trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards',
           }),
           shrunk !== undefined && rule('.header', { 'font-size': `${String(shrunk)}px` }),
           // Not a style attribute, which would outrank Firefox's smaller size.
@@ -357,24 +449,24 @@ class Card {
           getAnimations(),
           !this.animations && rule('*', NO_MOTION),
         ),
-        this.renderGradient(),
+        this.renderDefs(),
         el('rect', {
           'data-testid': 'card-bg',
           class: 'card-bg',
-          x: 0.5,
-          y: 0.5,
-          rx: this.border_radius,
-          height: '99%',
+          ...cardShape,
           stroke: this.colors.light.borderColor,
-          width: this.width - 1,
           fill:
             typeof this.colors.light.bgColor === 'object'
               ? 'url(#gradient)'
               : this.colors.light.bgColor,
           'stroke-opacity': this.hideBorder ? 0 : 1,
         }),
-        !this.hideTitle && this.renderTitleBand(),
-        !this.hideTitle && this.renderTitle(),
+        el('rect', {
+          'data-testid': 'card-glow',
+          ...cardShape,
+          fill: `url(#${HEAT_ID.glow})`,
+        }),
+        !this.hideTitle && this.renderTitle(shrunk ?? CARD_STYLE.fontSize.title),
         el(
           'g',
           {

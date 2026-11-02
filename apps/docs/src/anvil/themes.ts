@@ -1,18 +1,11 @@
 /**
- * @file Which themes a card may wear, how they are ordered, and which ground each implies.
+ * @file Which themes a card may wear, how they are grouped, and which ground each implies.
  *
- * Ported from `ghse`'s wizard (`themeBackdrop.ts`, `Theme.tsx`) so both projects offer the same
- * themes for the same card. Neither ordering rule below is derivable from core's theme table alone.
+ * A family name (`ember`) follows the viewer, so it implies no ground; a variant (`ember_dark`)
+ * implies its own background's.
  */
 
-import { themes } from '@stats-forge/github-stats-forge-core/api';
-
-/**
- * What a card is about. It groups the card picker, and it decides which half of every theme pair
- * the card wears: one describing a repository or gist takes the `_repocard` variants, and
- * anything else — a user's card, an organization's — takes the plain half.
- */
-type CardCategory = 'org' | 'repo' | 'user';
+import { THEME_FAMILIES, themes } from '@stats-forge/github-stats-forge-core/api';
 
 /** Where a theme sits in the list, and under which heading. */
 type ThemeMode = 'light' | 'mixed' | 'dark';
@@ -20,13 +13,14 @@ type ThemeMode = 'light' | 'mixed' | 'dark';
 /** The ground a card is previewed on, where its own background says which one is right. */
 type Backdrop = 'light' | 'dark';
 
-/** Only genuinely mode-agnostic ones: `shadow_*` is transparent but dark-texted, so it is light. */
-const ADAPTIVE_THEMES = new Set(['transparent', 'ambient_gradient']);
-
 /** Below this a background shows the page through it, so it implies no ground of its own. */
 const OPAQUE_ALPHA = 0x80;
 
-const THEME_NAMES = Object.keys(themes);
+const VARIANT_NAMES = Object.keys(themes);
+const FAMILY_NAMES: ReadonlyArray<string> = THEME_FAMILIES;
+
+/** The family a card wears when no theme is named, which follows the viewer. */
+const DEFAULT_THEME = 'ember';
 
 /** @returns The hex expanded from three or four digits, or as given when it is not a shorthand. */
 const expandHex = (hex: string): string => {
@@ -62,40 +56,15 @@ const groundOf = (bgColor: string): Backdrop | undefined => {
   return isDarkHex(hex) ? 'dark' : 'light';
 };
 
-/** @returns The theme's `bg_color` as the table holds it — hex, no `#` — or `undefined`. */
+/** @returns The variant's `bg_color` as the table holds it — hex, no `#` — or `undefined`. */
 const bgColorOf = (name: string): string | undefined =>
   (themes[name as keyof typeof themes] as { bg_color: string } | undefined)?.bg_color;
 
 /** @returns Which group a theme is listed under. */
 const themeMode = (name: string): ThemeMode => {
-  if (ADAPTIVE_THEMES.has(name)) {
-    return 'mixed';
-  }
   const bgColor = bgColorOf(name);
-  return bgColor !== undefined && groundOf(bgColor) === 'dark' ? 'dark' : 'light';
-};
-
-/**
- * Themes come in pairs, and each card takes one side: a repo card keeps a name only when no
- * `${name}_repocard` exists, so it gets that half plus the unpaired themes.
- *
- * @returns The names, in no particular order.
- */
-const themesForCategory = (category: CardCategory): Array<string> => {
-  if (category === 'repo') {
-    return THEME_NAMES.filter((name) => !THEME_NAMES.includes(`${name}_repocard`));
-  }
-
-  return THEME_NAMES.filter((name) => !name.endsWith('_repocard'));
-};
-
-/** The half of the `default` pair this card wears, which is the theme it draws with when none is named. */
-const defaultThemeFor = (category: CardCategory): string => {
-  if (category === 'repo') {
-    return 'default_repocard';
-  }
-
-  return 'default';
+  const ground = bgColor === undefined ? undefined : groundOf(bgColor);
+  return ground ?? 'mixed';
 };
 
 /**
@@ -106,31 +75,25 @@ const PER_SCHEME_BACKGROUNDS = ['theme_light', 'theme_dark', 'bg_color_light', '
 
 /**
  * Which ground the card should be previewed on: its own `bg_color` if it names one, else its
- * theme's, else the theme it wears by default.
+ * theme's.
  *
- * @returns The ground, or `undefined` where the background names none — translucent, a per-scheme
- * override, or a theme nobody has heard of. There whichever ground is showing is left showing,
- * rather than the page guessing on the reader's behalf.
+ * @returns The ground, or `undefined` where the card names none — a family, which follows the
+ * viewer, a translucent background, a per-scheme override, or a theme nobody has heard of. There
+ * whichever ground is showing is left showing, rather than the page guessing on the reader's behalf.
  */
-const backdropFor = (
-  query: Readonly<Record<string, string>>,
-  category: CardCategory,
-): Backdrop | undefined => {
+const backdropFor = (query: Readonly<Record<string, string>>): Backdrop | undefined => {
   if (PER_SCHEME_BACKGROUNDS.some((name) => (query[name] ?? '') !== '')) {
     return undefined;
   }
 
+  // A family beside an opaque background wears the variant made for it, so the background decides.
   const custom = query['bg_color'] ?? '';
   if (custom !== '') {
     return groundOf(custom);
   }
 
   const named = query['theme'] ?? '';
-  const name = named === '' ? defaultThemeFor(category) : named;
-  if (ADAPTIVE_THEMES.has(name)) {
-    return undefined;
-  }
-
+  const name = named === '' ? DEFAULT_THEME : named;
   const bgColor = bgColorOf(name);
   return bgColor === undefined ? undefined : groundOf(bgColor);
 };
@@ -148,15 +111,15 @@ const GROUP_LABELS: ReadonlyArray<[ThemeMode, string]> = [
   ['dark', 'Dark'],
 ];
 
-/** @returns The card's themes, grouped by the background each implies, empty groups dropped. */
-const themeGroups = (category: CardCategory): Array<ThemeGroup> => {
-  const available = themesForCategory(category);
-
-  return GROUP_LABELS.map(([mode, label]) => ({
+/** @returns The themes, grouped by the background each implies, families under "Either". */
+const themeGroups = (): Array<ThemeGroup> =>
+  GROUP_LABELS.map(([mode, label]) => ({
     label,
-    values: available.filter((name) => themeMode(name) === mode),
+    values: [
+      ...(mode === 'mixed' ? FAMILY_NAMES : []),
+      ...VARIANT_NAMES.filter((name) => themeMode(name) === mode),
+    ],
   })).filter((group) => group.values.length > 0);
-};
 
 export { backdropFor, themeGroups };
-export type { Backdrop, CardCategory };
+export type { Backdrop };

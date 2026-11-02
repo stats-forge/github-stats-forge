@@ -38,14 +38,13 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   const { name, nameWithOwner, description, language, starsCount, forksCount } = gistData;
   const {
     locale,
-    theme = 'default_repocard',
     border_radius,
     show_owner = false,
     hide_border = false,
     disable_animations = false,
   } = options;
 
-  const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
+  const { lightColors, darkColors } = getLightDarkColors(options);
 
   const t = localize(gistCardLocales, locale);
 

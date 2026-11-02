@@ -76,12 +76,18 @@ const CARD_STYLE = {
   /** How far a stat row's ink reaches below its own top: the icon box, which outruns the text. */
   statRowInk: 16,
 
-  /** The tinted band behind every card title: the mark a card is recognized by. */
-  band: {
-    /** Enough to read as a band on every theme, little enough to leave the title legible. */
-    opacity: 0.08,
-    /** Clear air the band leaves between its foot and the first row of the body. */
-    gap: 9,
+  /** The glow in the card's bottom-right corner, drawn in the heat's middle and last stops. */
+  glow: {
+    /** The last stop's share of the glow's opacity, where the middle one fades into it. */
+    edgeShare: 0.35,
+  },
+
+  /** The blur behind what burns: the rank ring, a bar's tip. */
+  bloom: {
+    /** The blur's spread, in px. */
+    blur: 3.5,
+    /** A bar's glowing end: a touch wider than the 8px bar it caps. */
+    tipRadius: 4.5,
   },
 
   /** A repository topic, a tinted pill in one row under the description. */
@@ -90,18 +96,22 @@ const CARD_STYLE = {
     /** Air either side of the name, inside the pill. */
     paddingX: 8,
     gap: 6,
-    /** A step stronger than the band's, so a pill reads on its own. */
+    /** Strong enough that a pill reads on its own. */
     opacity: 0.12,
     /** What the row adds to the card's height. */
     rowHeight: 26,
   },
 
-  /** The rule under the title icon, sitting inside the band. */
+  /**
+   * The heat trail under the title: the mark a card is recognized by. It starts under the icon
+   * and cools to nothing past the title's end.
+   */
   accent: {
-    width: 32,
     height: 2,
-    /** Below the title's descenders, clear of the band's foot. */
+    /** Below the title's descenders. */
     y: 8,
+    /** How far the trail runs past the title, where it has faded. */
+    overrun: 24,
   },
 } as const;
 
@@ -128,7 +138,7 @@ const firefoxFontSize = (selectors: Array<string>, size: FontSize | number): Css
 };
 
 /**
- * The title icon each card wears. They are distinct on purpose: with the band
+ * The title icon each card wears. They are distinct on purpose: with the heat trail
  * and the shared type, the icon is what tells one card from another at a glance.
  */
 const CARD_ICON = {

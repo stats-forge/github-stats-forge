@@ -254,7 +254,7 @@ const mount = (root: HTMLElement): void => {
 
   /** Puts the ground the card's own background asks for under it, and holds still where it asks none. */
   const followBackdrop = (): void => {
-    const implied = backdropFor(toQuery(state), state.card.category);
+    const implied = backdropFor(toQuery(state));
     if (implied === undefined || implied === backdrop) {
       return;
     }
@@ -439,7 +439,7 @@ const mount = (root: HTMLElement): void => {
         label: 'Theme',
         option: 'theme',
         // Only the half of each theme pair this card wears, grouped by the background it implies.
-        values: themeGroups(state.card.category),
+        values: themeGroups(),
         value: state.theme,
         swatches: true,
         onPick: (value) => {

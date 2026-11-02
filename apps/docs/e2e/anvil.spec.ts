@@ -132,28 +132,22 @@ test('shows what each theme looks like beside its name', async ({ page }) => {
   const themeSelect = dropdown(page, 'theme');
   await themeSelect.click();
 
-  // The swatch is a miniature of the card: the theme's background, and its three text colors.
-  const swatch = themeSelect.locator('wa-option[value="tokyonight"] .anvil-swatch');
+  // The swatch is a miniature of the card: the theme's background, its heat and its text.
+  const swatch = themeSelect.locator('wa-option[value="cobalt_dark"] .anvil-swatch');
   await expect(swatch).toBeVisible();
   await expect(swatch.locator('i')).toHaveCount(3);
 });
 
-test('offers only the half of each theme pair the card wears', async ({ page }) => {
+test('offers each family beside its two pinned variants, on every card', async ({ page }) => {
   const values = async (): Promise<Array<string>> =>
     dropdown(page, 'theme')
       .locator('wa-option')
       .evaluateAll((rows) => rows.map((row) => (row as HTMLElement & { value: string }).value));
 
-  // Stats describes a user, so it gets the plain half.
-  const userThemes = await values();
-  expect(userThemes).toContain('default');
-  expect(userThemes.filter((name) => name.endsWith('_repocard'))).toEqual([]);
-
-  // The gist card describes one gist, so it gets the `_repocard` half of every pair.
-  await setCard(page, 'gist');
-  const repoThemes = await values();
-  expect(repoThemes).toContain('default_repocard');
-  expect(repoThemes).not.toContain('default');
+  for (const card of ['stats', 'gist']) {
+    await setCard(page, card);
+    expect(await values()).toEqual(expect.arrayContaining(['ember', 'ember_light', 'ember_dark']));
+  }
 });
 
 test('groups the themes by the background each implies', async ({ page }) => {
@@ -245,14 +239,14 @@ test('an option reaches the renderer', async ({ page }) => {
 });
 
 test('a chosen theme colors the card and survives a change of card', async ({ page }) => {
-  await pick(page, 'theme', 'tokyonight');
+  await pick(page, 'theme', 'cobalt_dark');
 
-  await expect(drawnCard(page).locator('rect').first()).toHaveAttribute('fill', '#1a1b27');
+  await expect(drawnCard(page).locator('rect').first()).toHaveAttribute('fill', '#0b1020');
 
   await pick(page, 'card', 'gist');
 
   const saved = await savedCard(page);
-  expect(chosen(saved)).toEqual({ theme: 'tokyonight' });
+  expect(chosen(saved)).toEqual({ theme: 'cobalt_dark' });
 });
 
 test('several values of one option are written as a list', async ({ page }) => {
@@ -467,7 +461,7 @@ test('typing an identity param leaves the drawn card alone', async ({ page }) =>
   await expect(drawnCard(page)).toHaveAttribute('data-marked', 'yes');
 
   // While an option that does change the card still replaces it.
-  await pick(page, 'theme', 'dark');
+  await pick(page, 'theme', 'ember_dark');
   await expect(drawnCard(page)).not.toHaveAttribute('data-marked', 'yes');
 });
 
@@ -496,7 +490,7 @@ test("the page's own link follows the card that is selected", async ({ page }) =
 });
 
 test('the download offers the bytes the page is showing', async ({ page }) => {
-  await pick(page, 'theme', 'dark');
+  await pick(page, 'theme', 'ember_dark');
 
   const shown = (await page.locator('[data-anvil="output"]').textContent()) ?? '';
   // Read through the blob the anchor points at, which is rebuilt on every redraw.
@@ -592,15 +586,15 @@ test('fixing a rejected option clears the error and draws the card again', async
 });
 
 test('the query box wins over a control for the same option', async ({ page }) => {
-  await pick(page, 'theme', 'tokyonight');
-  await expect(drawnCard(page).locator('rect').first()).toHaveAttribute('fill', '#1a1b27');
+  await pick(page, 'theme', 'cobalt_dark');
+  await expect(drawnCard(page).locator('rect').first()).toHaveAttribute('fill', '#0b1020');
 
-  // `toQuery` folds the box in last, so it overrides. Radical, not tokyonight.
-  await queryBox(page).fill('theme=radical');
+  // `toQuery` folds the box in last, so it overrides. Magma, not cobalt.
+  await queryBox(page).fill('theme=magma_dark');
 
-  await expect(drawnCard(page).locator('rect').first()).toHaveAttribute('fill', '#141321');
+  await expect(drawnCard(page).locator('rect').first()).toHaveAttribute('fill', '#130a16');
   const saved = await savedCard(page);
-  expect(chosen(saved)).toEqual({ theme: 'radical' });
+  expect(chosen(saved)).toEqual({ theme: 'magma_dark' });
 });
 
 test('the closed theme select shows the theme it is set to', async ({ page }) => {
@@ -610,7 +604,7 @@ test('the closed theme select shows the theme it is set to', async ({ page }) =>
   // Nothing to mirror while the card's own default stands.
   await expect(onSelect).toHaveCount(0);
 
-  await pick(page, 'theme', 'tokyonight');
+  await pick(page, 'theme', 'cobalt_dark');
   await expect(onSelect).toHaveCount(1);
   await expect(onSelect.locator('i')).toHaveCount(3);
 });
@@ -622,7 +616,7 @@ test('the source badge is reachable by keyboard', async ({ page }) => {
 });
 
 test('the file on offer is the file the CLI reads', async ({ page }) => {
-  await pick(page, 'theme', 'dark');
+  await pick(page, 'theme', 'ember_dark');
   await pick(page, 'rank_icon', 'percentile');
 
   const saved = await savedCard(page);
@@ -630,7 +624,7 @@ test('the file on offer is the file the CLI reads', async ({ page }) => {
     version: CARD_FILE_VERSION,
     card: 'stats',
     username: 'ember-smith',
-    theme: 'dark',
+    theme: 'ember_dark',
     rank_icon: 'percentile',
   });
 
@@ -665,33 +659,37 @@ test('the file is named after the card and whoever it is for', async ({ page }) 
 });
 
 test('stands the card on the ground its own theme implies', async ({ page }) => {
-  // The theme a card wears when none is named is `default`, whose background is all but white.
+  await pick(page, 'theme', 'ember_light');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
 
-  await pick(page, 'theme', 'tokyonight');
+  await pick(page, 'theme', 'cobalt_dark');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
   // The control moves with it, so it never says one thing while the frame shows another.
   await expect(backdropBar(page)).toHaveJSProperty('value', 'dark');
 
-  await pick(page, 'theme', 'light_github');
+  await pick(page, 'theme', 'ember_light');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
   await expect(backdropBar(page)).toHaveJSProperty('value', 'light');
 });
 
 test('a theme that implies no ground leaves the one showing alone', async ({ page }) => {
-  // `transparent` shows whatever is behind it, so it asks for neither ground — and has no
-  // preference of its own either way, which is why this is asserted from both.
-  await setDropdown(page, 'theme', 'tokyonight');
+  // `transparent` shows whatever is behind it, and a family follows the viewer, so neither asks
+  // for a ground — and has no preference of its own either way, which is why this is asserted from
+  // both.
+  await setDropdown(page, 'theme', 'cobalt_dark');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
 
   await setDropdown(page, 'theme', 'transparent');
   await expect(drawnCard(page)).toBeVisible();
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
 
-  await setDropdown(page, 'theme', 'light_github');
+  await setDropdown(page, 'theme', 'ember_light');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
 
   await setDropdown(page, 'theme', 'transparent');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+
+  await setDropdown(page, 'theme', 'verdigris');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
 });
 

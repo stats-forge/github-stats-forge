@@ -72,8 +72,8 @@ describe(describeAnswer, () => {
 
 describe(toQueryString, () => {
   it('writes the query with the leading ? the action and a card URL both carry', () => {
-    expect(toQueryString({ username: 'anuraghazra', theme: 'dark' })).toBe(
-      '?username=anuraghazra&theme=dark',
+    expect(toQueryString({ username: 'anuraghazra', theme: 'ember_dark' })).toBe(
+      '?username=anuraghazra&theme=ember_dark',
     );
   });
 
@@ -90,7 +90,7 @@ describe(fromQueryString, () => {
   it('reads back what toQueryString wrote', () => {
     const query: Record<string, string> = {
       username: 'anuraghazra',
-      theme: 'dark',
+      theme: 'ember_dark',
       title: 'My Stats & More',
     };
 
@@ -104,8 +104,8 @@ describe(fromQueryString, () => {
 
   it('takes the query off a whole card URL, which is what gets pasted', () => {
     expect(
-      fromQueryString('https://cards.example.com/api?username=octocat&theme=dark'),
-    ).toStrictEqual({ username: 'octocat', theme: 'dark' });
+      fromQueryString('https://cards.example.com/api?username=octocat&theme=ember_dark'),
+    ).toStrictEqual({ username: 'octocat', theme: 'ember_dark' });
   });
 
   it('joins a repeated key, as every list param already reaches a card', () => {

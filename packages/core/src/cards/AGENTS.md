@@ -42,12 +42,15 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
   stacked cards share an edge. A minimum meets its default only through `Math.max`, so re-check the
   floors when a step moves. A card's slack absorbs its extras; only `minCardWidth` adds room, for the
   stats icons.
-- **The header is a band, a title, an icon and a rule** ([#51]). `Card` draws the band, its top
-  corners taking `border_radius`, and `hide_title` drops it all. The band ends at
-  `bodyOffset - CARD_STYLE.band.gap`, one subtraction so the gap cannot close; `paddingY` is 30 and
-  the body still starts at 55.
-- **The title icon is `.title-icon`, not `.icon`**, which the stats card hides; it and its rule take
-  `iconColor`. **Each card's icon is distinct, from the one `CARD_ICON` table.**
+- **The header is an icon, a title in the heat gradient and the heat trail under them** ([#51]).
+  The trail starts under the icon and fades past the title's drawn width, capped to the card;
+  `hide_title` drops it all. A corner glow, the card's own shape, sits behind the body.
+- **`Card` defines the heat once, as `url(#heat…)` paints in `HEAT_PAINT`**, and a card fills with
+  those, never its own gradient. Each stop is classed, so the dark block recolors it with
+  `stop-color`; a stop's light color stays its attribute, the fallback.
+- **The title icon is `.title-icon`, not `.icon`**, which the stats card hides; it takes
+  `iconColor`, the heat's middle stop unless set. **Each card's icon is distinct, from the one
+  `CARD_ICON` table.**
 - **A card's height is its content plus `CARD_STYLE.padding.bottom`, never a spare row** ([#123]).
   Measure both ends across every card before trusting a layout constant.
 - **Two things moving with one width are derived from it the same way**, as the rank ring and the

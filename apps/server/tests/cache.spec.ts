@@ -35,8 +35,8 @@ describe(ttlFor, () => {
 
 describe(cacheKey, () => {
   it('is the same for two orderings of one query', () => {
-    const first = cacheKey('/api/stats', new URLSearchParams('username=a&theme=dark'));
-    const second = cacheKey('/api/stats', new URLSearchParams('theme=dark&username=a'));
+    const first = cacheKey('/api/stats', new URLSearchParams('username=a&theme=ember_dark'));
+    const second = cacheKey('/api/stats', new URLSearchParams('theme=ember_dark&username=a'));
 
     expect(first).toBe(second);
   });

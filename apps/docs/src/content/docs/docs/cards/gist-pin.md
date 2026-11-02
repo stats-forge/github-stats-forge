@@ -25,5 +25,3 @@ its first file's name, its description, its language, and its stars and forks.
 | `show_owner` | `true` `false` | Put the owner's login above the gist name |
 
 Plus the [common options](../../customization/common-options/).
-
-Its default theme is `default_repocard`, which differs from `default` only in the icon color.

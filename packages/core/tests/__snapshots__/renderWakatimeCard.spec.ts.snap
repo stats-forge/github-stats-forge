@@ -7,21 +7,18 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #2f80ed;
+      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
-      fill: #4c71f2;
+      fill: #e2470f;
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
-      fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out backwards;
-    }
-    .title-band {
-      fill: #2f80ed;
-      opacity: 0.08;
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -31,7 +28,7 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
     }
     .stat {
       font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -66,17 +63,52 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
     }
     .lang-name {
       font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     #rect-mask rect {
       animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
       animation: growWidthAnimation 0.6s ease-in-out backwards;
-      fill: #2f80ed;
+      fill: url(#heat);
     }
     .progress-background {
-      fill: #434d58;
+      fill: #2a1b14;
+    }
+    @media (prefers-color-scheme: dark) {
+      .heat-0 {
+        stop-color: #ffd166;
+      }
+      .heat-1 {
+        stop-color: #ff7a1a;
+      }
+      .heat-2 {
+        stop-color: #ff2e63;
+      }
+      .glow-core {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.42;
+      }
+      .glow-edge {
+        stop-color: #ff2e63;
+        stop-opacity: 0.147;
+      }
+      .title-icon {
+        fill: #ff7a1a;
+      }
+      .card-bg {
+        fill: #16100d;
+        stroke: #ff7a1a4d;
+      }
+      .stat {
+        fill: #f7ede6;
+      }
+      .lang-name {
+        fill: #f7ede6;
+      }
+      .progress-background {
+        fill: #f7ede6;
+      }
     }
     /* Animations */
     @keyframes scaleInAnimation {
@@ -95,6 +127,11 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
         opacity: 1;
       }
     }
+    @keyframes trailAnimation {
+      from {
+        transform: scaleX(0);
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0s !important;
@@ -102,8 +139,38 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#0000001f" width="499" fill="#fffefe" stroke-opacity="1" />
-  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h483a8 8 0 0 1 8 8v37.5h-499z" />
+  <defs>
+    <linearGradient id="heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.3" class="heat-1" stop-color="#e2470f" />
+      <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
+      <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
+      <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </radialGradient>
+    <filter id="heat-bloom" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="bloom" />
+      <feMerge>
+        <feMergeNode in="bloom" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
+  <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
   <g data-testid="card-title" transform="translate(25, 30)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -113,7 +180,7 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
     <g transform="translate(25, 0)">
       <text x="0" y="0" class="header" data-testid="header">WakaTime Stats (last 7 days)</text>
     </g>
-    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
@@ -154,21 +221,18 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #2f80ed;
+      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
-      fill: #4c71f2;
+      fill: #e2470f;
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
-      fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out backwards;
-    }
-    .title-band {
-      fill: #2f80ed;
-      opacity: 0.08;
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -178,7 +242,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     }
     .stat {
       font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -213,17 +277,52 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     }
     .lang-name {
       font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     #rect-mask rect {
       animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
       animation: growWidthAnimation 0.6s ease-in-out backwards;
-      fill: #2f80ed;
+      fill: url(#heat);
     }
     .progress-background {
-      fill: #434d58;
+      fill: #2a1b14;
+    }
+    @media (prefers-color-scheme: dark) {
+      .heat-0 {
+        stop-color: #ffd166;
+      }
+      .heat-1 {
+        stop-color: #ff7a1a;
+      }
+      .heat-2 {
+        stop-color: #ff2e63;
+      }
+      .glow-core {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.42;
+      }
+      .glow-edge {
+        stop-color: #ff2e63;
+        stop-opacity: 0.147;
+      }
+      .title-icon {
+        fill: #ff7a1a;
+      }
+      .card-bg {
+        fill: #16100d;
+        stroke: #ff7a1a4d;
+      }
+      .stat {
+        fill: #f7ede6;
+      }
+      .lang-name {
+        fill: #f7ede6;
+      }
+      .progress-background {
+        fill: #f7ede6;
+      }
     }
     /* Animations */
     @keyframes scaleInAnimation {
@@ -242,6 +341,11 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
         opacity: 1;
       }
     }
+    @keyframes trailAnimation {
+      from {
+        transform: scaleX(0);
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0s !important;
@@ -249,8 +353,38 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#0000001f" width="499" fill="#fffefe" stroke-opacity="1" />
-  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h483a8 8 0 0 1 8 8v37.5h-499z" />
+  <defs>
+    <linearGradient id="heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.3" class="heat-1" stop-color="#e2470f" />
+      <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
+      <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
+      <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </radialGradient>
+    <filter id="heat-bloom" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="bloom" />
+      <feMerge>
+        <feMergeNode in="bloom" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
+  <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
   <g data-testid="card-title" transform="translate(25, 30)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -260,7 +394,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     <g transform="translate(25, 0)">
       <text x="0" y="0" class="header" data-testid="header">WakaTime Stats (last 7 days)</text>
     </g>
-    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
@@ -290,21 +424,18 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #2f80ed;
+      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
-      fill: #4c71f2;
+      fill: #e2470f;
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
-      fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out backwards;
-    }
-    .title-band {
-      fill: #2f80ed;
-      opacity: 0.08;
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -314,7 +445,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     }
     .stat {
       font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -349,17 +480,52 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     }
     .lang-name {
       font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     #rect-mask rect {
       animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
       animation: growWidthAnimation 0.6s ease-in-out backwards;
-      fill: #2f80ed;
+      fill: url(#heat);
     }
     .progress-background {
-      fill: #434d58;
+      fill: #2a1b14;
+    }
+    @media (prefers-color-scheme: dark) {
+      .heat-0 {
+        stop-color: #ffd166;
+      }
+      .heat-1 {
+        stop-color: #ff7a1a;
+      }
+      .heat-2 {
+        stop-color: #ff2e63;
+      }
+      .glow-core {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.42;
+      }
+      .glow-edge {
+        stop-color: #ff2e63;
+        stop-opacity: 0.147;
+      }
+      .title-icon {
+        fill: #ff7a1a;
+      }
+      .card-bg {
+        fill: #16100d;
+        stroke: #ff7a1a4d;
+      }
+      .stat {
+        fill: #f7ede6;
+      }
+      .lang-name {
+        fill: #f7ede6;
+      }
+      .progress-background {
+        fill: #f7ede6;
+      }
     }
     /* Animations */
     @keyframes scaleInAnimation {
@@ -378,6 +544,11 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
         opacity: 1;
       }
     }
+    @keyframes trailAnimation {
+      from {
+        transform: scaleX(0);
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0s !important;
@@ -385,8 +556,38 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#0000001f" width="499" fill="#fffefe" stroke-opacity="1" />
-  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h483a8 8 0 0 1 8 8v37.5h-499z" />
+  <defs>
+    <linearGradient id="heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.3" class="heat-1" stop-color="#e2470f" />
+      <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
+      <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
+      <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </radialGradient>
+    <filter id="heat-bloom" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="bloom" />
+      <feMerge>
+        <feMergeNode in="bloom" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
+  <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
   <g data-testid="card-title" transform="translate(25, 30)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -396,7 +597,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     <g transform="translate(25, 0)">
       <text x="0" y="0" class="header" data-testid="header">WakaTime Stats (last 7 days)</text>
     </g>
-    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
@@ -426,21 +627,18 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #ffffff;
+      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
-      fill: #ffffff;
+      fill: #e2470f;
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
-      fill: #ffffff;
-      animation: fadeInAnimation 0.8s ease-in-out backwards;
-    }
-    .title-band {
-      fill: #ffffff;
-      opacity: 0.08;
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -450,7 +648,7 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
     }
     .stat {
       font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #ffffff;
+      fill: #2a1b14;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -485,17 +683,17 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
     }
     .lang-name {
       font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #ffffff;
+      fill: #2a1b14;
     }
     #rect-mask rect {
       animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
       animation: growWidthAnimation 0.6s ease-in-out backwards;
-      fill: #ffffff;
+      fill: url(#heat);
     }
     .progress-background {
-      fill: #fff0;
+      fill: #2a1b14;
     }
     /* Animations */
     @keyframes scaleInAnimation {
@@ -514,6 +712,11 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
         opacity: 1;
       }
     }
+    @keyframes trailAnimation {
+      from {
+        transform: scaleX(0);
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0s !important;
@@ -522,14 +725,37 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
     }
   </style>
   <defs>
-    <linearGradient id="gradient" gradientTransform="rotate(35)" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#4158d0" />
-      <stop offset="50%" stop-color="#c850c0" />
-      <stop offset="100%" stop-color="#ffcc70" />
+    <linearGradient id="heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
     </linearGradient>
+    <linearGradient id="heat-ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.3" class="heat-1" stop-color="#e2470f" />
+      <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
+      <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
+      <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </radialGradient>
+    <filter id="heat-bloom" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="bloom" />
+      <feMerge>
+        <feMergeNode in="bloom" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
   </defs>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="499" fill="url(#gradient)" stroke-opacity="1" />
-  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h483a8 8 0 0 1 8 8v37.5h-499z" />
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
+  <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
   <g data-testid="card-title" transform="translate(25, 30)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -539,7 +765,7 @@ exports[`Test Render WakaTime Card > should render correctly with gradient backg
     <g transform="translate(25, 0)">
       <text x="0" y="0" class="header" data-testid="header">WakaTime Stats (last 7 days)</text>
     </g>
-    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">
@@ -580,21 +806,18 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #2f80ed;
+      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
-      fill: #4c71f2;
+      fill: #e2470f;
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
-      fill: #4c71f2;
-      animation: fadeInAnimation 0.8s ease-in-out backwards;
-    }
-    .title-band {
-      fill: #2f80ed;
-      opacity: 0.08;
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -604,7 +827,7 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
     }
     .stat {
       font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -639,17 +862,52 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
     }
     .lang-name {
       font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #434d58;
+      fill: #2a1b14;
     }
     #rect-mask rect {
       animation: slideInAnimation 1s ease-in-out backwards;
     }
     .lang-progress {
       animation: growWidthAnimation 0.6s ease-in-out backwards;
-      fill: #2f80ed;
+      fill: url(#heat);
     }
     .progress-background {
-      fill: #434d58;
+      fill: #2a1b14;
+    }
+    @media (prefers-color-scheme: dark) {
+      .heat-0 {
+        stop-color: #ffd166;
+      }
+      .heat-1 {
+        stop-color: #ff7a1a;
+      }
+      .heat-2 {
+        stop-color: #ff2e63;
+      }
+      .glow-core {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.42;
+      }
+      .glow-edge {
+        stop-color: #ff2e63;
+        stop-opacity: 0.147;
+      }
+      .title-icon {
+        fill: #ff7a1a;
+      }
+      .card-bg {
+        fill: #16100d;
+        stroke: #ff7a1a4d;
+      }
+      .stat {
+        fill: #f7ede6;
+      }
+      .lang-name {
+        fill: #f7ede6;
+      }
+      .progress-background {
+        fill: #f7ede6;
+      }
     }
     /* Animations */
     @keyframes scaleInAnimation {
@@ -668,6 +926,11 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
         opacity: 1;
       }
     }
+    @keyframes trailAnimation {
+      from {
+        transform: scaleX(0);
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0s !important;
@@ -675,8 +938,38 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#0000001f" width="499" fill="#fffefe" stroke-opacity="1" />
-  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h483a8 8 0 0 1 8 8v37.5h-499z" />
+  <defs>
+    <linearGradient id="heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.55" class="heat-1" stop-color="#e2470f" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" />
+    </linearGradient>
+    <linearGradient id="heat-trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#dc7600" />
+      <stop offset="0.3" class="heat-1" stop-color="#e2470f" />
+      <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
+      <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
+      <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
+      <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
+    </radialGradient>
+    <filter id="heat-bloom" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="bloom" />
+      <feMerge>
+        <feMergeNode in="bloom" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
+  <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
   <g data-testid="card-title" transform="translate(25, 30)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -686,7 +979,7 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
     <g transform="translate(25, 0)">
       <text x="0" y="0" class="header" data-testid="header">WakaTime Stats (last 7 days)</text>
     </g>
-    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg x="0" y="0" width="100%">

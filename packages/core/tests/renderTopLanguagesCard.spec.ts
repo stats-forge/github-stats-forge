@@ -25,7 +25,7 @@ import { measureText } from '../src/common/text.ts';
 import type { Lang, TopLangData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue, draw, exactly, translateOf, xOf } from './_card.ts';
+import { cssValue, draw, exactly, translateOf, xOf, heatStop } from './_card.ts';
 import { approxNumber } from './utils.ts';
 
 const langs = {
@@ -257,9 +257,9 @@ describe('Test renderTopLanguages', () => {
   it('should render default colors properly', () => {
     draw(renderTopLanguages(langs));
 
-    expect(cssValue('.header', 'fill')).toBe('#2f80ed');
-    expect(cssValue('.lang-name', 'fill')).toBe('#434d58');
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fffefe');
+    expect(heatStop(1)).toBe('#e2470f');
+    expect(cssValue('.lang-name', 'fill')).toBe('#2a1b14');
+    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fffaf6');
   });
 
   it('should render custom colors properly', () => {
@@ -273,7 +273,7 @@ describe('Test renderTopLanguages', () => {
       }),
     );
 
-    expect(cssValue('.header', 'fill')).toBe('#5a0');
+    expect(heatStop(1)).toBe('#5a0');
     expect(cssValue('.lang-name', 'fill')).toBe('#9991');
     expect(cssValue('.progress-background', 'fill')).toBe('#444');
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
@@ -281,17 +281,20 @@ describe('Test renderTopLanguages', () => {
   });
 
   it('should render custom colors with themes', () => {
-    draw(renderTopLanguages(langs, { title_color: '5a0', theme: 'radical' }));
+    draw(renderTopLanguages(langs, { title_color: '5a0', theme: 'magma_dark' }));
 
-    expect(cssValue('.header', 'fill')).toBe('#5a0');
-    expect(cssValue('.lang-name', 'fill')).toBe(`#${themes.radical.text_color}`);
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${themes.radical.bg_color}`);
+    expect(heatStop(1)).toBe('#5a0');
+    expect(cssValue('.lang-name', 'fill')).toBe(`#${themes.magma_dark.text_color}`);
+    expect(screen.queryByTestId('card-bg')).toHaveAttribute(
+      'fill',
+      `#${themes.magma_dark.bg_color}`,
+    );
   });
 
   it.each(Object.entries(themes))('should render with the %s theme', (theme, colors) => {
     draw(renderTopLanguages(langs, { theme }));
 
-    expect(cssValue('.header', 'fill')).toBe(`#${colors.title_color}`);
+    expect(heatStop(1)).toBe(`#${colors.heat[1]}`);
     expect(cssValue('.lang-name', 'fill')).toBe(`#${colors.text_color}`);
     expect([`#${colors.bg_color}`, 'url(#gradient)']).toContain(
       screen.queryByTestId('card-bg')?.getAttribute('fill'),
@@ -485,7 +488,7 @@ describe('Test renderTopLanguages', () => {
     draw(renderTopLanguages(langs, { border_radius: 0 }));
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');
     draw(renderTopLanguages(langs));
-    expect(document.querySelector('rect')).toHaveAttribute('rx', '8');
+    expect(document.querySelector('rect')).toHaveAttribute('rx', '14');
   });
 
   it.each([

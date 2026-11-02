@@ -70,7 +70,7 @@ The menu can write what you answered to a file:
   "card": "stats",
   "username": "octocat",
   "show_icons": "true",
-  "theme": "tokyonight"
+  "theme": "cobalt_dark"
 }
 ```
 
@@ -96,7 +96,7 @@ npx @stats-forge/github-stats-forge-cli --config card.json --print-query
 ```
 
 ```text
-?username=octocat&show_icons=true&theme=tokyonight
+?username=octocat&show_icons=true&theme=cobalt_dark
 ```
 
 Paste that into the action and it draws the card you just tuned:
@@ -105,7 +105,7 @@ Paste that into the action and it draws the card you just tuned:
 - uses: stats-forge/github-stats-forge-action@6adc075ad652282c5b49770317da9901cc873d45 # v0.11.0
   with:
     card: stats
-    options: '?username=octocat&show_icons=true&theme=tokyonight'
+    options: '?username=octocat&show_icons=true&theme=cobalt_dark'
     path: profile/stats.svg
 ```
 
@@ -118,7 +118,7 @@ change one thing:
 
 ```sh
 npx @stats-forge/github-stats-forge-cli --card stats \
-  --options '?username=octocat&show_icons=true&theme=tokyonight'
+  --options '?username=octocat&show_icons=true&theme=cobalt_dark'
 ```
 
 Given both, `--options` layers over `--config` rather than replacing it, so one saved card plus one

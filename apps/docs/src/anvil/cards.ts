@@ -10,8 +10,6 @@ import { cards as catalogue } from '@stats-forge/github-stats-forge-catalog';
 import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
 import { org, orgActivity, pin, stats } from '@stats-forge/github-stats-forge-core/api';
 
-import type { CardCategory } from './themes.ts';
-
 /**
  * The fictional account every sample is drawn from. `fixtures.ts` answers as this
  * account would, and seeds each card's identity fields with these.
@@ -24,9 +22,12 @@ const SAMPLE = {
   wakatime: 'ember-smith',
 } as const;
 
+/** What a card is about. It groups the card picker. */
+type CardCategory = 'org' | 'repo' | 'user';
+
 /** What the anvil knows about a card that the CLI does not need to. */
 interface AnvilExtras {
-  /** What the card is about: it groups the picker and picks its theme half — see `themes.ts`. */
+  /** What the card is about: it groups the picker. */
   category: CardCategory;
   /**
    * This card's page under `docs/cards/`, linked as the card changes. The names differ from the

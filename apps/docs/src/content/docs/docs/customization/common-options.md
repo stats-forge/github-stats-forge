@@ -13,13 +13,13 @@ card naming the parameter, never a silent fallback.
 
 ## Colors
 
-| Option         | What it colors                      |
-| -------------- | ----------------------------------- |
-| `title_color`  | The card's title                    |
-| `text_color`   | The body text                       |
-| `icon_color`   | The icons, where the card draws any |
-| `bg_color`     | The background                      |
-| `border_color` | The border                          |
+| Option         | What it colors                                                                       |
+| -------------- | ------------------------------------------------------------------------------------ |
+| `title_color`  | The title, its trail and the rank ring, in one color instead of the theme's gradient |
+| `text_color`   | The body text                                                                        |
+| `icon_color`   | The icons, where the card draws any; the title color when unset                      |
+| `bg_color`     | The background                                                                       |
+| `border_color` | The border                                                                           |
 
 A color is a hex value **without the `#`** — three, four, six or eight digits — or a named CSS
 color. `bg_color` also takes a gradient: an angle in degrees, then two or more stops.
@@ -33,8 +33,9 @@ Each color option has a `_light` and a `_dark` twin, as `theme` has `theme_light
 
 ## Theme
 
-`theme` names one of the [built-in themes](../themes/). A color you pass alongside it wins, so a
-theme is a starting point rather than a lock.
+`theme` names one of the [built-in themes](../themes/): a family such as `ember`, the default, which
+follows the viewer's light or dark setting, or one of its variants, such as `ember_dark`. A color
+you pass alongside it wins, so a theme is a starting point rather than a lock.
 
 ## Border, title and size
 

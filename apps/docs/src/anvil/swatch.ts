@@ -2,16 +2,12 @@
  * @file What a theme looks like, at the size of a dropdown row.
  *
  * A miniature of the card rather than a strip of squares: the ground is the theme's background and
- * the dots are its title, icon and text colors, so a pale title on a pale ground reads as one.
+ * the dots are its heat's two ends and its text, so a pale heat on a pale ground reads as one.
+ * A family follows the viewer, so its ground is split between its light and dark variants.
  */
 
-import { themes } from '@stats-forge/github-stats-forge-core/api';
-
-/** The three colors drawn on the swatch, in the order a card uses them. */
-const DOTS = ['title_color', 'icon_color', 'text_color'] as const;
-
-/** A theme's own name for a color, as the table holds it: hex, no `#`. */
-type Channel = (typeof DOTS)[number];
+import { THEME_FAMILIES, themes } from '@stats-forge/github-stats-forge-core/api';
+import type { ThemeName } from '@stats-forge/github-stats-forge-core/api';
 
 /**
  * The table stores hex without a `#`, and `bg_color` may carry alpha or a gradient spec.
@@ -25,10 +21,22 @@ const toCss = (value: string | undefined): string => {
   return /^[\dA-Fa-f]{3,8}$/.test(value) ? `#${value}` : 'transparent';
 };
 
-/** The theme table, read by name rather than by key: the caller has a string. */
-const BY_NAME: Readonly<
-  Record<string, Partial<Record<Channel | 'bg_color' | 'border_color', string>> | undefined>
-> = themes;
+/** @returns The variant a name draws its dots from, and the grounds it stands on. */
+const variantsOf = (
+  name: string,
+): { dots: (typeof themes)[ThemeName]; grounds: Array<string> } | undefined => {
+  if (Object.hasOwn(themes, name)) {
+    const theme = themes[name as ThemeName];
+    return { dots: theme, grounds: [theme.bg_color] };
+  }
+  const family = THEME_FAMILIES.find((candidate) => candidate === name);
+  if (family === undefined) {
+    return undefined;
+  }
+  const light = themes[`${family}_light`];
+  const dark = themes[`${family}_dark`];
+  return { dots: dark, grounds: [light.bg_color, dark.bg_color] };
+};
 
 /**
  * The swatch for one theme.
@@ -36,23 +44,30 @@ const BY_NAME: Readonly<
  * @returns The element, or `undefined` when no theme goes by that name.
  */
 const themeSwatch = (name: string): HTMLElement | undefined => {
-  const theme = BY_NAME[name];
-  if (theme === undefined) {
+  const variants = variantsOf(name);
+  if (variants === undefined) {
     return undefined;
   }
+  const { dots, grounds } = variants;
 
   const swatch = document.createElement('span');
   swatch.className = 'anvil-swatch';
   swatch.ariaHidden = 'true';
-  swatch.style.setProperty('--swatch-bg', toCss(theme.bg_color));
+  const [first, second] = grounds.map((ground) => toCss(ground));
+  swatch.style.setProperty(
+    '--swatch-bg',
+    second === undefined
+      ? (first ?? 'transparent')
+      : `linear-gradient(90deg, ${first ?? ''} 50%, ${second} 50%)`,
+  );
   swatch.style.setProperty(
     '--swatch-border',
-    theme.border_color === undefined ? 'currentColor' : toCss(theme.border_color),
+    'border_color' in dots ? toCss(dots.border_color) : 'currentColor',
   );
 
-  for (const channel of DOTS) {
+  for (const color of [dots.heat[0], dots.heat[2], dots.text_color]) {
     const dot = document.createElement('i');
-    dot.style.background = toCss(theme[channel]);
+    dot.style.background = toCss(color);
     swatch.append(dot);
   }
 
