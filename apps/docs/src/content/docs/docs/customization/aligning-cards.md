@@ -44,16 +44,6 @@ URLs from a self-hosted endpoint — swap the paths.
 it one sits low against the other. Pick a height and give it to both; the widths then differ, which
 is fine, and `card_width` is how you narrow one to fit.
 
-What that looks like:
-
-<div class="card-row">
-
-![My GitHub stats](/cards/stats.svg)
-
-![The languages I write most](/cards/top-langs-compact.svg)
-
-</div>
-
 ## Pinned repositories, two across
 
 The same shape, one link per repository:
@@ -62,26 +52,19 @@ The same shape, one link per repository:
 <a href="https://github.com/ember-smith/quench">
   <picture>
     <source srcset="./cards/quench-dark.svg" media="(prefers-color-scheme: dark)" />
-    <img align="center" src="./cards/quench-light.svg" alt="quench" />
+    <img height="150" align="center" src="./cards/quench-light.svg" alt="quench" />
   </picture>
 </a>
 <a href="https://gist.github.com/ember-smith/0a5c3e9f7d2b4e6a8c1f0b9d7e5a3c21">
   <picture>
     <source srcset="./cards/gist-dark.svg" media="(prefers-color-scheme: dark)" />
-    <img align="center" src="./cards/gist-light.svg" alt="A gist" />
+    <img height="150" align="center" src="./cards/gist-light.svg" alt="A gist" />
   </picture>
 </a>
 ```
 
-Pin cards are already one height, so they need no `height` of their own.
-
-<div class="card-row">
-
-![A pinned repository](/cards/pin.svg)
-
-![A pinned gist](/cards/gist.svg)
-
-</div>
+Pin cards share a width, not a height: it grows with the description, topics and stats, so give
+both the same `height` here too.
 
 ## Centring a single card
 

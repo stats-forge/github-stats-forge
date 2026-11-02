@@ -37,7 +37,7 @@
   width: 3em;
 }
 
-/* A README puts cards side by side; the examples on the aligning page do the same. */
+/* The landing page's hero shows two cards side by side, as a README would. */
 .card-row {
   display: flex;
   flex-wrap: wrap;
