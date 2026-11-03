@@ -9,7 +9,7 @@ import { remarkCliDemo } from './src/plugins/remark-cli-demo.ts';
 import { remarkFetcherReference } from './src/plugins/remark-fetcher-reference.ts';
 import { remarkResolveLinks } from './src/plugins/remark-resolve-links.ts';
 
-// one file is both the favicon and the header logo; the amber twin is what an instance wears
+// one file is both the favicon and the header logo; the blue twin is what an instance wears
 const icon = SERVED_BY_INSTANCE ? 'favicon-self-hosted.svg' : 'favicon.svg';
 
 export default defineConfig({
@@ -41,6 +41,7 @@ export default defineConfig({
       logo: { src: `./public/${icon}`, alt: '' },
       favicon: `/${icon}`,
       customCss: [
+        './src/styles/theme.css',
         './src/styles/card-previews.css',
         './src/styles/cli-demo.css',
         './src/styles/precedence.css',

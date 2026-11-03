@@ -25,17 +25,17 @@
       <stop offset="0" stop-color="#a9b5c8" />
       <stop offset="1" stop-color="#8593aa" />
     </linearGradient>
-    <!-- One diagonal ramp across the group: deep blue low-left to bright blue high-right. -->
+    <!-- One diagonal ramp across the group, the cards' ember heat: deep low-left, hot high-right. -->
     <linearGradient id="bars" x1="192" y1="254" x2="314" y2="153" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1747c9" />
-      <stop offset="0.5" stop-color="#2a6fe0" />
-      <stop offset="1" stop-color="#3f93ea" />
+      <stop offset="0" stop-color="#c8174f" />
+      <stop offset="0.5" stop-color="#e2470f" />
+      <stop offset="1" stop-color="#f59e0b" />
     </linearGradient>
   </defs>
 
   <!-- The plate: white rim, tinted field, as the previous logo had. -->
   <circle cx="256" cy="254" r="168" fill="#ffffff" />
-  <circle cx="256" cy="254" r="159" fill="#e9eff7" />
+  <circle cx="256" cy="254" r="159" fill="#f7efe9" />
 
   <!-- Drawn whole; the anvil covers the arc that crosses it, as in the artwork. -->
   <circle cx="256" cy="254" r="139" fill="none" stroke="url(#ring)" stroke-width="10" />

@@ -47,19 +47,19 @@ const path = Astro.url.pathname;
 
 <style>
   /*
-   * Amber, as the instance's icon is. Two shades, because the header follows the theme and each
-   * clears AA on its own side. Set on the wrapper so the title, Starlight's own element beside the
+   * Blue, as the instance's icon is, against the site's ember. Two shades, because the header
+   * follows the theme and each clears AA on its own side. Set on the wrapper so the title, Starlight's own element beside the
    * chip, reads the same one. Its `overflow: clip` is lifted here too, or the tooltip below hangs
    * past the header's 50px and is invisible — only on a build whose title is known to fit.
    */
   :global(.title-wrapper:has(.self-hosted)) {
-    --mark: #b45309;
+    --mark: #1d4ed8;
 
     overflow: visible;
   }
 
   :global([data-theme='dark'] .title-wrapper:has(.self-hosted)) {
-    --mark: #f59e0b;
+    --mark: #60a5fa;
   }
 
   :global(.title-wrapper:has(.self-hosted) .site-title) {
