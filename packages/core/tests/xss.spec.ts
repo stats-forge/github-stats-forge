@@ -7,18 +7,16 @@ import { stats } from '../src/api/stats.ts';
 import { topLangs } from '../src/api/top-langs.ts';
 import { wakatime } from '../src/api/wakatime.ts';
 import { CardConfig } from '../src/common/config.ts';
-import type {
-  GistData,
-  RepositoryData,
-  StatsData,
-  TopLangData,
-  WakaTimeData,
-} from '../src/fetchers/types.ts';
+import type { GistData } from '../src/fetchers/gist/types.ts';
+import type { RepositoryData } from '../src/fetchers/repo/types.ts';
+import type { StatsData } from '../src/fetchers/stats/types.ts';
+import type { TopLangData } from '../src/fetchers/top-languages/types.ts';
+import type { WakaTimeData } from '../src/fetchers/wakatime/types.ts';
 
 // Hoisted with the mocks, which run before anything else in the file is defined.
 const { SCRIPT } = vi.hoisted(() => ({ SCRIPT: "<script>alert('xss')</script>" }));
 
-vi.mock(import('../src/fetchers/gist.ts'), () => ({
+vi.mock(import('../src/fetchers/gist/index.ts'), () => ({
   fetchGist: vi.fn().mockResolvedValue({
     name: SCRIPT,
     nameWithOwner: SCRIPT,
@@ -29,7 +27,7 @@ vi.mock(import('../src/fetchers/gist.ts'), () => ({
   } satisfies GistData),
 }));
 
-vi.mock(import('../src/fetchers/repo.ts'), () => ({
+vi.mock(import('../src/fetchers/repo/index.ts'), () => ({
   fetchRepo: vi.fn().mockResolvedValue({
     nameWithOwner: SCRIPT,
     name: SCRIPT,
@@ -43,7 +41,7 @@ vi.mock(import('../src/fetchers/repo.ts'), () => ({
   } satisfies RepositoryData),
 }));
 
-vi.mock(import('../src/fetchers/stats.ts'), () => ({
+vi.mock(import('../src/fetchers/stats/index.ts'), () => ({
   fetchStats: vi.fn().mockResolvedValue({
     login: 'user',
     name: SCRIPT,
@@ -69,7 +67,7 @@ vi.mock(import('../src/fetchers/stats.ts'), () => ({
   } satisfies StatsData),
 }));
 
-vi.mock(import('../src/fetchers/top-languages.ts'), () => ({
+vi.mock(import('../src/fetchers/top-languages/index.ts'), () => ({
   fetchTopLanguages: vi.fn().mockResolvedValue({
     HTML: { color: '#0f0', name: SCRIPT, size: 200, count: 1 },
     javascript: { color: '#0ff', name: SCRIPT, size: 200, count: 1 },
@@ -77,7 +75,7 @@ vi.mock(import('../src/fetchers/top-languages.ts'), () => ({
   } satisfies TopLangData),
 }));
 
-vi.mock(import('../src/fetchers/wakatime.ts'), async () => {
+vi.mock(import('../src/fetchers/wakatime/index.ts'), async () => {
   const { wakaTimeData } = await import('./_wakatime.ts');
   const { data } = wakaTimeData;
   return {

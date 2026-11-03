@@ -61,6 +61,9 @@ accepts, a CLI, an HTTP server, and the documentation site.
 - **A card is a folder under `cards/`**: `index.ts` renders, `locales.ts` translates; only
   `cards/options.ts` sits loose ([#61]). A card too big for one file moves its layouts beside
   `index.ts`, which keeps the options and the render, as `top-languages/` and `stats/` do.
+- **A fetcher is a folder under `fetchers/` too**: `index.ts` fetches, `types.ts` holds the data it
+  returns, and a helper only it uses sits beside them, as `top-languages/jupyter.ts` does. Another
+  fetcher's type is imported from its folder; `fetchers/index.ts` re-exports them all.
 - **Every source file is TypeScript** except `packages/cli/bin.js`; generators are typechecked
   through a `tsconfig.scripts.json` ([#39]).
 

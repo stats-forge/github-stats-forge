@@ -1,32 +1,32 @@
-import { calculateRank } from '../calculateRank.ts';
-import type { CardConfig } from '../common/config.ts';
-import { affiliationsOrOwner, GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import type { GitHubDateRange } from '../common/date.ts';
+import { calculateRank } from '../../calculateRank.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { affiliationsOrOwner, GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
+import type { GitHubDateRange } from '../../common/date.ts';
 import {
   getWidestRange,
   toContributionRanges,
   toGitHubDateTime,
   toRange,
   toYearRanges,
-} from '../common/date.ts';
-import { CardError } from '../common/error.ts';
-import { createGraphQLFetcher, httpRequest } from '../common/http.ts';
-import type { FetcherContext, GraphQLResponse } from '../common/http.ts';
-import { logger } from '../common/log.ts';
-import { buildSearchFilter, excludes } from '../common/ops.ts';
-import { retryer } from '../common/retryer.ts';
-import type { FetcherResponse } from '../common/retryer.ts';
-import { buildContributionsDocument } from '../graphql/contributionsDocument.ts';
-import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
-import { UserInfoDocument, UserReposDocument } from '../graphql/generated/stats.ts';
+} from '../../common/date.ts';
+import { CardError } from '../../common/error.ts';
+import { createGraphQLFetcher, httpRequest } from '../../common/http.ts';
+import type { FetcherContext, GraphQLResponse } from '../../common/http.ts';
+import { logger } from '../../common/log.ts';
+import { buildSearchFilter, excludes } from '../../common/ops.ts';
+import { retryer } from '../../common/retryer.ts';
+import type { FetcherResponse } from '../../common/retryer.ts';
+import { buildContributionsDocument } from '../../graphql/contributionsDocument.ts';
+import type { RepositoryAffiliation } from '../../graphql/generated/common.ts';
+import { UserInfoDocument, UserReposDocument } from '../../graphql/generated/stats.ts';
 import type {
   RangeContributionsFragment,
   RepoNodeFragment,
   UserInfoQuery,
   UserInfoQueryVariables,
-} from '../graphql/generated/stats.ts';
+} from '../../graphql/generated/stats.ts';
+import { fetchReposContributedTo } from '../contributed-to/index.ts';
 
-import { fetchReposContributedTo } from './contributed-to.ts';
 import type { RepoUserStats, StatsData } from './types.ts';
 
 /** The subset of the stats response `statsFetcher` returns and threads on. */

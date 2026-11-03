@@ -2,7 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderGistCard } from '../src/cards/gist/index.ts';
-import type { GistData } from '../src/fetchers/types.ts';
+import type { GistData } from '../src/fetchers/gist/types.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { cssValue, draw, drawnIds, exactly, noMotionRules, heatStop } from './_card.ts';

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { renderOrgCalendarCard } from '../src/cards/org-calendar/index.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
 import { getCardColors } from '../src/common/color.ts';
-import type { OrgCalendarData } from '../src/fetchers/types.ts';
+import type { OrgCalendarData } from '../src/fetchers/org-calendar/types.ts';
 
 import { cssValue, exactly } from './_card.ts';
 

@@ -7,7 +7,7 @@ import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
 import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
-import type { WakaTimeData, WakaTimeLang } from '../../fetchers/types.ts';
+import type { WakaTimeData, WakaTimeLang } from '../../fetchers/wakatime/types.ts';
 import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

@@ -2,8 +2,8 @@ import * as z from 'zod/mini';
 
 import { renderTopLanguages } from '../cards/top-languages/index.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
-import { NOTEBOOK_COUNTS } from '../fetchers/jupyter.ts';
-import { fetchTopLanguages } from '../fetchers/top-languages.ts';
+import { fetchTopLanguages } from '../fetchers/top-languages/index.ts';
+import { NOTEBOOK_COUNTS } from '../fetchers/top-languages/jupyter.ts';
 
 import { cardHandler } from './handler.ts';
 import {

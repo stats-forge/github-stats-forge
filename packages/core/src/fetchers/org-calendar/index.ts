@@ -1,13 +1,13 @@
-import type { CardConfig } from '../common/config.ts';
-import { GITHUB_USERNAME_PATTERN, ORG_CALENDAR_MAX_WEEKS } from '../common/constants.ts';
-import type { ORG_CALENDAR_COUNTS } from '../common/constants.ts';
-import { toSearchDate } from '../common/date.ts';
-import { CardError } from '../common/error.ts';
-import { createGraphQLFetcher } from '../common/http.ts';
-import { clampValue } from '../common/ops.ts';
-import { retryer } from '../common/retryer.ts';
-import { buildOrgCalendarDocument } from '../graphql/buildOrgCalendarDocument.ts';
-import type { OrgCalendarQueryVariables } from '../graphql/buildOrgCalendarDocument.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { GITHUB_USERNAME_PATTERN, ORG_CALENDAR_MAX_WEEKS } from '../../common/constants.ts';
+import type { ORG_CALENDAR_COUNTS } from '../../common/constants.ts';
+import { toSearchDate } from '../../common/date.ts';
+import { CardError } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
+import { clampValue } from '../../common/ops.ts';
+import { retryer } from '../../common/retryer.ts';
+import { buildOrgCalendarDocument } from '../../graphql/buildOrgCalendarDocument.ts';
+import type { OrgCalendarQueryVariables } from '../../graphql/buildOrgCalendarDocument.ts';
 
 import type { OrgCalendarData, OrgCalendarWeek } from './types.ts';
 

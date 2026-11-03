@@ -1,16 +1,16 @@
-import type { CardConfig } from '../common/config.ts';
-import type { GitHubDateRange } from '../common/date.ts';
-import { toContributionRanges, toRange } from '../common/date.ts';
-import { CardError } from '../common/error.ts';
-import { createGraphQLFetcher } from '../common/http.ts';
-import { logger } from '../common/log.ts';
-import { clampValue, excludes } from '../common/ops.ts';
-import { retryer } from '../common/retryer.ts';
-import { UserContributionYearsDocument } from '../graphql/generated/contributed-to.ts';
+import type { CardConfig } from '../../common/config.ts';
+import type { GitHubDateRange } from '../../common/date.ts';
+import { toContributionRanges, toRange } from '../../common/date.ts';
+import { CardError } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
+import { logger } from '../../common/log.ts';
+import { clampValue, excludes } from '../../common/ops.ts';
+import { retryer } from '../../common/retryer.ts';
+import { UserContributionYearsDocument } from '../../graphql/generated/contributed-to.ts';
 import {
   MAX_REPOSITORIES_LIMIT,
   buildReposContributedToDocument,
-} from '../graphql/reposContributedToDocument.ts';
+} from '../../graphql/reposContributedToDocument.ts';
 
 import type { ContributedToData, ContributedRepo } from './types.ts';
 

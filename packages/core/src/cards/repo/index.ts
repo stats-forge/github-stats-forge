@@ -13,7 +13,7 @@ import {
   NUMBER_FORMATS,
 } from '../../common/render.ts';
 import { measureText, wrapTextMultiline } from '../../common/text.ts';
-import type { RepositoryData } from '../../fetchers/types.ts';
+import type { RepositoryData } from '../../fetchers/repo/types.ts';
 import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

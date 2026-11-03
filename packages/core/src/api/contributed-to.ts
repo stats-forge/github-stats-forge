@@ -1,7 +1,7 @@
 import * as z from 'zod/mini';
 
 import { renderContributedToCard } from '../cards/contributed-to/index.ts';
-import { fetchContributedTo } from '../fetchers/contributed-to.ts';
+import { fetchContributedTo } from '../fetchers/contributed-to/index.ts';
 
 import { cardHandler } from './handler.ts';
 import {

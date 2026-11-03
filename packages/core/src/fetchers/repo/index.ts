@@ -1,13 +1,14 @@
-import type { CardConfig } from '../common/config.ts';
-import { CardError } from '../common/error.ts';
-import { createGraphQLFetcher } from '../common/http.ts';
-import { retryer } from '../common/retryer.ts';
-import { GetRepoDocument } from '../graphql/generated/repo.ts';
-import type { RepoInfoFragment } from '../graphql/generated/repo.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { CardError } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
+import { retryer } from '../../common/retryer.ts';
+import { GetRepoDocument } from '../../graphql/generated/repo.ts';
+import type { RepoInfoFragment } from '../../graphql/generated/repo.ts';
+import { fetchRepoUserStats } from '../stats/index.ts';
+import type { RepoUserSearch } from '../stats/index.ts';
+import type { RepoUserStats } from '../stats/types.ts';
 
-import { fetchRepoUserStats } from './stats.ts';
-import type { RepoUserSearch } from './stats.ts';
-import type { RepoUserStats, RepositoryData } from './types.ts';
+import type { RepositoryData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(GetRepoDocument);
 

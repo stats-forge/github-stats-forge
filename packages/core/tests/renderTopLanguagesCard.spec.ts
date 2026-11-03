@@ -23,7 +23,7 @@ import {
 } from '../src/cards/top-languages/layouts.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
 import { measureText } from '../src/common/text.ts';
-import type { Lang, TopLangData } from '../src/fetchers/types.ts';
+import type { Lang, TopLangData } from '../src/fetchers/top-languages/types.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { cssValue, draw, exactly, translateOf, xOf, heatStop } from './_card.ts';

@@ -8,7 +8,7 @@ import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import { createLanguageNode, flexLayout, iconWithLabel } from '../../common/render.ts';
 import { wrapTextMultiline, measureText } from '../../common/text.ts';
-import type { GistData } from '../../fetchers/types.ts';
+import type { GistData } from '../../fetchers/gist/types.ts';
 import type { CssChild } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

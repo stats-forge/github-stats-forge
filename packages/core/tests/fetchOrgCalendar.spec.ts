@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CardError } from '../src/common/error.ts';
-import { fetchOrgCalendar } from '../src/fetchers/org-calendar.ts';
+import { fetchOrgCalendar } from '../src/fetchers/org-calendar/index.ts';
 import type { OrgCalendarQuery } from '../src/graphql/buildOrgCalendarDocument.ts';
 
 import { testConfig } from './_config.ts';

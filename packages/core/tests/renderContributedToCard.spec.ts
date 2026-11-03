@@ -2,7 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { MIN_CARD_WIDTH, renderContributedToCard } from '../src/cards/contributed-to/index.ts';
-import type { ContributedToData } from '../src/fetchers/types.ts';
+import type { ContributedToData } from '../src/fetchers/contributed-to/types.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { cssValue, exactly } from './_card.ts';

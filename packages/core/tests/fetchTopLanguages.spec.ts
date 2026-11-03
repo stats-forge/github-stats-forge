@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { logger } from '../src/common/log.ts';
-import { fetchTopLanguages } from '../src/fetchers/top-languages.ts';
+import { fetchTopLanguages } from '../src/fetchers/top-languages/index.ts';
 import type { TopLanguagesQuery } from '../src/graphql/generated/top-languages.ts';
 
 import { testConfig } from './_config.ts';

@@ -1,7 +1,7 @@
-import type { CardConfig } from '../common/config.ts';
-import { HOSTNAME_PATTERN, WAKATIME_USERNAME_PATTERN } from '../common/constants.ts';
-import { CardError } from '../common/error.ts';
-import { httpRequest } from '../common/http.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { HOSTNAME_PATTERN, WAKATIME_USERNAME_PATTERN } from '../../common/constants.ts';
+import { CardError } from '../../common/error.ts';
+import { httpRequest } from '../../common/http.ts';
 
 import type { WakaTimeData } from './types.ts';
 

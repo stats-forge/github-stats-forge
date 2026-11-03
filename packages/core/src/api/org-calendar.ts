@@ -3,7 +3,7 @@ import * as z from 'zod/mini';
 import { renderOrgCalendarCard } from '../cards/org-calendar/index.ts';
 import { ORG_CALENDAR_COUNTS, ORG_CALENDAR_MAX_WEEKS } from '../common/constants.ts';
 import { NUMBER_FORMATS } from '../common/render.ts';
-import { fetchOrgCalendar } from '../fetchers/org-calendar.ts';
+import { fetchOrgCalendar } from '../fetchers/org-calendar/index.ts';
 
 import { cardHandler } from './handler.ts';
 import { commonParams, enumParam, intParam, titleParams, usernameParam } from './params.ts';

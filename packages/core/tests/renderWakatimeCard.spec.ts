@@ -6,7 +6,7 @@ import { CARD_STYLE } from '../src/common/brand.ts';
 import { getCardColors } from '../src/common/color.ts';
 import { getLanguageColor } from '../src/common/languageColors.ts';
 import { measureText } from '../src/common/text.ts';
-import type { WakaTimeData } from '../src/fetchers/types.ts';
+import type { WakaTimeData } from '../src/fetchers/wakatime/types.ts';
 
 import { cssValue, draw, exactly, xOf } from './_card.ts';
 import { wakaTimeData } from './_wakatime.ts';

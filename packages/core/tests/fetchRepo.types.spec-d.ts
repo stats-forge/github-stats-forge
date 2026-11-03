@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, it } from 'vitest';
 
-import type { RepoUserStats, RepositoryData } from '../src/fetchers/types.ts';
+import type { RepositoryData } from '../src/fetchers/repo/types.ts';
+import type { RepoUserStats } from '../src/fetchers/stats/types.ts';
 
 describe('repo fetcher types', () => {
   it('should expose shared repo stats typing', () => {

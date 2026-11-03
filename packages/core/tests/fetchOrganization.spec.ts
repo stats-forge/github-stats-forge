@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CardError } from '../src/common/error.ts';
-import { fetchOrganization } from '../src/fetchers/organization.ts';
+import { fetchOrganization } from '../src/fetchers/organization/index.ts';
 import type {
   GetOrganizationQuery,
   OrgRepoInfoFragment,

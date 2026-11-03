@@ -3,17 +3,17 @@
  * in, since GitHub counts a whole `.ipynb`, saved outputs included, as Jupyter Notebook.
  */
 
-import type { CardConfig } from '../common/config.ts';
-import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import { CardError } from '../common/error.ts';
-import { httpRequest } from '../common/http.ts';
-import type { FetcherContext } from '../common/http.ts';
-import { linguistLanguage } from '../common/languageAliases.ts';
-import { getLanguageColor } from '../common/languageColors.ts';
-import { logger } from '../common/log.ts';
-import { retryer } from '../common/retryer.ts';
-import type { FetcherResponse } from '../common/retryer.ts';
-import type { TopLanguageFragment } from '../graphql/generated/top-languages.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
+import { CardError } from '../../common/error.ts';
+import { httpRequest } from '../../common/http.ts';
+import type { FetcherContext } from '../../common/http.ts';
+import { linguistLanguage } from '../../common/languageAliases.ts';
+import { getLanguageColor } from '../../common/languageColors.ts';
+import { logger } from '../../common/log.ts';
+import { retryer } from '../../common/retryer.ts';
+import type { FetcherResponse } from '../../common/retryer.ts';
+import type { TopLanguageFragment } from '../../graphql/generated/top-languages.ts';
 
 /** What `notebooks` accepts: `github` keeps GitHub's count, `code` counts code cells by kernel. */
 const NOTEBOOK_COUNTS = ['github', 'code'] as const;

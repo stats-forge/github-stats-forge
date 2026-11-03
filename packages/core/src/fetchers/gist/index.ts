@@ -1,9 +1,9 @@
-import type { CardConfig } from '../common/config.ts';
-import { CardError } from '../common/error.ts';
-import { createGraphQLFetcher } from '../common/http.ts';
-import { retryer } from '../common/retryer.ts';
-import { GistInfoDocument } from '../graphql/generated/gist.ts';
-import type { GistFileInfoFragment } from '../graphql/generated/gist.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { CardError } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
+import { retryer } from '../../common/retryer.ts';
+import { GistInfoDocument } from '../../graphql/generated/gist.ts';
+import type { GistFileInfoFragment } from '../../graphql/generated/gist.ts';
 
 import type { GistData } from './types.ts';
 

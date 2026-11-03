@@ -11,17 +11,15 @@ import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { renderTopLanguages } from '../src/cards/top-languages/index.ts';
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
-import type {
-  ContributedToData,
-  GistData,
-  OrgActivityData,
-  OrgCalendarData,
-  OrganizationData,
-  RepositoryData,
-  StatsData,
-  TopLangData,
-  WakaTimeData,
-} from '../src/fetchers/types.ts';
+import type { ContributedToData } from '../src/fetchers/contributed-to/types.ts';
+import type { GistData } from '../src/fetchers/gist/types.ts';
+import type { OrgActivityData } from '../src/fetchers/org-activity/types.ts';
+import type { OrgCalendarData } from '../src/fetchers/org-calendar/types.ts';
+import type { OrganizationData } from '../src/fetchers/organization/types.ts';
+import type { RepositoryData } from '../src/fetchers/repo/types.ts';
+import type { StatsData } from '../src/fetchers/stats/types.ts';
+import type { TopLangData } from '../src/fetchers/top-languages/types.ts';
+import type { WakaTimeData } from '../src/fetchers/wakatime/types.ts';
 
 const gistData: GistData = {
   name: 'test',

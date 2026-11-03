@@ -145,7 +145,7 @@ const readAll = (): Map<string, Fetcher> => {
  */
 const sourcesChangedAt = (): number =>
   Math.max(
-    ...readdirSync(FETCHERS_DIR)
+    ...readdirSync(FETCHERS_DIR, { recursive: true, encoding: 'utf8' })
       .filter((file) => file.endsWith('.ts'))
       .map((file) => statSync(join(FETCHERS_DIR, file)).mtimeMs),
   );

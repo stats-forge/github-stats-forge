@@ -4,7 +4,7 @@ import { formatBytes } from '../../common/fmt.ts';
 import { DEFAULT_LANG_COLOR } from '../../common/languageColors.ts';
 import { chunkArray } from '../../common/ops.ts';
 import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
-import type { Lang } from '../../fetchers/types.ts';
+import type { Lang } from '../../fetchers/top-languages/types.ts';
 import type { Child, MarkupElement } from '../../markup/index.ts';
 import { el } from '../../markup/index.ts';
 

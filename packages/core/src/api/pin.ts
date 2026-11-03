@@ -1,8 +1,8 @@
 import * as z from 'zod/mini';
 
 import { renderRepoCard } from '../cards/repo/index.ts';
-import { fetchRepo } from '../fetchers/repo.ts';
-import { REPO_USER_SEARCHES } from '../fetchers/stats.ts';
+import { fetchRepo } from '../fetchers/repo/index.ts';
+import { REPO_USER_SEARCHES } from '../fetchers/stats/index.ts';
 
 import { cardHandler } from './handler.ts';
 import {

@@ -14,7 +14,7 @@ import {
   formatCount,
 } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
-import type { OrgActivityData } from '../../fetchers/types.ts';
+import type { OrgActivityData } from '../../fetchers/org-activity/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

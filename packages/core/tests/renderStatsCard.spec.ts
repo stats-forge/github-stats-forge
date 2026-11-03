@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
-import type { StatsData } from '../src/fetchers/types.ts';
+import type { StatsData } from '../src/fetchers/stats/types.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { cssValue, draw, drawnIds, exactly, translateOf, heatStop } from './_card.ts';

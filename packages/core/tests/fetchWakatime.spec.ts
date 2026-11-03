@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { fetchWakatimeStats } from '../src/fetchers/wakatime.ts';
+import { fetchWakatimeStats } from '../src/fetchers/wakatime/index.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';
