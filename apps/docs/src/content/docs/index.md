@@ -32,19 +32,19 @@ each has a light and a dark version.
 
 <div class="card-gallery">
 
-[![The contributed-to card](/cards/contributed-to.svg) Contributed to](docs/cards/contributed-to/)
+[Contributed to ![The contributed-to card](/cards/contributed-to.svg)](docs/cards/contributed-to/)
 
-[![The organization card](/cards/organization.svg) Organization](docs/cards/organization/)
+[Organization ![The organization card](/cards/organization.svg)](docs/cards/organization/)
 
-[![The repository pin card](/cards/pin.svg) Repository pin](docs/cards/repo-pin/)
+[Repository pin ![The repository pin card](/cards/pin.svg)](docs/cards/repo-pin/)
 
-[![The organization activity card](/cards/org-activity.svg) Organization activity](docs/cards/organization-activity/)
+[Organization activity ![The organization activity card](/cards/org-activity.svg)](docs/cards/organization-activity/)
 
-[![The gist pin card](/cards/gist.svg) Gist pin](docs/cards/gist-pin/)
+[Gist pin ![The gist pin card](/cards/gist.svg)](docs/cards/gist-pin/)
 
-[![The top languages card, donut layout](/cards/top-langs-donut.svg) Top languages](docs/cards/top-languages/)
+[Top languages ![The top languages card, donut layout](/cards/top-langs-donut.svg)](docs/cards/top-languages/)
 
-[![The WakaTime card](/cards/wakatime.svg) WakaTime](docs/cards/wakatime/)
+[WakaTime ![The WakaTime card](/cards/wakatime.svg)](docs/cards/wakatime/)
 
 </div>
 
