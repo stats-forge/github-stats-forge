@@ -6,10 +6,10 @@
 # exists, so the image runs the sources; `--conditions=@stats/source` points the core import at
 # `packages/core/src`.
 
-# Pinned by digest, because `24-alpine` is a moving tag; Renovate maintains it.
+# Pinned by digest, because `26-alpine` is a moving tag; Renovate maintains it.
 # `$BUILDPLATFORM`: the install and the site build produce the same bytes on every architecture,
 # so they run natively once rather than under QEMU per target; only `runtime` is multi-arch.
-FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:6a1c190e17215d844926b0677f4bf87273ff7d5e54db06d3b5b5863ab0b09a3d AS base
+FROM --platform=$BUILDPLATFORM node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS base
 
 WORKDIR /repo
 ENV PNPM_HOME=/pnpm
@@ -58,7 +58,7 @@ ENV SITE_BASE=/
 ENV SITE_SERVER=true
 RUN pnpm run docs:build
 
-FROM node:24-alpine@sha256:6a1c190e17215d844926b0677f4bf87273ff7d5e54db06d3b5b5863ab0b09a3d AS runtime
+FROM node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS runtime
 
 LABEL org.opencontainers.image.title="github-stats-forge server"
 LABEL org.opencontainers.image.description="Serves the GitHub stats cards as SVG"
