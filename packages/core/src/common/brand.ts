@@ -81,6 +81,19 @@ const CARD_STYLE = {
   /** How far a stat row's ink reaches below its own top: the icon box, which outruns the text. */
   statRowInk: 15,
 
+  /** `measureText` reads regular widths; a semibold line draws about a tenth wider. */
+  semiboldInk: 1.1,
+
+  /** A big total leading a card's body, with a line of what it means beside it. */
+  headline: {
+    /** Its room: the total's line, then the air before what follows. */
+    height: 36,
+    /** The total's baseline, so its ink starts at the body's top. */
+    baseline: 17,
+    /** Air between the total and the line beside it. */
+    gap: 10,
+  },
+
   /** The band behind the title, filled with the heat: with the trail, what a card is known by. */
   band: {
     /** Clear air the band leaves between its foot and the first row of the body. */

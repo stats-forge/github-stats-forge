@@ -6,6 +6,7 @@ import { commonLocales } from '../../common/locales.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
 import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
+import { measureText } from '../../common/text.ts';
 import type { WakaTimeData, WakaTimeLang } from '../../fetchers/types.ts';
 import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
@@ -272,15 +273,6 @@ const getStyles = ({ textColor }: { textColor: string }): Array<CssChild> => {
   ];
 };
 
-/** A bar the same color as the text behind it would be invisible, so it goes transparent. */
-const progressBackground = (titleColor: string, textColor: string): string => {
-  if (textColor === titleColor) {
-    return '#fff0';
-  }
-
-  return textColor;
-};
-
 /**
  * Normalize incoming width (string or number) and clamp to minimum.
  *
@@ -347,9 +339,22 @@ const renderCard = (
     .filter((language) => language.hours || language.minutes)
     .slice(0, langsCount);
 
+  // The range's time leads, the number a top-languages card does not have. WakaTime totals
+  // with and without its catch-all Other, so hiding Other takes the total without it.
+  const otherHidden = shouldHideLangs && hide_langs.some((lang) => lowercaseTrim(lang) === 'other');
+  const total = otherHidden
+    ? stats.human_readable_total
+    : stats.human_readable_total_including_other_language || stats.human_readable_total;
+  const average = otherHidden
+    ? stats.human_readable_daily_average
+    : stats.human_readable_daily_average_including_other_language ||
+      stats.human_readable_daily_average;
+  const headlineHeight = total && filteredLanguages.length > 0 ? CARD_STYLE.headline.height : 0;
+
   // A short language list would otherwise draw a stub card, so 150 is the floor.
   let height = Math.max(
     CARD_STYLE.padding.bodyOffsetY +
+      headlineHeight +
       Math.max(filteredLanguages.length - 1, 0) * LINE_HEIGHT +
       CARD_STYLE.statRowInk +
       CARD_STYLE.padding.bottom,
@@ -363,7 +368,10 @@ const renderCard = (
     const columns = measureCompactColumns({ langs: filteredLanguages, value_format, width });
     ({ width } = columns);
     const barWidth = width - 2 * COMPACT_LAYOUT_PROGRESSBAR_PADDING;
-    height = COMPACT_LAYOUT_BASE_HEIGHT + Math.round(filteredLanguages.length / 2) * LINE_HEIGHT;
+    height =
+      COMPACT_LAYOUT_BASE_HEIGHT +
+      headlineHeight +
+      Math.round(filteredLanguages.length / 2) * LINE_HEIGHT;
 
     // progressOffset holds the previous language's width and used to offset the next language
     // so that we can stack them one after another, like this: [--][----][---]
@@ -442,6 +450,51 @@ const renderCard = (
     });
   }
 
+  let headlineDescription = '';
+  if (total && headlineHeight > 0) {
+    const averageText = average ? t.dailyAverage({ time: average }) : '';
+    headlineDescription = averageText
+      ? `${t.totalWithAverage({ total, average: averageText })} `
+      : `${t.totalAlone({ total })} `;
+    const averageX =
+      CARD_STYLE.padding.x +
+      measureText(total, CARD_STYLE.fontSize.display) * CARD_STYLE.semiboldInk +
+      CARD_STYLE.headline.gap;
+    // a card too narrow for the average keeps it in the description alone
+    const averageFits =
+      averageX + measureText(averageText, CARD_STYLE.fontSize.small) <=
+      width - CARD_STYLE.padding.x;
+    finalLayout = [
+      el(
+        'g',
+        { 'data-testid': 'headline' },
+        el(
+          'text',
+          {
+            'data-testid': 'total',
+            class: 'headline-total',
+            x: CARD_STYLE.padding.x,
+            y: CARD_STYLE.headline.baseline,
+          },
+          total,
+        ),
+        averageText &&
+          averageFits &&
+          el(
+            'text',
+            {
+              'data-testid': 'daily-average',
+              class: 'headline-average',
+              x: Math.round(averageX),
+              y: CARD_STYLE.headline.baseline,
+            },
+            averageText,
+          ),
+      ),
+      el('g', { transform: `translate(0, ${headlineHeight})` }, finalLayout),
+    ];
+  }
+
   // Get title range text
   let titleText = t.title();
   switch (stats.range) {
@@ -468,14 +521,15 @@ const renderCard = (
     colors: { light: lightColors, dark: darkColors },
     description:
       filteredLanguages.length > 0
-        ? filteredLanguages
+        ? headlineDescription +
+          filteredLanguages
             .map((lang) => `${lang.name}: ${formatLanguageValue({ value_format, lang })}`)
             .join(', ')
         : t.noCodingActivity(),
     hideBorder: hide_border,
     hideTitle: hide_title,
     animations: !disable_animations,
-    css: ({ titleColor, textColor }): Array<CssChild> => [
+    css: ({ textColor, progBarBgColor }): Array<CssChild> => [
       getStyles({ textColor }),
       atRule(
         '@keyframes slideInAnimation',
@@ -495,7 +549,9 @@ const renderCard = (
         animation: 'growWidthAnimation 0.6s ease-in-out backwards',
         fill: HEAT_PAINT.line,
       }),
-      rule('.progress-background', { fill: progressBackground(titleColor, textColor) }),
+      rule('.progress-background', { fill: progBarBgColor }),
+      rule('.headline-total', { font: font('semibold', 'display'), fill: HEAT_PAINT.line }),
+      rule('.headline-average', { font: font('regular', 'small'), fill: textColor, opacity: 0.75 }),
     ],
   });
 

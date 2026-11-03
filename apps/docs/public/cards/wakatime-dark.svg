@@ -1,6 +1,6 @@
-<svg width="500" height="147" viewBox="0 0 500 147" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+<svg width="500" height="183" viewBox="0 0 500 183" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">WakaTime Stats (last 7 days)</title>
-  <desc id="desc-id">TypeScript: 14 hrs 22 mins, Rust: 9 hrs 48 mins, Go: 5 hrs 31 mins, Python: 3 hrs 12 mins, Markdown: 1 hrs 47 mins, YAML: 1 hrs 5 mins</desc>
+  <desc id="desc-id">37 hrs 19 mins, 5 hrs 19 mins a day. TypeScript: 14 hrs 22 mins, Rust: 9 hrs 48 mins, Go: 5 hrs 31 mins, Python: 3 hrs 12 mins, Markdown: 1 hrs 47 mins, YAML: 1 hrs 5 mins</desc>
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
@@ -70,7 +70,16 @@
       fill: url(#heat);
     }
     .progress-background {
+      fill: #ffffff33;
+    }
+    .headline-total {
+      font: 600 22px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: url(#heat);
+    }
+    .headline-average {
+      font: 400 12px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
       fill: #f7ede6;
+      opacity: 0.75;
     }
     /* Animations */
     @keyframes scaleInAnimation {
@@ -140,38 +149,44 @@
   </g>
   <g data-testid="main-card-body" transform="translate(0, 50)">
     <svg x="0" y="0" width="100%">
-      <mask id="rect-mask">
-        <rect x="18" y="0" width="464" height="8" fill="white" rx="5" />
-      </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="18" y="0" width="185.78560000000002" height="8" fill="#3178c6" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="203.78560000000002" y="0" width="126.7184" height="8" fill="#dea584" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="330.504" y="0" width="71.3168" height="8" fill="#00ADD8" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="401.8208" y="0" width="41.3888" height="8" fill="#3572A5" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="443.2096" y="0" width="23.0608" height="8" fill="#083fa1" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="466.2704" y="0" width="14.0128" height="8" fill="#cb171e" />
-      <g transform="translate(18, 25)">
-        <circle cx="5" cy="6" r="5" fill="#3178c6" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript - 14 hrs 22 mins</text>
+      <g data-testid="headline">
+        <text data-testid="total" class="headline-total" x="18" y="17">37 hrs 19 mins</text>
+        <text data-testid="daily-average" class="headline-average" x="183" y="17">5 hrs 19 mins a day</text>
       </g>
-      <g transform="translate(230, 25)">
-        <circle cx="5" cy="6" r="5" fill="#dea584" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust - 9 hrs 48 mins</text>
-      </g>
-      <g transform="translate(18, 50)">
-        <circle cx="5" cy="6" r="5" fill="#00ADD8" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">Go - 5 hrs 31 mins</text>
-      </g>
-      <g transform="translate(230, 50)">
-        <circle cx="5" cy="6" r="5" fill="#3572A5" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">Python - 3 hrs 12 mins</text>
-      </g>
-      <g transform="translate(18, 75)">
-        <circle cx="5" cy="6" r="5" fill="#083fa1" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">Markdown - 1 hrs 47 mins</text>
-      </g>
-      <g transform="translate(230, 75)">
-        <circle cx="5" cy="6" r="5" fill="#cb171e" />
-        <text data-testid="lang-name" x="15" y="10" class="lang-name">YAML - 1 hrs 5 mins</text>
+      <g transform="translate(0, 36)">
+        <mask id="rect-mask">
+          <rect x="18" y="0" width="464" height="8" fill="white" rx="5" />
+        </mask>
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="18" y="0" width="185.78560000000002" height="8" fill="#3178c6" />
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="203.78560000000002" y="0" width="126.7184" height="8" fill="#dea584" />
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="330.504" y="0" width="71.3168" height="8" fill="#00ADD8" />
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="401.8208" y="0" width="41.3888" height="8" fill="#3572A5" />
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="443.2096" y="0" width="23.0608" height="8" fill="#083fa1" />
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="466.2704" y="0" width="14.0128" height="8" fill="#cb171e" />
+        <g transform="translate(18, 25)">
+          <circle cx="5" cy="6" r="5" fill="#3178c6" />
+          <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript - 14 hrs 22 mins</text>
+        </g>
+        <g transform="translate(230, 25)">
+          <circle cx="5" cy="6" r="5" fill="#dea584" />
+          <text data-testid="lang-name" x="15" y="10" class="lang-name">Rust - 9 hrs 48 mins</text>
+        </g>
+        <g transform="translate(18, 50)">
+          <circle cx="5" cy="6" r="5" fill="#00ADD8" />
+          <text data-testid="lang-name" x="15" y="10" class="lang-name">Go - 5 hrs 31 mins</text>
+        </g>
+        <g transform="translate(230, 50)">
+          <circle cx="5" cy="6" r="5" fill="#3572A5" />
+          <text data-testid="lang-name" x="15" y="10" class="lang-name">Python - 3 hrs 12 mins</text>
+        </g>
+        <g transform="translate(18, 75)">
+          <circle cx="5" cy="6" r="5" fill="#083fa1" />
+          <text data-testid="lang-name" x="15" y="10" class="lang-name">Markdown - 1 hrs 47 mins</text>
+        </g>
+        <g transform="translate(230, 75)">
+          <circle cx="5" cy="6" r="5" fill="#cb171e" />
+          <text data-testid="lang-name" x="15" y="10" class="lang-name">YAML - 1 hrs 5 mins</text>
+        </g>
       </g>
     </svg>
   </g>

@@ -14,14 +14,12 @@ type CardCSSBuilder = (colors: CardColors) => Array<CssChild>;
 
 /** How far the title sits right of the icon before it. */
 const TITLE_ICON_GAP = 25;
-/** `measureText` reads regular widths; the semibold header draws about a tenth wider. */
-const TITLE_SEMIBOLD_WIDENING = 1.1;
 /** Below this a shrunk title stops being readable, so a card narrower still crops it. */
 const TITLE_MIN_FONT_SIZE = CARD_STYLE.fontSize.title / 2;
 
 /** @returns How wide the semibold title draws at its own size. */
 const titleWidth = (title: string): number =>
-  measureText(title, CARD_STYLE.fontSize.title) * TITLE_SEMIBOLD_WIDENING;
+  measureText(title, CARD_STYLE.fontSize.title) * CARD_STYLE.semiboldInk;
 
 /** @returns What a title room leaves on a card of `width`, beside an icon if it has one. */
 const titleRoom = (width: number, withIcon: boolean): number =>

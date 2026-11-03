@@ -47,6 +47,7 @@ export const SAMPLE_THEMES = {
   magma: 'magma_light,magma_dark',
   brass: 'brass_light,brass_dark',
   github: 'github_light,github_dark',
+  quiet: 'classic,nord',
   // Its background is `ffffff00`, so the sample doubles as the one on the light-and-dark page.
   transparent: 'transparent',
 } as const;

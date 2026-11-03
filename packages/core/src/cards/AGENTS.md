@@ -51,6 +51,9 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 - **`Card` defines the heat once, as `url(#heat…)` paints in `HEAT_PAINT`**, and a card fills with
   those, never its own gradient. Each stop is classed, so the dark block recolors it with
   `stop-color`; a stop's light color stays its attribute, the fallback.
+- **A chart split by language keeps GitHub's language colors**; only a bar measuring one share,
+  as on the WakaTime card's normal layout, burns in the heat.
+- **A `quiet` theme drops the corner glow and halves the band**, for the original palettes.
 - **The title icon is `.title-icon`, not `.icon`**, which the stats card hides; it takes
   `iconColor`, the heat's middle stop unless set. **Each card's icon is distinct, from the one
   `CARD_ICON` table.**

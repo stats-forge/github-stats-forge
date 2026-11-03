@@ -198,6 +198,15 @@ const wakatimeCardLocales = defineLocales({
     no: 'Brukeren deler ikke detaljert kodestatistikk offentlig',
     be: 'Карыстальнік не дзеліцца падрабязнай статыстыкай кода публічна',
   },
+  dailyAverage: {
+    en: '{time} a day',
+  },
+  totalWithAverage: {
+    en: '{total}, {average}.',
+  },
+  totalAlone: {
+    en: '{total}.',
+  },
   noCodingActivity: {
     en: 'No coding activity this week',
     ar: 'لا يوجد نشاط برمجي لهذا الأسبوع',
