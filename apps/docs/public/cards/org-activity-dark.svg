@@ -1,4 +1,4 @@
-<svg width="500" height="189" viewBox="0 0 500 189" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+<svg width="500" height="177" viewBox="0 0 500 177" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">The Forge Guild&#39;s organization activity (last 30 days)</title>
   <desc id="desc-id">PRs opened: 214, PRs merged: 187, Issues opened: 96, Issues closed: 81, Commits: 1342</desc>
   <style>
@@ -87,6 +87,11 @@
       <stop offset="0.7" class="heat-2" stop-color="#ff2e63" stop-opacity="0.5" />
       <stop offset="1" class="heat-2" stop-color="#ff2e63" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#ffd166" stop-opacity="0.16" />
+      <stop offset="0.55" class="band-1" stop-color="#ff7a1a" stop-opacity="0.16" />
+      <stop offset="1" class="band-2" stop-color="#ff2e63" stop-opacity="0.112" />
+    </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
       <stop offset="0" class="glow-core" stop-color="#ff7a1a" stop-opacity="0.42" />
       <stop offset="0.45" class="glow-edge" stop-color="#ff2e63" stop-opacity="0.147" />
@@ -95,7 +100,8 @@
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#ff7a1a4d" fill="#16100d" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
-  <g data-testid="card-title" transform="translate(25, 30)">
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(25, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M4.75 0a.75.75 0 0 1 .75.75V2h5V.75a.75.75 0 0 1 1.5 0V2h1.25c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 13.25 16H2.75A1.75 1.75 0 0 1 1 14.25V3.75C1 2.784 1.784 2 2.75 2H4V.75A.75.75 0 0 1 4.75 0ZM2.5 7.5v6.75c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25V7.5Zm10.75-4H2.75a.25.25 0 0 0-.25.25V6h11V3.75a.25.25 0 0 0-.25-.25Z" />
@@ -106,7 +112,7 @@
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="450" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
-  <g data-testid="main-card-body" transform="translate(0, 55)">
+  <g data-testid="main-card-body" transform="translate(0, 50)">
     <g>
       <g class="stagger" style="animation-delay: 120ms" transform="translate(25, 0)">
         <svg data-testid="icon" class="icon" viewBox="0 0 16 16" version="1.1" width="16" height="16">

@@ -187,6 +187,77 @@ describe(Card, () => {
     );
   });
 
+  it('should draw the title band in the heat, its top corners following the card', () => {
+    const light = getCardColors('ember_light');
+    draw(blank({ width: 200, border_radius: 8, colors: { light, dark: null } }).render(``));
+
+    expect(screen.getByTestId('title-band')).toHaveAttribute('fill', 'url(#heat-band)');
+    expect(screen.getByTestId('title-band')).toHaveAttribute(
+      'd',
+      'M0.5 8.5a8 8 0 0 1 8 -8h183a8 8 0 0 1 8 8v32.5h-199z',
+    );
+    expect(document.querySelector('#heat-band .band-0')).toHaveAttribute(
+      'stop-opacity',
+      String(light.bandOpacity),
+    );
+  });
+
+  it('should keep the band inside corners deeper than the band itself', () => {
+    const light = getCardColors('ember_light');
+    draw(
+      blank({ width: 200, height: 200, border_radius: 60, colors: { light, dark: null } }).render(
+        ``,
+      ),
+    );
+
+    // the sides meet the band's bottom where the 60px arcs reach it, 3.26px in from each edge
+    expect(screen.getByTestId('title-band')).toHaveAttribute(
+      'd',
+      'M3.76 41A60 60 0 0 1 60.5 0.5h79A60 60 0 0 1 196.24 41z',
+    );
+  });
+
+  it('should keep a corner too round for the card circular, the band following it', () => {
+    const light = getCardColors('ember_light');
+    draw(
+      blank({ width: 100, height: 200, border_radius: 500, colors: { light, dark: null } }).render(
+        ``,
+      ),
+    );
+
+    expect(screen.getByTestId('title-band')).toHaveAttribute(
+      'd',
+      expect.stringMatching(/^M[\d.]+ 41A49\.5 49\.5 0 0 1 50 0\.5h0A49\.5 49\.5 /u),
+    );
+    expect(screen.getByTestId('card-bg')).toHaveAttribute('rx', '49.5');
+  });
+
+  it('should cap a corner too round for a short card at half its height', () => {
+    draw(blank({ width: 400, height: 120, border_radius: 500 }).render(``));
+
+    expect(screen.getByTestId('card-bg')).toHaveAttribute('rx', '59.4');
+    expect(screen.getByTestId('title-band')).toHaveAttribute(
+      'd',
+      expect.stringContaining('A59.4 59.4 '),
+    );
+  });
+
+  it('should show the band more strongly on a dark card', () => {
+    draw(
+      blank({
+        colors: { light: getCardColors('ember_light'), dark: getCardColors('ember_dark') },
+      }).render(``),
+    );
+    expect(document.querySelector('style')).toHaveTextContent(
+      /prefers-color-scheme: dark[^@]*\.band-1 \{\s*stop-color: #ff7a1a;\s*stop-opacity: 0\.16;/u,
+    );
+  });
+
+  it('should drop the band with the title', () => {
+    draw(blank({ hideTitle: true }).render(``));
+    expect(screen.queryByTestId('title-band')).not.toBeInTheDocument();
+  });
+
   it('should follow the card corners with the glow', () => {
     draw(blank({ width: 200, border_radius: 8 }).render(``));
     expect(screen.getByTestId('card-glow')).toHaveAttribute('rx', '8');
@@ -219,13 +290,13 @@ describe(Card, () => {
   it('should have less height after title is hidden', () => {
     const card = blank({ height: 200, hideTitle: true });
 
-    expect(draw(card.render(``))).toHaveAttribute('height', '170');
+    expect(draw(card.render(``))).toHaveAttribute('height', '175');
   });
 
   it('main-card-body should have proper when title is visible', () => {
     const card = blank({ height: 200 });
     draw(card.render(``));
-    expect(screen.queryByTestId('main-card-body')).toHaveAttribute('transform', 'translate(0, 55)');
+    expect(screen.queryByTestId('main-card-body')).toHaveAttribute('transform', 'translate(0, 50)');
   });
 
   it('main-card-body should have proper position after title is hidden', () => {

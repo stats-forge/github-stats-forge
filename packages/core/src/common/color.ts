@@ -79,6 +79,8 @@ interface CardColors {
   progBarBgColor: string;
   /** How strongly the corner glow shows, on 0–1. */
   glowOpacity: number;
+  /** How strongly the title band shows, on 0–1. */
+  bandOpacity: number;
 }
 
 /** The ids `Card` defines its heat gradients under, so a card can paint with one. */
@@ -87,6 +89,7 @@ const HEAT_ID = {
   ring: 'heat-ring',
   trail: 'heat-trail',
   glow: 'heat-glow',
+  band: 'heat-band',
   bloom: 'heat-bloom',
 } as const;
 
@@ -104,6 +107,13 @@ const GLOW_OPACITY_BY_TONE: Readonly<Record<BackgroundTone, number>> = {
   light: 0.17,
   dark: 0.42,
   translucent: 0.25,
+};
+
+/** The band, like the glow, needs more on a dark card to show at all. */
+const BAND_OPACITY_BY_TONE: Readonly<Record<BackgroundTone, number>> = {
+  light: 0.1,
+  dark: 0.16,
+  translucent: 0.12,
 };
 
 /** `4d` of `ff`: the border is the heat's middle stop at this alpha. */
@@ -135,6 +145,7 @@ const getCardColors = (name?: string): CardColors => {
     ringColor: HEAT_PAINT.ring,
     progBarBgColor: PROG_BAR_BG_BY_TONE[tone],
     glowOpacity: GLOW_OPACITY_BY_TONE[tone],
+    bandOpacity: BAND_OPACITY_BY_TONE[tone],
   };
 };
 

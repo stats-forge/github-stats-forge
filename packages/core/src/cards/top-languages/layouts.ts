@@ -10,17 +10,19 @@ import { el } from '../../markup/index.ts';
 
 import { getCircleLength, polarToCartesian } from './geometry.ts';
 
-/**
- * The compact layout's own floor: the body offset, one row of ink and `CARD_STYLE.padding.bottom`,
- * with the rows themselves added on top.
- */
-const COMPACT_LAYOUT_BASE_HEIGHT = 86;
+/** How far a compact-layout row's ink reaches below its own top. */
+const COMPACT_ROW_INK = 12;
+/** The compact layout's floor, with the rows themselves added on top. */
+const COMPACT_LAYOUT_BASE_HEIGHT =
+  CARD_STYLE.padding.bodyOffsetY + COMPACT_ROW_INK + CARD_STYLE.padding.bottom;
+/** What the donut-vertical and pie layouts draw under the title, before their legend rows. */
+const CHART_LAYOUT_BODY_HEIGHT = 245;
 const NORMAL_LAYOUT_ROW_GAP = 40;
 /** How far a normal-layout row's ink reaches below its own top: the value's baseline, plus descenders. */
-const NORMAL_LAYOUT_ROW_INK = 37;
+const NORMAL_LAYOUT_ROW_INK = 34;
 const DONUT_ROW_GAP = 32;
 /** How far a donut-layout row's ink reaches below its own top: the label's baseline, plus descenders. */
-const DONUT_ROW_INK = 13;
+const DONUT_ROW_INK = 11;
 /** Fixed rather than taken from the width, which the card's height and the list cannot follow. */
 const DONUT_RADIUS = 60;
 const DONUT_STROKE_WIDTH = 12;
@@ -84,7 +86,7 @@ const calculateDonutLayoutHeight = (totalLangs: number): number =>
  * @returns Card height.
  */
 const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
-  300 + Math.round(totalLangs / 2) * 25;
+  CARD_STYLE.padding.bodyOffsetY + CHART_LAYOUT_BODY_HEIGHT + Math.round(totalLangs / 2) * 25;
 
 /**
  * Calculates height for the pie layout.
@@ -92,7 +94,7 @@ const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
  * @returns Card height.
  */
 const calculatePieLayoutHeight = (totalLangs: number): number =>
-  300 + Math.round(totalLangs / 2) * 25;
+  CARD_STYLE.padding.bodyOffsetY + CHART_LAYOUT_BODY_HEIGHT + Math.round(totalLangs / 2) * 25;
 
 /**
  * Get display value corresponding to the format.

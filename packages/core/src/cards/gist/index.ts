@@ -64,7 +64,10 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   );
 
   const lineHeight = descriptionLines > 3 ? 12 : 10;
-  const height = (descriptionLines > 1 ? 120 : 110) + descriptionLines * lineHeight;
+  const height =
+    CARD_STYLE.padding.bodyOffsetY +
+    (descriptionLines > 1 ? 55 : 45) +
+    descriptionLines * lineHeight;
 
   const totalStars = kFormatter(starsCount);
   const totalForks = kFormatter(forksCount);
@@ -117,7 +120,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   return card.render([
     descriptionSvg,
-    el('g', { transform: `translate(30, ${height - 75})` }, starAndForkCount),
+    el('g', { transform: `translate(30, ${height - 65})` }, starAndForkCount),
   ]);
 };
 

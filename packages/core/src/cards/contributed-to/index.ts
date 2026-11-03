@@ -37,6 +37,8 @@ const YEAR_MARK_GAP = 3;
 
 /** Gap between the last row and the footer's own baseline. */
 const FOOTER_GAP = 12;
+/** How far the footer's descenders reach below its baseline. */
+const FOOTER_DESCENT = 2;
 
 interface ContributedToCardOptions extends CommonCardOptions {
   locale: string;
@@ -262,7 +264,8 @@ const renderContributedToCard = (
 
   const footer = footerText({ t, shown: repos.length, totalRepos, years });
   const footerY = FIRST_ROW_Y + Math.max(repos.length, 1) * rowHeight + FOOTER_GAP;
-  const height = CARD_STYLE.padding.bodyOffsetY + footerY + CARD_STYLE.padding.bottom;
+  const height =
+    CARD_STYLE.padding.bodyOffsetY + footerY + FOOTER_DESCENT + CARD_STYLE.padding.bottom;
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 

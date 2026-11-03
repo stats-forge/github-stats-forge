@@ -1,4 +1,4 @@
-<svg width="500" height="189" viewBox="0 0 500 189" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+<svg width="500" height="177" viewBox="0 0 500 177" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">Ember Smith&#39;s GitHub Stats, Rank: S</title>
   <desc id="desc-id">Total Stars Earned: 12655, Total Commits  (last year) : 1284, Total PRs: 1536, Total Issues: 289, Contributed to (last year): 14</desc>
   <style>
@@ -153,6 +153,11 @@
       <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.1" />
+      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.1" />
+      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.07" />
+    </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
       <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
       <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
@@ -168,7 +173,8 @@
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
-  <g data-testid="card-title" transform="translate(25, 30)">
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(25, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M6 2c.306 0 .582.187.696.471L10 10.731l1.304-3.26A.751.751 0 0 1 12 7h3.25a.75.75 0 0 1 0 1.5h-2.742l-1.812 4.529a.751.751 0 0 1-1.392 0L6 4.769l-1.304 3.26A.751.751 0 0 1 4 8.5H.75a.75.75 0 0 1 0-1.5h2.742l1.812-4.529A.751.751 0 0 1 6 2Z" />
@@ -179,8 +185,8 @@
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="288.9" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
-  <g data-testid="main-card-body" transform="translate(0, 55)">
-    <g data-testid="rank-circle" transform="translate(437.5, 44.5)">
+  <g data-testid="main-card-body" transform="translate(0, 50)">
+    <g data-testid="rank-circle" transform="translate(437.5, 38.5)">
       <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
       <circle class="rank-circle" cx="-10" cy="8" r="40" filter="url(#heat-bloom)" />
       <g class="rank-text">

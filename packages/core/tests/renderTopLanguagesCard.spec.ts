@@ -135,23 +135,15 @@ describe('Test renderTopLanguages helper functions', () => {
 
   // Each height for 0 to 10 languages.
   it.each([
-    [
-      'compact',
-      calculateCompactLayoutHeight,
-      [86, 111, 111, 136, 136, 161, 161, 186, 186, 211, 211],
-    ],
-    [
-      'normal',
-      calculateNormalLayoutHeight,
-      [110, 110, 150, 190, 230, 270, 310, 350, 390, 430, 470],
-    ],
-    ['donut', calculateDonutLayoutHeight, [205, 205, 205, 205, 205, 214, 246, 278, 310, 342, 374]],
+    ['compact', calculateCompactLayoutHeight, [74, 99, 99, 124, 124, 149, 149, 174, 174, 199, 199]],
+    ['normal', calculateNormalLayoutHeight, [96, 96, 136, 176, 216, 256, 296, 336, 376, 416, 456]],
+    ['donut', calculateDonutLayoutHeight, [194, 194, 194, 194, 194, 201, 233, 265, 297, 329, 361]],
     [
       'donut-vertical',
       calculateDonutVerticalLayoutHeight,
-      [300, 325, 325, 350, 350, 375, 375, 400, 400, 425, 425],
+      [295, 320, 320, 345, 345, 370, 370, 395, 395, 420, 420],
     ],
-    ['pie', calculatePieLayoutHeight, [300, 325, 325, 350, 350, 375, 375, 400, 400, 425, 425]],
+    ['pie', calculatePieLayoutHeight, [295, 320, 320, 345, 345, 370, 370, 395, 395, 420, 420]],
   ])('sizes the %s layout for its language count', (_layout, height, expected) => {
     expect(Array.from({ length: 11 }, (_, count) => height(count))).toStrictEqual(expected);
   });
@@ -237,10 +229,10 @@ describe('Test renderTopLanguages', () => {
   });
 
   it('should resize the height correctly depending on langs', () => {
-    expect(draw(renderTopLanguages(langs))).toHaveAttribute('height', '190');
+    expect(draw(renderTopLanguages(langs))).toHaveAttribute('height', '176');
 
     const python: Lang = { color: '#ff0', name: 'python', size: 100, count: 1 };
-    expect(draw(renderTopLanguages({ ...langs, python }))).toHaveAttribute('height', '230');
+    expect(draw(renderTopLanguages({ ...langs, python }))).toHaveAttribute('height', '216');
   });
 
   it('should render with custom width set', () => {
@@ -362,7 +354,7 @@ describe('Test renderTopLanguages', () => {
       const centerX = Number(ring?.getAttribute('cx') ?? d[7]);
       const centerY = Number(ring?.getAttribute('cy') ?? (d[8] ?? 0) + radius);
       const listTop = translateOf(screen.getByTestId('donut-list')).y;
-      const listMiddle = listTop + ((count - 1) * 32 + 13) / 2;
+      const listMiddle = listTop + ((count - 1) * 32 + 11) / 2;
 
       // The body starts at the card's left padding, under the title.
       expect(25 + centerX + outerRadius).toBeCloseTo(Number(card.getAttribute('width')) - 25);

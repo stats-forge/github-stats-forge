@@ -321,11 +321,12 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       ? -7 + (Math.ceil(statItems.length / 2) + 1) * EXTRA_LINE_HEIGHT
       : 0;
   const height =
-    (descriptionLinesCount > 1 ? 120 : 110) +
+    CARD_STYLE.padding.bodyOffsetY +
+    (descriptionLinesCount > 1 ? 55 : 45) +
     descriptionLinesCount * lineHeight +
     topicsHeight +
     extraHeight;
-  const languageRowY = height - 75 - extraHeight;
+  const languageRowY = height - 65 - extraHeight;
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
@@ -363,7 +364,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     { x: 0, y: 0 },
     el(
       'g',
-      { transform: `translate(-3, ${height - 52 - extraHeight})` },
+      { transform: `translate(-3, ${height - 42 - extraHeight})` },
       flexLayout({ items: extraRows, gap: EXTRA_LINE_HEIGHT, direction: 'column' }),
     ),
   );

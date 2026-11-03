@@ -176,10 +176,10 @@ describe('Test renderRepoCard', () => {
 
   // The height follows the lines asked for, whether the description fills them or not.
   it.each([
-    ['short', repo.description, 1, '120'],
-    ['short', repo.description, 3, '150'],
-    ['long', PANGRAM, 1, '120'],
-    ['long', PANGRAM, 3, '150'],
+    ['short', repo.description, 1, '105'],
+    ['short', repo.description, 3, '135'],
+    ['long', PANGRAM, 1, '105'],
+    ['long', PANGRAM, 3, '135'],
   ])(
     'should size a %s description to description_lines_count %i',
     (_length, description, description_lines_count, height) => {
@@ -200,7 +200,7 @@ describe('Test renderRepoCard', () => {
       for (const [index, topic] of topics.entries()) {
         expect(drawn[index]).toHaveTextContent(exactly(topic));
       }
-      expect(card).toHaveAttribute('height', '166');
+      expect(card).toHaveAttribute('height', '151');
       expect(document.querySelector('desc')).toHaveTextContent('react, typescript, graphql');
     });
 
@@ -211,7 +211,7 @@ describe('Test renderRepoCard', () => {
       const card = draw(renderRepoCard(data, options));
 
       expect(screen.queryAllByTestId('topic')).toHaveLength(0);
-      expect(card).toHaveAttribute('height', '140');
+      expect(card).toHaveAttribute('height', '125');
     });
 
     it('should stop at the first topic that does not fit', () => {

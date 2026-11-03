@@ -54,7 +54,7 @@ describe('Test renderStatsCard', () => {
     expect(document.querySelector('.header')).toHaveTextContent(
       exactly("Anurag Hazra's GitHub Stats"),
     );
-    expect(card).toHaveAttribute('height', '189');
+    expect(card).toHaveAttribute('height', '177');
     expect(screen.getByTestId('stars')).toHaveTextContent(exactly('100'));
     expect(screen.getByTestId('commits')).toHaveTextContent(exactly('200'));
     expect(screen.getByTestId('issues')).toHaveTextContent(exactly('300'));
@@ -97,7 +97,7 @@ describe('Test renderStatsCard', () => {
     ] as const;
     const card = draw(renderStatsCard(stats, { show: [...show] }));
 
-    expect(card).toHaveAttribute('height', '314');
+    expect(card).toHaveAttribute('height', '302');
     expect(drawnIds(ALL_STATS)).toStrictEqual([
       'stars',
       'commits',

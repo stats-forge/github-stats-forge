@@ -17,11 +17,11 @@ const DEFAULT_CARD_WIDTH = CARD_STYLE.width.wide;
 const MIN_CARD_WIDTH = 250;
 const COMPACT_LAYOUT_MIN_WIDTH = 400;
 const LINE_HEIGHT = 25;
-/**
- * The compact layout's own floor: the body offset, one row of ink and `CARD_STYLE.padding.bottom`,
- * with the rows themselves added on top.
- */
-const COMPACT_LAYOUT_BASE_HEIGHT = 86;
+/** How far the compact layout's bar and first legend row reach below the body's top. */
+const COMPACT_LAYOUT_INK = 10;
+/** The compact layout's floor, with the legend rows added on top. */
+const COMPACT_LAYOUT_BASE_HEIGHT =
+  CARD_STYLE.padding.bodyOffsetY + COMPACT_LAYOUT_INK + CARD_STYLE.padding.bottom;
 const PROGRESSBAR_PADDING = 130;
 const HIDDEN_PROGRESSBAR_PADDING = 170;
 const COMPACT_LAYOUT_PROGRESSBAR_PADDING = 25;

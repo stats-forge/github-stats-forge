@@ -1,4 +1,4 @@
-<svg width="400" height="278" viewBox="0 0 400 278" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+<svg width="400" height="265" viewBox="0 0 400 265" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">Most Used Languages</title>
   <desc id="desc-id">Rust 26.23%, TypeScript 19.29%, Go 17.44%, Python 9.94%, Jupyter Notebook 7.30%, Svelte 4.47%, Other 15.33%</desc>
   <style>
@@ -112,6 +112,11 @@
       <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.1" />
+      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.1" />
+      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.07" />
+    </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
       <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
       <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
@@ -120,7 +125,8 @@
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="399" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="399" fill="url(#heat-glow)" />
-  <g data-testid="card-title" transform="translate(25, 30)">
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h371a14 14 0 0 1 14 14v26.5h-399z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(25, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M4.72 3.22a.75.75 0 0 1 1.06 1.06L2.06 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L.47 8.53a.75.75 0 0 1 0-1.06Zm6.56 0a.75.75 0 1 0-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06Z" />
@@ -131,7 +137,7 @@
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="242.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
-  <g data-testid="main-card-body" transform="translate(0, 55)">
+  <g data-testid="main-card-body" transform="translate(0, 50)">
     <svg data-testid="lang-items" x="25">
       <g data-testid="donut-list" transform="translate(0, 0)">
         <g>
@@ -179,25 +185,25 @@
       </g>
       <g data-testid="donut">
         <g class="stagger" style="animation-delay: 600ms">
-          <path data-testid="lang-donut" size="26.23" d="M 343.8209084708243 107.13237625039947 A 60 60 0 0 0 284 42.5" stroke="#dea584" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="26.23" d="M 343.8209084708243 106.13237625039947 A 60 60 0 0 0 284 41.5" stroke="#dea584" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 700ms">
-          <path data-testid="lang-donut" size="19.29" d="M 300.6670487263416 160.1386110758557 A 60 60 0 0 0 343.8209084708243 107.13237625039947" stroke="#3178c6" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="19.29" d="M 300.6670487263416 159.1386110758557 A 60 60 0 0 0 343.8209084708243 106.13237625039947" stroke="#3178c6" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 800ms">
-          <path data-testid="lang-donut" size="17.44" d="M 240.36524765453623 143.68262240011006 A 60 60 0 0 0 300.6670487263416 160.1386110758557" stroke="#00ADD8" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="17.44" d="M 240.36524765453623 142.68262240011006 A 60 60 0 0 0 300.6670487263416 159.1386110758557" stroke="#00ADD8" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 900ms">
-          <path data-testid="lang-donut" size="9.94" d="M 224.5215421358296 110.39386154553695 A 60 60 0 0 0 240.36524765453623 143.68262240011006" stroke="#3572A5" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="9.94" d="M 224.5215421358296 109.39386154553695 A 60 60 0 0 0 240.36524765453623 142.68262240011006" stroke="#3572A5" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 1000ms">
-          <path data-testid="lang-donut" size="7.3" d="M 227.17410170031536 83.24338341156741 A 60 60 0 0 0 224.5215421358296 110.39386154553695" stroke="#DA5B0B" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="7.3" d="M 227.17410170031536 82.24338341156741 A 60 60 0 0 0 224.5215421358296 109.39386154553695" stroke="#DA5B0B" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 1100ms">
-          <path data-testid="lang-donut" size="4.47" d="M 234.73822033072054 68.24686782474683 A 60 60 0 0 0 227.17410170031536 83.24338341156741" stroke="#ff3e00" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="4.47" d="M 234.73822033072054 67.24686782474683 A 60 60 0 0 0 227.17410170031536 82.24338341156741" stroke="#ff3e00" fill="none" stroke-width="12" />
         </g>
         <g class="stagger" style="animation-delay: 1200ms">
-          <path data-testid="lang-donut" size="15.33" d="M 284 42.5 A 60 60 0 0 0 234.73822033072054 68.24686782474683" stroke="#858585" fill="none" stroke-width="12" />
+          <path data-testid="lang-donut" size="15.33" d="M 284 41.5 A 60 60 0 0 0 234.73822033072054 67.24686782474683" stroke="#858585" fill="none" stroke-width="12" />
         </g>
       </g>
     </svg>
