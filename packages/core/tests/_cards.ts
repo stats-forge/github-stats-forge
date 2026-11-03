@@ -5,6 +5,7 @@
 import { renderContributedToCard } from '../src/cards/contributed-to/index.ts';
 import { renderGistCard } from '../src/cards/gist/index.ts';
 import { renderOrgActivityCard } from '../src/cards/org-activity/index.ts';
+import { renderOrgCalendarCard } from '../src/cards/org-calendar/index.ts';
 import { renderOrganizationCard } from '../src/cards/organization/index.ts';
 import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
@@ -14,6 +15,7 @@ import type {
   ContributedToData,
   GistData,
   OrgActivityData,
+  OrgCalendarData,
   OrganizationData,
   RepositoryData,
   StatsData,
@@ -108,6 +110,17 @@ const orgActivityData: OrgActivityData = {
   commits: 204,
 };
 
+const orgCalendarData: OrgCalendarData = {
+  login: 'vitest-dev',
+  name: 'Vitest',
+  count: 'prs_merged',
+  weeks: [
+    { from: new Date('2026-08-23T00:00:00Z'), to: new Date('2026-08-29T00:00:00Z'), count: 4 },
+    { from: new Date('2026-08-30T00:00:00Z'), to: new Date('2026-09-05T00:00:00Z'), count: 0 },
+    { from: new Date('2026-09-06T00:00:00Z'), to: new Date('2026-09-12T00:00:00Z'), count: 9 },
+  ],
+};
+
 const contributedToData: ContributedToData = {
   login: 'anuraghazra',
   repos: [
@@ -140,6 +153,7 @@ const cards = {
   gist: (): string => renderGistCard(gistData),
   repo: (): string => renderRepoCard(repoData),
   'org-activity': (): string => renderOrgActivityCard(orgActivityData),
+  'org-calendar': (): string => renderOrgCalendarCard(orgCalendarData),
   stats: (): string => renderStatsCard(statsData),
   'top-languages': (): string => renderTopLanguages(topLangs),
   wakatime: (): string => renderWakatimeCard(wakatimeData),

@@ -11,7 +11,7 @@ other files that each hold their own copy of "every card there is".
 **Four of those copies are guarded and the rest are not.** `tests/routes.spec.ts` fails if the
 server does not route the card, the anvil throws if it has no `EXTRAS` entry, the docs build
 fails if the fetcher has no page, and `e2e/anvil.spec.ts` fails if the card picker's list is
-short. Everything else — the card catalog, the sidebar, the four documentation tables — is
+short. Everything else — the card catalog, the sidebar, the documentation tables — is
 silent when you forget it: the card simply is not there, and nobody finds out until someone
 goes looking for it.
 
@@ -77,8 +77,7 @@ Each of these is a separate file holding its own copy of "every card there is".
 12. `apps/docs/src/anvil/cards.ts` — the `EXTRAS` entry: `docs` slug, `category`, `identity`
     seeds and `maximal`, the params that turn on every request the card can make.
 13. `apps/docs/astro.config.ts` — **two** sidebar entries, the card page and the fetcher page.
-14. The four tables: `docs/index.md`, `docs/fetchers/overview.md`,
-    `docs/usage/self-hosting.md` and `apps/server/README.md`.
+14. The tables: `docs/index.md`, `docs/fetchers/overview.md` and `docs/usage/self-hosting.md`.
 
 ## 5. The documentation
 
@@ -107,7 +106,8 @@ preview you did not touch is a finding, not noise.
 20. `packages/core/tests/render<Name>Card.spec.ts` — assert on the DOM with jest-dom matchers.
     Never `expect(queryByTestId(…)).toBeDefined()`; `null` is defined.
 21. `packages/core/tests/locales.spec.ts` — add the table to the list it walks.
-22. `packages/core/tests/accessibility.spec.ts` — add the card to its `cards` map.
+22. `packages/core/tests/_cards.ts` — add the card to its `cards` map, which the accessibility
+    and animation specs walk.
 23. `apps/docs/e2e/anvil.spec.ts` — the card-picker assertion spells out every id in order.
     **This one fails only in `pnpm docs:e2e`**, at the end of `check-all`.
 
@@ -119,7 +119,7 @@ preview you did not touch is a finding, not noise.
     Confirm with `pnpm exec changeset status`.
 25. The card counts in the `AGENTS.md` files — `grep -rln "seven\|eight" --include=AGENTS.md -r .`.
     Several rules are written as "all seven cards do this".
-26. `pnpm check-all`. Twelve checks; the ones this work usually trips are **knip** (an export
+26. `pnpm check-all`, every check CI runs; the ones this work usually trips are **knip** (an export
     nothing imports — drop it rather than exporting it for its own sake), **lint**
     (`prefer-destructuring`), **format** (run `pnpm format` twice; one pass can leave work
     for the next) and **anvil e2e**.

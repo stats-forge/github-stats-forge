@@ -88,7 +88,8 @@ every default to the renderer (a card's default width, which only the card knows
   the generated ones, and name a sub-shape with a `fragment`, not a `NonNullable<…>` chain.
 - **A query shaped at runtime is still typed**: declare its selection as a fragment nothing spreads,
   and build the document in a `src/graphql/build<X>Document(…)` module (see `contributionsDocument.ts`).
-  Nothing checks the module's copy of the fragment text, so change both together.
+  Nothing checks the module's copy of the fragment text, so change both together. A `.graphql` of
+  fragments alone, as `org-calendar.graphql` is, generates their types and no document.
 - **A `contributionsCollection` names both ends and spans at most a year** ([#47]): `common/date.ts`
   slices one range per calendar year and `aliasedRanges` sends them in one request. Say **range**,
   never span; `from` and `to` are inclusive.

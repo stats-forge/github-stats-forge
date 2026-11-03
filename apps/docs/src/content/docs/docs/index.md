@@ -29,10 +29,11 @@ Grouped by what a card is about, as the sidebar and the anvil group them.
 
 ### Organization
 
-| Card                                                  | Handler       | What it shows                                    |
-| ----------------------------------------------------- | ------------- | ------------------------------------------------ |
-| [Organization](cards/organization/)                   | `org`         | Its public repositories, and what they add up to |
-| [Organization activity](cards/organization-activity/) | `orgActivity` | PRs, issues and commits over a rolling window    |
+| Card                                                  | Handler       | What it shows                                        |
+| ----------------------------------------------------- | ------------- | ---------------------------------------------------- |
+| [Organization](cards/organization/)                   | `org`         | Its public repositories, and what they add up to     |
+| [Organization activity](cards/organization-activity/) | `orgActivity` | PRs, issues and commits over a rolling window        |
+| [Organization calendar](cards/organization-calendar/) | `orgCalendar` | Its last two months, each week as hot as it was busy |
 
 ## Getting a card
 

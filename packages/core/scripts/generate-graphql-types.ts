@@ -151,8 +151,10 @@ const documentsPlugin: CodegenPlugin['plugin'] = (_schema, files) => {
       return `export const ${documentName} = graphqlDocument<${resultType}, ${variablesType}>(\`\n${text}\`);`;
     });
 
+  // a file of fragments alone, for a query built at runtime, emits no document to import for
   return {
-    prepend: [`import { graphqlDocument } from "../graphqlDocument.ts";`],
+    prepend:
+      operations.length > 0 ? [`import { graphqlDocument } from "../graphqlDocument.ts";`] : [],
     content: operations.join('\n\n'),
   };
 };

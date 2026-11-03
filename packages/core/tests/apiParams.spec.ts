@@ -3,6 +3,7 @@ import * as z from 'zod/mini';
 
 import type { ApiResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
+import { orgCalendar as orgCalendarApi } from '../src/api/org-calendar.ts';
 import { booleanParam, parseParams, readBoolean, resolveEmpty } from '../src/api/params.ts';
 import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
@@ -159,6 +160,18 @@ describe('api query schemas', () => {
     ],
   ] as const)('%s %s', async (endpoint, _what, query) => {
     const result = await endpoints[endpoint]({ username: 'anuraghazra', ...query });
+
+    expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+  });
+
+  it.each(['0', '10'])('org-calendar rejects weeks=%s, outside 1 to 9', async (weeks) => {
+    const result = await orgCalendarApi({ org: 'vitest-dev', weeks }, config);
+
+    expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'weeks' } });
+  });
+
+  it('org-calendar takes two months of weeks', async () => {
+    const result = await orgCalendarApi({ org: 'vitest-dev', weeks: '9' }, config);
 
     expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });

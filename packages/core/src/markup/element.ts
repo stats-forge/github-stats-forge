@@ -46,6 +46,7 @@ type Attribute =
   | 'dominant-baseline'
   | 'dy'
   | 'fill'
+  | 'fill-opacity'
   | 'fill-rule'
   | 'filter'
   | 'gradientTransform'

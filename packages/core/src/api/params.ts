@@ -150,6 +150,8 @@ const listParam = kinded('list', z.pipe(rawParam, z.transform(parseArray)));
 interface NumericFormat {
   /** The smallest value accepted. */
   min?: number;
+  /** The largest value accepted. */
+  max?: number;
   /** Whether a trailing `px` is accepted, for the params a reader thinks of as lengths. */
   px?: boolean;
 }
@@ -168,7 +170,7 @@ const numericPattern = (digits: string, px: boolean): RegExp =>
  *
  * @returns Schema yielding the number, or `undefined` when the param is absent.
  */
-const numberParam = ({ min = 0, px = false }: NumericFormat = {}): z.ZodMiniType<
+const numberParam = ({ min = 0, max = Infinity, px = false }: NumericFormat = {}): z.ZodMiniType<
   number | undefined,
   string | undefined
 > => {
@@ -177,7 +179,10 @@ const numberParam = ({ min = 0, px = false }: NumericFormat = {}): z.ZodMiniType
     'number',
     z.pipe(
       rawParam.check(
-        rejects('number', (value) => pattern.test(value) && Number.parseFloat(value) >= min),
+        rejects('number', (value) => {
+          const parsed = Number.parseFloat(value);
+          return pattern.test(value) && parsed >= min && parsed <= max;
+        }),
       ),
       z.transform((value) => (value === undefined ? undefined : Number.parseFloat(value))),
     ),
@@ -190,7 +195,7 @@ const numberParam = ({ min = 0, px = false }: NumericFormat = {}): z.ZodMiniType
  *
  * @returns Schema yielding the number, or `undefined` when the param is absent.
  */
-const intParam = ({ min = 1, px = false }: NumericFormat = {}): z.ZodMiniType<
+const intParam = ({ min = 1, max = Infinity, px = false }: NumericFormat = {}): z.ZodMiniType<
   number | undefined,
   string | undefined
 > => {
@@ -201,7 +206,9 @@ const intParam = ({ min = 1, px = false }: NumericFormat = {}): z.ZodMiniType<
       rawParam.check(
         rejects('number', (value) => {
           const parsed = Number.parseInt(value, 10);
-          return pattern.test(value) && Number.isSafeInteger(parsed) && parsed >= min;
+          return (
+            pattern.test(value) && Number.isSafeInteger(parsed) && parsed >= min && parsed <= max
+          );
         }),
       ),
       z.transform((value) => (value === undefined ? undefined : Number.parseInt(value, 10))),

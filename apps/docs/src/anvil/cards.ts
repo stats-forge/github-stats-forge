@@ -90,6 +90,13 @@ const EXTRAS: Readonly<Record<string, AnvilExtras>> = {
     // the commit count is a request of its own, so sampling it is what lets `show` reach it
     maximal: { show: orgActivity.OPTIONS.show.join(',') },
   },
+  'org-calendar': {
+    docs: 'organization-calendar',
+    category: 'org',
+    identity: { org: SAMPLE.org },
+    // every count is the same one request, only its qualifiers differ
+    maximal: {},
+  },
   gist: {
     docs: 'gist-pin',
     category: 'repo',

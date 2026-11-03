@@ -17,6 +17,7 @@ import type { WakaTimeData } from '@stats-forge/github-stats-forge-core/fetchers
 
 import type { GraphQLResponse } from '../../../../packages/core/src/common/http.ts';
 import type { GitTree } from '../../../../packages/core/src/fetchers/jupyter.ts';
+import type { OrgCalendarQuery } from '../../../../packages/core/src/graphql/buildOrgCalendarDocument.ts';
 import type { ContributionsQuery } from '../../../../packages/core/src/graphql/contributionsDocument.ts';
 import type { UserContributionYearsQuery } from '../../../../packages/core/src/graphql/generated/contributed-to.ts';
 import type { GistInfoQuery } from '../../../../packages/core/src/graphql/generated/gist.ts';
@@ -477,6 +478,32 @@ const getOrganizationActivity = (): Body<GetOrganizationActivityQuery> => ({
   },
 });
 
+/**
+ * The organization's weeks, oldest first: a lull, then a busy close, so every heat level shows.
+ * A shorter calendar takes the newest of them.
+ */
+const ORG_WEEKS = [6, 9, 4, 0, 3, 11, 15, 19, 22];
+
+/** @returns Each `week_N` alias's count; an issue search matches an issue, a PR search a PR. */
+const orgCalendar = (
+  query: string,
+  variables: Readonly<Record<string, unknown>>,
+): Body<OrgCalendarQuery> => {
+  const weeks = [...query.matchAll(/\bweek_(?<index>\d+):\s*search/g)].length;
+  const matched = String(variables['week_0']).includes('is:issue') ? 'Issue' : 'PullRequest';
+  return {
+    data: {
+      organization: { login: SAMPLE.org, name: ORG_NAME },
+      ...Object.fromEntries(
+        ORG_WEEKS.slice(-weeks).map((count, index) => [
+          `week_${String(index)}`,
+          { issueCount: count, nodes: [{ __typename: matched }] },
+        ]),
+      ),
+    },
+  };
+};
+
 /** @returns A duration as WakaTime words one, e.g. `9 hrs 48 mins`. */
 const readable = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
@@ -571,11 +598,14 @@ const notebook = (): unknown => ({
   ],
 });
 
-/** Answered by operation name; the two built at runtime read their ranges off the query. */
-const GRAPHQL: Readonly<Record<string, (query: string) => unknown>> = {
+/** Answered by operation name; those built at runtime read their shape off the query. */
+const GRAPHQL: Readonly<
+  Record<string, (query: string, variables: Readonly<Record<string, unknown>>) => unknown>
+> = {
   gistInfo,
   getOrganization,
   getOrganizationActivity,
+  orgCalendar,
   getRepo,
   topLanguages,
   userContributionYears,
@@ -630,15 +660,18 @@ const fixtureFetch: FetchLike = async (input, init) => {
     );
   }
 
-  const { query } = JSON.parse(typeof init?.body === 'string' ? init.body : '{}') as {
+  const { query, variables = {} } = JSON.parse(
+    typeof init?.body === 'string' ? init.body : '{}',
+  ) as {
     query?: string;
+    variables?: Record<string, unknown>;
   };
   const name = /\bquery\s+(?<name>\w+)/.exec(query ?? '')?.groups?.['name'];
   const answer = name === undefined ? undefined : GRAPHQL[name];
   if (query === undefined || answer === undefined) {
     throw new Error(`No fixture for the operation "${name ?? input}"`);
   }
-  return Promise.resolve(Response.json(answer(query)));
+  return Promise.resolve(Response.json(answer(query, variables)));
 };
 
 export { fixtureFetch };

@@ -11,6 +11,7 @@ type CssProperty =
   | 'color'
   | 'display'
   | 'fill'
+  | 'fill-opacity'
   | 'font'
   | 'font-size'
   | 'font-variant-numeric'

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { contributedToCardLocales } from '../src/cards/contributed-to/locales.ts';
 import { gistCardLocales } from '../src/cards/gist/locales.ts';
 import { orgActivityCardLocales } from '../src/cards/org-activity/locales.ts';
+import { orgCalendarCardLocales } from '../src/cards/org-calendar/locales.ts';
 import { orgCardLocales } from '../src/cards/organization/locales.ts';
 import { repoCardLocales } from '../src/cards/repo/locales.ts';
 import { statCardLocales } from '../src/cards/stats/locales.ts';
@@ -18,6 +19,7 @@ const tables: Array<[string, LocaleTable]> = [
   ['gistCardLocales', gistCardLocales],
   ['langCardLocales', langCardLocales],
   ['orgActivityCardLocales', orgActivityCardLocales],
+  ['orgCalendarCardLocales', orgCalendarCardLocales],
   ['orgCardLocales', orgCardLocales],
   ['repoCardLocales', repoCardLocales],
   ['statCardLocales', statCardLocales],

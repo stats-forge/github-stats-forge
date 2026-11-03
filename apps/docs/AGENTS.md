@@ -11,7 +11,8 @@ carries a server changeset.
 - **A card example is drawn by the CLI, never by hand or at build time** ([#50]).
   `apps/docs/cards/*.json` holds theme-less saved cards; `pnpm docs:cards` draws each per site theme
   into `public/cards/<name>-{light,dark}.svg`, against `src/anvil/fixtures.ts` loaded through
-  `node --import scripts/fixture-fetch.ts` ([#225]). `docs:cards:check` fails on any difference.
+  `node --import scripts/fixture-fetch.ts` ([#225]), which also holds the clock still for the
+  calendar's dates. `docs:cards:check` fails on any difference.
 - **`customization/themes.md` is generated** by `scripts/generate-themes-page.ts` through oxfmt's
   API; `check-themes-page` fails on drift.
 - **Every example `uses:` is `<owner>/<repo>@<sha> # vX.Y.Z`**, the shape Renovate's custom manager
