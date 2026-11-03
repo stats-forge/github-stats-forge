@@ -70,7 +70,7 @@ export const OPTION_GROUPS: ReadonlyArray<{ group: OptionGroup; label: string }>
   { group: 'data', label: 'What it counts' },
   { group: 'display', label: 'What it shows' },
   { group: 'text', label: 'Text and size' },
-  { group: 'colors', label: 'Colors and border' },
+  { group: 'colors', label: 'Theme and border' },
 ];
 
 /** One optional param of one card. It is required so a new option cannot go ungrouped. */
@@ -102,19 +102,14 @@ interface CardSpec extends Omit<CardKind, 'required' | 'options' | 'render'> {
   render: CardKind['render'] & { PARAMS: Readonly<Record<string, ParamShape>> };
 }
 
-/** Colors and the theme, which every card accepts. */
+/** The theme and the border, which every card accepts. */
 const COMMON_OPTIONS: ReadonlyArray<OptionSpec> = [
-  { name: 'theme', label: 'Theme', group: 'colors', hint: 'An unknown name is an error' },
-  { name: 'title_color', label: 'Title color', group: 'colors', hint: 'Hex, no #' },
-  { name: 'text_color', label: 'Text color', group: 'colors', hint: 'Hex, no #' },
-  { name: 'icon_color', label: 'Icon color', group: 'colors', hint: 'Hex, no #' },
   {
-    name: 'bg_color',
-    label: 'Background color',
+    name: 'theme',
+    label: 'Theme',
     group: 'colors',
-    hint: 'Hex, no #, or a gradient: angle,color,color',
+    hint: 'One name, or a light,dark pair; an unknown name is an error',
   },
-  { name: 'border_color', label: 'Border color', group: 'colors', hint: 'Hex, no #' },
   { name: 'border_radius', label: 'Border radius', group: 'colors' },
   { name: 'hide_border', label: 'Hide the border', group: 'colors' },
 ];
@@ -172,7 +167,6 @@ const CARDS: ReadonlyArray<CardSpec> = [
       { name: 'number_format', label: 'Number format', group: 'text' },
       { name: 'number_precision', label: 'Decimals kept when abbreviating', group: 'text' },
       { name: 'disable_animations', label: 'Disable the animations', group: 'text' },
-      { name: 'ring_color', label: 'Rank ring color', group: 'colors' },
       LOCALE_OPTION,
     ],
     render: stats,
@@ -192,7 +186,6 @@ const CARDS: ReadonlyArray<CardSpec> = [
       { name: 'value_format', label: 'Show values as', group: 'display' },
       { name: 'hide_progress', label: 'Hide the progress bars', group: 'display' },
       { name: 'hide_values', label: 'Hide the values', group: 'display' },
-      { name: 'prog_bar_bg_color', label: 'Progress bar background color', group: 'colors' },
       { name: 'affiliation', label: 'Owner affiliations to include', group: 'data' },
       { name: 'notebooks', label: 'Count Jupyter notebooks by', group: 'data' },
       { name: 'title', label: 'Card title', group: 'text' },

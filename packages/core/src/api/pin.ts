@@ -32,23 +32,19 @@ const pinQuery = z.object({
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderPin = cardHandler(
-  pinQuery,
-  { username: 'username' },
-  async (params, colors, config) => {
-    const { username, repo, show } = params;
-    const repoData = await fetchRepo(
-      {
-        username,
-        reponame: repo,
-        searches: REPO_USER_SEARCHES.filter((search) => show.includes(search)),
-        include_topics: show.includes('topics'),
-      },
-      config,
-    );
-    return renderRepoCard(repoData, { ...params, ...colors });
-  },
-);
+const renderPin = cardHandler(pinQuery, { username: 'username' }, async (params, theme, config) => {
+  const { username, repo, show } = params;
+  const repoData = await fetchRepo(
+    {
+      username,
+      reponame: repo,
+      searches: REPO_USER_SEARCHES.filter((search) => show.includes(search)),
+      include_topics: show.includes('topics'),
+    },
+    config,
+  );
+  return renderRepoCard(repoData, { ...params, ...theme });
+});
 
 /**
  * The card, and the values each of its options accepts, keyed by the option's own name.

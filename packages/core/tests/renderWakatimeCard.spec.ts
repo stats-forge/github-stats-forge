@@ -166,11 +166,4 @@ describe('Test Render WakaTime Card', () => {
     });
     expect(card).toMatchSnapshot();
   });
-
-  it('should render correctly with gradient background', () => {
-    const card = renderWakatimeCard(wakaTimeData.data, {
-      theme: 'ambient_gradient',
-    });
-    expect(card).toMatchSnapshot();
-  });
 });

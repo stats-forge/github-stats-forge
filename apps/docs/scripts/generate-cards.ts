@@ -135,8 +135,8 @@ const main = async (): Promise<void> => {
     // The theme page's samples, only when this run covered the card they draw.
     if (wanted.includes(SAMPLE_CARD)) {
       const saved = await readCard(SAMPLE_CARD);
-      for (const theme of SAMPLE_THEMES) {
-        await renderThemed(saved, theme, join(THEMES_OUT_DIR, `${theme}.svg`), `theme ${theme}`);
+      for (const [file, theme] of Object.entries(SAMPLE_THEMES)) {
+        await renderThemed(saved, theme, join(THEMES_OUT_DIR, `${file}.svg`), `theme ${theme}`);
       }
     }
   } finally {

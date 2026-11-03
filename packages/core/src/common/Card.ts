@@ -2,13 +2,7 @@ import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
 import { atRule, changedBy, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { CARD_STYLE, firefoxFontSize, font } from './brand.ts';
-import {
-  HEAT_ID,
-  HEAT_PAINT,
-  getCardColors,
-  isPrefixedHexColor,
-  isValidGradient,
-} from './color.ts';
+import { HEAT_ID, HEAT_PAINT, getCardColors, isPrefixedHexColor } from './color.ts';
 import type { CardColors } from './color.ts';
 import { flexLayout } from './render.ts';
 import { measureText } from './text.ts';
@@ -85,25 +79,6 @@ const getAnimations = (): Array<CssChild> => [
   atRule('@media (prefers-reduced-motion: reduce)', rule('*', NO_MOTION)),
 ];
 
-/** One `linearGradient` definition, built from an angle followed by its stops. */
-const buildGradientDef = (id: string, bgColor: Array<string>): MarkupElement => {
-  const gradients = bgColor.slice(1);
-  return el(
-    'linearGradient',
-    {
-      id,
-      gradientTransform: `rotate(${String(bgColor[0])})`,
-      gradientUnits: 'userSpaceOnUse',
-    },
-    gradients.map((grad, index) =>
-      el('stop', {
-        offset: `${(index * 100) / (gradients.length - 1)}%`,
-        'stop-color': `#${grad}`,
-      }),
-    ),
-  );
-};
-
 /** @returns The glow's opacity where it fades into the last stop, to three places. */
 const glowEdgeOpacity = (colors: CardColors): number =>
   Math.round(colors.glowOpacity * CARD_STYLE.glow.edgeShare * 1000) / 1000;
@@ -126,12 +101,12 @@ const heatStop = (
   });
 
 /**
- * The heat gradients every card paints with, under the ids in {@link HEAT_ID}, and the bloom
- * filter behind what burns.
+ * The heat gradients every card paints with, under the ids in {@link HEAT_ID}, plus the ring
+ * gradient and the bloom filter for a card that burns.
  *
  * @returns The definitions.
  */
-const renderHeatDefs = (colors: CardColors): Array<MarkupElement> => {
+const renderHeatDefs = (colors: CardColors, burns: boolean): Array<Child> => {
   const stops = (): Array<MarkupElement> => [
     heatStop(0, colors, 0),
     heatStop(0.55, colors, 1),
@@ -140,7 +115,7 @@ const renderHeatDefs = (colors: CardColors): Array<MarkupElement> => {
 
   return [
     el('linearGradient', { id: HEAT_ID.line, x1: 0, y1: 0, x2: 1, y2: 0 }, stops()),
-    el('linearGradient', { id: HEAT_ID.ring, x1: 0, y1: 1, x2: 1, y2: 0 }, stops()),
+    burns && el('linearGradient', { id: HEAT_ID.ring, x1: 0, y1: 1, x2: 1, y2: 0 }, stops()),
     el('linearGradient', { id: HEAT_ID.trail, x1: 0, y1: 0, x2: 1, y2: 0 }, [
       heatStop(0, colors, 0),
       heatStop(0.3, colors, 1),
@@ -162,17 +137,18 @@ const renderHeatDefs = (colors: CardColors): Array<MarkupElement> => {
       }),
       heatStop(1, colors, 2, 0),
     ]),
-    el(
-      'filter',
-      { id: HEAT_ID.bloom, x: '-50%', y: '-50%', width: '200%', height: '200%' },
-      el('feGaussianBlur', { stdDeviation: CARD_STYLE.bloom.blur, result: 'bloom' }),
+    burns &&
       el(
-        'feMerge',
-        {},
-        el('feMergeNode', { in: 'bloom' }),
-        el('feMergeNode', { in: 'SourceGraphic' }),
+        'filter',
+        { id: HEAT_ID.bloom, x: '-50%', y: '-50%', width: '200%', height: '200%' },
+        el('feGaussianBlur', { stdDeviation: CARD_STYLE.bloom.blur, result: 'bloom' }),
+        el(
+          'feMerge',
+          {},
+          el('feMergeNode', { in: 'bloom' }),
+          el('feMergeNode', { in: 'SourceGraphic' }),
+        ),
       ),
-    ),
   ];
 };
 
@@ -203,6 +179,8 @@ interface CardInit {
   hideBorder?: boolean;
   hideTitle?: boolean;
   animations?: boolean;
+  /** Whether it draws with `HEAT_PAINT.ring` or `HEAT_PAINT.bloom`, which are defined only then. */
+  burns?: boolean;
   /** The card's own CSS, built once per color scheme; the dark block keeps only what changes. */
   css?: CardCSSBuilder;
 }
@@ -224,6 +202,7 @@ class Card {
   readonly paddingY = 30;
   readonly titlePrefixIcon: Child;
   readonly animations: boolean;
+  readonly burns: boolean;
   readonly a11yTitle: string;
   readonly a11yDesc: string;
 
@@ -231,7 +210,7 @@ class Card {
     width = 100,
     height = 100,
     border_radius = 14,
-    colors = { light: getCardColors({}), dark: null },
+    colors = { light: getCardColors(), dark: null },
     title,
     titlePrefixIcon,
     accessibleTitle = title,
@@ -239,6 +218,7 @@ class Card {
     hideBorder = false,
     hideTitle = false,
     animations = true,
+    burns = false,
     css = (): Array<CssChild> => [],
   }: CardInit) {
     this.width = width;
@@ -250,6 +230,7 @@ class Card {
     this.title = title;
     this.titlePrefixIcon = titlePrefixIcon;
     this.animations = animations;
+    this.burns = burns;
     this.a11yTitle = accessibleTitle;
     this.a11yDesc = description;
     this.css = css(colors.light);
@@ -328,18 +309,9 @@ class Card {
     return CARD_STYLE.padding.bodyOffsetY;
   }
 
-  /** @returns The card's gradient definitions: the heat, and the background's when it is one. */
+  /** @returns The card's heat definitions. */
   private renderDefs(): MarkupElement {
-    return el(
-      'defs',
-      {},
-      renderHeatDefs(this.colors.light),
-      typeof this.colors.light.bgColor === 'object' &&
-        buildGradientDef('gradient', this.colors.light.bgColor),
-      this.colors.dark &&
-        typeof this.colors.dark.bgColor === 'object' &&
-        buildGradientDef('gradient-dark', this.colors.dark.bgColor),
-    );
+    return el('defs', {}, renderHeatDefs(this.colors.light, this.burns));
   }
 
   /**
@@ -351,16 +323,14 @@ class Card {
       return undefined;
     }
 
-    const bgFill =
-      typeof this.colors.dark.bgColor === 'object'
-        ? 'url(#gradient-dark)'
-        : this.colors.dark.bgColor;
-
     return atRule(
       '@media (prefers-color-scheme: dark)',
       heatStopRules(this.colors.dark),
       rule('.title-icon', { fill: this.colors.dark.iconColor }),
-      rule('.card-bg', { fill: bgFill, stroke: this.colors.dark.borderColor }),
+      rule('.card-bg', {
+        fill: this.colors.dark.bgColor,
+        stroke: this.colors.dark.borderColor,
+      }),
       this.darkCss,
     );
   }
@@ -377,19 +347,8 @@ class Card {
     if (!isPrefixedHexColor(this.colors.light.borderColor)) {
       throw new Error(`Invalid border color: "${this.colors.light.borderColor}"`);
     }
-    if (
-      !(typeof this.colors.light.bgColor === 'object'
-        ? isValidGradient(this.colors.light.bgColor)
-        : isPrefixedHexColor(this.colors.light.bgColor))
-    ) {
-      throw new Error(`Invalid background color: ${String(this.colors.light.bgColor)}`);
-    }
-    if (
-      this.colors.dark &&
-      typeof this.colors.dark.bgColor === 'object' &&
-      !isValidGradient(this.colors.dark.bgColor)
-    ) {
-      throw new Error(`Invalid dark gradient: ${this.colors.dark.bgColor.join(',')}`);
+    if (!isPrefixedHexColor(this.colors.light.bgColor)) {
+      throw new Error(`Invalid background color: ${this.colors.light.bgColor}`);
     }
 
     const shrunk = shrunkTitleSize(
@@ -455,10 +414,7 @@ class Card {
           class: 'card-bg',
           ...cardShape,
           stroke: this.colors.light.borderColor,
-          fill:
-            typeof this.colors.light.bgColor === 'object'
-              ? 'url(#gradient)'
-              : this.colors.light.bgColor,
+          fill: this.colors.light.bgColor,
           'stroke-opacity': this.hideBorder ? 0 : 1,
         }),
         el('rect', {

@@ -3,14 +3,13 @@
  *
  * A miniature of the card rather than a strip of squares: the ground is the theme's background and
  * the dots are its heat's two ends and its text, so a pale heat on a pale ground reads as one.
- * A family follows the viewer, so its ground is split between its light and dark variants.
  */
 
-import { THEME_FAMILIES, themes } from '@stats-forge/github-stats-forge-core/api';
+import { themes } from '@stats-forge/github-stats-forge-core/api';
 import type { ThemeName } from '@stats-forge/github-stats-forge-core/api';
 
 /**
- * The table stores hex without a `#`, and `bg_color` may carry alpha or a gradient spec.
+ * The table stores hex without a `#`, and `bg_color` may carry alpha.
  *
  * @returns A value CSS can use, or `transparent` for anything that is not plain hex.
  */
@@ -21,21 +20,15 @@ const toCss = (value: string | undefined): string => {
   return /^[\dA-Fa-f]{3,8}$/.test(value) ? `#${value}` : 'transparent';
 };
 
-/** @returns The variant a name draws its dots from, and the grounds it stands on. */
+/** @returns The theme a name draws its dots from, and the ground it stands on. */
 const variantsOf = (
   name: string,
 ): { dots: (typeof themes)[ThemeName]; grounds: Array<string> } | undefined => {
-  if (Object.hasOwn(themes, name)) {
-    const theme = themes[name as ThemeName];
-    return { dots: theme, grounds: [theme.bg_color] };
-  }
-  const family = THEME_FAMILIES.find((candidate) => candidate === name);
-  if (family === undefined) {
+  if (!Object.hasOwn(themes, name)) {
     return undefined;
   }
-  const light = themes[`${family}_light`];
-  const dark = themes[`${family}_dark`];
-  return { dots: dark, grounds: [light.bg_color, dark.bg_color] };
+  const theme = themes[name as ThemeName];
+  return { dots: theme, grounds: [theme.bg_color] };
 };
 
 /**

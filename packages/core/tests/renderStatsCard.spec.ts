@@ -179,83 +179,13 @@ describe('Test renderStatsCard', () => {
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fffaf6');
   });
 
-  it('should render custom colors properly', () => {
-    draw(
-      renderStatsCard(stats, {
-        title_color: '5a0',
-        icon_color: '1b998b',
-        text_color: '9991',
-        bg_color: '252525',
-      }),
-    );
-
-    expect(heatStop(1)).toBe('#5a0');
-    expect(cssValue('.stat', 'fill')).toBe('#9991');
-    expect(cssValue('.icon', 'fill')).toBe('#1b998b');
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
-  });
-
-  it('should render custom colors with themes', () => {
-    draw(renderStatsCard(stats, { title_color: '5a0', theme: 'magma_dark' }));
-
-    expect(heatStop(1)).toBe('#5a0');
-    expect(cssValue('.stat', 'fill')).toBe(`#${themes.magma_dark.text_color}`);
-    expect(cssValue('.icon', 'fill')).toBe('#5a0'); // the icon follows a custom title color
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute(
-      'fill',
-      `#${themes.magma_dark.bg_color}`,
-    );
-  });
-
   it.each(Object.entries(themes))('should render with the %s theme', (theme, colors) => {
     draw(renderStatsCard(stats, { theme }));
 
     expect(heatStop(1)).toBe(`#${colors.heat[1]}`);
     expect(cssValue('.stat', 'fill')).toBe(`#${colors.text_color}`);
     expect(cssValue('.icon', 'fill')).toBe(`#${colors.heat[1]}`);
-    expect([`#${colors.bg_color}`, 'url(#gradient)']).toContain(
-      screen.queryByTestId('card-bg')?.getAttribute('fill'),
-    );
-  });
-
-  it('should render custom colors with themes and fallback to default colors if invalid', () => {
-    draw(
-      renderStatsCard(stats, {
-        title_color: 'invalid color',
-        text_color: 'invalid color',
-        theme: 'magma_dark',
-      }),
-    );
-
-    // invalid overrides fall back to the default theme; the un-overridden
-    // icon/bg come from the requested `magma_dark` theme
-    expect(heatStop(1)).toBe(`#${themes.magma_dark.heat[1]}`);
-    expect(cssValue('.stat', 'fill')).toBe(`#${themes.ember_light.text_color}`);
-    expect(cssValue('.icon', 'fill')).toBe(`#${themes.magma_dark.heat[1]}`);
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute(
-      'fill',
-      `#${themes.magma_dark.bg_color}`,
-    );
-  });
-
-  it('should render custom ring_color properly', () => {
-    draw(
-      renderStatsCard(stats, {
-        title_color: '5a0',
-        ring_color: '0000ff',
-        icon_color: '1b998b',
-        text_color: '9991',
-        bg_color: '252525',
-      }),
-    );
-
-    expect(heatStop(1)).toBe('#5a0');
-    expect(cssValue('.stat', 'fill')).toBe('#9991');
-    expect(cssValue('.icon', 'fill')).toBe('#1b998b');
-    expect(cssValue('.rank-circle', 'stroke')).toBe('#0000ff');
-    // The track is a tint of the text, so a custom ring never colors it.
-    expect(cssValue('.rank-circle-rim', 'stroke')).toBe('#9991');
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
+    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${colors.bg_color}`);
   });
 
   it('should draw its rank at its last frame where animations do not run', () => {

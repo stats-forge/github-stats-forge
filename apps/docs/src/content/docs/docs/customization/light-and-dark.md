@@ -1,10 +1,10 @@
 ---
 title: Light and dark mode
-description: Five ways to make one card read well in both GitHub themes, and which to reach for.
+description: Four ways to make one card read well in both GitHub themes, and which to reach for.
 ---
 
 A card that suits a light README looks wrong in a dark one. The default theme already follows the
-viewer, but there are five ways to handle it. They are not equivalent — the first is the one to
+viewer, but there are four ways to handle it. They are not equivalent — the first is the one to
 reach for, and the rest exist for the cases it does not cover.
 
 ## GitHub's media feature
@@ -27,29 +27,25 @@ screen reader announces. Every card on this site is drawn this way.
 
 ## Both modes in one card
 
-Every theme family — `ember`, the default, `cobalt`, `verdigris`, `magma`, `brass` — comes in a
-light and a dark variant, and naming the family puts both in a single card. The card carries a
-stylesheet that follows the viewer's setting, so there is one file and one URL:
+`theme` takes two names, `light,dark`, and the card wears the first in light mode and the second in
+dark. It carries a stylesheet that follows the viewer's setting, so there is one file and one URL:
 
 ```md
 ![My GitHub stats](./cards/stats.svg)
 ```
 
-rendered with nothing at all, or with `"theme": "cobalt"`. `theme=cobalt_dark` pins one variant
-instead.
-
-`theme_light` and `theme_dark` mix families, and the `*_light` / `*_dark` colour params change one
-colour in one mode:
+rendered with:
 
 ```json
 {
   "version": 1,
   "card": "stats",
   "username": "octocat",
-  "theme_light": "brass",
-  "theme_dark": "magma"
+  "theme": "brass_light,magma_dark"
 }
 ```
+
+With no theme at all, a card already does this, as `ember_light,ember_dark`.
 
 It is not GitHub-specific: one file works anywhere an image goes, including where `<picture>` is
 stripped.
@@ -62,59 +58,21 @@ so the card never learns which GitHub theme is showing it. The two usually agree
 set differently, they will not.
 :::
 
-### What wins over what
+### Which theme each mode wears
 
-Two stages. The first decides how many palettes the card carries; the second fills each one in.
-
-<div class="precedence">
-
-<div class="precedence__stage">
-<p class="precedence__title">1 · How many palettes the card carries</p>
-
-- **A pinned variant (`ember_dark`) and no `*_light` / `*_dark` params** — one palette. The card
-  has no dark-mode block at all.
-- **A family beside an opaque `bg_color`** — one palette too: the variant made for that
-  background's tone, so `bg_color=000000` wears the dark one.
-- **Otherwise** — a family, or any `*_light` / `*_dark` param — two palettes, each resolved on its
-  own:
-  - light ← the params, with `*_light` on top
-  - dark ← the params, with `*_dark` on top
-
-</div>
-
-<div class="precedence__stage">
-<p class="precedence__title">2 · How each colour in a palette is filled in</p>
-
-Each colour takes the first of:
-
-1. the colour param you passed — `title_color`, `bg_color`, …
-2. the named theme's colour — `theme_light` / `theme_dark`, else `theme`, a family giving the
-   variant for that mode
-3. the default theme's colour
-
-<div class="precedence__note">
-
-`border_color` ends differently. When neither you nor the theme names one, it is derived from the
-background: a light background gets a dark hairline, a dark one a light hairline, and anything
-under 50% opacity a neutral one, since the page behind decides.
-
-</div>
-
-</div>
-
-</div>
-
-So the two mix: a light and a dark theme, with one colour pinned across both.
-
-```json
-{
-  "theme": "verdigris",
-  "title_color": "aabbcc"
-}
+```text
+theme=brass_light,magma_dark
+      │           └── dark mode
+      └────────────── light mode
 ```
 
-`bg_color_dark` on its own changes one colour in dark mode and leaves the rest as the base theme
-drew it.
+| `theme`                    | Light mode     | Dark mode     |
+| -------------------------- | -------------- | ------------- |
+| nothing                    | `ember_light`  | `ember_dark`  |
+| `cobalt_dark`              | `cobalt_dark`  | `cobalt_dark` |
+| `github_light,github_dark` | `github_light` | `github_dark` |
+
+One name means the card never changes. A pair naming one theme twice is the same as naming it once.
 
 ## GitHub's theme context tag
 
@@ -145,25 +103,11 @@ rendered with `"theme": "transparent"`.
 One file and nothing GitHub-specific, but its text colours must read on both backgrounds, so it
 looks washed out against a strong one.
 
-## An alpha channel on any theme
-
-A `bg_color` with eight hex digits carries alpha, and `00000000` is fully see-through. That turns
-**any** of the [themes](../themes/) transparent while keeping its text and icon colours:
-
-```md
-![My GitHub stats](./cards/stats.svg)
-```
-
-rendered with `"theme": "cobalt_dark", "bg_color": "00000000"`.
-
-Reach for it when `transparent`'s own colours are not the ones you want; the border turns neutral,
-as described above.
-
 ## Which to use
 
-| Situation                                     | Reach for                             |
-| --------------------------------------------- | ------------------------------------- |
-| A README, and you can commit two files        | `<picture>`                           |
-| One file that has to work anywhere            | a family, such as the default `ember` |
-| It must follow the GitHub setting, not the OS | `#gh-dark-mode-only`                  |
-| You want no background at all                 | `transparent`, or `bg_color=00000000` |
+| Situation                                     | Reach for                              |
+| --------------------------------------------- | -------------------------------------- |
+| A README, and you can commit two files        | `<picture>`                            |
+| One file that has to work anywhere            | a `light,dark` pair, as the default is |
+| It must follow the GitHub setting, not the OS | `#gh-dark-mode-only`                   |
+| You want no background at all                 | `transparent`                          |

@@ -15,7 +15,7 @@ import {
   savedCardText,
 } from '@stats-forge/github-stats-forge-catalog';
 import type { CardField } from '@stats-forge/github-stats-forge-catalog';
-import { queryOf } from '@stats-forge/github-stats-forge-core/api';
+import { DEFAULT_THEME, queryOf } from '@stats-forge/github-stats-forge-core/api';
 
 import { CARD_GROUPS, CARDS, findCard } from './cards.ts';
 import type { AnvilCard } from './cards.ts';
@@ -41,11 +41,11 @@ import type { Backdrop } from './themes.ts';
  */
 const basePath = (): string => import.meta.env.BASE_URL.replace(/\/$/, '');
 
-/** The anvil draws the theme itself, with swatches and only the half of each pair the card wears. */
+/** The anvil draws the theme itself, as two pickers with swatches: one for both modes, one for dark. */
 const OWN_CONTROL = 'theme';
 
-/** The one section that opens folded: its options are shared by every card and rarely the point. */
-const FOLDED_GROUP = 'colors';
+/** The section the theme pickers join. It opens under the card's subject; the rest open folded. */
+const THEME_GROUP = 'colors';
 
 /** How long to wait after a keystroke before redrawing. */
 const TYPING_PAUSE = 250;
@@ -63,6 +63,17 @@ const TOAST_PAUSE = 3000;
  */
 const BUSY_PAUSE = 200;
 
+/** A card's dark block, which the preview answers for the ground rather than the browser. */
+const DARK_SCHEME_QUERY = '@media (prefers-color-scheme: dark)';
+
+/** @returns The card's markup with its dark block on or off, as a viewer on `ground` sees it. */
+const asSeenOn = (svg: string, ground: Backdrop): string => {
+  if (ground === 'dark') {
+    return svg.replaceAll(DARK_SCHEME_QUERY, '@media all');
+  }
+  return svg.replaceAll(DARK_SCHEME_QUERY, '@media not all');
+};
+
 /** The two grounds a card can be previewed on, and the word on each segment. */
 const BACKDROPS: ReadonlyArray<readonly [Backdrop, string]> = [
   ['light', 'Light'],
@@ -76,6 +87,8 @@ interface State {
   /** The picked values of each option whose values are a closed set. */
   lists: Record<string, Set<string>>;
   theme: string;
+  /** Dark mode's own theme, the second of a `light,dark` pair; empty when it follows `theme`. */
+  themeDark: string;
   /** Anything the form has no control for, written as a query string. */
   extra: string;
 }
@@ -93,6 +106,17 @@ const need = (root: ParentNode, selector: string): HTMLElement => {
   return found;
 };
 
+/** The light half of the default pair, worn when only dark mode is picked. */
+const [DEFAULT_LIGHT_THEME = ''] = DEFAULT_THEME.split(',');
+
+/** @returns The `theme` param: one name, or a `light,dark` pair once dark mode has its own. */
+const themeParam = ({ theme, themeDark }: State): string => {
+  if (themeDark === '') {
+    return theme;
+  }
+  return `${theme === '' ? DEFAULT_LIGHT_THEME : theme},${themeDark}`;
+};
+
 /** @returns The query, in the catalog's order rather than the order things were touched. */
 const toQuery = (state: State): Record<string, string> => {
   const query: Record<string, string> = {};
@@ -105,8 +129,9 @@ const toQuery = (state: State): Record<string, string> => {
     }
   }
 
-  if (state.theme !== '') {
-    query['theme'] = state.theme;
+  const theme = themeParam(state);
+  if (theme !== '') {
+    query['theme'] = theme;
   }
 
   for (const option of state.card.options) {
@@ -153,7 +178,10 @@ const markdown = (state: State, url: string): string => {
 };
 
 /** @returns A fresh state for that card, keeping nothing from the last one but the theme. */
-const freshState = (card: AnvilCard, theme: string): State => ({
+const freshState = (
+  card: AnvilCard,
+  { theme, themeDark }: Pick<State, 'theme' | 'themeDark'>,
+): State => ({
   card,
   // Seeded with the sampled identity, so the file is valid and the card draws before anything is typed.
   values: { ...card.identity },
@@ -161,6 +189,7 @@ const freshState = (card: AnvilCard, theme: string): State => ({
     card.options.filter(isMultiValued).map((option) => [option.name, new Set<string>()]),
   ),
   theme,
+  themeDark,
   extra: '',
 });
 
@@ -207,6 +236,8 @@ const mount = (root: HTMLElement): void => {
 
   // Kept rather than read back: the DOM re-serialises what it parsed, so `innerHTML` never matches.
   let drawn = '';
+  /** The last card drawn, before `asSeenOn`, so a change of ground repaints it without a redraw. */
+  let drawnCard = '';
 
   /**
    * The frame carries the state and the stylesheet draws it — a scrim over the card, not in place
@@ -227,9 +258,23 @@ const mount = (root: HTMLElement): void => {
    */
   let backdrop: Backdrop = 'light';
 
+  /*
+   * Only when it differs. The fixtures answer what a request asks, not who it asks for, so
+   * typing a username replaced a card with its twin — read as "the numbers are yours now".
+   */
+  const paint = (): void => {
+    // The wrapper gives the drawn card a stable handle: a card's icons are `<svg>` too.
+    const next = `<div class="anvil-card">${asSeenOn(drawnCard, backdrop)}</div>`;
+    if (next !== drawn) {
+      drawn = next;
+      previewRoot.innerHTML = next;
+    }
+  };
+
   const setBackdrop = (ground: Backdrop): void => {
     backdrop = ground;
     frame.dataset['backdrop'] = ground;
+    paint();
   };
 
   const backdropBar = createSegments({
@@ -248,19 +293,49 @@ const mount = (root: HTMLElement): void => {
   if (first === undefined) {
     throw new Error('No cards to draw');
   }
-  let state = freshState(first, '');
+  let state = freshState(first, { theme: '', themeDark: '' });
   // Node's types reach this project too, so the handle's type is taken from the call.
   let pending: ReturnType<typeof globalThis.setTimeout> | undefined;
 
+  const darkScheme = globalThis.matchMedia('(prefers-color-scheme: dark)');
+
+  /** @returns The ground matching the browser's color scheme. */
+  const schemeGround = (): Backdrop => {
+    if (darkScheme.matches) {
+      return 'dark';
+    }
+    return 'light';
+  };
+
+  // the theme the ground last followed: another option changing leaves a chosen ground alone
+  let followedTheme: string | undefined;
+
   /** Puts the ground the card's own background asks for under it, and holds still where it asks none. */
-  const followBackdrop = (): void => {
-    const implied = backdropFor(toQuery(state));
-    if (implied === undefined || implied === backdrop) {
+  const followBackdrop = ({ force = false }: { force?: boolean } = {}): void => {
+    const query = toQuery(state);
+    const theme = query['theme'] ?? '';
+    if (!force && theme === followedTheme) {
       return;
     }
-    setBackdrop(implied);
-    backdropBar.value = implied;
+    followedTheme = theme;
+    const implied = backdropFor(query);
+    if (implied === undefined) {
+      return;
+    }
+    const ground = implied === 'browser' ? schemeGround() : implied;
+    if (ground === backdrop) {
+      return;
+    }
+    setBackdrop(ground);
+    backdropBar.value = ground;
   };
+  // A card carrying both schemes starts on the browser's, as a visitor's README would.
+  darkScheme.addEventListener('change', () => {
+    // a single theme's ground is the scheme's no more than before, so one chosen by hand holds
+    if (backdropFor(toQuery(state)) === 'browser') {
+      followBackdrop({ force: true });
+    }
+  });
 
   // written onto the root by `anvil.astro`, this file having no environment to read
   const servedByInstance = root.dataset['source'] === 'server';
@@ -317,17 +392,8 @@ const mount = (root: HTMLElement): void => {
     showBusy(false);
 
     if (shown.content !== undefined) {
-      // The wrapper gives the drawn card a stable handle: a card's icons are `<svg>` too.
-      const next = `<div class="anvil-card">${shown.content}</div>`;
-
-      /*
-       * Only when it differs. The fixtures answer what a request asks, not who it asks for, so
-       * typing a username replaced a card with its twin — read as "the numbers are yours now".
-       */
-      if (next !== drawn) {
-        drawn = next;
-        previewRoot.innerHTML = next;
-      }
+      drawnCard = shown.content;
+      paint();
     }
 
     // The badge beneath carries the standing caveat; saying it twice filled the space below.
@@ -346,7 +412,7 @@ const mount = (root: HTMLElement): void => {
   /** The same, once typing has stopped: on an instance every redraw is a request against its token. */
   const scheduleTyping = (): void => {
     writeFile();
-    // Never debounced either: a half-typed hex names no ground, so nothing moves until one does.
+    // Never debounced either: a half-typed theme names no ground, so nothing moves until one does.
     followBackdrop();
     globalThis.clearTimeout(pending);
     pending = globalThis.setTimeout(() => {
@@ -425,28 +491,54 @@ const mount = (root: HTMLElement): void => {
 
   /** Rebuilds the controls for the current card. */
   const buildControls = (): void => {
-    // The CLI's sections, in its order; a group none of this card's options sit under is dropped.
-    const sections = OPTION_GROUPS.flatMap(({ group, label }) => {
-      const options = state.card.options.filter((option) => option.group === group);
-      const built = options.flatMap((option) => control(option));
-      return built.length === 0 ? [] : [createSection(label, built, group !== FOLDED_GROUP)];
-    });
-
-    controls.replaceChildren(
-      ...state.card.required.flatMap((option) => control(option)),
-      createNote(source.identityNote),
+    const themePickers = [
       createSelect({
         label: 'Theme',
         option: 'theme',
-        // Only the half of each theme pair this card wears, grouped by the background it implies.
         values: themeGroups(),
         value: state.theme,
         swatches: true,
+        hint: 'Worn in both modes, unless dark mode has its own',
         onPick: (value) => {
           state.theme = value;
           schedule();
         },
       }),
+      createSelect({
+        label: 'Dark mode',
+        option: 'theme-dark',
+        values: themeGroups(),
+        value: state.themeDark,
+        swatches: true,
+        defaultLabel: 'as the theme',
+        hint: 'Worn instead when the viewer is in dark mode',
+        onPick: (value) => {
+          state.themeDark = value;
+          schedule();
+        },
+      }),
+    ];
+
+    // The CLI's sections from the same table, the theme's first; an empty one is dropped.
+    const sections = OPTION_GROUPS.toSorted(
+      (a, b) => Number(b.group === THEME_GROUP) - Number(a.group === THEME_GROUP),
+    ).flatMap(({ group, label }) => {
+      const built = state.card.options
+        .filter((option) => option.group === group)
+        .flatMap((option) => control(option));
+      const contents = group === THEME_GROUP ? [...themePickers, ...built] : built;
+      return contents.length === 0 ? [] : [createSection(label, contents, group === THEME_GROUP)];
+    });
+
+    controls.replaceChildren(
+      createSection(
+        'What it draws',
+        [
+          ...state.card.required.flatMap((option) => control(option)),
+          createNote(source.identityNote),
+        ],
+        true,
+      ),
       ...sections,
     );
   };
@@ -475,7 +567,7 @@ const mount = (root: HTMLElement): void => {
       if (card === undefined) {
         return;
       }
-      state = freshState(card, state.theme);
+      state = freshState(card, state);
       extra.value = '';
       state.extra = '';
       cardDocs.href = `${basePath()}/docs/cards/${card.docs}/`;

@@ -48,7 +48,7 @@ const orgActivityQuery = z
 const renderOrgActivity = cardHandler(
   orgActivityQuery,
   { org: 'username' },
-  async (params, colors, config) => {
+  async (params, theme, config) => {
     const { org, days, from, to, show, hide } = params;
     // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
     const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
@@ -67,7 +67,7 @@ const renderOrgActivity = cardHandler(
       },
       config,
     );
-    return renderOrgActivityCard(data, { ...params, ...colors });
+    return renderOrgActivityCard(data, { ...params, ...theme });
   },
 );
 

@@ -37,7 +37,7 @@ const orgQuery = z.object({
  *
  * @returns The rendered card, or a rendered error.
  */
-const renderOrg = cardHandler(orgQuery, { org: 'username' }, async (params, colors, config) => {
+const renderOrg = cardHandler(orgQuery, { org: 'username' }, async (params, theme, config) => {
   const { org, show, hide } = params;
   // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
   const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
@@ -48,7 +48,7 @@ const renderOrg = cardHandler(orgQuery, { org: 'username' }, async (params, colo
     { org, require_members: drawn.has('members') },
     config,
   );
-  return renderOrganizationCard(organizationData, { ...params, ...colors });
+  return renderOrganizationCard(organizationData, { ...params, ...theme });
 });
 
 /**

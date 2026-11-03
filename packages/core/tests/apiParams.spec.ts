@@ -75,36 +75,12 @@ describe('api query schemas', () => {
         client: 'unknown',
         // a param another endpoint owns
         langs_count: '4',
+        // a color param, which the cards no longer take: an old README still draws
+        title_color: 'not-a-color',
       });
 
       // the stubbed fetch fails, so anything that got past validation is temporary
       expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
-    },
-  );
-
-  it.each(Object.entries(endpoints))(
-    '%s reports the first invalid color by name',
-    async (name, call) => {
-      const result = await call({
-        ...withUser(name),
-        title_color: 'not-a-color',
-        bg_color: 'also-not-a-color',
-      });
-
-      expect(result.status).toBe('error');
-      expect(result.content).toContain('Invalid color input for parameter &#34;title_color&#34;');
-    },
-  );
-
-  it.each(Object.entries(endpoints))(
-    '%s refuses a gradient anywhere but the background, still drawing the error card',
-    async (name, call) => {
-      const result = await call({ ...withUser(name), title_color: '90,f00,0f0' });
-
-      expect(result).toMatchObject({
-        status: 'error',
-        error: { code: 'invalid_param', param: 'title_color' },
-      });
     },
   );
 
@@ -257,7 +233,11 @@ describe('api query schemas', () => {
     ['theme', 'not_a_theme'],
     // inherited from Object.prototype, which an `in` check once let through
     ['theme', 'toString'],
-    ['theme_dark', 'nope'],
+    // a light,dark pair holds two names, no more
+    ['theme', 'ember_light,cobalt_dark,brass_light'],
+    // and at least one
+    ['theme', ','],
+    ['theme', ' , '],
     ['number_format', 'medium'],
   ])('rejects the %s %j', async (param, value) => {
     const result = await endpoints.stats({ username: 'anuraghazra', [param]: value });

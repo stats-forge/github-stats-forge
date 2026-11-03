@@ -125,7 +125,7 @@ Given both, `--options` layers over `--config` rather than replacing it, so one 
 option is a whole variant:
 
 ```sh
-npx @stats-forge/github-stats-forge-cli --config card.json --options '?theme=dark' --print-query
+npx @stats-forge/github-stats-forge-cli --config card.json --options '?theme=ember_dark' --print-query
 ```
 
 ## In a README

@@ -57,8 +57,7 @@ export default defineConfig({
     // A required parameter still has to be passed, so an explicit `undefined` argument is not useless.
     'unicorn/no-useless-undefined': ['error', { checkArguments: false }],
 
-    // A param arrives off a query string, where `?title_color=` is empty, not absent,
-    // so `||` is what falls back to the theme.
+    // An empty string is no value: an empty query param, env var or upstream field falls back with `||`.
     'typescript/prefer-nullish-coalescing': ['error', { ignorePrimitives: { string: true } }],
 
     // A `default` case is what covers the rest — the wakatime range is a plain `string`.

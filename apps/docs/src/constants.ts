@@ -36,16 +36,20 @@ export type CardMode = keyof typeof CARD_THEMES;
 /** Where a theme sample lives, relative to `public/`; one file, since it names its own theme. */
 export const THEMES_DIR = 'themes';
 
-/** Drawn rather than tabulated. Read by both generators, so the two cannot disagree. */
-export const SAMPLE_THEMES = [
-  'ember',
-  'cobalt',
-  'verdigris',
-  'magma',
-  'brass',
+/**
+ * Drawn rather than tabulated, each file name to the `theme` it is drawn in. Read by both
+ * generators, so the two cannot disagree.
+ */
+export const SAMPLE_THEMES = {
+  ember: 'ember_light,ember_dark',
+  cobalt: 'cobalt_light,cobalt_dark',
+  verdigris: 'verdigris_light,verdigris_dark',
+  magma: 'magma_light,magma_dark',
+  brass: 'brass_light,brass_dark',
+  github: 'github_light,github_dark',
   // Its background is `ffffff00`, so the sample doubles as the one on the light-and-dark page.
-  'transparent',
-] as const;
+  transparent: 'transparent',
+} as const;
 
 /** The card every theme sample draws, by the name of its file in `cards/`. */
 export const SAMPLE_CARD = 'stats';

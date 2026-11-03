@@ -161,11 +161,11 @@ describe('the command line', () => {
       '--config',
       savedGist,
       '--options',
-      'theme=magma&show_owner=true',
+      'theme=magma_dark&show_owner=true',
       '--print-query',
     );
 
-    expect(out).toBe('?id=abc&theme=magma&show_owner=true\n');
+    expect(out).toBe('?id=abc&theme=magma_dark&show_owner=true\n');
     expect(code).toBeUndefined();
     expect(render).not.toHaveBeenCalled();
   });

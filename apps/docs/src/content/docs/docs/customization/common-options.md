@@ -1,6 +1,6 @@
 ---
 title: Common options
-description: The colors, borders, titles and sizes every card accepts.
+description: The theme, borders, titles and sizes every card accepts.
 ---
 
 Every card takes the options on this page, unless a row says otherwise. Each card's page lists
@@ -11,31 +11,14 @@ option left empty, such as `?theme=`, is the same as leaving it out. An option g
 list: `?hide=stars&hide=prs` is `?hide=stars,prs`. A value an option does not accept is an error
 card naming the parameter, never a silent fallback.
 
-## Colors
-
-| Option         | What it colors                                                                       |
-| -------------- | ------------------------------------------------------------------------------------ |
-| `title_color`  | The title, its trail and the rank ring, in one color instead of the theme's gradient |
-| `text_color`   | The body text                                                                        |
-| `icon_color`   | The icons, where the card draws any; the title color when unset                      |
-| `bg_color`     | The background                                                                       |
-| `border_color` | The border                                                                           |
-
-A color is a hex value **without the `#`** — three, four, six or eight digits — or a named CSS
-color. `bg_color` also takes a gradient: an angle in degrees, then two or more stops.
-
-```text
-?username=octocat&title_color=2f80ed&text_color=434d58&bg_color=45,ff0000,00ff00,0000ff
-```
-
-Each color option has a `_light` and a `_dark` twin, as `theme` has `theme_light` and
-`theme_dark`, so one card can carry both palettes: see [Light and dark mode](../light-and-dark/).
-
 ## Theme
 
-`theme` names one of the [built-in themes](../themes/): a family such as `ember`, the default, which
-follows the viewer's light or dark setting, or one of its variants, such as `ember_dark`. A color
-you pass alongside it wins, so a theme is a starting point rather than a lock.
+`theme` names one of the [built-in themes](../themes/), which sets every color on the card. One
+name, such as `cobalt_dark`, is one look in both modes; a pair, such as `brass_light,magma_dark`,
+gives light and dark mode a theme each. With no theme, a card wears `ember_light,ember_dark`. See
+[Light and dark mode](../light-and-dark/).
+
+There are no options for single colors: a theme always draws the whole card.
 
 ## Border, title and size
 

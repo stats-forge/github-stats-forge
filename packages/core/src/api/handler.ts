@@ -1,13 +1,13 @@
 import type * as z from 'zod/mini';
 
-import type { ColorParams } from '../common/color.ts';
+import type { ThemeParams } from '../common/color.ts';
 import type { AllowlistKind, CardConfig } from '../common/config.ts';
 import { CardError } from '../common/error.ts';
 
 import type { ApiResult } from './api-result.ts';
 import { errorResult } from './api-result.ts';
 import type { ApiQuery, ParamShape } from './params.ts';
-import { describeParams, parseColorParams, parseParams, resolveEmpty } from './params.ts';
+import { describeParams, parseParams, parseThemeParams, resolveEmpty } from './params.ts';
 
 /** Which of an endpoint's params name an identity, and which list guards each. */
 type Identities<TSchema extends z.ZodMiniObject> = Partial<
@@ -27,7 +27,7 @@ type CardEndpoint<TSchema extends z.ZodMiniObject> = ((
  * An endpoint: the schema it accepts, the identities a pinned deployment may refuse,
  * and what it draws from the parsed params.
  *
- * Colors parse first and on their own, because a rejected color cannot be used to draw its own error card.
+ * The theme parses first and on its own, because a rejected theme cannot be used to draw its own error card.
  * Parsing throws, the allowlist throws, fetching throws, and one `catch` turns whatever was thrown into the answer.
  *
  * @returns The handler, taking the query the schema describes.
@@ -35,15 +35,15 @@ type CardEndpoint<TSchema extends z.ZodMiniObject> = ((
 const cardHandler = <TSchema extends z.ZodMiniObject>(
   schema: TSchema,
   identities: Identities<TSchema>,
-  render: (params: z.output<TSchema>, colors: ColorParams, config: CardConfig) => Promise<string>,
+  render: (params: z.output<TSchema>, theme: ThemeParams, config: CardConfig) => Promise<string>,
 ): CardEndpoint<TSchema> => {
   const PARAMS = describeParams(schema.shape);
 
   const handler = async (raw: ApiQuery<TSchema>, config: CardConfig): Promise<ApiResult> => {
     const query = resolveEmpty(raw, PARAMS);
-    let colors: ColorParams;
+    let theme: ThemeParams;
     try {
-      colors = parseColorParams(query);
+      theme = parseThemeParams(query);
     } catch (error) {
       return errorResult(error);
     }
@@ -60,9 +60,9 @@ const cardHandler = <TSchema extends z.ZodMiniObject>(
         }
       }
 
-      return { status: 'success', content: await render(params, colors, config) };
+      return { status: 'success', content: await render(params, theme, config) };
     } catch (error) {
-      return errorResult(error, colors);
+      return errorResult(error, theme);
     }
   };
 

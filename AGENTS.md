@@ -159,7 +159,7 @@ TypeScript is **7.x**, with `oxlint-tsgolint` on the same major. The strict flag
 - **Declare only the params you read, and validate nothing you don't use.**
 - **A card's options are `interface XCardOptions extends CommonCardOptions` in its `index.ts`**,
   unexported. `cards/options.ts` holds only the shared base and `CardOptions<T>`; `ThemeName` lives in
-  `themes/index.ts`. `CommonCardOptions` extends `ColorParams`: every card forwards into
+  `themes/index.ts`. `CommonCardOptions` extends `ThemeParams`: every card forwards into
   `getLightDarkColors`.
 - **What one card exports and another imports moves to `common/`**; ask first.
 - **One export style per module**: named or default, never both ([#39]).
