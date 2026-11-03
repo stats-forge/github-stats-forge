@@ -186,7 +186,7 @@
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="288.9" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 50)">
-    <g data-testid="rank-circle" transform="translate(437.5, 76)">
+    <g data-testid="rank-circle" transform="translate(437.5, 87)">
       <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
       <circle class="rank-circle" cx="-10" cy="8" r="40" filter="url(#heat-bloom)" />
       <g class="rank-text">

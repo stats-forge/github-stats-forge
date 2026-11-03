@@ -2,6 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderStatsCard } from '../src/cards/stats/index.ts';
+import { CARD_STYLE } from '../src/common/brand.ts';
 import type { StatsData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -301,6 +302,20 @@ describe('Test renderStatsCard', () => {
     const radius = Number(rim?.getAttribute('r'));
 
     expect(ringCenter - radius - valuesEnd).toBeCloseTo(width - (ringCenter + radius));
+  });
+
+  it('should center the rank ring on the stat rows', () => {
+    draw(renderStatsCard(stats));
+
+    const rows = [...document.querySelectorAll('.stagger')];
+    expect(rows).toHaveLength(5);
+    const lastRowY = Math.max(...rows.map((row) => translateOf(row.parentElement).y));
+    const rowsMiddle = (lastRowY + CARD_STYLE.statRowInk) / 2;
+    const ringMiddle =
+      translateOf(screen.getByTestId('rank-circle')).y +
+      Number(document.querySelector('.rank-circle-rim')?.getAttribute('cy'));
+
+    expect(ringMiddle).toBeCloseTo(rowsMiddle);
   });
 
   it('should render default rank icon with level A+', () => {

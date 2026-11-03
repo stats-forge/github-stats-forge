@@ -251,6 +251,9 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     return center + RANK_CIRCLE_CX_OFFSET;
   };
 
+  // The middle of the room the rows fill, so the ring centres on them rather than on the title too.
+  const bodyMiddle = (height - CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.bottom) / 2;
+
   // Conditionally rendered elements
   const rankCircle =
     !hide_rank &&
@@ -258,7 +261,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       'g',
       {
         'data-testid': 'rank-circle',
-        transform: `translate(${calculateRankXTranslation()}, ${height / 2 - 50})`,
+        transform: `translate(${calculateRankXTranslation()}, ${bodyMiddle - 8})`,
       },
       el('circle', {
         class: 'rank-circle-rim',
