@@ -212,9 +212,9 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
             <text class="stat bold" y="12.5" data-testid="Other">Other:</text>
             <text class="stat" x="369" y="12.5">19 mins</text>
             <svg width="239" x="110" y="4">
-              <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
+              <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="239" height="8" />
               <svg data-testid="lang-progress" width="89.38%">
-                <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
+                <rect width="100%" height="8" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
               </svg>
             </svg>
           </g>
@@ -224,9 +224,9 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
             <text class="stat bold" y="12.5" data-testid="TypeScript">TypeScript:</text>
             <text class="stat" x="369" y="12.5">1 min</text>
             <svg width="239" x="110" y="4">
-              <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
+              <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="239" height="8" />
               <svg data-testid="lang-progress" width="6.25%">
-                <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
+                <rect width="100%" height="8" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
               </svg>
             </svg>
           </g>
@@ -446,7 +446,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       </g>
       <g transform="translate(0, 36)">
         <mask id="rect-mask">
-          <rect x="18" y="0" width="464" height="8" fill="white" rx="5" />
+          <rect x="18" y="0" width="464" height="8" fill="white" rx="4" />
         </mask>
         <rect mask="url(#rect-mask)" data-testid="lang-progress" x="18" y="0" width="414.7232" height="8" fill="#858585" />
         <rect mask="url(#rect-mask)" data-testid="lang-progress" x="432.7232" y="0" width="29" height="8" fill="#3178c6" />
@@ -673,7 +673,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       </g>
       <g transform="translate(0, 36)">
         <mask id="rect-mask">
-          <rect x="18" y="0" width="464" height="8" fill="white" rx="5" />
+          <rect x="18" y="0" width="464" height="8" fill="white" rx="4" />
         </mask>
         <rect mask="url(#rect-mask)" data-testid="lang-progress" x="18" y="0" width="433.65439999999995" height="8" fill="#858585" />
         <rect mask="url(#rect-mask)" data-testid="lang-progress" x="451.65439999999995" y="0" width="30.3456" height="8" fill="#3178c6" />
@@ -904,9 +904,9 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
             <text class="stat bold" y="12.5" data-testid="Other">Other:</text>
             <text class="stat" x="369" y="12.5">89.38 %</text>
             <svg width="239" x="110" y="4">
-              <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
+              <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="239" height="8" />
               <svg data-testid="lang-progress" width="89.38%">
-                <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
+                <rect width="100%" height="8" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
               </svg>
             </svg>
           </g>
@@ -916,9 +916,9 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
             <text class="stat bold" y="12.5" data-testid="TypeScript">TypeScript:</text>
             <text class="stat" x="369" y="12.5">6.25 %</text>
             <svg width="239" x="110" y="4">
-              <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
+              <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="239" height="8" />
               <svg data-testid="lang-progress" width="6.25%">
-                <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
+                <rect width="100%" height="8" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
               </svg>
             </svg>
           </g>

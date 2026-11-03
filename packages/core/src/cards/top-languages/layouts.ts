@@ -351,7 +351,7 @@ const renderCompactLayout = (
       x,
       y: 0,
       width: percentage < 10 ? percentage + 10 : percentage,
-      height: 8,
+      height: CARD_STYLE.bar.height,
       fill: resolveLangColor(lang),
     });
   });
@@ -361,7 +361,14 @@ const renderCompactLayout = (
       el(
         'mask',
         { id: 'rect-mask' },
-        el('rect', { x: 0, y: 0, width: offsetWidth, height: 8, fill: 'white', rx: 5 }),
+        el('rect', {
+          x: 0,
+          y: 0,
+          width: offsetWidth,
+          height: CARD_STYLE.bar.height,
+          fill: 'white',
+          rx: CARD_STYLE.bar.radius,
+        }),
       ),
       compactProgressBar,
     ],

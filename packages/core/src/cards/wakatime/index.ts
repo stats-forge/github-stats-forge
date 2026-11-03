@@ -387,7 +387,7 @@ const renderCard = (
         x,
         y: 0,
         width: progress,
-        height: 8,
+        height: CARD_STYLE.bar.height,
         fill: getLanguageColor(language.name),
       });
     });
@@ -400,9 +400,9 @@ const renderCard = (
           x: COMPACT_LAYOUT_PROGRESSBAR_PADDING,
           y: 0,
           width: barWidth,
-          height: 8,
+          height: CARD_STYLE.bar.height,
           fill: 'white',
-          rx: 5,
+          rx: CARD_STYLE.bar.radius,
         }),
       ),
       compactProgressBar,
