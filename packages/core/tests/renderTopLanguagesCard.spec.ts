@@ -270,21 +270,22 @@ describe('Test renderTopLanguages', () => {
     expectLabels(SLICES.map(({ label }) => label));
 
     const progresses = screen.queryAllByTestId('lang-progress');
-    expect(progresses[0]).toHaveAttribute('width', '100');
-    expect(progresses[1]).toHaveAttribute('width', '100');
-    expect(progresses[2]).toHaveAttribute('width', '50');
+    // the bar spans the card less its padding, split 200:200:100
+    expect(progresses[0]).toHaveAttribute('width', '105.6');
+    expect(progresses[1]).toHaveAttribute('width', '105.6');
+    expect(progresses[2]).toHaveAttribute('width', '52.8');
   });
 
   it.each([
     { layout: 'compact', hide_values: false, card_width: undefined, width: 400 },
-    { layout: 'compact', hide_values: true, card_width: undefined, width: 400 },
-    { layout: 'compact', hide_values: false, card_width: 320, width: 335 },
+    { layout: 'compact', hide_values: true, card_width: undefined, width: 300 },
+    { layout: 'compact', hide_values: false, card_width: 320, width: 321 },
     { layout: 'compact', hide_values: false, card_width: 450, width: 450 },
     { layout: 'pie', hide_values: false, card_width: undefined, width: 400 },
-    { layout: 'pie', hide_values: false, card_width: 320, width: 335 },
+    { layout: 'pie', hide_values: false, card_width: 320, width: 321 },
     { layout: 'donut-vertical', hide_values: false, card_width: undefined, width: 400 },
-    { layout: 'donut-vertical', hide_values: true, card_width: undefined, width: 400 },
-    { layout: 'donut-vertical', hide_values: false, card_width: 320, width: 335 },
+    { layout: 'donut-vertical', hide_values: true, card_width: undefined, width: 300 },
+    { layout: 'donut-vertical', hide_values: false, card_width: 320, width: 321 },
   ] as const)(
     'should fit a long name in the $layout second column (hide_values $hide_values, card_width $card_width)',
     ({ layout, hide_values, card_width, width }) => {
@@ -293,7 +294,7 @@ describe('Test renderTopLanguages', () => {
       const text = hide_values ? 'Jupyter Notebook' : 'Jupyter Notebook 9.09%';
       const label = screen.getByText(exactly(text));
       expect(card).toHaveAttribute('width', String(width));
-      expect(xOf(label) + measureText(text, 11)).toBeLessThanOrEqual(width - 25);
+      expect(xOf(label) + measureText(text, 11)).toBeLessThanOrEqual(width - CARD_STYLE.padding.x);
     },
   );
 
@@ -357,7 +358,9 @@ describe('Test renderTopLanguages', () => {
       const listMiddle = listTop + ((count - 1) * 32 + 11) / 2;
 
       // The body starts at the card's left padding, under the title.
-      expect(25 + centerX + outerRadius).toBeCloseTo(Number(card.getAttribute('width')) - 25);
+      expect(CARD_STYLE.padding.x + centerX + outerRadius).toBeCloseTo(
+        Number(card.getAttribute('width')) - CARD_STYLE.padding.x,
+      );
       expect(centerY - outerRadius).toBeGreaterThanOrEqual(0);
       expect(CARD_STYLE.padding.bodyOffsetY + centerY + outerRadius).toBeLessThanOrEqual(
         Number(card.getAttribute('height')) - CARD_STYLE.padding.bottom,
@@ -496,7 +499,7 @@ describe('Test renderTopLanguages', () => {
     ({ hide_progress, width }) => {
       const data = {
         ...langs,
-        powershell: { color: '#012456', name: 'PowerShell', size: 50, count: 1 },
+        commonLisp: { color: '#3fb68b', name: 'Common Lisp', size: 50, count: 1 },
       } satisfies TopLangData;
 
       const card = draw(renderTopLanguages(data, { layout: 'compact', hide_progress }));

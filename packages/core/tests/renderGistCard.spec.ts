@@ -24,8 +24,7 @@ describe('test renderGistCard', () => {
     expect(header).toHaveTextContent(exactly('test'));
     expect(header).not.toHaveTextContent('anuraghazra');
     expect(document.querySelector('.description')).toHaveTextContent(
-      // Between "Python" and "programs" there is a line break caused by: </tspan><tspan dy="1.2em" x="25">
-      'Small <b>test</b> repository with different Pythonprograms.',
+      exactly('Small <b>test</b> repository with different Python programs.'),
     );
     expect(screen.queryByTestId('starsCount')).toHaveTextContent(exactly('163'));
     expect(screen.queryByTestId('forksCount')).toHaveTextContent(exactly('19'));
@@ -59,7 +58,7 @@ describe('test renderGistCard', () => {
       exactly('The quick brown fox jumps over the lazy dog is an'),
     );
     expect(lines[1]).toHaveTextContent(
-      exactly('English-language pangram—a sentence that contains all of'),
+      exactly('English-language pangram—a sentence that contains all of the'),
     );
   });
 

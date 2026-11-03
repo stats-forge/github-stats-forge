@@ -58,14 +58,16 @@ const CARD_STYLE = {
    * against the 17px above its title.
    */
   padding: {
-    /** The card's side padding, which `Card` reads as `paddingX`. */
-    x: 25,
+    /** The side padding, `Card`'s `paddingX`: wider than `bottom`, as lines of text need. */
+    x: 18,
     /** The same air as above the title's ink, so a card sits even between its edges. */
     bottom: 12,
     /** The title's baseline: its ink, 13px tall, starts `bottom` below the top edge. */
     titleY: 25,
-    /** Where `Card` puts the body while the title is shown; a hidden title gives back all but `x`. */
+    /** Where `Card` puts the body while the title is shown. */
     bodyOffsetY: 50,
+    /** Where it puts the body when the title is hidden: the same air above as `bottom` below. */
+    untitledBodyOffsetY: 12,
   },
 
   /** A two-column language list, each row a dot then its label. */

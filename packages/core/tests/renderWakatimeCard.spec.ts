@@ -2,6 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
+import { CARD_STYLE } from '../src/common/brand.ts';
 import { measureText } from '../src/common/text.ts';
 import type { WakaTimeData } from '../src/fetchers/types.ts';
 
@@ -38,11 +39,14 @@ describe('Test Render WakaTime Card', () => {
 
     // the track keeps the card's own padding on both sides
     const track = document.querySelector('#rect-mask rect');
-    expect(track).toHaveAttribute('x', '25');
-    expect(track).toHaveAttribute('width', String(card_width - 50));
+    expect(track).toHaveAttribute('x', String(CARD_STYLE.padding.x));
+    expect(track).toHaveAttribute('width', String(card_width - 2 * CARD_STYLE.padding.x));
 
     // and the stacked segments start where it does, rather than under its left edge
-    expect(screen.getAllByTestId('lang-progress')[0]).toHaveAttribute('x', '25');
+    expect(screen.getAllByTestId('lang-progress')[0]).toHaveAttribute(
+      'x',
+      String(CARD_STYLE.padding.x),
+    );
   });
 
   it.each([undefined, 400])(
@@ -67,7 +71,9 @@ describe('Test Render WakaTime Card', () => {
       expect(Math.max(...left.map((label) => rightEdge(label)))).toBeLessThan(
         Math.min(...right.map((label) => xOf(label))),
       );
-      expect(Math.max(...right.map((label) => rightEdge(label)))).toBeLessThanOrEqual(width - 25);
+      expect(Math.max(...right.map((label) => rightEdge(label)))).toBeLessThanOrEqual(
+        width - CARD_STYLE.padding.x,
+      );
     },
   );
 

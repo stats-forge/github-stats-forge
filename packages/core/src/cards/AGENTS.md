@@ -38,6 +38,8 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
   widths and icons. A card writing its own `font`, pixel size or weight is drifting.
 - **Every measure is a `CARD_STYLE` entry, read by dot** ([#123]); only `CARD_ICON`, `font` and
   `firefoxFontSize` stand beside it. A new measure goes there, never into a card.
+- **Every side offset reads `CARD_STYLE.padding.x`, never a literal**: when it moved from 25 to
+  18, each hard-coded 25 left a row, a bar or a value off the new edge.
 - **A default width is a `CARD_STYLE.width` step**; a layout needing more takes the next step, so
   stacked cards share an edge. A minimum meets its default only through `Math.max`, so re-check the
   floors when a step moves. A card's slack absorbs its extras; only `minCardWidth` adds room, for the

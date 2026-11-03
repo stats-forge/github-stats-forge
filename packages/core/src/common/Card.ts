@@ -208,7 +208,7 @@ interface CardInit {
 }
 
 /** The room the title and its band take, which a card without a title gives back. */
-const TITLE_ROOM = CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.x;
+const TITLE_ROOM = CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.untitledBodyOffsetY;
 
 class Card {
   readonly width: number;
@@ -326,7 +326,7 @@ class Card {
   /** Where the body starts, and so where the title band ends. */
   private get bodyOffset(): number {
     if (this.hideTitle) {
-      return CARD_STYLE.padding.x;
+      return CARD_STYLE.padding.untitledBodyOffsetY;
     }
     return CARD_STYLE.padding.bodyOffsetY;
   }

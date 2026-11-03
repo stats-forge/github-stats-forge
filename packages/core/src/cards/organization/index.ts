@@ -16,7 +16,7 @@ import { orgCardLocales } from './locales.ts';
 
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.standard;
 /** How far a stat row is translated into the card; see `createTextNode`. */
-const STAT_ROW_X = 25;
+const STAT_ROW_X = CARD_STYLE.padding.x;
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
 const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */

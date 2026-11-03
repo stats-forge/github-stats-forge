@@ -227,7 +227,7 @@ describe('Test renderStatsCard', () => {
     for (const id of renderStatsCard.OPTIONS.hide) {
       const value = screen.getByTestId(id);
       // The default 500 wide, less the padding, the row offset and the ring's gutter.
-      expect(value).toHaveAttribute('x', '330');
+      expect(value).toHaveAttribute('x', '344');
       expect(value).toHaveAttribute('text-anchor', 'end');
     }
   });

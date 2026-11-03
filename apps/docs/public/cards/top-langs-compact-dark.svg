@@ -126,7 +126,7 @@
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="299" stroke="#ff7a1a4d" fill="#16100d" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="299" fill="url(#heat-glow)" />
   <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h271a14 14 0 0 1 14 14v26.5h-299z" fill="url(#heat-band)" />
-  <g data-testid="card-title" transform="translate(25, 25)">
+  <g data-testid="card-title" transform="translate(18, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M4.72 3.22a.75.75 0 0 1 1.06 1.06L2.06 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L.47 8.53a.75.75 0 0 1 0-1.06Zm6.56 0a.75.75 0 1 0-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06Z" />
@@ -138,19 +138,19 @@
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="242.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 50)">
-    <svg data-testid="lang-items" x="25">
+    <svg data-testid="lang-items" x="18">
       <mask id="rect-mask">
-        <rect x="0" y="0" width="250" height="8" fill="white" rx="5" />
+        <rect x="0" y="0" width="264" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="65.58" height="8" fill="#dea584" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="65.58" y="0" width="48.22" height="8" fill="#3178c6" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="113.8" y="0" width="43.59" height="8" fill="#00ADD8" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="157.39" y="0" width="24.85" height="8" fill="#3572A5" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="182.23999999999998" y="0" width="18.26" height="8" fill="#DA5B0B" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="200.49999999999997" y="0" width="11.19" height="8" fill="#ff3e00" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="211.68999999999997" y="0" width="10.16" height="8" fill="#000080" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="221.84999999999997" y="0" width="19.509999999999998" height="8" fill="#6e4a7e" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="231.35999999999996" y="0" width="18.64" height="8" fill="#858585" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="69.25" height="8" fill="#dea584" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="69.25" y="0" width="50.92" height="8" fill="#3178c6" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="120.17" y="0" width="46.03" height="8" fill="#00ADD8" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="166.2" y="0" width="26.25" height="8" fill="#3572A5" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="192.45" y="0" width="19.28" height="8" fill="#DA5B0B" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="211.73" y="0" width="11.81" height="8" fill="#ff3e00" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="223.54" y="0" width="10.73" height="8" fill="#000080" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="234.26999999999998" y="0" width="10.05" height="8" fill="#6e4a7e" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="244.32" y="0" width="19.69" height="8" fill="#858585" />
       <g transform="translate(0, 25)">
         <g>
           <g>

@@ -148,7 +148,8 @@ const createProgressTextNode = ({
   index: number;
 }): MarkupElement => {
   const staggerDelay = (index + 3) * 150;
-  const paddingRight = hideValues ? CARD_STYLE.padding.x * 2 : 95;
+  // the widest value, `99.99%`, ends at the padding
+  const paddingRight = CARD_STYLE.padding.x * 2 + (hideValues ? 0 : 48);
   const progressTextX = width - paddingRight + 10;
   const progressWidth = width - paddingRight;
 
@@ -332,7 +333,7 @@ const renderCompactLayout = (
   valueFormat: TopLangValueFormat = 'percent',
   hideValues?: boolean,
 ): Array<Child> => {
-  const paddingRight = 50;
+  const paddingRight = CARD_STYLE.padding.x * 2;
   const offsetWidth = width - paddingRight;
   // progressOffset holds the previous language's width and used to offset the next language
   // so that we can stack them one after another, like this: [--][----][---]

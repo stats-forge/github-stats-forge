@@ -121,7 +121,7 @@
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="399" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="399" fill="url(#heat-glow)" />
   <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h371a14 14 0 0 1 14 14v26.5h-399z" fill="url(#heat-band)" />
-  <g data-testid="card-title" transform="translate(25, 25)">
+  <g data-testid="card-title" transform="translate(18, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path fill-rule="evenodd" d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z" />
@@ -133,8 +133,8 @@
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="234" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 50)">
-    <text class="description" x="25" y="-5"><tspan dy="1.2em" x="25">Tempers flaky test suites 🔥 reruns them, quarantines the</tspan><tspan dy="1.2em" x="25">stubborn ones and reports the tests that only fail on Fridays.</tspan></text>
-    <g transform="translate(25, 42)">
+    <text class="description" x="18" y="-5"><tspan dy="1.2em" x="18">Tempers flaky test suites 🔥 reruns them, quarantines the</tspan><tspan dy="1.2em" x="18">stubborn ones and reports the tests that only fail on Fridays.</tspan></text>
+    <g transform="translate(18, 42)">
       <g class="topic">
         <g data-testid="topic" transform="translate(0, 0)">
           <rect width="51" height="18" rx="9" ry="9" />
@@ -154,7 +154,7 @@
         </g>
       </g>
     </g>
-    <g transform="translate(30, 86)">
+    <g transform="translate(23, 86)">
       <g>
         <g data-testid="primary-lang">
           <circle data-testid="lang-color" cx="0" cy="-5" r="6" fill="#dea584" />

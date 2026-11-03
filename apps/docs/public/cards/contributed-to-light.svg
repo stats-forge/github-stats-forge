@@ -130,7 +130,7 @@
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
   <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
-  <g data-testid="card-title" transform="translate(25, 25)">
+  <g data-testid="card-title" transform="translate(18, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path fill-rule="evenodd" d="M5.45 5.154A4.25 4.25 0 0 0 9.25 7.5h1.378a2.251 2.251 0 1 1 0 1.5H9.25A5.734 5.734 0 0 1 5 7.123v3.505a2.25 2.25 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.95-.218ZM4.25 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm8.5-4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM5 3.25a.75.75 0 1 0 0 .005V3.25Z" />
@@ -142,16 +142,16 @@
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="405.4" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 50)">
-    <g data-testid="contributed-to-body" transform="translate(25, 0)">
+    <g data-testid="contributed-to-body" transform="translate(18, 0)">
       <g class="stagger" style="animation-delay: 450ms" transform="translate(0, 10)">
         <text class="repo-name" data-testid="repo-name" x="0" y="0">forge-guild/crucible</text>
-        <svg width="130" x="262" y="-9">
+        <svg width="130" x="276" y="-9">
           <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="130" height="8" />
           <svg data-testid="lang-progress" width="100%">
             <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 450ms;" />
           </svg>
         </svg>
-        <text class="count" data-testid="repo-contributions" x="450" y="0" text-anchor="end">383</text>
+        <text class="count" data-testid="repo-contributions" x="464" y="0" text-anchor="end">383</text>
         <g data-testid="year-strip" transform="translate(0, 8)">
           <rect data-testid="year-off" class="year-off" x="0" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-on" class="year-on" x="10" y="0" width="7" height="7" rx="1" ry="1" />
@@ -167,13 +167,13 @@
       </g>
       <g class="stagger" style="animation-delay: 600ms" transform="translate(0, 48)">
         <text class="repo-name" data-testid="repo-name" x="0" y="0">forge-guild/hearth</text>
-        <svg width="130" x="262" y="-9">
+        <svg width="130" x="276" y="-9">
           <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="130" height="8" />
           <svg data-testid="lang-progress" width="44.64751958224543%">
             <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 600ms;" />
           </svg>
         </svg>
-        <text class="count" data-testid="repo-contributions" x="450" y="0" text-anchor="end">171</text>
+        <text class="count" data-testid="repo-contributions" x="464" y="0" text-anchor="end">171</text>
         <g data-testid="year-strip" transform="translate(0, 8)">
           <rect data-testid="year-off" class="year-off" x="0" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="10" y="0" width="7" height="7" rx="1" ry="1" />
@@ -189,13 +189,13 @@
       </g>
       <g class="stagger" style="animation-delay: 750ms" transform="translate(0, 86)">
         <text class="repo-name" data-testid="repo-name" x="0" y="0">tidewater/harbor</text>
-        <svg width="130" x="262" y="-9">
+        <svg width="130" x="276" y="-9">
           <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="130" height="8" />
           <svg data-testid="lang-progress" width="35.24804177545692%">
             <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
           </svg>
         </svg>
-        <text class="count" data-testid="repo-contributions" x="450" y="0" text-anchor="end">135</text>
+        <text class="count" data-testid="repo-contributions" x="464" y="0" text-anchor="end">135</text>
         <g data-testid="year-strip" transform="translate(0, 8)">
           <rect data-testid="year-off" class="year-off" x="0" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="10" y="0" width="7" height="7" rx="1" ry="1" />
@@ -211,13 +211,13 @@
       </g>
       <g class="stagger" style="animation-delay: 900ms" transform="translate(0, 124)">
         <text class="repo-name" data-testid="repo-name" x="0" y="0">cobalt-collective/kiln</text>
-        <svg width="130" x="262" y="-9">
+        <svg width="130" x="276" y="-9">
           <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="130" height="8" />
           <svg data-testid="lang-progress" width="20.887728459530024%">
             <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
           </svg>
         </svg>
-        <text class="count" data-testid="repo-contributions" x="450" y="0" text-anchor="end">80</text>
+        <text class="count" data-testid="repo-contributions" x="464" y="0" text-anchor="end">80</text>
         <g data-testid="year-strip" transform="translate(0, 8)">
           <rect data-testid="year-off" class="year-off" x="0" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-off" class="year-off" x="10" y="0" width="7" height="7" rx="1" ry="1" />
@@ -233,13 +233,13 @@
       </g>
       <g class="stagger" style="animation-delay: 1050ms" transform="translate(0, 162)">
         <text class="repo-name" data-testid="repo-name" x="0" y="0">lumen-labs/prism-ui</text>
-        <svg width="130" x="262" y="-9">
+        <svg width="130" x="276" y="-9">
           <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="130" height="8" />
           <svg data-testid="lang-progress" width="18.27676240208877%">
             <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1050ms;" />
           </svg>
         </svg>
-        <text class="count" data-testid="repo-contributions" x="450" y="0" text-anchor="end">70</text>
+        <text class="count" data-testid="repo-contributions" x="464" y="0" text-anchor="end">70</text>
         <g data-testid="year-strip" transform="translate(0, 8)">
           <rect data-testid="year-on" class="year-on" x="0" y="0" width="7" height="7" rx="1" ry="1" />
           <rect data-testid="year-on" class="year-on" x="10" y="0" width="7" height="7" rx="1" ry="1" />

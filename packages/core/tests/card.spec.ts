@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/dom';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { CARD_STYLE } from '../src/common/brand.ts';
 import { Card, titleFits } from '../src/common/Card.ts';
 import { HEAT_PAINT, getCardColors } from '../src/common/color.ts';
 import { icons } from '../src/common/icons.ts';
@@ -64,8 +65,8 @@ describe(Card, () => {
   });
 
   it.each([
-    { icon: true, room: 225 },
-    { icon: false, room: 250 },
+    { icon: true, room: 300 - 2 * CARD_STYLE.padding.x - 25 },
+    { icon: false, room: 300 - 2 * CARD_STYLE.padding.x },
   ])(
     'should shrink a title too long for the card to fill its room (icon $icon)',
     ({ icon, room }) => {
@@ -105,7 +106,7 @@ describe(Card, () => {
   it('should count a title as fitting while it shrinks no further than 16px', () => {
     const title = 'Most Used Languages';
     // padding on both sides, the icon's column, then the semibold width at 16px
-    const at16 = 50 + 25 + (measureText(title, 18) * 1.1 * 16) / 18;
+    const at16 = 2 * CARD_STYLE.padding.x + 25 + (measureText(title, 18) * 1.1 * 16) / 18;
 
     expect(titleFits(title, Math.ceil(at16) + 1)).toBe(true);
     expect(titleFits(title, Math.floor(at16) - 1)).toBe(false);
@@ -136,7 +137,10 @@ describe(Card, () => {
     );
 
     draw(blank({ width: 200, title: 'A title far too long for a card this narrow' }).render(``));
-    expect(screen.getByTestId('title-accent')).toHaveAttribute('width', '150');
+    expect(screen.getByTestId('title-accent')).toHaveAttribute(
+      'width',
+      String(200 - 2 * CARD_STYLE.padding.x),
+    );
   });
 
   it('should paint the title with the heat and keep the icon out of it', () => {
@@ -290,7 +294,7 @@ describe(Card, () => {
   it('should have less height after title is hidden', () => {
     const card = blank({ height: 200, hideTitle: true });
 
-    expect(draw(card.render(``))).toHaveAttribute('height', '175');
+    expect(draw(card.render(``))).toHaveAttribute('height', '162');
   });
 
   it('main-card-body should have proper when title is visible', () => {
@@ -303,7 +307,7 @@ describe(Card, () => {
     const card = blank({ height: 200, hideTitle: true });
 
     draw(card.render(``));
-    expect(screen.queryByTestId('main-card-body')).toHaveAttribute('transform', 'translate(0, 25)');
+    expect(screen.queryByTestId('main-card-body')).toHaveAttribute('transform', 'translate(0, 12)');
   });
 
   it('should render with correct colors', () => {

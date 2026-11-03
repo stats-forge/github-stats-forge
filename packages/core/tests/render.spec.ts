@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
+import { CARD_STYLE } from '../src/common/brand.ts';
 import {
   createLanguageNode,
   createProgressNode,
@@ -116,6 +117,15 @@ describe(renderError, () => {
     expect(screen.getByTestId('message').children[1]).toHaveTextContent(
       exactly('Secondary Message'),
     );
+  });
+
+  it('should sit its text on the side padding every card uses', () => {
+    document.body.innerHTML = renderError({ message: 'Nope', secondaryMessage: 'Again' });
+
+    const x = String(CARD_STYLE.padding.x);
+    for (const text of document.querySelectorAll('text, tspan')) {
+      expect(text).toHaveAttribute('x', x);
+    }
   });
 
   it('points a reader at this project, on its own line', () => {
