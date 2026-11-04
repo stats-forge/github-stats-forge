@@ -281,7 +281,7 @@ describe(fetchOrgActivity, () => {
   });
 
   it('rejects a malformed login before sending anything', async () => {
-    await expect(fetchOrgActivity({ org: '-nope' }, config)).rejects.toBeInstanceOf(CardError);
+    await expect(fetchOrgActivity({ org: 'no_pe' }, config)).rejects.toBeInstanceOf(CardError);
     expect(mock.history.post).toHaveLength(0);
   });
 

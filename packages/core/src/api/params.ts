@@ -279,7 +279,7 @@ const patternParam = (
 const safeParam = patternParam('unsafe', SAFE_PATTERN);
 
 /**
- * A GitHub login, stricter than `safeParam`: no leading, trailing or doubled hyphen.
+ * A GitHub login, stricter than `safeParam`: no `_`, `.` or `/`, and 39 characters at most.
  * Rejected here so a malformed one is a permanent error rather than the NOT_FOUND GitHub answers.
  */
 const usernameParam = patternParam('username', GITHUB_USERNAME_PATTERN);
