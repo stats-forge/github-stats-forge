@@ -116,6 +116,9 @@ const BAND_OPACITY_BY_TONE: Readonly<Record<BackgroundTone, number>> = {
   translucent: 0.12,
 };
 
+/** How much of its band a quiet theme keeps: enough to frame the title, too little to glow. */
+const QUIET_BAND_SHARE = 0.5;
+
 /** `4d` of `ff`: the border is the heat's middle stop at this alpha. */
 const HEAT_BORDER_ALPHA = '4d';
 
@@ -144,8 +147,8 @@ const getCardColors = (name?: string): CardColors => {
     borderColor,
     ringColor: HEAT_PAINT.ring,
     progBarBgColor: PROG_BAR_BG_BY_TONE[tone],
-    glowOpacity: GLOW_OPACITY_BY_TONE[tone],
-    bandOpacity: BAND_OPACITY_BY_TONE[tone],
+    glowOpacity: 'quiet' in theme ? 0 : GLOW_OPACITY_BY_TONE[tone],
+    bandOpacity: BAND_OPACITY_BY_TONE[tone] * ('quiet' in theme ? QUIET_BAND_SHARE : 1),
   };
 };
 

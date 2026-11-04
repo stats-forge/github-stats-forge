@@ -3,10 +3,12 @@ import { describe, expect, it } from 'vitest';
 
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
+import { getCardColors } from '../src/common/color.ts';
+import { getLanguageColor } from '../src/common/languageColors.ts';
 import { measureText } from '../src/common/text.ts';
 import type { WakaTimeData } from '../src/fetchers/types.ts';
 
-import { draw, exactly, xOf } from './_card.ts';
+import { cssValue, draw, exactly, xOf } from './_card.ts';
 import { wakaTimeData } from './_wakatime.ts';
 
 /** @returns Where a compact label's ink ends across the card. */
@@ -16,6 +18,76 @@ describe('Test Render WakaTime Card', () => {
   it('should render correctly', () => {
     const card = renderWakatimeCard(wakaTimeData.data);
     expect(card).toMatchSnapshot();
+  });
+
+  it.each(['normal', 'compact'] as const)(
+    "should lead the %s layout with the range's total and its daily average",
+    (layout) => {
+      const card = draw(renderWakatimeCard(wakaTimeData.data, { layout }));
+
+      expect(screen.getByTestId('total')).toHaveTextContent(exactly('22 hrs 40 mins'));
+      expect(screen.getByTestId('daily-average')).toHaveTextContent(exactly('4 hrs 32 mins a day'));
+      expect(card.querySelector('desc')).toHaveTextContent(
+        /^22 hrs 40 mins, 4 hrs 32 mins a day\. /u,
+      );
+    },
+  );
+
+  it('should total without Other once Other is hidden', () => {
+    const card = draw(renderWakatimeCard(wakaTimeData.data, { hide_langs: ['other'] }));
+
+    expect(screen.getByTestId('total')).toHaveTextContent(exactly('22 hrs 21 mins'));
+    expect(screen.getByTestId('daily-average')).toHaveTextContent(exactly('4 hrs 28 mins a day'));
+    expect(card.querySelector('desc')).toHaveTextContent(
+      /^22 hrs 21 mins, 4 hrs 28 mins a day\. /u,
+    );
+  });
+
+  it('should keep the daily average in the description alone on a card too narrow to draw it', () => {
+    const card = draw(renderWakatimeCard(wakaTimeData.data, { card_width: 250 }));
+
+    expect(screen.getByTestId('total')).toBeInTheDocument();
+    expect(screen.queryByTestId('daily-average')).not.toBeInTheDocument();
+    expect(card.querySelector('desc')).toHaveTextContent(
+      /^22 hrs 40 mins, 4 hrs 32 mins a day\. /u,
+    );
+  });
+
+  it('should fit its headline into the floor rather than stack it on top', () => {
+    const [first] = wakaTimeData.data.languages;
+    const card = draw(
+      renderWakatimeCard({ ...wakaTimeData.data, languages: first ? [first] : [] }),
+    );
+
+    expect(screen.getByTestId('headline')).toBeInTheDocument();
+    expect(card).toHaveAttribute('height', '150');
+  });
+
+  it('should draw no headline when there is no activity to total', () => {
+    const card = draw(renderWakatimeCard({ ...wakaTimeData.data, languages: [] }));
+
+    expect(screen.queryByTestId('headline')).not.toBeInTheDocument();
+    expect(card).toHaveAttribute('height', '150');
+  });
+
+  it("should paint the compact chart in GitHub's language colors", () => {
+    draw(renderWakatimeCard(wakaTimeData.data, { layout: 'compact' }));
+
+    const names = screen
+      .getAllByTestId('lang-name')
+      .map((label) => label.textContent.split(' - ')[0]);
+    const segments = screen.getAllByTestId('lang-progress');
+    for (const [index, segment] of segments.entries()) {
+      expect(segment).toHaveAttribute('fill', getLanguageColor(names[index] ?? ''));
+    }
+  });
+
+  it("should draw the bars' track in the theme's track color, not the text's", () => {
+    draw(renderWakatimeCard(wakaTimeData.data, { theme: 'ember_dark' }));
+
+    expect(cssValue('.progress-background', 'fill')).toBe(
+      getCardColors('ember_dark').progBarBgColor,
+    );
   });
 
   it('should render correctly with compact layout', () => {

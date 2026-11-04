@@ -13,6 +13,8 @@ interface Theme {
   text_color: string;
   bg_color: string;
   border_color?: string;
+  /** No corner glow and a fainter band: the calmer look of the original palettes. */
+  quiet?: true;
 }
 
 /** Collection of available themes. `transparent` alone reads on either README. */
@@ -84,6 +86,56 @@ const themes = {
     text_color: 'cdd9e5',
     bg_color: '22272e',
     border_color: '444c56',
+  },
+  // The original palettes, one color for the whole heat, quiet for a README that wants less fire.
+  classic: {
+    heat: ['2f80ed', '2f80ed', '2f80ed'],
+    text_color: '434d58',
+    bg_color: 'fffefe',
+    border_color: 'e4e2e2',
+    quiet: true,
+  },
+  graywhite: {
+    heat: ['24292e', '24292e', '24292e'],
+    text_color: '24292e',
+    bg_color: 'ffffff',
+    border_color: 'e4e2e2',
+    quiet: true,
+  },
+  gruvbox_light: {
+    heat: ['b57614', 'b57614', 'b57614'],
+    text_color: '427b58',
+    bg_color: 'fbf1c7',
+    border_color: 'ebdbb2',
+    quiet: true,
+  },
+  gruvbox: {
+    heat: ['fabd2f', 'fabd2f', 'fabd2f'],
+    text_color: '8ec07c',
+    bg_color: '282828',
+    border_color: '3c3836',
+    quiet: true,
+  },
+  solarized_light: {
+    heat: ['268bd2', '268bd2', '268bd2'],
+    text_color: '859900',
+    bg_color: 'fdf6e3',
+    border_color: 'eee8d5',
+    quiet: true,
+  },
+  solarized_dark: {
+    heat: ['268bd2', '268bd2', '268bd2'],
+    text_color: '859900',
+    bg_color: '002b36',
+    border_color: '073642',
+    quiet: true,
+  },
+  nord: {
+    heat: ['81a1c1', '81a1c1', '81a1c1'],
+    text_color: 'd8dee9',
+    bg_color: '2e3440',
+    border_color: '3b4252',
+    quiet: true,
   },
   // Text halfway between GitHub's light and dark greys, so it reads on whichever page shows through.
   transparent: {

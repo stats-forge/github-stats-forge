@@ -21,6 +21,8 @@ The one card that has nothing to do with GitHub: it reads a public
 The profile has to be public: switch on "Display coding activity publicly" in your WakaTime
 settings first.
 
+It leads with the range's total and its daily average, then splits that time by language.
+
 ## Options
 
 | Option          | Values             | What it does                                    |

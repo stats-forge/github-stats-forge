@@ -41,6 +41,16 @@ describe(getCardColors, () => {
   });
 });
 
+describe('quiet themes', () => {
+  it('should drop the glow and halve the band, against the same tone in the forge', () => {
+    const quiet = getCardColors('classic');
+    const forge = getCardColors('ember_light');
+    expect(quiet.glowOpacity).toBe(0);
+    expect(quiet.bandOpacity).toBeCloseTo(forge.bandOpacity / 2);
+    expect(getCardColors('nord').glowOpacity).toBe(0);
+  });
+});
+
 describe(getLightDarkColors, () => {
   it('should follow the viewer in ember when no theme is named', () => {
     const { lightColors, darkColors } = getLightDarkColors({});
