@@ -24,7 +24,7 @@ const RANK_ONLY_CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
 
 const STAT_FONT_SIZE = CARD_STYLE.fontSize.body;
 /** How far a stat row is translated into the card; see `createTextNode`. */
-const STAT_ROW_X = 25;
+const STAT_ROW_X = CARD_STYLE.padding.x;
 /** Room the rank ring needs at the right edge, so a value never runs into it. */
 const RANK_GUTTER = 120;
 /** The ring's own `cx`, which its group's translation has to make up for. */
@@ -173,8 +173,11 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const fittedWidth = hide_rank
     ? Math.max(
         defaultCardWidth,
-        clampValue(50 /* padding */ + measureText(cardTitle) * 2, CARD_MIN_WIDTH, Infinity) +
-          iconWidth,
+        clampValue(
+          2 * CARD_STYLE.padding.x + measureText(cardTitle) * 2,
+          CARD_MIN_WIDTH,
+          Infinity,
+        ) + iconWidth,
       )
     : defaultCardWidth;
   const width = card_width ? (Number.isNaN(card_width) ? fittedWidth : card_width) : fittedWidth;
@@ -251,6 +254,9 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     return center + RANK_CIRCLE_CX_OFFSET;
   };
 
+  // The middle of the room the rows fill, so the ring centres on them rather than on the title too.
+  const bodyMiddle = (height - CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.bottom) / 2;
+
   // Conditionally rendered elements
   const rankCircle =
     !hide_rank &&
@@ -258,7 +264,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       'g',
       {
         'data-testid': 'rank-circle',
-        transform: `translate(${calculateRankXTranslation()}, ${height / 2 - 50})`,
+        transform: `translate(${calculateRankXTranslation()}, ${bodyMiddle - 8})`,
       },
       el('circle', {
         class: 'rank-circle-rim',

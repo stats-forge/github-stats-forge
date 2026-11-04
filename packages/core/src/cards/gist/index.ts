@@ -17,7 +17,7 @@ import { gistCardLocales } from './locales.ts';
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.standard;
-const X_OFFSET = 25;
+const X_OFFSET = CARD_STYLE.padding.x;
 const HEADER_MAX_LENGTH = 35;
 const DESCRIPTION_BOX_WIDTH = CARD_DEFAULT_WIDTH - 2 * X_OFFSET;
 const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
@@ -64,7 +64,10 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
   );
 
   const lineHeight = descriptionLines > 3 ? 12 : 10;
-  const height = (descriptionLines > 1 ? 120 : 110) + descriptionLines * lineHeight;
+  const height =
+    CARD_STYLE.padding.bodyOffsetY +
+    (descriptionLines > 1 ? 55 : 45) +
+    descriptionLines * lineHeight;
 
   const totalStars = kFormatter(starsCount);
   const totalForks = kFormatter(forksCount);
@@ -117,7 +120,7 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
 
   return card.render([
     descriptionSvg,
-    el('g', { transform: `translate(30, ${height - 75})` }, starAndForkCount),
+    el('g', { transform: `translate(${X_OFFSET + 5}, ${height - 65})` }, starAndForkCount),
   ]);
 };
 

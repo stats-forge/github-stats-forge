@@ -891,7 +891,7 @@ test('the frame holds its size under the shortest card', async ({ page }) => {
   expect(await height()).toBeGreaterThanOrEqual(MIN_FRAME);
 
   await setCard(page, 'gist');
-  await expect(drawnCard(page)).toHaveAttribute('height', '120');
+  await expect(drawnCard(page)).toHaveAttribute('height', '105');
   expect(await height()).toBeGreaterThanOrEqual(MIN_FRAME);
 });
 

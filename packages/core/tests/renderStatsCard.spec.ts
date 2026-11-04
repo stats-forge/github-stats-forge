@@ -2,6 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderStatsCard } from '../src/cards/stats/index.ts';
+import { CARD_STYLE } from '../src/common/brand.ts';
 import type { StatsData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -54,7 +55,7 @@ describe('Test renderStatsCard', () => {
     expect(document.querySelector('.header')).toHaveTextContent(
       exactly("Anurag Hazra's GitHub Stats"),
     );
-    expect(card).toHaveAttribute('height', '189');
+    expect(card).toHaveAttribute('height', '177');
     expect(screen.getByTestId('stars')).toHaveTextContent(exactly('100'));
     expect(screen.getByTestId('commits')).toHaveTextContent(exactly('200'));
     expect(screen.getByTestId('issues')).toHaveTextContent(exactly('300'));
@@ -97,7 +98,7 @@ describe('Test renderStatsCard', () => {
     ] as const;
     const card = draw(renderStatsCard(stats, { show: [...show] }));
 
-    expect(card).toHaveAttribute('height', '314');
+    expect(card).toHaveAttribute('height', '302');
     expect(drawnIds(ALL_STATS)).toStrictEqual([
       'stars',
       'commits',
@@ -226,7 +227,7 @@ describe('Test renderStatsCard', () => {
     for (const id of renderStatsCard.OPTIONS.hide) {
       const value = screen.getByTestId(id);
       // The default 500 wide, less the padding, the row offset and the ring's gutter.
-      expect(value).toHaveAttribute('x', '330');
+      expect(value).toHaveAttribute('x', '344');
       expect(value).toHaveAttribute('text-anchor', 'end');
     }
   });
@@ -301,6 +302,20 @@ describe('Test renderStatsCard', () => {
     const radius = Number(rim?.getAttribute('r'));
 
     expect(ringCenter - radius - valuesEnd).toBeCloseTo(width - (ringCenter + radius));
+  });
+
+  it('should center the rank ring on the stat rows', () => {
+    draw(renderStatsCard(stats));
+
+    const rows = [...document.querySelectorAll('.stagger')];
+    expect(rows).toHaveLength(5);
+    const lastRowY = Math.max(...rows.map((row) => translateOf(row.parentElement).y));
+    const rowsMiddle = (lastRowY + CARD_STYLE.statRowInk) / 2;
+    const ringMiddle =
+      translateOf(screen.getByTestId('rank-circle')).y +
+      Number(document.querySelector('.rank-circle-rim')?.getAttribute('cy'));
+
+    expect(ringMiddle).toBeCloseTo(rowsMiddle);
   });
 
   it('should render default rank icon with level A+', () => {

@@ -17,15 +17,16 @@ const DEFAULT_CARD_WIDTH = CARD_STYLE.width.wide;
 const MIN_CARD_WIDTH = 250;
 const COMPACT_LAYOUT_MIN_WIDTH = 400;
 const LINE_HEIGHT = 25;
-/**
- * The compact layout's own floor: the body offset, one row of ink and `CARD_STYLE.padding.bottom`,
- * with the rows themselves added on top.
- */
-const COMPACT_LAYOUT_BASE_HEIGHT = 86;
+/** How far the compact layout's bar and first legend row reach below the body's top. */
+const COMPACT_LAYOUT_INK = 10;
+/** The compact layout's floor, with the legend rows added on top. */
+const COMPACT_LAYOUT_BASE_HEIGHT =
+  CARD_STYLE.padding.bodyOffsetY + COMPACT_LAYOUT_INK + CARD_STYLE.padding.bottom;
 const PROGRESSBAR_PADDING = 130;
 const HIDDEN_PROGRESSBAR_PADDING = 170;
-const COMPACT_LAYOUT_PROGRESSBAR_PADDING = 25;
-const TOTAL_TEXT_WIDTH = 275;
+const COMPACT_LAYOUT_PROGRESSBAR_PADDING = CARD_STYLE.padding.x;
+/** Everything in a row but its bar: both paddings, the label column and the value. */
+const TOTAL_TEXT_WIDTH = 225 + 2 * CARD_STYLE.padding.x;
 /** Where the right column sits on a default-width card, while the left column leaves it room. */
 const COMPACT_RIGHT_X = 230;
 
@@ -56,7 +57,7 @@ interface WakaTimeOptions extends CommonCardOptions {
  * @returns No coding activity SVG node string.
  */
 const noCodingActivityNode = ({ text }: { text: string }): MarkupElement =>
-  el('text', { x: 25, y: 11, class: 'stat bold' }, text);
+  el('text', { x: CARD_STYLE.padding.x, y: 11, class: 'stat bold' }, text);
 
 /**
  * Format language value.
@@ -212,7 +213,7 @@ const createTextNode = ({
     {
       class: 'stagger',
       style: `animation-delay: ${staggerDelay}ms`,
-      transform: 'translate(25, 0)',
+      transform: `translate(${CARD_STYLE.padding.x}, 0)`,
     },
     el('text', { class: 'stat bold', y: 12.5, 'data-testid': id }, `${label}:`),
     el(

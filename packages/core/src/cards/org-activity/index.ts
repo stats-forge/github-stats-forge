@@ -18,7 +18,7 @@ import { orgActivityCardLocales } from './locales.ts';
 // the title names the organization and says it is one, which `standard` cannot hold
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.wide;
 /** How far a stat row is translated into the card; see `createTextNode`. */
-const STAT_ROW_X = 25;
+const STAT_ROW_X = CARD_STYLE.padding.x;
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
 const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */

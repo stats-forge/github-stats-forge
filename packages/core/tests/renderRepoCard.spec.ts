@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { repoCardLocales } from '../src/cards/repo/locales.ts';
+import { CARD_STYLE } from '../src/common/brand.ts';
 import { measureText } from '../src/common/text.ts';
 import type { RepositoryData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
@@ -43,8 +44,7 @@ describe('Test renderRepoCard', () => {
     expect(header).toHaveTextContent(exactly('convoychat'));
     expect(header).not.toHaveTextContent('anuraghazra');
     expect(document.querySelector('.description')).toHaveTextContent(
-      // no space between "Chat" and "App" because there's a line break there
-      'Help us take over the world! React + TS + GraphQL ChatApp',
+      exactly('Help us take over the world! React + TS + GraphQL Chat App'),
     );
     expect(screen.queryByTestId('stargazers')).toHaveTextContent(exactly('38k'));
     expect(screen.queryByTestId('forkcount')).toHaveTextContent(exactly('100'));
@@ -72,7 +72,7 @@ describe('Test renderRepoCard', () => {
       exactly('The quick brown fox jumps over the lazy dog is an'),
     );
     expect(lines[1]).toHaveTextContent(
-      exactly('English-language pangram—a sentence that contains all of'),
+      exactly('English-language pangram—a sentence that contains all of the'),
     );
   });
 
@@ -176,10 +176,10 @@ describe('Test renderRepoCard', () => {
 
   // The height follows the lines asked for, whether the description fills them or not.
   it.each([
-    ['short', repo.description, 1, '120'],
-    ['short', repo.description, 3, '150'],
-    ['long', PANGRAM, 1, '120'],
-    ['long', PANGRAM, 3, '150'],
+    ['short', repo.description, 1, '105'],
+    ['short', repo.description, 3, '135'],
+    ['long', PANGRAM, 1, '105'],
+    ['long', PANGRAM, 3, '135'],
   ])(
     'should size a %s description to description_lines_count %i',
     (_length, description, description_lines_count, height) => {
@@ -200,7 +200,7 @@ describe('Test renderRepoCard', () => {
       for (const [index, topic] of topics.entries()) {
         expect(drawn[index]).toHaveTextContent(exactly(topic));
       }
-      expect(card).toHaveAttribute('height', '166');
+      expect(card).toHaveAttribute('height', '131');
       expect(document.querySelector('desc')).toHaveTextContent('react, typescript, graphql');
     });
 
@@ -211,7 +211,7 @@ describe('Test renderRepoCard', () => {
       const card = draw(renderRepoCard(data, options));
 
       expect(screen.queryAllByTestId('topic')).toHaveLength(0);
-      expect(card).toHaveAttribute('height', '140');
+      expect(card).toHaveAttribute('height', '105');
     });
 
     it('should stop at the first topic that does not fit', () => {
@@ -259,8 +259,8 @@ describe('Test renderRepoCard', () => {
       const rows = showStats.map((id) => {
         const value = screen.getByTestId(id);
         const row = value.closest('.stagger');
-        // `-3` is the stats group, `25` the row's own offset.
-        const x = -3 + translateOf(row?.parentElement).x + 25;
+        // `-3` is the stats group, then the row's own offset.
+        const x = -3 + translateOf(row?.parentElement).x + CARD_STYLE.padding.x;
         const label = row?.querySelector('text')?.textContent ?? '';
         const valueRight = x + Number(value.getAttribute('x'));
         return {
@@ -273,7 +273,7 @@ describe('Test renderRepoCard', () => {
 
       for (const row of rows) {
         expect(row.valueLeft - row.labelRight).toBeGreaterThanOrEqual(8);
-        expect(row.valueRight).toBeLessThanOrEqual(500 - 25);
+        expect(row.valueRight).toBeLessThanOrEqual(500 - CARD_STYLE.padding.x);
       }
       // Stats fill the rows left to right: 0, 2, 4 in the first column, 1 and 3 in the second.
       const firstColumnRight = Math.max(

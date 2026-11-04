@@ -332,7 +332,7 @@ const createTextNode = ({
     {
       class: 'stagger',
       style: `animation-delay: ${staggerDelay}ms`,
-      transform: 'translate(25, 0)',
+      transform: `translate(${CARD_STYLE.padding.x}, 0)`,
     },
     link ? el('a', { href: link }, content) : content,
   );
@@ -408,15 +408,19 @@ const renderError = ({
         fill: bgColor,
         stroke: borderColor,
       }),
-      el('text', { x: 25, y: 45, class: 'text' }, 'Something went wrong!'),
+      el('text', { x: CARD_STYLE.padding.x, y: 45, class: 'text' }, 'Something went wrong!'),
       el(
         'text',
-        { 'data-testid': 'message', x: 25, y: 55, class: 'text small' },
-        el('tspan', { x: 25, dy: 18 }, message),
-        el('tspan', { x: 25, dy: 18, class: 'gray' }, secondaryMessage),
+        { 'data-testid': 'message', x: CARD_STYLE.padding.x, y: 55, class: 'text small' },
+        el('tspan', { x: CARD_STYLE.padding.x, dy: 18 }, message),
+        el('tspan', { x: CARD_STYLE.padding.x, dy: 18, class: 'gray' }, secondaryMessage),
       ),
       report !== '' &&
-        el('text', { 'data-testid': 'report', x: 25, y: 109, class: 'text small gray' }, report),
+        el(
+          'text',
+          { 'data-testid': 'report', x: CARD_STYLE.padding.x, y: 109, class: 'text small gray' },
+          report,
+        ),
     ),
   );
 };

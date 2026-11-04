@@ -93,6 +93,18 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
         stop-color: #ff2e63;
         stop-opacity: 0.147;
       }
+      .band-0 {
+        stop-color: #ffd166;
+        stop-opacity: 0.16;
+      }
+      .band-1 {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.16;
+      }
+      .band-2 {
+        stop-color: #ff2e63;
+        stop-opacity: 0.112;
+      }
       .title-icon {
         fill: #ff7a1a;
       }
@@ -151,6 +163,11 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
       <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.1" />
+      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.1" />
+      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.07" />
+    </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
       <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
       <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
@@ -159,7 +176,8 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
-  <g data-testid="card-title" transform="translate(25, 30)">
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(18, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.75.75 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z" />
@@ -170,14 +188,14 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
-  <g data-testid="main-card-body" transform="translate(0, 55)">
+  <g data-testid="main-card-body" transform="translate(0, 50)">
     <svg x="0" y="0" width="100%">
       <g>
-        <g class="stagger" style="animation-delay: 450ms" transform="translate(25, 0)">
+        <g class="stagger" style="animation-delay: 450ms" transform="translate(18, 0)">
           <text class="stat bold" y="12.5" data-testid="Other">Other:</text>
-          <text class="stat" x="355" y="12.5">19 mins</text>
-          <svg width="225" x="110" y="4">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
+          <text class="stat" x="369" y="12.5">19 mins</text>
+          <svg width="239" x="110" y="4">
+            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
             <svg data-testid="lang-progress" width="89.38%">
               <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
@@ -185,11 +203,11 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
         </g>
       </g>
       <g transform="translate(0, 25)">
-        <g class="stagger" style="animation-delay: 600ms" transform="translate(25, 0)">
+        <g class="stagger" style="animation-delay: 600ms" transform="translate(18, 0)">
           <text class="stat bold" y="12.5" data-testid="TypeScript">TypeScript:</text>
-          <text class="stat" x="355" y="12.5">1 min</text>
-          <svg width="225" x="110" y="4">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
+          <text class="stat" x="369" y="12.5">1 min</text>
+          <svg width="239" x="110" y="4">
+            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
             <svg data-testid="lang-progress" width="6.25%">
               <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>
@@ -203,7 +221,7 @@ exports[`Test Render WakaTime Card > should render correctly 1`] = `
 `;
 
 exports[`Test Render WakaTime Card > should render correctly with compact layout 1`] = `
-"<svg width="500" height="111" viewBox="0 0 500 111" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+"<svg width="500" height="97" viewBox="0 0 500 97" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">WakaTime Stats (last 7 days)</title>
   <desc id="desc-id">Other: 19 mins, TypeScript: 1 min</desc>
   <style>
@@ -295,6 +313,18 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
         stop-color: #ff2e63;
         stop-opacity: 0.147;
       }
+      .band-0 {
+        stop-color: #ffd166;
+        stop-opacity: 0.16;
+      }
+      .band-1 {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.16;
+      }
+      .band-2 {
+        stop-color: #ff2e63;
+        stop-opacity: 0.112;
+      }
       .title-icon {
         fill: #ff7a1a;
       }
@@ -353,6 +383,11 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.1" />
+      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.1" />
+      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.07" />
+    </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
       <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
       <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
@@ -361,7 +396,8 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
-  <g data-testid="card-title" transform="translate(25, 30)">
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(18, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.75.75 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z" />
@@ -372,14 +408,14 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
-  <g data-testid="main-card-body" transform="translate(0, 55)">
+  <g data-testid="main-card-body" transform="translate(0, 50)">
     <svg x="0" y="0" width="100%">
       <mask id="rect-mask">
-        <rect x="25" y="0" width="450" height="8" fill="white" rx="5" />
+        <rect x="18" y="0" width="464" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="25" y="0" width="402.21" height="8" fill="#858585" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="427.21" y="0" width="28.125" height="8" fill="#3178c6" />
-      <g transform="translate(25, 25)">
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="18" y="0" width="414.7232" height="8" fill="#858585" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="432.7232" y="0" width="29" height="8" fill="#3178c6" />
+      <g transform="translate(18, 25)">
         <circle cx="5" cy="6" r="5" fill="#858585" />
         <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 19 mins</text>
       </g>
@@ -394,7 +430,7 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
 `;
 
 exports[`Test Render WakaTime Card > should render correctly with compact layout when langs_count is set 1`] = `
-"<svg width="500" height="111" viewBox="0 0 500 111" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+"<svg width="500" height="97" viewBox="0 0 500 97" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
   <title id="title-id">WakaTime Stats (last 7 days)</title>
   <desc id="desc-id">Other: 19 mins, TypeScript: 1 min</desc>
   <style>
@@ -486,6 +522,18 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
         stop-color: #ff2e63;
         stop-opacity: 0.147;
       }
+      .band-0 {
+        stop-color: #ffd166;
+        stop-opacity: 0.16;
+      }
+      .band-1 {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.16;
+      }
+      .band-2 {
+        stop-color: #ff2e63;
+        stop-opacity: 0.112;
+      }
       .title-icon {
         fill: #ff7a1a;
       }
@@ -544,6 +592,11 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
       <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.1" />
+      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.1" />
+      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.07" />
+    </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
       <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
       <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
@@ -552,7 +605,8 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
-  <g data-testid="card-title" transform="translate(25, 30)">
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(18, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.75.75 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z" />
@@ -563,14 +617,14 @@ exports[`Test Render WakaTime Card > should render correctly with compact layout
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
-  <g data-testid="main-card-body" transform="translate(0, 55)">
+  <g data-testid="main-card-body" transform="translate(0, 50)">
     <svg x="0" y="0" width="100%">
       <mask id="rect-mask">
-        <rect x="25" y="0" width="450" height="8" fill="white" rx="5" />
+        <rect x="18" y="0" width="464" height="8" fill="white" rx="5" />
       </mask>
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="25" y="0" width="420.57" height="8" fill="#858585" />
-      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="445.57" y="0" width="29.43" height="8" fill="#3178c6" />
-      <g transform="translate(25, 25)">
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="18" y="0" width="433.65439999999995" height="8" fill="#858585" />
+      <rect mask="url(#rect-mask)" data-testid="lang-progress" x="451.65439999999995" y="0" width="30.3456" height="8" fill="#3178c6" />
+      <g transform="translate(18, 25)">
         <circle cx="5" cy="6" r="5" fill="#858585" />
         <text data-testid="lang-name" x="15" y="10" class="lang-name">Other - 19 mins</text>
       </g>
@@ -677,6 +731,18 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
         stop-color: #ff2e63;
         stop-opacity: 0.147;
       }
+      .band-0 {
+        stop-color: #ffd166;
+        stop-opacity: 0.16;
+      }
+      .band-1 {
+        stop-color: #ff7a1a;
+        stop-opacity: 0.16;
+      }
+      .band-2 {
+        stop-color: #ff2e63;
+        stop-opacity: 0.112;
+      }
       .title-icon {
         fill: #ff7a1a;
       }
@@ -735,6 +801,11 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
       <stop offset="0.7" class="heat-2" stop-color="#c8174f" stop-opacity="0.5" />
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.1" />
+      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.1" />
+      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.07" />
+    </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
       <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
       <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
@@ -743,7 +814,8 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e2470f4d" fill="#fffaf6" stroke-opacity="1" />
   <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
-  <g data-testid="card-title" transform="translate(25, 30)">
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(18, 25)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
         <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.75.75 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z" />
@@ -754,14 +826,14 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="296.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
-  <g data-testid="main-card-body" transform="translate(0, 55)">
+  <g data-testid="main-card-body" transform="translate(0, 50)">
     <svg x="0" y="0" width="100%">
       <g>
-        <g class="stagger" style="animation-delay: 450ms" transform="translate(25, 0)">
+        <g class="stagger" style="animation-delay: 450ms" transform="translate(18, 0)">
           <text class="stat bold" y="12.5" data-testid="Other">Other:</text>
-          <text class="stat" x="355" y="12.5">89.38 %</text>
-          <svg width="225" x="110" y="4">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
+          <text class="stat" x="369" y="12.5">89.38 %</text>
+          <svg width="239" x="110" y="4">
+            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
             <svg data-testid="lang-progress" width="89.38%">
               <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
@@ -769,11 +841,11 @@ exports[`Test Render WakaTime Card > should render correctly with percent displa
         </g>
       </g>
       <g transform="translate(0, 25)">
-        <g class="stagger" style="animation-delay: 600ms" transform="translate(25, 0)">
+        <g class="stagger" style="animation-delay: 600ms" transform="translate(18, 0)">
           <text class="stat bold" y="12.5" data-testid="TypeScript">TypeScript:</text>
-          <text class="stat" x="355" y="12.5">6.25 %</text>
-          <svg width="225" x="110" y="4">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="225" height="8" />
+          <text class="stat" x="369" y="12.5">6.25 %</text>
+          <svg width="239" x="110" y="4">
+            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="239" height="8" />
             <svg data-testid="lang-progress" width="6.25%">
               <rect width="100%" height="8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>

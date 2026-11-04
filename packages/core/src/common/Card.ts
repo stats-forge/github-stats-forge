@@ -83,6 +83,21 @@ const getAnimations = (): Array<CssChild> => [
 const glowEdgeOpacity = (colors: CardColors): number =>
   Math.round(colors.glowOpacity * CARD_STYLE.glow.edgeShare * 1000) / 1000;
 
+/** @returns The band's opacity where it cools into the last stop, to three places. */
+const bandEdgeOpacity = (colors: CardColors): number =>
+  Math.round(colors.bandOpacity * CARD_STYLE.band.edgeShare * 1000) / 1000;
+
+/** @returns The band's stops, classed so the dark block can recolor them. */
+const bandStops = (colors: CardColors): Array<MarkupElement> =>
+  ([0, 0.55, 1] as const).map((offset, index) =>
+    el('stop', {
+      offset,
+      class: `band-${String(index)}`,
+      'stop-color': colors.heat[index],
+      'stop-opacity': index === 2 ? bandEdgeOpacity(colors) : colors.bandOpacity,
+    }),
+  );
+
 /**
  * A heat stop. It carries the light color as an attribute, for a renderer that skips CSS,
  * and a class the dark block recolors.
@@ -122,6 +137,7 @@ const renderHeatDefs = (colors: CardColors, burns: boolean): Array<Child> => {
       heatStop(0.7, colors, 2, 0.5),
       heatStop(1, colors, 2, 0),
     ]),
+    el('linearGradient', { id: HEAT_ID.band, x1: 0, y1: 0, x2: 1, y2: 0 }, bandStops(colors)),
     el('radialGradient', { id: HEAT_ID.glow, cx: 0.95, cy: 1.05, r: 0.8 }, [
       el('stop', {
         offset: 0,
@@ -160,6 +176,12 @@ const heatStopRules = (colors: CardColors): Array<CssChild> => [
     'stop-color': colors.heat[2],
     'stop-opacity': glowEdgeOpacity(colors),
   }),
+  colors.heat.map((color, index) =>
+    rule(`.band-${String(index)}`, {
+      'stop-color': color,
+      'stop-opacity': index === 2 ? bandEdgeOpacity(colors) : colors.bandOpacity,
+    }),
+  ),
 ];
 
 /** Everything a card is drawn with; all but the title and its description have a default. */
@@ -185,8 +207,8 @@ interface CardInit {
   css?: CardCSSBuilder;
 }
 
-/** The room the title takes, which a card without a title gives back. */
-const TITLE_ROOM = CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.x;
+/** The room the title and its band take, which a card without a title gives back. */
+const TITLE_ROOM = CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.untitledBodyOffsetY;
 
 class Card {
   readonly width: number;
@@ -199,7 +221,7 @@ class Card {
   readonly css: Array<CssChild>;
   readonly darkCss: Array<CssChild>;
   readonly paddingX = CARD_STYLE.padding.x;
-  readonly paddingY = 30;
+  readonly paddingY = CARD_STYLE.padding.titleY;
   readonly titlePrefixIcon: Child;
   readonly animations: boolean;
   readonly burns: boolean;
@@ -301,12 +323,49 @@ class Card {
     );
   }
 
-  /** Where the body starts. */
+  /** Where the body starts, and so where the title band ends. */
   private get bodyOffset(): number {
     if (this.hideTitle) {
-      return CARD_STYLE.padding.x;
+      return CARD_STYLE.padding.untitledBodyOffsetY;
     }
     return CARD_STYLE.padding.bodyOffsetY;
+  }
+
+  /**
+   * The card's corner radius, capped at half the rect's sides. SVG caps `rx` and `ry` on their own
+   * axes, which turns a round corner elliptical, so the card caps the one `rx` it draws itself.
+   */
+  private get corner(): number {
+    return Math.min(this.border_radius, (this.width - 1) / 2, (this.height * 0.99) / 2);
+  }
+
+  /**
+   * The band behind the title. Its top corners follow the card's own and its bottom ones stay
+   * square, so it meets the body as an edge rather than a floating box.
+   *
+   * @returns The title band.
+   */
+  private renderTitleBand(): MarkupElement {
+    const height = this.bodyOffset - CARD_STYLE.band.gap;
+    const innerWidth = this.width - 1;
+    const r = this.corner;
+    const bandHeight = height - 0.5;
+
+    if (r <= bandHeight) {
+      return el('path', {
+        'data-testid': 'title-band',
+        d: `M0.5 ${0.5 + r}a${r} ${r} 0 0 1 ${r} ${-r}h${innerWidth - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}v${height - r - 0.5}h${-innerWidth}z`,
+        fill: `url(#${HEAT_ID.band})`,
+      });
+    }
+
+    // A corner deeper than the band: the band's sides follow the corners' arcs to its bottom.
+    const inset = Math.round((r - Math.sqrt(r * r - (r - bandHeight) ** 2)) * 100) / 100;
+    return el('path', {
+      'data-testid': 'title-band',
+      d: `M${0.5 + inset} ${height}A${r} ${r} 0 0 1 ${0.5 + r} 0.5h${innerWidth - 2 * r}A${r} ${r} 0 0 1 ${0.5 + innerWidth - inset} ${height}z`,
+      fill: `url(#${HEAT_ID.band})`,
+    });
   }
 
   /** @returns The card's heat definitions. */
@@ -363,7 +422,7 @@ class Card {
     const cardShape = {
       x: 0.5,
       y: 0.5,
-      rx: this.border_radius,
+      rx: this.corner,
       height: '99%',
       width: this.width - 1,
     };
@@ -422,6 +481,7 @@ class Card {
           ...cardShape,
           fill: `url(#${HEAT_ID.glow})`,
         }),
+        !this.hideTitle && this.renderTitleBand(),
         !this.hideTitle && this.renderTitle(shrunk ?? CARD_STYLE.fontSize.title),
         el(
           'g',

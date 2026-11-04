@@ -53,16 +53,21 @@ const CARD_STYLE = {
   /**
    * The air a card keeps at its edges.
    *
-   * `bottom` is what the last row is measured against, so it holds whatever a card's row
+   * `bottom` is what the last row's ink is measured against, so it holds whatever a card's row
    * spacing is; deriving it from that spacing instead put 33px under a top-languages card
    * against the 17px above its title.
    */
   padding: {
-    /** The card's side padding, which `Card` reads as `paddingX`. */
-    x: 25,
-    bottom: 18,
-    /** Where `Card` puts the body while the title is shown; a hidden title gives back all but `x`. */
-    bodyOffsetY: 55,
+    /** The side padding, `Card`'s `paddingX`: wider than `bottom`, as lines of text need. */
+    x: 18,
+    /** The same air as above the title's ink, so a card sits even between its edges. */
+    bottom: 12,
+    /** The title's baseline: its ink, 13px tall, starts `bottom` below the top edge. */
+    titleY: 25,
+    /** Where `Card` puts the body while the title is shown. */
+    bodyOffsetY: 50,
+    /** Where it puts the body when the title is hidden: the same air above as `bottom` below. */
+    untitledBodyOffsetY: 12,
   },
 
   /** A two-column language list, each row a dot then its label. */
@@ -74,7 +79,15 @@ const CARD_STYLE = {
   },
 
   /** How far a stat row's ink reaches below its own top: the icon box, which outruns the text. */
-  statRowInk: 16,
+  statRowInk: 15,
+
+  /** The band behind the title, filled with the heat: with the trail, what a card is known by. */
+  band: {
+    /** Clear air the band leaves between its foot and the first row of the body. */
+    gap: 9,
+    /** The last stop's share of the band's opacity, so it cools toward the right. */
+    edgeShare: 0.7,
+  },
 
   /** The glow in the card's bottom-right corner, drawn in the heat's middle and last stops. */
   glow: {

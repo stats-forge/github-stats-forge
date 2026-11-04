@@ -22,12 +22,14 @@ import { repoCardLocales } from './locales.ts';
 
 const ICON_SIZE = 16;
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.standard;
-const X_OFFSET = 25;
+const X_OFFSET = CARD_STYLE.padding.x;
 const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
 const DESCRIPTION_MAX_LINES = 3;
-/** Where a stat row starts: the stats group's `-3` plus `createTextNode`'s own `25`. */
-const STAT_ROW_X = 22;
+/** Where a stat row starts: the stats group's `-3` plus `createTextNode`'s own padding. */
+const STAT_ROW_X = CARD_STYLE.padding.x - 3;
 const STAT_LABEL_X = 23;
+/** Where the badge is anchored, so its pill, `-12` to `58` from there, ends at the padding. */
+const BADGE_ANCHOR_X = CARD_DEFAULT_WIDTH - CARD_STYLE.padding.x - 58;
 const STAT_COLUMN_GAP = 20;
 const LABEL_VALUE_GAP = 10;
 /** `measureText` reads Segoe UI; the stack's other fonts run wider. */
@@ -85,7 +87,11 @@ const getBadgeSVG = (label: string, xOffset = 0): MarkupElement => {
 
   return el(
     'g',
-    { 'data-testid': 'badge', class: 'badge', transform: `translate(${320 + xOffset}, -18)` },
+    {
+      'data-testid': 'badge',
+      class: 'badge',
+      transform: `translate(${BADGE_ANCHOR_X + xOffset}, -18)`,
+    },
     el('rect', { 'stroke-width': 1, width: 70, height: 20, x: -12, y: -14, ry: 10, rx: 10 }),
     el(
       'text',
@@ -321,11 +327,12 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       ? -7 + (Math.ceil(statItems.length / 2) + 1) * EXTRA_LINE_HEIGHT
       : 0;
   const height =
-    (descriptionLinesCount > 1 ? 120 : 110) +
+    CARD_STYLE.padding.bodyOffsetY +
+    (descriptionLinesCount > 1 ? 55 : 45) +
     descriptionLinesCount * lineHeight +
     topicsHeight +
     extraHeight;
-  const languageRowY = height - 75 - extraHeight;
+  const languageRowY = height - 65 - extraHeight;
 
   const { lightColors, darkColors } = getLightDarkColors(options);
 
@@ -363,7 +370,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     { x: 0, y: 0 },
     el(
       'g',
-      { transform: `translate(-3, ${height - 52 - extraHeight})` },
+      { transform: `translate(-3, ${height - 42 - extraHeight})` },
       flexLayout({ items: extraRows, gap: EXTRA_LINE_HEIGHT, direction: 'column' }),
     ),
   );
@@ -428,7 +435,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
           topicsRow,
         )
       : undefined,
-    el('g', { transform: `translate(30, ${languageRowY})` }, starAndForkCount),
+    el('g', { transform: `translate(${X_OFFSET + 5}, ${languageRowY})` }, starAndForkCount),
     extraItems,
   ]);
 };

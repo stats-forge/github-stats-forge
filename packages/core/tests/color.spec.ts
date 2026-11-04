@@ -18,6 +18,7 @@ describe(getCardColors, () => {
       ringColor: HEAT_PAINT.ring,
       progBarBgColor: '#ddd',
       glowOpacity: 0.17,
+      bandOpacity: 0.1,
     });
   });
 

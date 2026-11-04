@@ -155,7 +155,7 @@ describe(renderOrganizationCard, () => {
     document.body.innerHTML = renderOrganizationCard(data, { card_width: 500 });
 
     expect(document.querySelector('svg')).toHaveAttribute('width', '500');
-    expect(screen.getByTestId('stars')).toHaveAttribute('x', '450');
+    expect(screen.getByTestId('stars')).toHaveAttribute('x', '464');
   });
 
   it('describes itself for assistive technology', () => {
