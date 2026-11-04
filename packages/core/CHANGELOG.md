@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.13.1
+
+### Patch Changes
+
+- [#386](https://github.com/stats-forge/github-stats-forge/pull/386) [`05d0264`](https://github.com/stats-forge/github-stats-forge/commit/05d02642503c20ed3d1e295309810fa2d5e7aad7) - fix: calm the cards, with a fainter corner glow and title band and a tighter glow on the rank ring
+
+- [#385](https://github.com/stats-forge/github-stats-forge/pull/385) [`e9937c6`](https://github.com/stats-forge/github-stats-forge/commit/e9937c6f793c004c583183ac6d7775b31641a699) - fix: keep a card's title, rank and totals sharp in Safari on a retina screen, drawing them in one color
+
 ## 0.13.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-server
 
+## 0.8.1
+
+### Patch Changes
+
+- [#382](https://github.com/stats-forge/github-stats-forge/pull/382) [`11fb424`](https://github.com/stats-forge/github-stats-forge/commit/11fb4243863c905c15d3659bca2075c8c54305fb) - docs: draw the social preview in the ember palette
+- Updated dependencies [[`05d0264`](https://github.com/stats-forge/github-stats-forge/commit/05d02642503c20ed3d1e295309810fa2d5e7aad7), [`e9937c6`](https://github.com/stats-forge/github-stats-forge/commit/e9937c6f793c004c583183ac6d7775b31641a699)]:
+  - @stats-forge/github-stats-forge-core@0.13.1
+
 ## 0.8.0
 
 ### Minor Changes
