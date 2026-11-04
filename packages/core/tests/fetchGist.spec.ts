@@ -125,6 +125,25 @@ describe('Test fetchGist', () => {
     );
   });
 
+  it.each<[string, number, Record<string, never> | undefined]>([
+    ['a gateway timeout with an empty body', 502, undefined],
+    ['a JSON body with neither data nor errors', 200, {}],
+  ])('should answer %s as an upstream failure', async (_what, status, body) => {
+    mock.onPost(GRAPHQL).reply(status, body);
+
+    await expect(
+      fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config),
+    ).rejects.toMatchObject({ reason: 'gist_unavailable', code: 'upstream' });
+  });
+
+  it('should still let the retryer read a bad token from a reply with no envelope', async () => {
+    mock.onPost(GRAPHQL).reply(401, { message: 'Bad credentials' } satisfies { message: string });
+
+    await expect(
+      fetchGist({ id: 'bbfce31e0217a3689c8d961a356cb10d' }, config),
+    ).rejects.toMatchObject({ reason: 'tokens_rejected' });
+  });
+
   it('should throw error if id is not provided', async () => {
     // @ts-expect-error testing missing argument
     await expect(fetchGist({}, config)).rejects.toThrow(

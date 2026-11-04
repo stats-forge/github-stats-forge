@@ -82,6 +82,29 @@ type GraphQLResponse<TResult> = HttpResponse<{
   }>;
 }>;
 
+/** The `type` of the one error standing in for a reply that is no GraphQL envelope. */
+const UNREADABLE_REPLY = 'UNREADABLE_REPLY';
+
+/**
+ * GitHub gives up on a slow request with an HTML `502` page, so a reply may carry neither `data`
+ * nor `errors`; every fetcher reads `errors` first, so this makes it one.
+ *
+ * @returns The body when it is an envelope; otherwise one lone {@link UNREADABLE_REPLY} error,
+ * keeping a top-level `message`, where GitHub says a token is bad, for the retryer.
+ */
+const asEnvelope = (body: unknown): unknown => {
+  if (typeof body !== 'object' || body === null) {
+    return { errors: [{ type: UNREADABLE_REPLY }] };
+  }
+  if ('data' in body || 'errors' in body) {
+    return body;
+  }
+  if ('message' in body && typeof body.message === 'string') {
+    return { message: body.message, errors: [{ type: UNREADABLE_REPLY, message: body.message }] };
+  }
+  return { errors: [{ type: UNREADABLE_REPLY }] };
+};
+
 /**
  * @returns A fetcher `retryer` can drive.
  */
@@ -91,15 +114,21 @@ const createGraphQLFetcher =
     variables: TVariables,
     token: string,
     { fetch }: FetcherContext,
-  ): Promise<GraphQLResponse<TResult>> =>
-    httpRequest(fetch, GITHUB_GRAPHQL_API, {
-      method: 'POST',
-      headers: {
-        Authorization: `bearer ${token}`,
-        'Content-Type': 'application/json',
+  ): Promise<GraphQLResponse<TResult>> => {
+    const response = await httpRequest<GraphQLResponse<TResult>['data']>(
+      fetch,
+      GITHUB_GRAPHQL_API,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: document.text, variables }),
       },
-      body: JSON.stringify({ query: document.text, variables }),
-    });
+    );
+    return { ...response, data: asEnvelope(response.data) as GraphQLResponse<TResult>['data'] };
+  };
 
-export { createGraphQLFetcher, defaultFetch, httpRequest, withTimeout };
+export { createGraphQLFetcher, defaultFetch, httpRequest, UNREADABLE_REPLY, withTimeout };
 export type { FetcherContext, FetchLike, GraphQLResponse, HttpResponse };

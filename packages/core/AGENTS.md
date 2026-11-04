@@ -80,6 +80,9 @@ every default to the renderer (a card's default width, which only the card knows
   and whatever `from` wraps. A `not_found` is never reportable, whatever it declares: the
   constructor says so, not each entry.
 - **`ApiResult` is a union**: a host branches on `code` and `retryable`, never on the SVG.
+- **A GraphQL reply that is no envelope arrives as one `UNREADABLE_REPLY` error**, made in
+  `createGraphQLFetcher`: GitHub answers a slow request with an HTML `502`, and every fetcher reads
+  `errors` before `data`. A fetcher never guards the envelope itself.
 
 ## Generated GraphQL types
 

@@ -89,12 +89,6 @@ const fetchOrgCalendar = async (
     config,
   );
 
-  // GitHub gives up on a slow search with a 502 page rather than JSON
-  const envelope: unknown = res.data;
-  if (envelope === null || typeof envelope !== 'object') {
-    throw CardError.because('graphql_failed', { subject: 'organization calendar' });
-  }
-
   if (res.data.errors) {
     // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
     // words for a user query, so this endpoint's own wording is thrown instead.
