@@ -1,16 +1,33 @@
 import { unified } from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
+import type { StarlightUserConfig } from '@astrojs/starlight/types';
 import { defineConfig } from 'astro/config';
 import starlightLinksValidator from 'starlight-links-validator';
 
-import { BASE, PAGES_SITE, SERVED_BY_INSTANCE } from './src/constants.ts';
+import { BASE, isExcludedWhenSelfHosted, PAGES_SITE, SERVED_BY_INSTANCE } from './src/constants.ts';
 import { rehypeCardPreviews } from './src/plugins/rehype-card-previews.ts';
 import { remarkCliDemo } from './src/plugins/remark-cli-demo.ts';
+import { remarkExcludeWhenSelfHosted } from './src/plugins/remark-exclude-when-self-hosted.ts';
 import { remarkFetcherReference } from './src/plugins/remark-fetcher-reference.ts';
 import { remarkResolveLinks } from './src/plugins/remark-resolve-links.ts';
 
 // one file is both the favicon and the header logo; the blue twin is what an instance wears
 const icon = SERVED_BY_INSTANCE ? 'favicon-self-hosted.svg' : 'favicon.svg';
+
+type SidebarEntry = NonNullable<StarlightUserConfig['sidebar']>[number];
+
+/** @returns The entries, less the pages excluded when self-hosted and any group left empty. */
+const present = (entries: Array<SidebarEntry>): Array<SidebarEntry> =>
+  entries.flatMap((entry): Array<SidebarEntry> => {
+    if (typeof entry === 'string') {
+      return isExcludedWhenSelfHosted(entry) ? [] : [entry];
+    }
+    if ('items' in entry) {
+      const items = present(entry.items);
+      return items.length === 0 ? [] : [{ ...entry, items }];
+    }
+    return [entry];
+  });
 
 export default defineConfig({
   // Pages stays canonical even when the image serves a copy; `Head.astro` adds the base it lacks
@@ -30,7 +47,12 @@ export default defineConfig({
   markdown: {
     // Starlight appends its own plugins to whatever processor is configured here.
     processor: unified({
-      remarkPlugins: [remarkCliDemo, remarkFetcherReference, remarkResolveLinks],
+      remarkPlugins: [
+        remarkExcludeWhenSelfHosted,
+        remarkCliDemo,
+        remarkFetcherReference,
+        remarkResolveLinks,
+      ],
       rehypePlugins: [rehypeCardPreviews],
     }),
   },
@@ -71,7 +93,7 @@ export default defineConfig({
           href: 'https://www.npmjs.com/org/stats-forge',
         },
       ],
-      sidebar: [
+      sidebar: present([
         { label: 'Overview', link: '/docs/' },
         {
           label: 'Cards',
@@ -141,7 +163,7 @@ export default defineConfig({
             'docs/fetchers/fetch-repo-user-stats',
           ],
         },
-      ],
+      ]),
     }),
   ],
 });

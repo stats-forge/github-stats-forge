@@ -25,6 +25,14 @@ carries a server changeset.
   gets the repository name and no server, the image `/` and `SITE_SERVER=true`. `src/constants.ts`
   reads them **in Node only**; the one shipped script reads `import.meta.env.BASE_URL` and a
   `data-source` attribute.
+  - **The library's, the CLI's and the fetchers' pages are excluded when self-hosted**, by
+    `isExcludedWhenSelfHosted` in `src/constants.ts`, read by `content.config.ts`, the sidebar and
+    the anvil.
+  - **A link to an excluded page keeps its words and loses its link, never pointing at Pages**: an
+    instance documents only the version it runs. `remark-resolve-links.ts` unwraps it.
+  - **What lies between `<!-- exclude-when-self-hosted -->` and its closing marker is cut too**, by
+    `remark-exclude-when-self-hosted.ts`, inline or around blocks; the landing page's "Four ways"
+    uses it.
 - **`astro sync` runs before anything type-aware** ([#50]); `check-all` and CI start with
   `docs:sync`. Green locally, red in CI? Delete `apps/docs/.astro` and `packages/*/build`, and rerun.
 - **A workflow that commits sets `LEFTHOOK: 0`**: see "Workflows That Commit" in

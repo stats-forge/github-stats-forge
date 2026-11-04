@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 import type { RemarkPlugin } from '@astrojs/markdown-remark';
 
-import { BASE } from '../constants.ts';
+import { BASE, isExcludedWhenSelfHosted } from '../constants.ts';
 
 const CONTENT_DIR = fileURLToPath(new URL('../content/docs/', import.meta.url));
 
@@ -52,9 +52,21 @@ export const remarkResolveLinks: RemarkPlugin = () => (tree, file) => {
   type Node = (typeof tree.children)[number];
 
   const walk = (children: Array<Node>): void => {
-    for (const child of children) {
+    // backwards, so unwrapping a link leaves the indexes still to visit alone
+    for (let index = children.length - 1; index >= 0; index -= 1) {
+      const child = children[index];
+      if (child === undefined) {
+        continue;
+      }
       if (child.type === 'link' && isRelative(child.url)) {
         const resolved = new URL(child.url, base);
+        // a page excluded when self-hosted keeps its words but loses the link
+        if (
+          isExcludedWhenSelfHosted(resolved.pathname.slice(BASE.length).replaceAll(/^\/|\/$/g, ''))
+        ) {
+          children.splice(index, 1, ...child.children);
+          continue;
+        }
         child.url = `${resolved.pathname}${resolved.search}${resolved.hash}`;
       }
 

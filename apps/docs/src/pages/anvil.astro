@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 
 import { CARDS } from '../anvil/cards.ts';
 import NewTabLink from '../components/NewTabLink.astro';
-import { BASE, SERVED_BY_INSTANCE } from '../constants.ts';
+import { BASE, isExcludedWhenSelfHosted, SERVED_BY_INSTANCE } from '../constants.ts';
 
 /*
  * Imported here rather than listed in `customCss`, so they serve this page alone, and unscoped
@@ -175,7 +175,14 @@ if (first === undefined) {
         <pre data-anvil="output"></pre>
         <p class="anvil-note">
           Render it with <code data-anvil="command"></code>, or pass the same options to
-          {' '}<NewTabLink href={`${BASE}/docs/usage/library/`}>the library</NewTabLink>.
+          {' '}
+          {
+            isExcludedWhenSelfHosted('docs/usage/library') ? (
+              'the library'
+            ) : (
+              <NewTabLink href={`${BASE}/docs/usage/library/`}>the library</NewTabLink>
+            )
+          }.
         </p>
       </div>
     </div>
