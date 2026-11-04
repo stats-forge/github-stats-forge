@@ -82,7 +82,7 @@
 .card-gallery {
   column-gap: 1.25rem;
   columns: 2 22rem;
-  margin-block-start: 2.5rem;
+  margin-block-start: 1rem;
 }
 
 .card-gallery > p {
