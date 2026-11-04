@@ -134,6 +134,9 @@ check of the anvil in a browser**.
 - **`e2e/serve.ts` serves it** (`astro preview` always daemonizes), copying `static.ts`'s table and
   guard so the site does not depend on the server. Keep the two agreed.
 - **Take the newest `@playwright/test` older than `minimumReleaseAge`**, never an exclusion.
+- **CI's docs job runs in `mcr.microsoft.com/playwright`, tagged with `@playwright/test`'s version**:
+  the image ships the browser. Renovate reads the tag as that package, so both move in one PR;
+  bumping by hand, move both, or the browser goes missing.
 - **`excludeFiles: ['apps/docs/e2e/**']` keeps vitest's rules off it** ([#132]).
 - **One test asserts the privacy claim**, saying first which source draws: it records every request
   while drawing every card, and fails on any leaving the origin **or reaching `/api/**`**. It
