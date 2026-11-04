@@ -107,6 +107,8 @@ export {
   GIST_REPLY,
   RATE_LIMITED_REPLY,
   UPSTREAM_ERROR_REPLY,
+  fakeGitHub,
   optionsAnswering,
   testOptions,
 };
+export type { FakeGitHub };

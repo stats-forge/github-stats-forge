@@ -43,6 +43,22 @@ const parseInteger = (value: string | null | undefined): number | undefined => {
 };
 
 /**
+ * @returns How long a success keeps, `0` when caching is off for this deployment.
+ */
+const successTtl = (
+  /** `cache_seconds`, or the `CACHE_SECONDS` default; `0` turns caching off entirely. */
+  requested: number | undefined,
+): number => {
+  if (requested === 0) {
+    return 0;
+  }
+  if (requested === undefined) {
+    return TTL.success;
+  }
+  return Math.min(Math.max(requested, MIN_CACHE_SECONDS), MAX_CACHE_SECONDS);
+};
+
+/**
  * How long this answer keeps. Only a success is negotiable: an error's TTL is what stops a
  * broken query from spending a rate-limit point per view.
  *
@@ -59,10 +75,7 @@ const ttlFor = (
   if (result.status === 'error') {
     return result.retryable ? TTL.retryableError : TTL.permanentError;
   }
-  if (requested === undefined) {
-    return TTL.success;
-  }
-  return Math.min(Math.max(requested, MIN_CACHE_SECONDS), MAX_CACHE_SECONDS);
+  return successTtl(requested);
 };
 
 /**
@@ -225,5 +238,6 @@ export {
   cacheControl,
   cacheKey,
   parseInteger,
+  successTtl,
   ttlFor,
 };
