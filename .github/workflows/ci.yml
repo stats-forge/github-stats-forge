@@ -112,10 +112,6 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
 
-    # Ships the e2e browser, whose install could take minutes; Renovate moves the tag with `@playwright/test`.
-    container:
-      image: mcr.microsoft.com/playwright:v1.64.1-resolute
-
     permissions:
       contents: read
 
@@ -154,6 +150,10 @@ jobs:
 
       # The anvil is the only page here that ships JavaScript, and nothing else checks it in a
       # browser. It serves the build from the step above.
+      # No `--with-deps`: the runner has Chromium's libraries, and apt stalled for minutes on fonts.
+      - name: Install Playwright browser
+        run: pnpm --filter ./apps/docs exec playwright install chromium
+
       - name: Test (anvil, end to end)
         run: pnpm --filter ./apps/docs run test:e2e
 

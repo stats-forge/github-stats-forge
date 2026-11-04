@@ -63,14 +63,6 @@
       groupName: 'pages',
     },
 
-    // Its tag is read as `@playwright/test` below, so it moves in that package's PR.
-    {
-      matchManagers: ['github-actions'],
-      matchDepTypes: ['container'],
-      matchPackageNames: ['mcr.microsoft.com/playwright'],
-      enabled: false,
-    },
-
     // Held back, after the groups so a group cannot re-enable them.
     { matchPackageNames: ['@types/node'], matchUpdateTypes: ['major'], enabled: false },
     // The server's own `engines` and `@types/node` decide which major it runs on.
@@ -165,16 +157,6 @@
         '(?<depName>ubuntu|macos|windows)-(?<currentValue>[\\d.]+)',
       ],
       datasourceTemplate: 'github-runners',
-    },
-    // The Playwright image is versioned with `@playwright/test`, whose browsers it ships.
-    // The dev dependency type lets it automerge with the package.
-    {
-      customType: 'regex',
-      managerFilePatterns: ['/^\\.github/workflows/[^/]+\\.ya?ml$/'],
-      matchStrings: ['mcr\\.microsoft\\.com/playwright:v(?<currentValue>\\d+\\.\\d+\\.\\d+)-'],
-      depNameTemplate: '@playwright/test',
-      datasourceTemplate: 'npm',
-      depTypeTemplate: 'devDependencies',
     },
   ],
 }
