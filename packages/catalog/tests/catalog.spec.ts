@@ -1,5 +1,4 @@
 import {
-  COLOR_PARAM_KEYS,
   contributedTo,
   gist,
   org,
@@ -43,10 +42,6 @@ const ENDPOINTS = {
   gist,
   wakatime,
 } as const;
-
-/** The colors past the few the menu offers, which are typed into a URL rather than asked for. */
-const isColorParam = (name: string): boolean =>
-  (COLOR_PARAM_KEYS as ReadonlyArray<string>).includes(name);
 
 /** @returns The endpoint the card renders through. */
 const endpointOf = (card: (typeof cards)[number]): (typeof ENDPOINTS)[keyof typeof ENDPOINTS] =>
@@ -123,7 +118,7 @@ describe('the catalog', () => {
     const unasked = cards.flatMap((card) => {
       const asked = new Set(paramsOf(card));
       return Object.keys(endpointOf(card).PARAMS)
-        .filter((name) => !asked.has(name) && !isColorParam(name))
+        .filter((name) => !asked.has(name))
         .map((name) => `${card.id}: ${name}`);
     });
 

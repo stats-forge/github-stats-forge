@@ -10,13 +10,7 @@
 
 import * as z from 'zod/mini';
 
-import type { ColorParams } from '../common/color.ts';
-import {
-  COLOR_PARAM_KEYS,
-  THEME_PARAM_KEYS,
-  isBareHexColor,
-  isValidBackground,
-} from '../common/color.ts';
+import type { ThemeParams } from '../common/color.ts';
 import {
   GITHUB_USERNAME_PATTERN,
   HOSTNAME_PATTERN,
@@ -77,8 +71,7 @@ type Rejection =
   | 'username'
   | 'hostname'
   | 'locale'
-  | 'enum'
-  | 'color';
+  | 'enum';
 
 /**
  * Every rejection the api can put on an error card, in one place.
@@ -99,7 +92,6 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   hostname: (param) => `Invalid hostname input for parameter "${param}"`,
   locale: () => 'Locale not found',
   enum: (param) => `Incorrect ${param} input`,
-  color: (param) => `Invalid color input for parameter "${param}"`,
 };
 
 /**
@@ -406,7 +398,7 @@ const scopeNeedsSearch = <TQuery extends { scope: Array<string> }>(
     path: ['scope'],
   });
 
-/** What every card accepts beside the colors, so a card cannot be the one that forgot one. */
+/** What every card accepts beside the theme, so a card cannot be the one that forgot one. */
 const commonParams = {
   hide_border: booleanParam,
   border_radius: numberParam({ px: true }),
@@ -427,25 +419,42 @@ const statRowParams = {
   number_precision: intParam({ min: 0 }),
 };
 
-/** Every color param an endpoint accepts, validated and picked in one pass. */
-const colorParamsSchema = z.object(
-  Object.fromEntries(
-    COLOR_PARAM_KEYS.map((key) => {
-      if (THEME_PARAM_KEYS.includes(key)) {
-        return [key, enumParam(THEME_PARAM_VALUES)];
-      }
-      const valid = key.startsWith('bg_color') ? isValidBackground : isBareHexColor;
-      return [key, kinded('text', rawParam.check(rejects('color', valid)))];
-    }),
-  ),
-);
+/**
+ * A theme name, or a `light,dark` pair of them, each matched as {@link enumParam} matches. A form
+ * offers the single names; a pair is typed.
+ */
+const themeParam = ((): z.ZodMiniType<string | undefined, string | undefined> => {
+  const canonical = inSet(THEME_PARAM_VALUES);
+  const names = (value: string): Array<string | undefined> =>
+    parseArray(value).map((entry) => canonical(entry));
+  return kinded(
+    { kind: 'choice', choices: THEME_PARAM_VALUES },
+    z.pipe(
+      rawParam.check(
+        rejects('enum', (value) => {
+          const resolved = names(value);
+          // a value of commas alone names nothing, which is no more a theme than a wrong name
+          return (
+            resolved.length > 0 &&
+            resolved.length <= 2 &&
+            resolved.every((name) => name !== undefined)
+          );
+        }),
+      ),
+      z.transform((value) => (value === undefined ? undefined : names(value).join(','))),
+    ),
+  );
+})();
+
+/** The theme param, parsed apart from the endpoint's own so a bad theme cannot draw its own error. */
+const themeParamsSchema = z.object({ theme: themeParam });
 
 /**
  * The query an endpoint accepts, derived from its own schema.
  * Every param is optional and every value a string, which is all a query string can carry;
  * naming it lets a consumer typecheck the object it builds.
  */
-type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> & ColorParams;
+type ApiQuery<TSchema extends z.ZodMiniType> = Partial<z.input<TSchema>> & ThemeParams;
 
 /**
  * Turns a rejection back into the error the api answers with.
@@ -484,14 +493,14 @@ const parseParams = <TSchema extends z.ZodMiniType>(
 };
 
 /**
- * The color params, validated.
- * Split from the endpoint's own schema because a rejected color cannot then be used to render its own error card.
+ * The theme param, validated.
+ * Split from the endpoint's own schema because a rejected theme cannot then be used to render its own error card.
  *
- * @throws {CardError} When a param does not hold a color or a gradient.
+ * @throws {CardError} When the theme names none, or more than two.
  *
- * @returns The color params.
+ * @returns The theme param.
  */
-const parseColorParams = (query: unknown): ColorParams => parseParams(colorParamsSchema, query);
+const parseThemeParams = (query: unknown): ThemeParams => parseParams(themeParamsSchema, query);
 
 /**
  * One rule for an empty value, whatever the param: `?hide_border` and `?hide_border=` arrive alike,
@@ -513,7 +522,7 @@ const resolveEmpty = (
   );
 
 /**
- * How a form asks for each param a schema shape reads, colors first.
+ * How a form asks for each param a schema shape reads, the theme first.
  *
  * @throws {Error} When a param was built without a kind, which only a new helper can do.
  *
@@ -523,7 +532,7 @@ const describeParams = (
   shape: Readonly<Record<string, z.core.$ZodType>>,
 ): Readonly<Record<string, ParamShape>> =>
   Object.fromEntries(
-    Object.entries({ ...colorParamsSchema.shape, ...shape }).map(([param, schema]) => {
+    Object.entries({ ...themeParamsSchema.shape, ...shape }).map(([param, schema]) => {
       const described = SHAPES.get(schema);
       if (!described) {
         throw new Error(`Param "${param}" was built without a kind`);
@@ -547,7 +556,7 @@ export {
   ORDERED_RANGE,
   intParam,
   numberParam,
-  parseColorParams,
+  parseThemeParams,
   parseParams,
   readBoolean,
   resolveEmpty,

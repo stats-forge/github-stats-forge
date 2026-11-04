@@ -58,9 +58,23 @@ const chosen = (saved: SavedCard): Record<string, string> =>
 const dropdown = (page: Page, option: string): Locator =>
   page.locator(`wa-select[data-option="${option}"]`);
 
+/** Unfolds the section holding a control, as a visitor does before reaching a folded option. */
+const unfold = async (page: Page, control: Locator): Promise<void> => {
+  await page
+    .locator('wa-details.anvil-section')
+    .filter({ has: control })
+    .evaluateAll((sections) => {
+      // none for a control outside the sections, such as the card picker
+      for (const section of sections) {
+        (section as HTMLElement & { open: boolean }).open = true;
+      }
+    });
+};
+
 /** Opens a dropdown and picks a value, as a click would. */
 const pick = async (page: Page, option: string, value: string): Promise<void> => {
   const select = dropdown(page, option);
+  await unfold(page, select);
 
   /*
    * Opened through the property, because picks in a row race the popup's closing animation. The
@@ -111,6 +125,7 @@ const backdropBar = (page: Page): Locator => page.locator('wa-radio-group.anvil-
 
 /** Sets a tri-state boolean. */
 const setBoolean = async (page: Page, option: string, state: string): Promise<void> => {
+  await unfold(page, triState(page, option));
   await triState(page, option).locator(`wa-radio[value="${state}"]`).click();
 };
 
@@ -138,7 +153,7 @@ test('shows what each theme looks like beside its name', async ({ page }) => {
   await expect(swatch.locator('i')).toHaveCount(3);
 });
 
-test('offers each family beside its two pinned variants, on every card', async ({ page }) => {
+test('offers every theme, the GitHub ones included, on every card', async ({ page }) => {
   const values = async (): Promise<Array<string>> =>
     dropdown(page, 'theme')
       .locator('wa-option')
@@ -146,7 +161,10 @@ test('offers each family beside its two pinned variants, on every card', async (
 
   for (const card of ['stats', 'gist']) {
     await setCard(page, card);
-    expect(await values()).toEqual(expect.arrayContaining(['ember', 'ember_light', 'ember_dark']));
+    expect(await values()).toEqual(
+      expect.arrayContaining(['ember_light', 'ember_dark', 'github_light', 'github_dark']),
+    );
+    expect(await values()).not.toContain('ember');
   }
 });
 
@@ -213,12 +231,13 @@ test('sends nothing anywhere while drawing every card', async ({ page }) => {
 });
 
 test('picking a card rebuilds its controls and redraws it', async ({ page }) => {
-  await expect(dropdown(page, 'rank_icon')).toBeVisible();
+  // Attached, not visible: both sit in sections that start folded.
+  await expect(dropdown(page, 'rank_icon')).toBeAttached();
 
   await pick(page, 'card', 'top-langs');
 
-  await expect(dropdown(page, 'rank_icon')).toBeHidden();
-  await expect(dropdown(page, 'layout')).toBeVisible();
+  await expect(dropdown(page, 'rank_icon')).not.toBeAttached();
+  await expect(dropdown(page, 'layout')).toBeAttached();
   await expect(drawnCard(page)).toHaveAttribute('width', '300');
 
   const saved = await savedCard(page);
@@ -251,6 +270,7 @@ test('a chosen theme colors the card and survives a change of card', async ({ pa
 
 test('several values of one option are written as a list', async ({ page }) => {
   // By value, not by text: `prs_merged` is a substring of `prs_merged_percentage`.
+  await unfold(page, page.locator('wa-checkbox[value="contributions"]'));
   await page.locator('wa-checkbox[value="contributions"]').click();
   await page.locator('wa-checkbox[value="reviews"]').click();
 
@@ -272,27 +292,31 @@ test('the query box reaches the renderer', async ({ page }) => {
 
 test('offers every option the CLI asks for, not only the closed sets', async ({ page }) => {
   // The catalog is the CLI's own, so these are exactly the options its prompts walk.
-  await expect(triState(page, 'show_icons')).toBeVisible();
-  await expect(field(page, 'title')).toBeVisible();
-  await expect(field(page, 'card_width')).toBeVisible();
+  await expect(triState(page, 'show_icons')).toBeAttached();
+  await expect(field(page, 'title')).toBeAttached();
+  await expect(field(page, 'card_width')).toBeAttached();
 
-  // Sectioned as the CLI's menu is, from the same table; the colours fold away rather than go absent.
-  // `summary` is a Lit property and not reflected, so the heading is found as the button it renders.
+  // Sectioned as the CLI's menu is, from the same table: the subject, then the theme, both open;
+  // the rest fold away rather than go absent. `summary` is a Lit property and not reflected, so a
+  // heading is found as the button it renders.
   const sections = page.locator('wa-details.anvil-section');
-  await expect(sections).toHaveCount(4);
-  await expect(sections.first()).toHaveAttribute('open', '');
-  await expect(sections.last().getByRole('button', { name: 'Colors and border' })).toBeVisible();
+  await expect(sections).toHaveCount(5);
+  await expect(sections.nth(0).getByRole('button', { name: 'What it draws' })).toBeVisible();
+  await expect(sections.nth(0)).toHaveAttribute('open', '');
+  await expect(sections.nth(1).getByRole('button', { name: 'Theme and border' })).toBeVisible();
+  await expect(sections.nth(1)).toHaveAttribute('open', '');
   await expect(sections.last()).not.toHaveAttribute('open');
-  await expect(field(page, 'title_color')).toBeAttached();
+  await expect(dropdown(page, 'theme-dark')).toBeAttached();
 
   await setCard(page, 'top-langs');
-  await expect(field(page, 'langs_count')).toBeVisible();
+  await expect(field(page, 'langs_count')).toBeAttached();
 });
 
 test('a number field reaches the renderer', async ({ page }) => {
   await setCard(page, 'top-langs');
   await pick(page, 'layout', 'compact');
 
+  await unfold(page, field(page, 'langs_count'));
   await field(page, 'langs_count').fill('3');
 
   const saved = await savedCard(page);
@@ -673,9 +697,8 @@ test('stands the card on the ground its own theme implies', async ({ page }) => 
 });
 
 test('a theme that implies no ground leaves the one showing alone', async ({ page }) => {
-  // `transparent` shows whatever is behind it, and a family follows the viewer, so neither asks
-  // for a ground — and has no preference of its own either way, which is why this is asserted from
-  // both.
+  // `transparent` shows whatever is behind it, so it asks for no ground — and has no preference
+  // of its own either way, which is why this is asserted from both.
   await setDropdown(page, 'theme', 'cobalt_dark');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
 
@@ -688,9 +711,24 @@ test('a theme that implies no ground leaves the one showing alone', async ({ pag
 
   await setDropdown(page, 'theme', 'transparent');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+});
 
-  await setDropdown(page, 'theme', 'verdigris');
+test("the default pair stands the card on the browser's own ground, and turns with it", async ({
+  page,
+}) => {
+  // With no theme the card wears `ember_light,ember_dark`, whichever the browser's scheme picks.
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+
+  await page.emulateMedia({ colorScheme: 'light' });
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+  await expect(backdropBar(page)).toHaveJSProperty('value', 'light');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await setDropdown(page, 'theme', 'ember_light');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+  await setDropdown(page, 'theme-dark', 'cobalt_dark');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
 });
 
 test("the backdrop is the preview's, and writes nothing into the card", async ({ page }) => {
@@ -704,26 +742,82 @@ test("the backdrop is the preview's, and writes nothing into the card", async ({
   await expect(backdropBar(page)).not.toHaveAttribute('data-option');
 });
 
-test('a background of your own wins over the theme, once it is a colour', async ({ page }) => {
-  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+test('a card with two looks shows the one the chosen ground would see', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await setDropdown(page, 'theme', 'brass_light');
+  await setDropdown(page, 'theme-dark', 'magma_dark');
+  const cardBg = drawnCard(page).locator('.card-bg');
+  await expect(cardBg).toHaveCSS('fill', 'rgb(251, 250, 247)');
 
-  // Half a hex names no colour, so the ground holds until there is one to read.
-  await queryBox(page).fill('bg_color=0d');
-  await expect.poll(async () => savedParam(page, 'bg_color')).toBe('0d');
-  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+  await backdropBar(page).locator('wa-radio[value="dark"]').click();
+  await expect(cardBg).toHaveCSS('fill', 'rgb(19, 10, 22)');
 
-  await queryBox(page).fill('bg_color=0d1117');
+  await backdropBar(page).locator('wa-radio[value="light"]').click();
+  await expect(cardBg).toHaveCSS('fill', 'rgb(251, 250, 247)');
+});
+
+test('a ground chosen for a pair stays put while another option changes', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await setDropdown(page, 'theme', 'brass_light');
+  await setDropdown(page, 'theme-dark', 'magma_dark');
+  await backdropBar(page).locator('wa-radio[value="dark"]').click();
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+
+  await setBoolean(page, 'hide_border', 'true');
+  await expect(drawnCard(page).getByTestId('card-bg')).toHaveAttribute('stroke-opacity', '0');
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
 });
 
-test('a per-scheme background leaves the ground alone, the card following the browser', async ({
+test("a ground chosen for a single theme stays put when the browser's scheme turns", async ({
   page,
 }) => {
-  // With a `_light` or `_dark` background the card carries a `prefers-color-scheme` block, so
-  // neither ground is the one it will be seen on and the page does not choose for you.
-  await queryBox(page).fill('bg_color_dark=0d1117');
-  await expect.poll(async () => savedParam(page, 'bg_color_dark')).toBe('0d1117');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await setDropdown(page, 'theme', 'brass_dark');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+  await backdropBar(page).locator('wa-radio[value="light"]').click();
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
 
+  await page.emulateMedia({ colorScheme: 'dark' });
+  // the scheme's change event lands on a later frame, so the ground is read after it
+  await page.evaluate(
+    async () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            resolve();
+          });
+        });
+      }),
+  );
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+});
+
+test('a pair typed with an empty entry moves the ground, as core draws it', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await queryBox(page).fill('theme=cobalt_dark,');
+
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+});
+
+test('a theme typed in any case moves the ground, as core draws it in any case', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await queryBox(page).fill('theme=Cobalt_Dark');
+
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+});
+
+test("a pair stands the card on the browser's ground, whatever its themes", async ({ page }) => {
+  // A pair carries a `prefers-color-scheme` block, so the ground it will be seen on is the browser's.
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await setDropdown(page, 'theme', 'ember_light');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
+
+  await setDropdown(page, 'theme-dark', 'cobalt_dark');
+  await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'dark');
+
+  await page.emulateMedia({ colorScheme: 'light' });
   await expect(previewFrame(page)).toHaveAttribute('data-backdrop', 'light');
 });
 
@@ -775,8 +869,8 @@ test('the backdrop says it follows the theme, and gives the detail on hover', as
   await expect(badge).toBeVisible();
   await expect(badge).toContainText("Follows the card's theme");
   // The rest is what the tooltip is for: which background it reads, and when it reads none.
-  await expect(tooltip).toContainText('the bg_color you set');
-  await expect(tooltip).toContainText('names neither');
+  await expect(tooltip).toContainText("starts on your browser's setting");
+  await expect(tooltip).toContainText('A translucent card');
 
   expect(await tooltipOpen(page, 'anvil-backdrop-note')).toBe(false);
   await badge.hover();

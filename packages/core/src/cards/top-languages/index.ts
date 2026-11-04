@@ -51,7 +51,6 @@ interface TopLangOptions extends CommonCardOptions {
   disable_animations: boolean;
   hide_progress: boolean;
   hide_values: boolean;
-  prog_bar_bg_color: string;
   value_format: TopLangValueFormat;
 }
 
@@ -181,6 +180,8 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     CARD_STYLE.padding.x * 2;
 
   let finalLayout: Child;
+  // Only the bars' tips burn.
+  let burns = false;
   if (langs.length === 0) {
     height = COMPACT_LAYOUT_BASE_HEIGHT;
     finalLayout = noLanguagesDataNode({
@@ -220,6 +221,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     width = width === DEFAULT_CARD_WIDTH ? CARD_STYLE.width.standard : width + DONUT_EXTRA_WIDTH;
     finalLayout = renderDonutLayout(langs, width, totalLanguageSize, value_format, hide_values);
   } else {
+    burns = true;
     finalLayout = renderNormalLayout(langs, width, totalLanguageSize, value_format, hide_values);
   }
 
@@ -238,6 +240,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     hideBorder: hide_border,
     hideTitle: hide_title,
     animations: !disable_animations,
+    burns,
     css: ({ textColor, progBarBgColor }): Array<CssChild> => [
       atRule(
         '@keyframes slideInAnimation',

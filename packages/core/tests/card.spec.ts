@@ -5,6 +5,7 @@ import { Card, titleFits } from '../src/common/Card.ts';
 import { HEAT_PAINT, getCardColors } from '../src/common/color.ts';
 import { icons } from '../src/common/icons.ts';
 import { measureText } from '../src/common/text.ts';
+import { themes } from '../src/themes/index.ts';
 
 import { cssValue, draw, exactly } from './_card.ts';
 
@@ -142,7 +143,11 @@ describe(Card, () => {
     const card = blank({
       titlePrefixIcon: icons.repo,
       colors: {
-        light: getCardColors({ title_color: 'f00', icon_color: '0f0', theme: 'ember_light' }),
+        light: {
+          ...getCardColors('ember_light'),
+          heat: ['#f00', '#f00', '#f00'],
+          iconColor: '#0f0',
+        },
         dark: null,
       },
     });
@@ -157,8 +162,8 @@ describe(Card, () => {
   });
 
   it('should glow from the corner in the heat, more strongly on a dark card', () => {
-    const light = getCardColors({ theme: 'ember_light' });
-    const dark = getCardColors({ theme: 'ember_dark' });
+    const light = getCardColors('ember_light');
+    const dark = getCardColors('ember_dark');
 
     draw(blank({ colors: { light, dark } }).render(``));
     expect(screen.getByTestId('card-glow')).toHaveAttribute('fill', 'url(#heat-glow)');
@@ -172,8 +177,8 @@ describe(Card, () => {
   });
 
   it('should recolor every heat stop in the dark block, so one gradient serves both', () => {
-    const light = getCardColors({ theme: 'cobalt_light' });
-    const dark = getCardColors({ theme: 'cobalt_dark' });
+    const light = getCardColors('cobalt_light');
+    const dark = getCardColors('cobalt_dark');
 
     draw(blank({ colors: { light, dark } }).render(``));
     expect(document.querySelector('#heat .heat-0')).toHaveAttribute('stop-color', '#0891b2');
@@ -185,6 +190,16 @@ describe(Card, () => {
   it('should follow the card corners with the glow', () => {
     draw(blank({ width: 200, border_radius: 8 }).render(``));
     expect(screen.getByTestId('card-glow')).toHaveAttribute('rx', '8');
+  });
+
+  it('should define the ring and the bloom only for a card that burns', () => {
+    draw(blank().render(``));
+    expect(document.querySelector('#heat-ring')).toBeNull();
+    expect(document.querySelector('#heat-bloom')).toBeNull();
+
+    draw(blank({ burns: true }).render(``));
+    expect(document.querySelector('#heat-ring')).toBeInTheDocument();
+    expect(document.querySelector('#heat-bloom')).toBeInTheDocument();
   });
 
   it('title should not have prefix icon', () => {
@@ -224,13 +239,7 @@ describe(Card, () => {
     const card = blank({
       height: 200,
       colors: {
-        light: getCardColors({
-          title_color: 'f00',
-          icon_color: '0f0',
-          text_color: '00f',
-          bg_color: 'fff',
-          theme: 'ember_light',
-        }),
+        light: { ...getCardColors('ember_light'), heat: ['#f00', '#f00', '#f00'], bgColor: '#fff' },
         dark: null,
       },
     });
@@ -240,51 +249,17 @@ describe(Card, () => {
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fff');
   });
 
-  it('should render gradient backgrounds', () => {
-    const card = blank({
-      height: 200,
-      colors: {
-        light: getCardColors({
-          title_color: 'f00',
-          icon_color: '0f0',
-          text_color: '00f',
-          bg_color: '90,fff,000,f00',
-          theme: 'ember_light',
-        }),
-        dark: null,
-      },
-    });
-    draw(card.render(``));
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', 'url(#gradient)');
-    expect(document.querySelector('defs #gradient')).toHaveAttribute(
-      'gradientTransform',
-      'rotate(90)',
+  it("should fill the background with the dark palette's own inside the dark block", () => {
+    draw(
+      blank({
+        colors: { light: getCardColors('ember_light'), dark: getCardColors('ember_dark') },
+      }).render(``),
     );
-    expect(document.querySelector('defs #gradient stop:nth-child(1)')).toHaveAttribute(
-      'stop-color',
-      '#fff',
-    );
-    expect(document.querySelector('defs #gradient stop:nth-child(2)')).toHaveAttribute(
-      'stop-color',
-      '#000',
-    );
-    expect(document.querySelector('defs #gradient stop:nth-child(3)')).toHaveAttribute(
-      'stop-color',
-      '#f00',
-    );
-  });
-
-  it('draws a dark gradient inside the dark color scheme only', () => {
-    const light = getCardColors({ theme: 'ember_light' });
-    const card = blank({
-      colors: { light, dark: { ...light, bgColor: ['45', 'fff', '000'] } },
-    });
-
-    draw(card.render(``));
-    expect(document.querySelector('defs #gradient-dark')).toBeInTheDocument();
-    expect(document.querySelector('defs #gradient')).not.toBeInTheDocument();
-    expect(document.querySelector('style')).toHaveTextContent(
-      /prefers-color-scheme: dark[^@]*url\(#gradient-dark\)/u,
+    expect(document.querySelector('style')?.textContent).toMatch(
+      new RegExp(
+        `prefers-color-scheme: dark[^@]*\\.card-bg \\{\\s*fill: #${themes.ember_dark.bg_color};`,
+        'u',
+      ),
     );
   });
 
@@ -293,23 +268,15 @@ describe(Card, () => {
     { what: 'a title color', colors: { heat: ['red', 'red', 'red'] as [string, string, string] } },
     { what: 'a border color', colors: { borderColor: 'red' } },
     { what: 'a background color', colors: { bgColor: 'red' } },
-    { what: 'a light gradient', colors: { bgColor: ['45', 'fff'] } },
-    { what: 'a dark gradient', dark: { bgColor: ['45', 'fff'] } },
-  ])('refuses to draw $what it cannot write', ({ init, colors, dark }) => {
-    const light = getCardColors({ theme: 'ember_light' });
-    const card = blank({
-      ...init,
-      colors: {
-        light: { ...light, ...colors },
-        dark: dark ? { ...light, ...dark } : null,
-      },
-    });
+  ])('refuses to draw $what it cannot write', ({ init, colors }) => {
+    const light = getCardColors('ember_light');
+    const card = blank({ ...init, colors: { light: { ...light, ...colors }, dark: null } });
 
     expect(() => card.render(``)).toThrow(/^Invalid /u);
   });
 
   it('names the heat stop it cannot write, not the one beside it', () => {
-    const light = getCardColors({ theme: 'ember_light' });
+    const light = getCardColors('ember_light');
     const heat: [string, string, string] = ['nope', light.heat[1], light.heat[2]];
     const card = blank({ colors: { light: { ...light, heat }, dark: null } });
 

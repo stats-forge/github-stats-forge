@@ -21,6 +21,7 @@ import {
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
 } from '../src/cards/top-languages/layouts.ts';
+import { CARD_STYLE } from '../src/common/brand.ts';
 import { measureText } from '../src/common/text.ts';
 import type { Lang, TopLangData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
@@ -262,43 +263,12 @@ describe('Test renderTopLanguages', () => {
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fffaf6');
   });
 
-  it('should render custom colors properly', () => {
-    draw(
-      renderTopLanguages(langs, {
-        title_color: '5a0',
-        icon_color: '1b998b',
-        text_color: '9991',
-        bg_color: '252525',
-        prog_bar_bg_color: '444',
-      }),
-    );
-
-    expect(heatStop(1)).toBe('#5a0');
-    expect(cssValue('.lang-name', 'fill')).toBe('#9991');
-    expect(cssValue('.progress-background', 'fill')).toBe('#444');
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#252525');
-    expect(screen.queryAllByTestId('progress-background').length).toBeGreaterThan(0);
-  });
-
-  it('should render custom colors with themes', () => {
-    draw(renderTopLanguages(langs, { title_color: '5a0', theme: 'magma_dark' }));
-
-    expect(heatStop(1)).toBe('#5a0');
-    expect(cssValue('.lang-name', 'fill')).toBe(`#${themes.magma_dark.text_color}`);
-    expect(screen.queryByTestId('card-bg')).toHaveAttribute(
-      'fill',
-      `#${themes.magma_dark.bg_color}`,
-    );
-  });
-
   it.each(Object.entries(themes))('should render with the %s theme', (theme, colors) => {
     draw(renderTopLanguages(langs, { theme }));
 
     expect(heatStop(1)).toBe(`#${colors.heat[1]}`);
     expect(cssValue('.lang-name', 'fill')).toBe(`#${colors.text_color}`);
-    expect([`#${colors.bg_color}`, 'url(#gradient)']).toContain(
-      screen.queryByTestId('card-bg')?.getAttribute('fill'),
-    );
+    expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', `#${colors.bg_color}`);
   });
 
   it('should render with layout compact', () => {
@@ -394,11 +364,11 @@ describe('Test renderTopLanguages', () => {
       const listTop = translateOf(screen.getByTestId('donut-list')).y;
       const listMiddle = listTop + ((count - 1) * 32 + 13) / 2;
 
-      // The body starts at the card's left padding and 55px down, under the title.
+      // The body starts at the card's left padding, under the title.
       expect(25 + centerX + outerRadius).toBeCloseTo(Number(card.getAttribute('width')) - 25);
       expect(centerY - outerRadius).toBeGreaterThanOrEqual(0);
-      expect(55 + centerY + outerRadius).toBeLessThanOrEqual(
-        Number(card.getAttribute('height')) - 18,
+      expect(CARD_STYLE.padding.bodyOffsetY + centerY + outerRadius).toBeLessThanOrEqual(
+        Number(card.getAttribute('height')) - CARD_STYLE.padding.bottom,
       );
       expect(centerY).toBeCloseTo(listMiddle);
     },

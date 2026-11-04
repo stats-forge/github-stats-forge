@@ -97,7 +97,7 @@ describe(navigateOptions, () => {
     expect(rows.filter((row) => row.includes('──')).slice(1)).toStrictEqual([
       expect.stringContaining('What it shows'),
       expect.stringContaining('Text and size'),
-      expect.stringContaining('Colors and border'),
+      expect.stringContaining('Theme and border'),
     ]);
     expect(inquirer.select.mock.calls[0]?.[0].message).toBe(
       'Gist pin — set an option, or generate',
@@ -162,16 +162,64 @@ describe(navigateOptions, () => {
     },
     {
       what: 'a choice with a select that can unset it',
-      card: 'gist',
-      name: 'theme',
-      seed: 'ember_dark',
-      answer: (): unknown => inquirer.select.mockResolvedValueOnce('magma_dark'),
-      kept: 'magma_dark',
+      card: 'stats',
+      name: 'number_format',
+      seed: 'short',
+      answer: (): unknown => inquirer.select.mockResolvedValueOnce('long'),
+      kept: 'long',
       asked: (): unknown => inquirer.select.mock.calls[1]?.[0],
       with: {
-        default: 'ember_dark',
+        default: 'short',
         choices: expect.arrayContaining([{ name: '— leave unset —', value: undefined }]),
       },
+    },
+    {
+      what: 'a theme, then a dark one, as a light,dark pair seeded from the saved one',
+      card: 'gist',
+      name: 'theme',
+      seed: 'brass_light,magma_dark',
+      answer: (): unknown =>
+        inquirer.select.mockResolvedValueOnce('ember_light').mockResolvedValueOnce('cobalt_dark'),
+      kept: 'ember_light,cobalt_dark',
+      asked: (): unknown => [
+        inquirer.select.mock.calls[1]?.[0],
+        inquirer.select.mock.calls[2]?.[0],
+      ],
+      with: { 0: { default: 'brass_light' }, 1: { default: 'magma_dark' } },
+    },
+    {
+      what: 'a theme seeded from a saved pair typed in another case, with spaces',
+      card: 'gist',
+      name: 'theme',
+      seed: 'Brass_Light, magma_DARK',
+      answer: (): unknown =>
+        inquirer.select.mockResolvedValueOnce('brass_light').mockResolvedValueOnce('magma_dark'),
+      kept: 'brass_light,magma_dark',
+      asked: (): unknown => [
+        inquirer.select.mock.calls[1]?.[0],
+        inquirer.select.mock.calls[2]?.[0],
+      ],
+      with: { 0: { default: 'brass_light' }, 1: { default: 'magma_dark' } },
+    },
+    {
+      what: 'one theme when dark mode is given the same theme',
+      card: 'gist',
+      name: 'theme',
+      answer: (): unknown =>
+        inquirer.select.mockResolvedValueOnce('ember_dark').mockResolvedValueOnce('ember_dark'),
+      kept: 'ember_dark',
+      asked: (): unknown => inquirer.select.mock.calls[2]?.[0],
+      with: { message: expect.stringMatching(/^Dark mode/u) },
+    },
+    {
+      what: 'a theme worn in both modes when dark mode is left as the theme',
+      card: 'gist',
+      name: 'theme',
+      answer: (): unknown =>
+        inquirer.select.mockResolvedValueOnce('ember_dark').mockResolvedValueOnce(undefined),
+      kept: 'ember_dark',
+      asked: (): unknown => inquirer.select.mock.calls[2]?.[0],
+      with: { choices: expect.arrayContaining([{ name: '— as the theme —', value: undefined }]) },
     },
     {
       what: 'a number stepping by any amount, seeded from a saved string',
@@ -204,6 +252,22 @@ describe(navigateOptions, () => {
 
     expect(menu.answers.get(name)).toStrictEqual(kept);
     expect(asked()).toMatchObject(config);
+  });
+
+  it('forgets a cleared theme without asking for a dark one', async () => {
+    const gist = card('gist');
+    inquirer.select
+      .mockResolvedValueOnce(option(gist, 'theme'))
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce('quit');
+    const menu: Menu = { answers: new Map([['theme', 'ember_light,ember_dark']]) };
+
+    await navigateOptions(gist, menu);
+
+    expect(menu.answers.has('theme')).toBe(false);
+    expect(inquirer.select).toHaveBeenCalledTimes(3);
+    // the third select is the menu again, not a dark-mode prompt
+    expect(inquirer.select.mock.calls[2]?.[0].message).toMatch(/^Gist pin/u);
   });
 
   it('forgets an option answered with blank text', async () => {

@@ -61,7 +61,6 @@ interface StatCardOptions extends CommonCardOptions {
   disable_animations: boolean;
   number_format: string;
   number_precision: number;
-  ring_color: string;
   rank_icon: RankIcon;
   show: Array<string>;
   /** `owner/name` and `owner/*` entries the search-based stats were narrowed to, named in their labels. */
@@ -236,6 +235,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     hideBorder: hide_border,
     hideTitle: hide_title,
     animations: !disable_animations,
+    burns: true,
     css: ({ ringColor, textColor, iconColor, heat }): Array<CssChild> =>
       getStyles({ ringColor, textColor, iconColor, sparkColor: heat[0], show_icons, progress }),
   });

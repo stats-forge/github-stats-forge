@@ -18,6 +18,6 @@ const gistQuery = z.object({
  *
  * @returns The rendered card, or a rendered error.
  */
-export const gist = cardHandler(gistQuery, { id: 'gist' }, async (params, colors, config) =>
-  renderGistCard(await fetchGist({ id: params.id }, config), { ...params, ...colors }),
+export const gist = cardHandler(gistQuery, { id: 'gist' }, async (params, theme, config) =>
+  renderGistCard(await fetchGist({ id: params.id }, config), { ...params, ...theme }),
 );

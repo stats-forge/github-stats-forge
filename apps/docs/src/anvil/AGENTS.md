@@ -40,9 +40,8 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
 
 ## Cards and themes
 
-- **Every card offers every theme, grouped by the ground each implies**: light, either-way, dark. The
-  families (`ember`) follow the viewer, so they head "Either" beside `transparent`; each `_light` and
-  `_dark` variant sits under its background's heading.
+- **Every card offers every theme, grouped by the ground each implies**: light, either-way, dark.
+  Only `transparent` reads on both, so it alone is under "Either".
 - **A card's `category` (`user`, `repo`, `org`) picks its picker heading** ([#64]); a gist is `repo`. `CARD_GROUPS` is built like `themeGroups`: order from `GROUP_LABELS`,
   the catalog's order inside, empty headings dropped.
 - **The cards are grouped alike in the picker, the sidebar (`astro.config.ts`) and the overview**
@@ -53,7 +52,10 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
 - **The options come from `packages/catalog`** ([#126]). `apps/docs` adds only each card's sample
   identity and `maximal` params, and **throws on a catalog card with no entry**. A control
   follows the option's `kind` and steps by `numericStep` (an e2e test checks `1` and `any`), sectioned
-  by `OPTION_GROUPS`; only "Colors and border" opens folded.
+  by `OPTION_GROUPS` into expandable blocks: "What it draws" and "Theme and border" lead, open, and
+  the rest open folded.
+- **The theme is two pickers writing one `theme` param**: "Theme", and "Dark mode", which makes it a
+  `light,dark` pair and is left unset to wear one theme in both.
 - **Core and the catalog bundle from source via `@stats/source`, under both `vite.resolve` and
   `vite.ssr.resolve`.** The condition misses the client build, so `docs:build` builds the packages first.
 
@@ -63,13 +65,19 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
   document-wide, and the stats card's `.icon { display: none }` hid the page's icons.
 - **The preview is rewritten only when it differs** from the last markup `ui.ts` wrote, not from
   `innerHTML`, which comes back re-serialised.
-- **The card stands on the ground it asks for** ([#86]): `backdropFor` in `themes.ts` reads `bg_color`,
-  else the theme's variant, into the frame's `data-backdrop`.
-  - **The grounds are GitHub's literals, `#ffffff` and `#0d1117`.** `undefined` holds still: a
-    family (the default `ember` too), a translucent background, a per-scheme override, an unknown
-    theme.
+- **The card stands on the ground it asks for** ([#86]): `backdropFor` in `themes.ts` asks core's
+  `cardGround`, so the preview never judges a background differently from the card, and writes the
+  answer into the frame's `data-backdrop`.
+  - **The grounds are GitHub's literals, `#ffffff` and `#0d1117`.** A card carrying both schemes
+    takes the browser's ground and turns with it; `undefined` holds still: a single translucent
+    background, or a theme param core does not know.
+  - **A card carrying both schemes is painted as a visitor on the ground sees it**: `asSeenOn`
+    turns its `prefers-color-scheme` block on or off, so the switch shows each look; the card's
+    markup and the saved file stay untouched.
   - **It is the one control without `data-option`**, writing nothing into the card (an e2e test checks
     both halves): `createSegments`, found by `wa-radio-group.anvil-backdrop`.
+  - **A ground chosen by hand holds** until the theme changes (`followedTheme` in `ui.ts`), or, for
+    a card carrying both schemes, until the browser's scheme turns.
   - **The ground moves at once**, before its redraw finishes. A badge says it follows the theme, with
     the detail on hover; the badges are `#anvil-source` and `#anvil-backdrop-note`.
   - **The frame is `min-height: 16rem` and centres with `margin: auto`**: `justify-content: center`
@@ -94,6 +102,7 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
     seams: `part`, a `<small>` heading and `wa-divider` between groups.
 - **A boolean option is `default`, `on` or `off`**, `default` writing no param.
 - **A control carries `data-option="<param>"`, which the tests find**: `label` is not reflected.
+  "Dark mode" is `theme-dark`, as it writes the second half of `theme` rather than a param.
 - **The saved file is `{answers}-{card}-config.json`** ([#67]), each required answer slugged, so a
   pin names its owner and two owners' same-named repositories never share a file. `redraw` writes
   the heading, the `download` and the `--config` line together; the toasts read the name at click

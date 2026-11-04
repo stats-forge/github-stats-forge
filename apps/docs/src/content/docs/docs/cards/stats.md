@@ -62,7 +62,6 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 | `show_icons`          | `true` `false`                                    | Draw an icon beside each stat                           |
 | `hide_rank`           | `true` `false`                                    | Leave out the rank circle                               |
 | `rank_icon`           | `default` `github` `percentile`                   | What the rank circle shows                              |
-| `ring_color`          | a hex color                                       | The rank ring, when it should differ from the title     |
 | `include_all_commits` | `true` `false`                                    | Count commits of all time rather than the counted range |
 | `from` / `to`         | `2024`, `2024-03`, `2024-03-15`                   | The range commits and contributions are counted in      |
 | `exclude_repo`        | `owner/name` or `name`                            | Repositories to leave out of the totals                 |

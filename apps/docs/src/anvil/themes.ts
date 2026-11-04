@@ -1,11 +1,12 @@
 /**
  * @file Which themes a card may wear, how they are grouped, and which ground each implies.
  *
- * A family name (`ember`) follows the viewer, so it implies no ground; a variant (`ember_dark`)
- * implies its own background's.
+ * The ground is core's own verdict, through `cardGround`, so the preview and the card cannot judge
+ * a background differently.
  */
 
-import { THEME_FAMILIES, themes } from '@stats-forge/github-stats-forge-core/api';
+import { cardGround, themes } from '@stats-forge/github-stats-forge-core/api';
+import type { CardGround } from '@stats-forge/github-stats-forge-core/api';
 
 /** Where a theme sits in the list, and under which heading. */
 type ThemeMode = 'light' | 'mixed' | 'dark';
@@ -13,89 +14,62 @@ type ThemeMode = 'light' | 'mixed' | 'dark';
 /** The ground a card is previewed on, where its own background says which one is right. */
 type Backdrop = 'light' | 'dark';
 
-/** Below this a background shows the page through it, so it implies no ground of its own. */
-const OPAQUE_ALPHA = 0x80;
+/** What a card asks of its ground: one, or whichever the browser's color scheme picks. */
+type ImpliedBackdrop = Backdrop | 'browser';
 
-const VARIANT_NAMES = Object.keys(themes);
-const FAMILY_NAMES: ReadonlyArray<string> = THEME_FAMILIES;
+const THEME_NAMES = Object.keys(themes);
 
-/** The family a card wears when no theme is named, which follows the viewer. */
-const DEFAULT_THEME = 'ember';
-
-/** @returns The hex expanded from three or four digits, or as given when it is not a shorthand. */
-const expandHex = (hex: string): string => {
-  if (hex.length !== 3 && hex.length !== 4) {
-    return hex;
-  }
-
-  return [...hex].map((char) => char + char).join('');
-};
-
-/** @returns Whether a 6- or 8-digit hex reads as dark, by perceived luminance. */
-const isDarkHex = (hex: string): boolean => {
-  const channel = (at: number): number => Number.parseInt(hex.slice(at, at + 2), 16);
-  const luminance = (0.299 * channel(0) + 0.587 * channel(2) + 0.114 * channel(4)) / 255;
-  return luminance < 0.5;
-};
+/** Each theme by its name in lower case, since core matches a theme param in any case. */
+const THEME_BY_LOWER_NAME = new Map(THEME_NAMES.map((name) => [name.toLowerCase(), name]));
 
 /**
- * A `bg_color` is a hex or an `angle,color,color…` gradient, judged by its first stop.
+ * Reads a `theme` param as core's `parseArray` does, dropping empty entries.
  *
- * @returns The ground it implies, or `undefined` when it is not hex, or translucent enough that
- * whatever is behind it is what shows.
+ * @returns Each name as core spells it, or `undefined` where core would refuse the param.
  */
-const groundOf = (bgColor: string): Backdrop | undefined => {
-  const stops = bgColor.split(',');
-  const hex = expandHex((stops.length > 1 ? stops[1] : stops[0]) ?? '');
-  if (!/^[\dA-Fa-f]{6}(?:[\dA-Fa-f]{2})?$/.test(hex)) {
+const canonicalThemes = (theme: string): Array<string> | undefined => {
+  const names = theme
+    .split(',')
+    .map((name) => name.trim())
+    .filter((name) => name !== '')
+    .map((name) => THEME_BY_LOWER_NAME.get(name.toLowerCase()));
+  if (names.length === 0 || names.length > 2 || !names.every((name) => name !== undefined)) {
     return undefined;
   }
-  if (hex.length === 8 && Number.parseInt(hex.slice(6, 8), 16) < OPAQUE_ALPHA) {
-    return undefined;
-  }
-  return isDarkHex(hex) ? 'dark' : 'light';
+  return names;
 };
-
-/** @returns The variant's `bg_color` as the table holds it — hex, no `#` — or `undefined`. */
-const bgColorOf = (name: string): string | undefined =>
-  (themes[name as keyof typeof themes] as { bg_color: string } | undefined)?.bg_color;
 
 /** @returns Which group a theme is listed under. */
 const themeMode = (name: string): ThemeMode => {
-  const bgColor = bgColorOf(name);
-  const ground = bgColor === undefined ? undefined : groundOf(bgColor);
-  return ground ?? 'mixed';
+  const ground: CardGround = cardGround({ theme: name });
+  if (ground === 'viewer' || ground === 'translucent') {
+    return 'mixed';
+  }
+  return ground;
 };
 
 /**
- * Any per-scheme background: with one of these the card carries a `prefers-color-scheme` block and
- * follows the browser, so neither ground is the one it will be seen on.
- */
-const PER_SCHEME_BACKGROUNDS = ['theme_light', 'theme_dark', 'bg_color_light', 'bg_color_dark'];
-
-/**
- * Which ground the card should be previewed on: its own `bg_color` if it names one, else its
- * theme's.
+ * Which ground the card should be previewed on.
  *
- * @returns The ground, or `undefined` where the card names none — a family, which follows the
- * viewer, a translucent background, a per-scheme override, or a theme nobody has heard of. There
- * whichever ground is showing is left showing, rather than the page guessing on the reader's behalf.
+ * @returns The ground; `browser` where the card follows the browser's color scheme, as a pair of
+ * two themes does; or `undefined` where it names none — a translucent background or a
+ * theme nobody has heard of. There whichever ground is showing is left showing.
  */
-const backdropFor = (query: Readonly<Record<string, string>>): Backdrop | undefined => {
-  if (PER_SCHEME_BACKGROUNDS.some((name) => (query[name] ?? '') !== '')) {
+const backdropFor = (query: Readonly<Record<string, string>>): ImpliedBackdrop | undefined => {
+  const theme = query['theme'] ?? '';
+  const names = theme === '' ? [] : canonicalThemes(theme);
+  if (names === undefined) {
     return undefined;
   }
 
-  // A family beside an opaque background wears the variant made for it, so the background decides.
-  const custom = query['bg_color'] ?? '';
-  if (custom !== '') {
-    return groundOf(custom);
+  const ground = cardGround({ theme: names.length === 0 ? undefined : names.join(',') });
+  if (ground === 'viewer') {
+    return 'browser';
   }
-
-  const named = query['theme'] ?? '';
-  const name = named === '' ? DEFAULT_THEME : named;
-  const bgColor = bgColorOf(name);
-  return bgColor === undefined ? undefined : groundOf(bgColor);
+  if (ground === 'translucent') {
+    return undefined;
+  }
+  return ground;
 };
 
 /** One heading in the theme list, and the themes under it. */
@@ -111,14 +85,11 @@ const GROUP_LABELS: ReadonlyArray<[ThemeMode, string]> = [
   ['dark', 'Dark'],
 ];
 
-/** @returns The themes, grouped by the background each implies, families under "Either". */
+/** @returns The themes, grouped by the background each implies. */
 const themeGroups = (): Array<ThemeGroup> =>
   GROUP_LABELS.map(([mode, label]) => ({
     label,
-    values: [
-      ...(mode === 'mixed' ? FAMILY_NAMES : []),
-      ...VARIANT_NAMES.filter((name) => themeMode(name) === mode),
-    ],
+    values: THEME_NAMES.filter((name) => themeMode(name) === mode),
   })).filter((group) => group.values.length > 0);
 
 export { backdropFor, themeGroups };

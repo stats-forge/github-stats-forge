@@ -28,6 +28,40 @@ export const pickCard = async (): Promise<CardKind> =>
   });
 
 /**
+ * Asks for `theme` as the anvil does: a theme, then one for dark mode, written as a
+ * `light,dark` pair when the two differ.
+ *
+ * @returns The answer, or `undefined` when it was cleared.
+ */
+const askTheme = async (option: CardOption, current: Answer): Promise<Answer> => {
+  const choices = option.choices ?? [];
+  // read as core reads the param: trimmed, empty entries dropped, in any case
+  const [light, dark] = (typeof current === 'string' ? current.split(',') : [])
+    .map((name) => name.trim().toLowerCase())
+    .filter((name) => name !== '')
+    .map((name) => choices.find((choice) => choice.toLowerCase() === name));
+  const names = choices.map((value) => ({ name: value, value }));
+  const theme = await select<string | undefined>({
+    message: `${option.label} (worn in both modes, unless dark mode has its own)`,
+    choices: [{ name: '— leave unset —', value: undefined }, ...names],
+    default: light,
+  });
+  if (theme === undefined) {
+    return undefined;
+  }
+
+  const darkTheme = await select<string | undefined>({
+    message: 'Dark mode (worn instead when the viewer is in dark mode)',
+    choices: [{ name: '— as the theme —', value: undefined }, ...names],
+    default: dark,
+  });
+  if (darkTheme === undefined || darkTheme === theme) {
+    return theme;
+  }
+  return `${theme},${darkTheme}`;
+};
+
+/**
  * Asks for one option, seeded with whatever it already holds.
  *
  * @returns The answer, or `undefined` when it was cleared.
@@ -47,6 +81,10 @@ const askOption = async (option: CardOption, current: Answer): Promise<Answer> =
       choices: option.choices.map((value) => ({ value, checked: chosen.has(value) })),
     });
     return picked.length > 0 ? picked : undefined;
+  }
+
+  if (option.name === 'theme') {
+    return askTheme(option, current);
   }
 
   if (option.kind === 'choice') {

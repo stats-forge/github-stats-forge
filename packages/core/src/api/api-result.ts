@@ -1,4 +1,4 @@
-import type { ColorParams } from '../common/color.ts';
+import type { ThemeParams } from '../common/color.ts';
 import type { ErrorCode } from '../common/error.ts';
 import { CardError } from '../common/error.ts';
 import { renderError } from '../common/render.ts';
@@ -43,8 +43,8 @@ export type ApiResult =
  */
 export const errorResult = (
   err: unknown,
-  /** omitted when it was a color that was rejected, which cannot draw its own error card */
-  renderOptions?: ColorParams,
+  /** omitted when it was the theme that was rejected, which cannot draw its own error card */
+  renderOptions?: ThemeParams,
 ): ApiResult => {
   const error = CardError.from(err);
 

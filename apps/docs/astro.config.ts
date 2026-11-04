@@ -44,7 +44,6 @@ export default defineConfig({
         './src/styles/theme.css',
         './src/styles/card-previews.css',
         './src/styles/cli-demo.css',
-        './src/styles/precedence.css',
         './src/styles/home.css',
       ],
       components: {

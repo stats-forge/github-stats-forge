@@ -11,6 +11,7 @@ import {
 } from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
 import { renderMarkup } from '../src/markup/index.ts';
+import { themes } from '../src/themes/index.ts';
 
 import { draw, exactly } from './_card.ts';
 
@@ -76,6 +77,10 @@ describe(wrapTextMultiline, () => {
   });
 });
 
+/** @returns A 300px bar at `progress`, asked for its tip, inside an `<svg>`. */
+const tipped = (progress: number): string =>
+  `<svg>${renderMarkup(createProgressNode({ x: 0, y: 0, width: 300, color: '#f00', progress, delay: 0, tip: true }))}</svg>`;
+
 describe(createProgressNode, () => {
   // the bar grows to this width, so a renderer that skips the animation still draws it whole
   it('should draw the fill at its full width', () => {
@@ -85,6 +90,14 @@ describe(createProgressNode, () => {
 
     expect(screen.getByTestId('lang-progress')).toHaveAttribute('width', '40%');
     expect(document.querySelector('.lang-progress')).toHaveAttribute('width', '100%');
+  });
+
+  it('should cap a bar with a tip only when the bar is longer than it', () => {
+    draw(tipped(40));
+    expect(screen.getByTestId('lang-tip')).toHaveAttribute('cx', '115.5');
+
+    draw(tipped(2));
+    expect(screen.queryAllByTestId('lang-tip')).toHaveLength(0);
   });
 });
 
@@ -118,6 +131,32 @@ describe(renderError, () => {
       renderOptions: { reportable: false },
     });
     expect(screen.queryByTestId('report')).not.toBeInTheDocument();
+  });
+
+  it("should follow the viewer's color scheme in the default theme", () => {
+    draw(renderError({ message: 'Nope' }));
+
+    const css = document.querySelector('style')?.textContent ?? '';
+    expect(css).toMatch(
+      new RegExp(
+        `prefers-color-scheme: dark[^@]*\\.error-bg \\{\\s*fill: #${themes.ember_dark.bg_color};`,
+        'u',
+      ),
+    );
+    expect(document.querySelector('.error-bg')).toHaveAttribute(
+      'fill',
+      `#${themes.ember_light.bg_color}`,
+    );
+  });
+
+  it('should carry one palette for a pinned variant', () => {
+    draw(renderError({ message: 'Nope', renderOptions: { theme: 'cobalt_dark' } }));
+
+    expect(document.querySelector('style')).not.toHaveTextContent('prefers-color-scheme: dark');
+    expect(document.querySelector('.error-bg')).toHaveAttribute(
+      'fill',
+      `#${themes.cobalt_dark.bg_color}`,
+    );
   });
 
   it('should encode error message', () => {

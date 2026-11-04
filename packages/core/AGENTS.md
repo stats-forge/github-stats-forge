@@ -36,9 +36,9 @@ every default to the renderer (a card's default width, which only the card knows
 ### How an endpoint is built
 
 - **A `zod/mini` schema built from `api/params.ts`, passed to `cardHandler(schema, identities, render)`**
-  ([#48]), which parses colors, then the query, checks the allowlists and renders. Its two `catch`es
-  are the only callers of `errorResult`.
-- **Colors parse first**: a rejected color cannot draw its own error card.
+  ([#48]), which parses the theme, then the query, checks the allowlists and renders. Its two
+  `catch`es are the only callers of `errorResult`.
+- **The theme parses first**: a rejected theme cannot draw its own error card.
 - **A param several cards take goes in a shared fragment** ([#234]) (`commonParams`, `titleParams`,
   `statRowParams`), spread after the identity param.
 - **Every param helper records its kind with `kinded()`, and the handler carries them as `PARAMS`**
@@ -52,9 +52,10 @@ every default to the renderer (a card's default width, which only the card knows
   stat the card draws, and the handler fetches only what is drawn; the second argument is what a
   form offers. Each card checks `show` through a `shows()` typed to its own list.
 - **`NUMBER_FORMATS` lives in `common/render.ts`**, beside its one reader.
-- **A theme param is an `enumParam` over the theme names.** `getCardColors` still maps an unknown
-  name to `ember_light`; a family name (`ember`) stands for both its variants;
-  `isThemeName` is `Object.hasOwn`, so `?theme=toString` misses ([#231]).
+- **`theme` is one theme name or a `light,dark` pair, each matched as an `enumParam` matches**;
+  one name never switches, and no theme is `DEFAULT_THEME`, a pair. `getCardColors` still maps an
+  unknown name to `ember_light`; `isThemeName` is `Object.hasOwn`, so `?theme=toString` misses
+  ([#231]).
 - **Each kind of rejection has one wording, in `REJECTION_MESSAGES`**, declared through
   `rejects(kind, passes)`; the param name comes from the issue's path. Only the first is reported.
 - **Write plain properties, not conditional spreads**: `CardOptions<T>` takes an explicit `undefined`.

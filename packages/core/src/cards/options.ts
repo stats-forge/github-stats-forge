@@ -1,16 +1,11 @@
-import type { ColorParams } from '../common/color.ts';
+import type { ThemeParams } from '../common/color.ts';
 
 /**
  * Options every card accepts.
- * Cards spread these into `getLightDarkColors`, hence {@link ColorParams}.
+ * Cards hand these to `getLightDarkColors`, hence {@link ThemeParams}.
  */
-export interface CommonCardOptions extends ColorParams {
-  title_color: string;
-  icon_color: string;
-  text_color: string;
-  bg_color: string;
+export interface CommonCardOptions extends ThemeParams {
   border_radius: number;
-  border_color: string;
   hide_border: boolean;
 }
 

@@ -77,7 +77,7 @@ const statsQuery = z
 const renderStats = cardHandler(
   statsQuery,
   { username: 'username' },
-  async (params, colors, config) => {
+  async (params, theme, config) => {
     const {
       username,
       include_all_commits,
@@ -110,7 +110,7 @@ const renderStats = cardHandler(
       config,
     );
 
-    return renderStatsCard(stats, { ...params, ...colors });
+    return renderStatsCard(stats, { ...params, ...theme });
   },
 );
 

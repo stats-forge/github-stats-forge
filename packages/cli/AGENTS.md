@@ -35,6 +35,8 @@ builds and runs it against the root `.env`.
   step of `1` refuses a fraction. So `10px` cannot be typed for `border_radius`, though the api takes it.
 - **No other prompts**: nothing is multi-line, the menu wants a select, and prefix type-ahead
   already reaches every theme.
+- **`theme` is two selects, a theme and then one for dark mode, as on the anvil**; two different
+  answers write a `light,dark` pair, which a saved pair seeds back.
 - **A `list` option with `choices` is a checkbox** ([#46]); give `choices` only when every value is
   known. A saved list is split back, so the boxes reopen ticked.
 - **The menu is grouped, and `group` on `CardOption` is required** ([#76]). The required params are a

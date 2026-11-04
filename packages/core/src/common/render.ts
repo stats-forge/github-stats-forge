@@ -1,8 +1,9 @@
 import type { Child, MarkupElement } from '../markup/index.ts';
-import { el, renderMarkup, rule, style } from '../markup/index.ts';
+import { atRule, el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { CARD_STYLE } from './brand.ts';
-import { HEAT_PAINT, getCardColors, isPrefixedHexColor } from './color.ts';
+import type { ThemeParams } from './color.ts';
+import { HEAT_PAINT, getLightDarkColors, isPrefixedHexColor } from './color.ts';
 import { kFormatter } from './fmt.ts';
 import { clampValue } from './ops.ts';
 import { measureText } from './text.ts';
@@ -111,6 +112,7 @@ const createProgressNode = ({
   }
 
   const progressPercentage = clampValue(progress, 2, 100);
+  const barLength = (width * progressPercentage) / 100;
 
   return el(
     'svg',
@@ -140,12 +142,14 @@ const createProgressNode = ({
         style: `animation-delay: ${delay}ms;`,
       }),
     ),
+    // A bar shorter than the tip would read as the tip's size, not its own.
     tip &&
       color !== undefined &&
+      barLength >= CARD_STYLE.bloom.tipRadius * 2 &&
       el('circle', {
         'data-testid': 'lang-tip',
         class: 'lang-tip',
-        cx: Math.round(((width * progressPercentage) / 100 - CARD_STYLE.bloom.tipRadius) * 10) / 10,
+        cx: Math.round((barLength - CARD_STYLE.bloom.tipRadius) * 10) / 10,
         cy: CARD_STYLE.bloom.tipRadius - 0.5,
         r: CARD_STYLE.bloom.tipRadius,
         fill: color,
@@ -349,33 +353,12 @@ const renderError = ({
   message: string;
   secondaryMessage?: string | undefined;
   // `| undefined`: api handlers forward absent query params
-  renderOptions?: {
-    title_color?: string | undefined;
-    text_color?: string | undefined;
-    bg_color?: string | undefined;
-    border_color?: string | undefined;
-    theme?: string | undefined;
-    reportable?: boolean | undefined;
-  };
+  renderOptions?: ThemeParams & { reportable?: boolean | undefined };
 }): string => {
-  const {
-    title_color,
-    text_color,
-    bg_color,
-    border_color,
-    theme = 'default',
-    reportable = true,
-  } = renderOptions;
+  const { reportable = true, theme } = renderOptions;
 
-  const { titleColor, textColor, bgColor, borderColor } = getCardColors({
-    title_color,
-    text_color,
-    icon_color: '',
-    bg_color,
-    border_color,
-    ring_color: '',
-    theme,
-  });
+  const { lightColors, darkColors } = getLightDarkColors({ theme });
+  const { titleColor, textColor, bgColor, borderColor } = lightColors;
 
   /*
    * Its own line, at the small size, because it no longer fits beside the title: the inherited URL
@@ -391,7 +374,7 @@ const renderError = ({
         width: ERROR_CARD_LENGTH,
         height: 120,
         viewBox: `0 0 ${ERROR_CARD_LENGTH} 120`,
-        fill: String(bgColor),
+        fill: bgColor,
         xmlns: 'http://www.w3.org/2000/svg',
         role: 'img',
         'aria-labelledby': 'title-id desc-id',
@@ -402,6 +385,18 @@ const renderError = ({
         rule('.text', { font: "600 16px 'Segoe UI', Ubuntu, Sans-Serif", fill: titleColor }),
         rule('.small', { font: "600 12px 'Segoe UI', Ubuntu, Sans-Serif", fill: textColor }),
         rule('.gray', { fill: '#858585' }),
+        darkColors &&
+          atRule(
+            '@media (prefers-color-scheme: dark)',
+            rule('.text', { fill: darkColors.titleColor }),
+            rule('.small', { fill: darkColors.textColor }),
+            // again, or the dark `.small` above would win over it
+            rule('.gray', { fill: '#858585' }),
+            rule('.error-bg', {
+              fill: darkColors.bgColor,
+              stroke: darkColors.borderColor,
+            }),
+          ),
       ),
       el('rect', {
         x: 0.5,
@@ -409,7 +404,8 @@ const renderError = ({
         width: ERROR_CARD_LENGTH - 1,
         height: '99%',
         rx: 8,
-        fill: String(bgColor),
+        class: 'error-bg',
+        fill: bgColor,
         stroke: borderColor,
       }),
       el('text', { x: 25, y: 45, class: 'text' }, 'Something went wrong!'),

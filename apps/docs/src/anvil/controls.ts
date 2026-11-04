@@ -59,6 +59,8 @@ const createSelect = ({
   value,
   swatches = false,
   includeDefault = true,
+  defaultLabel = DEFAULT_LABEL,
+  hint,
   onPick,
 }: {
   label: string;
@@ -71,11 +73,17 @@ const createSelect = ({
   swatches?: boolean;
   /** False for the card picker, where there is always a card and so nothing to fall back to. */
   includeDefault?: boolean;
+  /** What the empty first row says it falls back to. */
+  defaultLabel?: string;
+  hint?: string | undefined;
   onPick: (value: string) => void;
 }): HTMLElement => {
   const select = document.createElement('wa-select');
   select.size = 's';
   select.label = label;
+  if (hint !== undefined) {
+    select.hint = hint;
+  }
   select.value = value;
   // `label` is a Lit property and is not reflected, so the control carries its own handle.
   select.dataset['option'] = option;
@@ -85,7 +93,7 @@ const createSelect = ({
   const buildRow = (candidate: string): HTMLElement => {
     const row = document.createElement('wa-option');
     row.value = candidate;
-    row.textContent = candidate === '' ? DEFAULT_LABEL : candidate;
+    row.textContent = candidate === '' ? defaultLabel : candidate;
 
     if (swatches && candidate !== '') {
       const swatch = themeSwatch(candidate);
