@@ -1,0 +1,182 @@
+<svg width="500" height="144" viewBox="0 0 500 144" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-id desc-id">
+  <title id="title-id">The Forge Guild&#39;s activity, week by week</title>
+  <desc id="desc-id">89 pull requests merged, 10 a week, from 2026-09-02 to 2026-11-03. Week by week: 6, 9, 4, 0, 3, 11, 15, 19, 22.</desc>
+  <style>
+    .header {
+      font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: url(#heat);
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
+    }
+    /* The icon reads against the title rather than with it, so it keeps its own color. */
+    .title-icon {
+      fill: #ff7a1a;
+      animation: fadeInAnimation 0.8s ease-in-out backwards;
+    }
+    .title-accent {
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
+    }
+    @supports(-moz-appearance: auto) {
+      /* Selector detects Firefox */
+      .header {
+        font-size: 15.5px;
+      }
+    }
+    .calendar-total {
+      font: 600 22px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: url(#heat);
+    }
+    .calendar-summary {
+      font: 400 12px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #f7ede6;
+      opacity: 0.75;
+    }
+    .calendar-foot {
+      font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #f7ede6;
+      opacity: 0.6;
+    }
+    .week {
+      animation: fadeInAnimation 0.3s ease-in-out backwards;
+    }
+    .week-count {
+      font: 600 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+    }
+    .week-0 {
+      fill: #ffffff33;
+      fill-opacity: 1;
+    }
+    .week-count-0 {
+      fill: #f7ede6;
+    }
+    .week-1 {
+      fill: #ffd166;
+      fill-opacity: 0.4;
+    }
+    .week-count-1 {
+      fill: #f7ede6;
+    }
+    .week-2 {
+      fill: #ff7a1a;
+      fill-opacity: 0.6;
+    }
+    .week-count-2 {
+      fill: #f7ede6;
+    }
+    .week-3 {
+      fill: #ff7a1a;
+      fill-opacity: 0.8;
+    }
+    .week-count-3 {
+      fill: #16100d;
+    }
+    .week-4 {
+      fill: #ff2e63;
+      fill-opacity: 1;
+    }
+    .week-count-4 {
+      fill: #16100d;
+    }
+    /* Animations */
+    @keyframes scaleInAnimation {
+      from {
+        transform: translate(-5px, 5px) scale(0);
+      }
+      to {
+        transform: translate(-5px, 5px) scale(1);
+      }
+    }
+    @keyframes fadeInAnimation {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    @keyframes trailAnimation {
+      from {
+        transform: scaleX(0);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+      }
+    }
+  </style>
+  <defs>
+    <linearGradient id="heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#ffd166" />
+      <stop offset="0.55" class="heat-1" stop-color="#ff7a1a" />
+      <stop offset="1" class="heat-2" stop-color="#ff2e63" />
+    </linearGradient>
+    <linearGradient id="heat-trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#ffd166" />
+      <stop offset="0.3" class="heat-1" stop-color="#ff7a1a" />
+      <stop offset="0.7" class="heat-2" stop-color="#ff2e63" stop-opacity="0.5" />
+      <stop offset="1" class="heat-2" stop-color="#ff2e63" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="band-0" stop-color="#ffd166" stop-opacity="0.16" />
+      <stop offset="0.55" class="band-1" stop-color="#ff7a1a" stop-opacity="0.16" />
+      <stop offset="1" class="band-2" stop-color="#ff2e63" stop-opacity="0.112" />
+    </linearGradient>
+    <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
+      <stop offset="0" class="glow-core" stop-color="#ff7a1a" stop-opacity="0.42" />
+      <stop offset="0.45" class="glow-edge" stop-color="#ff2e63" stop-opacity="0.147" />
+      <stop offset="1" class="heat-2" stop-color="#ff2e63" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#ff7a1a4d" fill="#16100d" stroke-opacity="1" />
+  <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="499" fill="url(#heat-glow)" />
+  <path data-testid="title-band" d="M0.5 14.5a14 14 0 0 1 14 -14h471a14 14 0 0 1 14 14v26.5h-499z" fill="url(#heat-band)" />
+  <g data-testid="card-title" transform="translate(18, 25)">
+    <g>
+      <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
+        <path d="M9.533.753V.752c.217 2.385 1.463 3.626 2.653 4.81C13.37 6.74 14.498 7.863 14.498 10c0 3.5-3 6-6.5 6S1.5 13.512 1.5 10c0-1.298.536-2.56 1.425-3.286.376-.308.862 0 1.035.454C4.46 8.487 5.581 8.419 6 8c.282-.282.341-.811-.003-1.5C4.34 3.187 7.035.75 8.77.146c.39-.137.726.194.763.607ZM7.998 14.5c2.832 0 5-1.98 5-4.5 0-1.463-.68-2.19-1.879-3.383l-.036-.037c-1.013-1.008-2.3-2.29-2.834-4.434-.322.256-.63.579-.864.953-.432.696-.621 1.58-.046 2.73.473.947.67 2.284-.278 3.232-.61.61-1.545.84-2.403.633a2.79 2.79 0 0 1-1.436-.874A3.198 3.198 0 0 0 3 10c0 2.53 2.164 4.5 4.998 4.5Z" />
+      </svg>
+    </g>
+    <g transform="translate(25, 0)">
+      <text x="0" y="0" class="header" data-testid="header">The Forge Guild&#39;s activity, week by week</text>
+    </g>
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="399.1" height="2" rx="1" fill="url(#heat-trail)" />
+  </g>
+  <g data-testid="main-card-body" transform="translate(0, 50)">
+    <g data-testid="headline">
+      <text data-testid="total" class="calendar-total" x="18" y="17">89</text>
+      <text data-testid="summary" class="calendar-summary" x="54" y="17">pull requests merged &#183; 10 a week</text>
+    </g>
+    <rect data-testid="week" class="week week-2" x="18" y="36" width="49.78" height="28" rx="2" fill="#ff7a1a" fill-opacity="0.6" style="animation-delay: 0ms" />
+    <text data-testid="week-count" class="week week-count week-count-2" x="42.89" y="54" text-anchor="middle" fill="#f7ede6" style="animation-delay: 0ms">6</text>
+    <rect data-testid="week" class="week week-2" x="69.78" y="36" width="49.78" height="28" rx="2" fill="#ff7a1a" fill-opacity="0.6" style="animation-delay: 10ms" />
+    <text data-testid="week-count" class="week week-count week-count-2" x="94.67" y="54" text-anchor="middle" fill="#f7ede6" style="animation-delay: 10ms">9</text>
+    <rect data-testid="week" class="week week-1" x="121.56" y="36" width="49.78" height="28" rx="2" fill="#ffd166" fill-opacity="0.4" style="animation-delay: 20ms" />
+    <text data-testid="week-count" class="week week-count week-count-1" x="146.44" y="54" text-anchor="middle" fill="#f7ede6" style="animation-delay: 20ms">4</text>
+    <rect data-testid="week" class="week week-0" x="173.33" y="36" width="49.78" height="28" rx="2" fill="#ffffff33" fill-opacity="1" style="animation-delay: 30ms" />
+    <text data-testid="week-count" class="week week-count week-count-0" x="198.22" y="54" text-anchor="middle" fill="#f7ede6" style="animation-delay: 30ms">0</text>
+    <rect data-testid="week" class="week week-1" x="225.11" y="36" width="49.78" height="28" rx="2" fill="#ffd166" fill-opacity="0.4" style="animation-delay: 40ms" />
+    <text data-testid="week-count" class="week week-count week-count-1" x="250" y="54" text-anchor="middle" fill="#f7ede6" style="animation-delay: 40ms">3</text>
+    <rect data-testid="week" class="week week-2" x="276.89" y="36" width="49.78" height="28" rx="2" fill="#ff7a1a" fill-opacity="0.6" style="animation-delay: 50ms" />
+    <text data-testid="week-count" class="week week-count week-count-2" x="301.78" y="54" text-anchor="middle" fill="#f7ede6" style="animation-delay: 50ms">11</text>
+    <rect data-testid="week" class="week week-3" x="328.67" y="36" width="49.78" height="28" rx="2" fill="#ff7a1a" fill-opacity="0.8" style="animation-delay: 60ms" />
+    <text data-testid="week-count" class="week week-count week-count-3" x="353.56" y="54" text-anchor="middle" fill="#16100d" style="animation-delay: 60ms">15</text>
+    <rect data-testid="week" class="week week-4" x="380.44" y="36" width="49.78" height="28" rx="2" fill="#ff2e63" fill-opacity="1" style="animation-delay: 70ms" />
+    <text data-testid="week-count" class="week week-count week-count-4" x="405.33" y="54" text-anchor="middle" fill="#16100d" style="animation-delay: 70ms">19</text>
+    <rect data-testid="week" class="week week-4" x="432.22" y="36" width="49.78" height="28" rx="2" fill="#ff2e63" fill-opacity="1" style="animation-delay: 80ms" />
+    <text data-testid="week-count" class="week week-count week-count-4" x="457.11" y="54" text-anchor="middle" fill="#16100d" style="animation-delay: 80ms">22</text>
+    <text data-testid="from" class="calendar-foot" x="18" y="81">2026-09-02</text>
+    <text data-testid="to" class="calendar-foot" x="482" y="81" text-anchor="end">2026-11-03</text>
+    <g data-testid="legend">
+      <text class="calendar-foot" x="193" y="81">Less</text>
+      <rect class="week-0" x="218.27666621208192" y="72" width="10" height="10" rx="2" fill="#ffffff33" fill-opacity="1" />
+      <rect class="week-1" x="230.27666621208192" y="72" width="10" height="10" rx="2" fill="#ffd166" fill-opacity="0.4" />
+      <rect class="week-2" x="242.27666621208192" y="72" width="10" height="10" rx="2" fill="#ff7a1a" fill-opacity="0.6" />
+      <rect class="week-3" x="254.27666621208192" y="72" width="10" height="10" rx="2" fill="#ff7a1a" fill-opacity="0.8" />
+      <rect class="week-4" x="266.2766662120819" y="72" width="10" height="10" rx="2" fill="#ff2e63" fill-opacity="1" />
+      <text class="calendar-foot" x="281.2766662120819" y="81">More</text>
+    </g>
+  </g>
+</svg>

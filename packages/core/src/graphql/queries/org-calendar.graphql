@@ -1,0 +1,12 @@
+# The selection of each week's aliased search; `buildOrgCalendarDocument` writes the query.
+fragment OrgCalendarWeek on SearchResultItemConnection {
+  issueCount
+  nodes {
+    __typename
+  }
+}
+
+fragment OrgCalendarOrganization on Organization {
+  login
+  name
+}

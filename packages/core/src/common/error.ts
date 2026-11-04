@@ -133,6 +133,11 @@ const FAILURES = {
     secondaryMessage:
       'The token needs read access to issues, or hide "issues_opened" and "issues_closed"',
   }),
+  org_calendar_issues_forbidden: (): Failure => ({
+    code: 'forbidden',
+    message: 'Missing token permission',
+    secondaryMessage: 'The token needs read access to issues, or count pull requests instead',
+  }),
   org_invalid: (): Failure => ({
     code: 'invalid_param',
     message: 'Invalid organization provided.',

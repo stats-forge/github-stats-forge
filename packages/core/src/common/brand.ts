@@ -101,6 +101,24 @@ const CARD_STYLE = {
     radius: 4,
   },
 
+  /** The organization calendar: its total, a row of weeks, and the dates and legend under it. */
+  calendar: {
+    /** A week's cell. */
+    cellHeight: 28,
+    /** The baseline of a week's count, from the cell's top: its digits centred in the cell. */
+    countBaseline: 18,
+    /** The least air either side of a week's count; a count that would need less is shortened. */
+    countInset: 3,
+    /** Air between two weeks' cells. */
+    cellGap: 2,
+    /** The baseline of the dates and the legend, below the cells. */
+    footBaseline: 17,
+    /** A legend swatch's side. */
+    swatch: 10,
+    /** Air between the legend's words and its swatches. */
+    legendGap: 5,
+  },
+
   /** A row pairing two counts over a bar: the stat line, then the bar comparing them. */
   flowRow: {
     /** The bar's top, clear of the stat line's ink. */
@@ -186,6 +204,7 @@ const CARD_ICON = {
   contributedTo: icons.prs_merged,
   gist: icons.gist,
   orgActivity: icons.calendar,
+  orgCalendar: icons.flame,
   organization: icons.organization,
   repo: icons.repo,
   stats: icons.pulse,

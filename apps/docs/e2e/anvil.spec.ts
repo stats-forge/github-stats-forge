@@ -194,6 +194,7 @@ test('groups the cards by what each one describes', async ({ page }) => {
     'gist',
     'org',
     'org-activity',
+    'org-calendar',
   ]);
 });
 

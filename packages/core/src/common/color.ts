@@ -169,6 +169,68 @@ const getLightDarkColors = ({
   return { lightColors: getCardColors(light), darkColors: getCardColors(dark) };
 };
 
+/** @returns WCAG's relative luminance of a color's red, green and blue, each on 0–1. */
+const relativeLuminance = (channels: ReadonlyArray<number>): number => {
+  const [r = 0, g = 0, b = 0] = channels.map((channel) => {
+    if (channel <= 0.04045) {
+      return channel / 12.92;
+    }
+    return ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+/** @returns WCAG's contrast ratio between two luminances, from 1 to 21. */
+const contrastRatio = (a: number, b: number): number =>
+  (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+
+/** The pages a translucent card may stand on: GitHub's light and dark grounds. */
+const PAGE_GROUNDS = ['#ffffff', '#0d1117'] as const;
+
+/** WCAG AA's contrast for text, which the theme's own ink is kept while it clears. */
+const TEXT_CONTRAST = 4.5;
+
+/**
+ * The ink that reads best on a fill laid at `opacity` over the card's background: the theme's text
+ * color or its background while one clears {@link TEXT_CONTRAST}, else black or white. A
+ * translucent card's ink must read on either page it may stand on.
+ *
+ * @returns The ink.
+ */
+const inkOn = (colors: CardColors, fill: string, opacity: number): string => {
+  const { textColor, bgColor } = colors;
+  const translucent = backgroundTone(bgColor) === 'translucent';
+  const grounds = translucent ? PAGE_GROUNDS : [bgColor];
+  const [r, g, b, a] = hexChannels(fill);
+  const alpha = a * opacity;
+  const laid = grounds.map((ground) => {
+    const below = hexChannels(ground);
+    return relativeLuminance(
+      [r, g, b].map((channel, index) => channel * alpha + (below[index] ?? 0) * (1 - alpha)),
+    );
+  });
+  /** @returns The ink's contrast on the fill over whichever ground it reads worst on. */
+  const worst = (ink: string): number =>
+    Math.min(...laid.map((cell) => contrastRatio(cell, relativeLuminance(hexChannels(ink)))));
+  /** @returns The first of `inks` that reads best, so a tie keeps the theme's own. */
+  const best = ([first, ...rest]: readonly [string, ...Array<string>]): string => {
+    let kept = first;
+    for (const ink of rest) {
+      if (worst(ink) > worst(kept)) {
+        kept = ink;
+      }
+    }
+    return kept;
+  };
+
+  // a translucent background is no ink at all
+  const own = best(translucent ? [textColor] : [textColor, bgColor]);
+  if (worst(own) >= TEXT_CONTRAST) {
+    return own;
+  }
+  return best([own, '#ffffff', '#000000']);
+};
+
 /** What a card stands on: its one background's tone, or `viewer` when it carries both schemes. */
 type CardGround = BackgroundTone | 'viewer';
 
@@ -183,4 +245,12 @@ const cardGround = (params: ThemeParams): CardGround => {
 
 export type { CardColors, CardGround, ThemeParams };
 
-export { cardGround, getCardColors, getLightDarkColors, HEAT_ID, HEAT_PAINT, isPrefixedHexColor };
+export {
+  cardGround,
+  getCardColors,
+  getLightDarkColors,
+  HEAT_ID,
+  HEAT_PAINT,
+  inkOn,
+  isPrefixedHexColor,
+};

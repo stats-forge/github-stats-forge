@@ -17,17 +17,18 @@ numbers should be live, or the token should stay on a machine you own.
 
 `GET` and `HEAD`, one path per card; a trailing slash resolves to the same route.
 
-| Path                  | Draws                        |
-| --------------------- | ---------------------------- |
-| `/api/stats`          | commits, PRs, issues, a rank |
-| `/api/top-langs`      | most-used languages          |
-| `/api/pin`            | one repository               |
-| `/api/org`            | an organization              |
-| `/api/org-activity`   | its PRs, issues and commits  |
-| `/api/contributed-to` | repositories contributed to  |
-| `/api/gist`           | one gist                     |
-| `/api/wakatime`       | WakaTime coding time         |
-| `/healthz`            | `{"status":"ok"}`            |
+| Path                  | Draws                         |
+| --------------------- | ----------------------------- |
+| `/api/stats`          | commits, PRs, issues, a rank  |
+| `/api/top-langs`      | most-used languages           |
+| `/api/pin`            | one repository                |
+| `/api/org`            | an organization               |
+| `/api/org-activity`   | its PRs, issues and commits   |
+| `/api/org-calendar`   | its weeks, as a heat calendar |
+| `/api/contributed-to` | repositories contributed to   |
+| `/api/gist`           | one gist                      |
+| `/api/wakatime`       | WakaTime coding time          |
+| `/healthz`            | `{"status":"ok"}`             |
 
 Every option on [Common options](../../customization/common-options/) and each card's page is a
 query param, spelled the same.

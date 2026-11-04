@@ -16,6 +16,12 @@ const HOSTNAME_PATTERN =
 /** A WakaTime or Wakapi username: one path segment, and never `.` or `..`. */
 const WAKATIME_USERNAME_PATTERN = /^(?!\.+$)[\w.-]+$/;
 
+/** What an organization calendar's weeks can count, each a search over the week. */
+const ORG_CALENDAR_COUNTS = ['prs_merged', 'prs_opened', 'issues_opened', 'issues_closed'] as const;
+
+/** Weeks one calendar can cover: two months, which GitHub searches well inside its 10s limit. */
+const ORG_CALENDAR_MAX_WEEKS = 9;
+
 /**
  * Valid owner affiliations for GitHub API queries.
  */
@@ -40,6 +46,8 @@ export {
   GITHUB_EPOCH_YEAR,
   GITHUB_USERNAME_PATTERN,
   HOSTNAME_PATTERN,
+  ORG_CALENDAR_COUNTS,
+  ORG_CALENDAR_MAX_WEEKS,
   OWNER_AFFILIATIONS,
   WAKATIME_USERNAME_PATTERN,
 };

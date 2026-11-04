@@ -93,7 +93,11 @@ export default defineConfig({
             },
             {
               label: 'Organization',
-              items: ['docs/cards/organization', 'docs/cards/organization-activity'],
+              items: [
+                'docs/cards/organization',
+                'docs/cards/organization-activity',
+                'docs/cards/organization-calendar',
+              ],
             },
           ],
         },
@@ -132,6 +136,7 @@ export default defineConfig({
             'docs/fetchers/fetch-gist',
             'docs/fetchers/fetch-organization',
             'docs/fetchers/fetch-org-activity',
+            'docs/fetchers/fetch-org-calendar',
             'docs/fetchers/fetch-wakatime-stats',
             'docs/fetchers/fetch-repo-user-stats',
           ],

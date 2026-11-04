@@ -26,6 +26,7 @@ which is why that class is exported from this entry point too rather than only f
 | [`fetchGist`](../fetch-gist/)                     | One gist                                       |
 | [`fetchOrganization`](../fetch-organization/)     | One organization, with its repository totals   |
 | [`fetchOrgActivity`](../fetch-org-activity/)      | What that organization did over a window       |
+| [`fetchOrgCalendar`](../fetch-org-calendar/)      | Its weeks, each counting one kind of activity  |
 | [`fetchWakatimeStats`](../fetch-wakatime-stats/)  | Coding time per language                       |
 | [`fetchRepoUserStats`](../fetch-repo-user-stats/) | Their PRs and issues within given repositories |
 

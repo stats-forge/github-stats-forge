@@ -26,8 +26,8 @@ hero:
 
 Contribution stats, the languages you write most, the repositories you contribute to and WakaTime
 coding time describe a person; a pinned repository and a pinned gist describe one thing they own;
-and two organization cards describe a whole account — what it owns, and what it has been doing
-lately. Every one takes the same colours, borders and [themes](docs/customization/themes/), and
+and the organization cards describe a whole account — what it owns, what it has been doing
+lately, and its last two months week by week. Every one takes the same colours, borders and [themes](docs/customization/themes/), and
 each has a light and a dark version.
 
 <div class="card-gallery">
@@ -39,6 +39,8 @@ each has a light and a dark version.
 [Repository pin ![The repository pin card](/cards/pin.svg)](docs/cards/repo-pin/)
 
 [Organization activity ![The organization activity card](/cards/org-activity.svg)](docs/cards/organization-activity/)
+
+[Organization calendar ![The organization calendar card](/cards/org-calendar.svg)](docs/cards/organization-calendar/)
 
 [Gist pin ![The gist pin card](/cards/gist.svg)](docs/cards/gist-pin/)
 
