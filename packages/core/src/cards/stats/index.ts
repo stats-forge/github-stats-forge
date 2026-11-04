@@ -280,13 +280,16 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
         cy: 8,
         r: RANK_RING.radius,
       }),
-      el('circle', {
-        class: 'rank-circle',
-        cx: -RANK_CIRCLE_CX_OFFSET,
-        cy: 8,
-        r: RANK_RING.radius,
-        filter: HEAT_PAINT.bloom,
-      }),
+      [HEAT_PAINT.bloom, undefined].map((filter) =>
+        el('circle', {
+          'data-testid': filter === undefined ? 'rank-ring' : 'rank-glow',
+          class: 'rank-circle',
+          cx: -RANK_CIRCLE_CX_OFFSET,
+          cy: 8,
+          r: RANK_RING.radius,
+          filter,
+        }),
+      ),
       el('g', { class: 'rank-text' }, rankIcon(rank_icon, rank.level, rank.percentile)),
       SPARKS.map(([dx, dy, delay]) =>
         el('circle', {

@@ -146,16 +146,18 @@ const createProgressNode = ({
     tip &&
       color !== undefined &&
       barLength >= CARD_STYLE.bloom.tipRadius * 2 &&
-      el('circle', {
-        'data-testid': 'lang-tip',
-        class: 'lang-tip',
-        cx: Math.round((barLength - CARD_STYLE.bloom.tipRadius) * 10) / 10,
-        cy: CARD_STYLE.bloom.tipRadius - 0.5,
-        r: CARD_STYLE.bloom.tipRadius,
-        fill: color,
-        filter: HEAT_PAINT.bloom,
-        style: `animation-delay: ${delay + 400}ms;`,
-      }),
+      [HEAT_PAINT.bloom, undefined].map((filter) =>
+        el('circle', {
+          'data-testid': filter === undefined ? 'lang-tip' : 'lang-tip-glow',
+          class: 'lang-tip',
+          cx: Math.round((barLength - CARD_STYLE.bloom.tipRadius) * 10) / 10,
+          cy: CARD_STYLE.bloom.tipRadius - 0.5,
+          r: CARD_STYLE.bloom.tipRadius,
+          fill: color,
+          filter,
+          style: `animation-delay: ${delay + 400}ms;`,
+        }),
+      ),
   );
 };
 

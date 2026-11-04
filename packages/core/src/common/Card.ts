@@ -151,17 +151,12 @@ const renderHeatDefs = (colors: CardColors, burns: boolean): Array<Child> => {
       }),
       heatStop(1, colors, 2, 0),
     ]),
+    // The blur alone: WebKit draws a filtered shape at 1x, so what glows is drawn again over it.
     burns &&
       el(
         'filter',
         { id: HEAT_ID.bloom, x: '-50%', y: '-50%', width: '200%', height: '200%' },
-        el('feGaussianBlur', { stdDeviation: CARD_STYLE.bloom.blur, result: 'bloom' }),
-        el(
-          'feMerge',
-          {},
-          el('feMergeNode', { in: 'bloom' }),
-          el('feMergeNode', { in: 'SourceGraphic' }),
-        ),
+        el('feGaussianBlur', { stdDeviation: CARD_STYLE.bloom.blur }),
       ),
   ];
 };

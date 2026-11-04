@@ -2,6 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { CARD_STYLE } from '../src/common/brand.ts';
+import { HEAT_PAINT } from '../src/common/color.ts';
 import {
   createLanguageNode,
   createProgressNode,
@@ -96,6 +97,9 @@ describe(createProgressNode, () => {
   it('should cap a bar with a tip only when the bar is longer than it', () => {
     draw(tipped(40));
     expect(screen.getByTestId('lang-tip')).toHaveAttribute('cx', '115.5');
+    // WebKit draws a filtered shape at 1x, so the tip itself stays out of its glow.
+    expect(screen.getByTestId('lang-tip')).not.toHaveAttribute('filter');
+    expect(screen.getByTestId('lang-tip-glow')).toHaveAttribute('filter', HEAT_PAINT.bloom);
 
     draw(tipped(2));
     expect(screen.queryAllByTestId('lang-tip')).toHaveLength(0);

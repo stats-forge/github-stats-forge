@@ -220,11 +220,7 @@
       <stop offset="1" class="heat-2" stop-color="#2f80ed" stop-opacity="0" />
     </radialGradient>
     <filter id="heat-bloom" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="bloom" />
-      <feMerge>
-        <feMergeNode in="bloom" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
+      <feGaussianBlur stdDeviation="2" />
     </filter>
   </defs>
   <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="499" stroke="#e4e2e2" fill="#fffefe" stroke-opacity="1" />
@@ -244,7 +240,8 @@
   <g data-testid="main-card-body" transform="translate(0, 50)">
     <g data-testid="rank-circle" transform="translate(441, 49.5)">
       <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
-      <circle class="rank-circle" cx="-10" cy="8" r="40" filter="url(#heat-bloom)" />
+      <circle data-testid="rank-glow" class="rank-circle" cx="-10" cy="8" r="40" filter="url(#heat-bloom)" />
+      <circle data-testid="rank-ring" class="rank-circle" cx="-10" cy="8" r="40" />
       <g class="rank-text">
         <text x="-5" alignment-baseline="central" dominant-baseline="central" text-anchor="middle" y="3" data-testid="level-rank-icon">S</text>
       </g>

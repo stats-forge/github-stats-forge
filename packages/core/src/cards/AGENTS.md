@@ -54,6 +54,8 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 - **Text is never filled with a gradient**: WebKit draws gradient-filled text in an `<img>` at 1x,
   blurring it on a retina screen, and a `clipPath` or `mask` blurs the same. Shapes keep the
   gradients, which it draws sharp.
+- **What glows is drawn twice: the bloom alone behind, the shape unfiltered over it**. WebKit draws
+  a filtered shape at 1x too, so `HEAT_PAINT.bloom` is a blur with no `SourceGraphic` in it.
 - **A chart split by language keeps GitHub's language colors**; only a bar measuring one share,
   as on the WakaTime card's normal layout or the activity card's flow rows, burns in the heat.
 - **A `quiet` theme drops the corner glow and halves the band**, for the original palettes.

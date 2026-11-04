@@ -278,6 +278,7 @@ describe(Card, () => {
     draw(blank({ burns: true }).render(``));
     expect(document.querySelector('#heat-ring')).toBeInTheDocument();
     expect(document.querySelector('#heat-bloom')).toBeInTheDocument();
+    expect(document.querySelectorAll('#heat-bloom > *')).toHaveLength(1);
   });
 
   it('title should not have prefix icon', () => {

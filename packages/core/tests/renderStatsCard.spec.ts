@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
+import { HEAT_PAINT } from '../src/common/color.ts';
 import type { StatsData } from '../src/fetchers/stats/types.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -63,6 +64,9 @@ describe('Test renderStatsCard', () => {
     expect(screen.getByTestId('contributed_to')).toHaveTextContent(exactly('500'));
     expect(screen.queryByTestId('card-bg')).toBeInTheDocument();
     expect(screen.queryByTestId('rank-circle')).toBeInTheDocument();
+    // WebKit draws a filtered shape at 1x, so the ring itself stays out of its glow.
+    expect(screen.getByTestId('rank-ring')).not.toHaveAttribute('filter');
+    expect(screen.getByTestId('rank-glow')).toHaveAttribute('filter', HEAT_PAINT.bloom);
     expect(drawnIds(ALL_STATS)).toStrictEqual([
       'stars',
       'commits',
