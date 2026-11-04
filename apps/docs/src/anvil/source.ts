@@ -114,7 +114,7 @@ const serverSource: PreviewSource = {
   badge: 'Live data',
   aside: '— drawn by the instance serving this page.',
   detail:
-    'Cards are drawn by the server that serves this page, using its own GitHub token, so what you type is sent to it and the numbers are real. Each redraw costs a request against that token.',
+    'Cards are drawn by the server that serves this page, using its own GitHub token, so what you type is sent to it and the numbers are real. Each redraw is processed by the server.',
   identityNote:
     'These go into the saved file, and into the preview: the card beside them is drawn for whoever you name. The made-up account they start with is drawn from sample data.',
   draw: async (cardId, options) => {

@@ -43,6 +43,19 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
   a `no-store` answer is never a `Card-Cache: hit`.
 - **One render per key at a time**: concurrent requests share the one in flight.
 - **`CardCache` is never `undefined`**: a TTL of `0` stores nothing.
+- **Upstream answers are held too, by `holdingUpstream`**, wrapping the transport `CardConfig` takes,
+  which every request core makes goes through, WakaTime's included: a card whose look alone changed
+  costs no request, keyed by method, URL and body but never the token. It keeps a success for
+  `UPSTREAM_HOLD_SECONDS`, not a card's TTL, so a card redrawn on expiry sees new numbers. It never
+  keeps a non-2xx, a non-JSON body, a top-level `message`, or a GraphQL answer without `data` or
+  with an error other than `NOT_FOUND`: GitHub puts a rate limit and a refusal there.
+  - **A caller who joined a request another caller's timeout aborted asks again itself**: the
+    shared request runs on its first caller's signal.
+  - **It is bounded by size, `CACHE_UPSTREAM_MB`, not by count**: one GraphQL answer can outweigh a
+    hundred cards. The least used goes first, an expired answer goes at the next miss, and one larger
+    than the whole budget is never kept, so it cannot push the others out.
+  - **Not a `WeakRef` cache**: V8 clears those at its next collection, which would hold nothing for
+    long and nothing predictably.
 - **A success is kept `STALE_SECONDS` past its TTL** (`STALE_WHILE_REVALIDATE` by default, `0` for
   none) to answer for a redraw that fails retryably. `get` sees the fresh entries and `getStale` the
   rest; a retryable error never overwrites the kept card, the stale answer is sent with

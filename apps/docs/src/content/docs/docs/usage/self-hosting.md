@@ -79,6 +79,7 @@ Everything but `PAT_1` is optional.
 | `STRICT_HTTP_STATUS`     | `false`            | answer with the status code a failure deserves               |
 | `CACHE_SECONDS`          | —                  | default lifetime of a drawn card; `0` turns caching off      |
 | `STALE_SECONDS`          | `86400`            | how long a held card covers a failing redraw; `0` for none   |
+| `CACHE_UPSTREAM_MB`      | `16`               | memory for GitHub's and WakaTime's answers; `0` holds none   |
 | `CORS_ORIGIN`            | —                  | the one origin allowed to read a card from script            |
 
 See [GitHub tokens](../tokens/) for which token each card needs.
@@ -166,6 +167,10 @@ for an hour. If a redraw fails, the last good card is served for up to a day lon
 `STALE_SECONDS`.
 `?cache_seconds=` asks for a life between four and twenty-four hours; `CACHE_SECONDS=0` turns
 caching off.
+
+GitHub's and WakaTime's answers are held for five minutes, so a card drawn again with only its look
+changed, such as another theme, or the anvil redrawing as you change an option, costs no request. A rate limit or
+an error is never held, and past `CACHE_UPSTREAM_MB` the answer used longest ago goes first.
 
 ## In a README
 

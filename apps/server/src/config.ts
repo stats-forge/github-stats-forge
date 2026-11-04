@@ -4,10 +4,11 @@
 
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 
-import { CardCache, STALE_WHILE_REVALIDATE, parseInteger } from './cache.ts';
+import { CardCache, STALE_WHILE_REVALIDATE, parseInteger, successTtl } from './cache.ts';
 import type { ServerOptions } from './handler.ts';
 import { DEFAULT_HOST, DEFAULT_PORT } from './health.ts';
 import { createStaticHandler } from './static.ts';
+import { holdingUpstream } from './upstream.ts';
 
 type Env = Record<string, string | undefined>;
 
@@ -16,6 +17,15 @@ const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 
 /** A few megabytes of SVG, which is more READMEs than one instance is likely to serve. */
 const DEFAULT_CACHE_MAX_ENTRIES = 500;
+
+/** Megabytes of upstream answers held at most: a few hundred cards' worth of GitHub data. */
+const DEFAULT_CACHE_UPSTREAM_MB = 16;
+
+/**
+ * Seconds an upstream answer is held: enough for a card redrawn in another look, short enough that
+ * a card redrawn once its own TTL runs out sees new numbers.
+ */
+const UPSTREAM_HOLD_SECONDS = 300;
 
 /** How long `docker stop` is given to drain before the listener is dropped anyway. */
 const DEFAULT_SHUTDOWN_TIMEOUT_MS = 10_000;
@@ -48,6 +58,7 @@ const fromEnv = (value: string | undefined): string | undefined => {
  */
 const readSettings = (env: Env): ServerSettings => {
   const siteDir = fromEnv(env['SITE_DIR']);
+  const cacheSeconds = parseInteger(env['CACHE_SECONDS']);
 
   return {
     port: parseInteger(env['PORT']) ?? DEFAULT_PORT,
@@ -56,11 +67,17 @@ const readSettings = (env: Env): ServerSettings => {
     logRequests: env['LOG_REQUESTS'] !== 'false',
     options: {
       config: CardConfig.fromEnv(env).with({
+        // the global is read per call, so a host patching it later is still picked up
+        fetch: holdingUpstream(
+          async (input, init) => fetch(input, init),
+          Math.min(successTtl(cacheSeconds), UPSTREAM_HOLD_SECONDS),
+          (parseInteger(env['CACHE_UPSTREAM_MB']) ?? DEFAULT_CACHE_UPSTREAM_MB) * 1024 * 1024,
+        ),
         requestTimeoutMs: parseInteger(env['REQUEST_TIMEOUT_MS']) ?? DEFAULT_REQUEST_TIMEOUT_MS,
       }),
       strictHttpStatus: env['STRICT_HTTP_STATUS'] === 'true',
       // `0` is the one switch: it stores nothing as well as sending `no-store`
-      cacheSeconds: parseInteger(env['CACHE_SECONDS']),
+      cacheSeconds,
       corsOrigin: fromEnv(env['CORS_ORIGIN']),
       cache: new CardCache(
         parseInteger(env['CACHE_MAX_ENTRIES']) ?? DEFAULT_CACHE_MAX_ENTRIES,
