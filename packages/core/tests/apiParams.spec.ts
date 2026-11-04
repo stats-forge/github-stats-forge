@@ -179,7 +179,7 @@ describe('api query schemas', () => {
     [
       'top-langs',
       'matches booleans and fixed values case-insensitively',
-      { hide_title: 'TRUE', layout: 'Donut', theme: 'Dark' },
+      { hide_title: 'TRUE', layout: 'Donut', theme: 'Ember_Dark' },
     ],
   ] as const)('%s %s', async (endpoint, _what, query) => {
     const result = await endpoints[endpoint]({ username: 'anuraghazra', ...query });

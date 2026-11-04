@@ -165,6 +165,7 @@ const createProgressTextNode = ({
       width: progressWidth,
       progress,
       delay: staggerDelay + 300,
+      tip: true,
     }),
   );
 };

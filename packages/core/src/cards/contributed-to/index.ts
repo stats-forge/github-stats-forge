@@ -1,6 +1,6 @@
 import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card, titleFits } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
+import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
 import { formatYears } from '../../common/date.ts';
 import { kFormatter } from '../../common/fmt.ts';
 import type { Localized } from '../../common/localize.ts';
@@ -230,7 +230,6 @@ const renderContributedToCard = (
     disable_animations = false,
     hide_years = false,
     border_radius,
-    theme = 'default',
   } = options;
 
   const { login, repos, totalRepos } = data;
@@ -265,7 +264,7 @@ const renderContributedToCard = (
   const footerY = FIRST_ROW_Y + Math.max(repos.length, 1) * rowHeight + FOOTER_GAP;
   const height = CARD_STYLE.padding.bodyOffsetY + footerY + CARD_STYLE.padding.bottom;
 
-  const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
+  const { lightColors, darkColors } = getLightDarkColors(options);
 
   // `role="img"` hides the inner text from assistive tech, so everything the card
   // shows has to be repeated in its description — the year marks included, since they carry
@@ -321,7 +320,7 @@ const renderContributedToCard = (
       rule('.year-off', { fill: textColor, opacity: 0.25 }),
       rule('.progress-background', { fill: progBarBgColor }),
       rule('.lang-progress', {
-        fill: titleColor,
+        fill: HEAT_PAINT.line,
         animation: 'growWidthAnimation 0.6s ease-in-out backwards',
       }),
       rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),

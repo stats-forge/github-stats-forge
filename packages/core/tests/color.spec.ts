@@ -4,6 +4,7 @@ import { parseColorParams } from '../src/api/params.ts';
 import {
   BASE_COLOR_KEYS,
   COLOR_PARAM_KEYS,
+  HEAT_PAINT,
   THEME_PARAM_KEYS,
   THEME_VARIANTS,
   getCardColors,
@@ -24,9 +25,10 @@ describe(getCardColors, () => {
       bg_color: 'fff',
       border_color: 'fff',
       prog_bar_bg_color: 'f0f',
-      theme: 'dark',
+      theme: 'ember_dark',
     });
     expect(colors).toStrictEqual({
+      heat: ['#f00', '#f00', '#f00'],
       titleColor: '#f00',
       textColor: '#0f0',
       iconColor: '#00f',
@@ -34,86 +36,86 @@ describe(getCardColors, () => {
       bgColor: '#fff',
       borderColor: '#fff',
       progBarBgColor: '#f0f',
+      glowOpacity: 0.17,
     });
   });
 
-  it('should fallback to default colors if color is invalid', () => {
+  it('should fallback to the theme if a color is invalid', () => {
     const colors = getCardColors({
       title_color: 'invalidcolor',
       text_color: '0f0',
-      icon_color: '00f',
       bg_color: 'fff',
       border_color: 'invalidColor',
-      theme: 'dark',
+      theme: 'cobalt_dark',
     });
     expect(colors).toStrictEqual({
-      titleColor: '#2f80ed',
+      heat: ['#7df3ff', '#3d8bff', '#8a5cff'],
+      titleColor: '#3d8bff',
       textColor: '#0f0',
-      iconColor: '#00f',
-      ringColor: '#2f80ed',
+      iconColor: '#3d8bff',
+      ringColor: HEAT_PAINT.ring,
       bgColor: '#fff',
-      borderColor: '#0000001f',
+      borderColor: '#3d8bff4d',
       progBarBgColor: '#ddd',
+      glowOpacity: 0.17,
     });
   });
 
   it('should fallback to specified theme colors if is not defined', () => {
-    const colors = getCardColors({
-      theme: 'dark',
-    });
-    expect(colors).toStrictEqual({
-      titleColor: '#fff',
-      textColor: '#9f9f9f',
-      ringColor: '#fff',
-      iconColor: '#79ff97',
-      bgColor: '#151515',
-      borderColor: '#ffffff26',
+    expect(getCardColors({ theme: 'ember_dark' })).toStrictEqual({
+      heat: ['#ffd166', '#ff7a1a', '#ff2e63'],
+      titleColor: '#ff7a1a',
+      textColor: '#f7ede6',
+      ringColor: HEAT_PAINT.ring,
+      iconColor: '#ff7a1a',
+      bgColor: '#16100d',
+      borderColor: '#ff7a1a4d',
       progBarBgColor: '#ffffff33',
+      glowOpacity: 0.42,
     });
   });
 
-  it('should return ring color equal to title color if not ring color is defined', () => {
-    const colors = getCardColors({
-      title_color: 'f00',
-      text_color: '0f0',
-      icon_color: '00f',
-      bg_color: 'fff',
-      border_color: 'fff',
-      theme: 'dark',
-    });
-    expect(colors).toStrictEqual({
-      titleColor: '#f00',
-      textColor: '#0f0',
-      iconColor: '#00f',
-      ringColor: '#f00',
-      bgColor: '#fff',
-      borderColor: '#fff',
-      progBarBgColor: '#ddd',
-    });
+  it('should collapse the heat to the title color, and paint the ring with the heat', () => {
+    const colors = getCardColors({ title_color: 'f00', theme: 'ember_dark' });
+    expect(colors.heat).toStrictEqual(['#f00', '#f00', '#f00']);
+    expect(colors.iconColor).toBe('#f00');
+    expect(colors.ringColor).toBe(HEAT_PAINT.ring);
   });
 
-  it('should fallback to default theme if theme is invalid', () => {
-    const colors = getCardColors({
-      theme: 'invalidTheme',
-    });
-    expect(colors).toStrictEqual({
-      titleColor: '#2f80ed',
-      textColor: '#434d58',
-      iconColor: '#4c71f2',
-      ringColor: '#2f80ed',
-      bgColor: '#fffefe',
-      borderColor: '#0000001f',
-      progBarBgColor: '#ddd',
-    });
+  it('should read a family as its light variant', () => {
+    expect(getCardColors({ theme: 'magma' })).toStrictEqual(
+      getCardColors({ theme: 'magma_light' }),
+    );
   });
 
-  it('should derive the border from the background when nothing defines one', () => {
-    expect(getCardColors({ bg_color: '0d1117' }).borderColor).toBe('#ffffff26');
-    expect(getCardColors({ bg_color: 'ffffff' }).borderColor).toBe('#0000001f');
+  it('should fallback to the default theme if theme is invalid', () => {
+    expect(getCardColors({ theme: 'invalidTheme' })).toStrictEqual(
+      getCardColors({ theme: 'ember_light' }),
+    );
+    expect(getCardColors({ theme: 'toString' })).toStrictEqual(
+      getCardColors({ theme: 'ember_light' }),
+    );
+  });
+
+  it('should derive the border from the heat, or from the background when the heat cannot', () => {
+    expect(getCardColors({ theme: 'cobalt_light' }).borderColor).toBe('#2b5cff4d');
+    // A three-digit title has no room for an alpha byte, so the background decides.
+    expect(getCardColors({ title_color: 'f00', bg_color: '0d1117' }).borderColor).toBe('#ffffff26');
+    expect(getCardColors({ title_color: 'f00', bg_color: 'ffffff' }).borderColor).toBe('#0000001f');
     // A see-through card cannot know what it sits on.
-    expect(getCardColors({ bg_color: 'ffffff00' }).borderColor).toBe('#8b949e59');
+    expect(getCardColors({ title_color: 'f00', bg_color: 'ffffff00' }).borderColor).toBe(
+      '#8b949e59',
+    );
     // A gradient is judged by its first stop.
-    expect(getCardColors({ bg_color: '90,000000,ffffff' }).borderColor).toBe('#ffffff26');
+    expect(getCardColors({ title_color: 'f00', bg_color: '90,000000,ffffff' }).borderColor).toBe(
+      '#ffffff26',
+    );
+  });
+
+  it('should glow hotter on a dark background', () => {
+    expect(getCardColors({ bg_color: '0d1117' }).glowOpacity).toBe(0.42);
+    expect(getCardColors({ bg_color: 'ffffff' }).glowOpacity).toBe(0.17);
+    expect(getCardColors({ bg_color: 'ffffff00' }).glowOpacity).toBe(0.25);
   });
 
   it('should derive the progress track from the background when nothing defines one', () => {
@@ -122,12 +124,14 @@ describe(getCardColors, () => {
     expect(getCardColors({ bg_color: 'ffffff00' }).progBarBgColor).toBe('#8b949e59');
     expect(getCardColors({ bg_color: '90,000000,ffffff' }).progBarBgColor).toBe('#ffffff33');
     expect(getCardColors({ bg_color: '90,ffffff,000000' }).progBarBgColor).toBe('#ddd');
-    expect(getCardColors({ theme: 'dark', prog_bar_bg_color: '333' }).progBarBgColor).toBe('#333');
+    expect(getCardColors({ theme: 'ember_dark', prog_bar_bg_color: '333' }).progBarBgColor).toBe(
+      '#333',
+    );
   });
 
   it('should keep a border named by the theme or the user', () => {
-    expect(getCardColors({ theme: 'dark', border_color: 'f00' }).borderColor).toBe('#f00');
-    expect(getCardColors({ theme: 'dark_github' }).borderColor).toBe('#3d444d');
+    expect(getCardColors({ theme: 'ember_dark', border_color: 'f00' }).borderColor).toBe('#f00');
+    expect(getCardColors({ theme: 'transparent' }).borderColor).toBe('#8b949e59');
   });
 });
 
@@ -174,30 +178,61 @@ describe(isValidGradient, () => {
 });
 
 describe(getLightDarkColors, () => {
-  it('returns darkColors null when no mode-specific params are given', () => {
+  it('draws both variants of the default family when nothing is named', () => {
+    const { lightColors, darkColors } = getLightDarkColors({});
+    expect(lightColors).toStrictEqual(getCardColors({ theme: 'ember_light' }));
+    expect(darkColors).toStrictEqual(getCardColors({ theme: 'ember_dark' }));
+  });
+
+  it('draws both variants of a named family', () => {
+    const { lightColors, darkColors } = getLightDarkColors({ theme: 'cobalt', title_color: 'f00' });
+    expect(lightColors).toStrictEqual(getCardColors({ theme: 'cobalt_light', title_color: 'f00' }));
+    expect(darkColors).toStrictEqual(getCardColors({ theme: 'cobalt_dark', title_color: 'f00' }));
+  });
+
+  it('returns darkColors null for a pinned variant and no mode-specific params', () => {
     const { lightColors, darkColors } = getLightDarkColors({
       title_color: 'f00',
-      theme: 'cobalt',
+      theme: 'cobalt_dark',
     });
     expect(darkColors).toBeNull();
     expect(lightColors.titleColor).toBe('#f00');
+    expect(lightColors.bgColor).toBe('#0b1020');
+  });
+
+  it('returns darkColors null when both modes name one variant', () => {
+    const { darkColors } = getLightDarkColors({
+      theme_light: 'brass_dark',
+      theme_dark: 'brass_dark',
+    });
+    expect(darkColors).toBeNull();
+  });
+
+  it('wears the variant made for an opaque custom background, and only it', () => {
+    const dark = getLightDarkColors({ theme: 'verdigris', bg_color: '000' });
+    expect(dark.darkColors).toBeNull();
+    expect(dark.lightColors).toStrictEqual(
+      getCardColors({ theme: 'verdigris_dark', bg_color: '000' }),
+    );
+
+    const light = getLightDarkColors({ bg_color: 'fff' });
+    expect(light.darkColors).toBeNull();
+    expect(light.lightColors).toStrictEqual(
+      getCardColors({ theme: 'ember_light', bg_color: 'fff' }),
+    );
+  });
+
+  it('keeps following the viewer behind a translucent custom background', () => {
+    const { darkColors } = getLightDarkColors({ theme: 'magma', bg_color: 'ffffff00' });
+    expect(darkColors).toStrictEqual(getCardColors({ theme: 'magma_dark', bg_color: 'ffffff00' }));
   });
 
   it('lightColors equal base colors when only dark params are given', () => {
-    const base = getCardColors({ theme: 'cobalt' });
     const { lightColors } = getLightDarkColors({
-      theme: 'cobalt',
+      theme: 'cobalt_light',
       title_color_dark: '0f0',
     });
-    expect(lightColors).toStrictEqual(base);
-  });
-
-  it('light theme is respected when no dark params are given', () => {
-    const base = getCardColors({ theme: 'cobalt' });
-    const { lightColors } = getLightDarkColors({
-      theme_light: 'cobalt',
-    });
-    expect(lightColors).toStrictEqual(base);
+    expect(lightColors).toStrictEqual(getCardColors({ theme: 'cobalt_light' }));
   });
 
   it('lightColors use light-specific color override, darkColors use dark-specific', () => {
@@ -209,14 +244,13 @@ describe(getLightDarkColors, () => {
     expect(darkColors?.titleColor).toBe('#0f0');
   });
 
-  it('theme_light sets the light mode base theme independently', () => {
-    const radicalColors = getCardColors({ theme: 'radical' });
+  it('mixes two families, each taking the variant for its mode', () => {
     const { lightColors, darkColors } = getLightDarkColors({
-      theme_light: 'radical',
-      theme_dark: 'cobalt',
+      theme_light: 'brass',
+      theme_dark: 'magma',
     });
-    expect(lightColors).toStrictEqual(radicalColors);
-    expect(darkColors).toStrictEqual(getCardColors({ theme: 'cobalt' }));
+    expect(lightColors).toStrictEqual(getCardColors({ theme: 'brass_light' }));
+    expect(darkColors).toStrictEqual(getCardColors({ theme: 'magma_dark' }));
   });
 
   it('mode-specific params win over general color param', () => {
@@ -231,17 +265,12 @@ describe(getLightDarkColors, () => {
 
   it('general theme param is used as base for both modes', () => {
     const { lightColors, darkColors } = getLightDarkColors({
-      theme: 'cobalt',
+      theme: 'cobalt_light',
       title_color_dark: '0f0',
     });
-    expect(lightColors).toStrictEqual(getCardColors({ theme: 'cobalt' }));
+    expect(lightColors).toStrictEqual(getCardColors({ theme: 'cobalt_light' }));
     expect(darkColors?.titleColor).toBe('#0f0');
-    expect(darkColors?.bgColor).toBe(getCardColors({ theme: 'cobalt' }).bgColor);
-  });
-
-  it('ring color follows title color when ring is not set explicitly', () => {
-    const { darkColors } = getLightDarkColors({ title_color_dark: '0f0' });
-    expect(darkColors?.ringColor).toBe('#0f0');
+    expect(darkColors?.bgColor).toBe(getCardColors({ theme: 'cobalt_light' }).bgColor);
   });
 
   it('ring_color_dark can be set independently', () => {
@@ -256,7 +285,6 @@ describe(getLightDarkColors, () => {
   it('prog_bar_bg_color_dark overrides prog bar color for dark mode', () => {
     const { lightColors, darkColors } = getLightDarkColors({
       prog_bar_bg_color_dark: '333',
-      title_color_dark: 'fff',
     });
     expect(darkColors?.progBarBgColor).toBe('#333');
     expect(lightColors.progBarBgColor).toBe('#ddd'); // default
@@ -269,8 +297,8 @@ describe(getLightDarkColors, () => {
 
   it('mode-specific theme and color override general', () => {
     const { lightColors, darkColors } = getLightDarkColors({
-      theme: 'vue',
-      theme_light: 'radical',
+      theme: 'verdigris',
+      theme_light: 'magma_light',
       theme_dark: 'cobalt',
       title_color: 'f00',
       title_color_light: '0f0',
@@ -278,8 +306,8 @@ describe(getLightDarkColors, () => {
     });
     expect(lightColors.titleColor).toBe('#0f0');
     expect(darkColors?.titleColor).toBe('#00f');
-    expect(lightColors.bgColor).toBe(getCardColors({ theme: 'radical' }).bgColor);
-    expect(darkColors?.bgColor).toBe(getCardColors({ theme: 'cobalt' }).bgColor);
+    expect(lightColors.bgColor).toBe(getCardColors({ theme: 'magma_light' }).bgColor);
+    expect(darkColors?.bgColor).toBe(getCardColors({ theme: 'cobalt_dark' }).bgColor);
   });
 });
 
@@ -332,7 +360,7 @@ describe(parseColorParams, () => {
   });
 
   it('should check a theme param against the themes rather than as a color', () => {
-    expect(invalidParam({ theme: 'dark', theme_dark: 'radical', bg_color: 'fff' })).toBeNull();
+    expect(invalidParam({ theme: 'ember', theme_dark: 'magma_dark', bg_color: 'fff' })).toBeNull();
     expect(invalidParam({ theme: 'fff' })).toBe('theme');
     expect(invalidParam({ theme_dark: 'not-a-theme' })).toBe('theme_dark');
     expect(invalidParam({ bg_color_dark: 'not-a-color' })).toBe('bg_color_dark');
@@ -340,7 +368,7 @@ describe(parseColorParams, () => {
 
   it('should pick every accepted param off a query, and nothing else', () => {
     const query = Object.fromEntries(
-      COLOR_PARAM_KEYS.map((key) => [key, THEME_PARAM_KEYS.includes(key) ? 'dark' : 'fff']),
+      COLOR_PARAM_KEYS.map((key) => [key, THEME_PARAM_KEYS.includes(key) ? 'ember' : 'fff']),
     );
     expect(Object.keys(parseColorParams({ ...query, username: 'x' }))).toStrictEqual([
       ...COLOR_PARAM_KEYS,

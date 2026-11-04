@@ -317,7 +317,7 @@ describe('the in-process cache', () => {
     const { options, github } = optionsAnswering(GIST_REPLY);
 
     await get(GIST_URL, options);
-    await get(`${GIST_URL}&theme=dark`, options);
+    await get(`${GIST_URL}&theme=ember_dark`, options);
 
     expect(github.calls).toHaveLength(2);
   });

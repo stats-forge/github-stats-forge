@@ -138,7 +138,7 @@ describe('test renderOrgActivityCard', () => {
     document.body.innerHTML = renderOrgActivityCard(data);
 
     expect(document.querySelector('.title-icon')).toBeInTheDocument();
-    expect(cssValue('.title-icon', 'fill')).toBe(`#${themes.default.icon_color}`);
+    expect(cssValue('.title-icon', 'fill')).toBe(`#${themes.ember_light.heat[1]}`);
   });
 
   it('should abbreviate a count, and write it out in full when the format is long', () => {

@@ -27,7 +27,7 @@ generate, look at it, change one option, generate again.
   Extra stats to show                    reviews,prs_merged
   Stats to hide                          —
   Show the stat icons                    yes
-  Theme                                  tokyonight
+  Theme                                  cobalt_dark
 ```
 
 Every card but WakaTime reads the GitHub API, so it needs a personal access token — from

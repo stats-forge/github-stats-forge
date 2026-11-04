@@ -169,7 +169,7 @@ caching off.
 ## In a README
 
 ```md
-![your stats](https://cards.example.com/api/stats?username=you&theme=tokyonight)
+![your stats](https://cards.example.com/api/stats?username=you&theme=cobalt_dark)
 ```
 
 Everything on [In a README](../in-your-readme/) applies unchanged.

@@ -55,7 +55,7 @@ describe('test renderContributedToCard', () => {
     document.body.innerHTML = renderContributedToCard(data);
 
     expect(document.querySelector('.title-icon')).toBeInTheDocument();
-    expect(cssValue('.title-icon', 'fill')).toBe(`#${themes.default.icon_color}`);
+    expect(cssValue('.title-icon', 'fill')).toBe(`#${themes.ember_light.heat[1]}`);
   });
 
   it('should take a custom title', () => {

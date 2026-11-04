@@ -1,6 +1,6 @@
 import { CARD_ICON, CARD_STYLE } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
+import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
 import { rankIcon } from '../../common/icons.ts';
 import { commonLocales } from '../../common/locales.ts';
@@ -15,7 +15,7 @@ import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { statCardLocales } from './locales.ts';
 import { getTotalCommitsRangeLabel, HIDE_STATS, SHOW_STATS, statRows } from './rows.ts';
-import { getStyles } from './styles.ts';
+import { RANK_RING, getStyles } from './styles.ts';
 
 const CARD_MIN_WIDTH = 287;
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
@@ -29,6 +29,14 @@ const STAT_ROW_X = 25;
 const RANK_GUTTER = 120;
 /** The ring's own `cx`, which its group's translation has to make up for. */
 const RANK_CIRCLE_CX_OFFSET = 10;
+/** Where each spark leaves the ring's foot, as `[dx, dy, delay in s]`; uneven, so they read as embers. */
+const SPARKS: ReadonlyArray<readonly [number, number, number]> = [
+  [-26, -6, 0],
+  [-10, 0, 1.1],
+  [4, -4, 2.2],
+  [18, 2, 0.6],
+  [30, -8, 1.7],
+];
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
 const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */
@@ -228,8 +236,8 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     hideBorder: hide_border,
     hideTitle: hide_title,
     animations: !disable_animations,
-    css: ({ ringColor, textColor, iconColor }): Array<CssChild> =>
-      getStyles({ ringColor, textColor, iconColor, show_icons, progress }),
+    css: ({ ringColor, textColor, iconColor, heat }): Array<CssChild> =>
+      getStyles({ ringColor, textColor, iconColor, sparkColor: heat[0], show_icons, progress }),
   });
 
   /**
@@ -252,9 +260,29 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
         'data-testid': 'rank-circle',
         transform: `translate(${calculateRankXTranslation()}, ${height / 2 - 50})`,
       },
-      el('circle', { class: 'rank-circle-rim', cx: -RANK_CIRCLE_CX_OFFSET, cy: 8, r: 40 }),
-      el('circle', { class: 'rank-circle', cx: -RANK_CIRCLE_CX_OFFSET, cy: 8, r: 40 }),
+      el('circle', {
+        class: 'rank-circle-rim',
+        cx: -RANK_CIRCLE_CX_OFFSET,
+        cy: 8,
+        r: RANK_RING.radius,
+      }),
+      el('circle', {
+        class: 'rank-circle',
+        cx: -RANK_CIRCLE_CX_OFFSET,
+        cy: 8,
+        r: RANK_RING.radius,
+        filter: HEAT_PAINT.bloom,
+      }),
       el('g', { class: 'rank-text' }, rankIcon(rank_icon, rank.level, rank.percentile)),
+      SPARKS.map(([dx, dy, delay]) =>
+        el('circle', {
+          class: 'spark',
+          cx: -RANK_CIRCLE_CX_OFFSET + dx,
+          cy: 8 + RANK_RING.radius + dy,
+          r: 1.7,
+          style: `animation-delay: ${String(delay)}s`,
+        }),
+      ),
     );
 
   return card.render([

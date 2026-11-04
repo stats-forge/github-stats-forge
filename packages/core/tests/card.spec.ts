@@ -2,7 +2,7 @@ import { screen } from '@testing-library/dom';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { Card, titleFits } from '../src/common/Card.ts';
-import { getCardColors } from '../src/common/color.ts';
+import { HEAT_PAINT, getCardColors } from '../src/common/color.ts';
 import { icons } from '../src/common/icons.ts';
 import { measureText } from '../src/common/text.ts';
 
@@ -117,38 +117,74 @@ describe(Card, () => {
     expect(document.querySelector('.title-icon')).toBeInTheDocument();
   });
 
-  it('should band the title, and drop the band along with the title', () => {
+  it('should trail the title with the heat, and drop the trail along with the title', () => {
     draw(blank({ width: 200 }).render(``));
-    expect(screen.getByTestId('title-band')).toBeInTheDocument();
+    expect(screen.getByTestId('title-accent')).toHaveAttribute('fill', HEAT_PAINT.trail);
 
     draw(blank({ width: 200, hideTitle: true }).render(``));
-    expect(screen.queryByTestId('title-band')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('title-accent')).not.toBeInTheDocument();
   });
 
-  it('should band the title in the title color and keep the icon out of it', () => {
+  it('should run the trail from under the icon to past the title, inside the card', () => {
+    const title = 'Short';
+    draw(blank({ width: 400, title, titlePrefixIcon: icons.repo }).render(``));
+    const expected = 25 + measureText(title, 18) * 1.1 + 24;
+    expect(screen.getByTestId('title-accent')).toHaveAttribute(
+      'width',
+      String(Math.round(expected * 10) / 10),
+    );
+
+    draw(blank({ width: 200, title: 'A title far too long for a card this narrow' }).render(``));
+    expect(screen.getByTestId('title-accent')).toHaveAttribute('width', '150');
+  });
+
+  it('should paint the title with the heat and keep the icon out of it', () => {
     const card = blank({
       titlePrefixIcon: icons.repo,
       colors: {
-        light: getCardColors({ title_color: 'f00', icon_color: '0f0', theme: 'default' }),
+        light: getCardColors({ title_color: 'f00', icon_color: '0f0', theme: 'ember_light' }),
         dark: null,
       },
     });
 
     draw(card.render(``));
-    expect(cssValue('.title-band', 'fill')).toBe('#f00');
+    expect(cssValue('.header', 'fill')).toBe(HEAT_PAINT.line);
+    expect(document.querySelectorAll('#heat stop')).toHaveLength(3);
+    for (const stop of document.querySelectorAll('#heat stop')) {
+      expect(stop).toHaveAttribute('stop-color', '#f00');
+    }
     expect(cssValue('.title-icon', 'fill')).toBe('#0f0');
-    expect(cssValue('.title-accent', 'fill')).toBe('#0f0');
   });
 
-  it('should follow the card corners with the band, and square its foot', () => {
-    const card = blank({ width: 200, border_radius: 8 });
+  it('should glow from the corner in the heat, more strongly on a dark card', () => {
+    const light = getCardColors({ theme: 'ember_light' });
+    const dark = getCardColors({ theme: 'ember_dark' });
 
-    draw(card.render(``));
-    // Rounded in at both top corners, then straight down to its foot at 46.
-    expect(screen.getByTestId('title-band')).toHaveAttribute(
-      'd',
-      'M0.5 8.5a8 8 0 0 1 8 -8h183a8 8 0 0 1 8 8v37.5h-199z',
+    draw(blank({ colors: { light, dark } }).render(``));
+    expect(screen.getByTestId('card-glow')).toHaveAttribute('fill', 'url(#heat-glow)');
+    expect(document.querySelector('#heat-glow .glow-core')).toHaveAttribute(
+      'stop-opacity',
+      String(light.glowOpacity),
     );
+    expect(document.querySelector('style')).toHaveTextContent(
+      /prefers-color-scheme: dark[^@]*\.glow-core \{\s*stop-color: #ff7a1a;\s*stop-opacity: 0\.42;/u,
+    );
+  });
+
+  it('should recolor every heat stop in the dark block, so one gradient serves both', () => {
+    const light = getCardColors({ theme: 'cobalt_light' });
+    const dark = getCardColors({ theme: 'cobalt_dark' });
+
+    draw(blank({ colors: { light, dark } }).render(``));
+    expect(document.querySelector('#heat .heat-0')).toHaveAttribute('stop-color', '#0891b2');
+    expect(document.querySelector('style')).toHaveTextContent(
+      /prefers-color-scheme: dark[^@]*\.heat-0 \{\s*stop-color: #7df3ff;/u,
+    );
+  });
+
+  it('should follow the card corners with the glow', () => {
+    draw(blank({ width: 200, border_radius: 8 }).render(``));
+    expect(screen.getByTestId('card-glow')).toHaveAttribute('rx', '8');
   });
 
   it('title should not have prefix icon', () => {
@@ -193,14 +229,14 @@ describe(Card, () => {
           icon_color: '0f0',
           text_color: '00f',
           bg_color: 'fff',
-          theme: 'default',
+          theme: 'ember_light',
         }),
         dark: null,
       },
     });
     draw(card.render(``));
 
-    expect(cssValue('.header', 'fill')).toBe('#f00');
+    expect(document.querySelector('#heat .heat-1')).toHaveAttribute('stop-color', '#f00');
     expect(screen.queryByTestId('card-bg')).toHaveAttribute('fill', '#fff');
   });
 
@@ -213,7 +249,7 @@ describe(Card, () => {
           icon_color: '0f0',
           text_color: '00f',
           bg_color: '90,fff,000,f00',
-          theme: 'default',
+          theme: 'ember_light',
         }),
         dark: null,
       },
@@ -239,7 +275,7 @@ describe(Card, () => {
   });
 
   it('draws a dark gradient inside the dark color scheme only', () => {
-    const light = getCardColors({ theme: 'default' });
+    const light = getCardColors({ theme: 'ember_light' });
     const card = blank({
       colors: { light, dark: { ...light, bgColor: ['45', 'fff', '000'] } },
     });
@@ -254,13 +290,13 @@ describe(Card, () => {
 
   it.each([
     { what: 'a border radius that is not a number', init: { border_radius: Number.NaN } },
-    { what: 'a title color', colors: { titleColor: 'red' } },
+    { what: 'a title color', colors: { heat: ['red', 'red', 'red'] as [string, string, string] } },
     { what: 'a border color', colors: { borderColor: 'red' } },
     { what: 'a background color', colors: { bgColor: 'red' } },
     { what: 'a light gradient', colors: { bgColor: ['45', 'fff'] } },
     { what: 'a dark gradient', dark: { bgColor: ['45', 'fff'] } },
   ])('refuses to draw $what it cannot write', ({ init, colors, dark }) => {
-    const light = getCardColors({ theme: 'default' });
+    const light = getCardColors({ theme: 'ember_light' });
     const card = blank({
       ...init,
       colors: {
@@ -270,5 +306,13 @@ describe(Card, () => {
     });
 
     expect(() => card.render(``)).toThrow(/^Invalid /u);
+  });
+
+  it('names the heat stop it cannot write, not the one beside it', () => {
+    const light = getCardColors({ theme: 'ember_light' });
+    const heat: [string, string, string] = ['nope', light.heat[1], light.heat[2]];
+    const card = blank({ colors: { light: { ...light, heat }, dark: null } });
+
+    expect(() => card.render(``)).toThrow('Invalid heat color: "nope"');
   });
 });

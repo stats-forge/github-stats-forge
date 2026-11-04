@@ -22,6 +22,8 @@ type CssProperty =
   | 'overflow'
   | 'overflow-wrap'
   | 'padding-bottom'
+  | 'stop-color'
+  | 'stop-opacity'
   | 'stroke'
   | 'stroke-dasharray'
   | 'stroke-dashoffset'
@@ -29,6 +31,7 @@ type CssProperty =
   | 'stroke-width'
   | 'text-overflow'
   | 'transform'
+  | 'transform-box'
   | 'transform-origin'
   | 'width'
   | 'word-break';

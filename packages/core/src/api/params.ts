@@ -27,7 +27,7 @@ import { CardError } from '../common/error.ts';
 import { isLocaleAvailable } from '../common/localize.ts';
 import { parseArray } from '../common/ops.ts';
 import { NUMBER_FORMATS } from '../common/render.ts';
-import { themes } from '../themes/index.ts';
+import { THEME_PARAM_VALUES } from '../themes/index.ts';
 
 /** How a form asks for a param: the vocabulary of the catalog, which holds each option to it. */
 type ParamKind = 'text' | 'boolean' | 'number' | 'integer' | 'list' | 'choice';
@@ -432,7 +432,7 @@ const colorParamsSchema = z.object(
   Object.fromEntries(
     COLOR_PARAM_KEYS.map((key) => {
       if (THEME_PARAM_KEYS.includes(key)) {
-        return [key, enumParam(Object.keys(themes))];
+        return [key, enumParam(THEME_PARAM_VALUES)];
       }
       const valid = key.startsWith('bg_color') ? isValidBackground : isBareHexColor;
       return [key, kinded('text', rawParam.check(rejects('color', valid)))];

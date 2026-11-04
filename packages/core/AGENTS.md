@@ -7,7 +7,7 @@ The cards have rules of their own, in `src/cards/AGENTS.md`.
 ## The api layer is the trust boundary
 
 `api/*` turns a query string into typed card options: **parse and validate there once**, and leave
-every default to the renderer (gist's default theme is `default_repocard`, which only the card knows).
+every default to the renderer (a card's default width, which only the card knows).
 
 - **The allowlists are enforced here, before the render** ([#79]). `cardHandler`'s second argument
   maps a param to `'username'` or `'gist'`; a refusal is `not_allowed` and costs no rate-limit
@@ -53,7 +53,8 @@ every default to the renderer (gist's default theme is `default_repocard`, which
   form offers. Each card checks `show` through a `shows()` typed to its own list.
 - **`NUMBER_FORMATS` lives in `common/render.ts`**, beside its one reader.
 - **A theme param is an `enumParam` over the theme names.** `getCardColors` still maps an unknown
-  name to `themes.default`; `isThemeName` is `Object.hasOwn`, so `?theme=toString` misses ([#231]).
+  name to `ember_light`; a family name (`ember`) stands for both its variants;
+  `isThemeName` is `Object.hasOwn`, so `?theme=toString` misses ([#231]).
 - **Each kind of rejection has one wording, in `REJECTION_MESSAGES`**, declared through
   `rejects(kind, passes)`; the param name comes from the issue's path. Only the first is reported.
 - **Write plain properties, not conditional spreads**: `CardOptions<T>` takes an explicit `undefined`.

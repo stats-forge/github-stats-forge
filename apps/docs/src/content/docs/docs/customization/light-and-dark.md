@@ -3,9 +3,9 @@ title: Light and dark mode
 description: Five ways to make one card read well in both GitHub themes, and which to reach for.
 ---
 
-A card is drawn with fixed colours, so a card that suits a light README looks wrong in a dark one.
-There are five ways around that. They are not equivalent — the first is the one to reach for, and
-the rest exist for the cases it does not cover.
+A card that suits a light README looks wrong in a dark one. The default theme already follows the
+viewer, but there are five ways to handle it. They are not equivalent — the first is the one to
+reach for, and the rest exist for the cases it does not cover.
 
 ## GitHub's media feature
 
@@ -27,23 +27,27 @@ screen reader announces. Every card on this site is drawn this way.
 
 ## Both modes in one card
 
-`theme_light` and `theme_dark`, and the `*_light` / `*_dark` colour params, put both palettes in a
-single card. The card carries a stylesheet that follows the viewer's setting, so there is one file
-and one URL:
+Every theme family — `ember`, the default, `cobalt`, `verdigris`, `magma`, `brass` — comes in a
+light and a dark variant, and naming the family puts both in a single card. The card carries a
+stylesheet that follows the viewer's setting, so there is one file and one URL:
 
 ```md
 ![My GitHub stats](./cards/stats.svg)
 ```
 
-rendered from options that name both:
+rendered with nothing at all, or with `"theme": "cobalt"`. `theme=cobalt_dark` pins one variant
+instead.
+
+`theme_light` and `theme_dark` mix families, and the `*_light` / `*_dark` colour params change one
+colour in one mode:
 
 ```json
 {
   "version": 1,
   "card": "stats",
   "username": "octocat",
-  "theme_light": "light_github",
-  "theme_dark": "dark_github"
+  "theme_light": "brass",
+  "theme_dark": "magma"
 }
 ```
 
@@ -67,9 +71,12 @@ Two stages. The first decides how many palettes the card carries; the second fil
 <div class="precedence__stage">
 <p class="precedence__title">1 · How many palettes the card carries</p>
 
-- **No `*_light` / `*_dark` among the params** — one palette. The card has no dark-mode block at
-  all.
-- **At least one of them** — two palettes, each resolved on its own:
+- **A pinned variant (`ember_dark`) and no `*_light` / `*_dark` params** — one palette. The card
+  has no dark-mode block at all.
+- **A family beside an opaque `bg_color`** — one palette too: the variant made for that
+  background's tone, so `bg_color=000000` wears the dark one.
+- **Otherwise** — a family, or any `*_light` / `*_dark` param — two palettes, each resolved on its
+  own:
   - light ← the params, with `*_light` on top
   - dark ← the params, with `*_dark` on top
 
@@ -81,7 +88,8 @@ Two stages. The first decides how many palettes the card carries; the second fil
 Each colour takes the first of:
 
 1. the colour param you passed — `title_color`, `bg_color`, …
-2. the named theme's colour — `theme_light` / `theme_dark`, else `theme`
+2. the named theme's colour — `theme_light` / `theme_dark`, else `theme`, a family giving the
+   variant for that mode
 3. the default theme's colour
 
 <div class="precedence__note">
@@ -100,8 +108,7 @@ So the two mix: a light and a dark theme, with one colour pinned across both.
 
 ```json
 {
-  "theme_light": "light_github",
-  "theme_dark": "dark_github",
+  "theme": "verdigris",
   "title_color": "aabbcc"
 }
 ```
@@ -147,7 +154,7 @@ A `bg_color` with eight hex digits carries alpha, and `00000000` is fully see-th
 ![My GitHub stats](./cards/stats.svg)
 ```
 
-rendered with `"theme": "tokyonight", "bg_color": "00000000"`.
+rendered with `"theme": "cobalt_dark", "bg_color": "00000000"`.
 
 Reach for it when `transparent`'s own colours are not the ones you want; the border turns neutral,
 as described above.
@@ -157,6 +164,6 @@ as described above.
 | Situation                                     | Reach for                             |
 | --------------------------------------------- | ------------------------------------- |
 | A README, and you can commit two files        | `<picture>`                           |
-| One file that has to work anywhere            | `theme_light` / `theme_dark`          |
+| One file that has to work anywhere            | a family, such as the default `ember` |
 | It must follow the GitHub setting, not the OS | `#gh-dark-mode-only`                  |
 | You want no background at all                 | `transparent`, or `bg_color=00000000` |

@@ -190,7 +190,7 @@ export const navigateOptions = async (
 
 /**
  * Asks for the options the card cannot render without, skipping any a saved card or
- * a pasted query already answered — so `--options 'theme=dark'` still asks the username.
+ * a pasted query already answered — so `--options 'theme=ember_dark'` still asks the username.
  *
  * @returns The answers, `seeded` included.
  */

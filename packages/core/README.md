@@ -16,7 +16,7 @@ import { CardConfig, stats } from '@stats-forge/github-stats-forge-core/api';
 
 const config = new CardConfig({ pats: [{ name: 'PAT_1', value: process.env.PAT_1! }] });
 
-const result = await stats({ username: 'anuraghazra', theme: 'tokyonight' }, config);
+const result = await stats({ username: 'anuraghazra', theme: 'cobalt_dark' }, config);
 
 // `content` is an SVG either way: a failure is a card that says what went wrong.
 response.setHeader('Content-Type', 'image/svg+xml');

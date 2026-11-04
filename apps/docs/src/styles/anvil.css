@@ -82,8 +82,7 @@
 
     Literals, like `--wa-color-brand-on-loud` above and for the same reason: the ground stands in
     for the page a card is going to land on, not for this one, so it must not follow the site's
-    theme. These are GitHub's own README grounds and its own link blues — `light_github` and
-    `dark_github` are the themes drawn from the same pair.
+    theme. These are GitHub's own README grounds and its own link blues.
   */
   --anvil-ground-light: #ffffff;
   --anvil-ground-dark: #0d1117;

@@ -28,7 +28,7 @@ export const SELF_HOSTED_DETAIL =
 export const CARDS_DIR = 'cards';
 
 /** The theme each preview is rendered with, one per mode Starlight can be in. */
-export const CARD_THEMES = { light: 'default', dark: 'dark' } as const;
+export const CARD_THEMES = { light: 'ember_light', dark: 'ember_dark' } as const;
 
 /** A preview mode, and so the suffix its file carries. */
 export type CardMode = keyof typeof CARD_THEMES;
@@ -38,12 +38,11 @@ export const THEMES_DIR = 'themes';
 
 /** Drawn rather than tabulated. Read by both generators, so the two cannot disagree. */
 export const SAMPLE_THEMES = [
-  'default',
-  'dark',
-  'tokyonight',
-  'radical',
-  'gruvbox',
-  'catppuccin_latte',
+  'ember',
+  'cobalt',
+  'verdigris',
+  'magma',
+  'brass',
   // Its background is `ffffff00`, so the sample doubles as the one on the light-and-dark page.
   'transparent',
 ] as const;

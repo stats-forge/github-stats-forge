@@ -2,7 +2,7 @@ import type { Child, MarkupElement } from '../markup/index.ts';
 import { el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { CARD_STYLE } from './brand.ts';
-import { getCardColors, isPrefixedHexColor } from './color.ts';
+import { HEAT_PAINT, getCardColors, isPrefixedHexColor } from './color.ts';
 import { kFormatter } from './fmt.ts';
 import { clampValue } from './ops.ts';
 import { measureText } from './text.ts';
@@ -82,6 +82,7 @@ const createProgressNode = ({
   color,
   progress,
   delay,
+  tip = false,
 }: {
   x: number;
   y: number;
@@ -90,6 +91,8 @@ const createProgressNode = ({
   color?: string;
   progress: number;
   delay: number;
+  /** A glowing end in the bar's own color, styled by `.lang-tip`; needs `color`. */
+  tip?: boolean;
 }): MarkupElement => {
   if (color !== undefined && !isPrefixedHexColor(color)) {
     throw new Error(`Invalid progress color: "${color}"`);
@@ -137,6 +140,18 @@ const createProgressNode = ({
         style: `animation-delay: ${delay}ms;`,
       }),
     ),
+    tip &&
+      color !== undefined &&
+      el('circle', {
+        'data-testid': 'lang-tip',
+        class: 'lang-tip',
+        cx: Math.round(((width * progressPercentage) / 100 - CARD_STYLE.bloom.tipRadius) * 10) / 10,
+        cy: CARD_STYLE.bloom.tipRadius - 0.5,
+        r: CARD_STYLE.bloom.tipRadius,
+        fill: color,
+        filter: HEAT_PAINT.bloom,
+        style: `animation-delay: ${delay + 400}ms;`,
+      }),
   );
 };
 

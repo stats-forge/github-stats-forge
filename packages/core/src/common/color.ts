@@ -1,4 +1,5 @@
-import { isThemeName, themes } from '../themes/index.ts';
+import { DEFAULT_THEME_FAMILY, isThemeFamily, isThemeName, themes } from '../themes/index.ts';
+import type { Theme } from '../themes/index.ts';
 
 /** Matches a 3-, 4-, 6-, or 8-digit hex color with no leading `#`. */
 const HEX_COLOR = /^(?<digits>[A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/;
@@ -130,7 +131,9 @@ const borderColorFor = (bgColor: string | Array<string>): string =>
  * Resolved card colors for a single color scheme, as written into the SVG.
  */
 interface CardColors {
-  /** Card title color. */
+  /** The heat gradient's stops, brightest first; `title_color` sets all three to itself. */
+  heat: [string, string, string];
+  /** The heat's middle stop, where a card wants its accent as one color. */
   titleColor: string;
   /** Card icon color. */
   iconColor: string;
@@ -140,11 +143,41 @@ interface CardColors {
   bgColor: string | Array<string>;
   /** Card border color. */
   borderColor: string;
-  /** Stats card rank ring color. */
+  /** Stats card rank ring paint: `ring_color`, else {@link HEAT_PAINT}'s ring gradient. */
   ringColor: string;
   /** Progress bar background color. */
   progBarBgColor: string;
+  /** How strongly the corner glow shows, on 0–1. */
+  glowOpacity: number;
 }
+
+/** The ids `Card` defines its heat gradients under, so a card can paint with one. */
+const HEAT_ID = {
+  line: 'heat',
+  ring: 'heat-ring',
+  trail: 'heat-trail',
+  glow: 'heat-glow',
+  bloom: 'heat-bloom',
+} as const;
+
+/** The heat gradients as paints, for a `fill` or a `stroke`. */
+const HEAT_PAINT = {
+  line: `url(#${HEAT_ID.line})`,
+  ring: `url(#${HEAT_ID.ring})`,
+  trail: `url(#${HEAT_ID.trail})`,
+  /** A `filter`, not a paint. */
+  bloom: `url(#${HEAT_ID.bloom})`,
+} as const;
+
+/** A dark card glows hotter: the same opacity on a light one would tint the whole card. */
+const GLOW_OPACITY_BY_TONE: Readonly<Record<BackgroundTone, number>> = {
+  light: 0.17,
+  dark: 0.42,
+  translucent: 0.25,
+};
+
+/** `4d` of `ff`: the border is the heat's middle stop at this alpha. */
+const HEAT_BORDER_ALPHA = '4d';
 
 /**
  * Every color param a card accepts, before any `_light` / `_dark` suffix.
@@ -175,6 +208,17 @@ type ThemeVariant = (typeof THEME_VARIANTS)[number];
  */
 type ColorInput = Partial<Record<BaseColorKey, string | undefined>>;
 
+/** @returns The theme a name selects: a variant as named, a family as its light variant. */
+const resolveTheme = (name: string | undefined): Theme | undefined => {
+  if (isThemeName(name)) {
+    return themes[name];
+  }
+  if (isThemeFamily(name)) {
+    return themes[`${name}_light`];
+  }
+  return undefined;
+};
+
 /**
  * Returns theme based colors with proper overrides and defaults.
  *
@@ -190,36 +234,37 @@ const getCardColors = ({
   prog_bar_bg_color,
   theme,
 }: ColorInput): CardColors => {
-  const defaultTheme = themes.default;
-  const selectedTheme = isThemeName(theme) ? themes[theme] : defaultTheme;
+  const defaultTheme = themes[`${DEFAULT_THEME_FAMILY}_light`];
+  const selectedTheme = resolveTheme(theme) ?? defaultTheme;
 
   const themeBorderColor = 'border_color' in selectedTheme ? selectedTheme.border_color : undefined;
 
   // Each color is the user's, else the selected theme's, else the default theme's.
-  const titleColor = solidColor(
-    title_color || selectedTheme.title_color,
-    `#${defaultTheme.title_color}`,
-  );
-  const iconColor = solidColor(
-    icon_color || selectedTheme.icon_color,
-    `#${defaultTheme.icon_color}`,
-  );
+  const customTitle = solidColor(title_color, '');
+  const heat: CardColors['heat'] =
+    customTitle === ''
+      ? [`#${selectedTheme.heat[0]}`, `#${selectedTheme.heat[1]}`, `#${selectedTheme.heat[2]}`]
+      : [customTitle, customTitle, customTitle];
+  const [, titleColor] = heat;
+  const iconColor = solidColor(icon_color, titleColor);
   const textColor = solidColor(
     text_color || selectedTheme.text_color,
     `#${defaultTheme.text_color}`,
   );
   const bgColor = backgroundColor(bg_color || selectedTheme.bg_color, `#${defaultTheme.bg_color}`);
+  const tone = backgroundTone(bgColor);
 
-  const borderColor = solidColor(border_color || themeBorderColor, borderColorFor(bgColor));
-  // No theme defines `ring_color`, so it falls back to the title color.
-  const ringColor = solidColor(ring_color, titleColor);
-  // No theme defines `prog_bar_bg_color`, so it follows the background, as the border does.
-  const progBarBgColor = solidColor(
-    prog_bar_bg_color,
-    PROG_BAR_BG_BY_TONE[backgroundTone(bgColor)],
+  const heatBorder = titleColor.length === 7 ? `${titleColor}${HEAT_BORDER_ALPHA}` : undefined;
+  const borderColor = solidColor(
+    border_color || themeBorderColor,
+    heatBorder ?? borderColorFor(bgColor),
   );
+  const ringColor = solidColor(ring_color, HEAT_PAINT.ring);
+  // No theme defines `prog_bar_bg_color`, so it follows the background, as the border does.
+  const progBarBgColor = solidColor(prog_bar_bg_color, PROG_BAR_BG_BY_TONE[tone]);
 
   return {
+    heat,
     titleColor,
     iconColor,
     textColor,
@@ -227,6 +272,7 @@ const getCardColors = ({
     borderColor,
     ringColor,
     progBarBgColor,
+    glowOpacity: GLOW_OPACITY_BY_TONE[tone],
   };
 };
 
@@ -260,18 +306,30 @@ const MODE_OVERRIDE_KEYS: ReadonlyArray<keyof LightDarkColorParams> = THEME_VARI
   (variant) => BASE_COLOR_KEYS.map((key) => `${key}_${variant}` as const),
 );
 
+/** @returns The theme a name stands for in one mode: a family's variant, any other name itself. */
+const variantOf = (name: string, variant: ThemeVariant): string => {
+  if (isThemeFamily(name)) {
+    return `${name}_${variant}`;
+  }
+  return name;
+};
+
 /**
  * Returns resolved colors for both light and dark mode given all input params.
  *
  * Each mode resolves independently, then runs the normal `getCardColors` precedence
  * (explicit color -> theme color -> default theme):
- *   light: `theme_light ?? theme`, with `*_light` params overriding general ones
- *   dark:  `theme_dark  ?? theme`, with `*_dark`  params overriding general ones
+ *   light: `theme_light ?? theme ?? ember`, with `*_light` params overriding general ones
+ *   dark:  `theme_dark  ?? theme ?? ember`, with `*_dark`  params overriding general ones
  *
- * Anything a mode does not override falls back to the general params,
+ * A family name stands for its variant of each mode, so `theme=cobalt` draws `cobalt_light`
+ * and `cobalt_dark`. Anything a mode does not override falls back to the general params,
  * so a partial override such as `bg_color_dark` alone keeps every other color from the base theme.
  *
- * When no `_light` / `_dark` param is provided at all,
+ * A family beside an opaque `bg_color` and nothing per-mode wears the variant made for that
+ * background alone, rather than one variant's text on a background meant for the other.
+ *
+ * When both modes resolve to one variant and no other `_light` / `_dark` param is given,
  * `darkColors` is `null` and the caller emits no dark-mode block.
  *
  * @returns `{ lightColors, darkColors }`, resolved colors for both light and dark mode
@@ -279,14 +337,39 @@ const MODE_OVERRIDE_KEYS: ReadonlyArray<keyof LightDarkColorParams> = THEME_VARI
 const getLightDarkColors = (
   params: ColorInput & LightDarkColorParams,
 ): { lightColors: CardColors; darkColors: CardColors | null } => {
-  // The common case is no per-scheme params at all, so it never builds the overrides.
-  if (!MODE_OVERRIDE_KEYS.some((key) => params[key] !== undefined)) {
-    return { lightColors: getCardColors(params), darkColors: null };
+  const theme = params.theme ?? DEFAULT_THEME_FAMILY;
+  const perMode = MODE_OVERRIDE_KEYS.some((key) => params[key] !== undefined);
+
+  if (!perMode && isThemeFamily(theme) && params.bg_color !== undefined) {
+    const tone = backgroundTone(backgroundColor(params.bg_color, ''));
+    if (tone !== 'translucent') {
+      return {
+        lightColors: getCardColors({ ...params, theme: `${theme}_${tone}` }),
+        darkColors: null,
+      };
+    }
+  }
+
+  const light = variantOf(params.theme_light ?? theme, 'light');
+  const dark = variantOf(params.theme_dark ?? theme, 'dark');
+  const perModeColors = MODE_OVERRIDE_KEYS.some(
+    (key) => key !== 'theme_light' && key !== 'theme_dark' && params[key] !== undefined,
+  );
+  if (light === dark && !perModeColors) {
+    return { lightColors: getCardColors({ ...params, theme: light }), darkColors: null };
   }
 
   return {
-    lightColors: getCardColors({ ...params, ...extractLightDarkColors(params, '_light') }),
-    darkColors: getCardColors({ ...params, ...extractLightDarkColors(params, '_dark') }),
+    lightColors: getCardColors({
+      ...params,
+      ...extractLightDarkColors(params, '_light'),
+      theme: light,
+    }),
+    darkColors: getCardColors({
+      ...params,
+      ...extractLightDarkColors(params, '_dark'),
+      theme: dark,
+    }),
   };
 };
 
@@ -308,6 +391,8 @@ const THEME_PARAM_KEYS: ReadonlyArray<keyof ColorParams> = [
 export type { CardColors, ColorParams };
 
 export {
+  HEAT_ID,
+  HEAT_PAINT,
   isValidBackground,
   THEME_PARAM_KEYS,
   getCardColors,

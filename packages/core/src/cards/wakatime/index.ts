@@ -1,6 +1,6 @@
 import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
-import { getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
+import { HEAT_PAINT, getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
 import { commonLocales } from '../../common/locales.ts';
 import { localize } from '../../common/localize.ts';
@@ -492,7 +492,7 @@ const renderCard = (
       rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out backwards' }),
       rule('.lang-progress', {
         animation: 'growWidthAnimation 0.6s ease-in-out backwards',
-        fill: titleColor,
+        fill: HEAT_PAINT.line,
       }),
       rule('.progress-background', { fill: progressBackground(titleColor, textColor) }),
     ],

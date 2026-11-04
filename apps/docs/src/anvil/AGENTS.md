@@ -40,10 +40,10 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
 
 ## Cards and themes
 
-- **Which themes a card may wear is ported from `ghse`'s wizard**: pairs of `X` and `X_repocard`, each
-  side offering its half, grouped light, either-way, dark. `ghse`'s hidden themes are **not** copied.
-- **A card's `category` (`user`, `repo`, `org`) picks its picker heading and its theme half**
-  ([#64]); a gist is `repo`. `CARD_GROUPS` is built like `themeGroups`: order from `GROUP_LABELS`,
+- **Every card offers every theme, grouped by the ground each implies**: light, either-way, dark. The
+  families (`ember`) follow the viewer, so they head "Either" beside `transparent`; each `_light` and
+  `_dark` variant sits under its background's heading.
+- **A card's `category` (`user`, `repo`, `org`) picks its picker heading** ([#64]); a gist is `repo`. `CARD_GROUPS` is built like `themeGroups`: order from `GROUP_LABELS`,
   the catalog's order inside, empty headings dropped.
 - **The cards are grouped alike in the picker, the sidebar (`astro.config.ts`) and the overview**
   ([#105]). A card page's title is the card's name without "card". Only `Fetchers` opens folded, and
@@ -51,7 +51,7 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
 - **The "selected card's page" link is checked at build**: `anvil.astro` validates each card's `docs`
   slug in `cards.ts` against the content collection.
 - **The options come from `packages/catalog`** ([#126]). `apps/docs` adds only each card's sample
-  identity, theme half and `maximal` params, and **throws on a catalog card with no entry**. A control
+  identity and `maximal` params, and **throws on a catalog card with no entry**. A control
   follows the option's `kind` and steps by `numericStep` (an e2e test checks `1` and `any`), sectioned
   by `OPTION_GROUPS`; only "Colors and border" opens folded.
 - **Core and the catalog bundle from source via `@stats/source`, under both `vite.resolve` and
@@ -64,9 +64,10 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
 - **The preview is rewritten only when it differs** from the last markup `ui.ts` wrote, not from
   `innerHTML`, which comes back re-serialised.
 - **The card stands on the ground it asks for** ([#86]): `backdropFor` in `themes.ts` reads `bg_color`,
-  else the theme, else the card's default theme, into the frame's `data-backdrop`.
+  else the theme's variant, into the frame's `data-backdrop`.
   - **The grounds are GitHub's literals, `#ffffff` and `#0d1117`.** `undefined` holds still: a
-    translucent background, a per-scheme override, an unknown theme.
+    family (the default `ember` too), a translucent background, a per-scheme override, an unknown
+    theme.
   - **It is the one control without `data-option`**, writing nothing into the card (an e2e test checks
     both halves): `createSegments`, found by `wa-radio-group.anvil-backdrop`.
   - **The ground moves at once**, before its redraw finishes. A badge says it follows the theme, with

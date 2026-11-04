@@ -262,6 +262,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
       rule('#rect-mask rect', { animation: 'slideInAnimation 1s ease-in-out backwards' }),
       rule('.lang-progress', { animation: 'growWidthAnimation 0.6s ease-in-out backwards' }),
       rule('.progress-background', { fill: progBarBgColor }),
+      rule('.lang-tip', { animation: 'fadeInAnimation 0.4s ease-in-out backwards' }),
     ],
   });
 

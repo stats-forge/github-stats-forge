@@ -19,10 +19,7 @@ import '@awesome.me/webawesome/dist/components/radio-group/radio-group.js';
 import '@awesome.me/webawesome/dist/components/radio/radio.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
 
-/*
- * Not the same as the theme named `default` — the gist card's own default is `default_repocard` —
- * and both appear in the same list, so the row has to read as distinct from it.
- */
+/* The default, `ember`, is also in the list, so the unset row must read as distinct from it. */
 const DEFAULT_LABEL = "the card's default";
 
 /** @returns A group heading, preceded by a rule where it is not the first. */

@@ -57,7 +57,7 @@ const REFUSED: ApiResult = {
 };
 
 let dir: string;
-/** A gist card saved with `id=abc&theme=dark`. */
+/** A gist card saved with `id=abc&theme=ember_dark`. */
 let savedGist: string;
 let stdout: MockInstance<typeof process.stdout.write>;
 let stderr: MockInstance<typeof process.stderr.write>;
@@ -97,7 +97,7 @@ beforeEach(async () => {
   if (!gist) {
     throw new Error('the catalog has a gist card');
   }
-  await writeSavedCard(savedGist, gist, { id: 'abc', theme: 'dark' });
+  await writeSavedCard(savedGist, gist, { id: 'abc', theme: 'ember_dark' });
 
   ({ argv } = process);
   // a token in the shell running the suite must not reach a test that expects none
@@ -161,11 +161,11 @@ describe('the command line', () => {
       '--config',
       savedGist,
       '--options',
-      'theme=radical&show_owner=true',
+      'theme=magma&show_owner=true',
       '--print-query',
     );
 
-    expect(out).toBe('?id=abc&theme=radical&show_owner=true\n');
+    expect(out).toBe('?id=abc&theme=magma&show_owner=true\n');
     expect(code).toBeUndefined();
     expect(render).not.toHaveBeenCalled();
   });
@@ -198,7 +198,7 @@ describe('the command line', () => {
     expect(result.out).toContain('Wrote ');
     expect(result.code).toBeUndefined();
     const [query, config] = render.mock.calls[0] ?? [];
-    expect(query).toStrictEqual({ id: 'abc', theme: 'dark' });
+    expect(query).toStrictEqual({ id: 'abc', theme: 'ember_dark' });
     expect(config?.pats).toStrictEqual([{ name: '--pat #1', value: 'ghp_x' }]);
     expect(config?.requestTimeoutMs).toBe(30_000);
     expect(prompts.navigateOptions).not.toHaveBeenCalled();
@@ -297,7 +297,7 @@ describe('the menu', () => {
     expect(card?.id).toBe('gist');
     expect(Object.fromEntries(seeded ?? [])).toStrictEqual({
       id: 'abc',
-      theme: 'dark',
+      theme: 'ember_dark',
       show_owner: true,
     });
   });

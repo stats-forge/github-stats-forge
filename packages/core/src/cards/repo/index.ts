@@ -175,7 +175,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     number_format = 'short',
     number_precision,
     username,
-    theme = 'default_repocard',
     border_radius,
     locale,
     description_lines_count,
@@ -328,7 +327,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     extraHeight;
   const languageRowY = height - 75 - extraHeight;
 
-  const { lightColors, darkColors } = getLightDarkColors({ ...options, theme });
+  const { lightColors, darkColors } = getLightDarkColors(options);
 
   const svgLanguage = primaryLanguage ? createLanguageNode(langName, langColor) : undefined;
 

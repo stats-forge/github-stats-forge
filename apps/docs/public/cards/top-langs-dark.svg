@@ -4,21 +4,18 @@
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #fff;
+      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
-      fill: #79ff97;
+      fill: #ff7a1a;
       animation: fadeInAnimation 0.8s ease-in-out backwards;
     }
     .title-accent {
-      fill: #79ff97;
-      animation: fadeInAnimation 0.8s ease-in-out backwards;
-    }
-    .title-band {
-      fill: #fff;
-      opacity: 0.08;
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: trailAnimation 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -44,7 +41,7 @@
     }
     .stat {
       font: 400 14px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #9f9f9f;
+      fill: #f7ede6;
     }
     @supports(-moz-appearance: auto) {
       /* Selector detects Firefox */
@@ -57,7 +54,7 @@
     }
     .lang-name {
       font: 400 11px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #9f9f9f;
+      fill: #f7ede6;
     }
     .stagger {
       animation: fadeInAnimation 0.3s ease-in-out backwards;
@@ -70,6 +67,9 @@
     }
     .progress-background {
       fill: #ffffff33;
+    }
+    .lang-tip {
+      animation: fadeInAnimation 0.4s ease-in-out backwards;
     }
     /* Animations */
     @keyframes scaleInAnimation {
@@ -88,6 +88,11 @@
         opacity: 1;
       }
     }
+    @keyframes trailAnimation {
+      from {
+        transform: scaleX(0);
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0s !important;
@@ -95,8 +100,38 @@
       }
     }
   </style>
-  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="8" height="99%" stroke="#ffffff26" width="299" fill="#151515" stroke-opacity="1" />
-  <path data-testid="title-band" class="title-band" d="M0.5 8.5a8 8 0 0 1 8 -8h283a8 8 0 0 1 8 8v37.5h-299z" />
+  <defs>
+    <linearGradient id="heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#ffd166" />
+      <stop offset="0.55" class="heat-1" stop-color="#ff7a1a" />
+      <stop offset="1" class="heat-2" stop-color="#ff2e63" />
+    </linearGradient>
+    <linearGradient id="heat-ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#ffd166" />
+      <stop offset="0.55" class="heat-1" stop-color="#ff7a1a" />
+      <stop offset="1" class="heat-2" stop-color="#ff2e63" />
+    </linearGradient>
+    <linearGradient id="heat-trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="heat-0" stop-color="#ffd166" />
+      <stop offset="0.3" class="heat-1" stop-color="#ff7a1a" />
+      <stop offset="0.7" class="heat-2" stop-color="#ff2e63" stop-opacity="0.5" />
+      <stop offset="1" class="heat-2" stop-color="#ff2e63" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
+      <stop offset="0" class="glow-core" stop-color="#ff7a1a" stop-opacity="0.42" />
+      <stop offset="0.45" class="glow-edge" stop-color="#ff2e63" stop-opacity="0.147" />
+      <stop offset="1" class="heat-2" stop-color="#ff2e63" stop-opacity="0" />
+    </radialGradient>
+    <filter id="heat-bloom" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="bloom" />
+      <feMerge>
+        <feMergeNode in="bloom" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect data-testid="card-bg" class="card-bg" x="0.5" y="0.5" rx="14" height="99%" width="299" stroke="#ff7a1a4d" fill="#16100d" stroke-opacity="1" />
+  <rect data-testid="card-glow" x="0.5" y="0.5" rx="14" height="99%" width="299" fill="url(#heat-glow)" />
   <g data-testid="card-title" transform="translate(25, 30)">
     <g>
       <svg class="title-icon" x="0" y="-13" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -106,7 +141,7 @@
     <g transform="translate(25, 0)">
       <text x="0" y="0" class="header" data-testid="header">Most Used Languages</text>
     </g>
-    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="32" height="2" rx="1" />
+    <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="242.3" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 55)">
     <svg data-testid="lang-items" x="25">
@@ -119,6 +154,7 @@
             <svg data-testid="lang-progress" width="26.230519981484342%">
               <rect width="100%" height="8" fill="#dea584" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
+            <circle data-testid="lang-tip" class="lang-tip" cx="49.3" cy="4" r="4.5" fill="#dea584" filter="url(#heat-bloom)" style="animation-delay: 1150ms;" />
           </svg>
         </g>
       </g>
@@ -131,6 +167,7 @@
             <svg data-testid="lang-progress" width="19.28714704520907%">
               <rect width="100%" height="8" fill="#3178c6" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>
+            <circle data-testid="lang-tip" class="lang-tip" cx="35" cy="4" r="4.5" fill="#3178c6" filter="url(#heat-bloom)" style="animation-delay: 1300ms;" />
           </svg>
         </g>
       </g>
@@ -143,6 +180,7 @@
             <svg data-testid="lang-progress" width="17.435580928869%">
               <rect width="100%" height="8" fill="#00ADD8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1050ms;" />
             </svg>
+            <circle data-testid="lang-tip" class="lang-tip" cx="31.2" cy="4" r="4.5" fill="#00ADD8" filter="url(#heat-bloom)" style="animation-delay: 1450ms;" />
           </svg>
         </g>
       </g>
@@ -155,6 +193,7 @@
             <svg data-testid="lang-progress" width="9.94188139690377%">
               <rect width="100%" height="8" fill="#3572A5" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1200ms;" />
             </svg>
+            <circle data-testid="lang-tip" class="lang-tip" cx="15.9" cy="4" r="4.5" fill="#3572A5" filter="url(#heat-bloom)" style="animation-delay: 1600ms;" />
           </svg>
         </g>
       </g>
@@ -167,6 +206,7 @@
             <svg data-testid="lang-progress" width="7.303399681119169%">
               <rect width="100%" height="8" fill="#DA5B0B" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1350ms;" />
             </svg>
+            <circle data-testid="lang-tip" class="lang-tip" cx="10.5" cy="4" r="4.5" fill="#DA5B0B" filter="url(#heat-bloom)" style="animation-delay: 1750ms;" />
           </svg>
         </g>
       </g>
@@ -179,6 +219,7 @@
             <svg data-testid="lang-progress" width="4.474618114488505%">
               <rect width="100%" height="8" fill="#ff3e00" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1500ms;" />
             </svg>
+            <circle data-testid="lang-tip" class="lang-tip" cx="4.7" cy="4" r="4.5" fill="#ff3e00" filter="url(#heat-bloom)" style="animation-delay: 1900ms;" />
           </svg>
         </g>
       </g>
@@ -191,6 +232,7 @@
             <svg data-testid="lang-progress" width="15.326852851926143%">
               <rect width="100%" height="8" fill="#858585" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1650ms;" />
             </svg>
+            <circle data-testid="lang-tip" class="lang-tip" cx="26.9" cy="4" r="4.5" fill="#858585" filter="url(#heat-bloom)" style="animation-delay: 2050ms;" />
           </svg>
         </g>
       </g>
