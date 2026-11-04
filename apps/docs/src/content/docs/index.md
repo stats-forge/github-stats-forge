@@ -30,23 +30,39 @@ and the organization cards describe a whole account — what it owns, what it ha
 lately, and its last two months week by week. Every one takes the same colours, borders and [themes](docs/customization/themes/), and
 each has a light and a dark version.
 
+### User
+
 <div class="card-gallery">
+
+[Stats ![The stats card](/cards/stats.svg)](docs/cards/stats/)
+
+[Top languages ![The top languages card, donut layout](/cards/top-langs-donut.svg)](docs/cards/top-languages/)
 
 [Contributed to ![The contributed-to card](/cards/contributed-to.svg)](docs/cards/contributed-to/)
 
-[Organization ![The organization card](/cards/organization.svg)](docs/cards/organization/)
+[WakaTime ![The WakaTime card](/cards/wakatime.svg)](docs/cards/wakatime/)
+
+</div>
+
+### Repository or gist
+
+<div class="card-gallery">
 
 [Repository pin ![The repository pin card](/cards/pin.svg)](docs/cards/repo-pin/)
+
+[Gist pin ![The gist pin card](/cards/gist.svg)](docs/cards/gist-pin/)
+
+</div>
+
+### Organization
+
+<div class="card-gallery">
+
+[Organization ![The organization card](/cards/organization.svg)](docs/cards/organization/)
 
 [Organization activity ![The organization activity card](/cards/org-activity.svg)](docs/cards/organization-activity/)
 
 [Organization calendar ![The organization calendar card](/cards/org-calendar.svg)](docs/cards/organization-calendar/)
-
-[Gist pin ![The gist pin card](/cards/gist.svg)](docs/cards/gist-pin/)
-
-[Top languages ![The top languages card, donut layout](/cards/top-langs-donut.svg)](docs/cards/top-languages/)
-
-[WakaTime ![The WakaTime card](/cards/wakatime.svg)](docs/cards/wakatime/)
 
 </div>
 
