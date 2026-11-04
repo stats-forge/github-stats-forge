@@ -228,12 +228,15 @@ describe('a stat the token may not read', () => {
 
 describe('the report line', () => {
   it('is offered for a failure an issue could fix', () => {
-    document.body.innerHTML = errorResult(CardError.because('repo_not_found')).content;
+    document.body.innerHTML = errorResult(
+      CardError.because('github_error', { message: 'Something broke', statusText: '' }),
+    ).content;
     expect(screen.getByTestId('report')).toBeInTheDocument();
   });
 
   it.each([
     ['a spent rate limit', CardError.because('rate_limited')],
+    ['a name nothing answers to', CardError.because('org_not_found')],
     ["upstream's own outage", CardError.because('graphql_failed', { subject: 'stats data' })],
     ['anything that was not a CardError', CardError.from(new Error('boom'))],
     [

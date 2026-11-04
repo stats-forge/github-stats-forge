@@ -75,9 +75,10 @@ every default to the renderer (a card's default width, which only the card knows
     `repo_`, `stats_`, `wakatime_`); a shared one keeps a plain name.
 - **Throw by reason, `CardError.because(reason, …data)`, and test on `reason`, not text.** The
   constructor is `private`; `from` and `fromGraphQL` are the only other builders.
-- **Each failure declares `reportable`**, which decides the error card's report line: off for a
-  spent rate limit, upstream's outage, a missing param (whose card links the docs) and whatever
-  `from` wraps.
+- **A failure is `reportable` unless it declares otherwise**, which decides the error card's report
+  line: off for a spent rate limit, upstream's outage, a missing param (whose card links the docs)
+  and whatever `from` wraps. A `not_found` is never reportable, whatever it declares: the
+  constructor says so, not each entry.
 - **`ApiResult` is a union**: a host branches on `code` and `retryable`, never on the SVG.
 
 ## Generated GraphQL types

@@ -27,6 +27,17 @@ describe('CardError.because', () => {
     expect(typed).toBeTypeOf('function');
   });
 
+  it.each([
+    CardError.because('user_not_found'),
+    CardError.because('org_not_found'),
+    CardError.because('repo_not_found'),
+    CardError.because('gist_not_found'),
+    CardError.because('wakatime_user_not_found', { username: 'nobody' }),
+    CardError.because('gist_no_files'),
+  ])('offers no report for $message, which no bug caused', (error) => {
+    expect(error.reportable).toBe(false);
+  });
+
   it('carries no reason for a failure it only wrapped', () => {
     expect(CardError.from(new Error('Nope')).reason).toBeUndefined();
   });
