@@ -140,6 +140,8 @@ check of the anvil in a browser**.
   compares `new URL(…).origin`, taken once, never URL prefixes.
 - **A copy test grants clipboard permission; a download is read by `fetch`ing the anchor's blob URL
   inside the page.**
+- **`pick` returns only once the listbox has closed**: Web Awesome hides it when the close
+  animation ends, even if it was reopened meanwhile, and the next pick's click then hangs.
 - **The drawn card is `[data-anvil="preview"] .anvil-card > svg`**, a direct child: a card's icons are
   `<svg>` too.
 - **`hide_title` leaves the name in `<desc>`**, so assert on `getByTestId('card-title')`.

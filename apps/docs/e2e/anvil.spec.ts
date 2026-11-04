@@ -85,6 +85,8 @@ const pick = async (page: Page, option: string, value: string): Promise<void> =>
   });
 
   await select.locator(`wa-option[value="${value}"]`).click();
+  // Web Awesome hides the listbox when the close animation ends, even if it was reopened meanwhile
+  await expect(select.locator('[part="listbox"]')).toBeHidden();
 };
 
 /**
