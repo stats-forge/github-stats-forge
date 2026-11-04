@@ -3,8 +3,11 @@ import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
 /** The year GitHub launched, and so the earliest one a card can be asked to count from. */
 const GITHUB_EPOCH_YEAR = 2008;
 
-/** A GitHub login: alphanumerics and single inner hyphens, 39 characters at most. */
-const GITHUB_USERNAME_PATTERN = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+/**
+ * A GitHub login: alphanumerics and hyphens, 39 characters at most. A hyphen may lead, trail or
+ * double, as older accounts' do.
+ */
+const GITHUB_USERNAME_PATTERN = /^[a-z\d-]{1,39}$/i;
 
 /**
  * A host and an optional port from 1 to 65535, with nothing that could carry a path, a query or

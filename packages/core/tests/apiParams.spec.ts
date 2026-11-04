@@ -164,6 +164,15 @@ describe('api query schemas', () => {
     expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
   });
 
+  it.each(['-user', 'user-', 'a--b', '-'])(
+    'stats takes the login %j, as older accounts have',
+    async (username) => {
+      const result = await endpoints.stats({ username });
+
+      expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+    },
+  );
+
   it.each(['0', '10'])('org-calendar rejects weeks=%s, outside 1 to 9', async (weeks) => {
     const result = await orgCalendarApi({ org: 'vitest-dev', weeks }, config);
 

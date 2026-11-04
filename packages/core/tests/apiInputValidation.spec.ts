@@ -44,8 +44,8 @@ const rangeParams: Array<[string, string, (value: string) => Promise<ApiResult>]
   ['org-activity', 'to', async (to) => orgActivity({ org: 'org', to }, config)],
 ];
 
-// Within the safe set, but not logins GitHub can issue: a hyphen may not lead, trail or double.
-const malformedUsernames = ['-user', 'user-', 'a--b', 'a'.repeat(40)];
+// Within the safe set, but not logins GitHub can issue.
+const malformedUsernames = ['a_b', 'a.b', 'a'.repeat(40)];
 
 describe('API input validation', () => {
   describe.each(endpoints)('%s: %s', (_endpoint, param, send) => {
