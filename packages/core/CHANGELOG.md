@@ -1,5 +1,39 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.13.0
+
+### Minor Changes
+
+- [#364](https://github.com/stats-forge/github-stats-forge/pull/364) [`cf8d0fc`](https://github.com/stats-forge/github-stats-forge/commit/cf8d0fc91b38bc87e3e1d78598b7be07b119dd18) - feat!: give every card the forge look: a heat-gradient title and trail, a corner glow and a 14px radius
+
+  The themes are replaced by `ember`, `cobalt`, `verdigris`, `magma` and `brass`, each `_light` and `_dark`, plus `transparent`.
+
+- [#372](https://github.com/stats-forge/github-stats-forge/pull/372) [`4483168`](https://github.com/stats-forge/github-stats-forge/commit/4483168f9d1c4b22794e53f975ef0bbb1fbd1146) - feat: draw the organization activity card's pull requests and issues as one row each, over a bar comparing what was done with what was opened
+
+- [#373](https://github.com/stats-forge/github-stats-forge/pull/373) [`073f306`](https://github.com/stats-forge/github-stats-forge/commit/073f306a273a0520c0c5e7667ea083240531294e) - feat: add the organization calendar card, an organization's weeks as a row of heat, at `/api/org-calendar`
+
+- [#370](https://github.com/stats-forge/github-stats-forge/pull/370) [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b) - feat: bring back seven of the original palettes as quiet themes, with no corner glow and a fainter band
+
+  `default` returns as `classic`, and `solarized-light` and `solarized-dark` as `solarized_light` and `solarized_dark`; the other four keep their names.
+
+- [#367](https://github.com/stats-forge/github-stats-forge/pull/367) [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38) - feat: narrow every card's side padding to 18px, and keep 12px above a card whose title is hidden
+
+- [#366](https://github.com/stats-forge/github-stats-forge/pull/366) [`8505a70`](https://github.com/stats-forge/github-stats-forge/commit/8505a7032c39c7ddc9a4c693ae077b0a80c45229) - feat!: take one theme, or a `light,dark` pair, as the only color option
+
+  The color params and `theme_light`/`theme_dark` are gone: a pair such as `theme=ember_light,ember_dark`, the default, follows the viewer's color scheme. Adds `github_light`, `github_dark` and `github_dark_dimmed`.
+
+- [#367](https://github.com/stats-forge/github-stats-forge/pull/367) [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38) - feat: draw a heat band behind every title, and keep the same air above the title as below the last row
+
+- [#370](https://github.com/stats-forge/github-stats-forge/pull/370) [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b) - feat: lead the WakaTime card with the range's total time and daily average, and draw its bar tracks in the theme's track color
+
+### Patch Changes
+
+- [#376](https://github.com/stats-forge/github-stats-forge/pull/376) [`6ca61f0`](https://github.com/stats-forge/github-stats-forge/commit/6ca61f02a547aa61ce0dc0b2896a5abf1ab65db7) - fix: leave the "file an issue" line off a card for a user, organization, repository or gist that does not exist
+
+- [#367](https://github.com/stats-forge/github-stats-forge/pull/367) [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38) - fix: centre the stats card's rank ring on its rows
+
+- [#378](https://github.com/stats-forge/github-stats-forge/pull/378) [`202c1c9`](https://github.com/stats-forge/github-stats-forge/commit/202c1c9f55ed0ebe1c1248fa21487212adb10b00) - fix: draw an upstream error card, not a crash, when GitHub answers a GraphQL request with something other than JSON
+
 ## 0.12.0
 
 ### Minor Changes

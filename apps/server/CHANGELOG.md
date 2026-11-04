@@ -1,5 +1,43 @@
 # @stats-forge/github-stats-server
 
+## 0.8.0
+
+### Minor Changes
+
+- [#377](https://github.com/stats-forge/github-stats-forge/pull/377) [`90c0235`](https://github.com/stats-forge/github-stats-forge/commit/90c023523c3b4db56a2eedc429d02b08e711417d) - feat: hold GitHub's and WakaTime's answers as long as a card, so redrawing one with only its look changed costs no request
+
+- [#373](https://github.com/stats-forge/github-stats-forge/pull/373) [`073f306`](https://github.com/stats-forge/github-stats-forge/commit/073f306a273a0520c0c5e7667ea083240531294e) - feat: add the organization calendar card, an organization's weeks as a row of heat, at `/api/org-calendar`
+
+### Patch Changes
+
+- [#381](https://github.com/stats-forge/github-stats-forge/pull/381) [`0834daa`](https://github.com/stats-forge/github-stats-forge/commit/0834daabd96a5c9576a6dee73fda3fed3087737a) - fix: wait for a name to be typed whole before the anvil draws it, rather than drawing each half-typed one
+
+- [#375](https://github.com/stats-forge/github-stats-forge/pull/375) [`6d5187a`](https://github.com/stats-forge/github-stats-forge/commit/6d5187a89f113d3beab24f27d56d605856aea6cb) - fix: open the self-hosted anvil on the sample card rather than an error card
+
+- [#366](https://github.com/stats-forge/github-stats-forge/pull/366) [`8505a70`](https://github.com/stats-forge/github-stats-forge/commit/8505a7032c39c7ddc9a4c693ae077b0a80c45229) - feat: give the anvil a dark-mode theme picker and folding option sections, and preview each look of a two-theme card
+
+- [#363](https://github.com/stats-forge/github-stats-forge/pull/363) [`a8f07c7`](https://github.com/stats-forge/github-stats-forge/commit/a8f07c74fda605ddcd4bc6fa0abd181f93a0afbb) - docs: drop the aligning page's previews, which stack in the docs column
+
+- [#364](https://github.com/stats-forge/github-stats-forge/pull/364) [`cf8d0fc`](https://github.com/stats-forge/github-stats-forge/commit/cf8d0fc91b38bc87e3e1d78598b7be07b119dd18) - docs: describe the forge themes and redraw every card preview
+
+- [#370](https://github.com/stats-forge/github-stats-forge/pull/370) [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b) - docs: name each card on the landing page above its preview
+
+- [#379](https://github.com/stats-forge/github-stats-forge/pull/379) [`50da53c`](https://github.com/stats-forge/github-stats-forge/commit/50da53c11fb4bbb9db7f357788cefe21ea124eb3) - docs: leave the library, CLI and fetcher pages out of the documentation an instance serves
+
+- [#380](https://github.com/stats-forge/github-stats-forge/pull/380) [`0f43410`](https://github.com/stats-forge/github-stats-forge/commit/0f43410cae12c6e4f813c3a2b6664e284bcbc4f8) - docs: group the landing page's cards by what they describe: a user, a repository or gist, or an organization
+
+- [#372](https://github.com/stats-forge/github-stats-forge/pull/372) [`4483168`](https://github.com/stats-forge/github-stats-forge/commit/4483168f9d1c4b22794e53f975ef0bbb1fbd1146) - docs: explain the organization activity card's bars
+
+- [#370](https://github.com/stats-forge/github-stats-forge/pull/370) [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b) - docs: describe the quiet themes and the WakaTime headline
+
+- [#361](https://github.com/stats-forge/github-stats-forge/pull/361) [`2672b52`](https://github.com/stats-forge/github-stats-forge/commit/2672b527a5e425dd1cf0effc6b2c342c593574ae) - docs: pin the stats-forge/github-stats-forge-action example to v0.11.0
+
+- [#371](https://github.com/stats-forge/github-stats-forge/pull/371) [`8961e9b`](https://github.com/stats-forge/github-stats-forge/commit/8961e9bf3b8f2a20b8f331826de0190821a86053) - build: run the image on Node.js 26
+
+- [#365](https://github.com/stats-forge/github-stats-forge/pull/365) [`1379914`](https://github.com/stats-forge/github-stats-forge/commit/1379914f346aa1a234cbe52a4a7c2554d90cc2f9) - docs: dress the site in the cards' ember palette
+- Updated dependencies [[`cf8d0fc`](https://github.com/stats-forge/github-stats-forge/commit/cf8d0fc91b38bc87e3e1d78598b7be07b119dd18), [`6ca61f0`](https://github.com/stats-forge/github-stats-forge/commit/6ca61f02a547aa61ce0dc0b2896a5abf1ab65db7), [`4483168`](https://github.com/stats-forge/github-stats-forge/commit/4483168f9d1c4b22794e53f975ef0bbb1fbd1146), [`073f306`](https://github.com/stats-forge/github-stats-forge/commit/073f306a273a0520c0c5e7667ea083240531294e), [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b), [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38), [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38), [`8505a70`](https://github.com/stats-forge/github-stats-forge/commit/8505a7032c39c7ddc9a4c693ae077b0a80c45229), [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38), [`202c1c9`](https://github.com/stats-forge/github-stats-forge/commit/202c1c9f55ed0ebe1c1248fa21487212adb10b00), [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b)]:
+  - @stats-forge/github-stats-forge-core@0.13.0
+
 ## 0.7.3
 
 ### Patch Changes

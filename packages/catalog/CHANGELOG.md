@@ -1,5 +1,20 @@
 # @stats-forge/github-stats-forge-catalog
 
+## 0.4.0
+
+### Minor Changes
+
+- [#373](https://github.com/stats-forge/github-stats-forge/pull/373) [`073f306`](https://github.com/stats-forge/github-stats-forge/commit/073f306a273a0520c0c5e7667ea083240531294e) - feat: add the organization calendar card, an organization's weeks as a row of heat, at `/api/org-calendar`
+
+- [#366](https://github.com/stats-forge/github-stats-forge/pull/366) [`8505a70`](https://github.com/stats-forge/github-stats-forge/commit/8505a7032c39c7ddc9a4c693ae077b0a80c45229) - feat!: take one theme, or a `light,dark` pair, as the only color option
+
+  The color params and `theme_light`/`theme_dark` are gone: a pair such as `theme=ember_light,ember_dark`, the default, follows the viewer's color scheme. Adds `github_light`, `github_dark` and `github_dark_dimmed`.
+
+### Patch Changes
+
+- Updated dependencies [[`cf8d0fc`](https://github.com/stats-forge/github-stats-forge/commit/cf8d0fc91b38bc87e3e1d78598b7be07b119dd18), [`6ca61f0`](https://github.com/stats-forge/github-stats-forge/commit/6ca61f02a547aa61ce0dc0b2896a5abf1ab65db7), [`4483168`](https://github.com/stats-forge/github-stats-forge/commit/4483168f9d1c4b22794e53f975ef0bbb1fbd1146), [`073f306`](https://github.com/stats-forge/github-stats-forge/commit/073f306a273a0520c0c5e7667ea083240531294e), [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b), [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38), [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38), [`8505a70`](https://github.com/stats-forge/github-stats-forge/commit/8505a7032c39c7ddc9a4c693ae077b0a80c45229), [`bf43ee1`](https://github.com/stats-forge/github-stats-forge/commit/bf43ee145a9f49ad09f07cf60be901ac4bed4d38), [`202c1c9`](https://github.com/stats-forge/github-stats-forge/commit/202c1c9f55ed0ebe1c1248fa21487212adb10b00), [`83e9051`](https://github.com/stats-forge/github-stats-forge/commit/83e9051a52b44aed5f839898d834daa6750efb4b)]:
+  - @stats-forge/github-stats-forge-core@0.13.0
+
 ## 0.3.0
 
 ### Minor Changes
