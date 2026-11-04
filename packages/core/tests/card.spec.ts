@@ -145,11 +145,13 @@ describe(Card, () => {
 
   it('should paint the title with the heat and keep the icon out of it', () => {
     const card = blank({
+      title: 'Hot and cold',
       titlePrefixIcon: icons.repo,
       colors: {
         light: {
           ...getCardColors('ember_light'),
-          heat: ['#f00', '#f00', '#f00'],
+          // The first half solid, so the opening glyph lands on the first stop exactly.
+          heat: ['#ff0000', '#ff0000', '#0000ff'],
           iconColor: '#0f0',
         },
         dark: null,
@@ -157,12 +159,25 @@ describe(Card, () => {
     });
 
     draw(card.render(``));
-    expect(cssValue('.header', 'fill')).toBe(HEAT_PAINT.line);
-    expect(document.querySelectorAll('#heat stop')).toHaveLength(3);
-    for (const stop of document.querySelectorAll('#heat stop')) {
-      expect(stop).toHaveAttribute('stop-color', '#f00');
-    }
+    const header = screen.getByTestId('header');
+    const fills = [...header.querySelectorAll('tspan')].map((run) =>
+      cssValue(`.${run.getAttribute('class') ?? ''}`, 'fill'),
+    );
+    expect(header).toHaveTextContent(exactly('Hot and cold'));
+    expect(fills.at(0)).toBe('#ff0000');
+    expect(fills.at(-1)).toMatch(/^#[0-3][0-9a-f]00[c-f][0-9a-f]$/u);
     expect(cssValue('.title-icon', 'fill')).toBe('#0f0');
+  });
+
+  it('should recolor the heat text in the dark block', () => {
+    const light = getCardColors('cobalt_light');
+    const dark = getCardColors('cobalt_dark');
+
+    draw(blank({ colors: { light, dark } }).render(``));
+    expect(cssValue('.heat-step-0', 'fill')).toBe(light.heat[0]);
+    expect(document.querySelector('style')).toHaveTextContent(
+      /prefers-color-scheme: dark[^@]*\.heat-step-0 \{\s*fill: #7df3ff;/u,
+    );
   });
 
   it('should glow from the corner in the heat, more strongly on a dark card', () => {

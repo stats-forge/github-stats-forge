@@ -26,6 +26,8 @@ SOFTWARE.
 import type { Child } from '../markup/index.ts';
 import { el } from '../markup/index.ts';
 
+import { heatText } from './heatText.ts';
+
 /** eye-16. GitHub marks both a review and a watcher with it, so two keys share the one path. */
 const EYE = el('path', {
   'fill-rule': 'evenodd',
@@ -155,7 +157,7 @@ const rankIcon = (kind: string, rankLevel: string, percentile: number): Child =>
             'data-testid': 'percentile-top-header',
             class: 'rank-percentile-header',
           },
-          'Top',
+          heatText('Top'),
         ),
         el(
           'text',
@@ -165,13 +167,17 @@ const rankIcon = (kind: string, rankLevel: string, percentile: number): Child =>
             'data-testid': 'percentile-rank-value',
             class: 'rank-percentile-text',
           },
-          `${percentile.toFixed(1)}%`,
+          heatText(`${percentile.toFixed(1)}%`),
         ),
       ];
 
     case 'default':
     default:
-      return el('text', { ...RANK_TEXT, y: 3, 'data-testid': 'level-rank-icon' }, rankLevel);
+      return el(
+        'text',
+        { ...RANK_TEXT, y: 3, 'data-testid': 'level-rank-icon' },
+        heatText(rankLevel),
+      );
   }
 };
 
