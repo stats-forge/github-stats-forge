@@ -4,58 +4,8 @@
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #e2470f;
       animation: fadeInAnimation 0.8s ease-in-out backwards;
-    }
-    tspan {
-      dominant-baseline: inherit;
-    }
-    .heat-step-0 {
-      fill: #dc7600;
-    }
-    .heat-step-1 {
-      fill: #dd7002;
-    }
-    .heat-step-2 {
-      fill: #dd6b04;
-    }
-    .heat-step-3 {
-      fill: #de6505;
-    }
-    .heat-step-4 {
-      fill: #df5f07;
-    }
-    .heat-step-5 {
-      fill: #e05a09;
-    }
-    .heat-step-6 {
-      fill: #e0540b;
-    }
-    .heat-step-7 {
-      fill: #e14e0d;
-    }
-    .heat-step-8 {
-      fill: #e2480f;
-    }
-    .heat-step-9 {
-      fill: #df4216;
-    }
-    .heat-step-10 {
-      fill: #db3b20;
-    }
-    .heat-step-11 {
-      fill: #d73329;
-    }
-    .heat-step-12 {
-      fill: #d42c33;
-    }
-    .heat-step-13 {
-      fill: #d0253c;
-    }
-    .heat-step-14 {
-      fill: #cc1e46;
-    }
-    .heat-step-15 {
-      fill: #c8174f;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
@@ -158,13 +108,13 @@
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </linearGradient>
     <linearGradient id="heat-band" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.1" />
-      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.1" />
-      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.07" />
+      <stop offset="0" class="band-0" stop-color="#dc7600" stop-opacity="0.05" />
+      <stop offset="0.55" class="band-1" stop-color="#e2470f" stop-opacity="0.05" />
+      <stop offset="1" class="band-2" stop-color="#c8174f" stop-opacity="0.035" />
     </linearGradient>
     <radialGradient id="heat-glow" cx="0.95" cy="1.05" r="0.8">
-      <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.17" />
-      <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.06" />
+      <stop offset="0" class="glow-core" stop-color="#e2470f" stop-opacity="0.05" />
+      <stop offset="0.45" class="glow-edge" stop-color="#c8174f" stop-opacity="0.017" />
       <stop offset="1" class="heat-2" stop-color="#c8174f" stop-opacity="0" />
     </radialGradient>
   </defs>
@@ -178,7 +128,7 @@
       </svg>
     </g>
     <g transform="translate(25, 0)">
-      <text x="0" y="0" class="header" data-testid="header"><tspan class="heat-step-0">e</tspan><tspan class="heat-step-2">m</tspan><tspan class="heat-step-3">b</tspan><tspan class="heat-step-4">er</tspan><tspan class="heat-step-5">-</tspan><tspan class="heat-step-6">s</tspan><tspan class="heat-step-7">mi</tspan><tspan class="heat-step-8">t</tspan><tspan class="heat-step-9">h/</tspan><tspan class="heat-step-10">q</tspan><tspan class="heat-step-11">u</tspan><tspan class="heat-step-12">e</tspan><tspan class="heat-step-13">n</tspan><tspan class="heat-step-14">c</tspan><tspan class="heat-step-15">h</tspan></text>
+      <text x="0" y="0" class="header" data-testid="header">ember-smith/quench</text>
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="234" height="2" rx="1" fill="url(#heat-trail)" />
   </g>

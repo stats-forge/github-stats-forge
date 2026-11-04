@@ -3,7 +3,6 @@ import { Card, titleFits } from '../../common/Card.ts';
 import type { CardColors } from '../../common/color.ts';
 import { getLightDarkColors, inkOn } from '../../common/color.ts';
 import { toSearchDate } from '../../common/date.ts';
-import { heatText } from '../../common/heatText.ts';
 import type { Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { NUMBER_FORMATS, formatCount } from '../../common/render.ts';
@@ -223,7 +222,7 @@ const renderCard = (
         x: CARD_STYLE.padding.x,
         y: CARD_STYLE.headline.baseline,
       },
-      heatText(totalText),
+      totalText,
     ),
     el(
       'text',
@@ -363,7 +362,7 @@ const renderCard = (
     hideTitle: hide_title,
     animations: !disable_animations,
     css: (colors): Array<CssChild> => [
-      rule('.calendar-total', { font: font('semibold', 'display') }),
+      rule('.calendar-total', { font: font('semibold', 'display'), fill: colors.titleColor }),
       rule('.calendar-summary', {
         font: font('regular', 'small'),
         fill: colors.textColor,

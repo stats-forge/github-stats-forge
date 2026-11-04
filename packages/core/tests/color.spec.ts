@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { parseThemeParams } from '../src/api/params.ts';
-import {
-  HEAT_PAINT,
-  cardGround,
-  getCardColors,
-  getLightDarkColors,
-  heatAt,
-} from '../src/common/color.ts';
+import { HEAT_PAINT, cardGround, getCardColors, getLightDarkColors } from '../src/common/color.ts';
 import { CardError } from '../src/common/error.ts';
 import { themes } from '../src/themes/index.ts';
 
@@ -23,8 +17,8 @@ describe(getCardColors, () => {
       borderColor: `#${heat[1]}4d`,
       ringColor: HEAT_PAINT.ring,
       progBarBgColor: '#ddd',
-      glowOpacity: 0.17,
-      bandOpacity: 0.1,
+      glowOpacity: 0.05,
+      bandOpacity: 0.05,
     });
   });
 
@@ -40,9 +34,9 @@ describe(getCardColors, () => {
   });
 
   it('should glow hotter, and draw a lighter track, on a dark background', () => {
-    expect(getCardColors('ember_dark').glowOpacity).toBe(0.42);
+    expect(getCardColors('ember_dark').glowOpacity).toBe(0.13);
     expect(getCardColors('ember_dark').progBarBgColor).toBe('#ffffff33');
-    expect(getCardColors('transparent').glowOpacity).toBe(0.25);
+    expect(getCardColors('transparent').glowOpacity).toBe(0.08);
     expect(getCardColors('transparent').progBarBgColor).toBe('#8b949e59');
   });
 });
@@ -118,24 +112,5 @@ describe(parseThemeParams, () => {
     expect(
       parseThemeParams({ theme: 'ember_dark', title_color: 'fff', username: 'x' }),
     ).toStrictEqual({ theme: 'ember_dark' });
-  });
-});
-
-describe(heatAt, () => {
-  const heat: [string, string, string] = ['#000000', '#ffffff', '#ff0000'];
-
-  it('should land on each stop at its offset', () => {
-    expect(heatAt(heat, 0)).toBe('#000000');
-    expect(heatAt(heat, 0.55)).toBe('#ffffff');
-    expect(heatAt(heat, 1)).toBe('#ff0000');
-  });
-
-  it('should mix the two stops around it', () => {
-    expect(heatAt(heat, 0.275)).toBe('#808080');
-    expect(heatAt(heat, 0.775)).toBe('#ff8080');
-  });
-
-  it('should expand a shorthand and keep an alpha', () => {
-    expect(heatAt(['#f00', '#f000', '#000'], 0.275)).toBe('#ff000080');
   });
 });

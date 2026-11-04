@@ -144,7 +144,7 @@ const CARD_STYLE = {
   /** The blur behind what burns: the rank ring, a bar's tip. */
   bloom: {
     /** The blur's spread, in px. */
-    blur: 3.5,
+    blur: 2,
     /** A bar's glowing end: a touch wider than the 8px bar it caps. */
     tipRadius: 4.5,
   },
