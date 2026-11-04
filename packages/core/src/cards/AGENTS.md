@@ -51,6 +51,9 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 - **`Card` defines the heat once, as `url(#heat…)` paints in `HEAT_PAINT`**, and a card fills with
   those, never its own gradient. Each stop is classed, so the dark block recolors it with
   `stop-color`; a stop's light color stays its attribute, the fallback.
+- **Text in the heat is `heatText()`'s runs of solid color, never a gradient fill**: WebKit draws
+  gradient-filled text in an `<img>` at 1x, blurring it on a retina screen, and a `clipPath` or
+  `mask` blurs the same. Shapes keep the gradients, which it draws sharp.
 - **A chart split by language keeps GitHub's language colors**; only a bar measuring one share,
   as on the WakaTime card's normal layout or the activity card's flow rows, burns in the heat.
 - **A `quiet` theme drops the corner glow and halves the band**, for the original palettes.

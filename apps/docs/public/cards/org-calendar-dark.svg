@@ -4,8 +4,58 @@
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
+    }
+    tspan {
+      dominant-baseline: inherit;
+    }
+    .heat-step-0 {
+      fill: #ffd166;
+    }
+    .heat-step-1 {
+      fill: #ffc65d;
+    }
+    .heat-step-2 {
+      fill: #ffbc54;
+    }
+    .heat-step-3 {
+      fill: #ffb14a;
+    }
+    .heat-step-4 {
+      fill: #ffa741;
+    }
+    .heat-step-5 {
+      fill: #ff9c38;
+    }
+    .heat-step-6 {
+      fill: #ff922f;
+    }
+    .heat-step-7 {
+      fill: #ff8726;
+    }
+    .heat-step-8 {
+      fill: #ff7d1c;
+    }
+    .heat-step-9 {
+      fill: #ff7222;
+    }
+    .heat-step-10 {
+      fill: #ff662d;
+    }
+    .heat-step-11 {
+      fill: #ff5b38;
+    }
+    .heat-step-12 {
+      fill: #ff5043;
+    }
+    .heat-step-13 {
+      fill: #ff454d;
+    }
+    .heat-step-14 {
+      fill: #ff3958;
+    }
+    .heat-step-15 {
+      fill: #ff2e63;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
@@ -25,7 +75,6 @@
     }
     .calendar-total {
       font: 600 22px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: url(#heat);
     }
     .calendar-summary {
       font: 400 12px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
@@ -140,13 +189,13 @@
       </svg>
     </g>
     <g transform="translate(25, 0)">
-      <text x="0" y="0" class="header" data-testid="header">The Forge Guild&#39;s activity, week by week</text>
+      <text x="0" y="0" class="header" data-testid="header"><tspan class="heat-step-0">T</tspan><tspan class="heat-step-1">he </tspan><tspan class="heat-step-2">Fo</tspan><tspan class="heat-step-3">rg</tspan><tspan class="heat-step-4">e G</tspan><tspan class="heat-step-5">uil</tspan><tspan class="heat-step-6">d&#39;s</tspan><tspan class="heat-step-7"> ac</tspan><tspan class="heat-step-8">tiv</tspan><tspan class="heat-step-9">ity,</tspan><tspan class="heat-step-10"> w</tspan><tspan class="heat-step-11">eek</tspan><tspan class="heat-step-12"> b</tspan><tspan class="heat-step-13">y w</tspan><tspan class="heat-step-14">ee</tspan><tspan class="heat-step-15">k</tspan></text>
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="399.1" height="2" rx="1" fill="url(#heat-trail)" />
   </g>
   <g data-testid="main-card-body" transform="translate(0, 50)">
     <g data-testid="headline">
-      <text data-testid="total" class="calendar-total" x="18" y="17">89</text>
+      <text data-testid="total" class="calendar-total" x="18" y="17"><tspan class="heat-step-4">8</tspan><tspan class="heat-step-11">9</tspan></text>
       <text data-testid="summary" class="calendar-summary" x="54" y="17">pull requests merged &#183; 10 a week</text>
     </g>
     <rect data-testid="week" class="week week-2" x="18" y="36" width="49.78" height="28" rx="2" fill="#ff7a1a" fill-opacity="0.6" style="animation-delay: 0ms" />

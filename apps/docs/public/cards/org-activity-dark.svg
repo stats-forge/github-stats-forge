@@ -4,8 +4,58 @@
   <style>
     .header {
       font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: url(#heat);
       animation: fadeInAnimation 0.8s ease-in-out backwards;
+    }
+    tspan {
+      dominant-baseline: inherit;
+    }
+    .heat-step-0 {
+      fill: #ffd166;
+    }
+    .heat-step-1 {
+      fill: #ffc65d;
+    }
+    .heat-step-2 {
+      fill: #ffbc54;
+    }
+    .heat-step-3 {
+      fill: #ffb14a;
+    }
+    .heat-step-4 {
+      fill: #ffa741;
+    }
+    .heat-step-5 {
+      fill: #ff9c38;
+    }
+    .heat-step-6 {
+      fill: #ff922f;
+    }
+    .heat-step-7 {
+      fill: #ff8726;
+    }
+    .heat-step-8 {
+      fill: #ff7d1c;
+    }
+    .heat-step-9 {
+      fill: #ff7222;
+    }
+    .heat-step-10 {
+      fill: #ff662d;
+    }
+    .heat-step-11 {
+      fill: #ff5b38;
+    }
+    .heat-step-12 {
+      fill: #ff5043;
+    }
+    .heat-step-13 {
+      fill: #ff454d;
+    }
+    .heat-step-14 {
+      fill: #ff3958;
+    }
+    .heat-step-15 {
+      fill: #ff2e63;
     }
     /* The icon reads against the title rather than with it, so it keeps its own color. */
     .title-icon {
@@ -123,7 +173,7 @@
       </svg>
     </g>
     <g transform="translate(25, 0)">
-      <text x="0" y="0" class="header" data-testid="header">The Forge Guild&#39;s organization activity (last 30 days)</text>
+      <text x="0" y="0" class="header" data-testid="header"><tspan class="heat-step-0">T</tspan><tspan class="heat-step-1">he F</tspan><tspan class="heat-step-2">org</tspan><tspan class="heat-step-3">e G</tspan><tspan class="heat-step-4">uild</tspan><tspan class="heat-step-5">&#39;s o</tspan><tspan class="heat-step-6">rga</tspan><tspan class="heat-step-7">niz</tspan><tspan class="heat-step-8">atio</tspan><tspan class="heat-step-9">n a</tspan><tspan class="heat-step-10">ctivi</tspan><tspan class="heat-step-11">ty (</tspan><tspan class="heat-step-12">last</tspan><tspan class="heat-step-13"> 30 </tspan><tspan class="heat-step-14">day</tspan><tspan class="heat-step-15">s)</tspan></text>
     </g>
     <rect data-testid="title-accent" class="title-accent" x="0" y="8" width="464" height="2" rx="1" fill="url(#heat-trail)" />
   </g>

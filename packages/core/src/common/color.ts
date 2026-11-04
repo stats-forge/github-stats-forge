@@ -83,6 +83,27 @@ interface CardColors {
   bandOpacity: number;
 }
 
+/** Where each of the heat's three stops sits along its gradients. */
+const HEAT_OFFSETS = [0, 0.55, 1] as const;
+
+/** @returns The heat gradient's color at `at`, on 0–1, mixed as SVG mixes its stops. */
+const heatAt = (heat: CardColors['heat'], at: number): string => {
+  const [from, to, start, end] =
+    at <= HEAT_OFFSETS[1]
+      ? [heat[0], heat[1], HEAT_OFFSETS[0], HEAT_OFFSETS[1]]
+      : [heat[1], heat[2], HEAT_OFFSETS[1], HEAT_OFFSETS[2]];
+  const a = hexChannels(from);
+  const b = hexChannels(to);
+  const share = (at - start) / (end - start);
+  const hex = (index: 0 | 1 | 2 | 3): string =>
+    Math.round((a[index] + (b[index] - a[index]) * share) * 255)
+      .toString(16)
+      .padStart(2, '0');
+  const alpha = a[3] === 1 && b[3] === 1 ? '' : hex(3);
+
+  return `#${hex(0)}${hex(1)}${hex(2)}${alpha}`;
+};
+
 /** The ids `Card` defines its heat gradients under, so a card can paint with one. */
 const HEAT_ID = {
   line: 'heat',
@@ -250,7 +271,9 @@ export {
   getCardColors,
   getLightDarkColors,
   HEAT_ID,
+  HEAT_OFFSETS,
   HEAT_PAINT,
+  heatAt,
   inkOn,
   isPrefixedHexColor,
 };
