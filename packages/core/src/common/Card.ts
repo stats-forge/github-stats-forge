@@ -157,6 +157,11 @@ const renderHeatDefs = (colors: CardColors, burns: boolean): Array<Child> => {
         'filter',
         { id: HEAT_ID.bloom, x: '-50%', y: '-50%', width: '200%', height: '200%' },
         el('feGaussianBlur', { stdDeviation: CARD_STYLE.bloom.blur }),
+        el(
+          'feComponentTransfer',
+          {},
+          el('feFuncA', { type: 'linear', slope: CARD_STYLE.bloom.opacity }),
+        ),
       ),
   ];
 };

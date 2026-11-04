@@ -278,7 +278,12 @@ describe(Card, () => {
     draw(blank({ burns: true }).render(``));
     expect(document.querySelector('#heat-ring')).toBeInTheDocument();
     expect(document.querySelector('#heat-bloom')).toBeInTheDocument();
-    expect(document.querySelectorAll('#heat-bloom > *')).toHaveLength(1);
+    expect(document.querySelector('#heat-bloom feGaussianBlur')).toBeInTheDocument();
+    expect(document.querySelector('#heat-bloom feFuncA')).toHaveAttribute(
+      'slope',
+      String(CARD_STYLE.bloom.opacity),
+    );
+    expect(document.querySelector('#heat-bloom [in="SourceGraphic"]')).toBeNull();
   });
 
   it('title should not have prefix icon', () => {
