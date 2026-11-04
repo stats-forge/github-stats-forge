@@ -2,7 +2,7 @@ import { screen } from '@testing-library/dom';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { pin } from '../src/api/pin.ts';
-import { fetchRepo } from '../src/fetchers/repo.ts';
+import { fetchRepo } from '../src/fetchers/repo/index.ts';
 import type { GetRepoQuery, RepoInfoFragment } from '../src/graphql/generated/repo.ts';
 
 import { draw, exactly } from './_card.ts';

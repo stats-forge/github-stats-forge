@@ -4,8 +4,8 @@ import { stats as statsApi } from '../src/api/stats.ts';
 import { calculateRank } from '../src/calculateRank.ts';
 import type { CardConfig } from '../src/common/config.ts';
 import type { GitHubDateRange } from '../src/common/date.ts';
-import { fetchStats } from '../src/fetchers/stats.ts';
-import type { StatsData } from '../src/fetchers/types.ts';
+import { fetchStats } from '../src/fetchers/stats/index.ts';
+import type { StatsData } from '../src/fetchers/stats/types.ts';
 import type { ContributionsQuery } from '../src/graphql/contributionsDocument.ts';
 import type {
   RangeContributionsByRepoFragment,

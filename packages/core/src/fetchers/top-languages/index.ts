@@ -1,15 +1,15 @@
-import type { CardConfig } from '../common/config.ts';
-import { affiliationsOrOwner } from '../common/constants.ts';
-import { CardError } from '../common/error.ts';
-import { createGraphQLFetcher } from '../common/http.ts';
-import { excludes } from '../common/ops.ts';
-import { retryer } from '../common/retryer.ts';
-import type { RepositoryAffiliation } from '../graphql/generated/common.ts';
-import { TopLanguagesDocument } from '../graphql/generated/top-languages.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { affiliationsOrOwner } from '../../common/constants.ts';
+import { CardError } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
+import { excludes } from '../../common/ops.ts';
+import { retryer } from '../../common/retryer.ts';
+import type { RepositoryAffiliation } from '../../graphql/generated/common.ts';
+import { TopLanguagesDocument } from '../../graphql/generated/top-languages.ts';
 import type {
   TopLanguageFragment,
   TopLanguagesRepositoryFragment,
-} from '../graphql/generated/top-languages.ts';
+} from '../../graphql/generated/top-languages.ts';
 
 import { withNotebooksRecounted } from './jupyter.ts';
 import type { NOTEBOOK_COUNTS } from './jupyter.ts';

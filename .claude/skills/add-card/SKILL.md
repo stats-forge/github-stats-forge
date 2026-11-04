@@ -41,9 +41,9 @@ each belong, and the cards have their own about branding and translated text.
 1. `packages/core/src/graphql/queries/<card>.graphql` — query text never lives in a fetcher.
    Then `pnpm --filter ./packages/core/ run generate-graphql-types`, which writes
    `src/graphql/generated/<card>.ts`. Never hand-edit generated files.
-2. `packages/core/src/fetchers/types.ts` — the data shape the card draws from. Document each
-   member inline with `/** */`; a `null` that means "not asked for" needs saying.
-3. `packages/core/src/fetchers/<card>.ts` — the fetcher. It validates the shape of anything
+2. `packages/core/src/fetchers/<card>/types.ts` — the data shape the card draws from. Document
+   each member inline with `/** */`; a `null` that means "not asked for" needs saying.
+3. `packages/core/src/fetchers/<card>/index.ts` — the fetcher. It validates the shape of anything
    that reaches a URL (a GitHub login against `GITHUB_USERNAME_PATTERN`), because
    `./fetchers` is a public export.
 4. `packages/core/src/fetchers/index.ts` — export the function **and** its types.

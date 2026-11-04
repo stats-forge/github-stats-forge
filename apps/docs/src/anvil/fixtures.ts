@@ -16,7 +16,7 @@ import type { FetchLike } from '@stats-forge/github-stats-forge-core/api';
 import type { WakaTimeData } from '@stats-forge/github-stats-forge-core/fetchers';
 
 import type { GraphQLResponse } from '../../../../packages/core/src/common/http.ts';
-import type { GitTree } from '../../../../packages/core/src/fetchers/jupyter.ts';
+import type { GitTree } from '../../../../packages/core/src/fetchers/top-languages/jupyter.ts';
 import type { OrgCalendarQuery } from '../../../../packages/core/src/graphql/buildOrgCalendarDocument.ts';
 import type { ContributionsQuery } from '../../../../packages/core/src/graphql/contributionsDocument.ts';
 import type { UserContributionYearsQuery } from '../../../../packages/core/src/graphql/generated/contributed-to.ts';

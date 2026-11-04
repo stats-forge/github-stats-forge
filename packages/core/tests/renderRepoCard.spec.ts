@@ -5,7 +5,7 @@ import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { repoCardLocales } from '../src/cards/repo/locales.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
 import { measureText } from '../src/common/text.ts';
-import type { RepositoryData } from '../src/fetchers/types.ts';
+import type { RepositoryData } from '../src/fetchers/repo/types.ts';
 import { themes } from '../src/themes/index.ts';
 
 import {

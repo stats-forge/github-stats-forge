@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { renderOrganizationCard } from '../src/cards/organization/index.ts';
 import { CardError } from '../src/common/error.ts';
-import type { OrganizationData } from '../src/fetchers/types.ts';
+import type { OrganizationData } from '../src/fetchers/organization/types.ts';
 
 import { exactly } from './_card.ts';
 

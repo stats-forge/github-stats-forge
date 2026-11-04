@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { fetchGist } from '../src/fetchers/gist.ts';
+import { fetchGist } from '../src/fetchers/gist/index.ts';
 import type { GistInfoQuery } from '../src/graphql/generated/gist.ts';
 
 import { testConfig } from './_config.ts';

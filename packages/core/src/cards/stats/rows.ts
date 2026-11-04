@@ -8,7 +8,7 @@ import { icons } from '../../common/icons.ts';
 import type { commonLocales } from '../../common/locales.ts';
 import type { Localized } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue } from '../../common/ops.ts';
-import type { StatsData } from '../../fetchers/types.ts';
+import type { StatsData } from '../../fetchers/stats/types.ts';
 import type { Child } from '../../markup/index.ts';
 
 import type { statCardLocales } from './locales.ts';

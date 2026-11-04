@@ -7,7 +7,7 @@ import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import { createTextNode, flexLayout, formatCount, NUMBER_FORMATS } from '../../common/render.ts';
 import { measureText, wrapTextMultiline } from '../../common/text.ts';
-import type { OrganizationData } from '../../fetchers/types.ts';
+import type { OrganizationData } from '../../fetchers/organization/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

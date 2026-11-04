@@ -8,7 +8,7 @@ import { localize } from '../../common/localize.ts';
 import { clampValue } from '../../common/ops.ts';
 import { NUMBER_FORMATS, createTextNode, flexLayout } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
-import type { StatsData } from '../../fetchers/types.ts';
+import type { StatsData } from '../../fetchers/stats/types.ts';
 import type { CssChild } from '../../markup/index.ts';
 import { el } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

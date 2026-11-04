@@ -3,7 +3,7 @@ import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
-import type { Lang, TopLangData } from '../../fetchers/types.ts';
+import type { Lang, TopLangData } from '../../fetchers/top-languages/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

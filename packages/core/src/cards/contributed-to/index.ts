@@ -8,7 +8,7 @@ import { localize } from '../../common/localize.ts';
 import { clampValue } from '../../common/ops.ts';
 import { createProgressNode } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
-import type { ContributedRepo, ContributedToData } from '../../fetchers/types.ts';
+import type { ContributedRepo, ContributedToData } from '../../fetchers/contributed-to/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

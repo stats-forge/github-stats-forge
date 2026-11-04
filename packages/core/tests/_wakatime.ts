@@ -3,7 +3,7 @@
  * vitest collects the tests of any spec file another one imports, and would run them twice.
  */
 
-import type { WakaTimeData } from '../src/fetchers/types.ts';
+import type { WakaTimeData } from '../src/fetchers/wakatime/types.ts';
 
 /** WakaTime's stats answer, the card's data inside its `data` envelope. */
 const wakaTimeData: { data: WakaTimeData } = {

@@ -1,15 +1,15 @@
-import type { CardConfig } from '../common/config.ts';
-import { GITHUB_USERNAME_PATTERN } from '../common/constants.ts';
-import { CardError } from '../common/error.ts';
-import { createGraphQLFetcher } from '../common/http.ts';
-import type { GraphQLResponse } from '../common/http.ts';
-import { logger } from '../common/log.ts';
-import { retryer } from '../common/retryer.ts';
-import { GetOrganizationDocument } from '../graphql/generated/organization.ts';
+import type { CardConfig } from '../../common/config.ts';
+import { GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
+import { CardError } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
+import type { GraphQLResponse } from '../../common/http.ts';
+import { logger } from '../../common/log.ts';
+import { retryer } from '../../common/retryer.ts';
+import { GetOrganizationDocument } from '../../graphql/generated/organization.ts';
 import type {
   GetOrganizationQuery,
   OrgRepoInfoFragment,
-} from '../graphql/generated/organization.ts';
+} from '../../graphql/generated/organization.ts';
 
 import type { OrganizationData } from './types.ts';
 

@@ -2,9 +2,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { linguistLanguage } from '../src/common/languageAliases.ts';
 import { getLanguageColor } from '../src/common/languageColors.ts';
-import { MAX_NOTEBOOKS_PER_CARD, MAX_TREES_PER_CARD } from '../src/fetchers/jupyter.ts';
-import type { GitTree } from '../src/fetchers/jupyter.ts';
-import { fetchTopLanguages } from '../src/fetchers/top-languages.ts';
+import { fetchTopLanguages } from '../src/fetchers/top-languages/index.ts';
+import {
+  MAX_NOTEBOOKS_PER_CARD,
+  MAX_TREES_PER_CARD,
+} from '../src/fetchers/top-languages/jupyter.ts';
+import type { GitTree } from '../src/fetchers/top-languages/jupyter.ts';
 import type {
   TopLanguageFragment,
   TopLanguagesQuery,

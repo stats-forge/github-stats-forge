@@ -2,7 +2,7 @@ import * as z from 'zod/mini';
 
 import { renderStatsCard } from '../cards/stats/index.ts';
 import { OWNER_AFFILIATIONS } from '../common/constants.ts';
-import { fetchStats, REPO_USER_SEARCHES } from '../fetchers/stats.ts';
+import { fetchStats, REPO_USER_SEARCHES } from '../fetchers/stats/index.ts';
 
 import { cardHandler } from './handler.ts';
 import {

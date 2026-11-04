@@ -9,7 +9,7 @@ import { pin as pinApi } from '../src/api/pin.ts';
 import { stats as statsApi } from '../src/api/stats.ts';
 import { topLangs as topLangsApi } from '../src/api/top-langs.ts';
 import { wakatime as wakatimeApi } from '../src/api/wakatime.ts';
-import { REPO_USER_SEARCHES } from '../src/fetchers/stats.ts';
+import { REPO_USER_SEARCHES } from '../src/fetchers/stats/index.ts';
 
 import { testConfig } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';

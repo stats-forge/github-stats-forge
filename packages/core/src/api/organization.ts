@@ -1,7 +1,7 @@
 import * as z from 'zod/mini';
 
 import { renderOrganizationCard } from '../cards/organization/index.ts';
-import { fetchOrganization } from '../fetchers/organization.ts';
+import { fetchOrganization } from '../fetchers/organization/index.ts';
 
 import { cardHandler } from './handler.ts';
 import {

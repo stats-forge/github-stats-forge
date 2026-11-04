@@ -7,7 +7,7 @@ import type { Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { NUMBER_FORMATS, formatCount } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
-import type { OrgCalendarData } from '../../fetchers/types.ts';
+import type { OrgCalendarData } from '../../fetchers/org-calendar/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
 import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { orgActivity } from '../src/api/org-activity.ts';
 import { CardError } from '../src/common/error.ts';
-import { fetchOrgActivity } from '../src/fetchers/org-activity.ts';
+import { fetchOrgActivity } from '../src/fetchers/org-activity/index.ts';
 import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-activity.ts';
 
 import { draw, exactly } from './_card.ts';

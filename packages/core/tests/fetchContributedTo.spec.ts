@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { contributedTo } from '../src/api/contributed-to.ts';
 import { CardConfig } from '../src/common/config.ts';
-import { fetchContributedTo } from '../src/fetchers/contributed-to.ts';
+import { fetchContributedTo } from '../src/fetchers/contributed-to/index.ts';
 import type { UserContributionYearsQuery } from '../src/graphql/generated/contributed-to.ts';
 import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.ts';
 
