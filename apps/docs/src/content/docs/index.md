@@ -9,8 +9,8 @@ hero:
 
 <div class="hero-actions">
 
-[Read the docs](docs/)
-[Four ways to draw one](#four-ways-to-draw-one)
+[Read the docs](docs/) <!-- exclude-when-self-hosted -->
+[Four ways to draw one](#four-ways-to-draw-one)<!-- /exclude-when-self-hosted -->
 
 </div>
 
@@ -55,6 +55,8 @@ each has a light and a dark version.
 [See every card and its options](docs/)
 
 </div>
+
+<!-- exclude-when-self-hosted -->
 
 ## Four ways to draw one
 
@@ -109,6 +111,8 @@ tokens the moment someone looks at one, with this site and the card builder insi
 </div>
 
 </div>
+
+<!-- /exclude-when-self-hosted -->
 
 <div class="footnote">
 

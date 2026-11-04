@@ -17,6 +17,18 @@ export const BASE = (process.env['SITE_BASE'] ?? PAGES_BASE).replace(/\/+$/, '')
  */
 export const SERVED_BY_INSTANCE = process.env['SITE_SERVER'] === 'true';
 
+/**
+ * The pages excluded when self-hosted, by route: how to call the library and run the CLI,
+ * which nobody reaches through a deployment. A link to one is left as its text, since an instance
+ * documents only the version it runs.
+ */
+const EXCLUDED_WHEN_SELF_HOSTED = ['docs/fetchers', 'docs/usage/library', 'docs/usage/cli'];
+
+/** @returns Whether this build is self-hosted and excludes the page at `slug`, a route without its slashes. */
+export const isExcludedWhenSelfHosted = (slug: string): boolean =>
+  SERVED_BY_INSTANCE &&
+  EXCLUDED_WHEN_SELF_HOSTED.some((route) => slug === route || slug.startsWith(`${route}/`));
+
 /** What the header chip and the tab call an instance. */
 export const SELF_HOSTED = 'Self-hosted';
 
