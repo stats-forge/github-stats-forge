@@ -25,6 +25,19 @@ const orgActivityCardLocales = defineLocales({
   issuesClosed: {
     en: 'Issues closed',
   },
+  // A flow row's label, over the bar comparing what was merged with what was opened.
+  pullRequests: {
+    en: 'Pull requests',
+  },
+  prsFlow: {
+    en: '{opened} opened · {merged} merged',
+  },
+  issues: {
+    en: 'Issues',
+  },
+  issuesFlow: {
+    en: '{opened} opened · {closed} closed',
+  },
   discussions: {
     en: 'Discussions opened',
   },

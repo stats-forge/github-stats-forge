@@ -140,7 +140,7 @@
   <g data-testid="main-card-body" transform="translate(0, 50)">
     <svg data-testid="lang-items" x="18">
       <mask id="rect-mask">
-        <rect x="0" y="0" width="264" height="8" fill="white" rx="5" />
+        <rect x="0" y="0" width="264" height="8" fill="white" rx="4" />
       </mask>
       <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="69.25" height="8" fill="#dea584" />
       <rect mask="url(#rect-mask)" data-testid="lang-progress" x="69.25" y="0" width="50.92" height="8" fill="#3178c6" />

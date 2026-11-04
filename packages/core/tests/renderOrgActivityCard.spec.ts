@@ -2,6 +2,7 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderOrgActivityCard } from '../src/cards/org-activity/index.ts';
+import { CARD_STYLE } from '../src/common/brand.ts';
 import { CardError } from '../src/common/error.ts';
 import type { OrgActivityData } from '../src/fetchers/types.ts';
 import { themes } from '../src/themes/index.ts';
@@ -21,17 +22,74 @@ const data: OrgActivityData = {
   commits: 204,
 };
 
+/** @returns The filled part of a flow row's bar. */
+const bar = (flow: string): HTMLElement | null =>
+  screen.getByTestId(`${flow}-flow`).querySelector('[data-testid="lang-progress"]');
+
 describe('test renderOrgActivityCard', () => {
-  it('should draw the four stats it always draws, and no more', () => {
+  it('should pair the four stats it always draws into two flow rows, and draw no more', () => {
     document.body.innerHTML = renderOrgActivityCard(data);
 
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('267'));
-    expect(screen.queryByTestId('prs_merged')).toHaveTextContent(exactly('169'));
-    expect(screen.queryByTestId('issues_opened')).toHaveTextContent(exactly('82'));
-    expect(screen.queryByTestId('issues_closed')).toHaveTextContent(exactly('66'));
+    expect(screen.getByTestId('prs')).toHaveTextContent(exactly('267 opened · 169 merged'));
+    expect(screen.getByTestId('issues')).toHaveTextContent(exactly('82 opened · 66 closed'));
+    expect(screen.queryAllByTestId(/^(?:prs|issues)_(?:opened|merged|closed)$/u)).toHaveLength(0);
 
     expect(screen.queryByTestId('discussions_started')).not.toBeInTheDocument();
     expect(screen.queryByTestId('commits')).not.toBeInTheDocument();
+  });
+
+  it('should fill each bar with what was done as a share of what was opened', () => {
+    document.body.innerHTML = renderOrgActivityCard(data);
+
+    expect(bar('prs')).toHaveAttribute('width', `${String((169 / 267) * 100)}%`);
+    expect(bar('issues')).toHaveAttribute('width', `${String((66 / 82) * 100)}%`);
+  });
+
+  it('should fill a bar no further than whole when more was merged than opened', () => {
+    document.body.innerHTML = renderOrgActivityCard({ ...data, prsOpened: 120, prsMerged: 169 });
+
+    expect(bar('prs')).toHaveAttribute('width', '100%');
+  });
+
+  it('should fill a bar whole when something was merged and nothing opened', () => {
+    document.body.innerHTML = renderOrgActivityCard({ ...data, prsOpened: 0, prsMerged: 5 });
+
+    expect(bar('prs')).toHaveAttribute('width', '100%');
+  });
+
+  it('should leave a bar at its stub when nothing was opened or merged', () => {
+    document.body.innerHTML = renderOrgActivityCard({ ...data, prsOpened: 0, prsMerged: 0 });
+
+    expect(bar('prs')).toHaveAttribute('width', '2%');
+  });
+
+  it('should end on the bar of a flow row when that row is the last', () => {
+    document.body.innerHTML = renderOrgActivityCard(data);
+
+    expect(document.querySelector('svg')).toHaveAttribute(
+      'height',
+      String(
+        CARD_STYLE.padding.bodyOffsetY +
+          CARD_STYLE.flowRow.height +
+          CARD_STYLE.flowRow.barY +
+          CARD_STYLE.bar.height +
+          CARD_STYLE.padding.bottom,
+      ),
+    );
+  });
+
+  it('should measure its height off the flow rows and the plain one under them', () => {
+    document.body.innerHTML = renderOrgActivityCard(data, { show: ['commits'] });
+
+    expect(document.querySelector('svg')).toHaveAttribute(
+      'height',
+      String(
+        CARD_STYLE.padding.bodyOffsetY +
+          2 * CARD_STYLE.flowRow.height +
+          CARD_STYLE.statRowInk +
+          CARD_STYLE.padding.bottom,
+      ),
+    );
   });
 
   it('should draw the extra stats `show` names', () => {
@@ -48,9 +106,11 @@ describe('test renderOrgActivityCard', () => {
       hide: ['prs_merged', 'issues_closed'],
     });
 
-    expect(screen.queryByTestId('prs_opened')).toBeInTheDocument();
+    expect(screen.getByTestId('prs_opened')).toHaveTextContent(exactly('267'));
+    expect(screen.getByTestId('issues_opened')).toHaveTextContent(exactly('82'));
     expect(screen.queryByTestId('prs_merged')).not.toBeInTheDocument();
     expect(screen.queryByTestId('issues_closed')).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId(/-flow$/u)).toHaveLength(0);
   });
 
   it('should leave out the issue rows a token was refused', () => {
@@ -60,10 +120,10 @@ describe('test renderOrgActivityCard', () => {
       issuesClosed: null,
     });
 
+    expect(screen.queryByTestId('issues')).not.toBeInTheDocument();
     expect(screen.queryByTestId('issues_opened')).not.toBeInTheDocument();
     expect(screen.queryByTestId('issues_closed')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('267'));
-    expect(screen.queryByTestId('prs_merged')).toHaveTextContent(exactly('169'));
+    expect(screen.getByTestId('prs')).toHaveTextContent(exactly('267 opened · 169 merged'));
   });
 
   it('should leave out a commit count nobody fetched, even when `show` names it', () => {
@@ -75,7 +135,7 @@ describe('test renderOrgActivityCard', () => {
     );
 
     expect(screen.queryByTestId('commits')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('prs_opened')).toBeInTheDocument();
+    expect(screen.getByTestId('prs')).toBeInTheDocument();
   });
 
   it('should refuse to draw a card with every stat hidden', () => {
@@ -143,20 +203,20 @@ describe('test renderOrgActivityCard', () => {
 
   it('should abbreviate a count, and write it out in full when the format is long', () => {
     document.body.innerHTML = renderOrgActivityCard({ ...data, prsOpened: 1204 });
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('1.2k'));
+    expect(screen.getByTestId('prs')).toHaveTextContent(exactly('1.2k opened · 169 merged'));
 
     document.body.innerHTML = renderOrgActivityCard(
       { ...data, prsOpened: 1204 },
       { number_format: 'long' },
     );
-    expect(screen.queryByTestId('prs_opened')).toHaveTextContent(exactly('1204'));
+    expect(screen.getByTestId('prs')).toHaveTextContent(exactly('1204 opened · 169 merged'));
   });
 
   it('should hide the stat icons when asked, without dropping their rows', () => {
     document.body.innerHTML = renderOrgActivityCard(data, { show_icons: false });
 
     expect(cssValue('.icon', 'display')).toBe('none');
-    expect(screen.queryByTestId('prs_opened')).toBeInTheDocument();
+    expect(screen.getByTestId('prs')).toBeInTheDocument();
   });
 
   it('should repeat every drawn stat in the accessibility description', () => {

@@ -94,6 +94,21 @@ const CARD_STYLE = {
     gap: 10,
   },
 
+  /** Every progress bar a card draws, whole or split by language. */
+  bar: {
+    height: 8,
+    /** Its ends' rounding: half the height, so each end is a half circle. */
+    radius: 4,
+  },
+
+  /** A row pairing two counts over a bar: the stat line, then the bar comparing them. */
+  flowRow: {
+    /** The bar's top, clear of the stat line's ink. */
+    barY: 23,
+    /** From one row's top to the next row's. */
+    height: 45,
+  },
+
   /** The band behind the title, filled with the heat: with the trail, what a card is known by. */
   band: {
     /** Clear air the band leaves between its foot and the first row of the body. */

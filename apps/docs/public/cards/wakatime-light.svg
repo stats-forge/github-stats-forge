@@ -155,7 +155,7 @@
       </g>
       <g transform="translate(0, 36)">
         <mask id="rect-mask">
-          <rect x="18" y="0" width="464" height="8" fill="white" rx="5" />
+          <rect x="18" y="0" width="464" height="8" fill="white" rx="4" />
         </mask>
         <rect mask="url(#rect-mask)" data-testid="lang-progress" x="18" y="0" width="185.78560000000002" height="8" fill="#3178c6" />
         <rect mask="url(#rect-mask)" data-testid="lang-progress" x="203.78560000000002" y="0" width="126.7184" height="8" fill="#dea584" />

@@ -1,16 +1,22 @@
 import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card, titleFits } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
+import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
 import { formatRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
 import { icons } from '../../common/icons.ts';
 import type { Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
-import { NUMBER_FORMATS, createTextNode, flexLayout } from '../../common/render.ts';
+import {
+  NUMBER_FORMATS,
+  createProgressNode,
+  createTextNode,
+  flexLayout,
+  formatCount,
+} from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { OrgActivityData } from '../../fetchers/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
-import { rule } from '../../markup/index.ts';
+import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { orgActivityCardLocales } from './locales.ts';
@@ -58,6 +64,37 @@ interface StatItem {
   id: string;
 }
 
+/** Two stats drawn as one row: the counts on the stat line, a bar comparing them under it. */
+interface FlowItem {
+  icon: Child;
+  label: string;
+  value: string;
+  id: string;
+  /** The second count as a share of the first; past 100 when more closed than opened. */
+  progress: number;
+}
+
+/** A row of the card: one stat, or a pair drawn as a flow. */
+type Row = { stat: StatItem } | { flow: FlowItem };
+
+/** The pairs drawn as a flow when both halves are shown: what came in, then what was done. */
+const FLOWS = [
+  ['prs_opened', 'prs_merged', 'prs'],
+  ['issues_opened', 'issues_closed', 'issues'],
+] as const;
+
+/**
+ * How far what was done keeps up with what came in.
+ *
+ * @returns A percentage: full when something was done and nothing came in, empty when neither.
+ */
+const keepingUp = (opened: number, done: number): number => {
+  if (opened === 0) {
+    return done > 0 ? 100 : 0;
+  }
+  return (done / opened) * 100;
+};
+
 /**
  * The title, naming the organization unless that makes it too wide for the card.
  *
@@ -88,10 +125,12 @@ const defaultTitleFor = (
 const getStyles = ({
   textColor,
   iconColor,
+  progBarBgColor,
   show_icons,
 }: {
   textColor: string;
   iconColor: string;
+  progBarBgColor: string;
   show_icons: boolean;
 }): Array<CssChild> => [
   rule('.stat', {
@@ -103,6 +142,16 @@ const getStyles = ({
   rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular, opacity: 0.75 }),
   rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   rule('.icon', { fill: iconColor, opacity: 0.75, display: show_icons ? 'block' : 'none' }),
+  atRule(
+    '@keyframes growWidthAnimation',
+    rule('from', { width: 0 }),
+    rule('to', { width: '100%' }),
+  ),
+  rule('.lang-progress', {
+    animation: 'growWidthAnimation 0.6s ease-in-out backwards',
+    fill: HEAT_PAINT.line,
+  }),
+  rule('.progress-background', { fill: progBarBgColor }),
 ];
 
 /**
@@ -208,30 +257,76 @@ const renderCard = (
 
   const width = card_width && !Number.isNaN(card_width) ? card_width : CARD_DEFAULT_WIDTH;
 
+  const visible = new Map(visibleStats);
+  const flowWording = {
+    prs: (opened: string, done: string): FlowItem['value'] => t.prsFlow({ opened, merged: done }),
+    issues: (opened: string, done: string): FlowItem['value'] =>
+      t.issuesFlow({ opened, closed: done }),
+  };
+  const flowLabels = { prs: t.pullRequests(), issues: t.issues() };
+  const paired = new Set<string>();
+  const rows: Array<Row> = [];
+  for (const [key, stat] of visibleStats) {
+    const flow = FLOWS.find(([opened, done]) => key === opened || key === done);
+    const opened = flow && visible.get(flow[0]);
+    const done = flow && visible.get(flow[1]);
+    if (!flow || !opened || !done) {
+      rows.push({ stat });
+    } else if (!paired.has(flow[2])) {
+      paired.add(flow[2]);
+      const count = (value: number): string => formatCount(value, number_format, number_precision);
+      rows.push({
+        flow: {
+          icon: done.icon,
+          label: flowLabels[flow[2]],
+          value: flowWording[flow[2]](count(opened.value), count(done.value)),
+          id: flow[2],
+          progress: keepingUp(opened.value, done.value),
+        },
+      });
+    }
+  }
+
+  const rowHeights = rows.map((row) => ('flow' in row ? CARD_STYLE.flowRow.height : LINE_HEIGHT));
+  const lastRow = rows.at(-1);
+  const lastInk =
+    lastRow && 'flow' in lastRow
+      ? CARD_STYLE.flowRow.barY + CARD_STYLE.bar.height
+      : CARD_STYLE.statRowInk;
   const height =
     CARD_STYLE.padding.bodyOffsetY +
-    Math.max(visibleStats.length - 1, 0) * LINE_HEIGHT +
-    CARD_STYLE.statRowInk +
+    rowHeights.slice(0, -1).reduce((sum, rowHeight) => sum + rowHeight, 0) +
+    lastInk +
     CARD_STYLE.padding.bottom;
 
-  // A value ends at the card's inner edge — or right after the longest label,
+  // A value ends at the card's inner edge — or right after the widest label and its value,
   // on a card too narrow for that.
-  const widestLabel = Math.max(
-    ...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, CARD_STYLE.fontSize.body)),
+  const widestRow = Math.max(
+    ...rows.map((row) => {
+      if ('flow' in row) {
+        return (
+          measureText(`${row.flow.label}:`, CARD_STYLE.fontSize.body) +
+          LABEL_VALUE_GAP +
+          measureText(row.flow.value, CARD_STYLE.fontSize.body)
+        );
+      }
+      return measureText(`${row.stat.label}:`, CARD_STYLE.fontSize.body);
+    }),
   );
   const valueAnchorX = Math.round(
     Math.max(
       width - CARD_STYLE.padding.x - STAT_ROW_X,
-      (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP,
+      (show_icons ? LABEL_X_OFFSET : 0) + widestRow + LABEL_VALUE_GAP,
     ),
   );
 
-  const statItems = visibleStats.map(([, stat], index) =>
-    createTextNode({
-      icon: stat.icon,
-      label: stat.label,
-      value: stat.value,
-      id: stat.id,
+  const statItems = rows.map((row, index) => {
+    const item = 'flow' in row ? row.flow : row.stat;
+    const text = createTextNode({
+      icon: item.icon,
+      label: item.label,
+      value: item.value,
+      id: item.id,
       index,
       showIcons: show_icons,
       shiftValuePos: 0,
@@ -240,8 +335,23 @@ const renderCard = (
       labelBold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,
-    }),
-  );
+    });
+    if (!('flow' in row)) {
+      return text;
+    }
+    return el(
+      'g',
+      { 'data-testid': `${row.flow.id}-flow` },
+      text,
+      createProgressNode({
+        x: STAT_ROW_X,
+        y: CARD_STYLE.flowRow.barY,
+        width: valueAnchorX,
+        progress: row.flow.progress,
+        delay: 120 + index * 40 + 300,
+      }),
+    );
+  });
 
   // `role="img"` hides the inner text from assistive tech, so everything the card
   // shows has to be repeated in its description.
@@ -256,11 +366,13 @@ const renderCard = (
     hideBorder: hide_border,
     hideTitle: hide_title,
     animations: !disable_animations,
-    css: ({ textColor, iconColor }): Array<CssChild> =>
-      getStyles({ textColor, iconColor, show_icons }),
+    css: ({ textColor, iconColor, progBarBgColor }): Array<CssChild> =>
+      getStyles({ textColor, iconColor, progBarBgColor, show_icons }),
   });
 
-  return card.render(flexLayout({ items: statItems, gap: LINE_HEIGHT, direction: 'column' }));
+  return card.render(
+    flexLayout({ items: statItems, gap: 0, sizes: rowHeights, direction: 'column' }),
+  );
 };
 
 /**

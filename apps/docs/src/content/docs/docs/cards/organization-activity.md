@@ -60,6 +60,15 @@ so they do not add up, and none of them is a subset of another:
 A pull request opened in March and merged in April is counted by neither figure of a window
 covering only May, and by both figures of one covering both months.
 
+## The bars
+
+Pull requests and issues each take one row, with both counts on it and a bar under them: how far
+what was merged, or closed, goes toward what was opened in the same window. Since neither figure is
+a subset of the other, it is a measure of keeping up, not a merge rate — a window that merged more
+than it opened fills its bar.
+
+Hide either half of a pair and the other is drawn as a row of its own, with no bar.
+
 ## The token it needs
 
 The issue rows need a token that can read **issues**: a classic token with the `repo` scope, or

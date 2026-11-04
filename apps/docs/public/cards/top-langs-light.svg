@@ -156,9 +156,9 @@
           <text data-testid="lang-name" x="2" y="15" class="lang-name">Rust</text>
           <text x="226" y="34" class="lang-name">26.23%</text>
           <svg width="216" x="0" y="25">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="216" height="8" />
+            <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="216" height="8" />
             <svg data-testid="lang-progress" width="26.230519981484342%">
-              <rect width="100%" height="8" fill="#dea584" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
+              <rect width="100%" height="8" fill="#dea584" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
             <circle data-testid="lang-tip" class="lang-tip" cx="52.2" cy="4" r="4.5" fill="#dea584" filter="url(#heat-bloom)" style="animation-delay: 1150ms;" />
           </svg>
@@ -169,9 +169,9 @@
           <text data-testid="lang-name" x="2" y="15" class="lang-name">TypeScript</text>
           <text x="226" y="34" class="lang-name">19.29%</text>
           <svg width="216" x="0" y="25">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="216" height="8" />
+            <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="216" height="8" />
             <svg data-testid="lang-progress" width="19.28714704520907%">
-              <rect width="100%" height="8" fill="#3178c6" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
+              <rect width="100%" height="8" fill="#3178c6" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>
             <circle data-testid="lang-tip" class="lang-tip" cx="37.2" cy="4" r="4.5" fill="#3178c6" filter="url(#heat-bloom)" style="animation-delay: 1300ms;" />
           </svg>
@@ -182,9 +182,9 @@
           <text data-testid="lang-name" x="2" y="15" class="lang-name">Go</text>
           <text x="226" y="34" class="lang-name">17.44%</text>
           <svg width="216" x="0" y="25">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="216" height="8" />
+            <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="216" height="8" />
             <svg data-testid="lang-progress" width="17.435580928869%">
-              <rect width="100%" height="8" fill="#00ADD8" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1050ms;" />
+              <rect width="100%" height="8" fill="#00ADD8" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1050ms;" />
             </svg>
             <circle data-testid="lang-tip" class="lang-tip" cx="33.2" cy="4" r="4.5" fill="#00ADD8" filter="url(#heat-bloom)" style="animation-delay: 1450ms;" />
           </svg>
@@ -195,9 +195,9 @@
           <text data-testid="lang-name" x="2" y="15" class="lang-name">Python</text>
           <text x="226" y="34" class="lang-name">9.94%</text>
           <svg width="216" x="0" y="25">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="216" height="8" />
+            <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="216" height="8" />
             <svg data-testid="lang-progress" width="9.94188139690377%">
-              <rect width="100%" height="8" fill="#3572A5" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1200ms;" />
+              <rect width="100%" height="8" fill="#3572A5" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1200ms;" />
             </svg>
             <circle data-testid="lang-tip" class="lang-tip" cx="17" cy="4" r="4.5" fill="#3572A5" filter="url(#heat-bloom)" style="animation-delay: 1600ms;" />
           </svg>
@@ -208,9 +208,9 @@
           <text data-testid="lang-name" x="2" y="15" class="lang-name">Jupyter Notebook</text>
           <text x="226" y="34" class="lang-name">7.30%</text>
           <svg width="216" x="0" y="25">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="216" height="8" />
+            <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="216" height="8" />
             <svg data-testid="lang-progress" width="7.303399681119169%">
-              <rect width="100%" height="8" fill="#DA5B0B" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1350ms;" />
+              <rect width="100%" height="8" fill="#DA5B0B" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1350ms;" />
             </svg>
             <circle data-testid="lang-tip" class="lang-tip" cx="11.3" cy="4" r="4.5" fill="#DA5B0B" filter="url(#heat-bloom)" style="animation-delay: 1750ms;" />
           </svg>
@@ -221,9 +221,9 @@
           <text data-testid="lang-name" x="2" y="15" class="lang-name">Svelte</text>
           <text x="226" y="34" class="lang-name">4.47%</text>
           <svg width="216" x="0" y="25">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="216" height="8" />
+            <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="216" height="8" />
             <svg data-testid="lang-progress" width="4.474618114488505%">
-              <rect width="100%" height="8" fill="#ff3e00" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1500ms;" />
+              <rect width="100%" height="8" fill="#ff3e00" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1500ms;" />
             </svg>
             <circle data-testid="lang-tip" class="lang-tip" cx="5.2" cy="4" r="4.5" fill="#ff3e00" filter="url(#heat-bloom)" style="animation-delay: 1900ms;" />
           </svg>
@@ -234,9 +234,9 @@
           <text data-testid="lang-name" x="2" y="15" class="lang-name">Other</text>
           <text x="226" y="34" class="lang-name">15.33%</text>
           <svg width="216" x="0" y="25">
-            <rect data-testid="progress-background" class="progress-background" rx="5" ry="5" x="0" y="0" width="216" height="8" />
+            <rect data-testid="progress-background" class="progress-background" rx="4" ry="4" x="0" y="0" width="216" height="8" />
             <svg data-testid="lang-progress" width="15.326852851926143%">
-              <rect width="100%" height="8" fill="#858585" rx="5" ry="5" x="0" y="0" class="lang-progress" style="animation-delay: 1650ms;" />
+              <rect width="100%" height="8" fill="#858585" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1650ms;" />
             </svg>
             <circle data-testid="lang-tip" class="lang-tip" cx="28.6" cy="4" r="4.5" fill="#858585" filter="url(#heat-bloom)" style="animation-delay: 2050ms;" />
           </svg>
