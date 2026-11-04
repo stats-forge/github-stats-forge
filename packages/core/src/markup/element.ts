@@ -4,99 +4,91 @@ import { encodeHTML } from './html.ts';
 import type { Sink } from './serialize.ts';
 import { indentAt } from './serialize.ts';
 
-/**
- * Every element a card draws, closed so `el('circel', …)` is a compile error.
- * `style` is absent on purpose: it comes from `style()`, which takes rules rather than children.
- */
-type Tag =
-  | 'a'
-  | 'circle'
-  | 'defs'
-  | 'desc'
-  | 'feComponentTransfer'
-  | 'feFuncA'
-  | 'feGaussianBlur'
-  | 'filter'
-  | 'g'
-  | 'linearGradient'
-  | 'mask'
-  | 'path'
-  | 'radialGradient'
-  | 'rect'
-  | 'stop'
-  | 'svg'
-  | 'text'
-  | 'title'
-  | 'tspan';
+/** Valid on any element; `data-*` is global. */
+type CoreAttribute = 'class' | 'data-size' | 'data-testid' | 'data-view-component' | 'id' | 'style';
 
-/**
- * Every attribute a card writes, closed like `Tag`:
- * a misspelled `stroke-width` would otherwise be valid TypeScript and invisible in the output.
- */
-type Attribute =
-  | 'alignment-baseline'
-  | 'aria-hidden'
-  | 'aria-labelledby'
-  | 'class'
-  | 'cx'
-  | 'cy'
-  | 'd'
-  | 'data-testid'
-  | 'data-view-component'
-  | 'dominant-baseline'
-  | 'dy'
+/** SVG 2 allows `role` and `aria-*` only on what renders: containers, shapes and text. */
+type AriaAttribute = 'aria-hidden' | 'aria-labelledby' | 'role';
+
+/** Fill and stroke paint shapes and text, and inherit, so a container may set them too. */
+type PaintAttribute =
   | 'fill'
   | 'fill-opacity'
   | 'fill-rule'
-  | 'filter'
-  | 'gradientTransform'
-  | 'gradientUnits'
-  | 'height'
-  | 'href'
-  | 'id'
-  | 'in'
-  | 'mask'
-  | 'offset'
-  | 'r'
-  | 'result'
-  | 'role'
-  | 'rx'
-  | 'ry'
-  | 'size'
-  | 'slope'
-  | 'stdDeviation'
-  | 'stop-color'
-  | 'stop-opacity'
   | 'stroke'
   | 'stroke-dasharray'
   | 'stroke-dashoffset'
   | 'stroke-linecap'
   | 'stroke-opacity'
-  | 'stroke-width'
-  | 'style'
-  | 'text-anchor'
-  | 'transform'
-  | 'type'
-  | 'version'
-  | 'viewBox'
-  | 'width'
+  | 'stroke-width';
+
+/** Inherited text layout, so a container may set it for the text inside. */
+type TextLayoutAttribute = 'dominant-baseline' | 'text-anchor';
+
+/** What applies to graphics elements and containers alone: not to a `tspan`, nor a gradient. */
+type GraphicsAttribute = 'filter' | 'mask' | 'transform';
+
+type ContainerAttribute =
+  | CoreAttribute
+  | AriaAttribute
+  | PaintAttribute
+  | TextLayoutAttribute
+  | GraphicsAttribute;
+
+type ShapeAttribute = CoreAttribute | AriaAttribute | PaintAttribute | GraphicsAttribute;
+
+/** `alignment-baseline` is not inherited, so only the text elements take it. */
+type TextAttribute =
+  | CoreAttribute
+  | AriaAttribute
+  | PaintAttribute
+  | TextLayoutAttribute
+  | 'alignment-baseline'
+  | 'dy'
   | 'x'
-  | 'x1'
-  | 'x2'
-  | 'xmlns'
-  | 'y'
-  | 'y1'
-  | 'y2';
+  | 'y';
+
+type Region = 'height' | 'width' | 'x' | 'y';
+
+/**
+ * Every element a card draws, and the attributes each may carry, closed on both counts:
+ * `el('circel', …)` and a `stroke-width` on a `stop` are compile errors, not dropped output.
+ * `style` is absent on purpose: it comes from `style()`, which takes rules rather than children.
+ */
+interface ElementAttributes {
+  a: ContainerAttribute | 'href';
+  circle: ShapeAttribute | 'cx' | 'cy' | 'r';
+  defs: CoreAttribute;
+  desc: CoreAttribute;
+  feComponentTransfer: CoreAttribute | 'in' | 'result';
+  feFuncA: CoreAttribute | 'slope' | 'type';
+  feGaussianBlur: CoreAttribute | Region | 'in' | 'result' | 'stdDeviation';
+  filter: CoreAttribute | Region;
+  g: ContainerAttribute;
+  linearGradient: CoreAttribute | 'gradientTransform' | 'gradientUnits' | 'x1' | 'x2' | 'y1' | 'y2';
+  mask: CoreAttribute | Region;
+  path: ShapeAttribute | 'd';
+  radialGradient: CoreAttribute | 'cx' | 'cy' | 'gradientTransform' | 'gradientUnits' | 'r';
+  rect: ShapeAttribute | Region | 'rx' | 'ry';
+  stop: CoreAttribute | 'offset' | 'stop-color' | 'stop-opacity';
+  svg: ContainerAttribute | Region | 'version' | 'viewBox' | 'xmlns';
+  text: TextAttribute | GraphicsAttribute;
+  title: CoreAttribute;
+  tspan: TextAttribute;
+}
+
+type Tag = keyof ElementAttributes;
 
 /** An attribute whose value is `undefined` is not written, so a caller can inline a condition. */
-type Attributes = Partial<Record<Attribute, string | number | undefined>>;
+type Attributes<T extends Tag> = Partial<Record<ElementAttributes[T], string | number | undefined>>;
 
 /** Elements whose character data is part of the rendering, so they stay on one line. */
 const INLINE_ELEMENTS: ReadonlySet<Tag> = new Set(['text', 'tspan', 'title', 'desc']);
 
-interface MarkupElement {
-  readonly tag: Tag;
-  readonly attributes: Attributes;
+/** Defaults to any element, which is what a parent holds and the serializer walks. */
+interface MarkupElement<T extends Tag = Tag> {
+  readonly tag: T;
+  readonly attributes: Attributes<T>;
   readonly children: Array<Child>;
 }
 
@@ -122,7 +114,11 @@ type FlatChild = MarkupElement | StyleElement | string | number;
 /**
  * Builds one element. Attribute values and text children are encoded on the way out.
  */
-const el = (tag: Tag, attributes: Attributes = {}, ...children: Array<Child>): MarkupElement => ({
+const el = <T extends Tag>(
+  tag: T,
+  attributes: Attributes<T> = {},
+  ...children: Array<Child>
+): MarkupElement<T> => ({
   tag,
   attributes,
   children,
@@ -155,7 +151,7 @@ const openTag = (node: MarkupElement, selfClosing: boolean): string => {
   const { attributes } = node;
 
   // `Object.keys` widens to `string`, so the cast restores what the type already says.
-  for (const name of Object.keys(attributes) as Array<Attribute>) {
+  for (const name of Object.keys(attributes) as Array<keyof Attributes<Tag>>) {
     const value = attributes[name];
     if (value !== undefined) {
       // A number can hold nothing that needs escaping, so it skips the scan.

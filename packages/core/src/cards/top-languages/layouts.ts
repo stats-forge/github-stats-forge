@@ -432,7 +432,7 @@ const renderDonutVerticalLayout = (
           'stroke-width': 25,
           'stroke-dasharray': totalCircleLength,
           'stroke-dashoffset': indent,
-          size: percentage,
+          'data-size': percentage,
           'data-testid': 'lang-donut',
         }),
       ),
@@ -505,7 +505,7 @@ const renderPieLayout = (
           stroke: 'none',
           fill: langColor,
           'data-testid': 'lang-pie',
-          size: 100,
+          'data-size': 100,
         }),
       );
       break;
@@ -536,7 +536,7 @@ const renderPieLayout = (
         { class: 'stagger', style: `animation-delay: ${delay}ms` },
         el('path', {
           'data-testid': 'lang-pie',
-          size: percentage,
+          'data-size': percentage,
           d: `M ${centerX} ${centerY} L ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y} Z`,
           fill: langColor,
         }),
@@ -644,7 +644,7 @@ const renderDonutLayout = (
             fill: 'none',
             'stroke-width': DONUT_STROKE_WIDTH,
             'data-testid': 'lang-donut',
-            size: 100,
+            'data-size': 100,
           }),
         ]
       : langPaths.map((section, index) =>
@@ -653,7 +653,7 @@ const renderDonutLayout = (
             { class: 'stagger', style: `animation-delay: ${(index + 3) * 100 + 300}ms` },
             el('path', {
               'data-testid': 'lang-donut',
-              size: section.percent,
+              'data-size': section.percent,
               d: section.d,
               stroke: colors[index] ?? DEFAULT_LANG_COLOR,
               fill: 'none',

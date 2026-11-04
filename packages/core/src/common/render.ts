@@ -77,7 +77,7 @@ const createLanguageNode = (langName: string, langColor: string): MarkupElement 
  *
  * @returns The bloom, tested as `${testId}-glow`, then the crisp circle over it.
  */
-const glowingCircle = (testId: string, attributes: Attributes): Array<MarkupElement> => [
+const glowingCircle = (testId: string, attributes: Attributes<'circle'>): Array<MarkupElement> => [
   el('circle', { ...attributes, 'data-testid': `${testId}-glow`, filter: HEAT_PAINT.bloom }),
   el('circle', { ...attributes, 'data-testid': testId }),
 ];
