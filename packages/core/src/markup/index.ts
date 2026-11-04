@@ -6,4 +6,4 @@
 export { atRule, changedBy, cssComment, rule } from './css.ts';
 export type { CssChild } from './css.ts';
 export { el, renderMarkup, style } from './element.ts';
-export type { Child, MarkupElement } from './element.ts';
+export type { Attributes, Child, MarkupElement } from './element.ts';

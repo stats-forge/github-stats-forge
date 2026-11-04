@@ -258,4 +258,4 @@ const renderMarkup = (root: MarkupElement): string => {
 };
 
 export { el, renderMarkup, style };
-export type { Child, MarkupElement };
+export type { Attributes, Child, MarkupElement };

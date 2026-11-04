@@ -187,8 +187,8 @@
   <g data-testid="main-card-body" transform="translate(0, 50)">
     <g data-testid="rank-circle" transform="translate(441, 49.5)">
       <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
-      <circle data-testid="rank-glow" class="rank-circle" cx="-10" cy="8" r="40" filter="url(#heat-bloom)" />
-      <circle data-testid="rank-ring" class="rank-circle" cx="-10" cy="8" r="40" />
+      <circle class="rank-circle" cx="-10" cy="8" r="40" data-testid="rank-ring-glow" filter="url(#heat-bloom)" />
+      <circle class="rank-circle" cx="-10" cy="8" r="40" data-testid="rank-ring" />
       <g class="rank-text">
         <text x="-5" alignment-baseline="central" dominant-baseline="central" text-anchor="middle" y="3" data-testid="level-rank-icon">S</text>
       </g>

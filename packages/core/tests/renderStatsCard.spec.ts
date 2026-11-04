@@ -64,9 +64,8 @@ describe('Test renderStatsCard', () => {
     expect(screen.getByTestId('contributed_to')).toHaveTextContent(exactly('500'));
     expect(screen.queryByTestId('card-bg')).toBeInTheDocument();
     expect(screen.queryByTestId('rank-circle')).toBeInTheDocument();
-    // WebKit draws a filtered shape at 1x, so the ring itself stays out of its glow.
     expect(screen.getByTestId('rank-ring')).not.toHaveAttribute('filter');
-    expect(screen.getByTestId('rank-glow')).toHaveAttribute('filter', HEAT_PAINT.bloom);
+    expect(screen.getByTestId('rank-ring-glow')).toHaveAttribute('filter', HEAT_PAINT.bloom);
     expect(drawnIds(ALL_STATS)).toStrictEqual([
       'stars',
       'commits',

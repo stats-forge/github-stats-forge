@@ -159,8 +159,8 @@
             <svg data-testid="lang-progress" width="26.230519981484342%">
               <rect width="100%" height="8" fill="#dea584" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 750ms;" />
             </svg>
-            <circle data-testid="lang-tip-glow" class="lang-tip" cx="52.2" cy="4" r="4.5" fill="#dea584" filter="url(#heat-bloom)" style="animation-delay: 1150ms;" />
-            <circle data-testid="lang-tip" class="lang-tip" cx="52.2" cy="4" r="4.5" fill="#dea584" style="animation-delay: 1150ms;" />
+            <circle class="lang-tip" cx="52.2" cy="4" r="4.5" fill="#dea584" style="animation-delay: 1150ms;" data-testid="lang-tip-glow" filter="url(#heat-bloom)" />
+            <circle class="lang-tip" cx="52.2" cy="4" r="4.5" fill="#dea584" style="animation-delay: 1150ms;" data-testid="lang-tip" />
           </svg>
         </g>
       </g>
@@ -173,8 +173,8 @@
             <svg data-testid="lang-progress" width="19.28714704520907%">
               <rect width="100%" height="8" fill="#3178c6" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 900ms;" />
             </svg>
-            <circle data-testid="lang-tip-glow" class="lang-tip" cx="37.2" cy="4" r="4.5" fill="#3178c6" filter="url(#heat-bloom)" style="animation-delay: 1300ms;" />
-            <circle data-testid="lang-tip" class="lang-tip" cx="37.2" cy="4" r="4.5" fill="#3178c6" style="animation-delay: 1300ms;" />
+            <circle class="lang-tip" cx="37.2" cy="4" r="4.5" fill="#3178c6" style="animation-delay: 1300ms;" data-testid="lang-tip-glow" filter="url(#heat-bloom)" />
+            <circle class="lang-tip" cx="37.2" cy="4" r="4.5" fill="#3178c6" style="animation-delay: 1300ms;" data-testid="lang-tip" />
           </svg>
         </g>
       </g>
@@ -187,8 +187,8 @@
             <svg data-testid="lang-progress" width="17.435580928869%">
               <rect width="100%" height="8" fill="#00ADD8" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1050ms;" />
             </svg>
-            <circle data-testid="lang-tip-glow" class="lang-tip" cx="33.2" cy="4" r="4.5" fill="#00ADD8" filter="url(#heat-bloom)" style="animation-delay: 1450ms;" />
-            <circle data-testid="lang-tip" class="lang-tip" cx="33.2" cy="4" r="4.5" fill="#00ADD8" style="animation-delay: 1450ms;" />
+            <circle class="lang-tip" cx="33.2" cy="4" r="4.5" fill="#00ADD8" style="animation-delay: 1450ms;" data-testid="lang-tip-glow" filter="url(#heat-bloom)" />
+            <circle class="lang-tip" cx="33.2" cy="4" r="4.5" fill="#00ADD8" style="animation-delay: 1450ms;" data-testid="lang-tip" />
           </svg>
         </g>
       </g>
@@ -201,8 +201,8 @@
             <svg data-testid="lang-progress" width="9.94188139690377%">
               <rect width="100%" height="8" fill="#3572A5" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1200ms;" />
             </svg>
-            <circle data-testid="lang-tip-glow" class="lang-tip" cx="17" cy="4" r="4.5" fill="#3572A5" filter="url(#heat-bloom)" style="animation-delay: 1600ms;" />
-            <circle data-testid="lang-tip" class="lang-tip" cx="17" cy="4" r="4.5" fill="#3572A5" style="animation-delay: 1600ms;" />
+            <circle class="lang-tip" cx="17" cy="4" r="4.5" fill="#3572A5" style="animation-delay: 1600ms;" data-testid="lang-tip-glow" filter="url(#heat-bloom)" />
+            <circle class="lang-tip" cx="17" cy="4" r="4.5" fill="#3572A5" style="animation-delay: 1600ms;" data-testid="lang-tip" />
           </svg>
         </g>
       </g>
@@ -215,8 +215,8 @@
             <svg data-testid="lang-progress" width="7.303399681119169%">
               <rect width="100%" height="8" fill="#DA5B0B" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1350ms;" />
             </svg>
-            <circle data-testid="lang-tip-glow" class="lang-tip" cx="11.3" cy="4" r="4.5" fill="#DA5B0B" filter="url(#heat-bloom)" style="animation-delay: 1750ms;" />
-            <circle data-testid="lang-tip" class="lang-tip" cx="11.3" cy="4" r="4.5" fill="#DA5B0B" style="animation-delay: 1750ms;" />
+            <circle class="lang-tip" cx="11.3" cy="4" r="4.5" fill="#DA5B0B" style="animation-delay: 1750ms;" data-testid="lang-tip-glow" filter="url(#heat-bloom)" />
+            <circle class="lang-tip" cx="11.3" cy="4" r="4.5" fill="#DA5B0B" style="animation-delay: 1750ms;" data-testid="lang-tip" />
           </svg>
         </g>
       </g>
@@ -229,8 +229,8 @@
             <svg data-testid="lang-progress" width="4.474618114488505%">
               <rect width="100%" height="8" fill="#ff3e00" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1500ms;" />
             </svg>
-            <circle data-testid="lang-tip-glow" class="lang-tip" cx="5.2" cy="4" r="4.5" fill="#ff3e00" filter="url(#heat-bloom)" style="animation-delay: 1900ms;" />
-            <circle data-testid="lang-tip" class="lang-tip" cx="5.2" cy="4" r="4.5" fill="#ff3e00" style="animation-delay: 1900ms;" />
+            <circle class="lang-tip" cx="5.2" cy="4" r="4.5" fill="#ff3e00" style="animation-delay: 1900ms;" data-testid="lang-tip-glow" filter="url(#heat-bloom)" />
+            <circle class="lang-tip" cx="5.2" cy="4" r="4.5" fill="#ff3e00" style="animation-delay: 1900ms;" data-testid="lang-tip" />
           </svg>
         </g>
       </g>
@@ -243,8 +243,8 @@
             <svg data-testid="lang-progress" width="15.326852851926143%">
               <rect width="100%" height="8" fill="#858585" rx="4" ry="4" x="0" y="0" class="lang-progress" style="animation-delay: 1650ms;" />
             </svg>
-            <circle data-testid="lang-tip-glow" class="lang-tip" cx="28.6" cy="4" r="4.5" fill="#858585" filter="url(#heat-bloom)" style="animation-delay: 2050ms;" />
-            <circle data-testid="lang-tip" class="lang-tip" cx="28.6" cy="4" r="4.5" fill="#858585" style="animation-delay: 2050ms;" />
+            <circle class="lang-tip" cx="28.6" cy="4" r="4.5" fill="#858585" style="animation-delay: 2050ms;" data-testid="lang-tip-glow" filter="url(#heat-bloom)" />
+            <circle class="lang-tip" cx="28.6" cy="4" r="4.5" fill="#858585" style="animation-delay: 2050ms;" data-testid="lang-tip" />
           </svg>
         </g>
       </g>

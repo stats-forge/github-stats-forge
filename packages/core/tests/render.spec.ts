@@ -8,11 +8,12 @@ import {
   createProgressNode,
   createTextNode,
   formatCount,
+  glowingCircle,
   iconWithLabel,
   renderError,
 } from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
-import { renderMarkup } from '../src/markup/index.ts';
+import { el, renderMarkup } from '../src/markup/index.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { draw, exactly } from './_card.ts';
@@ -97,12 +98,23 @@ describe(createProgressNode, () => {
   it('should cap a bar with a tip only when the bar is longer than it', () => {
     draw(tipped(40));
     expect(screen.getByTestId('lang-tip')).toHaveAttribute('cx', '115.5');
-    // WebKit draws a filtered shape at 1x, so the tip itself stays out of its glow.
-    expect(screen.getByTestId('lang-tip')).not.toHaveAttribute('filter');
-    expect(screen.getByTestId('lang-tip-glow')).toHaveAttribute('filter', HEAT_PAINT.bloom);
 
     draw(tipped(2));
-    expect(screen.queryAllByTestId('lang-tip')).toHaveLength(0);
+    expect(screen.queryAllByTestId(/^lang-tip/u)).toHaveLength(0);
+  });
+});
+
+describe(glowingCircle, () => {
+  // WebKit draws a filtered shape at 1x, so the circle stays out of its glow, drawn under it.
+  it('draws the bloom alone, then the circle unfiltered over it', () => {
+    draw(renderMarkup(el('svg', {}, glowingCircle('dot', { cx: 1, cy: 2, r: 3 }))));
+
+    const [glow, dot] = screen.getAllByTestId(/^dot/u);
+    expect(glow).toHaveAttribute('data-testid', 'dot-glow');
+    expect(glow).toHaveAttribute('filter', HEAT_PAINT.bloom);
+    expect(dot).toHaveAttribute('data-testid', 'dot');
+    expect(dot).not.toHaveAttribute('filter');
+    expect(dot).toHaveAttribute('r', '3');
   });
 });
 

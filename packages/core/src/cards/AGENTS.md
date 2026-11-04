@@ -51,11 +51,12 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 - **`Card` defines the heat once, as `url(#heat…)` paints in `HEAT_PAINT`**, and a card fills with
   those, never its own gradient. Each stop is classed, so the dark block recolors it with
   `stop-color`; a stop's light color stays its attribute, the fallback.
-- **Text is never filled with a gradient**: WebKit draws gradient-filled text in an `<img>` at 1x,
-  blurring it on a retina screen, and a `clipPath` or `mask` blurs the same. Shapes keep the
-  gradients, which it draws sharp.
-- **What glows is drawn twice: the bloom alone behind, the shape unfiltered over it**. WebKit draws
-  a filtered shape at 1x too, so `HEAT_PAINT.bloom` is a blur with no `SourceGraphic` in it.
+- **Text is never filled with a gradient** ([#386]): WebKit draws gradient-filled text in an
+  `<img>` at 1x, blurring it on a retina screen, and a `clipPath` or `mask` blurs the same. Shapes
+  keep the gradients, which it draws sharp.
+- **What glows is drawn twice, through `glowingCircle`: the bloom alone behind, the shape unfiltered
+  over it** ([#390]). WebKit draws a filtered shape at 1x too, so `HEAT_PAINT.bloom` is a blur with
+  no `SourceGraphic` in it.
 - **A chart split by language keeps GitHub's language colors**; only a bar measuring one share,
   as on the WakaTime card's normal layout or the activity card's flow rows, burns in the heat.
 - **A `quiet` theme drops the corner glow and halves the band**, for the original palettes.
@@ -78,3 +79,5 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 [#123]: https://github.com/stats-forge/github-stats-forge/pull/123
 [#219]: https://github.com/stats-forge/github-stats-forge/pull/219
 [#311]: https://github.com/stats-forge/github-stats-forge/pull/311
+[#386]: https://github.com/stats-forge/github-stats-forge/pull/386
+[#390]: https://github.com/stats-forge/github-stats-forge/pull/390
