@@ -2,16 +2,18 @@ import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { CARD_STYLE } from '../src/common/brand.ts';
+import { HEAT_PAINT } from '../src/common/color.ts';
 import {
   createLanguageNode,
   createProgressNode,
   createTextNode,
   formatCount,
+  glowingCircle,
   iconWithLabel,
   renderError,
 } from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
-import { renderMarkup } from '../src/markup/index.ts';
+import { el, renderMarkup } from '../src/markup/index.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { draw, exactly } from './_card.ts';
@@ -98,7 +100,21 @@ describe(createProgressNode, () => {
     expect(screen.getByTestId('lang-tip')).toHaveAttribute('cx', '115.5');
 
     draw(tipped(2));
-    expect(screen.queryAllByTestId('lang-tip')).toHaveLength(0);
+    expect(screen.queryAllByTestId(/^lang-tip/u)).toHaveLength(0);
+  });
+});
+
+describe(glowingCircle, () => {
+  // WebKit draws a filtered shape at 1x, so the circle stays out of its glow, drawn under it.
+  it('draws the bloom alone, then the circle unfiltered over it', () => {
+    draw(renderMarkup(el('svg', {}, glowingCircle('dot', { cx: 1, cy: 2, r: 3 }))));
+
+    const [glow, dot] = screen.getAllByTestId(/^dot/u);
+    expect(glow).toHaveAttribute('data-testid', 'dot-glow');
+    expect(glow).toHaveAttribute('filter', HEAT_PAINT.bloom);
+    expect(dot).toHaveAttribute('data-testid', 'dot');
+    expect(dot).not.toHaveAttribute('filter');
+    expect(dot).toHaveAttribute('r', '3');
   });
 });
 

@@ -145,6 +145,8 @@ const CARD_STYLE = {
   bloom: {
     /** The blur's spread, in px. */
     blur: 2,
+    /** How strongly it shows, on 0–1, so the crisp shape over it reads first. */
+    opacity: 0.5,
     /** A bar's glowing end: a touch wider than the 8px bar it caps. */
     tipRadius: 4.5,
   },

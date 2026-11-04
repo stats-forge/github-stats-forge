@@ -1,12 +1,12 @@
 import { CARD_ICON, CARD_STYLE } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
-import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
+import { getLightDarkColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
 import { rankIcon } from '../../common/icons.ts';
 import { commonLocales } from '../../common/locales.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue } from '../../common/ops.ts';
-import { NUMBER_FORMATS, createTextNode, flexLayout } from '../../common/render.ts';
+import { NUMBER_FORMATS, createTextNode, flexLayout, glowingCircle } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { StatsData } from '../../fetchers/stats/types.ts';
 import type { CssChild } from '../../markup/index.ts';
@@ -280,12 +280,11 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
         cy: 8,
         r: RANK_RING.radius,
       }),
-      el('circle', {
+      glowingCircle('rank-ring', {
         class: 'rank-circle',
         cx: -RANK_CIRCLE_CX_OFFSET,
         cy: 8,
         r: RANK_RING.radius,
-        filter: HEAT_PAINT.bloom,
       }),
       el('g', { class: 'rank-text' }, rankIcon(rank_icon, rank.level, rank.percentile)),
       SPARKS.map(([dx, dy, delay]) =>

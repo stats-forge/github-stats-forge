@@ -1,4 +1,4 @@
-import type { Child, MarkupElement } from '../markup/index.ts';
+import type { Attributes, Child, MarkupElement } from '../markup/index.ts';
 import { atRule, el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { CARD_STYLE } from './brand.ts';
@@ -70,6 +70,17 @@ const createLanguageNode = (langName: string, langColor: string): MarkupElement 
     el('text', { 'data-testid': 'lang-name', class: 'gray', x: 15 }, langName),
   );
 };
+
+/**
+ * A circle that glows, drawn twice: WebKit draws a filtered shape at 1x, so the circle stays out
+ * of its own bloom.
+ *
+ * @returns The bloom, tested as `${testId}-glow`, then the crisp circle over it.
+ */
+const glowingCircle = (testId: string, attributes: Attributes): Array<MarkupElement> => [
+  el('circle', { ...attributes, 'data-testid': `${testId}-glow`, filter: HEAT_PAINT.bloom }),
+  el('circle', { ...attributes, 'data-testid': testId }),
+];
 
 /**
  * Create a node to indicate progress in percentage along a horizontal line.
@@ -146,14 +157,12 @@ const createProgressNode = ({
     tip &&
       color !== undefined &&
       barLength >= CARD_STYLE.bloom.tipRadius * 2 &&
-      el('circle', {
-        'data-testid': 'lang-tip',
+      glowingCircle('lang-tip', {
         class: 'lang-tip',
         cx: Math.round((barLength - CARD_STYLE.bloom.tipRadius) * 10) / 10,
         cy: CARD_STYLE.bloom.tipRadius - 0.5,
         r: CARD_STYLE.bloom.tipRadius,
         fill: color,
-        filter: HEAT_PAINT.bloom,
         style: `animation-delay: ${delay + 400}ms;`,
       }),
   );
@@ -442,6 +451,7 @@ export {
   createLanguageNode,
   createProgressNode,
   createTextNode,
+  glowingCircle,
   iconWithLabel,
   flexLayout,
 };

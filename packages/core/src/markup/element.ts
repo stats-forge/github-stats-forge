@@ -13,9 +13,9 @@ type Tag =
   | 'circle'
   | 'defs'
   | 'desc'
+  | 'feComponentTransfer'
+  | 'feFuncA'
   | 'feGaussianBlur'
-  | 'feMerge'
-  | 'feMergeNode'
   | 'filter'
   | 'g'
   | 'linearGradient'
@@ -63,6 +63,7 @@ type Attribute =
   | 'rx'
   | 'ry'
   | 'size'
+  | 'slope'
   | 'stdDeviation'
   | 'stop-color'
   | 'stop-opacity'
@@ -75,6 +76,7 @@ type Attribute =
   | 'style'
   | 'text-anchor'
   | 'transform'
+  | 'type'
   | 'version'
   | 'viewBox'
   | 'width'
@@ -256,4 +258,4 @@ const renderMarkup = (root: MarkupElement): string => {
 };
 
 export { el, renderMarkup, style };
-export type { Child, MarkupElement };
+export type { Attributes, Child, MarkupElement };
