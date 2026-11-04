@@ -77,6 +77,11 @@ const fetchRepo = async (
     config,
   );
 
+  // the half naming no such login always fails NOT_FOUND
+  const failures = res.data.errors?.filter(({ type }) => type !== 'NOT_FOUND') ?? [];
+  if (failures.length > 0) {
+    throw CardError.fromGraphQL(failures, res.statusText, 'repository');
+  }
   const { data } = res.data;
   // a login is a user or an organization, never both
   const repository = (data.user ?? data.organization)?.repository;

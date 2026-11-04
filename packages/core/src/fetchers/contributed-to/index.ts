@@ -2,7 +2,7 @@ import type { CardConfig } from '../../common/config.ts';
 import type { GitHubDateRange } from '../../common/date.ts';
 import { toContributionRanges, toRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
-import { createGraphQLFetcher } from '../../common/http.ts';
+import { createGraphQLFetcher, UNREADABLE_REPLY } from '../../common/http.ts';
 import { logger } from '../../common/log.ts';
 import { clampValue, excludes } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
@@ -107,9 +107,7 @@ const fetchReposContributedTo = async (
       continue;
     }
 
-    // a non-JSON body parses as text, so the envelope has to be one before anything reads through it
-    const envelope: unknown = res.data;
-    if (envelope === null || typeof envelope !== 'object') {
+    if (res.data.errors?.[0]?.type === UNREADABLE_REPLY) {
       if (emptyResponses >= MAX_EMPTY_RESPONSE_RETRIES) {
         throw CardError.because('graphql_failed', { subject: REPOS_CONTRIBUTED_TO });
       }

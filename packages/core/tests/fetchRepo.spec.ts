@@ -53,6 +53,17 @@ describe('Test fetchRepo', () => {
     expect(repo).toStrictEqual(repository);
   });
 
+  it.each<[string, number, Record<string, never> | undefined]>([
+    ['a gateway timeout with an empty body', 502, undefined],
+    ['a JSON body with neither data nor errors', 200, {}],
+  ])('should answer %s as an upstream failure', async (_what, status, body) => {
+    mock.onPost(GRAPHQL).reply(status, body);
+
+    await expect(
+      fetchRepo({ username: 'anuraghazra', reponame: 'convoychat' }, config),
+    ).rejects.toMatchObject({ reason: 'graphql_failed', code: 'upstream' });
+  });
+
   it('should ask for no topics unless told to', async () => {
     mock.onPost(GRAPHQL).reply(200, data_user);
 

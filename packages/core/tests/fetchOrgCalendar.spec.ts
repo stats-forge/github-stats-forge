@@ -110,6 +110,14 @@ describe(fetchOrgCalendar, () => {
     });
   });
 
+  it('answers a JSON body with neither data nor errors as an upstream failure', async () => {
+    mock.onPost(GRAPHQL).reply(200, {} satisfies Record<string, never>);
+
+    await expect(fetchOrgCalendar({ org: 'vitest-dev' }, config)).rejects.toMatchObject({
+      reason: 'graphql_failed',
+    });
+  });
+
   it('refuses issue counts that GitHub answered with pull requests', async () => {
     mock.onPost(GRAPHQL).reply(200, answer([3, 2], 'PullRequest'));
 
