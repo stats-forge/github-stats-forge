@@ -6,6 +6,7 @@
 
 import type { ApiResult, ErrorCode } from '@stats-forge/github-stats-forge-core/api';
 
+import { findCard } from './cards.ts';
 import { renderSampleCard } from './render.ts';
 
 /** A drawn card, whichever source drew it. */
@@ -95,6 +96,19 @@ const sampleSource: PreviewSource = {
 const cardUrl = (cardId: string, options: Record<string, string>): string =>
   `${globalThis.location.origin}/api/${cardId}?${new URLSearchParams(options).toString()}`;
 
+/**
+ * GitHub and WakaTime match a name in any case, so this does too.
+ *
+ * @returns Whether the card still names the made-up account its identity fields start with.
+ */
+const namesSample = (cardId: string, options: Record<string, string>): boolean => {
+  const identity = Object.entries(findCard(cardId)?.identity ?? {});
+  return (
+    identity.length > 0 &&
+    identity.every(([name, value]) => options[name]?.toLowerCase() === value.toLowerCase())
+  );
+};
+
 const serverSource: PreviewSource = {
   label: 'This instance',
   badge: 'Live data',
@@ -102,7 +116,7 @@ const serverSource: PreviewSource = {
   detail:
     'Cards are drawn by the server that serves this page, using its own GitHub token, so what you type is sent to it and the numbers are real. Each redraw costs a request against that token.',
   identityNote:
-    'These go into the saved file, and into the preview: the card beside them is drawn for whoever you name.',
+    'These go into the saved file, and into the preview: the card beside them is drawn for whoever you name. The made-up account they start with is drawn from sample data.',
   draw: async (cardId, options) => {
     let response: Response;
     try {
@@ -128,4 +142,4 @@ const serverSource: PreviewSource = {
 
 export type { PreviewSource };
 
-export { cardUrl, sampleSource, serverSource };
+export { cardUrl, namesSample, sampleSource, serverSource };

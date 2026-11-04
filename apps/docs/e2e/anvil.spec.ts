@@ -427,6 +427,44 @@ test('offers no card URL, there being no instance to answer one', async ({ page 
   await expect(page.locator('[data-anvil="url-panel"]')).toBeHidden();
 });
 
+test('an instance draws the made-up account from the samples, and anyone else live', async ({
+  page,
+}) => {
+  const asked: Array<string> = [];
+  // this build has no server, so the page is told it has one and the instance is answered here
+  await page.route('**/anvil/', async (route) => {
+    const response = await route.fetch();
+    const html = await response.text();
+    await route.fulfill({
+      response,
+      body: html.replace('data-source="sample"', 'data-source="server"'),
+    });
+  });
+  await page.route('**/api/**', async (route) => {
+    asked.push(route.request().url());
+    await route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"></svg>',
+    });
+  });
+  await page.goto('/anvil/');
+  const badge = page.locator('#anvil-source');
+  const urlPanel = page.locator('[data-anvil="url-panel"]');
+
+  await expect(drawnCard(page).getByTestId('card-title')).toBeVisible();
+  await expect(badge).toContainText('Mock data');
+  await expect(urlPanel).toBeHidden();
+
+  await field(page, 'username').fill('Ember-Smith');
+  await expect(badge).toContainText('Mock data');
+
+  await field(page, 'username').fill('octocat');
+  await expect(badge).toContainText('Live data');
+  await expect(urlPanel).toBeVisible();
+  await expect.poll(() => asked.length).toBeGreaterThan(0);
+  expect(asked.every((url) => url.includes('username=octocat'))).toBe(true);
+});
+
 test('a card identified by more than one param gets a field for each', async ({ page }) => {
   await setCard(page, 'pin');
 

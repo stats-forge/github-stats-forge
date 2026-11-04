@@ -16,6 +16,9 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
   - **An instance's cards are at the origin's `/api/**`**, never under the base.
   - **A text field redraws after a pause**, sparing the token; `writeFile` still runs at once.
   - **The card's URL is offered only on an instance**; an e2e test asserts it is hidden otherwise.
+  - **An instance draws the seeded sample identity from the samples**, matched in any case: the
+    account is made up, so live the first card would be an error card. `drawing()` in `ui.ts` picks
+    the source, so the badge says mock data and the card's URL is hidden until another is named.
 - **Every Web Awesome icon slot is inline SVG, and the toast's `create()` gets no `icon`**: `wa-icon`
   fetches from Font Awesome's CDN. The privacy test holds it.
 - **It draws through core's public `./api` handlers**, with

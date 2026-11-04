@@ -28,7 +28,7 @@ import {
   createTextField,
   createTriState,
 } from './controls.ts';
-import { cardUrl, sampleSource, serverSource } from './source.ts';
+import { cardUrl, namesSample, sampleSource, serverSource } from './source.ts';
 import type { PreviewSource } from './source.ts';
 import { backdropFor, themeGroups } from './themes.ts';
 import type { Backdrop } from './themes.ts';
@@ -344,6 +344,23 @@ const mount = (root: HTMLElement): void => {
     : [sampleSource];
   let source: PreviewSource = servedByInstance ? serverSource : sampleSource;
 
+  /** @returns The source drawing now: the made-up accounts exist nowhere live, so the samples draw them. */
+  const drawing = (): PreviewSource => {
+    if (source === serverSource && namesSample(state.card.id, toQuery(state))) {
+      return sampleSource;
+    }
+    return source;
+  };
+
+  /** Says which source draws, and offers the card's URL only where it is live. */
+  const showSource = (): void => {
+    const shown = drawing();
+    sourceBadge.textContent = shown.badge;
+    sourceAside.textContent = shown.aside;
+    sourceDetail.textContent = shown.detail;
+    urlPanel.hidden = shown !== serverSource;
+  };
+
   /** The saved-card file the current state stands for. */
   const savedCard = (): string => savedCardText(state.card, toQuery(state));
 
@@ -361,6 +378,7 @@ const mount = (root: HTMLElement): void => {
     }
     download.href = URL.createObjectURL(new Blob([file], { type: 'application/json' }));
 
+    showSource();
     if (servedByInstance) {
       const url = cardUrl(state.card.id, toQuery(state));
       urlLine.textContent = url;
@@ -382,7 +400,7 @@ const mount = (root: HTMLElement): void => {
       showBusy(true);
     }, BUSY_PAUSE);
 
-    const shown = await source.draw(state.card.id, toQuery(state));
+    const shown = await drawing().draw(state.card.id, toQuery(state));
     if (own !== sequence) {
       // a newer draw is what the controls now describe, and it owns the indicator too
       return;
@@ -596,8 +614,6 @@ const mount = (root: HTMLElement): void => {
     notify(`Saving ${fileName(state)}`);
   });
 
-  urlPanel.hidden = !servedByInstance;
-
   copyUrl.addEventListener('click', () => {
     void copyToClipboard(cardUrl(state.card.id, toQuery(state)), 'Card URL');
   });
@@ -605,12 +621,6 @@ const mount = (root: HTMLElement): void => {
   copyMarkdown.addEventListener('click', () => {
     void copyToClipboard(markdown(state, cardUrl(state.card.id, toQuery(state))), 'Markdown');
   });
-
-  const showSource = (): void => {
-    sourceBadge.textContent = source.badge;
-    sourceAside.textContent = source.aside;
-    sourceDetail.textContent = source.detail;
-  };
 
   // only where there is a choice
   if (sources.length > 1) {
