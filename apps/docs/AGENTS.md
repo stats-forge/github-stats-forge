@@ -16,7 +16,7 @@ carries a server changeset.
   API; `check-themes-page` fails on drift.
 - **Every example `uses:` is `<owner>/<repo>@<sha> # vX.Y.Z`**, the shape Renovate's custom manager
   reads ([#114]).
-- **`public/favicon-self-hosted.svg` is `favicon.svg` with amber bars**: change both.
+- **`public/favicon-self-hosted.svg` is `favicon.svg` with blue bars**: change both.
 
 ## Building and checking
 
@@ -73,14 +73,17 @@ carries a server changeset.
 
 ## Look and chrome
 
+- **The site wears the cards' `ember` palette, in `src/styles/theme.css`**, loaded first; its
+  previews are drawn in `ember_light` and `ember_dark` to match.
 - **Every image lives in `apps/docs/public/`**; `favicon.svg` is the favicon and the logo. Importing
   from `public/` gives a stable URL and a hashed copy.
-- **A self-hosted instance says so wherever a visitor looks** ([#79]): the amber icon (chosen in
-  `astro.config.ts` on `SERVED_BY_INSTANCE`), a chip and an amber title, a `(self-hosted)` tab suffix,
+- **A self-hosted instance says so wherever a visitor looks** ([#79]): the blue icon (chosen in
+  `astro.config.ts` on `SERVED_BY_INSTANCE`), a chip and a blue title, a `(self-hosted)` tab suffix,
   and a banner on the landing page.
   - **The chip's tooltip is CSS** (Web Awesome loads only on the anvil), lifting `.title-wrapper`'s
     `overflow: clip` through `:global(.title-wrapper:has(.self-hosted))`.
-  - **Amber is `#b45309` on a light header and `#f59e0b` on a dark one**, each clearing AA.
+  - **Blue is `#1d4ed8` on a light header and `#60a5fa` on a dark one**, each clearing AA, and
+    stands apart from the site's ember.
   - **`Head.astro` amends the tab title and `Banner.astro` writes the banner in the route data**,
     since Starlight reads a banner only from frontmatter.
 - **`SiteTitle.astro` puts a "Docs" and "Anvil" nav beside the title** ([#50]); the anvil is not in
