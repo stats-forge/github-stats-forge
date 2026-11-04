@@ -51,6 +51,7 @@ const getProgressAnimation = ({ progress }: { progress: number }): CssChild =>
  */
 const getStyles = ({
   textColor,
+  titleColor,
   iconColor,
   ringColor,
   sparkColor,
@@ -58,6 +59,7 @@ const getStyles = ({
   progress,
 }: {
   textColor: string;
+  titleColor: string;
   iconColor: string;
   ringColor: string;
   sparkColor: string;
@@ -73,7 +75,7 @@ const getStyles = ({
   rule('.stagger', { animation: 'fadeInAnimation 0.3s ease-in-out backwards' }),
   rule('.rank-text', {
     font: font('bold', 'display'),
-    fill: ringColor,
+    fill: titleColor,
     transform: 'translate(-5px, 5px)',
     animation: 'scaleInAnimation 0.3s ease-in-out backwards',
   }),

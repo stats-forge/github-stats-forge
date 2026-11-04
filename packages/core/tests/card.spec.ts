@@ -143,40 +143,28 @@ describe(Card, () => {
     );
   });
 
-  it('should paint the title with the heat and keep the icon out of it', () => {
+  it('should paint the title in the heat, in one color, and keep the icon out of it', () => {
     const card = blank({
-      title: 'Hot and cold',
       titlePrefixIcon: icons.repo,
       colors: {
-        light: {
-          ...getCardColors('ember_light'),
-          // The first half solid, so the opening glyph lands on the first stop exactly.
-          heat: ['#ff0000', '#ff0000', '#0000ff'],
-          iconColor: '#0f0',
-        },
+        light: { ...getCardColors('ember_light'), titleColor: '#f00', iconColor: '#0f0' },
         dark: null,
       },
     });
 
     draw(card.render(``));
-    const header = screen.getByTestId('header');
-    const fills = [...header.querySelectorAll('tspan')].map((run) =>
-      cssValue(`.${run.getAttribute('class') ?? ''}`, 'fill'),
-    );
-    expect(header).toHaveTextContent(exactly('Hot and cold'));
-    expect(fills.at(0)).toBe('#ff0000');
-    expect(fills.at(-1)).toMatch(/^#[0-3][0-9a-f]00[c-f][0-9a-f]$/u);
+    // A gradient fill blurs text in WebKit's `<img>`, so the title takes the heat's middle stop.
+    expect(cssValue('.header', 'fill')).toBe('#f00');
     expect(cssValue('.title-icon', 'fill')).toBe('#0f0');
   });
 
-  it('should recolor the heat text in the dark block', () => {
+  it('should recolor the title in the dark block', () => {
     const light = getCardColors('cobalt_light');
     const dark = getCardColors('cobalt_dark');
 
     draw(blank({ colors: { light, dark } }).render(``));
-    expect(cssValue('.heat-step-0', 'fill')).toBe(light.heat[0]);
     expect(document.querySelector('style')).toHaveTextContent(
-      /prefers-color-scheme: dark[^@]*\.heat-step-0 \{\s*fill: #7df3ff;/u,
+      /prefers-color-scheme: dark[^@]*\.header \{\s*fill: #3d8bff;/u,
     );
   });
 
@@ -191,7 +179,7 @@ describe(Card, () => {
       String(light.glowOpacity),
     );
     expect(document.querySelector('style')).toHaveTextContent(
-      /prefers-color-scheme: dark[^@]*\.glow-core \{\s*stop-color: #ff7a1a;\s*stop-opacity: 0\.42;/u,
+      /prefers-color-scheme: dark[^@]*\.glow-core \{\s*stop-color: #ff7a1a;\s*stop-opacity: 0\.13;/u,
     );
   });
 
@@ -268,7 +256,7 @@ describe(Card, () => {
       }).render(``),
     );
     expect(document.querySelector('style')).toHaveTextContent(
-      /prefers-color-scheme: dark[^@]*\.band-1 \{\s*stop-color: #ff7a1a;\s*stop-opacity: 0\.16;/u,
+      /prefers-color-scheme: dark[^@]*\.band-1 \{\s*stop-color: #ff7a1a;\s*stop-opacity: 0\.08;/u,
     );
   });
 

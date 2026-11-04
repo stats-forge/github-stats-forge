@@ -10,7 +10,6 @@ type CssProperty =
   | 'animation-duration'
   | 'color'
   | 'display'
-  | 'dominant-baseline'
   | 'fill'
   | 'fill-opacity'
   | 'font'

@@ -1,7 +1,6 @@
 import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { HEAT_PAINT, getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
-import { heatText } from '../../common/heatText.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
 import { commonLocales } from '../../common/locales.ts';
 import { localize } from '../../common/localize.ts';
@@ -477,7 +476,7 @@ const renderCard = (
             x: CARD_STYLE.padding.x,
             y: CARD_STYLE.headline.baseline,
           },
-          heatText(total),
+          total,
         ),
         averageText &&
           averageFits &&
@@ -530,7 +529,7 @@ const renderCard = (
     hideBorder: hide_border,
     hideTitle: hide_title,
     animations: !disable_animations,
-    css: ({ textColor, progBarBgColor }): Array<CssChild> => [
+    css: ({ textColor, titleColor, progBarBgColor }): Array<CssChild> => [
       getStyles({ textColor }),
       atRule(
         '@keyframes slideInAnimation',
@@ -551,7 +550,7 @@ const renderCard = (
         fill: HEAT_PAINT.line,
       }),
       rule('.progress-background', { fill: progBarBgColor }),
-      rule('.headline-total', { font: font('semibold', 'display') }),
+      rule('.headline-total', { font: font('semibold', 'display'), fill: titleColor }),
       rule('.headline-average', { font: font('regular', 'small'), fill: textColor, opacity: 0.75 }),
     ],
   });

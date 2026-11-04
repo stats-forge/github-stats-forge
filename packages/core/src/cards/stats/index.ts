@@ -239,8 +239,16 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     hideTitle: hide_title,
     animations: !disable_animations,
     burns: true,
-    css: ({ ringColor, textColor, iconColor, heat }): Array<CssChild> =>
-      getStyles({ ringColor, textColor, iconColor, sparkColor: heat[0], show_icons, progress }),
+    css: ({ ringColor, textColor, titleColor, iconColor, heat }): Array<CssChild> =>
+      getStyles({
+        ringColor,
+        textColor,
+        titleColor,
+        iconColor,
+        sparkColor: heat[0],
+        show_icons,
+        progress,
+      }),
   });
 
   /**

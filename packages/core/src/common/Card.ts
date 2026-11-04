@@ -2,9 +2,8 @@ import type { Child, CssChild, MarkupElement } from '../markup/index.ts';
 import { atRule, changedBy, cssComment, el, renderMarkup, rule, style } from '../markup/index.ts';
 
 import { CARD_STYLE, firefoxFontSize, font } from './brand.ts';
-import { HEAT_ID, HEAT_OFFSETS, HEAT_PAINT, getCardColors, isPrefixedHexColor } from './color.ts';
+import { HEAT_ID, HEAT_PAINT, getCardColors, isPrefixedHexColor } from './color.ts';
 import type { CardColors } from './color.ts';
-import { HEAT_TEXT_BASELINE, heatText, heatTextRules } from './heatText.ts';
 import { flexLayout } from './render.ts';
 import { measureText } from './text.ts';
 
@@ -88,7 +87,7 @@ const bandEdgeOpacity = (colors: CardColors): number =>
 
 /** @returns The band's stops, classed so the dark block can recolor them. */
 const bandStops = (colors: CardColors): Array<MarkupElement> =>
-  HEAT_OFFSETS.map((offset, index) =>
+  ([0, 0.55, 1] as const).map((offset, index) =>
     el('stop', {
       offset,
       class: `band-${String(index)}`,
@@ -122,9 +121,9 @@ const heatStop = (
  */
 const renderHeatDefs = (colors: CardColors, burns: boolean): Array<Child> => {
   const stops = (): Array<MarkupElement> => [
-    heatStop(HEAT_OFFSETS[0], colors, 0),
-    heatStop(HEAT_OFFSETS[1], colors, 1),
-    heatStop(HEAT_OFFSETS[2], colors, 2),
+    heatStop(0, colors, 0),
+    heatStop(0.55, colors, 1),
+    heatStop(1, colors, 2),
   ];
 
   return [
@@ -167,9 +166,8 @@ const renderHeatDefs = (colors: CardColors, burns: boolean): Array<Child> => {
   ];
 };
 
-/** @returns The rules recoloring the heat's stops and text, for the dark block. */
+/** @returns The rules recoloring the heat stops, for the dark block. */
 const heatStopRules = (colors: CardColors): Array<CssChild> => [
-  heatTextRules(colors),
   colors.heat.map((color, index) => rule(`.heat-${String(index)}`, { 'stop-color': color })),
   rule('.glow-core', { 'stop-color': colors.heat[1], 'stop-opacity': colors.glowOpacity }),
   rule('.glow-edge', {
@@ -305,7 +303,7 @@ class Card {
               class: 'header',
               'data-testid': 'header',
             },
-            heatText(this.title),
+            this.title,
           ),
         ],
         gap: TITLE_ICON_GAP,
@@ -385,6 +383,7 @@ class Card {
     return atRule(
       '@media (prefers-color-scheme: dark)',
       heatStopRules(this.colors.dark),
+      rule('.header', { fill: this.colors.dark.titleColor }),
       rule('.title-icon', { fill: this.colors.dark.iconColor }),
       rule('.card-bg', {
         fill: this.colors.dark.bgColor,
@@ -444,10 +443,9 @@ class Card {
         style(
           rule('.header', {
             font: font('semibold', 'title'),
+            fill: this.colors.light.titleColor,
             animation: 'fadeInAnimation 0.8s ease-in-out backwards',
           }),
-          HEAT_TEXT_BASELINE,
-          heatTextRules(this.colors.light),
           cssComment(
             'The icon reads against the title rather than with it, so it keeps its own color.',
           ),
