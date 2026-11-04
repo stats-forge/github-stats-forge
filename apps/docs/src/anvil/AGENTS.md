@@ -134,6 +134,9 @@ check of the anvil in a browser**.
 - **`e2e/serve.ts` serves it** (`astro preview` always daemonizes), copying `static.ts`'s table and
   guard so the site does not depend on the server. Keep the two agreed.
 - **Take the newest `@playwright/test` older than `minimumReleaseAge`**, never an exclusion.
+- **CI installs Chromium without `--with-deps`** ([#389]): the runner already has its libraries, and
+  apt once spent 7 minutes on fonts no test reads. A missing library fails the launch, loudly.
+  Playwright's image needs a digest pin and lacks the `jq` that `setup-node-and-pnpm` reads.
 - **`excludeFiles: ['apps/docs/e2e/**']` keeps vitest's rules off it** ([#132]).
 - **One test asserts the privacy claim**, saying first which source draws: it records every request
   while drawing every card, and fails on any leaving the origin **or reaching `/api/**`**. It
@@ -155,3 +158,4 @@ check of the anvil in a browser**.
 [#126]: https://github.com/stats-forge/github-stats-forge/pull/126
 [#132]: https://github.com/stats-forge/github-stats-forge/pull/132
 [#225]: https://github.com/stats-forge/github-stats-forge/pull/225
+[#389]: https://github.com/stats-forge/github-stats-forge/pull/389
