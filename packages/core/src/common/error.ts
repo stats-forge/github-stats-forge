@@ -42,7 +42,7 @@ interface CardErrorInit {
   param?: string | undefined;
   /** What this failure was raised from. Kept for logs; the card never draws it. */
   cause?: unknown;
-  /** Whether filing an issue could help; `true` when omitted. */
+  /** Whether filing an issue could help; `true` when omitted, and never for `not_found`. */
   reportable?: boolean | undefined;
 }
 
@@ -252,7 +252,8 @@ class CardError extends Error {
     this.code = init.code;
     this.secondaryMessage = init.secondaryMessage;
     this.param = init.param;
-    this.reportable = init.reportable ?? true;
+    // a name nothing answers to is the visitor's to fix, never a bug
+    this.reportable = init.code !== 'not_found' && (init.reportable ?? true);
   }
 
   /** Which failure this is; absent for one wrapped by `from`. */

@@ -30,7 +30,7 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
   the parenthetical has its own translated key, or every locale regresses to English.
 - **The error card's report line sits under the message, measured not to fit beside the title**
   ([#58]); re-measure in a canvas before moving it. It is `data-testid="report"`, drawn when the
-  failure's `CardError.reportable` is on.
+  failure's `CardError.reportable` is on, which a `not_found` never is.
 
 ## Card branding
 
