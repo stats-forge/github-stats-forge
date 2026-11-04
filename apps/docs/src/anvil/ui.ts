@@ -50,6 +50,9 @@ const THEME_GROUP = 'colors';
 /** How long to wait after a keystroke before redrawing. */
 const TYPING_PAUSE = 250;
 
+/** Longer for an account's name: each half-typed one draws a not-found card, and live costs a request. */
+const NAME_PAUSE = 800;
+
 /** How long a toast stays up. */
 const TOAST_PAUSE = 3000;
 
@@ -428,14 +431,14 @@ const mount = (root: HTMLElement): void => {
   };
 
   /** The same, once typing has stopped: on an instance every redraw is a request against its token. */
-  const scheduleTyping = (): void => {
+  const scheduleTyping = (pause = TYPING_PAUSE): void => {
     writeFile();
     // Never debounced either: a half-typed theme names no ground, so nothing moves until one does.
     followBackdrop();
     globalThis.clearTimeout(pending);
     pending = globalThis.setTimeout(() => {
       void draw();
-    }, TYPING_PAUSE);
+    }, pause);
   };
 
   /** @returns The control for one option, or nothing for the ones the anvil draws itself. */
@@ -501,7 +504,7 @@ const mount = (root: HTMLElement): void => {
         value: state.values[name] ?? '',
         onInput: (value) => {
           state.values[name] = value;
-          scheduleTyping();
+          scheduleTyping(Object.hasOwn(state.card.identity, name) ? NAME_PAUSE : TYPING_PAUSE);
         },
       }),
     ];

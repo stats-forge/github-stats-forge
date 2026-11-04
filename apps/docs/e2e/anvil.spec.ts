@@ -427,11 +427,13 @@ test('offers no card URL, there being no instance to answer one', async ({ page 
   await expect(page.locator('[data-anvil="url-panel"]')).toBeHidden();
 });
 
-test('an instance draws the made-up account from the samples, and anyone else live', async ({
-  page,
-}) => {
+/**
+ * This build has no server, so the page is told it has one and the instance is answered here.
+ *
+ * @returns Every card URL the page asked the instance for, as it asks.
+ */
+const asInstance = async (page: Page): Promise<Array<string>> => {
   const asked: Array<string> = [];
-  // this build has no server, so the page is told it has one and the instance is answered here
   await page.route('**/anvil/', async (route) => {
     const response = await route.fetch();
     const html = await response.text();
@@ -448,6 +450,13 @@ test('an instance draws the made-up account from the samples, and anyone else li
     });
   });
   await page.goto('/anvil/');
+  return asked;
+};
+
+test('an instance draws the made-up account from the samples, and anyone else live', async ({
+  page,
+}) => {
+  const asked = await asInstance(page);
   const badge = page.locator('#anvil-source');
   const urlPanel = page.locator('[data-anvil="url-panel"]');
 
@@ -463,6 +472,18 @@ test('an instance draws the made-up account from the samples, and anyone else li
   await expect(urlPanel).toBeVisible();
   await expect.poll(() => asked.length).toBeGreaterThan(0);
   expect(asked.every((url) => url.includes('username=octocat'))).toBe(true);
+});
+
+test('a name typed at a steady pace is drawn once, when it is whole', async ({ page }) => {
+  const asked = await asInstance(page);
+  await expect(drawnCard(page).getByTestId('card-title')).toBeVisible();
+
+  // keys 300ms apart: past the pause any other text field waits, inside the one a name waits
+  await field(page, 'username').clear();
+  await field(page, 'username').pressSequentially('octocat', { delay: 300 });
+
+  await expect.poll(() => asked.length).toBe(1);
+  expect(asked[0]).toContain('username=octocat');
 });
 
 test('a card identified by more than one param gets a field for each', async ({ page }) => {

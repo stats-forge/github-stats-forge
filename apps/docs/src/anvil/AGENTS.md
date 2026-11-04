@@ -14,7 +14,8 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
   - **Both sources are bundled**, so a tokenless instance falls back to the samples; the picker shows
     only when there is a choice.
   - **An instance's cards are at the origin's `/api/**`**, never under the base.
-  - **A text field redraws after a pause**, sparing the token; `writeFile` still runs at once.
+  - **A text field redraws after a pause**, sparing the token; `writeFile` still runs at once. An
+    identity field waits `NAME_PAUSE`, longer, since each half-typed name draws a not-found card.
   - **The card's URL is offered only on an instance**; an e2e test asserts it is hidden otherwise.
   - **An instance draws the seeded sample identity from the samples**, matched in any case: the
     account is made up, so live the first card would be an error card. `drawing()` in `ui.ts` picks
