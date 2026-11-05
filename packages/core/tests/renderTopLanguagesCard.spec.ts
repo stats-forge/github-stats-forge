@@ -519,7 +519,7 @@ describe('Test renderTopLanguages', () => {
 
   it('should still size the pie slices when hide_values is true', () => {
     draw(renderTopLanguages(langs, { layout: 'pie', hide_values: true }));
-    expect(screen.queryAllByTestId('lang-pie')[0]).toHaveAttribute('data-size', '40');
+    expect(screen.getAllByTestId('lang-pie')[0]).toHaveAttribute('data-size', '40');
   });
 });
 

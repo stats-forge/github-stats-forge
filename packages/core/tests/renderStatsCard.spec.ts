@@ -206,10 +206,10 @@ describe('Test renderStatsCard', () => {
   it('should render icons correctly', () => {
     draw(renderStatsCard(stats, { show_icons: true }));
 
-    const stars = screen.getByTestId('stars');
-    expect(screen.queryAllByTestId('icon')[0]).toBeInTheDocument();
-    // the label, moved right to make room for the icon
-    expect(stars.previousElementSibling).toHaveAttribute('x', '25');
+    const label = screen.getByTestId('stars').previousElementSibling;
+    expect(label?.previousElementSibling).toHaveAttribute('data-testid', 'icon');
+    // moved right to make room for the icon
+    expect(label).toHaveAttribute('x', '25');
   });
 
   it('should not have icons if show_icons is false', () => {
