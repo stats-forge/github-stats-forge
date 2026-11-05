@@ -148,11 +148,7 @@ const flatten = (children: Array<Child>, into: Array<FlatChild> = []): Array<Fla
 
 const openTag = (node: MarkupElement, selfClosing: boolean): string => {
   let tag = `<${node.tag}`;
-  const { attributes } = node;
-
-  // `Object.keys` widens to `string`, so the cast restores what the type already says.
-  for (const name of Object.keys(attributes) as Array<keyof Attributes<Tag>>) {
-    const value = attributes[name];
+  for (const [name, value] of Object.entries(node.attributes)) {
     if (value !== undefined) {
       // A number can hold nothing that needs escaping, so it skips the scan.
       tag += typeof value === 'number' ? ` ${name}="${value}"` : ` ${name}="${encodeHTML(value)}"`;
