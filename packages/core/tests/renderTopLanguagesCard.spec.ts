@@ -311,7 +311,7 @@ describe('Test renderTopLanguages', () => {
     const percents = slices.map((slice) => donutPercent(slice, center));
 
     for (const [index, { percent }] of SLICES.entries()) {
-      expect(slices[index]).toHaveAttribute('size', String(percent));
+      expect(slices[index]).toHaveAttribute('data-size', String(percent));
       expect(percents[index]).toBeCloseTo(percent);
     }
     expect(percents.reduce((sum, percent) => sum + percent, 0)).toBe(100);
@@ -323,7 +323,7 @@ describe('Test renderTopLanguages', () => {
     expectLabels(['HTML 100.00%']);
     const slices = screen.queryAllByTestId('lang-donut');
     expect(slices).toHaveLength(1);
-    expect(slices[0]).toHaveAttribute('size', '100');
+    expect(slices[0]).toHaveAttribute('data-size', '100');
     expect(slices[0]?.tagName).toBe('circle');
   });
 
@@ -379,7 +379,7 @@ describe('Test renderTopLanguages', () => {
     const percents = rings.map((_, index) => ringPercent(rings, index));
 
     for (const [index, { percent }] of SLICES.entries()) {
-      expect(rings[index]).toHaveAttribute('size', String(percent));
+      expect(rings[index]).toHaveAttribute('data-size', String(percent));
       expect(percents[index]).toBeCloseTo(percent);
     }
     expect(percents.reduce((sum, percent) => sum + percent, 0)).toBe(100);
@@ -390,7 +390,7 @@ describe('Test renderTopLanguages', () => {
 
     expectLabels(['HTML 100.00%']);
     const rings = screen.queryAllByTestId('lang-donut');
-    expect(rings[0]).toHaveAttribute('size', '100');
+    expect(rings[0]).toHaveAttribute('data-size', '100');
     expect(ringPercent(rings, 0)).toBeCloseTo(100);
   });
 
@@ -425,7 +425,7 @@ describe('Test renderTopLanguages', () => {
     const percents = slices.map((slice) => piePercent(slice, center));
 
     for (const [index, { percent }] of SLICES.entries()) {
-      expect(slices[index]).toHaveAttribute('size', String(percent));
+      expect(slices[index]).toHaveAttribute('data-size', String(percent));
       expect(percents[index]).toBeCloseTo(percent);
     }
     expect(percents.reduce((sum, percent) => sum + percent, 0)).toBe(100);
@@ -439,7 +439,7 @@ describe('Test renderTopLanguages', () => {
       expectLabels([hide_values ? 'HTML' : 'HTML 100.00%']);
       const slices = screen.queryAllByTestId('lang-pie');
       expect(slices).toHaveLength(1);
-      expect(slices[0]).toHaveAttribute('size', '100');
+      expect(slices[0]).toHaveAttribute('data-size', '100');
       expect(slices[0]?.tagName).toBe('circle');
     },
   );
@@ -519,7 +519,7 @@ describe('Test renderTopLanguages', () => {
 
   it('should still size the pie slices when hide_values is true', () => {
     draw(renderTopLanguages(langs, { layout: 'pie', hide_values: true }));
-    expect(screen.queryAllByTestId('lang-pie')[0]).toHaveAttribute('size', '40');
+    expect(screen.getAllByTestId('lang-pie')[0]).toHaveAttribute('data-size', '40');
   });
 });
 
