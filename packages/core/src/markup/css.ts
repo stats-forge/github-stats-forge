@@ -108,8 +108,7 @@ const writeCss = (children: Array<CssChild>, depth: number, sink: Sink): void =>
 
     sink.out += `${indent}${node.selector} {\n`;
     const bodyStart = sink.out.length;
-    for (const property of Object.keys(node.declarations) as Array<CssProperty>) {
-      const value = node.declarations[property];
+    for (const [property, value] of Object.entries(node.declarations)) {
       if (value !== undefined) {
         sink.out += `${indent}${INDENT}${property}: ${String(value)};\n`;
       }
@@ -129,15 +128,11 @@ const changedBy = (base: Array<CssChild>, next: Array<CssChild>): Array<CssNode>
   return flatten(next).flatMap((node, index): Array<CssNode> => {
     const was = before[index];
     if (node.kind === 'rule' && was?.kind === 'rule' && was.selector === node.selector) {
-      const changed = (Object.keys(node.declarations) as Array<CssProperty>).filter(
-        (property) => node.declarations[property] !== was.declarations[property],
+      const previous: Readonly<Record<string, string | number | undefined>> = was.declarations;
+      const changed = Object.entries(node.declarations).filter(
+        ([property, value]) => value !== previous[property],
       );
-      return [
-        rule(
-          node.selector,
-          Object.fromEntries(changed.map((property) => [property, node.declarations[property]])),
-        ),
-      ];
+      return [rule(node.selector, Object.fromEntries(changed))];
     }
     if (node.kind === 'at' && was?.kind === 'at' && was.prelude === node.prelude) {
       // a later @keyframes replaces the earlier one whole, so it cannot be trimmed
