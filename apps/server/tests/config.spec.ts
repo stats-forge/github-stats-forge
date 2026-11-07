@@ -1,3 +1,4 @@
+import { gist } from '@stats-forge/github-stats-forge-core/api';
 import type { ApiResult } from '@stats-forge/github-stats-forge-core/api';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -43,6 +44,35 @@ describe(readSettings, () => {
     const settings = readSettings({ PAT_1: 'real', PAT_2: '' });
 
     expect(settings.options.config.pats.map((pat) => pat.name)).toStrictEqual(['PAT_1']);
+  });
+
+  it.each([
+    {
+      operator: 'no token',
+      env: {},
+      reply: {},
+      says: 'Please add an env variable called PAT_1 with your GitHub API token in your deployment environment',
+    },
+    {
+      operator: 'only rejected tokens',
+      env: { PAT_1: 'lapsed' },
+      reply: { message: 'Bad credentials' },
+      says: 'Replace the expired or revoked PAT_* variables in your deployment environment',
+    },
+    {
+      operator: 'every token rate limited',
+      env: { PAT_1: 'spent' },
+      reply: { errors: [{ type: 'RATE_LIMITED' }] },
+      says: 'You can deploy own instance or wait until public will be no longer limited',
+    },
+  ])('keeps its own advice for an operator with $operator', async ({ env, reply, says }) => {
+    const config = readSettings(env).options.config.with({
+      fetch: async () => Promise.resolve(Response.json(reply)),
+    });
+
+    await expect(gist({ id: 'abc' }, config)).resolves.toMatchObject({
+      error: { secondaryMessage: says },
+    });
   });
 
   it('gives each GitHub request 10 seconds unless REQUEST_TIMEOUT_MS says otherwise', () => {

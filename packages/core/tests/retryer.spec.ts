@@ -98,6 +98,8 @@ describe(retryer, () => {
     await expect(retryer(fetcher, {}, testConfig)).rejects.toMatchObject({
       code: 'no_tokens',
       reason: 'tokens_rejected',
+      // named as the host named them, never by value
+      secondaryMessage: 'PAT_1 and PAT_2 may be expired or revoked',
     });
     expect(fetcher).toHaveBeenCalledTimes(2);
   });

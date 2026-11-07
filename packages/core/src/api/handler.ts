@@ -45,7 +45,7 @@ const cardHandler = <TSchema extends z.ZodMiniObject>(
     try {
       theme = parseThemeParams(query);
     } catch (error) {
-      return errorResult(error);
+      return errorResult(error, config.hints);
     }
 
     try {
@@ -62,7 +62,7 @@ const cardHandler = <TSchema extends z.ZodMiniObject>(
 
       return { status: 'success', content: await render(params, theme, config) };
     } catch (error) {
-      return errorResult(error, theme);
+      return errorResult(error, config.hints, theme);
     }
   };
 

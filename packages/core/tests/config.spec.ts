@@ -88,3 +88,12 @@ describe('CardConfig.requestTimeoutMs', () => {
     expect(config.with({ requestTimeoutMs: undefined }).fetch).toBe(stalled);
   });
 });
+
+describe('CardConfig.hints', () => {
+  it('survives `with`, unless the copy brings its own', () => {
+    const config = new CardConfig({ hints: { rate_limited: 'Wait' } });
+
+    expect(config.with({ pats: [] }).hints).toStrictEqual({ rate_limited: 'Wait' });
+    expect(config.with({ hints: {} }).hints).toStrictEqual({});
+  });
+});

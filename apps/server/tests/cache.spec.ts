@@ -11,8 +11,10 @@ const failure = (retryable: boolean): ApiResult => ({
   content: '<svg />',
   error: {
     code: retryable ? 'upstream' : 'not_found',
+    reason: undefined,
     message: '',
     secondaryMessage: undefined,
+    text: '',
     param: undefined,
   },
 });

@@ -33,10 +33,12 @@ handlers and a step that writes the file; reach for the library where the action
 if (result.status === 'success') {
   // result.content is the card, as SVG
 } else {
-  // result.content     is the failure, drawn as a card
-  // result.error.code  is why it failed
-  // result.error.param is the parameter at fault, when it names one
-  // result.retryable   is whether trying again could help
+  // result.content      is the failure, drawn as a card
+  // result.error.code   is why it failed
+  // result.error.reason is which failure it was, finer than the code
+  // result.error.text   is the card's two lines as sentences, to print as it is
+  // result.error.param  is the parameter at fault, when it names one
+  // result.retryable    is whether trying again could help
 }
 ```
 
@@ -64,6 +66,10 @@ assistive technology cannot reach the text inside an image role.
 Branch on the code, never the message, and on `retryable` to choose between caching the failure
 and trying again. [Troubleshooting](../troubleshooting/) has what each card reads.
 
+`reason` names the failure more finely, `tokens_missing` or `tokens_rejected` where the code says
+only `no_tokens`; it is absent for an error the library did not raise itself. `text` is what to
+show a person: a host printing it needs no wording of its own.
+
 ## Configuring a deployment
 
 ```js
@@ -74,6 +80,7 @@ const config = new CardConfig({
   fetchMultiPageStars: 1,
   fetch: myFetch,
   requestTimeoutMs: 10_000,
+  hints: { tokens_missing: 'Set PAT_1 in the environment' },
 });
 ```
 
@@ -86,10 +93,15 @@ const config = new CardConfig({
 | `fetchMultiPageStars` | How many pages of starred repositories to read; `Infinity` for all         |
 | `fetch`               | The transport every request goes through — swap it to cache, mock or proxy |
 | `requestTimeoutMs`    | How long one request may wait before it fails as `upstream`; omit to wait  |
+| `hints`               | Your own second line for a failure, by `reason`, on the card and in `text` |
 
 `CardConfig.fromEnv(process.env)` builds the same thing from `PAT_1`…, `ALLOWLIST`,
 `GIST_ALLOWLIST`, `EXCLUDE_REPO` and `FETCH_MULTI_PAGE_STARS`, for a host that would rather
 configure through the environment. A `PAT_` variable set to nothing is skipped.
+
+The library's own advice assumes nothing about where a token comes from. A host that knows, such
+as the server with its `PAT_` variables, says so through `hints`: `tokens_missing`,
+`tokens_rejected` and `rate_limited` are the reasons worth wording for your setup.
 
 A configuration is immutable. `config.with({ pats })` returns a copy, which is how a host swaps in
 a token belonging to the request rather than to the deployment.

@@ -49,8 +49,10 @@ const REFUSED: ApiResult = {
   retryable: true,
   error: {
     code: 'not_found',
+    reason: 'gist_not_found',
     message: 'Gist not found',
     secondaryMessage: 'Check the id',
+    text: 'Gist not found. Check the id.',
     param: undefined,
   },
   content: '<svg>the error</svg>',
@@ -201,6 +203,10 @@ describe('the command line', () => {
     expect(query).toStrictEqual({ id: 'abc', theme: 'ember_dark' });
     expect(config?.pats).toStrictEqual([{ name: '--pat #1', value: 'ghp_x' }]);
     expect(config?.requestTimeoutMs).toBe(30_000);
+    // core's own advice assumes no host, so the CLI names where its token comes from
+    expect(config?.hints.tokens_missing).toBe(
+      `Pass --pat, or put PAT_1 in the environment or ${join(dir, 'empty.env')}`,
+    );
     expect(prompts.navigateOptions).not.toHaveBeenCalled();
   });
 
@@ -211,7 +217,7 @@ describe('the command line', () => {
     const result = await run('--config', savedGist, '--generate', '--pat', 'ghp_x', '--out', out);
 
     expect(result.err).toContain('Could not render the gist card.');
-    expect(result.err).toContain('Gist not found: Check the id');
+    expect(result.err).toContain('\n  Gist not found. Check the id.\n');
     expect(result.err).toContain('code: not_found');
     expect(result.err).toContain('This one may work on a retry.');
     expect(result.code).toBe(1);
@@ -253,7 +259,9 @@ describe('the menu', () => {
 
     await run('--card', 'gist', '--out', join(dir, 'card.svg'));
 
-    expect(render.mock.calls[0]?.[1].pats).toStrictEqual([{ name: 'prompt', value: 'ghp_typed' }]);
+    expect(render.mock.calls[0]?.[1].pats).toStrictEqual([
+      { name: 'The token you typed', value: 'ghp_typed' },
+    ]);
   });
 
   it('prints, saves and generates, staying open until it is quit', async () => {

@@ -1,3 +1,4 @@
+import type { FailureReason } from './error.ts';
 import { defaultFetch, withTimeout } from './http.ts';
 import type { FetchLike } from './http.ts';
 import { parseArray } from './ops.ts';
@@ -8,7 +9,7 @@ type Env = Record<string, string | undefined>;
 type AllowlistKind = 'username' | 'gist';
 
 interface PersonalAccessToken {
-  /** Env variable the token came from — the retryer logs this name, never the value. */
+  /** Where the token came from, such as its env variable: logged and shown in place of the value. */
   name: string;
   value: string;
 }
@@ -22,6 +23,7 @@ interface CardConfigInit {
   fetchMultiPageStars?: number;
   fetch?: FetchLike;
   requestTimeoutMs?: number | undefined;
+  hints?: Partial<Record<FailureReason, string>>;
 }
 
 /**
@@ -75,6 +77,8 @@ export class CardConfig {
   readonly requestTimeoutMs: number | undefined;
   /** Transport every fetcher sends through, bounded by `requestTimeoutMs`; defaults to `globalThis.fetch`. */
   readonly fetch: FetchLike;
+  /** A host's own second line for a failure, by reason: its advice in place of core's. */
+  readonly hints: Partial<Record<FailureReason, string>>;
   /** The transport as given, so `with` never wraps it twice. */
   private readonly transport: FetchLike;
 
@@ -87,6 +91,7 @@ export class CardConfig {
     this.transport = init.fetch ?? defaultFetch;
     this.requestTimeoutMs = init.requestTimeoutMs;
     this.fetch = withTimeout(this.transport, this.requestTimeoutMs);
+    this.hints = init.hints ?? {};
   }
 
   /** @returns Config for this deployment. */
@@ -121,6 +126,7 @@ export class CardConfig {
       fetchMultiPageStars: this.fetchMultiPageStars,
       fetch: this.transport,
       requestTimeoutMs: this.requestTimeoutMs,
+      hints: this.hints,
       ...overrides,
     });
   }
