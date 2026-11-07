@@ -195,12 +195,16 @@ const FAILURES = {
     code: 'no_tokens',
     message: 'No GitHub API tokens found',
     secondaryMessage: 'Provide a GitHub token to render this card',
+    // the host's to configure, which no issue could fix
+    reportable: false,
   }),
   /** The name each rejected token was given in `CardConfig`. */
   tokens_rejected: ({ names }: { names: ReadonlyArray<string> }): Failure => ({
     code: 'no_tokens',
     message: 'Every GitHub API token was rejected',
     secondaryMessage: `${listed(names)} may be expired or revoked`,
+    // the host's to replace, which no issue could fix
+    reportable: false,
   }),
   // a login that resolves to nothing, or to an organization
   /** GitHub's own wording, when the query told it. */

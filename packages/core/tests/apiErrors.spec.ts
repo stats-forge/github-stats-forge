@@ -238,6 +238,11 @@ describe('the report line', () => {
 
   it.each([
     ['a spent rate limit', CardError.because('rate_limited')],
+    ['a host that gave no token', CardError.because('tokens_missing')],
+    [
+      'a host whose every token was rejected',
+      CardError.because('tokens_rejected', { names: ['PAT_1'] }),
+    ],
     ['a name nothing answers to', CardError.because('org_not_found')],
     ["upstream's own outage", CardError.because('graphql_failed', { subject: 'stats data' })],
     ['anything that was not a CardError', CardError.from(new Error('boom'))],
