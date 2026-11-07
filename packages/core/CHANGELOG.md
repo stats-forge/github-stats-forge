@@ -1,5 +1,21 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.14.0
+
+### Minor Changes
+
+- [#401](https://github.com/stats-forge/github-stats-forge/pull/401) [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334) - feat!: give `ApiError` a `reason` and a printable `text`, and let a host word its own advice through `CardConfig.hints`
+
+  The second lines of `tokens_missing`, `tokens_rejected` and `rate_limited` no longer assume the hosted server; pass `hints` to give your own.
+
+### Patch Changes
+
+- [#401](https://github.com/stats-forge/github-stats-forge/pull/401) [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334) - fix: offer no issue link on the error card for a missing or rejected GitHub token, which is the host's to fix
+
+- [#402](https://github.com/stats-forge/github-stats-forge/pull/402) [`9a9519f`](https://github.com/stats-forge/github-stats-forge/commit/9a9519f00ddde15fe216d7b8cdd98ec84cc7d78d) - fix: draw the organization card when the token may not read its members, rather than reporting the organization not found
+
+- [#401](https://github.com/stats-forge/github-stats-forge/pull/401) [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334) - refactor: have each failure say whether it is retryable, rather than reading it off its code
+
 ## 0.13.3
 
 ### Patch Changes

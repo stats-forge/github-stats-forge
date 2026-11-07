@@ -1,5 +1,15 @@
 # @stats-forge/github-stats-server
 
+## 0.8.2
+
+### Patch Changes
+
+- [#398](https://github.com/stats-forge/github-stats-forge/pull/398) [`453397d`](https://github.com/stats-forge/github-stats-forge/commit/453397d7c0d6d7bff86968d05da556d3ead298bc) - docs: pin the stats-forge/github-stats-forge-action example to v0.11.1
+
+- [#401](https://github.com/stats-forge/github-stats-forge/pull/401) [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334) - fix: keep the `PAT_` advice on the token and rate-limit error cards, now that core words them for any host
+- Updated dependencies [[`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334), [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334), [`9a9519f`](https://github.com/stats-forge/github-stats-forge/commit/9a9519f00ddde15fe216d7b8cdd98ec84cc7d78d), [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334)]:
+  - @stats-forge/github-stats-forge-core@0.14.0
+
 ## 0.8.1
 
 ### Patch Changes
