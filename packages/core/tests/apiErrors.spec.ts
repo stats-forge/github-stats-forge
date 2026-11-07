@@ -14,6 +14,7 @@ import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-
 import type { GetOrganizationQuery } from '../src/graphql/generated/organization.ts';
 import type { GetRepoQuery } from '../src/graphql/generated/repo.ts';
 
+import { exactly } from './_card.ts';
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 import type { GraphQLBody, GraphQLErrorBody, Refused } from './_fetch-mock.ts';
@@ -230,6 +231,7 @@ describe('the report line', () => {
   it('is offered for a failure an issue could fix', () => {
     document.body.innerHTML = errorResult(
       CardError.because('github_error', { message: 'Something broke', statusText: '' }),
+      {},
     ).content;
     expect(screen.getByTestId('report')).toBeInTheDocument();
   });
@@ -244,13 +246,104 @@ describe('the report line', () => {
       CardError.because('missing_param', { params: ['id'] }),
     ],
   ])('is not offered for %s', (_name, error) => {
-    document.body.innerHTML = errorResult(error).content;
+    document.body.innerHTML = errorResult(error, {}).content;
     expect(screen.queryByTestId('report')).not.toBeInTheDocument();
   });
 
   it('is offered for an upstream failure that says what GitHub answered', () => {
     const error = CardError.because('github_error', { message: 'Nope', statusText: 'Bad Gateway' });
-    document.body.innerHTML = errorResult(error).content;
+    document.body.innerHTML = errorResult(error, {}).content;
     expect(screen.getByTestId('report')).toBeInTheDocument();
+  });
+});
+
+describe('the answer a host prints', () => {
+  it('names the failure, finer than its code', async () => {
+    const result = await statsApi({ username: 'anuraghazra' }, config.with({ pats: [] }));
+
+    expect(result).toMatchObject({
+      status: 'error',
+      error: { code: 'no_tokens', reason: 'tokens_missing' },
+    });
+  });
+
+  it('names no reason for a failure core only wrapped', () => {
+    expect(errorResult(new Error('boom'), {})).toMatchObject({ error: { reason: undefined } });
+  });
+
+  it.each([
+    [
+      'adds no second full stop',
+      CardError.because('stats_no_stats_or_rank'),
+      'Could not render stats card. Either stats or rank are required.',
+    ],
+    [
+      'ends each line as a sentence',
+      CardError.because('tokens_missing'),
+      'No GitHub API tokens found. Provide a GitHub token to render this card.',
+    ],
+    [
+      'keeps a line that already ends as a question or exclamation',
+      CardError.because('github_error', { message: 'Why?', statusText: 'Nope!' }),
+      'Why? Nope!',
+    ],
+    [
+      'is the first line alone when there is no second',
+      CardError.because('invalid_username'),
+      'Invalid username provided.',
+    ],
+  ])('joins both lines into text, and %s', (_name, error, text) => {
+    expect(errorResult(error, {})).toMatchObject({ error: { text } });
+  });
+
+  it.each([
+    [
+      'tokens_rejected',
+      CardError.because('tokens_rejected', { names: ['PAT_1', 'PAT_2'] }),
+      'Every GitHub API token was rejected. PAT_1 and PAT_2 may be expired or revoked.',
+    ],
+    [
+      'rate_limited',
+      CardError.because('rate_limited'),
+      "Downtime due to GitHub API rate limiting. Every token has hit GitHub's rate limit; try again later.",
+    ],
+  ])('words %s for any host', (_reason, error, text) => {
+    expect(errorResult(error, {})).toMatchObject({ error: { text } });
+  });
+
+  it("puts a host's hint in place of the second line, on the card too", () => {
+    const result = errorResult(CardError.because('tokens_missing'), {
+      tokens_missing: 'Check the secret exists',
+    });
+
+    expect(result).toMatchObject({
+      error: {
+        secondaryMessage: 'Check the secret exists',
+        text: 'No GitHub API tokens found. Check the secret exists.',
+      },
+    });
+    document.body.innerHTML = result.content;
+    expect(screen.getByTestId('message')).toHaveTextContent(
+      exactly('No GitHub API tokens foundCheck the secret exists'),
+    );
+  });
+
+  it('keeps the second line of a reason the host gave no hint for', () => {
+    const result = errorResult(CardError.because('rate_limited'), {
+      tokens_missing: 'Check the secret exists',
+    });
+
+    expect(result).toMatchObject({
+      error: { secondaryMessage: "Every token has hit GitHub's rate limit; try again later" },
+    });
+  });
+
+  it("reads the hints from the handler's config", async () => {
+    const result = await statsApi(
+      { username: 'anuraghazra' },
+      config.with({ pats: [], hints: { tokens_missing: 'Check the secret exists' } }),
+    );
+
+    expect(result).toMatchObject({ error: { secondaryMessage: 'Check the secret exists' } });
   });
 });

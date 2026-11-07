@@ -38,6 +38,13 @@ describe('CardError.because', () => {
     expect(error.reportable).toBe(false);
   });
 
+  it.each([
+    [['action input `token`'], 'action input `token` may be expired or revoked'],
+    [['PAT_1', 'PAT_2', 'PAT_3'], 'PAT_1, PAT_2 and PAT_3 may be expired or revoked'],
+  ])('names the rejected tokens %j', (names, secondaryMessage) => {
+    expect(CardError.because('tokens_rejected', { names })).toMatchObject({ secondaryMessage });
+  });
+
   it('carries no reason for a failure it only wrapped', () => {
     expect(CardError.from(new Error('Nope')).reason).toBeUndefined();
   });

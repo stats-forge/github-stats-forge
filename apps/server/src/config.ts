@@ -30,6 +30,14 @@ const UPSTREAM_HOLD_SECONDS = 300;
 /** How long `docker stop` is given to drain before the listener is dropped anyway. */
 const DEFAULT_SHUTDOWN_TIMEOUT_MS = 10_000;
 
+/** The advice core leaves to the host, worded for an operator who configures through the environment. */
+const HINTS = {
+  rate_limited: 'You can deploy own instance or wait until public will be no longer limited',
+  tokens_missing:
+    'Please add an env variable called PAT_1 with your GitHub API token in your deployment environment',
+  tokens_rejected: 'Replace the expired or revoked PAT_* variables in your deployment environment',
+};
+
 /** Everything the process needs, as the environment described it. */
 interface ServerSettings {
   port: number;
@@ -74,6 +82,7 @@ const readSettings = (env: Env): ServerSettings => {
           (parseInteger(env['CACHE_UPSTREAM_MB']) ?? DEFAULT_CACHE_UPSTREAM_MB) * 1024 * 1024,
         ),
         requestTimeoutMs: parseInteger(env['REQUEST_TIMEOUT_MS']) ?? DEFAULT_REQUEST_TIMEOUT_MS,
+        hints: HINTS,
       }),
       strictHttpStatus: env['STRICT_HTTP_STATUS'] === 'true',
       // `0` is the one switch: it stores nothing as well as sending `no-store`

@@ -87,11 +87,11 @@ const renderAndWrite = async (
   );
 
   if (result.status === 'error') {
-    const { code, message, secondaryMessage, param } = result.error;
+    const { code, text, param } = result.error;
     process.stderr.write(
       `${[
         `Could not render the ${card.id} card.`,
-        `  ${message}${secondaryMessage ? `: ${secondaryMessage}` : ''}`,
+        `  ${text}`,
         `  code: ${code}${param ? `, param: ${param}` : ''}`,
         result.retryable ? '  This one may work on a retry.' : '',
       ]
@@ -194,10 +194,19 @@ const main = async (): Promise<void> => {
         `The ${card.id} card reads the GitHub API, so it needs a token. Pass --pat, or put PAT_1 in ${DEFAULT_ENV_FILE}.`,
       );
     }
-    tokens = [{ name: 'prompt', value: typed }];
+    // core names a rejected token by this, starting a sentence
+    tokens = [{ name: 'The token you typed', value: typed }];
   }
 
-  const config = new CardConfig({ pats: tokens, requestTimeoutMs: REQUEST_TIMEOUT_MS });
+  const config = new CardConfig({
+    pats: tokens,
+    requestTimeoutMs: REQUEST_TIMEOUT_MS,
+    hints: {
+      rate_limited:
+        "Every token has hit GitHub's rate limit; try again later, or pass another with --pat",
+      tokens_missing: `Pass --pat, or put PAT_1 in the environment or ${flags['env-file'] ?? DEFAULT_ENV_FILE}`,
+    },
+  });
 
   // `--generate` renders what the file holds and stops: no menu, nothing to answer.
   if (saved && flags.generate) {

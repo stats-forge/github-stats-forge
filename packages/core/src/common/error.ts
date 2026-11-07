@@ -54,6 +54,15 @@ interface Failure extends CardErrorInit {
 /** The second line of upstream's own outage, which no issue could fix. */
 const TRY_AGAIN_LATER = 'Please try again later';
 
+/** @returns The names as prose: `a`, `a and b`, `a, b and c`. */
+const listed = (names: ReadonlyArray<string>): string => {
+  const last = names.at(-1) ?? '';
+  if (names.length < 2) {
+    return last;
+  }
+  return `${names.slice(0, -1).join(', ')} and ${last}`;
+};
+
 /** Every failure, by reason, worded from the data its throw site gives. */
 const FAILURES = {
   // a gist with nothing to render will not gain a file on a retry
@@ -163,7 +172,7 @@ const FAILURES = {
   rate_limited: (): Failure => ({
     code: 'rate_limited',
     message: 'Downtime due to GitHub API rate limiting',
-    secondaryMessage: 'You can deploy own instance or wait until public will be no longer limited',
+    secondaryMessage: "Every token has hit GitHub's rate limit; try again later",
     reportable: false,
   }),
   repo_not_found: (): Failure => ({
@@ -185,14 +194,13 @@ const FAILURES = {
   tokens_missing: (): Failure => ({
     code: 'no_tokens',
     message: 'No GitHub API tokens found',
-    secondaryMessage:
-      'Please add an env variable called PAT_1 with your GitHub API token in your deployment environment',
+    secondaryMessage: 'Provide a GitHub token to render this card',
   }),
-  tokens_rejected: (): Failure => ({
+  /** The name each rejected token was given in `CardConfig`. */
+  tokens_rejected: ({ names }: { names: ReadonlyArray<string> }): Failure => ({
     code: 'no_tokens',
     message: 'Every GitHub API token was rejected',
-    secondaryMessage:
-      'Replace the expired or revoked PAT_* variables in your deployment environment',
+    secondaryMessage: `${listed(names)} may be expired or revoked`,
   }),
   // a login that resolves to nothing, or to an organization
   /** GitHub's own wording, when the query told it. */

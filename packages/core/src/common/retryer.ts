@@ -140,7 +140,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 
   // a lapsed token is the operator's to replace, which no amount of waiting out a rate limit fixes
   if (rejectedPATs === PATs.length) {
-    throw CardError.because('tokens_rejected');
+    throw CardError.because('tokens_rejected', { names: PATs.map((pat) => pat.name) });
   }
 
   throw CardError.because('rate_limited');
