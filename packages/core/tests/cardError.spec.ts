@@ -45,6 +45,37 @@ describe('CardError.because', () => {
     expect(CardError.because('tokens_rejected', { names })).toMatchObject({ secondaryMessage });
   });
 
+  it.each([
+    CardError.because('gist_unavailable', { message: undefined }),
+    CardError.because('github_error', { message: 'Nope', statusText: 'Bad Gateway' }),
+    CardError.because('github_unreachable', { cause: new Error('ECONNRESET') }),
+    CardError.because('graphql_failed', { subject: 'stats data' }),
+    CardError.because('org_activity_issues_forbidden'),
+    CardError.because('org_calendar_issues_forbidden'),
+    CardError.because('org_members_forbidden'),
+    CardError.because('rate_limited'),
+    CardError.because('stats_search_count_unavailable'),
+    CardError.because('tokens_missing'),
+    CardError.because('tokens_rejected', { names: ['PAT_1'] }),
+    CardError.because('wakatime_unavailable', { username: 'nobody' }),
+    CardError.from(new Error('Nope')),
+  ])('marks $message retryable, as a repeat could answer differently', (error) => {
+    expect(error.retryable).toBe(true);
+  });
+
+  it.each([
+    CardError.because('gist_no_files'),
+    CardError.because('invalid_param', { param: 'width', detail: 'Too wide' }),
+    CardError.because('missing_param', { params: ['id'] }),
+    CardError.because('not_allowed', { param: 'username' }),
+    CardError.because('org_no_stats', { card: 'organization' }),
+    CardError.because('stats_no_stats_or_rank'),
+    CardError.because('user_not_found'),
+    CardError.because('wakatime_invalid_host'),
+  ])('leaves $message not retryable, by default', (error) => {
+    expect(error.retryable).toBe(false);
+  });
+
   it('carries no reason for a failure it only wrapped', () => {
     expect(CardError.from(new Error('Nope')).reason).toBeUndefined();
   });

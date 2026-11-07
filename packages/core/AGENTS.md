@@ -63,8 +63,11 @@ every default to the renderer (a card's default width, which only the card knows
 ### Errors
 
 - **Everything throws `CardError`** (`common/error.ts`): a `code`, the card's two lines and the param
-  at fault, with `retryable` derived from the code by one table. `CardError.from(err)` wraps anything
-  else as a retryable `upstream`, so a permanent failure must throw a `CardError`.
+  at fault. `CardError.from(err)` wraps anything else as a retryable `upstream`, so a permanent
+  failure must throw a `CardError`.
+- **A failure is not `retryable` unless it declares it**, as one whose repeat could answer
+  differently does: upstream's outage, a spent or missing token, a `forbidden` the next token may
+  pass. Each entry says so itself, not a table by code.
 - **Every failure lives in the module-level `FAILURES`, unexported.** Not a `static #` field: the
   types derive from it, a `#` field's type cannot be queried, and a TS-`private` one emits untyped.
   - **An entry is a function from its data to a `Failure`**; its parameter is what the reason needs,

@@ -2,7 +2,7 @@
  * @file One error type for everything a card render can fail on.
  *
  * A failure carries a `code` a host can branch on, the two lines the error card
- * draws, and — through the code — whether repeating the request could help.
+ * draws, and whether repeating the request could help.
  * The fetchers throw this rather than a bare `Error`, so a host is told what failed.
  * Anything else that escapes is wrapped as `upstream` by `from`, which is retryable —
  * so a permanent failure has to throw a `CardError` to be reported as one.
@@ -44,6 +44,11 @@ interface CardErrorInit {
   cause?: unknown;
   /** Whether filing an issue could help; `true` when omitted, and never for `not_found`. */
   reportable?: boolean | undefined;
+  /**
+   * Whether repeating the request could produce a different answer; `false` when omitted.
+   * A `forbidden` is, as the retryer starts at a random token and the next may be permitted.
+   */
+  retryable?: boolean | undefined;
 }
 
 /** One failure, worded: the first line of its card, and everything else it carries. */
@@ -75,6 +80,7 @@ const FAILURES = {
   /** What GitHub said, when it said anything. */
   gist_unavailable: ({ message }: { message: string | undefined }): Failure => ({
     code: 'upstream',
+    retryable: true,
     message: message ?? 'Could not fetch gist.',
     secondaryMessage: TRY_AGAIN_LATER,
     reportable: false,
@@ -82,6 +88,7 @@ const FAILURES = {
   /** The first error GitHub answered a query with, and the response's status text. */
   github_error: ({ message, statusText }: { message: string; statusText: string }): Failure => ({
     code: 'upstream',
+    retryable: true,
     // the card has one line for it, and GitHub's wording can run past that
     message: wrapTextMultiline(message, 525, 12)[0] ?? '',
     secondaryMessage: statusText,
@@ -89,6 +96,7 @@ const FAILURES = {
   /** The transport failure the last retry ended on. */
   github_unreachable: ({ cause }: { cause: unknown }): Failure => ({
     code: 'upstream',
+    retryable: true,
     message: 'Could not reach GitHub',
     secondaryMessage: TRY_AGAIN_LATER,
     cause,
@@ -97,6 +105,7 @@ const FAILURES = {
   /** What the query asked for, as "the ___ using the GraphQL API" reads. */
   graphql_failed: ({ subject }: { subject: string }): Failure => ({
     code: 'upstream',
+    retryable: true,
     message: `Something went wrong while trying to retrieve the ${subject} using the GraphQL API.`,
     secondaryMessage: TRY_AGAIN_LATER,
     reportable: false,
@@ -138,12 +147,14 @@ const FAILURES = {
   }),
   org_activity_issues_forbidden: (): Failure => ({
     code: 'forbidden',
+    retryable: true,
     message: 'Missing token permission',
     secondaryMessage:
       'The token needs read access to issues, or hide "issues_opened" and "issues_closed"',
   }),
   org_calendar_issues_forbidden: (): Failure => ({
     code: 'forbidden',
+    retryable: true,
     message: 'Missing token permission',
     secondaryMessage: 'The token needs read access to issues, or count pull requests instead',
   }),
@@ -154,6 +165,7 @@ const FAILURES = {
   }),
   org_members_forbidden: (): Failure => ({
     code: 'forbidden',
+    retryable: true,
     message: 'Missing token permission',
     secondaryMessage:
       'The token needs the organization "Members" permission, or drop "show=members"',
@@ -171,6 +183,7 @@ const FAILURES = {
   }),
   rate_limited: (): Failure => ({
     code: 'rate_limited',
+    retryable: true,
     message: 'Downtime due to GitHub API rate limiting',
     secondaryMessage: "Every token has hit GitHub's rate limit; try again later",
     reportable: false,
@@ -187,12 +200,14 @@ const FAILURES = {
   }),
   stats_search_count_unavailable: (): Failure => ({
     code: 'upstream',
+    retryable: true,
     message: 'Could not fetch data from GitHub REST API.',
     secondaryMessage: TRY_AGAIN_LATER,
     reportable: false,
   }),
   tokens_missing: (): Failure => ({
     code: 'no_tokens',
+    retryable: true,
     message: 'No GitHub API tokens found',
     secondaryMessage: 'Provide a GitHub token to render this card',
     // the host's to configure, which no issue could fix
@@ -201,6 +216,7 @@ const FAILURES = {
   /** The name each rejected token was given in `CardConfig`. */
   tokens_rejected: ({ names }: { names: ReadonlyArray<string> }): Failure => ({
     code: 'no_tokens',
+    retryable: true,
     message: 'Every GitHub API token was rejected',
     secondaryMessage: `${listed(names)} may be expired or revoked`,
     // the host's to replace, which no issue could fix
@@ -220,6 +236,7 @@ const FAILURES = {
   }),
   wakatime_unavailable: ({ username }: { username: string }): Failure => ({
     code: 'upstream',
+    retryable: true,
     message: `Could not fetch the WakaTime stats of '${username}'`,
     secondaryMessage: TRY_AGAIN_LATER,
     reportable: false,
@@ -233,27 +250,16 @@ const FAILURES = {
 
 /** Everything this package throws. */
 class CardError extends Error {
-  /**
-   * Whether repeating the request could produce a different answer.
-   * A host reads this to decide between caching the failure and retrying it.
-   */
-  static readonly #RETRYABLE: Record<ErrorCode, boolean> = {
-    // the retryer starts at a random token, so the next request may pick one that is permitted
-    forbidden: true,
-    invalid_param: false,
-    missing_param: false,
-    not_allowed: false,
-    not_found: false,
-    no_tokens: true,
-    rate_limited: true,
-    upstream: true,
-  };
-
   readonly code: ErrorCode;
   readonly secondaryMessage: string | undefined;
   readonly param: string | undefined;
   /** Whether filing an issue could help, which decides the card's report line. */
   readonly reportable: boolean;
+  /**
+   * Whether repeating the request could produce a different answer.
+   * A host reads this to decide between caching the failure and retrying it.
+   */
+  readonly retryable: boolean;
   #reason: FailureReason | undefined;
 
   // only `because`, `from` and `fromGraphQL` build one, so every failure has a reason or is wrapped
@@ -266,16 +272,12 @@ class CardError extends Error {
     this.param = init.param;
     // a name nothing answers to is the visitor's to fix, never a bug
     this.reportable = init.code !== 'not_found' && (init.reportable ?? true);
+    this.retryable = init.retryable ?? false;
   }
 
   /** Which failure this is; absent for one wrapped by `from`. */
   get reason(): FailureReason | undefined {
     return this.#reason;
-  }
-
-  /** Whether repeating the request could produce a different answer. */
-  get retryable(): boolean {
-    return CardError.#RETRYABLE[this.code];
   }
 
   /**
@@ -310,6 +312,7 @@ class CardError extends Error {
       code: 'upstream',
       secondaryMessage: TRY_AGAIN_LATER,
       reportable: false,
+      retryable: true,
     });
   }
 
