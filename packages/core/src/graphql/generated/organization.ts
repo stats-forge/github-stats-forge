@@ -27,7 +27,6 @@ export type GetOrganizationQuery = {
     name: string | null;
     description: string | null;
     createdAt: string;
-    membersWithRole: { totalCount: number };
     repositories: {
       totalCount: number;
       pageInfo: { hasNextPage: boolean; endCursor: string | null };
@@ -45,6 +44,7 @@ export type GetOrganizationQuery = {
       } | null> | null;
     };
   } | null;
+  members: { membersWithRole: { totalCount: number } } | null;
 };
 
 export const GetOrganizationDocument = graphqlDocument<
@@ -57,9 +57,6 @@ query getOrganization($login: String!, $after: String) {
     name
     description
     createdAt
-    membersWithRole {
-      totalCount
-    }
     repositories(
       first: 100
       after: $after
@@ -75,6 +72,11 @@ query getOrganization($login: String!, $after: String) {
       nodes {
         ...OrgRepoInfo
       }
+    }
+  }
+  members: organization(login: $login) {
+    membersWithRole {
+      totalCount
     }
   }
 }

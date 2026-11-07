@@ -17,7 +17,7 @@ import type { GetRepoQuery } from '../src/graphql/generated/repo.ts';
 import { exactly } from './_card.ts';
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
-import type { GraphQLBody, GraphQLErrorBody, Refused } from './_fetch-mock.ts';
+import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
 
 vi.mock(import('../src/common/log.ts'), async () => {
   const { createLoggerMock } = await import('./utils.ts');
@@ -158,28 +158,26 @@ describe('a stat the token may not read', () => {
     },
   };
 
-  /** The organization answer a token refused the member count gets: the org, and one field's error. */
-  const membersRefused: GraphQLBody<{
-    organization: Refused<NonNullable<GetOrganizationQuery['organization']>, 'membersWithRole'>;
-  }> = {
+  /** The organization answer a token refused the member count gets: the root asking for it nulled. */
+  const membersRefused: GraphQLBody<GetOrganizationQuery> = {
     data: {
       organization: {
         login: 'vitest-dev',
         name: 'Vitest',
         description: null,
         createdAt: '2021-12-08T09:47:15Z',
-        membersWithRole: null,
         repositories: {
           totalCount: 0,
           pageInfo: { hasNextPage: false, endCursor: null },
           nodes: [],
         },
       },
+      members: null,
     },
     errors: [
       {
         type: 'FORBIDDEN',
-        path: ['organization', 'membersWithRole'],
+        path: ['members', 'membersWithRole'],
         message: 'Resource not accessible by integration',
       },
     ],

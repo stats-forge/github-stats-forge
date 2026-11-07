@@ -61,8 +61,8 @@ const topLanguage = (
 /**
  * The member count is the one field here a token can be refused:
  * it needs the organization `Members` permission, which an app installation token rarely carries.
- * GitHub answers `FORBIDDEN` on that field alone and still returns the organization,
- * so the card drops the stat instead of failing whole.
+ * The query asks for it under a root of its own, `members`, so the refusal nulls that root alone
+ * and the card drops the stat instead of failing whole.
  *
  * @returns Whether the member count is all the response was refused.
  */
@@ -104,6 +104,7 @@ const fetchOrganization = async (
 
   const repos: Array<OrgRepoInfoFragment> = [];
   let organization: Organization | undefined;
+  let publicMembers: number | null;
   let after: string | null = null;
   let pages = 0;
   let membersForbidden = false;
@@ -140,6 +141,7 @@ const fetchOrganization = async (
     if (!organization) {
       throw CardError.because('org_not_found');
     }
+    publicMembers = res.data.data.members?.membersWithRole.totalCount ?? null;
 
     repos.push(...(organization.repositories.nodes ?? []).filter((node) => node !== null));
     const { hasNextPage, endCursor } = organization.repositories.pageInfo;
@@ -169,7 +171,7 @@ const fetchOrganization = async (
         ? target.history.totalCount
         : 0;
     }),
-    publicMembers: membersForbidden ? null : organization.membersWithRole.totalCount,
+    publicMembers,
     topLanguage: topLanguage(repos),
     truncated: after !== null,
   };
