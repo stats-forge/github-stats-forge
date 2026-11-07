@@ -109,6 +109,9 @@ every default to the renderer (a card's default width, which only the card knows
   line names the permission and the option that drops the stat.
   - **The api layer decides whether it was asked for** and hands the fetcher one boolean
     (`require_members`, `require_issues`, `include_commits`); a fetcher never reads `show` or `hide`.
+  - **A refusable field the schema calls non-null is asked for under an aliased root of its own**:
+    GitHub nulls the refused field's nearest nullable parent, which was the whole `organization`
+    and read as `org_not_found`. `organization.graphql`'s `members` is the pattern.
   - **A stat drawn by default is asked for by default**: the issue rows fail unless `hide` names
     both; the members row only when `show` names it. Log the refusal once, not per page.
 - **Commits are REST only, against a smaller allowance**: the activity card's commit row is behind

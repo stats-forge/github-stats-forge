@@ -9,7 +9,7 @@ import type {
 
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
-import type { GraphQLBody, Refused } from './_fetch-mock.ts';
+import type { GraphQLBody } from './_fetch-mock.ts';
 
 /**
  * One page of the repository walk, as GitHub answers it.
@@ -28,28 +28,41 @@ const page = ({
   endCursor?: string | null;
   totalCount?: number;
   name?: string | null;
-}): GraphQLBody<{ organization: Organization }> => ({
+}): GraphQLBody<GetOrganizationQuery> => ({
   data: {
     organization: {
       login: 'vitest-dev',
       name,
       description: 'A blazing fast unit test framework',
       createdAt: '2021-12-08T09:47:15Z',
-      membersWithRole: { totalCount: 15 },
       repositories: {
         totalCount,
         pageInfo: { hasNextPage, endCursor },
         nodes: repos,
       },
     },
+    members: { membersWithRole: { totalCount: 15 } },
   },
 });
 
 type Language = NonNullable<OrgRepoInfoFragment['primaryLanguage']>;
-type Organization = NonNullable<GetOrganizationQuery['organization']>;
 
-/** An organization answer whose member count the token was refused. */
-type MembersRefusedBody = GraphQLBody<{ organization: Refused<Organization, 'membersWithRole'> }>;
+/**
+ * An organization answer whose member count the token was refused: GitHub nulls the nearest
+ * nullable parent of the refused field, the `members` root the query asks it under.
+ *
+ * @returns The response body.
+ */
+const membersRefused = (repos: Array<OrgRepoInfoFragment>): GraphQLBody<GetOrganizationQuery> => ({
+  data: { ...page({ repos }).data, members: null },
+  errors: [
+    {
+      type: 'FORBIDDEN',
+      path: ['members', 'membersWithRole'],
+      message: 'Resource not accessible by integration',
+    },
+  ],
+});
 
 const typescript: Language = { name: 'TypeScript', color: '#3178c6' };
 const rust: Language = { name: 'Rust', color: '#dea584' };
@@ -219,18 +232,7 @@ describe(fetchOrganization, () => {
   });
 
   it('refuses the card when the query asked for a member count the token may not read', async () => {
-    const { data } = page({ repos: [repo({ stars: 3 })] });
-
-    mock.onPost(GRAPHQL).reply(200, {
-      data: { organization: { ...data.organization, membersWithRole: null } },
-      errors: [
-        {
-          type: 'FORBIDDEN',
-          path: ['organization', 'membersWithRole'],
-          message: 'Resource not accessible by integration',
-        },
-      ],
-    } satisfies MembersRefusedBody);
+    mock.onPost(GRAPHQL).reply(200, membersRefused([repo({ stars: 3 })]));
 
     await expect(
       fetchOrganization({ org: 'vitest-dev', require_members: true }, config),
@@ -241,18 +243,7 @@ describe(fetchOrganization, () => {
     // silences the refusal the fetcher logs, and is what asserts on it
     const logged = vi.spyOn(console, 'error').mockReturnValue();
 
-    const { data } = page({ repos: [repo({ stars: 3 })] });
-
-    mock.onPost(GRAPHQL).reply(200, {
-      data: { organization: { ...data.organization, membersWithRole: null } },
-      errors: [
-        {
-          type: 'FORBIDDEN',
-          path: ['organization', 'membersWithRole'],
-          message: 'Resource not accessible by integration',
-        },
-      ],
-    } satisfies MembersRefusedBody);
+    mock.onPost(GRAPHQL).reply(200, membersRefused([repo({ stars: 3 })]));
 
     await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
       publicMembers: null,
@@ -267,7 +258,7 @@ describe(fetchOrganization, () => {
     vi.spyOn(console, 'error').mockReturnValue();
 
     mock.onPost(GRAPHQL).reply(200, {
-      data: { organization: null },
+      data: { organization: null, members: null },
       errors: [
         {
           type: 'FORBIDDEN',
@@ -284,7 +275,7 @@ describe(fetchOrganization, () => {
 
   it('rejects a login that resolves to a user rather than an organization', async () => {
     mock.onPost(GRAPHQL).reply(200, {
-      data: { organization: null },
+      data: { organization: null, members: null },
       errors: [
         {
           type: 'NOT_FOUND',

@@ -157,12 +157,6 @@ type GraphQLBody<TResult> = GraphQLResponse<TResult>['data'];
 /** A GraphQL answer that carries only errors, as a query GitHub refused outright gets. */
 type GraphQLErrorBody = Omit<GraphQLBody<unknown>, 'data'> & { data?: null };
 
-/**
- * `T` with the fields in `K` nulled: how GitHub answers a field it refused, the schema's non-null
- * notwithstanding, while still answering the rest and saying why in `errors`.
- */
-type Refused<T, K extends keyof T> = Omit<T, K> & Record<K, null>;
-
 /** A REST search answer: the count the fetchers read, or what GitHub said instead of one. */
 interface SearchBody {
   total_count?: number;
@@ -192,4 +186,4 @@ const graphqlBody = (
 };
 
 export { FetchMock, GRAPHQL, graphqlBody };
-export type { GraphQLBody, GraphQLErrorBody, Refused, SearchBody };
+export type { GraphQLBody, GraphQLErrorBody, SearchBody };

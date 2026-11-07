@@ -34,9 +34,6 @@ query getOrganization($login: String!, $after: String) {
     name
     description
     createdAt
-    membersWithRole {
-      totalCount
-    }
     repositories(
       first: 100
       after: $after
@@ -52,6 +49,12 @@ query getOrganization($login: String!, $after: String) {
       nodes {
         ...OrgRepoInfo
       }
+    }
+  }
+  # a root of its own: GitHub nulls a refused non-null field's nearest nullable parent
+  members: organization(login: $login) {
+    membersWithRole {
+      totalCount
     }
   }
 }

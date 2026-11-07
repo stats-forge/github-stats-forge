@@ -447,7 +447,6 @@ const getOrganization = (): Body<GetOrganizationQuery> => ({
       description:
         'Open-source tooling for smiths of every trade: build pipelines, test harnesses and the odd README card.',
       createdAt: '2018-04-23T10:12:44Z',
-      membersWithRole: total(37),
       repositories: {
         totalCount: ORG_REPOS.length,
         pageInfo: { hasNextPage: false, endCursor: null },
@@ -463,6 +462,7 @@ const getOrganization = (): Body<GetOrganizationQuery> => ({
         })),
       },
     },
+    members: { membersWithRole: total(37) },
   },
 });
 
