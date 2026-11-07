@@ -1,5 +1,14 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.7.1
+
+### Patch Changes
+
+- [#401](https://github.com/stats-forge/github-stats-forge/pull/401) [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334) - fix: print a failed render as sentences, and say where the CLI reads its token from when there is none
+- Updated dependencies [[`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334), [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334), [`9a9519f`](https://github.com/stats-forge/github-stats-forge/commit/9a9519f00ddde15fe216d7b8cdd98ec84cc7d78d), [`1fb82fa`](https://github.com/stats-forge/github-stats-forge/commit/1fb82faad5e9eb1a0214b055b5d5e2e50df71334)]:
+  - @stats-forge/github-stats-forge-core@0.14.0
+  - @stats-forge/github-stats-forge-catalog@0.4.1
+
 ## 0.7.0
 
 ### Minor Changes
