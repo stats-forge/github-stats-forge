@@ -1,7 +1,6 @@
 import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
-import { formatDecimal } from '../../common/fmt.ts';
 import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
@@ -19,6 +18,7 @@ import {
   calculateDonutVerticalLayoutHeight,
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
+  langValueFormatter,
   measureCompactList,
   noLanguagesDataNode,
   renderCompactLayout,
@@ -155,6 +155,9 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
   } = options;
 
   const t = localize(langCardLocales, locale);
+  const formatValue = langValueFormatter(value_format, locale);
+  // the description gives each share whatever `value_format` draws
+  const formatShare = langValueFormatter('percent', locale);
 
   const { langs, totalLanguageSize } = trimTopLanguages(
     topLangs,
@@ -177,8 +180,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
       totalSize: totalLanguageSize,
       hideProgress,
       hideValues: hide_values,
-      valueFormat: value_format,
-      locale,
+      formatValue,
     }).width +
     CARD_STYLE.padding.x * 2;
 
@@ -194,14 +196,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
   } else if (layout === 'pie') {
     height = calculatePieLayoutHeight(langs.length);
     width = fitWidth(width, compactListWidth(false));
-    finalLayout = renderPieLayout(
-      langs,
-      width,
-      totalLanguageSize,
-      value_format,
-      locale,
-      hide_values,
-    );
+    finalLayout = renderPieLayout(langs, width, totalLanguageSize, formatValue, hide_values);
   } else if (layout === 'donut-vertical') {
     height = calculateDonutVerticalLayoutHeight(langs.length);
     width = fitWidth(width, compactListWidth(false));
@@ -209,8 +204,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
       langs,
       width,
       totalLanguageSize,
-      value_format,
-      locale,
+      formatValue,
       hide_values,
     );
   } else if (layout === 'compact' || hide_progress === true) {
@@ -221,9 +215,8 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
       langs,
       width,
       totalLanguageSize,
-      locale,
+      formatValue,
       hide_progress,
-      value_format,
       hide_values,
     );
   } else if (layout === 'donut') {
@@ -231,24 +224,10 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     // A donut defaults a step wider so the chart has its room; a width asked for
     // explicitly keeps the extra it has always been given instead of being snapped.
     width = width === DEFAULT_CARD_WIDTH ? CARD_STYLE.width.standard : width + DONUT_EXTRA_WIDTH;
-    finalLayout = renderDonutLayout(
-      langs,
-      width,
-      totalLanguageSize,
-      value_format,
-      locale,
-      hide_values,
-    );
+    finalLayout = renderDonutLayout(langs, width, totalLanguageSize, formatValue, hide_values);
   } else {
     burns = true;
-    finalLayout = renderNormalLayout(
-      langs,
-      width,
-      totalLanguageSize,
-      value_format,
-      locale,
-      hide_values,
-    );
+    finalLayout = renderNormalLayout(langs, width, totalLanguageSize, formatValue, hide_values);
   }
 
   // `role="img"` hides the inner text from assistive tech, so everything the card
@@ -262,8 +241,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     colors: { light: lightColors, dark: darkColors },
     description: langs
       .map(
-        (lang) =>
-          `${lang.name} ${formatDecimal((lang.size / totalLanguageSize) * 100, locale, 2)}%`,
+        (lang) => `${lang.name} ${formatShare(lang.size, (lang.size / totalLanguageSize) * 100)}`,
       )
       .join(', '),
     hideBorder: hide_border,
