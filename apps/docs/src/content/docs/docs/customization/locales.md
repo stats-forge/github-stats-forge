@@ -42,7 +42,9 @@ Two things are deliberately never translated:
 
 Each card owns its table, in `packages/core/src/cards/<card>/locales.ts`, one block per locale.
 Adding a language means adding a block for your code, with each key you can translate;
-anything you leave out keeps reading in English until someone fills it in.
+anything you leave out keeps reading in English until someone fills it in. A snapshot records
+which keys each language translates, so run `pnpm test -u tests/locales.spec.ts` and commit
+the updated snapshot.
 
 A wording can carry the values the card draws into it, as `{name}` placeholders:
 
