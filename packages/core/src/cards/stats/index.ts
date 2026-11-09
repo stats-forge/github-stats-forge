@@ -4,6 +4,7 @@ import { getLightDarkColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
 import { rankIcon } from '../../common/icons.ts';
 import { commonLocales } from '../../common/locales.ts';
+import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue } from '../../common/ops.ts';
 import { NUMBER_FORMATS, createTextNode, flexLayout, glowingCircle } from '../../common/render.ts';
@@ -50,7 +51,7 @@ type RankIcon = (typeof RANK_ICONS)[number];
 const LINE_HEIGHT = 25;
 
 interface StatCardOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   hide: Array<string>;
   show_icons: boolean;
   hide_title: boolean;

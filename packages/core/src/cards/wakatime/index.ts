@@ -3,6 +3,7 @@ import { Card } from '../../common/Card.ts';
 import { HEAT_PAINT, getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
 import { commonLocales } from '../../common/locales.ts';
+import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
 import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
@@ -40,7 +41,7 @@ const VALUE_FORMATS = ['time', 'percent'] as const;
 type ValueFormat = (typeof VALUE_FORMATS)[number];
 
 interface WakaTimeOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   hide_title: boolean;
   hide_langs: Array<string>;
   card_width: number;

@@ -54,12 +54,6 @@ const placeholdersOf = (phrase: Phrase): Array<string> => {
 describe.each(tables)('%s', (_table, locales) => {
   const entries = Object.entries(locales);
 
-  // an alias is resolved before the card draws, so a wording written under one is never read
-  it.each(entries)('%s names only listed locales', (_key, phrases) => {
-    const listed: ReadonlyArray<string> = AVAILABLE_LOCALES;
-    expect(Object.keys(phrases).filter((locale) => !listed.includes(locale))).toStrictEqual([]);
-  });
-
   // A `{name}` placeholder used to be a `${name}` the compiler checked. Nothing checks the
   // string form, so this walks every table instead: the card passes what the English wording
   // asks for, so a locale naming anything else throws — and only for the locale that carries
@@ -83,12 +77,14 @@ describe.each(Object.entries(cards))('the %s card', (_card, render) => {
 });
 
 describe('the stats card', () => {
+  const titles: LocaleTable[string] = statCardLocales.title;
+  const rankTitles: LocaleTable[string] = statCardLocales.rankTitle;
+
   // A rank-only card titled with the full card's wording reads as the wrong card.
-  it.each(Object.keys(statCardLocales.rankTitle))(
+  it.each(AVAILABLE_LOCALES.filter((locale) => locale in rankTitles))(
     'names the rank, not the stats, in %s',
     (locale) => {
-      const { title, rankTitle } = statCardLocales as LocaleTable;
-      expect(rankTitle?.[locale]).not.toBe(title?.[locale]);
+      expect(rankTitles[locale]).not.toBe(titles[locale]);
     },
   );
 });

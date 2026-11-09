@@ -3,6 +3,7 @@ import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
 import { icons } from '../../common/icons.ts';
+import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import { createTextNode, flexLayout, formatCount, NUMBER_FORMATS } from '../../common/render.ts';
@@ -41,7 +42,7 @@ type StatId = HideStat | ShowStat;
 const LINE_HEIGHT = 25;
 
 interface OrgCardOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   hide: Array<string>;
   show: Array<string>;
   show_icons: boolean;

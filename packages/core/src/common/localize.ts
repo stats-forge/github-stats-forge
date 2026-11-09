@@ -56,10 +56,13 @@ const AVAILABLE_LOCALES = [
   'be',
 ] as const;
 
-const FALLBACK_LOCALE = 'en';
+/** A locale a card can draw, as {@link AVAILABLE_LOCALES} spells it. */
+type Locale = (typeof AVAILABLE_LOCALES)[number];
+
+const FALLBACK_LOCALE: Locale = 'en';
 
 /** Another code a README may use for a listed locale: an older one, or a shorter one. */
-const LOCALE_ALIASES = new Map([
+const LOCALE_ALIASES = new Map<string, Locale>([
   ['kr', 'ko'],
   ['cn', 'zh-cn'],
   ['zh', 'zh-cn'],
@@ -73,12 +76,9 @@ const LOCALE_ALIASES = new Map([
  *
  * @returns The code as {@link AVAILABLE_LOCALES} spells it, or `undefined` for one it lacks.
  */
-const resolveLocale = (locale: string): string | undefined => {
+const resolveLocale = (locale: string): Locale | undefined => {
   const lower = locale.toLowerCase();
-  if ((AVAILABLE_LOCALES as ReadonlyArray<string>).includes(lower)) {
-    return lower;
-  }
-  return LOCALE_ALIASES.get(lower);
+  return AVAILABLE_LOCALES.find((listed) => listed === lower) ?? LOCALE_ALIASES.get(lower);
 };
 
 /**
@@ -94,10 +94,16 @@ type Phrase = string | PluralForms;
 /**
  * A card's translations: a key, then that key's wording per locale.
  *
- * `en` is required because it is what every other locale falls back to; the rest are
- * checked against {@link AVAILABLE_LOCALES} by `tests/locales.spec.ts`.
+ * `en` is required because it is what every other locale falls back to.
  */
-type LocaleTable = Record<string, { en: Phrase } & Record<string, Phrase>>;
+type LocaleTable = Record<string, { en: Phrase } & Partial<Record<Locale, Phrase>>>;
+
+/** A table whose wordings name listed locales only, which an alias or a typo would not. */
+type ListedOnly<Table> = {
+  [Key in keyof Table]: {
+    [Code in keyof Table[Key]]: Code extends Locale ? Table[Key][Code] : never;
+  };
+};
 
 /**
  * Declares a card's translations, keeping every string's literal type so `localize` knows
@@ -105,7 +111,8 @@ type LocaleTable = Record<string, { en: Phrase } & Record<string, Phrase>>;
  *
  * @returns The table it was given.
  */
-const defineLocales = <const Table extends LocaleTable>(table: Table): Table => table;
+const defineLocales = <const Table extends LocaleTable>(table: Table & ListedOnly<Table>): Table =>
+  table;
 
 /** The `{name}` placeholders in a phrase, as a union of their names. */
 type PlaceholderNames<Written> = Written extends `${string}{${infer Name}}${infer Rest}`
@@ -153,14 +160,14 @@ const interpolate = (phrase: string, key: string, values: ReadValues): string =>
     return String(value);
   });
 
-const pluralRules = new Map<string, Intl.PluralRules>();
+const pluralRules = new Map<Locale, Intl.PluralRules>();
 
 /**
  * The plural rules of the locale that supplied the phrase.
  *
  * @returns The rules, built once per locale.
  */
-const rulesFor = (locale: string): Intl.PluralRules => {
+const rulesFor = (locale: Locale): Intl.PluralRules => {
   const cached = pluralRules.get(locale);
   if (cached) {
     return cached;
@@ -178,7 +185,7 @@ const rulesFor = (locale: string): Intl.PluralRules => {
  */
 const selectPlural = (
   forms: PluralForms,
-  locale: string,
+  locale: Locale,
   key: string,
   values: ReadValues,
 ): string => {
@@ -198,8 +205,8 @@ const selectPlural = (
 const readPhrase = (
   phrases: LocaleTable[string],
   key: string,
-  locale: string,
-): { phrase: Phrase; locale: string } => {
+  locale: Locale,
+): { phrase: Phrase; locale: Locale } => {
   const written = phrases[locale];
   if (written !== undefined) {
     return { phrase: written, locale };
@@ -224,7 +231,7 @@ const readPhrase = (
 const draw = (
   phrases: LocaleTable[string],
   key: string,
-  locale: string,
+  locale: Locale,
   values: ReadValues,
 ): string => {
   const { phrase, locale: from } = readPhrase(phrases, key, locale);
@@ -248,8 +255,8 @@ type Localized<Table extends LocaleTable> = {
  *
  * @returns One function per key the table declares.
  */
-const localize = <Table extends LocaleTable>(table: Table, locale?: string): Localized<Table> => {
-  const asked = locale || FALLBACK_LOCALE;
+const localize = <Table extends LocaleTable>(table: Table, locale?: Locale): Localized<Table> => {
+  const asked = locale ?? FALLBACK_LOCALE;
   const wordings: Record<string, (values?: ReadValues) => string> = {};
 
   for (const [key, phrases] of Object.entries(table)) {
@@ -261,4 +268,4 @@ const localize = <Table extends LocaleTable>(table: Table, locale?: string): Loc
 };
 
 export { AVAILABLE_LOCALES, defineLocales, LOCALE_ALIASES, localize, resolveLocale };
-export type { LocaleTable, Localized, Phrase };
+export type { Locale, LocaleTable, Localized, Phrase };

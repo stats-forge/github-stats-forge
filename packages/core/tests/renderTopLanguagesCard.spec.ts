@@ -456,7 +456,7 @@ describe('Test renderTopLanguages', () => {
     expect(document.querySelector('rect')).toHaveAttribute('rx', '14');
   });
 
-  it.each([
+  it.each<[Parameters<typeof renderTopLanguages>[1], Array<string>]>([
     [{ langs_count: 1 }, ['HTML', 'Other']],
     // the count is of what is left once `hide_langs` has taken its share
     [{ hide_langs: ['HTML'], langs_count: 2 }, ['javascript', 'css']],
