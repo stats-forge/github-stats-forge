@@ -9,10 +9,11 @@ import {
   createLanguageNode,
   createTextNode,
   flexLayout,
-  formatCount,
+  countFormatter,
   iconWithLabel,
   NUMBER_FORMATS,
 } from '../../common/render.ts';
+import type { NumberFormat } from '../../common/render.ts';
 import { measureText, wrapTextMultiline } from '../../common/text.ts';
 import type { RepositoryData } from '../../fetchers/repo/types.ts';
 import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
@@ -62,7 +63,7 @@ interface RepoCardOptions extends CommonCardOptions {
   card_width: number;
   show: Array<string>;
   show_icons: boolean;
-  number_format: string;
+  number_format: NumberFormat;
   number_precision: number;
   username: string;
 }
@@ -179,8 +180,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     show_owner = false,
     show = [],
     show_icons = true,
-    number_format = 'short',
-    number_precision,
     username,
     border_radius,
     locale,
@@ -189,6 +188,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   } = options;
 
   const t = localize(repoCardLocales, locale);
+  const formatCount = countFormatter(options);
 
   // Typed against the exported list, so a stat drawn here cannot be missing from it.
   const shows = (stat: RepoShowStat): boolean => show.includes(stat);
@@ -247,15 +247,13 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const columns = [0, 1]
     .map((column) => statList.filter((_, index) => index % 2 === column))
     .filter((column) => column.length > 0);
-  const formatValue = (value: number): string =>
-    formatCount(value, number_format, locale, number_precision);
   // Each column's values end after its widest label and widest value, so neither can reach the other.
   const [firstColumnWidth = 0, secondColumnWidth = 0] = columns.map(
     (column) =>
       (show_icons ? STAT_LABEL_X : 0) +
       widest(column.map((stat) => `${stat.label}:`)) +
       LABEL_VALUE_GAP +
-      widest(column.map((stat) => formatValue(stat.value ?? 0))),
+      widest(column.map((stat) => formatCount(stat.value ?? 0))),
   );
 
   const defaultWidth = columns.length > 1 ? CARD_STYLE.width.wide : CARD_DEFAULT_WIDTH;
@@ -284,9 +282,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       showIcons: show_icons,
       valueAnchorX: valueAnchors[index % 2],
       bold: false,
-      numberFormat: number_format,
-      numberPrecision: number_precision,
-      locale,
+      formatValue: formatCount,
       link: stat.link,
       labelXOffset: STAT_LABEL_X,
     }),
@@ -340,10 +336,8 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
   const svgLanguage = primaryLanguage ? createLanguageNode(langName, langColor) : undefined;
 
   // a zero stays a number, which is what `iconWithLabel` leaves out
-  const totalStars =
-    stargazerCount > 0 ? formatCount(stargazerCount, number_format, locale, number_precision) : 0;
-  const totalForks =
-    forkCount > 0 ? formatCount(forkCount, number_format, locale, number_precision) : 0;
+  const totalStars = stargazerCount > 0 ? formatCount(stargazerCount) : 0;
+  const totalForks = forkCount > 0 ? formatCount(forkCount) : 0;
   const svgStars = iconWithLabel(icons.star, totalStars, 'stargazers', ICON_SIZE);
   const svgForks = iconWithLabel(icons.fork, totalForks, 'forkcount', ICON_SIZE);
 

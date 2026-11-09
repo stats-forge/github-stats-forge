@@ -39,9 +39,10 @@ const formatDecimal = (
 const kFormatter = (
   num: number,
   locale: Locale | undefined,
+  /** Decimals, as `clampPrecision` leaves them; the abbreviation's own default when absent. */
   precision?: number,
 ): string | number => {
-  if (typeof precision === 'number' && !Number.isNaN(precision)) {
+  if (precision !== undefined) {
     return `${formatDecimal(num / 1000, locale, precision)}k`;
   }
 
