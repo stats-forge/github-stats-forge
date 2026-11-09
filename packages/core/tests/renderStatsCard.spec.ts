@@ -260,7 +260,7 @@ describe('Test renderStatsCard', () => {
   );
 
   it('should render translations', () => {
-    draw(renderStatsCard(stats, { locale: 'cn' }));
+    draw(renderStatsCard(stats, { locale: 'zh-cn' }));
 
     expect(document.querySelector('.header')).toHaveTextContent(
       exactly('Anurag Hazra 的 GitHub 统计数据'),

@@ -138,8 +138,8 @@ describe('Test renderRepoCard', () => {
   it.each([
     [{ isArchived: true }, 'en', 'Archived'],
     [{ isTemplate: true }, 'en', 'Template'],
-    [{ isArchived: true }, 'cn', '已归档'],
-    [{ isTemplate: true }, 'cn', '模板'],
+    [{ isArchived: true }, 'zh-cn', '已归档'],
+    [{ isTemplate: true }, 'zh-cn', '模板'],
   ])('should render the badge for %o in %s', (flag, locale, badge) => {
     draw(renderRepoCard({ ...repo, ...flag }, { locale }));
     expect(screen.queryByTestId('badge')).toHaveTextContent(badge);

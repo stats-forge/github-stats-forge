@@ -14,10 +14,11 @@ An unknown code is an error reading `Locale not found`, not a silent fallback to
 
 ## Available locales
 
-`en`, `ar`, `az`, `bg`, `bn`, `ca`, `cn`, `zh-tw`, `cs`, `de`, `sw`, `ur`, `es`, `fa`, `fi`, `fr`,
-`hi`, `sa`, `hu`, `it`, `ja`, `kr`, `nl`, `pt-pt`, `pt-br`, `np`, `el`, `ro`, `ru`, `uk-ua`, `id`,
-`ml`, `my`, `ta`, `sk`, `tr`, `pl`, `uz`, `vi`, `se`, `he`, `fil`, `th`, `sr`, `sr-latn`, `no`,
-`be`. `ko` draws Korean too, the same as `kr`.
+`en`, `ar`, `az`, `bg`, `bn`, `ca`, `zh-cn`, `zh-tw`, `cs`, `de`, `sw`, `ur`, `es`, `fa`, `fi`,
+`fr`, `hi`, `sa`, `hu`, `it`, `ja`, `ko`, `nl`, `pt-pt`, `pt-br`, `ne`, `el`, `ro`, `ru`, `uk-ua`,
+`id`, `ml`, `my`, `ta`, `sk`, `tr`, `pl`, `uz`, `vi`, `sv`, `he`, `fil`, `th`, `sr`, `sr-latn`,
+`no`, `be`. `kr`, `cn`, `np` and `se`, the codes Korean, Chinese, Nepali and Swedish were first
+listed under, still draw them, as `zh` and `uk` draw `zh-cn` and `uk-ua`.
 
 ## What is not translated yet
 

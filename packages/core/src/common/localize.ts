@@ -13,7 +13,7 @@ const AVAILABLE_LOCALES = [
   'bg',
   'bn',
   'ca',
-  'cn',
+  'zh-cn',
   'zh-tw',
   'cs',
   'de',
@@ -28,11 +28,11 @@ const AVAILABLE_LOCALES = [
   'hu',
   'it',
   'ja',
-  'kr',
+  'ko',
   'nl',
   'pt-pt',
   'pt-br',
-  'np',
+  'ne',
   'el',
   'ro',
   'ru',
@@ -46,7 +46,7 @@ const AVAILABLE_LOCALES = [
   'pl',
   'uz',
   'vi',
-  'se',
+  'sv',
   'he',
   'fil',
   'th',
@@ -58,8 +58,15 @@ const AVAILABLE_LOCALES = [
 
 const FALLBACK_LOCALE = 'en';
 
-/** A standard code for a locale listed under an older one, which a README may already use. */
-const LOCALE_ALIASES = new Map([['ko', 'kr']]);
+/** Another code a README may use for a listed locale: an older one, or a shorter one. */
+const LOCALE_ALIASES = new Map([
+  ['kr', 'ko'],
+  ['cn', 'zh-cn'],
+  ['zh', 'zh-cn'],
+  ['np', 'ne'],
+  ['se', 'sv'],
+  ['uk', 'uk-ua'],
+]);
 
 /**
  * Checks whether the locale is available or not.
@@ -146,9 +153,7 @@ const interpolate = (phrase: string, key: string, values: ReadValues): string =>
 const pluralRules = new Map<string, Intl.PluralRules>();
 
 /**
- * The plural rules of the locale that supplied the phrase. Several of the locale names
- * here are not language tags `Intl` knows (`cn`, `kr`, `np`), and resolve to the runtime's
- * own locale — which only matters once such a locale writes plural forms of its own.
+ * The plural rules of the locale that supplied the phrase.
  *
  * @returns The rules, built once per locale.
  */

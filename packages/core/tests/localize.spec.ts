@@ -69,6 +69,11 @@ describe(localize, () => {
         en: { one: '{count} commit', other: '{count} commits' },
         ru: { one: '{count} коммит', few: '{count} коммита', other: '{count} коммитов' },
       },
+      // Chinese has no singular; a `one` here is what english rules would wrongly pick
+      stars: {
+        en: { one: '{count} star', other: '{count} stars' },
+        'zh-cn': { one: '一颗星', other: '{count} 颗星' },
+      },
     });
 
     it.each([
@@ -88,6 +93,11 @@ describe(localize, () => {
     ])("should pick it by the locale's own rules (%i)", (count, expected) => {
       const t = localize(locales, 'ru');
       expect(t.commits({ count })).toBe(expected);
+    });
+
+    it('should pick it by the rules of a locale with no singular', () => {
+      const t = localize(locales, 'zh-cn');
+      expect(t.stars({ count: 1 })).toBe('1 颗星');
     });
 
     it('should fall back to english, and to english rules, for an untranslated key', () => {

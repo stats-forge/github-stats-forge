@@ -445,7 +445,7 @@ describe('Test renderTopLanguages', () => {
   );
 
   it('should render a translated title', () => {
-    draw(renderTopLanguages(langs, { locale: 'cn' }));
+    draw(renderTopLanguages(langs, { locale: 'zh-cn' }));
     expect(document.querySelector('.header')).toHaveTextContent(exactly('最常用的语言'));
   });
 
