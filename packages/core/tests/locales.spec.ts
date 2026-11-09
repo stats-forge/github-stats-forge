@@ -10,8 +10,11 @@ import { statCardLocales } from '../src/cards/stats/locales.ts';
 import { langCardLocales } from '../src/cards/top-languages/locales.ts';
 import { wakatimeCardLocales } from '../src/cards/wakatime/locales.ts';
 import { commonLocales } from '../src/common/locales.ts';
-import { isLocaleAvailable } from '../src/common/localize.ts';
+import { AVAILABLE_LOCALES, isLocaleAvailable, LOCALE_ALIASES } from '../src/common/localize.ts';
 import type { LocaleTable, Phrase } from '../src/common/localize.ts';
+
+import { draw } from './_card.ts';
+import { cards } from './_cards.ts';
 
 const tables: Array<[string, LocaleTable]> = [
   ['commonLocales', commonLocales],
@@ -67,5 +70,16 @@ describe.each(tables)('%s', (_table, locales) => {
       const unsupplied = placeholdersOf(phrase).filter((name) => !supplied.includes(name));
       expect(unsupplied, `locale '${locale}'`).toStrictEqual([]);
     }
+  });
+});
+
+describe.each(Object.entries(cards))('the %s card', (_card, render) => {
+  // A wording can only throw in the locale that carries it, so every one is drawn.
+  it.each([...AVAILABLE_LOCALES, ...LOCALE_ALIASES.keys()])('draws in %s', (locale) => {
+    expect(draw(render(locale))).toHaveAttribute('role', 'img');
+  });
+
+  it.each([...LOCALE_ALIASES])('draws %s exactly as %s', (alias, locale) => {
+    expect(render(alias)).toBe(render(locale));
   });
 });

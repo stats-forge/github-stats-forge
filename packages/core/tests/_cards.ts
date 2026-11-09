@@ -148,15 +148,16 @@ const organizationData: OrganizationData = {
 };
 
 const cards = {
-  gist: (): string => renderGistCard(gistData),
-  repo: (): string => renderRepoCard(repoData),
-  'org-activity': (): string => renderOrgActivityCard(orgActivityData),
-  'org-calendar': (): string => renderOrgCalendarCard(orgCalendarData),
-  stats: (): string => renderStatsCard(statsData),
-  'top-languages': (): string => renderTopLanguages(topLangs),
-  wakatime: (): string => renderWakatimeCard(wakatimeData),
-  'contributed-to': (): string => renderContributedToCard(contributedToData),
-  organization: (): string => renderOrganizationCard(organizationData),
+  gist: (locale?: string): string => renderGistCard(gistData, { locale }),
+  repo: (locale?: string): string => renderRepoCard(repoData, { locale }),
+  'org-activity': (locale?: string): string => renderOrgActivityCard(orgActivityData, { locale }),
+  'org-calendar': (locale?: string): string => renderOrgCalendarCard(orgCalendarData, { locale }),
+  stats: (locale?: string): string => renderStatsCard(statsData, { locale }),
+  'top-languages': (locale?: string): string => renderTopLanguages(topLangs, { locale }),
+  wakatime: (locale?: string): string => renderWakatimeCard(wakatimeData, { locale }),
+  'contributed-to': (locale?: string): string =>
+    renderContributedToCard(contributedToData, { locale }),
+  organization: (locale?: string): string => renderOrganizationCard(organizationData, { locale }),
 };
 
 export { cards, repoData, statsData };
