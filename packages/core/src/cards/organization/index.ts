@@ -146,7 +146,7 @@ const renderCard = (
       return value;
     }
 
-    return `${formatCount(value, number_format, number_precision)}+`;
+    return `${formatCount(value, number_format, locale, number_precision)}+`;
   };
 
   const STATS: Partial<Record<StatId, StatItem>> = {
@@ -287,6 +287,7 @@ const renderCard = (
       labelBold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,
+      locale,
     }),
   );
 

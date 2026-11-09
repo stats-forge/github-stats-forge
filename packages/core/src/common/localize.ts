@@ -72,6 +72,13 @@ const LOCALE_ALIASES = new Map<string, Locale>([
 ]);
 
 /**
+ * The tag `Intl` reads a locale by, each listed code being one it knows.
+ *
+ * @returns The tag, English's when no locale was asked for.
+ */
+const intlTag = (locale: Locale | undefined): string => locale ?? FALLBACK_LOCALE;
+
+/**
  * The listed locale a requested code draws, matched in any case.
  *
  * @returns The code as {@link AVAILABLE_LOCALES} spells it, or `undefined` for one it lacks.
@@ -173,7 +180,7 @@ const rulesFor = (locale: Locale): Intl.PluralRules => {
     return cached;
   }
 
-  const rules = new Intl.PluralRules(locale);
+  const rules = new Intl.PluralRules(intlTag(locale));
   pluralRules.set(locale, rules);
   return rules;
 };
@@ -267,5 +274,5 @@ const localize = <Table extends LocaleTable>(table: Table, locale?: Locale): Loc
   return wordings as Localized<Table>;
 };
 
-export { AVAILABLE_LOCALES, defineLocales, LOCALE_ALIASES, localize, resolveLocale };
+export { AVAILABLE_LOCALES, defineLocales, intlTag, LOCALE_ALIASES, localize, resolveLocale };
 export type { Locale, LocaleTable, Localized, Phrase };

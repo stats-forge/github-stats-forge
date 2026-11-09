@@ -221,9 +221,13 @@ describe(formatCount, () => {
   ])(
     'writes 1234 as $written for $format with $precision decimals',
     ({ format, precision, written }) => {
-      expect(formatCount(1234, format, precision)).toBe(written);
+      expect(formatCount(1234, format, 'en', precision)).toBe(written);
     },
   );
+
+  it("writes an abbreviation's decimal as the locale does", () => {
+    expect(formatCount(1234, 'short', 'de')).toBe('1,2k');
+  });
 });
 
 describe('the node builders', () => {
@@ -238,6 +242,7 @@ describe('the node builders', () => {
     shiftValuePos: 0,
     bold: false,
     numberFormat: 'short',
+    locale: undefined,
   };
 
   // each value lands in an attribute, so anything else would be written into the SVG as is

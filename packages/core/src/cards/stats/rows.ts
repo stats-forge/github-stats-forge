@@ -4,9 +4,10 @@
 
 import type { GitHubDateRange } from '../../common/date.ts';
 import { formatRange } from '../../common/date.ts';
+import { formatDecimal } from '../../common/fmt.ts';
 import { icons } from '../../common/icons.ts';
 import type { commonLocales } from '../../common/locales.ts';
-import type { Localized } from '../../common/localize.ts';
+import type { Locale, Localized } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue } from '../../common/ops.ts';
 import type { StatsData } from '../../fetchers/stats/types.ts';
 import type { Child } from '../../markup/index.ts';
@@ -73,11 +74,13 @@ const statRows = (
     scope,
     include_all_commits,
     number_precision,
+    locale,
   }: {
     show: Array<string>;
     scope: Array<string>;
     include_all_commits: boolean;
     number_precision: number | undefined;
+    locale: Locale | undefined;
   },
   t: Localized<typeof statCardLocales>,
   commonT: Localized<typeof commonLocales>,
@@ -173,7 +176,9 @@ const statRows = (
     STATS['prs_merged_percentage'] = {
       icon: icons.prs_merged_percentage,
       label: t.prsMergedPercentage(),
-      value: mergedPRsPercentage.toFixed(
+      value: formatDecimal(
+        mergedPRsPercentage,
+        locale,
         number_precision !== undefined && Number.isFinite(number_precision)
           ? clampValue(number_precision, 0, 2)
           : 2,

@@ -124,7 +124,12 @@ const RANK_TEXT = {
  *
  * @returns The rank icon.
  */
-const rankIcon = (kind: string, rankLevel: string, percentile: number): Child => {
+const rankIcon = (
+  kind: string,
+  rankLevel: string,
+  /** The percentile as the locale writes it, without its `%`. */
+  percentile: string,
+): Child => {
   switch (kind) {
     case 'github':
       return el(
@@ -165,7 +170,7 @@ const rankIcon = (kind: string, rankLevel: string, percentile: number): Child =>
             'data-testid': 'percentile-rank-value',
             class: 'rank-percentile-text',
           },
-          `${percentile.toFixed(1)}%`,
+          `${percentile}%`,
         ),
       ];
 

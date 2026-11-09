@@ -70,8 +70,8 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     (descriptionLines > 1 ? 55 : 45) +
     descriptionLines * lineHeight;
 
-  const totalStars = kFormatter(starsCount);
-  const totalForks = kFormatter(forksCount);
+  const totalStars = kFormatter(starsCount, locale);
+  const totalForks = kFormatter(forksCount, locale);
   const svgStars = iconWithLabel(icons.star, totalStars, 'starsCount', ICON_SIZE);
   const svgForks = iconWithLabel(icons.fork, totalForks, 'forksCount', ICON_SIZE);
 

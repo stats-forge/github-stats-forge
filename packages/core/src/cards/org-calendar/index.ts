@@ -3,6 +3,7 @@ import { Card, titleFits } from '../../common/Card.ts';
 import type { CardColors } from '../../common/color.ts';
 import { getLightDarkColors, inkOn } from '../../common/color.ts';
 import { toSearchDate } from '../../common/date.ts';
+import { formatDecimal } from '../../common/fmt.ts';
 import type { Locale, Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { NUMBER_FORMATS, formatCount } from '../../common/render.ts';
@@ -89,12 +90,13 @@ const countWidth = (text: string): number =>
 const weekCount = (
   count: number,
   numberFormat: string,
+  locale: Locale | undefined,
   numberPrecision: number | undefined,
 ): string => {
   if (count < 1000) {
     return String(count);
   }
-  return formatCount(count, numberFormat, numberPrecision);
+  return formatCount(count, numberFormat, locale, numberPrecision);
 };
 
 /**
@@ -102,7 +104,7 @@ const weekCount = (
  *
  * @returns `999`, `1.5k`, `12k`, `999k`, `1.2M`.
  */
-const compactCount = (count: number): string => {
+const compactCount = (count: number, locale: Locale | undefined): string => {
   if (count < 1000) {
     return String(count);
   }
@@ -115,7 +117,7 @@ const compactCount = (count: number): string => {
   // tenths in whole numbers, so no float lands a hair under the digit it should show
   const tenths = Math.floor((count * 10) / size);
   if (tenths < 100) {
-    return `${String(tenths / 10)}${unit}`;
+    return `${formatDecimal(tenths / 10, locale, 0, 1)}${unit}`;
   }
   return `${String(Math.floor(tenths / 10))}${unit}`;
 };
@@ -130,13 +132,17 @@ const countLabel = (
   count: number,
   room: number,
   numberFormat: string,
+  locale: Locale | undefined,
   numberPrecision: number | undefined,
   atLeast: (count: string) => string,
 ): string => {
-  const labels = [weekCount(count, numberFormat, numberPrecision), compactCount(count)];
+  const labels = [
+    weekCount(count, numberFormat, locale, numberPrecision),
+    compactCount(count, locale),
+  ];
   // the digits, not `Math.log10`, which can land a hair under a power of ten
   for (let exponent = String(Math.trunc(count)).length - 1; exponent > 0; exponent -= 1) {
-    labels.push(atLeast(compactCount(10 ** exponent)));
+    labels.push(atLeast(compactCount(10 ** exponent, locale)));
   }
   return labels.find((label) => countWidth(label) <= room) ?? '';
 };
@@ -177,8 +183,8 @@ const renderCard = (
     issues_opened: t.issuesOpened,
     issues_closed: t.issuesClosed,
   }[count]({ count: total });
-  const totalText = formatCount(total, number_format, number_precision);
-  const averageText = formatCount(average, number_format, number_precision);
+  const totalText = formatCount(total, number_format, locale, number_precision);
+  const averageText = formatCount(average, number_format, locale, number_precision);
   const summary = t.summary({ counted, average: averageText });
 
   const totalWidth = measureText(totalText, CARD_STYLE.fontSize.display) * CARD_STYLE.semiboldInk;
@@ -243,8 +249,13 @@ const renderCard = (
     const { fill, opacity } = levelFill(level, lightColors);
     const x = CARD_STYLE.padding.x + index * (cellWidth + calendar.cellGap);
     const delay = `animation-delay: ${String(index * 10)}ms`;
-    const label = countLabel(week.count, countRoom, number_format, number_precision, (shown) =>
-      t.atLeast({ shown }),
+    const label = countLabel(
+      week.count,
+      countRoom,
+      number_format,
+      locale,
+      number_precision,
+      (shown) => t.atLeast({ shown }),
     );
     return [
       el('rect', {
@@ -344,7 +355,9 @@ const renderCard = (
       average: averageText,
       from: fromText,
       to: toText,
-      weeks: weeks.map((week) => weekCount(week.count, number_format, number_precision)).join(', '),
+      weeks: weeks
+        .map((week) => weekCount(week.count, number_format, locale, number_precision))
+        .join(', '),
     });
   };
 

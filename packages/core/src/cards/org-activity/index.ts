@@ -274,7 +274,8 @@ const renderCard = (
       rows.push({ stat });
     } else if (!paired.has(flow[2])) {
       paired.add(flow[2]);
-      const count = (value: number): string => formatCount(value, number_format, number_precision);
+      const count = (value: number): string =>
+        formatCount(value, number_format, locale, number_precision);
       rows.push({
         flow: {
           icon: done.icon,
@@ -335,6 +336,7 @@ const renderCard = (
       labelBold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,
+      locale,
     });
     if (!('flow' in row)) {
       return text;

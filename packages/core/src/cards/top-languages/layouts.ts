@@ -1,7 +1,8 @@
 import { CARD_STYLE } from '../../common/brand.ts';
 import { isPrefixedHexColor } from '../../common/color.ts';
-import { formatBytes } from '../../common/fmt.ts';
+import { formatBytes, formatDecimal } from '../../common/fmt.ts';
 import { DEFAULT_LANG_COLOR } from '../../common/languageColors.ts';
+import type { Locale } from '../../common/localize.ts';
 import { chunkArray } from '../../common/ops.ts';
 import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
 import type { Lang } from '../../fetchers/top-languages/types.ts';
@@ -101,12 +102,17 @@ const calculatePieLayoutHeight = (totalLangs: number): number =>
  *
  * @returns Display value.
  */
-const getDisplayValue = (size: number, percentages: number, format: TopLangValueFormat): string => {
+const getDisplayValue = (
+  size: number,
+  percentages: number,
+  format: TopLangValueFormat,
+  locale: Locale | undefined,
+): string => {
   if (format === 'bytes') {
-    return formatBytes(size);
+    return formatBytes(size, locale);
   }
 
-  return `${percentages.toFixed(2)}%`;
+  return `${formatDecimal(percentages, locale, 2)}%`;
 };
 
 /**
@@ -135,6 +141,7 @@ const createProgressTextNode = ({
   size,
   totalSize,
   valueFormat,
+  locale,
   hideValues,
   index,
 }: {
@@ -144,6 +151,7 @@ const createProgressTextNode = ({
   size: number;
   totalSize: number;
   valueFormat: TopLangValueFormat;
+  locale: Locale | undefined;
   hideValues?: boolean | undefined;
   index: number;
 }): MarkupElement => {
@@ -154,7 +162,7 @@ const createProgressTextNode = ({
   const progressWidth = width - paddingRight;
 
   const progress = (size / totalSize) * 100;
-  const displayValue = getDisplayValue(size, progress, valueFormat);
+  const displayValue = getDisplayValue(size, progress, valueFormat, locale);
 
   return el(
     'g',
@@ -178,6 +186,7 @@ interface CompactListOptions {
   hideProgress?: boolean | undefined;
   hideValues?: boolean | undefined;
   valueFormat?: TopLangValueFormat | undefined;
+  locale: Locale | undefined;
 }
 
 /**
@@ -187,13 +196,13 @@ interface CompactListOptions {
  */
 const compactLabel = (
   lang: Lang,
-  { totalSize, hideProgress, hideValues, valueFormat = 'percent' }: CompactListOptions,
+  { totalSize, hideProgress, hideValues, valueFormat = 'percent', locale }: CompactListOptions,
 ): string => {
   if (hideProgress || hideValues) {
     return lang.name;
   }
   const percentages = (lang.size / totalSize) * 100;
-  return `${lang.name} ${getDisplayValue(lang.size, percentages, valueFormat)}`;
+  return `${lang.name} ${getDisplayValue(lang.size, percentages, valueFormat, locale)}`;
 };
 
 /**
@@ -270,11 +279,13 @@ const createDonutLanguagesNode = ({
   totalSize,
   hideValues,
   valueFormat,
+  locale,
 }: {
   langs: Array<Lang>;
   totalSize: number;
   hideValues?: boolean | undefined;
   valueFormat?: TopLangValueFormat | undefined;
+  locale: Locale | undefined;
 }): Array<Child> =>
   flexLayout({
     items: langs.map((lang, index) =>
@@ -284,6 +295,7 @@ const createDonutLanguagesNode = ({
         hideProgress: false,
         hideValues,
         valueFormat,
+        locale,
         index,
       }),
     ),
@@ -301,6 +313,7 @@ const renderNormalLayout = (
   width: number,
   totalLanguageSize: number,
   valueFormat: TopLangValueFormat,
+  locale: Locale | undefined,
   hideValues?: boolean,
 ): Array<Child> =>
   flexLayout({
@@ -312,6 +325,7 @@ const renderNormalLayout = (
         size: lang.size,
         totalSize: totalLanguageSize,
         valueFormat,
+        locale,
         hideValues,
         index,
       }),
@@ -329,6 +343,7 @@ const renderCompactLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
+  locale: Locale | undefined,
   hideProgress?: boolean,
   valueFormat: TopLangValueFormat = 'percent',
   hideValues?: boolean,
@@ -380,6 +395,7 @@ const renderCompactLayout = (
         totalSize: totalLanguageSize,
         hideProgress,
         valueFormat,
+        locale,
         hideValues,
       }),
     ),
@@ -396,6 +412,7 @@ const renderDonutVerticalLayout = (
   width: number,
   totalLanguageSize: number,
   valueFormat: TopLangValueFormat,
+  locale: Locale | undefined,
   hideValues?: boolean,
 ): MarkupElement => {
   // Donut vertical chart radius and total length
@@ -459,6 +476,7 @@ const renderDonutVerticalLayout = (
           totalSize: totalLanguageSize,
           hideProgress: false,
           valueFormat,
+          locale,
           hideValues,
         }),
       ),
@@ -476,6 +494,7 @@ const renderPieLayout = (
   width: number,
   totalLanguageSize: number,
   valueFormat: TopLangValueFormat,
+  locale: Locale | undefined,
   hideValues?: boolean,
 ): MarkupElement => {
   // Pie chart radius and center coordinates
@@ -564,6 +583,7 @@ const renderPieLayout = (
           totalSize: totalLanguageSize,
           hideProgress: false,
           valueFormat,
+          locale,
           hideValues,
         }),
       ),
@@ -614,6 +634,7 @@ const renderDonutLayout = (
   width: number,
   totalLanguageSize: number,
   valueFormat: TopLangValueFormat,
+  locale: Locale | undefined,
   hideValues?: boolean,
 ): Array<Child> => {
   if (!Number.isFinite(width)) {
@@ -666,7 +687,13 @@ const renderDonutLayout = (
     el(
       'g',
       { 'data-testid': 'donut-list', transform: `translate(0, ${listOffsetY})` },
-      createDonutLanguagesNode({ langs, totalSize: totalLanguageSize, hideValues, valueFormat }),
+      createDonutLanguagesNode({
+        langs,
+        totalSize: totalLanguageSize,
+        hideValues,
+        valueFormat,
+        locale,
+      }),
     ),
     el('g', { 'data-testid': 'donut' }, donutPaths),
   ];
