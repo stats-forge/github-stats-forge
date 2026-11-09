@@ -10,7 +10,7 @@ import { statCardLocales } from '../src/cards/stats/locales.ts';
 import { langCardLocales } from '../src/cards/top-languages/locales.ts';
 import { wakatimeCardLocales } from '../src/cards/wakatime/locales.ts';
 import { commonLocales } from '../src/common/locales.ts';
-import { AVAILABLE_LOCALES, isLocaleAvailable, LOCALE_ALIASES } from '../src/common/localize.ts';
+import { AVAILABLE_LOCALES } from '../src/common/localize.ts';
 import type { LocaleTable, Phrase } from '../src/common/localize.ts';
 
 import { draw } from './_card.ts';
@@ -54,8 +54,10 @@ const placeholdersOf = (phrase: Phrase): Array<string> => {
 describe.each(tables)('%s', (_table, locales) => {
   const entries = Object.entries(locales);
 
-  it.each(entries)('%s names only available locales', (_key, phrases) => {
-    expect(Object.keys(phrases).filter((locale) => !isLocaleAvailable(locale))).toStrictEqual([]);
+  // an alias is resolved before the card draws, so a wording written under one is never read
+  it.each(entries)('%s names only listed locales', (_key, phrases) => {
+    const listed: ReadonlyArray<string> = AVAILABLE_LOCALES;
+    expect(Object.keys(phrases).filter((locale) => !listed.includes(locale))).toStrictEqual([]);
   });
 
   // A `{name}` placeholder used to be a `${name}` the compiler checked. Nothing checks the
@@ -75,12 +77,8 @@ describe.each(tables)('%s', (_table, locales) => {
 
 describe.each(Object.entries(cards))('the %s card', (_card, render) => {
   // A wording can only throw in the locale that carries it, so every one is drawn.
-  it.each([...AVAILABLE_LOCALES, ...LOCALE_ALIASES.keys()])('draws in %s', (locale) => {
+  it.each(AVAILABLE_LOCALES)('draws in %s', (locale) => {
     expect(draw(render(locale))).toHaveAttribute('role', 'img');
-  });
-
-  it.each([...LOCALE_ALIASES])('draws %s exactly as %s', (alias, locale) => {
-    expect(render(alias)).toBe(render(locale));
   });
 });
 
