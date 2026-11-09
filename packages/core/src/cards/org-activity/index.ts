@@ -330,7 +330,6 @@ const renderCard = (
       id: item.id,
       index,
       showIcons: show_icons,
-      shiftValuePos: 0,
       valueAnchorX,
       bold: true,
       labelBold: false,

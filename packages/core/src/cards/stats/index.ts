@@ -69,36 +69,6 @@ interface StatCardOptions extends CommonCardOptions {
   scope: Array<string>;
 }
 
-/** Long locales that need more space for text. Keep sorted alphabetically. */
-const LONG_LOCALES: ReadonlySet<string> = new Set([
-  'az',
-  'bg',
-  'cs',
-  'de',
-  'el',
-  'es',
-  'fil',
-  'fi',
-  'fr',
-  'hu',
-  'id',
-  'ja',
-  'ml',
-  'my',
-  'nl',
-  'pl',
-  'pt-br',
-  'pt-pt',
-  'ru',
-  'sr',
-  'sr-latn',
-  'sw',
-  'ta',
-  'uk-ua',
-  'uz',
-  'zh-tw',
-]);
-
 /**
  * Renders the stats card.
  *
@@ -138,8 +108,6 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     commonT,
   );
 
-  const isLongLocale = locale ? LONG_LOCALES.has(locale) : false;
-
   // filter out hidden stats defined by user
   const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
 
@@ -147,12 +115,9 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     throw CardError.because('stats_no_stats_or_rank');
   }
 
-  // check if all used labels are short
   const defaultTitle =
     visibleStats.length > 0 ? t.title({ name, apostrophe }) : t.rankTitle({ name, apostrophe });
   const cardTitle = title ?? defaultTitle;
-
-  const longLabels = visibleStats.some(([, stat]) => stat.label.length > 18);
 
   // The rank ring sets the floor: 150 beside the stats, 180 when it is the whole card.
   const height = Math.max(
@@ -212,7 +177,6 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       unitSymbol: stat.unitSymbol,
       index,
       showIcons: show_icons,
-      shiftValuePos: 29.01 + (longLabels ? 50 : 0) + (isLongLocale ? 50 : 0),
       valueAnchorX,
       bold: true,
       labelBold: false,

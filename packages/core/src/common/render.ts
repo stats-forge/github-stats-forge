@@ -252,7 +252,6 @@ const createTextNode = ({
   unitSymbol,
   index,
   showIcons,
-  shiftValuePos,
   valueAnchorX,
   bold,
   labelBold = bold,
@@ -270,7 +269,6 @@ const createTextNode = ({
   unitSymbol?: string | undefined;
   index: number;
   showIcons: boolean;
-  shiftValuePos: number;
   valueAnchorX?: number | undefined;
   bold: boolean;
   labelBold?: boolean;
@@ -282,9 +280,6 @@ const createTextNode = ({
 }): MarkupElement => {
   if (!Number.isFinite(labelXOffset)) {
     throw new TypeError(`Invalid labelXOffset: "${labelXOffset}"`);
-  }
-  if (!Number.isFinite(shiftValuePos)) {
-    throw new TypeError(`Invalid shiftValuePos: "${shiftValuePos}"`);
   }
   if (!Number.isFinite(index)) {
     throw new TypeError(`Invalid index: "${index}"`);
@@ -306,7 +301,7 @@ const createTextNode = ({
   const staggerDelay = 120 + index * 40;
   const boldClass = bold ? 'bold' : 'not_bold';
   const labelBoldClass = labelBold ? 'bold' : 'not_bold';
-  const valueX = (showIcons ? 140 : 120) + (bold ? 5 : 0) + shiftValuePos;
+  const valueX = (showIcons ? 140 : 120) + (bold ? 5 : 0);
   const unit = unitSymbol ? ` ${unitSymbol}` : '';
 
   const content = [

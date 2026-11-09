@@ -239,7 +239,6 @@ describe('the node builders', () => {
     id: 'stars',
     index: 0,
     showIcons: false,
-    shiftValuePos: 0,
     bold: false,
     numberFormat: 'short',
     locale: undefined,
@@ -260,10 +259,6 @@ describe('the node builders', () => {
     {
       what: 'labelXOffset',
       build: (): unknown => createTextNode({ ...text, labelXOffset: Number.NaN }),
-    },
-    {
-      what: 'shiftValuePos',
-      build: (): unknown => createTextNode({ ...text, shiftValuePos: Number.NaN }),
     },
     { what: 'index', build: (): unknown => createTextNode({ ...text, index: Number.NaN }) },
     {
