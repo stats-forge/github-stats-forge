@@ -17,7 +17,7 @@ An unknown code is an error reading `Locale not found`, not a silent fallback to
 `en`, `ar`, `az`, `bg`, `bn`, `ca`, `cn`, `zh-tw`, `cs`, `de`, `sw`, `ur`, `es`, `fa`, `fi`, `fr`,
 `hi`, `sa`, `hu`, `it`, `ja`, `kr`, `nl`, `pt-pt`, `pt-br`, `np`, `el`, `ro`, `ru`, `uk-ua`, `id`,
 `ml`, `my`, `ta`, `sk`, `tr`, `pl`, `uz`, `vi`, `se`, `he`, `fil`, `th`, `sr`, `sr-latn`, `no`,
-`be`.
+`be`. `ko` draws Korean too, the same as `kr`.
 
 ## What is not translated yet
 

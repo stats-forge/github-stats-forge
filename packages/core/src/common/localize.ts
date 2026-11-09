@@ -58,13 +58,18 @@ const AVAILABLE_LOCALES = [
 
 const FALLBACK_LOCALE = 'en';
 
+/** A standard code for a locale listed under an older one, which a README may already use. */
+const LOCALE_ALIASES = new Map([['ko', 'kr']]);
+
 /**
  * Checks whether the locale is available or not.
  *
  * @returns Boolean specifying whether the locale is available or not.
  */
-const isLocaleAvailable = (locale: string): boolean =>
-  (AVAILABLE_LOCALES as ReadonlyArray<string>).includes(locale.toLowerCase());
+const isLocaleAvailable = (locale: string): boolean => {
+  const lower = locale.toLowerCase();
+  return (AVAILABLE_LOCALES as ReadonlyArray<string>).includes(lower) || LOCALE_ALIASES.has(lower);
+};
 
 /**
  * A count-dependent wording: one form per plural category the locale distinguishes.
@@ -236,7 +241,7 @@ type Localized<Table extends LocaleTable> = {
  * @returns One function per key the table declares.
  */
 const localize = <Table extends LocaleTable>(table: Table, locale?: string): Localized<Table> => {
-  const asked = locale || FALLBACK_LOCALE;
+  const asked = locale ? (LOCALE_ALIASES.get(locale) ?? locale) : FALLBACK_LOCALE;
   const wordings: Record<string, (values?: ReadValues) => string> = {};
 
   for (const [key, phrases] of Object.entries(table)) {
@@ -247,5 +252,5 @@ const localize = <Table extends LocaleTable>(table: Table, locale?: string): Loc
   return wordings as Localized<Table>;
 };
 
-export { defineLocales, isLocaleAvailable, localize };
+export { AVAILABLE_LOCALES, defineLocales, isLocaleAvailable, LOCALE_ALIASES, localize };
 export type { LocaleTable, Localized, Phrase };
