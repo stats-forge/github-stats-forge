@@ -127,18 +127,18 @@ describe(navigateOptions, () => {
   });
 
   it('asks the option picked, keeps the answer, and reopens on it', async () => {
-    const gist = card('gist');
-    const locale = option(gist, 'locale');
-    inquirer.select.mockResolvedValueOnce(locale).mockResolvedValueOnce('generate');
-    inquirer.input.mockResolvedValue('  es  ');
+    const langs = card('top-langs');
+    const title = option(langs, 'title');
+    inquirer.select.mockResolvedValueOnce(title).mockResolvedValueOnce('generate');
+    inquirer.input.mockResolvedValue('  Languages  ');
     const menu: Menu = { answers: new Map() };
 
-    await expect(navigateOptions(gist, menu)).resolves.toBe('generate');
+    await expect(navigateOptions(langs, menu)).resolves.toBe('generate');
 
-    expect(menu.answers.get('locale')).toBe('es');
-    expect(inquirer.select.mock.calls[1]?.[0].default).toBe(locale);
+    expect(menu.answers.get('title')).toBe('Languages');
+    expect(inquirer.select.mock.calls[1]?.[0].default).toBe(title);
     expect(menu.cursor).toBe('generate');
-    expect(listed(1)).toContainEqual(expect.stringMatching(/^Locale +es$/u));
+    expect(listed(1)).toContainEqual(expect.stringMatching(/^Card title +Languages$/u));
   });
 
   it.each<{
@@ -172,6 +172,36 @@ describe(navigateOptions, () => {
         default: 'short',
         choices: expect.arrayContaining([{ name: '— leave unset —', value: undefined }]),
       },
+    },
+    {
+      what: 'a choice seeded from a saved value typed in another case',
+      card: 'stats',
+      name: 'locale',
+      seed: 'ES',
+      answer: (): unknown => inquirer.select.mockResolvedValueOnce('es'),
+      kept: 'es',
+      asked: (): unknown => inquirer.select.mock.calls[1]?.[0],
+      with: { default: 'es' },
+    },
+    {
+      what: 'a choice reopening a saved alias on the choice it reads as',
+      card: 'stats',
+      name: 'locale',
+      seed: 'kr',
+      answer: (): unknown => inquirer.select.mockResolvedValueOnce('ko'),
+      kept: 'ko',
+      asked: (): unknown => inquirer.select.mock.calls[1]?.[0],
+      with: { default: 'ko' },
+    },
+    {
+      what: 'a choice leaving unset a saved value the api would refuse',
+      card: 'stats',
+      name: 'locale',
+      seed: 'xx',
+      answer: (): unknown => inquirer.select.mockResolvedValueOnce(undefined),
+      kept: undefined,
+      asked: (): unknown => inquirer.select.mock.calls[1]?.[0],
+      with: { default: undefined },
     },
     {
       what: 'a theme, then a dark one, as a light,dark pair seeded from the saved one',
@@ -271,14 +301,14 @@ describe(navigateOptions, () => {
   });
 
   it('forgets an option answered with blank text', async () => {
-    const gist = card('gist');
-    inquirer.select.mockResolvedValueOnce(option(gist, 'locale')).mockResolvedValueOnce('quit');
+    const langs = card('top-langs');
+    inquirer.select.mockResolvedValueOnce(option(langs, 'title')).mockResolvedValueOnce('quit');
     inquirer.input.mockResolvedValue('   ');
-    const menu: Menu = { answers: new Map([['locale', 'es']]) };
+    const menu: Menu = { answers: new Map([['title', 'Languages']]) };
 
-    await navigateOptions(gist, menu);
+    await navigateOptions(langs, menu);
 
-    expect(menu.answers.has('locale')).toBe(false);
+    expect(menu.answers.has('title')).toBe(false);
   });
 
   it('forgets a list answered with no box ticked', async () => {

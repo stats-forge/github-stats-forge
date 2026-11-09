@@ -88,11 +88,18 @@ const askOption = async (option: CardOption, current: Answer): Promise<Answer> =
   }
 
   if (option.kind === 'choice') {
+    const listed = option.choices ?? [];
+    // matched as the api matches it, so a saved alias or another case reopens on its listed choice
+    const lower = typeof current === 'string' ? current.toLowerCase() : undefined;
+    const saved =
+      lower === undefined
+        ? undefined
+        : (listed.find((value) => value.toLowerCase() === lower) ?? option.aliases?.get(lower));
     const choices = [
       { name: '— leave unset —', value: undefined as Answer },
-      ...(option.choices ?? []).map((value) => ({ name: value, value })),
+      ...listed.map((value) => ({ name: value, value })),
     ];
-    return select({ message, choices, default: current });
+    return select({ message, choices, default: saved });
   }
 
   const step = numericStep(option.kind);
