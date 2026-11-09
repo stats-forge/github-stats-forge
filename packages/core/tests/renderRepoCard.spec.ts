@@ -5,7 +5,7 @@ import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { repoCardLocales } from '../src/cards/repo/locales.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
 import { AVAILABLE_LOCALES } from '../src/common/localize.ts';
-import type { Locale } from '../src/common/localize.ts';
+import type { Locale, LocaleTable } from '../src/common/localize.ts';
 import { measureText } from '../src/common/text.ts';
 import type { RepositoryData } from '../src/fetchers/repo/types.ts';
 import { themes } from '../src/themes/index.ts';
@@ -232,15 +232,10 @@ describe('Test renderRepoCard', () => {
 
   describe('every `show` stat at once', () => {
     const showStats = renderRepoCard.OPTIONS.show.filter((id) => id !== 'topics');
-    const wordings = [
-      repoCardLocales.prsOpened,
-      repoCardLocales.prsCommented,
-      repoCardLocales.prsReviewed,
-      repoCardLocales.issuesOpened,
-      repoCardLocales.issuesCommented,
-    ];
+    const table: LocaleTable = repoCardLocales;
+    const keys = ['prsOpened', 'prsCommented', 'prsReviewed', 'issuesOpened', 'issuesCommented'];
     const locales = AVAILABLE_LOCALES.filter((locale) =>
-      wordings.some((wording) => Object.hasOwn(wording, locale)),
+      keys.some((key) => table[locale]?.[key] !== undefined),
     );
     const repository: RepositoryData = {
       ...repo,

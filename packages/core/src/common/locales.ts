@@ -7,54 +7,146 @@ import { defineLocales } from './localize.ts';
  * stats card reached for it — the translations here are that table's, moved verbatim.
  */
 const commonLocales = defineLocales({
-  lastYear: {
-    en: 'last year',
-    ar: 'العام الماضي',
-    az: 'Ötən il',
-    ca: "L'any passat",
-    'zh-cn': '去年',
-    'zh-tw': '去年',
-    cs: 'Minulý rok',
-    de: 'Letztes Jahr',
-    sw: 'Mwaka uliopita',
-    ur: 'پچھلا سال',
-    bg: 'миналата год.',
-    bn: 'গত বছর',
-    es: 'El año pasado',
-    fa: 'سال گذشته',
-    fi: 'Viime vuosi',
-    fr: "L'année dernière",
-    hi: 'पिछले साल',
-    sa: 'गतवर्षे',
-    hu: 'Tavaly',
-    it: "L'anno scorso",
-    ja: '昨年',
-    ko: '작년',
-    nl: 'Vorig jaar',
-    'pt-pt': 'Ano passado',
-    'pt-br': 'Ano passado',
-    ne: 'गत वर्ष',
-    el: 'Πέρυσι',
-    ro: 'Anul trecut',
-    ru: 'За прошлый год',
-    'uk-ua': 'За минулий рік',
-    id: 'Tahun lalu',
-    ml: 'കഴിഞ്ഞ വർഷം',
-    my: 'မနှစ်က',
-    ta: `கடந்த ஆண்டு`,
-    sk: 'Minulý rok',
-    tr: 'Geçen yıl',
-    pl: 'W zeszłym roku',
-    uz: "O'tgan yil",
-    vi: 'Năm ngoái',
-    sv: 'Förra året',
-    he: 'שנה שעברה',
-    fil: 'Nakaraang Taon',
-    th: 'ปีที่แล้ว',
-    sr: 'Прошла год.',
-    'sr-latn': 'Prošla god.',
-    no: 'I fjor',
-    be: 'мінулы год',
+  en: {
+    lastYear: 'last year',
+  },
+  ar: {
+    lastYear: 'العام الماضي',
+  },
+  az: {
+    lastYear: 'Ötən il',
+  },
+  ca: {
+    lastYear: "L'any passat",
+  },
+  'zh-cn': {
+    lastYear: '去年',
+  },
+  'zh-tw': {
+    lastYear: '去年',
+  },
+  cs: {
+    lastYear: 'Minulý rok',
+  },
+  de: {
+    lastYear: 'Letztes Jahr',
+  },
+  sw: {
+    lastYear: 'Mwaka uliopita',
+  },
+  ur: {
+    lastYear: 'پچھلا سال',
+  },
+  bg: {
+    lastYear: 'миналата год.',
+  },
+  bn: {
+    lastYear: 'গত বছর',
+  },
+  es: {
+    lastYear: 'El año pasado',
+  },
+  fa: {
+    lastYear: 'سال گذشته',
+  },
+  fi: {
+    lastYear: 'Viime vuosi',
+  },
+  fr: {
+    lastYear: "L'année dernière",
+  },
+  hi: {
+    lastYear: 'पिछले साल',
+  },
+  sa: {
+    lastYear: 'गतवर्षे',
+  },
+  hu: {
+    lastYear: 'Tavaly',
+  },
+  it: {
+    lastYear: "L'anno scorso",
+  },
+  ja: {
+    lastYear: '昨年',
+  },
+  ko: {
+    lastYear: '작년',
+  },
+  nl: {
+    lastYear: 'Vorig jaar',
+  },
+  'pt-pt': {
+    lastYear: 'Ano passado',
+  },
+  'pt-br': {
+    lastYear: 'Ano passado',
+  },
+  ne: {
+    lastYear: 'गत वर्ष',
+  },
+  el: {
+    lastYear: 'Πέρυσι',
+  },
+  ro: {
+    lastYear: 'Anul trecut',
+  },
+  ru: {
+    lastYear: 'За прошлый год',
+  },
+  'uk-ua': {
+    lastYear: 'За минулий рік',
+  },
+  id: {
+    lastYear: 'Tahun lalu',
+  },
+  ml: {
+    lastYear: 'കഴിഞ്ഞ വർഷം',
+  },
+  my: {
+    lastYear: 'မနှစ်က',
+  },
+  ta: {
+    lastYear: 'கடந்த ஆண்டு',
+  },
+  sk: {
+    lastYear: 'Minulý rok',
+  },
+  tr: {
+    lastYear: 'Geçen yıl',
+  },
+  pl: {
+    lastYear: 'W zeszłym roku',
+  },
+  uz: {
+    lastYear: "O'tgan yil",
+  },
+  vi: {
+    lastYear: 'Năm ngoái',
+  },
+  sv: {
+    lastYear: 'Förra året',
+  },
+  he: {
+    lastYear: 'שנה שעברה',
+  },
+  fil: {
+    lastYear: 'Nakaraang Taon',
+  },
+  th: {
+    lastYear: 'ปีที่แล้ว',
+  },
+  sr: {
+    lastYear: 'Прошла год.',
+  },
+  'sr-latn': {
+    lastYear: 'Prošla god.',
+  },
+  no: {
+    lastYear: 'I fjor',
+  },
+  be: {
+    lastYear: 'мінулы год',
   },
 });
 

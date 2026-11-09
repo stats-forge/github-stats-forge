@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import { statCardLocales } from '../src/cards/stats/locales.ts';
 import { defineLocales, localize } from '../src/common/localize.ts';
-import type { LocaleTable } from '../src/common/localize.ts';
 
 describe(localize, () => {
   it('should return translated string', () => {
@@ -21,26 +20,53 @@ describe(localize, () => {
     expect(t.totalStars()).toBe('Total Stars Earned');
   });
 
-  it('should throw error if translation not found for locale', () => {
-    // a table with no english wording, which only a card building one at runtime can
-    // reach — `LocaleTable` requires `en` of anything written down
-    const table = { title: { it: 'Titolo' } } as unknown as LocaleTable;
-    const t = localize(table, 'de');
-    expect(() => t['title']?.()).toThrow("'title' translation not found for locale 'de'");
-  });
+  // Only the compiler refuses these: at runtime a table is handed back untouched.
+  describe('the tables it refuses to declare', () => {
+    it('should refuse a locale no card can be asked for', () => {
+      // `kr` is resolved to `ko` before a card draws, so a wording written under it is dead
+      // @ts-expect-error a wording under an unlisted code should be reported by ts
+      const table = defineLocales({ en: { title: 'Title' }, kr: { title: '제목' } });
+      expect(table).toHaveProperty('kr.title', '제목');
+    });
 
-  it('should refuse a table naming a locale no card can be asked for', () => {
-    // `kr` is resolved to `ko` before a card draws, so a wording written under it is dead
-    // @ts-expect-error a wording under an unlisted code should be reported by ts
-    const table = defineLocales({ title: { en: 'Title', kr: '제목' } });
-    // only the compiler refuses it: at runtime the table is handed back untouched
-    expect(table.title).toHaveProperty('kr', '제목');
+    it('should refuse a key english does not declare', () => {
+      // @ts-expect-error a key the fallback lacks is left over from a rename, and never drawn
+      const table = defineLocales({ en: { title: 'Title' }, it: { heading: 'Titolo' } });
+      expect(table).toHaveProperty('it.heading', 'Titolo');
+    });
+
+    it('should refuse a placeholder english does not supply', () => {
+      const table = defineLocales({
+        en: { title: 'Stats' },
+        // @ts-expect-error the card passes what the english wording asks for, so this would throw
+        it: { title: 'Statistiche di {name}' },
+      });
+      expect(table).toHaveProperty('it.title', 'Statistiche di {name}');
+    });
+
+    it('should refuse plural forms for a wording english gives no count', () => {
+      const table = defineLocales({
+        en: { title: 'Repositories' },
+        // @ts-expect-error a plural form needs a `count`, which the card never passes here
+        it: { title: { one: 'Repository', other: 'Repository' } },
+      });
+      expect(table).toHaveProperty('it.title.other', 'Repository');
+    });
+
+    it('should refuse a plural form under a category no locale has', () => {
+      const table = defineLocales({
+        en: { repos: { one: '{count} repo', other: '{count} repos' } },
+        // @ts-expect-error `fwe` is no plural category, so its form would never be drawn
+        ru: { repos: { one: '{count} репо', fwe: '{count} репо', other: '{count} репо' } },
+      });
+      expect(table).toHaveProperty('ru.repos.fwe', '{count} репо');
+    });
   });
 
   describe('interpolation', () => {
     const locales = defineLocales({
-      title: { en: "{name}'{apostrophe} stats", it: 'Statistiche di {name}' },
-      repeated: { en: '{name}, {name}' },
+      en: { title: "{name}'{apostrophe} stats", repeated: '{name}, {name}' },
+      it: { title: 'Statistiche di {name}' },
     });
 
     it('should substitute a placeholder in the requested locale', () => {
@@ -71,17 +97,15 @@ describe(localize, () => {
 
   describe('plural forms', () => {
     const locales = defineLocales({
-      repos: { en: { one: '{count} repository', other: '{count} repositories' } },
+      en: {
+        repos: { one: '{count} repository', other: '{count} repositories' },
+        commits: { one: '{count} commit', other: '{count} commits' },
+        stars: { one: '{count} star', other: '{count} stars' },
+      },
       // Russian distinguishes a category english has no wording for
-      commits: {
-        en: { one: '{count} commit', other: '{count} commits' },
-        ru: { one: '{count} коммит', few: '{count} коммита', other: '{count} коммитов' },
-      },
+      ru: { commits: { one: '{count} коммит', few: '{count} коммита', other: '{count} коммитов' } },
       // Chinese has no singular; a `one` here is what english rules would wrongly pick
-      stars: {
-        en: { one: '{count} star', other: '{count} stars' },
-        'zh-cn': { one: '一颗星', other: '{count} 颗星' },
-      },
+      'zh-cn': { stars: { one: '一颗星', other: '{count} 颗星' } },
     });
 
     it.each([

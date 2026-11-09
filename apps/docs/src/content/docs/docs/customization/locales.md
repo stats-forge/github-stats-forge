@@ -40,31 +40,36 @@ Two things are deliberately never translated:
 
 ## Contributing a translation
 
-Each card owns its table, in `packages/core/src/cards/<card>/locales.ts`, one entry per key per
-locale. Adding a language means adding your code to each key you can translate;
+Each card owns its table, in `packages/core/src/cards/<card>/locales.ts`, one block per locale.
+Adding a language means adding a block for your code, with each key you can translate;
 anything you leave out keeps reading in English until someone fills it in.
 
 A wording can carry the values the card draws into it, as `{name}` placeholders:
 
 ```ts
-'statcard.title': {
-  en: "{name}'{apostrophe} GitHub Stats",
-  fr: 'Statistiques GitHub de {name}',
+en: {
+  title: "{name}'{apostrophe} GitHub Stats",
+},
+fr: {
+  title: 'Statistiques GitHub de {name}',
 },
 ```
 
 Word order is therefore the translation's own, and so is which values it uses —
 French has no use for the possessive `{apostrophe}` above.
-A placeholder the English wording does not supply is the one thing that will not work.
+A placeholder the English wording does not supply fails `pnpm typecheck`, as does a key English lacks
+or a plural form under a category no language has.
 
 Where the wording depends on a number, write a form per plural category instead.
 The card passes a `count` and the category is picked by the locale's own rules,
 so a language with more than two forms is free to write them all:
 
 ```ts
-'contributedtocard.footer-all': {
-  en: { one: '{count} repository', other: '{count} repositories' },
-  ru: { one: '{count} репозиторий', few: '{count} репозитория', other: '{count} репозиториев' },
+en: {
+  footerAll: { one: '{count} repository', other: '{count} repositories' },
+},
+ru: {
+  footerAll: { one: '{count} репозиторий', few: '{count} репозитория', other: '{count} репозиториев' },
 },
 ```
 

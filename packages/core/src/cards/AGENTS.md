@@ -19,12 +19,13 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
     alias; if one ever earns its keep, mirror `Localized`, not `Locale`, which is the language tag.
   - **Two cards' tables are never merged**: their `title` keys collide. Shared wordings live in
     `common/locales.ts`, read as `commonT`; a card never imports another card's table.
-- **A table is declared with `defineLocales`** ([#61]), whose `<const Table>` keeps the literals that
-  check placeholders. `satisfies LocaleTable` silently drops that check; only
-  `as const satisfies LocaleTable` also works. It refuses a code `AVAILABLE_LOCALES` does not list,
-  an alias included, since the api resolves an alias before a card reads it.
-- **A translation owns its word order and placeholders**: it may use fewer than `en`, never others.
-  `tests/locales.spec.ts` checks that.
+- **A table is grouped by locale, then key, and declared with `defineLocales`** ([#61]): `en`
+  declares every key, a note on a key sits above it there, and `<const Table>` keeps the literals
+  the checks need. `satisfies LocaleTable` silently drops them.
+- **`defineLocales` refuses what would never be drawn or would throw**: a code `AVAILABLE_LOCALES`
+  does not list (an alias included, since the api resolves one first), a key `en` lacks, a
+  placeholder or plural form `en` does not supply, and a plural category `Intl` never picks. A
+  translation owns its word order, and may use fewer placeholders than `en`.
 - **A number-dependent wording is plural forms** ([#61]), `{ one, other }` picked by
   `Intl.PluralRules` for the locale the wording came from, and **a whole phrase is one key**, never
   a `label: value` assembled in the card. The parenthesised year is the exception: leave it until
