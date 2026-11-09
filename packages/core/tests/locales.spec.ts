@@ -83,3 +83,14 @@ describe.each(Object.entries(cards))('the %s card', (_card, render) => {
     expect(render(alias)).toBe(render(locale));
   });
 });
+
+describe('the stats card', () => {
+  // A rank-only card titled with the full card's wording reads as the wrong card.
+  it.each(Object.keys(statCardLocales.rankTitle))(
+    'names the rank, not the stats, in %s',
+    (locale) => {
+      const { title, rankTitle } = statCardLocales as LocaleTable;
+      expect(rankTitle?.[locale]).not.toBe(title?.[locale]);
+    },
+  );
+});
