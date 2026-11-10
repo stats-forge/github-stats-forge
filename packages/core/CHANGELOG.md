@@ -1,5 +1,43 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.15.0
+
+### Minor Changes
+
+- [#404](https://github.com/stats-forge/github-stats-forge/pull/404) [`4cbfe57`](https://github.com/stats-forge/github-stats-forge/commit/4cbfe575879002c87abd3b030e583d6fdfa23740) - feat: accept `locale=ko`, the standard code for Korean, drawing the same text as `kr`
+
+- [#408](https://github.com/stats-forge/github-stats-forge/pull/408) [`f715ce6`](https://github.com/stats-forge/github-stats-forge/commit/f715ce6759885dd9fa8d737d0c1ac3c9dc383b91) - feat: offer `locale` as a list of the available codes, so the CLI and the anvil let you pick one
+
+- [#411](https://github.com/stats-forge/github-stats-forge/pull/411) [`a95c354`](https://github.com/stats-forge/github-stats-forge/commit/a95c35429afca317e35352f5ef9fca671a31872e) - feat: write a figure's decimals with the locale's separator, as `1,2k` for `locale=de`
+
+- [#407](https://github.com/stats-forge/github-stats-forge/pull/407) [`21b9e5d`](https://github.com/stats-forge/github-stats-forge/commit/21b9e5d0fe1240c3c4d68445c7a6441c5320b66f) - feat: list Korean, Chinese, Nepali and Swedish under their standard codes `ko`, `zh-cn`, `ne` and `sv`; `kr`, `cn`, `np` and `se` still draw them, and `zh` and `uk` are accepted
+
+### Patch Changes
+
+- [#416](https://github.com/stats-forge/github-stats-forge/pull/416) [`5ba3ff1`](https://github.com/stats-forge/github-stats-forge/commit/5ba3ff124dd01062c7cc9c5da0e10864b7b3a40a) - refactor: build each card's count formatter once from its options
+
+- [#412](https://github.com/stats-forge/github-stats-forge/pull/412) [`dc85246`](https://github.com/stats-forge/github-stats-forge/commit/dc85246905fbf45eb29cbea47cb21b77593cc820) - refactor: drop the stats card's long-locale spacing, which the measured value column already overrode
+
+- [#417](https://github.com/stats-forge/github-stats-forge/pull/417) [`fe8ca32`](https://github.com/stats-forge/github-stats-forge/commit/fe8ca325e24f0bb048ef58d7d1d03499901c53ed) - refactor: build the top languages card's value formatter once from its options
+
+- [#410](https://github.com/stats-forge/github-stats-forge/pull/410) [`2cedfe9`](https://github.com/stats-forge/github-stats-forge/commit/2cedfe9d01f8ac3ef4d3ae0aaa146a4db9d68350) - refactor: type a card's `locale` as a listed code, refusing a translation under any other at compile time
+
+- [#414](https://github.com/stats-forge/github-stats-forge/pull/414) [`6f5c961`](https://github.com/stats-forge/github-stats-forge/commit/6f5c961b298ec38f45068ff96599f9999795c2f2) - refactor: group each card's translations by locale, refusing at compile time a key or placeholder English lacks
+
+- [#425](https://github.com/stats-forge/github-stats-forge/pull/425) [`b1fd694`](https://github.com/stats-forge/github-stats-forge/commit/b1fd6944f3b09368d73d2cecdec9c1ad934e9243) - fix: draw the percentile ring's `Top` from the stats card's translations, so a locale can translate it
+
+- [#415](https://github.com/stats-forge/github-stats-forge/pull/415) [`f9294f4`](https://github.com/stats-forge/github-stats-forge/commit/f9294f4d0b9d4cb6fa5308161519c135f354b4ef) - feat: update language colors
+
+  Regenerated from the [upstream linguist languages file](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml).
+
+- [#406](https://github.com/stats-forge/github-stats-forge/pull/406) [`32167b8`](https://github.com/stats-forge/github-stats-forge/commit/32167b8222e791af72a429828045ff05c2de4f39) - fix: title a rank-only stats card with its rank in every locale, falling back to English where the translation said "stats"
+
+- [#409](https://github.com/stats-forge/github-stats-forge/pull/409) [`7ab691c`](https://github.com/stats-forge/github-stats-forge/commit/7ab691cd7f579968a3c7b77fa8eb241e2acbbc90) - refactor: resolve a locale's case and alias in the api, so a card only reads a listed code
+
+- [#419](https://github.com/stats-forge/github-stats-forge/pull/419) [`612b602`](https://github.com/stats-forge/github-stats-forge/commit/612b6029aabbc48fa74c9f808be5c0a531040568) - refactor: build the stats card's percent formatter once from its options
+
+- [#418](https://github.com/stats-forge/github-stats-forge/pull/418) [`cbddc81`](https://github.com/stats-forge/github-stats-forge/commit/cbddc812b2f4e3bbf07b422fb344b57513ae4127) - refactor: build the WakaTime card's value formatter once from its options
+
 ## 0.14.0
 
 ### Minor Changes
