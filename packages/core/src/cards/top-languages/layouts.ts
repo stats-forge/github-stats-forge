@@ -97,22 +97,23 @@ const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
 const calculatePieLayoutHeight = (totalLangs: number): number =>
   CARD_STYLE.padding.bodyOffsetY + CHART_LAYOUT_BODY_HEIGHT + Math.round(totalLangs / 2) * 25;
 
+/** Writes a language's value from its size in bytes and its share in percent. */
+type LangValueFormatter = (size: number, percentages: number) => string;
+
 /**
- * Get display value corresponding to the format.
+ * Builds the card's value writer once, from its `value_format` and locale.
  *
- * @returns Display value.
+ * @returns The writer every layout draws its values through.
  */
-const getDisplayValue = (
-  size: number,
-  percentages: number,
+const langValueFormatter = (
   format: TopLangValueFormat,
   locale: Locale | undefined,
-): string => {
+): LangValueFormatter => {
   if (format === 'bytes') {
-    return formatBytes(size, locale);
+    return (size) => formatBytes(size, locale);
   }
 
-  return `${formatDecimal(percentages, locale, 2)}%`;
+  return (_size, percentages) => `${formatDecimal(percentages, locale, 2)}%`;
 };
 
 /**
@@ -140,8 +141,7 @@ const createProgressTextNode = ({
   name,
   size,
   totalSize,
-  valueFormat,
-  locale,
+  formatValue,
   hideValues,
   index,
 }: {
@@ -150,8 +150,7 @@ const createProgressTextNode = ({
   name: string;
   size: number;
   totalSize: number;
-  valueFormat: TopLangValueFormat;
-  locale: Locale | undefined;
+  formatValue: LangValueFormatter;
   hideValues?: boolean | undefined;
   index: number;
 }): MarkupElement => {
@@ -162,7 +161,7 @@ const createProgressTextNode = ({
   const progressWidth = width - paddingRight;
 
   const progress = (size / totalSize) * 100;
-  const displayValue = getDisplayValue(size, progress, valueFormat, locale);
+  const displayValue = formatValue(size, progress);
 
   return el(
     'g',
@@ -185,8 +184,7 @@ interface CompactListOptions {
   totalSize: number;
   hideProgress?: boolean | undefined;
   hideValues?: boolean | undefined;
-  valueFormat?: TopLangValueFormat | undefined;
-  locale: Locale | undefined;
+  formatValue: LangValueFormatter;
 }
 
 /**
@@ -196,13 +194,13 @@ interface CompactListOptions {
  */
 const compactLabel = (
   lang: Lang,
-  { totalSize, hideProgress, hideValues, valueFormat = 'percent', locale }: CompactListOptions,
+  { totalSize, hideProgress, hideValues, formatValue }: CompactListOptions,
 ): string => {
   if (hideProgress || hideValues) {
     return lang.name;
   }
   const percentages = (lang.size / totalSize) * 100;
-  return `${lang.name} ${getDisplayValue(lang.size, percentages, valueFormat, locale)}`;
+  return `${lang.name} ${formatValue(lang.size, percentages)}`;
 };
 
 /**
@@ -278,14 +276,12 @@ const createDonutLanguagesNode = ({
   langs,
   totalSize,
   hideValues,
-  valueFormat,
-  locale,
+  formatValue,
 }: {
   langs: Array<Lang>;
   totalSize: number;
   hideValues?: boolean | undefined;
-  valueFormat?: TopLangValueFormat | undefined;
-  locale: Locale | undefined;
+  formatValue: LangValueFormatter;
 }): Array<Child> =>
   flexLayout({
     items: langs.map((lang, index) =>
@@ -294,8 +290,7 @@ const createDonutLanguagesNode = ({
         totalSize,
         hideProgress: false,
         hideValues,
-        valueFormat,
-        locale,
+        formatValue,
         index,
       }),
     ),
@@ -312,8 +307,7 @@ const renderNormalLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
-  valueFormat: TopLangValueFormat,
-  locale: Locale | undefined,
+  formatValue: LangValueFormatter,
   hideValues?: boolean,
 ): Array<Child> =>
   flexLayout({
@@ -324,8 +318,7 @@ const renderNormalLayout = (
         color: lang.color || DEFAULT_LANG_COLOR,
         size: lang.size,
         totalSize: totalLanguageSize,
-        valueFormat,
-        locale,
+        formatValue,
         hideValues,
         index,
       }),
@@ -343,9 +336,8 @@ const renderCompactLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
-  locale: Locale | undefined,
+  formatValue: LangValueFormatter,
   hideProgress?: boolean,
-  valueFormat: TopLangValueFormat = 'percent',
   hideValues?: boolean,
 ): Array<Child> => {
   const paddingRight = CARD_STYLE.padding.x * 2;
@@ -394,8 +386,7 @@ const renderCompactLayout = (
         langs,
         totalSize: totalLanguageSize,
         hideProgress,
-        valueFormat,
-        locale,
+        formatValue,
         hideValues,
       }),
     ),
@@ -411,8 +402,7 @@ const renderDonutVerticalLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
-  valueFormat: TopLangValueFormat,
-  locale: Locale | undefined,
+  formatValue: LangValueFormatter,
   hideValues?: boolean,
 ): MarkupElement => {
   // Donut vertical chart radius and total length
@@ -475,8 +465,7 @@ const renderDonutVerticalLayout = (
           langs,
           totalSize: totalLanguageSize,
           hideProgress: false,
-          valueFormat,
-          locale,
+          formatValue,
           hideValues,
         }),
       ),
@@ -493,8 +482,7 @@ const renderPieLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
-  valueFormat: TopLangValueFormat,
-  locale: Locale | undefined,
+  formatValue: LangValueFormatter,
   hideValues?: boolean,
 ): MarkupElement => {
   // Pie chart radius and center coordinates
@@ -582,8 +570,7 @@ const renderPieLayout = (
           langs,
           totalSize: totalLanguageSize,
           hideProgress: false,
-          valueFormat,
-          locale,
+          formatValue,
           hideValues,
         }),
       ),
@@ -633,8 +620,7 @@ const renderDonutLayout = (
   langs: Array<Lang>,
   width: number,
   totalLanguageSize: number,
-  valueFormat: TopLangValueFormat,
-  locale: Locale | undefined,
+  formatValue: LangValueFormatter,
   hideValues?: boolean,
 ): Array<Child> => {
   if (!Number.isFinite(width)) {
@@ -691,8 +677,7 @@ const renderDonutLayout = (
         langs,
         totalSize: totalLanguageSize,
         hideValues,
-        valueFormat,
-        locale,
+        formatValue,
       }),
     ),
     el('g', { 'data-testid': 'donut' }, donutPaths),
@@ -732,6 +717,7 @@ export {
   calculateDonutVerticalLayoutHeight,
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
+  langValueFormatter,
   measureCompactList,
   noLanguagesDataNode,
   renderCompactLayout,
