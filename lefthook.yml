@@ -5,7 +5,8 @@ pre-commit:
   jobs:
     - name: format
       glob: '*.{js,jsx,ts,tsx,json,jsonc,yaml,yml,md,graphql}'
-      run: pnpm exec oxfmt --write {staged_files}
+      # a commit staging only files oxfmt ignores, such as the lockfile, has nothing to format
+      run: pnpm exec oxfmt --write --no-error-on-unmatched-pattern {staged_files}
       # a file the formatter rewrote goes into the same commit, rather than being left dirty
       stage_fixed: true
 
