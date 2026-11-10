@@ -4,7 +4,7 @@ import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
 import { formatRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
 import { icons } from '../../common/icons.ts';
-import type { Localized } from '../../common/localize.ts';
+import type { Locale, Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import {
   NUMBER_FORMATS,
@@ -44,7 +44,7 @@ type StatId = HideStat | ShowStat;
 const LINE_HEIGHT = 25;
 
 interface OrgActivityCardOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   hide: Array<string>;
   show: Array<string>;
   show_icons: boolean;

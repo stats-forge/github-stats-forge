@@ -4,6 +4,7 @@ import { getLightDarkColors } from '../../common/color.ts';
 import { kFormatter } from '../../common/fmt.ts';
 import { icons } from '../../common/icons.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
+import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
 import { createLanguageNode, flexLayout, iconWithLabel } from '../../common/render.ts';
@@ -24,7 +25,7 @@ const DESCRIPTION_FONT_SIZE = CARD_STYLE.fontSize.meta;
 const DESCRIPTION_MAX_LINES = 10;
 
 interface GistCardOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   disable_animations: boolean;
   show_owner: boolean;
 }

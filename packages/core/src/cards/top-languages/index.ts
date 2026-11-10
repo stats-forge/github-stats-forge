@@ -1,6 +1,7 @@
 import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
+import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue, lowercaseTrim } from '../../common/ops.ts';
 import type { Lang, TopLangData } from '../../fetchers/top-languages/types.ts';
@@ -41,7 +42,7 @@ const PIE_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 const DONUT_VERTICAL_LAYOUT_DEFAULT_LANGS_COUNT = 6;
 
 interface TopLangOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   hide_title: boolean;
   card_width: number;
   hide_langs: Array<string>;

@@ -3,7 +3,7 @@ import { Card, titleFits } from '../../common/Card.ts';
 import type { CardColors } from '../../common/color.ts';
 import { getLightDarkColors, inkOn } from '../../common/color.ts';
 import { toSearchDate } from '../../common/date.ts';
-import type { Localized } from '../../common/localize.ts';
+import type { Locale, Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { NUMBER_FORMATS, formatCount } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
@@ -28,7 +28,7 @@ const LEVEL_PAINT: ReadonlyArray<{ stop: 0 | 1 | 2; opacity: number }> = [
 ];
 
 interface OrgCalendarCardOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   hide_title: boolean;
   card_width: number;
   title: string;

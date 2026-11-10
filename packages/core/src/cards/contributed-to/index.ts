@@ -3,7 +3,7 @@ import { Card, titleFits } from '../../common/Card.ts';
 import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
 import { formatYears } from '../../common/date.ts';
 import { kFormatter } from '../../common/fmt.ts';
-import type { Localized } from '../../common/localize.ts';
+import type { Locale, Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue } from '../../common/ops.ts';
 import { createProgressNode } from '../../common/render.ts';
@@ -41,7 +41,7 @@ const FOOTER_GAP = 12;
 const FOOTER_DESCENT = 2;
 
 interface ContributedToCardOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   hide_title: boolean;
   card_width: number;
   title: string;

@@ -11,6 +11,7 @@ import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { renderTopLanguages } from '../src/cards/top-languages/index.ts';
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
+import type { Locale } from '../src/common/localize.ts';
 import type { ContributedToData } from '../src/fetchers/contributed-to/types.ts';
 import type { GistData } from '../src/fetchers/gist/types.ts';
 import type { OrgActivityData } from '../src/fetchers/org-activity/types.ts';
@@ -148,16 +149,16 @@ const organizationData: OrganizationData = {
 };
 
 const cards = {
-  gist: (locale?: string): string => renderGistCard(gistData, { locale }),
-  repo: (locale?: string): string => renderRepoCard(repoData, { locale }),
-  'org-activity': (locale?: string): string => renderOrgActivityCard(orgActivityData, { locale }),
-  'org-calendar': (locale?: string): string => renderOrgCalendarCard(orgCalendarData, { locale }),
-  stats: (locale?: string): string => renderStatsCard(statsData, { locale }),
-  'top-languages': (locale?: string): string => renderTopLanguages(topLangs, { locale }),
-  wakatime: (locale?: string): string => renderWakatimeCard(wakatimeData, { locale }),
-  'contributed-to': (locale?: string): string =>
+  gist: (locale?: Locale): string => renderGistCard(gistData, { locale }),
+  repo: (locale?: Locale): string => renderRepoCard(repoData, { locale }),
+  'org-activity': (locale?: Locale): string => renderOrgActivityCard(orgActivityData, { locale }),
+  'org-calendar': (locale?: Locale): string => renderOrgCalendarCard(orgCalendarData, { locale }),
+  stats: (locale?: Locale): string => renderStatsCard(statsData, { locale }),
+  'top-languages': (locale?: Locale): string => renderTopLanguages(topLangs, { locale }),
+  wakatime: (locale?: Locale): string => renderWakatimeCard(wakatimeData, { locale }),
+  'contributed-to': (locale?: Locale): string =>
     renderContributedToCard(contributedToData, { locale }),
-  organization: (locale?: string): string => renderOrganizationCard(organizationData, { locale }),
+  organization: (locale?: Locale): string => renderOrganizationCard(organizationData, { locale }),
 };
 
 export { cards, repoData, statsData };

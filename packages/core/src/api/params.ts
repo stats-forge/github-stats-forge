@@ -19,6 +19,7 @@ import {
 import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
 import { AVAILABLE_LOCALES, LOCALE_ALIASES, resolveLocale } from '../common/localize.ts';
+import type { Locale } from '../common/localize.ts';
 import { parseArray } from '../common/ops.ts';
 import { NUMBER_FORMATS } from '../common/render.ts';
 import { THEME_PARAM_VALUES } from '../themes/index.ts';
@@ -319,7 +320,7 @@ const localeParam = kinded(
   { kind: 'choice', choices: AVAILABLE_LOCALES, aliases: new Map(LOCALE_ALIASES) },
   z.pipe(
     rawParam.check(rejects('locale', (value) => resolveLocale(value) !== undefined)),
-    z.transform((value): string | undefined => {
+    z.transform((value): Locale | undefined => {
       if (value === undefined) {
         return undefined;
       }

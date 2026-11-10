@@ -2,6 +2,7 @@ import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { icons } from '../../common/icons.ts';
+import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { buildSearchFilter, clampValue, parseEmojis } from '../../common/ops.ts';
 import {
@@ -54,7 +55,7 @@ type RepoShowStat = (typeof REPO_SHOW_STATS)[number];
 const EXTRA_LINE_HEIGHT = 22;
 
 interface RepoCardOptions extends CommonCardOptions {
-  locale: string;
+  locale: Locale;
   disable_animations: boolean;
   show_owner: boolean;
   description_lines_count: number;

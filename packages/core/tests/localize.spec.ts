@@ -25,8 +25,16 @@ describe(localize, () => {
     // a table with no english wording, which only a card building one at runtime can
     // reach — `LocaleTable` requires `en` of anything written down
     const table = { title: { it: 'Titolo' } } as unknown as LocaleTable;
-    const t = localize(table, 'asdf');
-    expect(() => t['title']?.()).toThrow("'title' translation not found for locale 'asdf'");
+    const t = localize(table, 'de');
+    expect(() => t['title']?.()).toThrow("'title' translation not found for locale 'de'");
+  });
+
+  it('should refuse a table naming a locale no card can be asked for', () => {
+    // `kr` is resolved to `ko` before a card draws, so a wording written under it is dead
+    // @ts-expect-error a wording under an unlisted code should be reported by ts
+    const table = defineLocales({ title: { en: 'Title', kr: '제목' } });
+    // only the compiler refuses it: at runtime the table is handed back untouched
+    expect(table.title).toHaveProperty('kr', '제목');
   });
 
   describe('interpolation', () => {
