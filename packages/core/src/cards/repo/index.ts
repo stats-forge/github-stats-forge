@@ -282,7 +282,6 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       unitSymbol: stat.unitSymbol,
       index,
       showIcons: show_icons,
-      shiftValuePos: 0,
       valueAnchorX: valueAnchors[index % 2],
       bold: false,
       numberFormat: number_format,
