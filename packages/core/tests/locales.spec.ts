@@ -1,73 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { contributedToCardLocales } from '../src/cards/contributed-to/locales.ts';
-import { gistCardLocales } from '../src/cards/gist/locales.ts';
-import { orgActivityCardLocales } from '../src/cards/org-activity/locales.ts';
-import { orgCalendarCardLocales } from '../src/cards/org-calendar/locales.ts';
-import { orgCardLocales } from '../src/cards/organization/locales.ts';
-import { repoCardLocales } from '../src/cards/repo/locales.ts';
 import { statCardLocales } from '../src/cards/stats/locales.ts';
-import { langCardLocales } from '../src/cards/top-languages/locales.ts';
-import { wakatimeCardLocales } from '../src/cards/wakatime/locales.ts';
-import { commonLocales } from '../src/common/locales.ts';
 import { AVAILABLE_LOCALES } from '../src/common/localize.ts';
-import type { LocaleTable, Phrase } from '../src/common/localize.ts';
+import type { LocaleTable } from '../src/common/localize.ts';
 
 import { draw } from './_card.ts';
 import { cards } from './_cards.ts';
-
-const tables: Array<[string, LocaleTable]> = [
-  ['commonLocales', commonLocales],
-  ['contributedToCardLocales', contributedToCardLocales],
-  ['gistCardLocales', gistCardLocales],
-  ['langCardLocales', langCardLocales],
-  ['orgActivityCardLocales', orgActivityCardLocales],
-  ['orgCalendarCardLocales', orgCalendarCardLocales],
-  ['orgCardLocales', orgCardLocales],
-  ['repoCardLocales', repoCardLocales],
-  ['statCardLocales', statCardLocales],
-  ['wakatimeCardLocales', wakatimeCardLocales],
-];
-
-/** @returns Every `{name}` the wording interpolates, sorted, plus `count` for a plural set. */
-const placeholdersOf = (phrase: Phrase): Array<string> => {
-  const names = new Set<string>();
-  let forms: Array<string | undefined>;
-
-  if (typeof phrase === 'string') {
-    forms = [phrase];
-  } else {
-    // a plural set is chosen by `count`, whether or not one of its forms draws the number
-    names.add('count');
-    forms = Object.values(phrase);
-  }
-
-  for (const form of forms) {
-    for (const [, name] of form?.matchAll(/\{(?<name>\w+)\}/g) ?? []) {
-      names.add(name ?? '');
-    }
-  }
-
-  return [...names].toSorted();
-};
-
-describe.each(tables)('%s', (_table, locales) => {
-  const entries = Object.entries(locales);
-
-  // A `{name}` placeholder used to be a `${name}` the compiler checked. Nothing checks the
-  // string form, so this walks every table instead: the card passes what the English wording
-  // asks for, so a locale naming anything else throws — and only for the locale that carries
-  // it, on the one card that draws it. Naming fewer is a translation's own business: most
-  // locales of `statcard.title` have no use for the possessive `{apostrophe}`.
-  it.each(entries)('%s interpolates no value english does not supply', (_key, phrases) => {
-    const supplied = placeholdersOf(phrases.en);
-
-    for (const [locale, phrase] of Object.entries(phrases)) {
-      const unsupplied = placeholdersOf(phrase).filter((name) => !supplied.includes(name));
-      expect(unsupplied, `locale '${locale}'`).toStrictEqual([]);
-    }
-  });
-});
 
 describe.each(Object.entries(cards))('the %s card', (_card, render) => {
   // A wording can only throw in the locale that carries it, so every one is drawn.
@@ -77,14 +15,13 @@ describe.each(Object.entries(cards))('the %s card', (_card, render) => {
 });
 
 describe('the stats card', () => {
-  const titles: LocaleTable[string] = statCardLocales.title;
-  const rankTitles: LocaleTable[string] = statCardLocales.rankTitle;
+  const table: LocaleTable = statCardLocales;
 
   // A rank-only card titled with the full card's wording reads as the wrong card.
-  it.each(AVAILABLE_LOCALES.filter((locale) => locale in rankTitles))(
+  it.each(AVAILABLE_LOCALES.filter((locale) => table[locale]?.['rankTitle'] !== undefined))(
     'names the rank, not the stats, in %s',
     (locale) => {
-      expect(rankTitles[locale]).not.toBe(titles[locale]);
+      expect(table[locale]?.['rankTitle']).not.toBe(table[locale]?.['title']);
     },
   );
 });

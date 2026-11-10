@@ -98,28 +98,15 @@ type PluralForms = { other: string } & Partial<Record<Intl.LDMLPluralRule, strin
 /** One locale's wording for a key, either outright or a form per plural category. */
 type Phrase = string | PluralForms;
 
-/**
- * A card's translations: a key, then that key's wording per locale.
- *
- * `en` is required because it is what every other locale falls back to.
- */
-type LocaleTable = Record<string, { en: Phrase } & Partial<Record<Locale, Phrase>>>;
-
-/** A table whose wordings name listed locales only, which an alias or a typo would not. */
-type ListedOnly<Table> = {
-  [Key in keyof Table]: {
-    [Code in keyof Table[Key]]: Code extends Locale ? Table[Key][Code] : never;
-  };
-};
+/** One locale's wordings, by key. */
+type Wordings = Record<string, Phrase>;
 
 /**
- * Declares a card's translations, keeping every string's literal type so `localize` knows
- * which `{placeholder}` values each key needs.
+ * A card's translations: a locale, then that locale's wording per key.
  *
- * @returns The table it was given.
+ * `en` is required and declares every key, because it is what every other locale falls back to.
  */
-const defineLocales = <const Table extends LocaleTable>(table: Table & ListedOnly<Table>): Table =>
-  table;
+type LocaleTable = { en: Wordings } & Partial<Record<Locale, Wordings>>;
 
 /** The `{name}` placeholders in a phrase, as a union of their names. */
 type PlaceholderNames<Written> = Written extends `${string}{${infer Name}}${infer Rest}`
@@ -136,6 +123,43 @@ type PhraseValues<Written> =
       : Written extends Record<string, string>
         ? 'count' | PlaceholderNames<Written[keyof Written]>
         : never;
+
+/** Plural categories `Intl.PluralRules` never picks, so a form written under one is never drawn. */
+type UnknownCategories<Written> =
+  Written extends Record<string, string> ? Exclude<keyof Written, Intl.LDMLPluralRule> : never;
+
+/**
+ * A translation, or `never` when it needs a value the English wording does not supply or
+ * writes a plural form under a category no locale has.
+ */
+type Translation<English, Written> = [
+  Exclude<PhraseValues<Written>, PhraseValues<English>> | UnknownCategories<Written>,
+] extends [never]
+  ? Written
+  : never;
+
+/**
+ * A table as it may be written: listed locales only, which an alias or a typo is not, each
+ * naming only keys `en` declares and only the values its English wording supplies.
+ */
+type Checked<Table extends LocaleTable> = {
+  [Code in keyof Table]: Code extends Locale
+    ? {
+        [Key in keyof Table[Code]]: Key extends keyof Table['en']
+          ? Translation<Table['en'][Key], Table[Code][Key]>
+          : never;
+      }
+    : never;
+};
+
+/**
+ * Declares a card's translations, keeping every string's literal type so `localize` knows
+ * which `{placeholder}` values each key needs, and so a translation is checked against them.
+ *
+ * @returns The table it was given.
+ */
+const defineLocales = <const Table extends LocaleTable>(table: Table & Checked<Table>): Table =>
+  table;
 
 /** `t`'s trailing argument: absent for a wording that interpolates nothing. */
 type ValuesArg<Written> = [PhraseValues<Written>] extends [never]
@@ -204,44 +228,12 @@ const selectPlural = (
 };
 
 /**
- * Reads a wording in the locale asked for, falling back to English when that locale has
- * no entry for it.
- *
- * @returns The wording, and the locale it actually came from.
- */
-const readPhrase = (
-  phrases: LocaleTable[string],
-  key: string,
-  locale: Locale,
-): { phrase: Phrase; locale: Locale } => {
-  const written = phrases[locale];
-  if (written !== undefined) {
-    return { phrase: written, locale };
-  }
-
-  // The english wording the type requires can still be missing at runtime: a card can pass
-  // a table it built, and `tests/localize.spec.ts` covers exactly that.
-  const english = phrases[FALLBACK_LOCALE];
-  // oxlint-disable-next-line typescript/no-unnecessary-condition
-  if (english === undefined) {
-    throw new Error(`'${key}' translation not found for locale '${locale}'`);
-  }
-  return { phrase: english, locale: FALLBACK_LOCALE };
-};
-
-/**
- * Draws a key's wording: the locale's own if it has one and English otherwise, in the
- * plural form its count calls for, with its `{name}` placeholders substituted.
+ * Draws a wording in the plural form its count calls for, by the rules of the locale it came
+ * from, with its `{name}` placeholders substituted.
  *
  * @returns The wording as the card draws it.
  */
-const draw = (
-  phrases: LocaleTable[string],
-  key: string,
-  locale: Locale,
-  values: ReadValues,
-): string => {
-  const { phrase, locale: from } = readPhrase(phrases, key, locale);
+const draw = (phrase: Phrase, from: Locale, key: string, values: ReadValues): string => {
   const wording = typeof phrase === 'string' ? phrase : selectPlural(phrase, from, key, values);
 
   return interpolate(wording, key, values);
@@ -252,13 +244,14 @@ const draw = (
  * wording declares.
  */
 type Localized<Table extends LocaleTable> = {
-  [Key in keyof Table]: (...args: ValuesArg<Table[Key]['en']>) => string;
+  [Key in keyof Table['en']]: (...args: ValuesArg<Table['en'][Key]>) => string;
 };
 
 /**
  * Binds a card's translations to one locale, so a card names a wording where it draws it
  * — `t.title({ login })` — rather than naming a key. That is what lets an editor follow a
  * wording to where it is written, and why a key carries no card name in front of it.
+ * A key the locale lacks draws in English.
  *
  * @returns One function per key the table declares.
  */
@@ -266,8 +259,12 @@ const localize = <Table extends LocaleTable>(table: Table, locale?: Locale): Loc
   const asked = locale ?? FALLBACK_LOCALE;
   const wordings: Record<string, (values?: ReadValues) => string> = {};
 
-  for (const [key, phrases] of Object.entries(table)) {
-    wordings[key] = (values): string => draw(phrases, key, asked, values);
+  for (const [key, english] of Object.entries(table.en)) {
+    const written = table[asked]?.[key];
+    // a fallback is English, so English rules pick its plural form
+    const from = written === undefined ? FALLBACK_LOCALE : asked;
+    const phrase = written ?? english;
+    wordings[key] = (values): string => draw(phrase, from, key, values);
   }
 
   // A mapped type over a table known only as a type parameter needs the assertion.
@@ -275,4 +272,4 @@ const localize = <Table extends LocaleTable>(table: Table, locale?: Locale): Loc
 };
 
 export { AVAILABLE_LOCALES, defineLocales, intlTag, LOCALE_ALIASES, localize, resolveLocale };
-export type { Locale, LocaleTable, Localized, Phrase };
+export type { Locale, LocaleTable, Localized };
