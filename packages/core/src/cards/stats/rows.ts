@@ -8,7 +8,8 @@ import { formatDecimal } from '../../common/fmt.ts';
 import { icons } from '../../common/icons.ts';
 import type { commonLocales } from '../../common/locales.ts';
 import type { Locale, Localized } from '../../common/localize.ts';
-import { buildSearchFilter, clampValue } from '../../common/ops.ts';
+import { buildSearchFilter } from '../../common/ops.ts';
+import { clampPrecision } from '../../common/render.ts';
 import type { StatsData } from '../../fetchers/stats/types.ts';
 import type { Child } from '../../markup/index.ts';
 
@@ -63,6 +64,22 @@ const getTotalCommitsRangeLabel = (
 };
 
 /**
+ * How the card writes the merged-PR share, decided once from its options.
+ *
+ * @returns The share to `number_precision` decimals, clamped to 0–2, else 2.
+ */
+const percentFormatter = ({
+  number_precision,
+  locale,
+}: {
+  number_precision?: number | undefined;
+  locale?: Locale | undefined;
+}): ((value: number) => string) => {
+  const digits = clampPrecision(number_precision) ?? 2;
+  return (value) => formatDecimal(value, locale, digits);
+};
+
+/**
  * Every row these options draw, in drawing order, before `hide` takes any away.
  *
  * @returns The rows, keyed by stat.
@@ -73,14 +90,12 @@ const statRows = (
     show,
     scope,
     include_all_commits,
-    number_precision,
-    locale,
+    formatPercent,
   }: {
     show: Array<string>;
     scope: Array<string>;
     include_all_commits: boolean;
-    number_precision: number | undefined;
-    locale: Locale | undefined;
+    formatPercent: (value: number) => string;
   },
   t: Localized<typeof statCardLocales>,
   commonT: Localized<typeof commonLocales>,
@@ -176,13 +191,7 @@ const statRows = (
     STATS['prs_merged_percentage'] = {
       icon: icons.prs_merged_percentage,
       label: t.prsMergedPercentage(),
-      value: formatDecimal(
-        mergedPRsPercentage,
-        locale,
-        number_precision !== undefined && Number.isFinite(number_precision)
-          ? clampValue(number_precision, 0, 2)
-          : 2,
-      ),
+      value: formatPercent(mergedPRsPercentage),
       id: 'prs_merged_percentage',
       unitSymbol: '%',
     };
@@ -287,4 +296,4 @@ const statRows = (
   return STATS;
 };
 
-export { getTotalCommitsRangeLabel, HIDE_STATS, SHOW_STATS, statRows };
+export { getTotalCommitsRangeLabel, HIDE_STATS, percentFormatter, SHOW_STATS, statRows };

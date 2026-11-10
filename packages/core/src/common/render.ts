@@ -213,6 +213,18 @@ const iconWithLabel = (
 const NUMBER_FORMATS = ['short', 'long'] as const;
 type NumberFormat = (typeof NUMBER_FORMATS)[number];
 
+/**
+ * The decimals `number_precision` asks for, clamped to 0–2.
+ *
+ * @returns The decimals, or `undefined` when none, or no finite number, was given.
+ */
+const clampPrecision = (number_precision: number | undefined): number | undefined => {
+  if (number_precision === undefined || !Number.isFinite(number_precision)) {
+    return undefined;
+  }
+  return clampValue(number_precision, 0, 2);
+};
+
 /** The options that decide how a card writes a count. */
 interface CountOptions {
   number_format?: NumberFormat | undefined;
@@ -235,10 +247,7 @@ const countFormatter = ({
     return String;
   }
 
-  const precision =
-    number_precision !== undefined && Number.isFinite(number_precision)
-      ? clampValue(number_precision, 0, 2)
-      : undefined;
+  const precision = clampPrecision(number_precision);
   return (value) => String(kFormatter(value, locale, precision));
 };
 
@@ -440,6 +449,7 @@ const compactColumnWidth = (labels: Array<string>): number =>
   );
 
 export {
+  clampPrecision,
   compactColumnWidth,
   countFormatter,
   NUMBER_FORMATS,

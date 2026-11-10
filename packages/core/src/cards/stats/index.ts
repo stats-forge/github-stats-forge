@@ -23,7 +23,13 @@ import { el } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { statCardLocales } from './locales.ts';
-import { getTotalCommitsRangeLabel, HIDE_STATS, SHOW_STATS, statRows } from './rows.ts';
+import {
+  getTotalCommitsRangeLabel,
+  HIDE_STATS,
+  percentFormatter,
+  SHOW_STATS,
+  statRows,
+} from './rows.ts';
 import { RANK_RING, getStyles } from './styles.ts';
 
 const CARD_MIN_WIDTH = 287;
@@ -94,7 +100,6 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     title,
     border_radius,
     scope = [],
-    number_precision,
     locale,
     disable_animations = false,
     rank_icon = 'default',
@@ -106,14 +111,10 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const t = localize(statCardLocales, locale);
   const formatCount = countFormatter(options);
+  const formatPercent = percentFormatter(options);
   const commonT = localize(commonLocales, locale);
 
-  const STATS = statRows(
-    stats,
-    { show, scope, include_all_commits, number_precision, locale },
-    t,
-    commonT,
-  );
+  const STATS = statRows(stats, { show, scope, include_all_commits, formatPercent }, t, commonT);
 
   // filter out hidden stats defined by user
   const visibleStats = Object.entries(STATS).filter(([key]) => !hide.includes(key));
