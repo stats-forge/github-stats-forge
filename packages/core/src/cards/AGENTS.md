@@ -11,6 +11,8 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
   (`CardError`, `REJECTION_MESSAGES`) is English on purpose, since it can precede the locale's parse.
 - **A new key is written in `en` only** ([#49]); a locale falls back to it, which beats a machine
   translation.
+- **`tests/locales.spec.ts` snapshots the keys each locale translates**: a deleted translation falls
+  back to `en` silently, so read that snapshot's diff before `-u`. A new table joins its list.
 - **A translated card takes `locale: Locale`** in its options, its schema and the catalog, together.
 - **Draw through `localize`, naming each wording where it is drawn** ([#65]):
   `const t = localize(statCardLocales, locale)`, then `t.totalStars()`. Keys are camelCase and carry
