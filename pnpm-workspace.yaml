@@ -35,3 +35,14 @@ trustPolicy: no-downgrade
 # Fail on unmet peers and on a Node version outside `engines`, instead of warning
 strictPeerDependencies: true
 engineStrict: true
+
+# Its types-only cap lags Node's; webawesome's server rendering, the one user, never runs here.
+peerDependencyRules:
+  allowedVersions:
+    '@lit-labs/ssr>@types/node': '26'
+
+# An update re-resolves only what it bumps, leaving older copies another range would share.
+autoDedupe: true
+# Without it, a non-frozen install cannot tell the lockfile was deduped, and resolves it again.
+lockfile:
+  includeResolutionSettings: true
