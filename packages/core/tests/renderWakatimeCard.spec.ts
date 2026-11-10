@@ -188,7 +188,7 @@ describe('Test Render WakaTime Card', () => {
   });
 
   it('should render translations', () => {
-    draw(renderWakatimeCard({}, { locale: 'cn' }));
+    draw(renderWakatimeCard({}, { locale: 'zh-cn' }));
     expect(document.querySelector('.header')).toHaveTextContent(exactly('WakaTime 周统计'));
     expect(document.querySelector('text.stat.bold')).toHaveTextContent(
       exactly('WakaTime 用户个人资料未公开'),

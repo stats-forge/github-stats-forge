@@ -60,7 +60,7 @@ describe('card accessibility', () => {
 describe('card accessibility and locale', () => {
   it('keeps the repo description free of untranslated English', () => {
     // The card honours `locale`, so its label must not introduce words the card cannot translate.
-    draw(renderRepoCard(repoData, { locale: 'cn' }));
+    draw(renderRepoCard(repoData, { locale: 'zh-cn' }));
 
     const desc = document.querySelector('desc#desc-id')?.textContent ?? '';
     expect(desc).not.toMatch(/\b(?:Stars|Forks|Language)\b/);
