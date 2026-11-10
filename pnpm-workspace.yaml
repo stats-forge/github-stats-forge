@@ -40,3 +40,6 @@ engineStrict: true
 peerDependencyRules:
   allowedVersions:
     '@lit-labs/ssr>@types/node': '26'
+
+# An update re-resolves only what it bumps, leaving older copies another range would share.
+autoDedupe: true
