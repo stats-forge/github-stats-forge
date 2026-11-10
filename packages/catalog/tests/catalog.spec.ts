@@ -98,6 +98,13 @@ describe('the catalog', () => {
     expect(empty).toStrictEqual([]);
   });
 
+  it('offers the locales as a list, since a code is hard to guess', () => {
+    const locale = cardById('stats').options.find((option) => option.name === 'locale');
+
+    expect(locale?.kind).toBe('choice');
+    expect(locale?.choices).toContain('pt-br');
+  });
+
   it('steps a number by the kind alone, so neither form decides for itself', () => {
     const numeric = cards
       .flatMap((card) => card.options)

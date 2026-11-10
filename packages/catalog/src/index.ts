@@ -50,7 +50,7 @@ const NUMERIC_STEP: Partial<Record<OptionKind, 1 | 'any'>> = { integer: 1, numbe
  */
 export const numericStep = (kind: OptionKind): 1 | 'any' | undefined => NUMERIC_STEP[kind];
 
-/** One param of one card: its `kind` and `choices` are core's, the prose the catalog's. */
+/** One param of one card: its `kind`, `choices` and `aliases` are core's, the prose the catalog's. */
 export interface CardField extends ParamShape {
   /** Query param the answer is written to. */
   name: string;
@@ -132,7 +132,6 @@ const LOCALE_OPTION: OptionSpec = {
   name: 'locale',
   label: 'Locale',
   group: 'text',
-  hint: 'Two-letter code, e.g. es',
 };
 
 const CARDS: ReadonlyArray<CardSpec> = [

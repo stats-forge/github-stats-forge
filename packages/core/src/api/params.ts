@@ -18,7 +18,7 @@ import {
 } from '../common/constants.ts';
 import { getWidestRange, parseRangeDate } from '../common/date.ts';
 import { CardError } from '../common/error.ts';
-import { isLocaleAvailable } from '../common/localize.ts';
+import { AVAILABLE_LOCALES, isLocaleAvailable, LOCALE_ALIASES } from '../common/localize.ts';
 import { parseArray } from '../common/ops.ts';
 import { NUMBER_FORMATS } from '../common/render.ts';
 import { THEME_PARAM_VALUES } from '../themes/index.ts';
@@ -31,6 +31,8 @@ interface ParamShape {
   kind: ParamKind;
   /** The accepted values, where they are a fixed set. */
   choices?: ReadonlyArray<string>;
+  /** Values accepted beside the choices, each mapped to the choice it reads as. */
+  aliases?: ReadonlyMap<string, string>;
 }
 
 const SHAPES = new WeakMap<z.core.$ZodType, ParamShape>();
@@ -308,12 +310,13 @@ const safeListParam: z.ZodMiniType<Array<string>, string | undefined> = kinded(
 );
 
 /**
- * A locale the cards have translations for.
- * One wording for every endpoint:
- * the message names the param, as the number and color rejections do.
+ * A locale the cards have translations for, offering the listed codes; an alias is
+ * accepted, not offered. One wording for every endpoint:
+ * the message names the param, as the number and color rejections do. A form gets a copy of the
+ * aliases, so none can change what the api accepts.
  */
 const localeParam = kinded(
-  'text',
+  { kind: 'choice', choices: AVAILABLE_LOCALES, aliases: new Map(LOCALE_ALIASES) },
   z.pipe(
     rawParam.check(rejects('locale', isLocaleAvailable)),
     z.transform((value) => value?.toLowerCase()),

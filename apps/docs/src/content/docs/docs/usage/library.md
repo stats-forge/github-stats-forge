@@ -124,7 +124,8 @@ const card = findCard('stats');
 
 for (const option of card.options) {
   // option.name is the query param, option.label what to call it,
-  // option.kind which control to draw, option.choices what it accepts
+  // option.kind which control to draw, option.choices what it offers,
+  // option.aliases any other spelling it accepts, by the choice it reads as
 }
 ```
 
