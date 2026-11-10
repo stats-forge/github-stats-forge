@@ -267,7 +267,10 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       el(
         'g',
         { class: 'rank-text' },
-        rankIcon(rank_icon, rank.level, formatDecimal(rank.percentile, locale, 1)),
+        rankIcon(rank_icon, rank.level, {
+          header: t.percentileHeader(),
+          value: formatDecimal(rank.percentile, locale, 1),
+        }),
       ),
       SPARKS.map(([dx, dy, delay]) =>
         el('circle', {

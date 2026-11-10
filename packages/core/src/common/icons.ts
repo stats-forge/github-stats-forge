@@ -127,8 +127,8 @@ const RANK_TEXT = {
 const rankIcon = (
   kind: string,
   rankLevel: string,
-  /** The percentile as the locale writes it, without its `%`. */
-  percentile: string,
+  /** The percentile ring's two lines, in the card's locale; `value` is written without its `%`. */
+  percentile: { header: string; value: string },
 ): Child => {
   switch (kind) {
     case 'github':
@@ -160,7 +160,7 @@ const rankIcon = (
             'data-testid': 'percentile-top-header',
             class: 'rank-percentile-header',
           },
-          'Top',
+          percentile.header,
         ),
         el(
           'text',
@@ -170,7 +170,7 @@ const rankIcon = (
             'data-testid': 'percentile-rank-value',
             class: 'rank-percentile-text',
           },
-          `${percentile}%`,
+          `${percentile.value}%`,
         ),
       ];
 

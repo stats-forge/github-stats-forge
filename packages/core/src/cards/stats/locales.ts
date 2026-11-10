@@ -26,6 +26,8 @@ const statCardLocales = defineLocales({
     contributions: 'Total Contributions',
     prsMerged: 'Total PRs Merged',
     prsMergedPercentage: 'Merged PRs Percentage',
+    // Drawn above the percentile on the rank ring, as in "Top 12.5%".
+    percentileHeader: 'Top',
   },
   ar: {
     title: '{name} إحصائيات جيت هاب',
