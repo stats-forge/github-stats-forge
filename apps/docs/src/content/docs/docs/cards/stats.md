@@ -4,7 +4,8 @@ description: Commits, pull requests, issues, reviews, stars and a rank, for one 
 ---
 
 The card counts five things by default — stars earned, commits, pull requests, issues and the
-repositories contributed to — and grades them into a rank from `C` to `S`.
+repositories contributed to — and grades the account into a [rank](#how-the-rank-is-calculated)
+from `C` to `S`.
 Anything else it can show is opt-in through [`show`](#showing-more-stats).
 
 ![The stats card for a GitHub user](/cards/stats.svg)
@@ -111,3 +112,20 @@ Either may be left out: an open end is filled with the widest range GitHub will 
 
 `include_all_commits=true` overrides the range for the commit count alone —
 it asks for every commit the account has ever made.
+
+## How the rank is calculated
+
+The rank weighs these numbers, whatever the card shows:
+
+| Number        | Median                                  | Weight |
+| ------------- | --------------------------------------- | ------ |
+| Commits       | 250, or 1000 with `include_all_commits` | 2      |
+| Pull requests | 50                                      | 3      |
+| Issues        | 25                                      | 1      |
+| Reviews       | 2                                       | 1      |
+| Stars         | 50                                      | 4      |
+| Followers     | 10                                      | 1      |
+
+Each number scores 0.5 at its median and nears 1 above it. The weighted average gives the
+percentile, and the percentile the level: `S` is the top 1%, then `A+` 12.5%, `A` 25%, `A-` 37.5%,
+`B+` 50%, `B` 62.5%, `B-` 75%, `C+` 87.5%, and `C` the rest.
