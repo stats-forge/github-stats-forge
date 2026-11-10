@@ -69,13 +69,16 @@ const LOCALE_ALIASES = new Map([
 ]);
 
 /**
- * Checks whether the locale is available or not.
+ * The listed locale a requested code draws, matched in any case.
  *
- * @returns Boolean specifying whether the locale is available or not.
+ * @returns The code as {@link AVAILABLE_LOCALES} spells it, or `undefined` for one it lacks.
  */
-const isLocaleAvailable = (locale: string): boolean => {
+const resolveLocale = (locale: string): string | undefined => {
   const lower = locale.toLowerCase();
-  return (AVAILABLE_LOCALES as ReadonlyArray<string>).includes(lower) || LOCALE_ALIASES.has(lower);
+  if ((AVAILABLE_LOCALES as ReadonlyArray<string>).includes(lower)) {
+    return lower;
+  }
+  return LOCALE_ALIASES.get(lower);
 };
 
 /**
@@ -246,7 +249,7 @@ type Localized<Table extends LocaleTable> = {
  * @returns One function per key the table declares.
  */
 const localize = <Table extends LocaleTable>(table: Table, locale?: string): Localized<Table> => {
-  const asked = locale ? (LOCALE_ALIASES.get(locale) ?? locale) : FALLBACK_LOCALE;
+  const asked = locale || FALLBACK_LOCALE;
   const wordings: Record<string, (values?: ReadValues) => string> = {};
 
   for (const [key, phrases] of Object.entries(table)) {
@@ -257,5 +260,5 @@ const localize = <Table extends LocaleTable>(table: Table, locale?: string): Loc
   return wordings as Localized<Table>;
 };
 
-export { AVAILABLE_LOCALES, defineLocales, isLocaleAvailable, LOCALE_ALIASES, localize };
+export { AVAILABLE_LOCALES, defineLocales, LOCALE_ALIASES, localize, resolveLocale };
 export type { LocaleTable, Localized, Phrase };
