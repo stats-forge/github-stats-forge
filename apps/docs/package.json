@@ -21,10 +21,10 @@
     "astro": "7.4.7"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "7.3.4",
+    "@astrojs/markdown-remark": "7.3.6",
     "@awesome.me/webawesome": "3.14.0",
     "@marcalexiei/oxfmt-config": "2.0.1",
-    "@playwright/test": "1.64.1",
+    "@playwright/test": "1.65.0",
     "@stats-forge/github-stats-forge-catalog": "workspace:^",
     "@stats-forge/github-stats-forge-core": "workspace:^",
     "@types/node": "26.6.6",
