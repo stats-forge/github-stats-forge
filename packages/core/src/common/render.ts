@@ -211,28 +211,35 @@ const iconWithLabel = (
 
 /** How a count is written: `short` abbreviates it (`1.5k`), `long` writes it out. */
 const NUMBER_FORMATS = ['short', 'long'] as const;
+type NumberFormat = (typeof NUMBER_FORMATS)[number];
+
+/** The options that decide how a card writes a count. */
+interface CountOptions {
+  number_format?: NumberFormat | undefined;
+  /** Decimals kept when abbreviating, clamped to 0–2; the abbreviation's own default when absent. */
+  number_precision?: number | undefined;
+  locale?: Locale | undefined;
+}
 
 /**
- * A count as a card draws it.
+ * How a card writes its counts, decided once from its options.
  *
- * @returns The count, abbreviated unless `numberFormat` is `long`, to 0–2 decimals.
+ * @returns The count as drawn: abbreviated unless `number_format` is `long`.
  */
-const formatCount = (
-  value: number,
-  numberFormat: string,
-  locale: Locale | undefined,
-  /** Decimals kept when abbreviating, clamped to 0–2; the abbreviation's own default when absent. */
-  numberPrecision?: number,
-): string => {
-  if (numberFormat.toLowerCase() === 'long') {
-    return String(value);
+const countFormatter = ({
+  number_format = 'short',
+  number_precision,
+  locale,
+}: CountOptions): ((value: number) => string) => {
+  if (number_format === 'long') {
+    return String;
   }
 
-  if (numberPrecision === undefined) {
-    return String(kFormatter(value, locale));
-  }
-
-  return String(kFormatter(value, locale, clampValue(numberPrecision, 0, 2)));
+  const precision =
+    number_precision !== undefined && Number.isFinite(number_precision)
+      ? clampValue(number_precision, 0, 2)
+      : undefined;
+  return (value) => String(kFormatter(value, locale, precision));
 };
 
 /**
@@ -255,9 +262,7 @@ const createTextNode = ({
   valueAnchorX,
   bold,
   labelBold = bold,
-  numberFormat,
-  numberPrecision,
-  locale,
+  formatValue,
   link,
   labelXOffset = 25,
 }: {
@@ -272,9 +277,8 @@ const createTextNode = ({
   valueAnchorX?: number | undefined;
   bold: boolean;
   labelBold?: boolean;
-  numberFormat: string;
-  numberPrecision?: number | undefined;
-  locale: Locale | undefined;
+  /** Writes a numeric value; a string value is drawn as given. */
+  formatValue: (value: number) => string;
   link?: string | undefined;
   labelXOffset?: number;
 }): MarkupElement => {
@@ -288,15 +292,7 @@ const createTextNode = ({
     throw new Error(`Invalid valueAnchorX: "${valueAnchorX}"`);
   }
 
-  const precision =
-    numberPrecision !== undefined && Number.isFinite(numberPrecision)
-      ? clampValue(numberPrecision, 0, 2)
-      : undefined;
-  // `long` format and the percentage stat keep the raw value; everything else
-  // (always a number here) is abbreviated via kFormatter.
-  const rawValue = numberFormat.toLowerCase() === 'long' || id === 'prs_merged_percentage';
-  const kValue =
-    rawValue || typeof value !== 'number' ? value : kFormatter(value, locale, precision);
+  const drawnValue = typeof value === 'number' ? formatValue(value) : value;
 
   const staggerDelay = 120 + index * 40;
   const boldClass = bold ? 'bold' : 'not_bold';
@@ -332,7 +328,7 @@ const createTextNode = ({
         y: 12.5,
         'data-testid': id,
       },
-      `${String(kValue)}${unit}`,
+      `${drawnValue}${unit}`,
     ),
   ];
 
@@ -445,7 +441,7 @@ const compactColumnWidth = (labels: Array<string>): number =>
 
 export {
   compactColumnWidth,
-  formatCount,
+  countFormatter,
   NUMBER_FORMATS,
   renderError,
   createLanguageNode,
@@ -455,3 +451,4 @@ export {
   iconWithLabel,
   flexLayout,
 };
+export type { NumberFormat };

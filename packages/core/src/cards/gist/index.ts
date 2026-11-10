@@ -1,13 +1,17 @@
 import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
-import { kFormatter } from '../../common/fmt.ts';
 import { icons } from '../../common/icons.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
 import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
-import { createLanguageNode, flexLayout, iconWithLabel } from '../../common/render.ts';
+import {
+  countFormatter,
+  createLanguageNode,
+  flexLayout,
+  iconWithLabel,
+} from '../../common/render.ts';
 import { wrapTextMultiline, measureText } from '../../common/text.ts';
 import type { GistData } from '../../fetchers/gist/types.ts';
 import type { CssChild } from '../../markup/index.ts';
@@ -70,8 +74,10 @@ const renderGistCard = (gistData: GistData, options: CardOptions<GistCardOptions
     (descriptionLines > 1 ? 55 : 45) +
     descriptionLines * lineHeight;
 
-  const totalStars = kFormatter(starsCount, locale);
-  const totalForks = kFormatter(forksCount, locale);
+  const formatCount = countFormatter({ locale });
+  // a zero count is a number, which `iconWithLabel` leaves undrawn
+  const totalStars = starsCount > 0 ? formatCount(starsCount) : 0;
+  const totalForks = forksCount > 0 ? formatCount(forksCount) : 0;
   const svgStars = iconWithLabel(icons.star, totalStars, 'starsCount', ICON_SIZE);
   const svgForks = iconWithLabel(icons.fork, totalForks, 'forksCount', ICON_SIZE);
 

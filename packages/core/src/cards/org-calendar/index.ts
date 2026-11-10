@@ -6,7 +6,8 @@ import { toSearchDate } from '../../common/date.ts';
 import { formatDecimal } from '../../common/fmt.ts';
 import type { Locale, Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
-import { NUMBER_FORMATS, formatCount } from '../../common/render.ts';
+import { NUMBER_FORMATS, countFormatter } from '../../common/render.ts';
+import type { NumberFormat } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { OrgCalendarData } from '../../fetchers/org-calendar/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
@@ -34,7 +35,7 @@ interface OrgCalendarCardOptions extends CommonCardOptions {
   card_width: number;
   title: string;
   disable_animations: boolean;
-  number_format: string;
+  number_format: NumberFormat;
   number_precision: number;
 }
 
@@ -87,16 +88,11 @@ const countWidth = (text: string): number =>
  *
  * @returns The count as text.
  */
-const weekCount = (
-  count: number,
-  numberFormat: string,
-  locale: Locale | undefined,
-  numberPrecision: number | undefined,
-): string => {
+const weekCount = (count: number, formatCount: (value: number) => string): string => {
   if (count < 1000) {
     return String(count);
   }
-  return formatCount(count, numberFormat, locale, numberPrecision);
+  return formatCount(count);
 };
 
 /**
@@ -131,18 +127,14 @@ const compactCount = (count: number, locale: Locale | undefined): string => {
 const countLabel = (
   count: number,
   room: number,
-  numberFormat: string,
-  locale: Locale | undefined,
-  numberPrecision: number | undefined,
+  formatCount: (value: number) => string,
+  formatCompact: (value: number) => string,
   atLeast: (count: string) => string,
 ): string => {
-  const labels = [
-    weekCount(count, numberFormat, locale, numberPrecision),
-    compactCount(count, locale),
-  ];
+  const labels = [weekCount(count, formatCount), formatCompact(count)];
   // the digits, not `Math.log10`, which can land a hair under a power of ten
   for (let exponent = String(Math.trunc(count)).length - 1; exponent > 0; exponent -= 1) {
-    labels.push(atLeast(compactCount(10 ** exponent, locale)));
+    labels.push(atLeast(formatCompact(10 ** exponent)));
   }
   return labels.find((label) => countWidth(label) <= room) ?? '';
 };
@@ -163,14 +155,14 @@ const renderCard = (
     card_width,
     title,
     border_radius,
-    number_format = 'short',
-    number_precision,
     locale,
     disable_animations = false,
   } = options;
 
   const { lightColors, darkColors } = getLightDarkColors(options);
   const t = localize(orgCalendarCardLocales, locale);
+  const formatCount = countFormatter(options);
+  const formatCompact = (value: number): string => compactCount(value, locale);
 
   const { calendar } = CARD_STYLE;
 
@@ -183,8 +175,8 @@ const renderCard = (
     issues_opened: t.issuesOpened,
     issues_closed: t.issuesClosed,
   }[count]({ count: total });
-  const totalText = formatCount(total, number_format, locale, number_precision);
-  const averageText = formatCount(average, number_format, locale, number_precision);
+  const totalText = formatCount(total);
+  const averageText = formatCount(average);
   const summary = t.summary({ counted, average: averageText });
 
   const totalWidth = measureText(totalText, CARD_STYLE.fontSize.display) * CARD_STYLE.semiboldInk;
@@ -249,13 +241,8 @@ const renderCard = (
     const { fill, opacity } = levelFill(level, lightColors);
     const x = CARD_STYLE.padding.x + index * (cellWidth + calendar.cellGap);
     const delay = `animation-delay: ${String(index * 10)}ms`;
-    const label = countLabel(
-      week.count,
-      countRoom,
-      number_format,
-      locale,
-      number_precision,
-      (shown) => t.atLeast({ shown }),
+    const label = countLabel(week.count, countRoom, formatCount, formatCompact, (shown) =>
+      t.atLeast({ shown }),
     );
     return [
       el('rect', {
@@ -355,9 +342,7 @@ const renderCard = (
       average: averageText,
       from: fromText,
       to: toText,
-      weeks: weeks
-        .map((week) => weekCount(week.count, number_format, locale, number_precision))
-        .join(', '),
+      weeks: weeks.map((week) => weekCount(week.count, formatCount)).join(', '),
     });
   };
 

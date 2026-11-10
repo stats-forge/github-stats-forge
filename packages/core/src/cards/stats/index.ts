@@ -8,7 +8,14 @@ import { commonLocales } from '../../common/locales.ts';
 import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue } from '../../common/ops.ts';
-import { NUMBER_FORMATS, createTextNode, flexLayout, glowingCircle } from '../../common/render.ts';
+import {
+  NUMBER_FORMATS,
+  countFormatter,
+  createTextNode,
+  flexLayout,
+  glowingCircle,
+} from '../../common/render.ts';
+import type { NumberFormat } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { StatsData } from '../../fetchers/stats/types.ts';
 import type { CssChild } from '../../markup/index.ts';
@@ -61,7 +68,7 @@ interface StatCardOptions extends CommonCardOptions {
   include_all_commits: boolean;
   title: string;
   disable_animations: boolean;
-  number_format: string;
+  number_format: NumberFormat;
   number_precision: number;
   rank_icon: RankIcon;
   show: Array<string>;
@@ -86,7 +93,6 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     include_all_commits = false,
     title,
     border_radius,
-    number_format = 'short',
     scope = [],
     number_precision,
     locale,
@@ -99,6 +105,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
 
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const t = localize(statCardLocales, locale);
+  const formatCount = countFormatter(options);
   const commonT = localize(commonLocales, locale);
 
   const STATS = statRows(
@@ -180,9 +187,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       valueAnchorX,
       bold: true,
       labelBold: false,
-      numberFormat: number_format,
-      numberPrecision: number_precision,
-      locale,
+      formatValue: formatCount,
       link: stat.link,
     }),
   );

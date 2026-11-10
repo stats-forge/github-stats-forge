@@ -2,11 +2,10 @@ import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand
 import { Card, titleFits } from '../../common/Card.ts';
 import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
 import { formatYears } from '../../common/date.ts';
-import { kFormatter } from '../../common/fmt.ts';
 import type { Locale, Localized } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { clampValue } from '../../common/ops.ts';
-import { createProgressNode } from '../../common/render.ts';
+import { countFormatter, createProgressNode } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { ContributedRepo, ContributedToData } from '../../fetchers/contributed-to/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
@@ -136,7 +135,7 @@ const createRepoRow = ({
   nameWidth,
   contentWidth,
   rowHeight,
-  locale,
+  formatCount,
 }: {
   repo: ContributedRepo;
   index: number;
@@ -146,7 +145,7 @@ const createRepoRow = ({
   nameWidth: number;
   contentWidth: number;
   rowHeight: number;
-  locale: Locale | undefined;
+  formatCount: (value: number) => string;
 }): Child =>
   el(
     'g',
@@ -176,7 +175,7 @@ const createRepoRow = ({
         y: 0,
         'text-anchor': 'end',
       },
-      kFormatter(repo.contributions, locale),
+      formatCount(repo.contributions),
     ),
     years.length > 0 && createYearStrip(repo.years, years, nameWidth),
   );
@@ -250,6 +249,7 @@ const renderContributedToCard = (
   // the count is a share of the busiest repository, so the first bar is always full
   const maxContributions = Math.max(...repos.map((repo) => repo.contributions), 1);
 
+  const formatCount = countFormatter({ locale });
   const rows = repos.map((repo, index) =>
     createRepoRow({
       repo,
@@ -259,7 +259,7 @@ const renderContributedToCard = (
       nameWidth,
       contentWidth,
       rowHeight,
-      locale,
+      formatCount,
     }),
   );
 

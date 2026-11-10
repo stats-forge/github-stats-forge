@@ -7,11 +7,12 @@ import {
   createLanguageNode,
   createProgressNode,
   createTextNode,
-  formatCount,
+  countFormatter,
   glowingCircle,
   iconWithLabel,
   renderError,
 } from '../src/common/render.ts';
+import type { NumberFormat } from '../src/common/render.ts';
 import { splitWrappedText, wrapTextMultiline } from '../src/common/text.ts';
 import { el, renderMarkup } from '../src/markup/index.ts';
 import { themes } from '../src/themes/index.ts';
@@ -211,22 +212,29 @@ describe(renderError, () => {
   });
 });
 
-describe(formatCount, () => {
-  it.each([
+describe(countFormatter, () => {
+  it.each<{ format: NumberFormat; precision: number | undefined; written: string }>([
     { format: 'short', precision: undefined, written: '1.2k' },
     { format: 'short', precision: 2, written: '1.23k' },
     { format: 'short', precision: 5, written: '1.23k' },
     { format: 'short', precision: -1, written: '1k' },
-    { format: 'LONG', precision: 2, written: '1234' },
+    // a precision that is no number keeps the abbreviation's own default
+    { format: 'short', precision: Number.NaN, written: '1.2k' },
+    { format: 'long', precision: 2, written: '1234' },
   ])(
     'writes 1234 as $written for $format with $precision decimals',
     ({ format, precision, written }) => {
-      expect(formatCount(1234, format, 'en', precision)).toBe(written);
+      const formatCount = countFormatter({ number_format: format, number_precision: precision });
+      expect(formatCount(1234)).toBe(written);
     },
   );
 
+  it('abbreviates when no format is asked for', () => {
+    expect(countFormatter({})(1234)).toBe('1.2k');
+  });
+
   it("writes an abbreviation's decimal as the locale does", () => {
-    expect(formatCount(1234, 'short', 'de')).toBe('1,2k');
+    expect(countFormatter({ locale: 'de' })(1234)).toBe('1,2k');
   });
 });
 
@@ -240,8 +248,7 @@ describe('the node builders', () => {
     index: 0,
     showIcons: false,
     bold: false,
-    numberFormat: 'short',
-    locale: undefined,
+    formatValue: String,
   };
 
   // each value lands in an attribute, so anything else would be written into the SVG as is

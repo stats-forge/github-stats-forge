@@ -11,8 +11,9 @@ import {
   createProgressNode,
   createTextNode,
   flexLayout,
-  formatCount,
+  countFormatter,
 } from '../../common/render.ts';
+import type { NumberFormat } from '../../common/render.ts';
 import { measureText } from '../../common/text.ts';
 import type { OrgActivityData } from '../../fetchers/org-activity/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
@@ -52,7 +53,7 @@ interface OrgActivityCardOptions extends CommonCardOptions {
   card_width: number;
   title: string;
   disable_animations: boolean;
-  number_format: string;
+  number_format: NumberFormat;
   number_precision: number;
 }
 
@@ -183,8 +184,6 @@ const renderCard = (
     card_width,
     title,
     border_radius,
-    number_format = 'short',
-    number_precision,
     locale,
     disable_animations = false,
   } = options;
@@ -195,6 +194,7 @@ const renderCard = (
   const shows = (stat: ShowStat): boolean => show.includes(stat);
 
   const t = localize(orgActivityCardLocales, locale);
+  const formatCount = countFormatter(options);
 
   const STATS: Partial<Record<StatId, StatItem>> = {
     prs_opened: {
@@ -274,13 +274,11 @@ const renderCard = (
       rows.push({ stat });
     } else if (!paired.has(flow[2])) {
       paired.add(flow[2]);
-      const count = (value: number): string =>
-        formatCount(value, number_format, locale, number_precision);
       rows.push({
         flow: {
           icon: done.icon,
           label: flowLabels[flow[2]],
-          value: flowWording[flow[2]](count(opened.value), count(done.value)),
+          value: flowWording[flow[2]](formatCount(opened.value), formatCount(done.value)),
           id: flow[2],
           progress: keepingUp(opened.value, done.value),
         },
@@ -333,9 +331,7 @@ const renderCard = (
       valueAnchorX,
       bold: true,
       labelBold: false,
-      numberFormat: number_format,
-      numberPrecision: number_precision,
-      locale,
+      formatValue: formatCount,
     });
     if (!('flow' in row)) {
       return text;

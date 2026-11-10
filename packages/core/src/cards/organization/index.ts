@@ -6,7 +6,8 @@ import { icons } from '../../common/icons.ts';
 import type { Locale } from '../../common/localize.ts';
 import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
-import { createTextNode, flexLayout, formatCount, NUMBER_FORMATS } from '../../common/render.ts';
+import { countFormatter, createTextNode, flexLayout, NUMBER_FORMATS } from '../../common/render.ts';
+import type { NumberFormat } from '../../common/render.ts';
 import { measureText, wrapTextMultiline } from '../../common/text.ts';
 import type { OrganizationData } from '../../fetchers/organization/types.ts';
 import type { Child, CssChild } from '../../markup/index.ts';
@@ -51,7 +52,7 @@ interface OrgCardOptions extends CommonCardOptions {
   card_width: number;
   title: string;
   disable_animations: boolean;
-  number_format: string;
+  number_format: NumberFormat;
   number_precision: number;
 }
 
@@ -122,8 +123,6 @@ const renderCard = (
     card_width,
     title,
     border_radius,
-    number_format = 'short',
-    number_precision,
     locale,
     disable_animations = false,
   } = options;
@@ -135,6 +134,7 @@ const renderCard = (
 
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const t = localize(orgCardLocales, locale);
+  const formatCount = countFormatter(options);
 
   /**
    * A total the walk may have stopped short of reads as a lower bound.
@@ -146,7 +146,7 @@ const renderCard = (
       return value;
     }
 
-    return `${formatCount(value, number_format, locale, number_precision)}+`;
+    return `${formatCount(value)}+`;
   };
 
   const STATS: Partial<Record<StatId, StatItem>> = {
@@ -284,9 +284,7 @@ const renderCard = (
       valueAnchorX,
       bold: true,
       labelBold: false,
-      numberFormat: number_format,
-      numberPrecision: number_precision,
-      locale,
+      formatValue: formatCount,
     }),
   );
 

@@ -30,6 +30,8 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
   `Intl.PluralRules` for the locale the wording came from, and **a whole phrase is one key**, never
   a `label: value` assembled in the card. The parenthesised year is the exception: leave it until
   the parenthetical has its own translated key, or every locale regresses to English.
+- **A card writes its counts through one `countFormatter(options)`**, built beside `localize` and
+  handed down, `createTextNode`'s `formatValue` included, never the options that built it.
 - **The error card's report line sits under the message, measured not to fit beside the title**
   ([#58]); re-measure in a canvas before moving it. It is `data-testid="report"`, drawn when the
   failure's `CardError.reportable` is on, which a `not_found` never is.
