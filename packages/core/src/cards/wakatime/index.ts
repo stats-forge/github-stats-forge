@@ -62,25 +62,23 @@ interface WakaTimeOptions extends CommonCardOptions {
 const noCodingActivityNode = ({ text }: { text: string }): MarkupElement =>
   el('text', { x: CARD_STYLE.padding.x, y: 11, class: 'stat bold' }, text);
 
+/** Writes a language's value. */
+type LangValueFormatter = (lang: WakaTimeLang) => string;
+
 /**
- * Format language value.
+ * Builds the card's value writer once, from its `value_format` and locale.
  *
- * @returns The formatted language value.
+ * @returns The writer every row draws its value through.
  */
-const formatLanguageValue = ({
-  value_format,
-  lang,
-  locale,
-}: {
-  value_format: ValueFormat;
-  lang: WakaTimeLang;
-  locale: Locale | undefined;
-}): string => {
+const langValueFormatter = (
+  value_format: ValueFormat,
+  locale: Locale | undefined,
+): LangValueFormatter => {
   if (value_format === 'percent') {
-    return `${formatDecimal(lang.percent, locale, 2)} %`;
+    return (lang) => `${formatDecimal(lang.percent, locale, 2)} %`;
   }
 
-  return lang.text;
+  return (lang) => lang.text;
 };
 
 /**
@@ -88,11 +86,8 @@ const formatLanguageValue = ({
  *
  * @returns The language's name and its value.
  */
-const compactLabel = (
-  lang: WakaTimeLang,
-  value_format: ValueFormat,
-  locale: Locale | undefined,
-): string => `${lang.name} - ${formatLanguageValue({ value_format, lang, locale })}`;
+const compactLabel = (lang: WakaTimeLang, formatValue: LangValueFormatter): string =>
+  `${lang.name} - ${formatValue(lang)}`;
 
 /**
  * Places the compact layout's right column clear of the left column's widest label.
@@ -101,17 +96,15 @@ const compactLabel = (
  */
 const measureCompactColumns = ({
   langs,
-  value_format,
-  locale,
+  formatValue,
   width,
 }: {
   langs: Array<WakaTimeLang>;
-  value_format: ValueFormat;
-  locale: Locale | undefined;
+  formatValue: LangValueFormatter;
   width: number;
 }): { rightX: number; width: number } => {
   const widest = (column: Array<WakaTimeLang>): number =>
-    compactColumnWidth(column.map((lang) => compactLabel(lang, value_format, locale)));
+    compactColumnWidth(column.map((lang) => compactLabel(lang, formatValue)));
   const left = langs.filter((_, index) => index % 2 === 0);
   const right = langs.filter((_, index) => index % 2 === 1);
   const rightX = Math.max(
@@ -133,14 +126,12 @@ const createCompactLangNode = ({
   lang,
   x,
   y,
-  value_format,
-  locale,
+  formatValue,
 }: {
   lang: WakaTimeLang;
   x: number;
   y: number;
-  value_format: ValueFormat;
-  locale: Locale | undefined;
+  formatValue: LangValueFormatter;
 }): MarkupElement => {
   if (!Number.isFinite(x)) {
     throw new TypeError(`Invalid x: "${x}"`);
@@ -158,7 +149,7 @@ const createCompactLangNode = ({
     el(
       'text',
       { 'data-testid': 'lang-name', x: CARD_STYLE.compactList.labelX, y: 10, class: 'lang-name' },
-      compactLabel(lang, value_format, locale),
+      compactLabel(lang, formatValue),
     ),
   );
 };
@@ -171,14 +162,12 @@ const createCompactLangNode = ({
 const createLanguageTextNode = ({
   langs,
   y,
-  value_format,
-  locale,
+  formatValue,
   rightX,
 }: {
   langs: Array<WakaTimeLang>;
   y: number;
-  value_format: ValueFormat;
-  locale: Locale | undefined;
+  formatValue: LangValueFormatter;
   rightX: number;
 }): Array<Child> =>
   langs.map((lang, index) => {
@@ -187,8 +176,7 @@ const createLanguageTextNode = ({
       lang,
       x: isLeft ? CARD_STYLE.padding.x : rightX,
       y: y + LINE_HEIGHT * Math.floor(index / 2),
-      value_format,
-      locale,
+      formatValue,
     });
   });
 
@@ -344,6 +332,7 @@ const renderCard = (
 
   const t = localize(wakatimeCardLocales, locale);
   const commonT = localize(commonLocales, locale);
+  const formatValue = langValueFormatter(value_format, locale);
 
   const langsCount = clampValue(langs_count, 1, langs_count);
 
@@ -381,8 +370,7 @@ const renderCard = (
   if (layout === 'compact') {
     const columns = measureCompactColumns({
       langs: filteredLanguages,
-      value_format,
-      locale,
+      formatValue,
       width,
     });
     ({ width } = columns);
@@ -429,8 +417,7 @@ const renderCard = (
         ? createLanguageTextNode({
             y: 25,
             langs: filteredLanguages,
-            value_format,
-            locale,
+            formatValue,
             rightX: columns.rightX,
           })
         : noCodingActivityNode({
@@ -449,7 +436,7 @@ const renderCard = (
               createTextNode({
                 id: language.name,
                 label: language.name,
-                value: formatLanguageValue({ value_format, lang: language, locale }),
+                value: formatValue(language),
                 index,
                 percent: language.percent,
                 hideProgress: hide_progress,
@@ -542,9 +529,7 @@ const renderCard = (
     description:
       filteredLanguages.length > 0
         ? headlineDescription +
-          filteredLanguages
-            .map((lang) => `${lang.name}: ${formatLanguageValue({ value_format, lang, locale })}`)
-            .join(', ')
+          filteredLanguages.map((lang) => `${lang.name}: ${formatValue(lang)}`).join(', ')
         : t.noCodingActivity(),
     hideBorder: hide_border,
     hideTitle: hide_title,
