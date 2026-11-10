@@ -35,3 +35,8 @@ trustPolicy: no-downgrade
 # Fail on unmet peers and on a Node version outside `engines`, instead of warning
 strictPeerDependencies: true
 engineStrict: true
+
+# Its types-only cap lags Node's; webawesome's server rendering, the one user, never runs here.
+peerDependencyRules:
+  allowedVersions:
+    '@lit-labs/ssr>@types/node': '26'
