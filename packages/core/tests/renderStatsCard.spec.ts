@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { CARD_STYLE } from '../src/common/brand.ts';
@@ -8,6 +8,17 @@ import type { StatsData } from '../src/fetchers/stats/types.ts';
 import { themes } from '../src/themes/index.ts';
 
 import { cssValue, draw, drawnIds, exactly, translateOf, heatStop } from './_card.ts';
+
+// No locale translates the percentile header yet, so one is added to see the ring read it from the table.
+vi.mock(import('../src/cards/stats/locales.ts'), async (importOriginal) => {
+  const { statCardLocales } = await importOriginal();
+  return {
+    statCardLocales: {
+      ...statCardLocales,
+      fr: { ...statCardLocales.fr, percentileHeader: 'Haut' },
+    },
+  };
+});
 
 const stats: StatsData = {
   login: 'anuraghazra',
@@ -338,6 +349,11 @@ describe('Test renderStatsCard', () => {
     const percentileRankValue = screen.getByTestId('percentile-rank-value');
     expect(percentileRankValue).toHaveClass('rank-percentile-text');
     expect(percentileRankValue).toHaveTextContent(`${stats.rank.percentile.toFixed(1)}%`);
+  });
+
+  it('should draw the percentile header in the locale asked for', () => {
+    draw(renderStatsCard(stats, { rank_icon: 'percentile', locale: 'fr' }));
+    expect(screen.getByTestId('percentile-top-header')).toHaveTextContent(exactly('Haut'));
   });
 
   it('should write the rank percentile as the locale does', () => {
