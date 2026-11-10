@@ -2,6 +2,7 @@ import { CARD_ICON, CARD_STYLE } from '../../common/brand.ts';
 import { Card } from '../../common/Card.ts';
 import { getLightDarkColors } from '../../common/color.ts';
 import { CardError } from '../../common/error.ts';
+import { formatDecimal } from '../../common/fmt.ts';
 import { rankIcon } from '../../common/icons.ts';
 import { commonLocales } from '../../common/locales.ts';
 import type { Locale } from '../../common/localize.ts';
@@ -130,7 +131,12 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const t = localize(statCardLocales, locale);
   const commonT = localize(commonLocales, locale);
 
-  const STATS = statRows(stats, { show, scope, include_all_commits, number_precision }, t, commonT);
+  const STATS = statRows(
+    stats,
+    { show, scope, include_all_commits, number_precision, locale },
+    t,
+    commonT,
+  );
 
   const isLongLocale = locale ? LONG_LOCALES.has(locale) : false;
 
@@ -212,6 +218,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       labelBold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,
+      locale,
       link: stat.link,
     }),
   );
@@ -287,7 +294,11 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
         cy: 8,
         r: RANK_RING.radius,
       }),
-      el('g', { class: 'rank-text' }, rankIcon(rank_icon, rank.level, rank.percentile)),
+      el(
+        'g',
+        { class: 'rank-text' },
+        rankIcon(rank_icon, rank.level, formatDecimal(rank.percentile, locale, 1)),
+      ),
       SPARKS.map(([dx, dy, delay]) =>
         el('circle', {
           class: 'spark',

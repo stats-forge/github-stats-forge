@@ -15,14 +15,26 @@ describe(kFormatter, () => {
     [99_900, '99.9k', '100k', '99.9k', '99.90k'],
     [9_900_000, '9900k', '9900k', '9900.0k', '9900.00k'],
   ])('writes %i as %s, then %s, %s and %s', (value, byDefault, zero, one, two) => {
-    expect(kFormatter(value)).toBe(byDefault);
-    expect(kFormatter(value, 0)).toBe(zero);
-    expect(kFormatter(value, 1)).toBe(one);
-    expect(kFormatter(value, 2)).toBe(two);
+    expect(kFormatter(value, 'en')).toBe(byDefault);
+    expect(kFormatter(value, 'en', 0)).toBe(zero);
+    expect(kFormatter(value, 'en', 1)).toBe(one);
+    expect(kFormatter(value, 'en', 2)).toBe(two);
   });
 
   it('rounds to a whole thousand at 0 decimals', () => {
-    expect(kFormatter(99_000, 0)).toBe('99k');
+    expect(kFormatter(99_000, 'en', 0)).toBe('99k');
+  });
+
+  it.each([
+    ['en', '1.2k'],
+    [undefined, '1.2k'],
+    ['de', '1,2k'],
+    ['fr', '1,2k'],
+    // Arabic writes its own digits, which would measure unlike the rest of the card
+    ['ar', '1.2k'],
+    ['fa', '1.2k'],
+  ] as const)('writes the decimal as %s does', (locale, written) => {
+    expect(kFormatter(1200, locale)).toBe(written);
   });
 });
 
@@ -39,6 +51,10 @@ describe(formatBytes, () => {
     [1234 * 1024, '1.2 MB'],
     [123.4 * 1024, '123.4 KB'],
   ])('writes %i bytes as %s', (bytes, written) => {
-    expect(formatBytes(bytes)).toBe(written);
+    expect(formatBytes(bytes, 'en')).toBe(written);
+  });
+
+  it('writes the decimal as the locale does', () => {
+    expect(formatBytes(1234 * 1024, 'it')).toBe('1,2 MB');
   });
 });

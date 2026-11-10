@@ -136,6 +136,7 @@ const createRepoRow = ({
   nameWidth,
   contentWidth,
   rowHeight,
+  locale,
 }: {
   repo: ContributedRepo;
   index: number;
@@ -145,6 +146,7 @@ const createRepoRow = ({
   nameWidth: number;
   contentWidth: number;
   rowHeight: number;
+  locale: Locale | undefined;
 }): Child =>
   el(
     'g',
@@ -174,7 +176,7 @@ const createRepoRow = ({
         y: 0,
         'text-anchor': 'end',
       },
-      kFormatter(repo.contributions),
+      kFormatter(repo.contributions, locale),
     ),
     years.length > 0 && createYearStrip(repo.years, years, nameWidth),
   );
@@ -257,6 +259,7 @@ const renderContributedToCard = (
       nameWidth,
       contentWidth,
       rowHeight,
+      locale,
     }),
   );
 

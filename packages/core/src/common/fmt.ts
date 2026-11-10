@@ -1,21 +1,55 @@
+import type { Locale } from './localize.ts';
+import { intlTag } from './localize.ts';
+
+/** Built once per tag and digits: building a formatter costs far more than formatting with one. */
+const decimalFormats = new Map<string, Intl.NumberFormat>();
+
+/**
+ * A figure with the locale's decimal separator, kept in Latin digits and ungrouped so it
+ * measures as the English one does.
+ *
+ * @returns The figure, to between `minimum` and `maximum` decimals.
+ */
+const formatDecimal = (
+  value: number,
+  locale: Locale | undefined,
+  minimum: number,
+  maximum = minimum,
+): string => {
+  const tag = intlTag(locale);
+  const key = `${tag} ${String(minimum)} ${String(maximum)}`;
+  let format = decimalFormats.get(key);
+  if (!format) {
+    format = new Intl.NumberFormat(tag, {
+      minimumFractionDigits: minimum,
+      maximumFractionDigits: maximum,
+      numberingSystem: 'latn',
+      useGrouping: false,
+    });
+    decimalFormats.set(key, format);
+  }
+  return format.format(value);
+};
+
 /**
  * Retrieves num with suffix k(thousands) precise to given decimal places.
  *
  * @returns The formatted number.
  */
-const kFormatter = (num: number, precision?: number): string | number => {
-  const abs = Math.abs(num);
-  const sign = Math.sign(num);
-
+const kFormatter = (
+  num: number,
+  locale: Locale | undefined,
+  precision?: number,
+): string | number => {
   if (typeof precision === 'number' && !Number.isNaN(precision)) {
-    return `${(sign * (abs / 1000)).toFixed(precision)}k`;
+    return `${formatDecimal(num / 1000, locale, precision)}k`;
   }
 
-  if (abs < 1000) {
-    return sign * abs;
+  if (Math.abs(num) < 1000) {
+    return num;
   }
 
-  return `${sign * Number.parseFloat((abs / 1000).toFixed(1))}k`;
+  return `${formatDecimal(num / 1000, locale, 0, 1)}k`;
 };
 
 /**
@@ -25,7 +59,7 @@ const kFormatter = (num: number, precision?: number): string | number => {
  *
  * @returns The human-readable representation of bytes.
  */
-const formatBytes = (bytes: number): string => {
+const formatBytes = (bytes: number, locale: Locale | undefined): string => {
   if (bytes < 0) {
     throw new Error('Bytes must be a non-negative number');
   }
@@ -43,7 +77,7 @@ const formatBytes = (bytes: number): string => {
     throw new Error('Bytes is too large to convert to a human-readable string');
   }
 
-  return `${(bytes / base ** i).toFixed(1)} ${unit}`;
+  return `${formatDecimal(bytes / base ** i, locale, 1)} ${unit}`;
 };
 
-export { kFormatter, formatBytes };
+export { formatBytes, formatDecimal, kFormatter };

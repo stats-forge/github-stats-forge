@@ -449,6 +449,11 @@ describe('Test renderTopLanguages', () => {
     expect(document.querySelector('.header')).toHaveTextContent(exactly('最常用的语言'));
   });
 
+  it("should write each share's decimal as the locale does", () => {
+    draw(renderTopLanguages(langs, { layout: 'compact', locale: 'de' }));
+    expectLabels(['HTML 40,00%', 'javascript 40,00%', 'css 20,00%']);
+  });
+
   it('should render without rounding', () => {
     draw(renderTopLanguages(langs, { border_radius: 0 }));
     expect(document.querySelector('rect')).toHaveAttribute('rx', '0');

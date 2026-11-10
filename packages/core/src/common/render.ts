@@ -5,6 +5,7 @@ import { CARD_STYLE } from './brand.ts';
 import type { ThemeParams } from './color.ts';
 import { HEAT_PAINT, getLightDarkColors, isPrefixedHexColor } from './color.ts';
 import { kFormatter } from './fmt.ts';
+import type { Locale } from './localize.ts';
 import { clampValue } from './ops.ts';
 import { measureText } from './text.ts';
 
@@ -219,6 +220,7 @@ const NUMBER_FORMATS = ['short', 'long'] as const;
 const formatCount = (
   value: number,
   numberFormat: string,
+  locale: Locale | undefined,
   /** Decimals kept when abbreviating, clamped to 0–2; the abbreviation's own default when absent. */
   numberPrecision?: number,
 ): string => {
@@ -227,10 +229,10 @@ const formatCount = (
   }
 
   if (numberPrecision === undefined) {
-    return String(kFormatter(value));
+    return String(kFormatter(value, locale));
   }
 
-  return String(kFormatter(value, clampValue(numberPrecision, 0, 2)));
+  return String(kFormatter(value, locale, clampValue(numberPrecision, 0, 2)));
 };
 
 /**
@@ -256,6 +258,7 @@ const createTextNode = ({
   labelBold = bold,
   numberFormat,
   numberPrecision,
+  locale,
   link,
   labelXOffset = 25,
 }: {
@@ -273,6 +276,7 @@ const createTextNode = ({
   labelBold?: boolean;
   numberFormat: string;
   numberPrecision?: number | undefined;
+  locale: Locale | undefined;
   link?: string | undefined;
   labelXOffset?: number;
 }): MarkupElement => {
@@ -296,7 +300,8 @@ const createTextNode = ({
   // `long` format and the percentage stat keep the raw value; everything else
   // (always a number here) is abbreviated via kFormatter.
   const rawValue = numberFormat.toLowerCase() === 'long' || id === 'prs_merged_percentage';
-  const kValue = rawValue || typeof value !== 'number' ? value : kFormatter(value, precision);
+  const kValue =
+    rawValue || typeof value !== 'number' ? value : kFormatter(value, locale, precision);
 
   const staggerDelay = 120 + index * 40;
   const boldClass = bold ? 'bold' : 'not_bold';

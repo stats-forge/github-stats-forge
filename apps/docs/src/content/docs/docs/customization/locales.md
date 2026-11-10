@@ -20,10 +20,17 @@ An unknown code is an error reading `Locale not found`, not a silent fallback to
 `no`, `be`. `kr`, `cn`, `np` and `se`, the codes Korean, Chinese, Nepali and Swedish were first
 listed under, still draw them, as `zh` and `uk` draw `zh-cn` and `uk-ua`.
 
+## Numbers
+
+A figure with decimals, such as `1.2k`, `40.00%` or `1.5 MB`, takes the locale's decimal
+separator: `locale=de` draws `1,2k`. Digits stay Latin and ungrouped in every locale, and a long
+count is written out in full, as `1234567`.
+
 ## What is not translated yet
 
 A string is written in English first and translated afterwards, so a locale can lack one. The card
-then draws that one line in English, and the rest in the locale asked for.
+then draws that one line in English, and the rest in the locale asked for. The WakaTime card's
+durations, such as `3 hrs 20 mins`, are WakaTime's own text, and stay in English.
 
 Two things are deliberately never translated:
 

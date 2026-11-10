@@ -340,6 +340,16 @@ describe('Test renderStatsCard', () => {
     expect(percentileRankValue).toHaveTextContent(`${stats.rank.percentile.toFixed(1)}%`);
   });
 
+  it('should write the rank percentile as the locale does', () => {
+    draw(
+      renderStatsCard(
+        { ...stats, rank: { level: 'A', percentile: 12.5 } },
+        { rank_icon: 'percentile', locale: 'de' },
+      ),
+    );
+    expect(screen.getByTestId('percentile-rank-value')).toHaveTextContent(exactly('12,5%'));
+  });
+
   it('should throw error if all stats and rank icon are hidden', () => {
     expect(() =>
       renderStatsCard(stats, { hide: [...renderStatsCard.OPTIONS.hide], hide_rank: true }),

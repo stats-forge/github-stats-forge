@@ -248,7 +248,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
     .map((column) => statList.filter((_, index) => index % 2 === column))
     .filter((column) => column.length > 0);
   const formatValue = (value: number): string =>
-    formatCount(value, number_format, number_precision);
+    formatCount(value, number_format, locale, number_precision);
   // Each column's values end after its widest label and widest value, so neither can reach the other.
   const [firstColumnWidth = 0, secondColumnWidth = 0] = columns.map(
     (column) =>
@@ -287,6 +287,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       bold: false,
       numberFormat: number_format,
       numberPrecision: number_precision,
+      locale,
       link: stat.link,
       labelXOffset: STAT_LABEL_X,
     }),
@@ -341,8 +342,9 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
 
   // a zero stays a number, which is what `iconWithLabel` leaves out
   const totalStars =
-    stargazerCount > 0 ? formatCount(stargazerCount, number_format, number_precision) : 0;
-  const totalForks = forkCount > 0 ? formatCount(forkCount, number_format, number_precision) : 0;
+    stargazerCount > 0 ? formatCount(stargazerCount, number_format, locale, number_precision) : 0;
+  const totalForks =
+    forkCount > 0 ? formatCount(forkCount, number_format, locale, number_precision) : 0;
   const svgStars = iconWithLabel(icons.star, totalStars, 'stargazers', ICON_SIZE);
   const svgForks = iconWithLabel(icons.fork, totalForks, 'forkcount', ICON_SIZE);
 
