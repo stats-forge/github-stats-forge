@@ -23,6 +23,7 @@ const CARD_STYLE = {
     compact: 300,
     standard: 400,
     wide: 500,
+    broad: 600,
   },
 
   /** The type scale, in px. */

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "card": "stats",
+  "username": "ember-smith",
+  "show_icons": "true",
+  "show": "reviews,prs_merged,prs_opened,issues_opened,contributions,discussions_started",
+  "layout": "columns"
+}
