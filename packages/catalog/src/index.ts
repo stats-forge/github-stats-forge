@@ -366,6 +366,12 @@ const CARDS: ReadonlyArray<CardSpec> = [
       { name: 'card_width', label: 'Card width', group: 'text' },
       { name: 'disable_animations', label: 'Disable the animations', group: 'text' },
       {
+        name: 'range',
+        label: 'Time range',
+        group: 'data',
+        hint: "The profile's own default when unset; WakaTime shares only the ranges it makes public",
+      },
+      {
         name: 'wakatime_host',
         label: 'WakaTime instance',
         group: 'data',

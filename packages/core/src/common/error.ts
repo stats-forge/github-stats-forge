@@ -234,6 +234,11 @@ const FAILURES = {
     message: data?.message || 'Could not fetch user.',
     secondaryMessage: 'Make sure the provided username is not an organization',
   }),
+  wakatime_invalid_range: (): Failure => ({
+    code: 'invalid_param',
+    message: 'Invalid WakaTime range provided.',
+    param: 'range',
+  }),
   wakatime_invalid_host: (): Failure => ({
     code: 'invalid_param',
     message: 'Invalid WakaTime host provided.',

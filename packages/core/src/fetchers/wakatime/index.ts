@@ -1,5 +1,9 @@
 import type { CardConfig } from '../../common/config.ts';
-import { HOSTNAME_PATTERN, WAKATIME_USERNAME_PATTERN } from '../../common/constants.ts';
+import {
+  HOSTNAME_PATTERN,
+  WAKATIME_RANGES,
+  WAKATIME_USERNAME_PATTERN,
+} from '../../common/constants.ts';
 import { CardError } from '../../common/error.ts';
 import { httpRequest } from '../../common/http.ts';
 
@@ -16,9 +20,12 @@ const fetchWakatimeStats = async (
   {
     username,
     wakatime_host,
+    range,
   }: {
     username: string | undefined;
     wakatime_host?: string | undefined;
+    /** The window to count; the profile's own default when absent. */
+    range?: (typeof WAKATIME_RANGES)[number] | undefined;
   },
   config: CardConfig,
 ): Promise<WakaTimeData> => {
@@ -33,11 +40,15 @@ const fetchWakatimeStats = async (
   if (wakatime_host && !HOSTNAME_PATTERN.test(wakatime_host)) {
     throw CardError.because('wakatime_invalid_host');
   }
+  // it becomes a path segment, so a caller past the api boundary is held to the list too
+  if (range !== undefined && !WAKATIME_RANGES.includes(range)) {
+    throw CardError.because('wakatime_invalid_range');
+  }
 
   const domain = wakatime_host || 'wakatime.com';
   const res = await httpRequest<{ data: WakaTimeData }>(
     config.fetch,
-    `https://${domain}/api/v1/users/${username}/stats?is_including_today=true`,
+    `https://${domain}/api/v1/users/${username}/stats${range === undefined ? '' : `/${range}`}?is_including_today=true`,
   );
 
   // Only a 404 says the profile does not exist.

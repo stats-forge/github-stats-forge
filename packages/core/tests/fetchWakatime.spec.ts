@@ -24,6 +24,27 @@ describe('WakaTime fetcher', () => {
     expect(repo).toStrictEqual(wakaTimeData.data);
   });
 
+  it.each(['last_30_days', 'all_time'] as const)(
+    'asks for the %s range as a path segment',
+    async (range) => {
+      mock
+        .onGet(`https://wakatime.com/api/v1/users/user/stats/${range}?is_including_today=true`)
+        .reply(200, wakaTimeData);
+
+      await expect(fetchWakatimeStats({ username: 'user', range }, config)).resolves.toStrictEqual(
+        wakaTimeData.data,
+      );
+    },
+  );
+
+  it('refuses a range outside the list before any request', async () => {
+    await expect(
+      // @ts-expect-error a caller past the api boundary, which the type would stop
+      fetchWakatimeStats({ username: 'user', range: '../evil' }, config),
+    ).rejects.toMatchObject({ reason: 'wakatime_invalid_range' });
+    expect(mock.history.get).toHaveLength(0);
+  });
+
   it('should throw error if username param missing', async () => {
     mock.onGet(/wakatime\.com\/api/).reply(404, wakaTimeData);
 

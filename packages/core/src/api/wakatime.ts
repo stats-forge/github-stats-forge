@@ -1,6 +1,7 @@
 import * as z from 'zod/mini';
 
 import { renderWakatimeCard } from '../cards/wakatime/index.ts';
+import { WAKATIME_RANGES } from '../common/constants.ts';
 import { fetchWakatimeStats } from '../fetchers/wakatime/index.ts';
 
 import { cardHandler } from './handler.ts';
@@ -27,6 +28,7 @@ const wakatimeQuery = z.object({
   hide_langs: listParam,
   wakatime_host: hostnameParam,
   value_format: enumParam(renderWakatimeCard.OPTIONS.value_format),
+  range: enumParam(WAKATIME_RANGES),
 });
 
 /**
@@ -41,8 +43,8 @@ const renderWakatime = cardHandler(
   // no allowlist: `username` is a WakaTime profile, not a GitHub login (see `apps/server/README.md`)
   {},
   async (params, theme, config) => {
-    const { username, wakatime_host } = params;
-    const stats = await fetchWakatimeStats({ username, wakatime_host }, config);
+    const { username, wakatime_host, range } = params;
+    const stats = await fetchWakatimeStats({ username, wakatime_host, range }, config);
     return renderWakatimeCard(stats, { ...params, ...theme });
   },
 );
@@ -51,4 +53,6 @@ const renderWakatime = cardHandler(
  * The card, and the values each of its options accepts, keyed by the option's own name.
  * A UI reads them off the function it calls: `wakatime.OPTIONS.layout`.
  */
-export const wakatime = Object.assign(renderWakatime, { OPTIONS: renderWakatimeCard.OPTIONS });
+export const wakatime = Object.assign(renderWakatime, {
+  OPTIONS: { ...renderWakatimeCard.OPTIONS, range: WAKATIME_RANGES },
+});

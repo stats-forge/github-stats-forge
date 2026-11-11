@@ -509,8 +509,20 @@ const renderCard = (
       titleText += ` (${t.last7Days()})`;
       break;
 
+    case 'last_30_days':
+      titleText += ` (${t.last30Days()})`;
+      break;
+
+    case 'last_6_months':
+      titleText += ` (${t.last6Months()})`;
+      break;
+
     case 'last_year':
       titleText += ` (${commonT.lastYear()})`;
+      break;
+
+    case 'all_time':
+      titleText += ` (${t.allTime()})`;
       break;
 
     default:

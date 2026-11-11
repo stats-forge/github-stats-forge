@@ -5,6 +5,9 @@ const wakatimeCardLocales = defineLocales({
   en: {
     title: 'WakaTime Stats',
     last7Days: 'last 7 days',
+    last30Days: 'last 30 days',
+    last6Months: 'last 6 months',
+    allTime: 'all time',
     notPublic: 'WakaTime user profile not public',
     noCodeDetails: "User doesn't publicly share detailed code statistics",
     dailyAverage: '{time} a day',
