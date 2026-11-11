@@ -186,6 +186,9 @@ docker run -p 9000:9000 --env-file cards.env \
   ghcr.io/stats-forge/github-stats-forge-server
 ```
 
+Cards and the site's pages are sent compressed, brotli or gzip, to a browser that accepts it, so
+a proxy in front need not compress them again.
+
 Each card carries an `ETag`, so a browser or proxy revalidating one it holds gets a `304` and no
 body when nothing changed.
 

@@ -39,6 +39,10 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 
 ## Caching
 
+- **`finish` compresses text, cards and site alike, through `compress.ts`**: brotli at quality 5,
+  since 11 is for files compressed once, or gzip; nothing under `MIN_BYTES`. A compressible answer
+  says `Vary: Accept-Encoding` even when sent plain, and a `HEAD` is compressed before it is
+  emptied, so its `Content-Length` matches the `GET`.
 - **A card carries a weak `ETag` of its body, and a matching `If-None-Match` gets a `304`**: weak,
   so a proxy that compresses the body may keep it. A failure sent with its real status never does.
 - **A held answer carries `Age`, never a restarted `max-age`**, which overrode the caller's
