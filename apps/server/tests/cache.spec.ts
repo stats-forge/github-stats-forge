@@ -134,3 +134,56 @@ describe(CardCache, () => {
     expect(negative.getStale('k')).toBeUndefined();
   });
 });
+
+describe('a cache outliving its process', () => {
+  it('hands over its successes, not its errors', () => {
+    const cache = new CardCache(10, 60);
+    cache.set('ok', success, 60);
+    cache.set('broken', failure(false), 60);
+
+    expect(cache.heldCards().map((card) => card.key)).toStrictEqual(['ok']);
+  });
+
+  it('takes a card back with the age it had, so a hit does not claim a full life', () => {
+    vi.useFakeTimers();
+    const before = new CardCache(10, 60);
+    before.set('k', success, 600);
+    vi.advanceTimersByTime(100_000);
+
+    const after = new CardCache(10, 60);
+    const restored = after.restore(before.heldCards());
+
+    expect(restored).toBe(1);
+    expect(after.get('k')).toStrictEqual({ result: success, age: 100 });
+  });
+
+  it('takes back an expired card as stale under its own window, and drops one past it', () => {
+    vi.useFakeTimers();
+    const before = new CardCache(10, STALE_WHILE_REVALIDATE);
+    before.set('k', success, 60);
+    vi.advanceTimersByTime(120_000);
+    const held = before.heldCards();
+
+    const keeping = new CardCache(10, STALE_WHILE_REVALIDATE);
+    const none = new CardCache(10, 0);
+
+    expect(keeping.restore(held)).toBe(1);
+    expect(keeping.get('k')).toBeUndefined();
+    expect(keeping.getStale('k')).toBeDefined();
+    expect(none.restore(held)).toBe(0);
+  });
+
+  it('keeps the newest when it holds fewer than it is handed', () => {
+    vi.useFakeTimers();
+    const before = new CardCache(10, 60);
+    before.set('old', success, 600);
+    vi.advanceTimersByTime(1000);
+    before.set('new', success, 600);
+
+    const small = new CardCache(1, 60);
+
+    expect(small.restore(before.heldCards().toReversed())).toBe(1);
+    expect(small.get('new')).toBeDefined();
+    expect(small.get('old')).toBeUndefined();
+  });
+});

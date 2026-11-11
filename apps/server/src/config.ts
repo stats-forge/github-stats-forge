@@ -45,6 +45,8 @@ interface ServerSettings {
   host: string;
   shutdownTimeoutMs: number;
   logRequests: boolean;
+  /** Where the card cache is kept across restarts; in memory only when absent. */
+  cacheDir: string | undefined;
   options: ServerOptions;
 }
 
@@ -76,6 +78,7 @@ const readSettings = (env: Env): ServerSettings => {
     host: fromEnv(env['HOST']) ?? DEFAULT_HOST,
     shutdownTimeoutMs: parseInteger(env['SHUTDOWN_TIMEOUT_MS']) ?? DEFAULT_SHUTDOWN_TIMEOUT_MS,
     logRequests: env['LOG_REQUESTS'] !== 'false',
+    cacheDir: fromEnv(env['CACHE_DIR']),
     options: {
       config: base.with({
         // the global is read per call, so a host patching it later is still picked up
