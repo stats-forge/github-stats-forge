@@ -6,6 +6,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 
 import { BASE, isExcludedWhenSelfHosted, PAGES_SITE, SERVED_BY_INSTANCE } from './src/constants.ts';
 import { rehypeCardPreviews } from './src/plugins/rehype-card-previews.ts';
+import { remarkChangelog } from './src/plugins/remark-changelog.ts';
 import { remarkCliDemo } from './src/plugins/remark-cli-demo.ts';
 import { remarkExcludeWhenSelfHosted } from './src/plugins/remark-exclude-when-self-hosted.ts';
 import { remarkFetcherReference } from './src/plugins/remark-fetcher-reference.ts';
@@ -51,6 +52,7 @@ export default defineConfig({
         remarkExcludeWhenSelfHosted,
         remarkCliDemo,
         remarkFetcherReference,
+        remarkChangelog,
         remarkResolveLinks,
       ],
       rehypePlugins: [rehypeCardPreviews],
@@ -142,6 +144,7 @@ export default defineConfig({
             'docs/usage/self-hosting',
             'docs/usage/tokens',
             'docs/usage/troubleshooting',
+            'docs/usage/changelog',
           ],
         },
         {

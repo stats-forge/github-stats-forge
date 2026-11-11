@@ -68,6 +68,9 @@ carries a server changeset.
   restart to see a doc-comment edit, live refresh having cost more than restarts. Weigh the cost
   before extending this to the cards: a hand-written table with real prose beats a generated one
   full of dashes.
+- **`<!-- changelog: <dir> -->` becomes that package's `CHANGELOG.md` at build time**, by
+  `remark-changelog.ts`, one level deeper and without the "Updated dependencies" entries; a missing
+  file fails the build. The image's site stage copies `apps/server/CHANGELOG.md` for it.
 - **`<!-- demo: cli -->` is a recorded screen capture** ([#98]), placed by `remark-cli-demo.ts`; don't
   bring back the CSS replay.
   - **A new file extension goes in both static tables**, `apps/server/src/static.ts` and

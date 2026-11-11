@@ -51,6 +51,8 @@ COPY packages/core packages/core
 COPY packages/catalog packages/catalog
 COPY packages/cli packages/cli
 COPY apps/docs apps/docs
+# the changelog page reads it; the packages' come with their folders
+COPY apps/server/CHANGELOG.md apps/server/
 
 # Pages serves the site under the repository name, the image at the root. `SITE_SERVER` tells
 # the anvil there is a server under it; nothing probes for one, since on Pages there is none.
