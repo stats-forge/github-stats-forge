@@ -16,3 +16,5 @@ export type OrgCalendarWeekFragment = {
 };
 
 export type OrgCalendarOrganizationFragment = { login: string; name: string | null };
+
+export type OrgCalendarRepositoryFragment = { name: string };

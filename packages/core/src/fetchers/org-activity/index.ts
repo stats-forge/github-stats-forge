@@ -1,5 +1,5 @@
 import type { CardConfig } from '../../common/config.ts';
-import { GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
+import { GITHUB_REPO_NAME_PATTERN, GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
 import type { GitHubDateRange } from '../../common/date.ts';
 import { toSearchDate } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
@@ -80,11 +80,11 @@ const issuesRefused = (...searches: Array<GetOrganizationActivityQuery['issuesOp
  * @returns The REST search response, carrying `total_count`.
  */
 const fetchCommitCount = async (
-  { org, range }: { org: string; range: GitHubDateRange },
+  { scope, range }: { scope: string; range: GitHubDateRange },
   token: string,
   { fetch }: FetcherContext,
 ): Promise<HttpResponse<{ total_count?: number }>> => {
-  const query = `org:${org}+author-date:${toSearchDate(range.from)}..${toSearchDate(range.to)}`;
+  const query = `${scope}+author-date:${toSearchDate(range.from)}..${toSearchDate(range.to)}`;
   return httpRequest(fetch, `https://api.github.com/search/commits?per_page=1&q=${query}`, {
     method: 'GET',
     headers: {
@@ -111,6 +111,7 @@ const fetchCommitCount = async (
 const fetchOrgActivity = async (
   {
     org,
+    repo,
     days,
     from,
     to,
@@ -118,6 +119,8 @@ const fetchOrgActivity = async (
     require_issues = true,
   }: {
     org: string | undefined;
+    /** One of the organization's repositories, to count only its activity. */
+    repo?: string | undefined;
     /** Days the window covers, ending today; out of range or unparsed, the default stands. */
     days?: number | undefined;
     /** The start of the window, instead of `days`. */
@@ -141,15 +144,20 @@ const fetchOrgActivity = async (
   if (!GITHUB_USERNAME_PATTERN.test(org)) {
     throw CardError.because('org_invalid');
   }
+  if (repo !== undefined && !GITHUB_REPO_NAME_PATTERN.test(repo)) {
+    throw CardError.because('org_repo_invalid');
+  }
 
   const { range, days: window } = windowOf(days, from, to);
   const within = `${toSearchDate(range.from)}..${toSearchDate(range.to)}`;
-  const scope = `org:${org}`;
+  const scope = repo === undefined ? `org:${org}` : `repo:${org}/${repo}`;
 
   const res = await retryer(
     fetcher,
     {
       login: org,
+      repo: repo ?? '',
+      withRepo: repo !== undefined,
       prsOpened: `${scope} is:pr created:${within}`,
       prsMerged: `${scope} is:pr merged:${within}`,
       issuesOpened: `${scope} is:issue created:${within}`,
@@ -160,9 +168,16 @@ const fetchOrgActivity = async (
   );
 
   if (res.data.errors) {
+    const missing = new Set(
+      res.data.errors.filter((error) => error.type === 'NOT_FOUND').map((error) => error.path?.[0]),
+    );
+    // An organization that does not exist has no repository either, so it is named first.
+    if (missing.has('repository') && !missing.has('organization')) {
+      throw CardError.because('repo_not_found');
+    }
     // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
     // words for a user query, so this endpoint's own wording is thrown instead.
-    if (res.data.errors[0]?.type === 'NOT_FOUND') {
+    if (missing.size > 0) {
       throw CardError.because('org_not_found');
     }
     throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization activity');
@@ -185,7 +200,7 @@ const fetchOrgActivity = async (
 
   let commits: number | null = null;
   if (include_commits) {
-    const commitRes = await retryer(fetchCommitCount, { org, range }, config);
+    const commitRes = await retryer(fetchCommitCount, { scope, range }, config);
     const total = commitRes.data.total_count;
     if (typeof total === 'number') {
       commits = total;
@@ -198,6 +213,7 @@ const fetchOrgActivity = async (
   return {
     login: data.organization.login,
     name: data.organization.name || data.organization.login,
+    repository: data.repository?.name ?? null,
     range,
     days: window,
     prsOpened: data.prsOpened.issueCount,

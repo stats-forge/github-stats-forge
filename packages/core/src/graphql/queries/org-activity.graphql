@@ -1,5 +1,7 @@
 query getOrganizationActivity(
   $login: String!
+  $repo: String!
+  $withRepo: Boolean!
   $prsOpened: String!
   $prsMerged: String!
   $issuesOpened: String!
@@ -8,6 +10,10 @@ query getOrganizationActivity(
 ) {
   organization(login: $login) {
     login
+    name
+  }
+  # asked for only to tell a repository that does not exist from one with nothing in the window
+  repository(owner: $login, name: $repo) @include(if: $withRepo) {
     name
   }
   prsOpened: search(query: $prsOpened, type: ISSUE) {

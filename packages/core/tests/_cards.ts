@@ -99,6 +99,7 @@ const wakatimeData: Partial<WakaTimeData> = {
 const orgActivityData: OrgActivityData = {
   login: 'vitest-dev',
   name: 'Vitest',
+  repository: null,
   range: { from: new Date('2026-08-14T00:00:00Z'), to: new Date('2026-09-12T00:00:00Z') },
   days: 30,
   prsOpened: 267,
@@ -112,6 +113,7 @@ const orgActivityData: OrgActivityData = {
 const orgCalendarData: OrgCalendarData = {
   login: 'vitest-dev',
   name: 'Vitest',
+  repository: null,
   count: 'prs_merged',
   weeks: [
     { from: new Date('2026-08-23T00:00:00Z'), to: new Date('2026-08-29T00:00:00Z'), count: 4 },
