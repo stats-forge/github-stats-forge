@@ -30,6 +30,9 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 - **A failure answers `200` with the drawn error card**, since GitHub's image proxy shows only a
   `200`, and puts the truth in `Card-Status`, `Card-Error-Code`, `Card-Error-Param` and `Card-Cache`.
   `STRICT_HTTP_STATUS=true` sends the real codes.
+- **`/statusz` reports the cache and each token's budget, by name**, read off the `x-ratelimit-*`
+  headers of answers already passing through `RateLimits.observing`, below `holdingUpstream` so a
+  held answer is never read twice. It never sends a request of its own.
 - **An empty env var is an unset one**: `docker compose` writes `""` for `${VAR:-}`, and an empty
   `CACHE_SECONDS` read as `0` would turn caching off. `fromEnv` guards it and drops an empty `PAT_2`;
   `tests/config.spec.ts` covers both.
@@ -66,8 +69,8 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 
 ## The site it carries
 
-- **`SITE_DIR` turns the site on, its handler claimed last**, after `/api/**` and `/healthz`, so
-  nothing it holds can shadow a card. `/_astro/**` is immutable, the rest kept 300s.
+- **`SITE_DIR` turns the site on, its handler claimed last**, after `/api/**`, `/healthz` and
+  `/statusz`, so nothing it holds can shadow a card. `/_astro/**` is immutable, the rest kept 300s.
   - **It must be a build for `/`**: `SITE_BASE` is baked in, and a Pages build 404s every asset.
   - **`pnpm server:hosted` is the Dockerfile's site build plus `server:standalone` with
     `SITE_DIR=../docs/build`**. A shell variable beats the `.env`, so one `.env` serves both scripts.

@@ -7,6 +7,7 @@ import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 import { CardCache, STALE_WHILE_REVALIDATE, parseInteger, successTtl } from './cache.ts';
 import type { ServerOptions } from './handler.ts';
 import { DEFAULT_HOST, DEFAULT_PORT } from './health.ts';
+import { RateLimits } from './rate-limits.ts';
 import { createStaticHandler } from './static.ts';
 import { holdingUpstream } from './upstream.ts';
 
@@ -67,6 +68,8 @@ const fromEnv = (value: string | undefined): string | undefined => {
 const readSettings = (env: Env): ServerSettings => {
   const siteDir = fromEnv(env['SITE_DIR']);
   const cacheSeconds = parseInteger(env['CACHE_SECONDS']);
+  const base = CardConfig.fromEnv(env);
+  const rateLimits = new RateLimits(base.pats);
 
   return {
     port: parseInteger(env['PORT']) ?? DEFAULT_PORT,
@@ -74,10 +77,10 @@ const readSettings = (env: Env): ServerSettings => {
     shutdownTimeoutMs: parseInteger(env['SHUTDOWN_TIMEOUT_MS']) ?? DEFAULT_SHUTDOWN_TIMEOUT_MS,
     logRequests: env['LOG_REQUESTS'] !== 'false',
     options: {
-      config: CardConfig.fromEnv(env).with({
+      config: base.with({
         // the global is read per call, so a host patching it later is still picked up
         fetch: holdingUpstream(
-          async (input, init) => fetch(input, init),
+          rateLimits.observing(async (input, init) => fetch(input, init)),
           Math.min(successTtl(cacheSeconds), UPSTREAM_HOLD_SECONDS),
           (parseInteger(env['CACHE_UPSTREAM_MB']) ?? DEFAULT_CACHE_UPSTREAM_MB) * 1024 * 1024,
         ),
@@ -92,6 +95,7 @@ const readSettings = (env: Env): ServerSettings => {
         parseInteger(env['CACHE_MAX_ENTRIES']) ?? DEFAULT_CACHE_MAX_ENTRIES,
         parseInteger(env['STALE_SECONDS']) ?? STALE_WHILE_REVALIDATE,
       ),
+      rateLimits,
       // set by the image; without it the server draws cards and serves no pages
       site: siteDir === undefined ? undefined : createStaticHandler(siteDir),
     },

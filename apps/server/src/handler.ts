@@ -11,6 +11,7 @@ import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 import { TTL, cacheControl, cacheKey, parseInteger, ttlFor } from './cache.ts';
 import type { CacheHit, CardCache } from './cache.ts';
 import { HEALTH_PATH } from './health.ts';
+import type { RateLimits } from './rate-limits.ts';
 import { CARD_ROUTES, normalizePath } from './routes.ts';
 import type { CardHandler } from './routes.ts';
 
@@ -28,9 +29,14 @@ interface ServerOptions {
   corsOrigin: string | undefined;
   /** The answers this process is holding. A TTL of `0` stores nothing, so it is never absent. */
   cache: CardCache;
+  /** Each token's budget, as the answers passing through reported it. */
+  rateLimits: RateLimits;
   /** The built documentation site, or `undefined` when this deployment carries none. */
   site: ((pathname: string) => Promise<Response | undefined>) | undefined;
 }
+
+/** What an operator reads to see how the instance is doing; not a card, and never cached. */
+const STATUS_PATH = '/statusz';
 
 /** Longest URL the server will parse, so a pathological query costs nothing to reject. */
 const MAX_URL_LENGTH = 4096;
@@ -103,7 +109,7 @@ const matches = (ifNoneMatch: string | null, etag: string): boolean => {
 };
 
 /** Where an answer came from: drawn now, held and fresh, or held past its TTL through a failure. */
-type Served = { from: 'miss' } | { from: 'hit' | 'stale'; age: number };
+type Origin = { from: 'miss' } | { from: 'hit' | 'stale'; age: number };
 
 /**
  * The drawn card, or the drawn error, with the truth about it in the headers.
@@ -113,7 +119,7 @@ type Served = { from: 'miss' } | { from: 'hit' | 'stale'; age: number };
 const cardResponse = (
   result: ApiResult,
   ttl: number,
-  served: Served,
+  served: Origin,
   strictHttpStatus: boolean,
   /** The request's `If-None-Match`, answered with a `304` when it names this body. */
   ifNoneMatch: string | null,
@@ -198,6 +204,32 @@ interface Drawn {
 /** The cards being drawn right now, so N requests arriving during one render share it. */
 type InFlight = Map<string, Promise<Drawn>>;
 
+/** How each card answer was served since the process started, keyed by its `Card-Cache`. */
+type Served = Record<'hit' | 'miss' | 'stale', number>;
+
+/** What lives as long as the handler: the draws in flight, and what `/statusz` reports. */
+interface HandlerState {
+  inFlight: InFlight;
+  served: Served;
+  startedAt: number;
+}
+
+/**
+ * @returns The status document: the card cache, how answers were served, and each token's budget.
+ */
+const statusResponse = (options: ServerOptions, state: HandlerState): Response =>
+  new Response(
+    `${JSON.stringify({
+      status: 'ok',
+      uptimeSeconds: Math.floor((Date.now() - state.startedAt) / 1000),
+      cache: { entries: options.cache.size, served: state.served },
+      tokens: options.rateLimits.snapshot(),
+    })}\n`,
+    {
+      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+    },
+  );
+
 /**
  * A card, drawn once however many requests for it arrive meanwhile, and held under the
  * deployment's default TTL whatever the request that drew it asked for.
@@ -244,7 +276,7 @@ const drawCard = async (
 const route = async (
   request: Request,
   options: ServerOptions,
-  inFlight: InFlight,
+  state: HandlerState,
 ): Promise<Response> => {
   if (request.url.length > MAX_URL_LENGTH) {
     return problem(414, 'uri_too_long', 'The request URL is too long');
@@ -263,6 +295,10 @@ const route = async (
     return new Response(`${JSON.stringify({ status: 'ok' })}\n`, {
       headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
     });
+  }
+
+  if (path === STATUS_PATH) {
+    return statusResponse(options, state);
   }
 
   const render = CARD_ROUTES.get(path);
@@ -291,7 +327,7 @@ const route = async (
   }
 
   const query = queryOf(url.searchParams);
-  const { result, stale } = await drawCard(render, key, query, options, inFlight);
+  const { result, stale } = await drawCard(render, key, query, options, state.inFlight);
 
   // a short life, so the next request tries GitHub again; `0` refuses a held copy, stale or not
   if (stale && wanted !== 0) {
@@ -319,12 +355,22 @@ const route = async (
  * @returns The handler: a `Request` in, a `Response` out.
  */
 const createHandler = (options: ServerOptions) => {
-  const inFlight: InFlight = new Map();
+  const state: HandlerState = {
+    inFlight: new Map(),
+    served: { hit: 0, miss: 0, stale: 0 },
+    startedAt: Date.now(),
+  };
 
-  return async (request: Request): Promise<Response> =>
-    finish(request, await route(request, options, inFlight), options.corsOrigin);
+  return async (request: Request): Promise<Response> => {
+    const response = await route(request, options, state);
+    const from = response.headers.get('card-cache');
+    if (from === 'hit' || from === 'miss' || from === 'stale') {
+      state.served[from] += 1;
+    }
+    return finish(request, response, options.corsOrigin);
+  };
 };
 
 export type { ServerOptions };
 
-export { STRICT_STATUS, createHandler, problem };
+export { STATUS_PATH, STRICT_STATUS, createHandler, problem };

@@ -3,8 +3,9 @@ import type { ErrorCode } from '@stats-forge/github-stats-forge-core/api';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { MAX_CACHE_SECONDS, MIN_CACHE_SECONDS, STALE_WHILE_REVALIDATE, TTL } from '../src/cache.ts';
-import { STRICT_STATUS, createHandler } from '../src/handler.ts';
+import { STATUS_PATH, STRICT_STATUS, createHandler } from '../src/handler.ts';
 import type { ServerOptions } from '../src/handler.ts';
+import { RateLimits } from '../src/rate-limits.ts';
 
 import {
   GIST_ID,
@@ -63,6 +64,35 @@ describe('routing', () => {
     const response = await get(`${GIST_URL}&theme=${'a'.repeat(5000)}`, testOptions());
 
     expect(response.status).toBe(414);
+  });
+});
+
+describe('the status document', () => {
+  it('counts how card answers were served, and is never cached itself', async () => {
+    const { options } = optionsAnswering(GIST_REPLY);
+    const handler = createHandler(options);
+    await handler(new Request(GIST_URL));
+    await handler(new Request(GIST_URL));
+    await handler(new Request('http://localhost/healthz'));
+
+    const response = await handler(new Request(`http://localhost${STATUS_PATH}`));
+
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    await expect(response.json()).resolves.toMatchObject({
+      status: 'ok',
+      cache: { entries: 1, served: { hit: 1, miss: 1, stale: 0 } },
+    });
+  });
+
+  it('names each token and its budget, never its value', async () => {
+    const options = testOptions({
+      rateLimits: new RateLimits([{ name: 'PAT_1', value: 'secret' }]),
+    });
+    const response = await get(`http://localhost${STATUS_PATH}`, options);
+    const body = await response.text();
+
+    expect(JSON.parse(body)).toMatchObject({ tokens: [{ name: 'PAT_1', remaining: null }] });
+    expect(body).not.toContain('secret');
   });
 });
 
