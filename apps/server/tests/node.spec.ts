@@ -138,3 +138,23 @@ test('cuts a request still in flight once the shutdown timeout runs out', async 
   await expect(inFlight).rejects.toThrow(TypeError);
   expect(server.listening).toBe(false);
 });
+
+test('passes If-None-Match on to the handler, which answers a revalidation with it', async () => {
+  const seen = vi.fn<(request: Request) => Promise<Response>>(async () =>
+    Promise.resolve(new Response('ok')),
+  );
+  const server = createNodeServer(seen, false);
+  const port = await listen(server);
+
+  try {
+    await fetch(`http://127.0.0.1:${port}/api/gist`, {
+      headers: { 'if-none-match': 'W/"abc"', 'user-agent': 'test' },
+    });
+
+    const [request] = seen.mock.calls[0] ?? [];
+    expect(request?.headers.get('if-none-match')).toBe('W/"abc"');
+    expect(request?.headers.get('user-agent')).toBeNull();
+  } finally {
+    await closeGracefully(server, 1000);
+  }
+});

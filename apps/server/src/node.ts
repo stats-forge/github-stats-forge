@@ -10,15 +10,27 @@ import { logRequest } from './log.ts';
 
 type FetchHandler = (request: Request) => Promise<Response>;
 
+/** The request headers the handler reads; nothing else crosses. */
+const FORWARDED_HEADERS = ['if-none-match'] as const;
+
 /**
- * Node's request as the handler takes it. Only `GET` and `HEAD` are served, so no body crosses,
- * and nothing routes on a header, so none is copied.
+ * Node's request as the handler takes it. Only `GET` and `HEAD` are served, so no body crosses.
  *
  * @returns The request.
  */
 const toRequest = (incoming: IncomingMessage): Request => {
   const origin = `http://${incoming.headers.host ?? 'localhost'}`;
-  return new Request(new URL(incoming.url ?? '/', origin), { method: incoming.method ?? 'GET' });
+  const headers = new Headers();
+  for (const name of FORWARDED_HEADERS) {
+    const value = incoming.headers[name];
+    if (typeof value === 'string') {
+      headers.set(name, value);
+    }
+  }
+  return new Request(new URL(incoming.url ?? '/', origin), {
+    method: incoming.method ?? 'GET',
+    headers,
+  });
 };
 
 /**

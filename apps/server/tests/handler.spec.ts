@@ -22,8 +22,12 @@ const GIST_URL = `http://localhost/api/gist?id=${GIST_ID}`;
 /**
  * @returns The answer to one request, with the handler bound to `options`.
  */
-const get = async (url: string, options: ServerOptions, method = 'GET'): Promise<Response> =>
-  createHandler(options)(new Request(url, { method }));
+const get = async (
+  url: string,
+  options: ServerOptions,
+  method = 'GET',
+  headers: Record<string, string> = {},
+): Promise<Response> => createHandler(options)(new Request(url, { method, headers }));
 
 // here rather than at the end of a test, where a failed assertion would skip it
 afterEach(() => {
@@ -113,6 +117,66 @@ describe('a drawn card', () => {
     expect(response.headers.get('cache-control')).toBe(
       `max-age=${TTL.success}, s-maxage=${TTL.success}, stale-while-revalidate=86400`,
     );
+  });
+});
+
+describe('revalidation', () => {
+  it('answers a caller already holding the card with 304 and no body', async () => {
+    const { options } = optionsAnswering(GIST_REPLY);
+    const handler = createHandler(options);
+    const first = await handler(new Request(GIST_URL));
+    const etag = first.headers.get('etag') ?? '';
+
+    const second = await handler(new Request(GIST_URL, { headers: { 'if-none-match': etag } }));
+
+    expect(etag).toMatch(/^W\/"[\w-]+"$/);
+    expect(second.status).toBe(304);
+    expect(second.headers.get('etag')).toBe(etag);
+    expect(second.headers.get('card-cache')).toBe('hit');
+    await expect(second.text()).resolves.toBe('');
+  });
+
+  it('matches a strong form of the tag, and one tag in a list', async () => {
+    const { options } = optionsAnswering(GIST_REPLY);
+    const handler = createHandler(options);
+    const first = await handler(new Request(GIST_URL));
+    const strong = (first.headers.get('etag') ?? '').replace(/^W\//, '');
+
+    const response = await handler(
+      new Request(GIST_URL, { headers: { 'if-none-match': `"other", ${strong}` } }),
+    );
+
+    expect(response.status).toBe(304);
+  });
+
+  it('sends the card again when the caller holds another', async () => {
+    const { options } = optionsAnswering(GIST_REPLY);
+    const response = await get(GIST_URL, options, 'GET', { 'if-none-match': 'W/"other"' });
+
+    expect(response.status).toBe(200);
+    await expect(response.text()).resolves.toContain('<svg');
+  });
+
+  it('gives a different look a different tag', async () => {
+    const { options } = optionsAnswering(GIST_REPLY);
+    const handler = createHandler(options);
+    const plain = await handler(new Request(GIST_URL));
+    const themed = await handler(new Request(`${GIST_URL}&theme=ember_dark`));
+
+    expect(themed.headers.get('etag')).not.toBe(plain.headers.get('etag'));
+  });
+
+  it('never answers 304 to a failure sent with its real status', async () => {
+    const options = { ...testOptions(), strictHttpStatus: true };
+    const handler = createHandler(options);
+    const first = await handler(new Request('http://localhost/api/gist'));
+    const etag = first.headers.get('etag') ?? '';
+
+    const response = await handler(
+      new Request('http://localhost/api/gist', { headers: { 'if-none-match': etag } }),
+    );
+
+    expect(response.status).toBe(400);
   });
 });
 
