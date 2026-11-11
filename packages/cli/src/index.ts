@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -28,6 +29,7 @@ Options
       --config <file>   Options to load, and where "Save these options" writes
       --options <query> Options as a query string, as the action and a card URL carry them
   -g, --generate        Render what --config holds and exit, without the menu
+      --check           As --generate, but fail when --out differs instead of writing it
       --print-query     Print the options as a query string and exit, without rendering
       --pat <token>     GitHub token; repeat for several
       --env-file <file> Env file to read PAT_1, PAT_2, … from (default: ${DEFAULT_ENV_FILE})
@@ -44,6 +46,7 @@ interface Flags {
   config?: string;
   options?: string;
   generate: boolean;
+  check: boolean;
   'print-query': boolean;
   pat: Array<string>;
   'env-file'?: string;
@@ -62,6 +65,7 @@ const readFlags = (): Flags =>
       config: { type: 'string' },
       options: { type: 'string' },
       generate: { type: 'boolean', short: 'g', default: false },
+      check: { type: 'boolean', default: false },
       'print-query': { type: 'boolean', default: false },
       pat: { type: 'string', multiple: true, default: [] },
       'env-file': { type: 'string' },
@@ -70,6 +74,42 @@ const readFlags = (): Flags =>
     },
     allowPositionals: false,
   }).values;
+
+/**
+ * Renders a card, reporting on stderr why it could not.
+ *
+ * @returns The SVG, or the code that says why there is none.
+ */
+const renderCard = async (
+  card: CardKind,
+  query: Record<string, string>,
+  config: CardConfig,
+): Promise<{ content: string } | { failed: string }> => {
+  const result = await withSpinner(`Rendering the ${card.id} card`, async () =>
+    card.render(query, config),
+  );
+
+  if (result.status === 'success') {
+    return { content: result.content };
+  }
+
+  const { code, text, param } = result.error;
+  process.stderr.write(
+    `${[
+      `Could not render the ${card.id} card.`,
+      `  ${text}`,
+      `  code: ${code}${param ? `, param: ${param}` : ''}`,
+      result.retryable ? '  This one may work on a retry.' : '',
+    ]
+      .filter(Boolean)
+      .join('\n')}\n`,
+  );
+  return { failed: code };
+};
+
+/** @returns Where a card is written, absolute, named after the card unless `out` says. */
+const outFile = (card: CardKind, query: Record<string, string>, out: string | undefined): string =>
+  resolve(process.cwd(), out ?? `${cardFileStem(card, query)}.svg`);
 
 /**
  * Renders a card and writes it next to wherever the run was started.
@@ -82,30 +122,46 @@ const renderAndWrite = async (
   config: CardConfig,
   out: string | undefined,
 ): Promise<{ written: string } | { failed: string }> => {
-  const result = await withSpinner(`Rendering the ${card.id} card`, async () =>
-    card.render(query, config),
-  );
-
-  if (result.status === 'error') {
-    const { code, text, param } = result.error;
-    process.stderr.write(
-      `${[
-        `Could not render the ${card.id} card.`,
-        `  ${text}`,
-        `  code: ${code}${param ? `, param: ${param}` : ''}`,
-        result.retryable ? '  This one may work on a retry.' : '',
-      ]
-        .filter(Boolean)
-        .join('\n')}\n`,
-    );
-    return { failed: code };
+  const rendered = await renderCard(card, query, config);
+  if ('failed' in rendered) {
+    return rendered;
   }
 
-  const file = resolve(process.cwd(), out ?? `${cardFileStem(card, query)}.svg`);
-  await writeFile(file, result.content, 'utf8');
+  const file = outFile(card, query, out);
+  await writeFile(file, rendered.content, 'utf8');
   const written = relative(process.cwd(), file);
   process.stdout.write(`Wrote ${written}\n`);
   return { written };
+};
+
+/**
+ * Renders a card and compares it with the file it would be written to, writing nothing.
+ *
+ * @returns Whether the file holds exactly this render.
+ */
+const renderAndCompare = async (
+  card: CardKind,
+  query: Record<string, string>,
+  config: CardConfig,
+  out: string | undefined,
+): Promise<boolean> => {
+  const rendered = await renderCard(card, query, config);
+  if ('failed' in rendered) {
+    return false;
+  }
+
+  const file = outFile(card, query, out);
+  const shown = relative(process.cwd(), file);
+  const current = existsSync(file) ? await readFile(file, 'utf8') : undefined;
+  if (current !== rendered.content) {
+    process.stderr.write(
+      `${shown} ${current === undefined ? 'does not exist' : 'is out of date'}\n`,
+    );
+    return false;
+  }
+
+  process.stdout.write(`${shown} is up to date\n`);
+  return true;
 };
 
 /**
@@ -145,8 +201,13 @@ const main = async (): Promise<void> => {
   // plus one option is a whole variant.
   const pasted = fromQueryString(flags.options ?? '');
 
-  if (flags.generate && !saved) {
-    throw new Error('--generate renders a saved card, so it needs --config pointing at one.');
+  // `--check` is `--generate` that compares, so it takes the same path
+  const generate = flags.generate || flags.check;
+
+  if (generate && !saved) {
+    throw new Error(
+      `--${flags.check ? 'check' : 'generate'} renders a saved card, so it needs --config pointing at one.`,
+    );
   }
 
   /*
@@ -154,7 +215,7 @@ const main = async (): Promise<void> => {
    * Without a terminal the prompt would hang on a stdin that never answers,
    * so say what to pass instead.
    */
-  if (!flags.generate && !flags['print-query'] && !process.stdin.isTTY) {
+  if (!generate && !flags['print-query'] && !process.stdin.isTTY) {
     throw new Error(
       'github-stats-forge asks questions, so it needs a terminal. Render a saved card instead: --config <file> --generate',
     );
@@ -182,7 +243,7 @@ const main = async (): Promise<void> => {
   }
 
   let tokens = resolveTokens(flags.pat, process.env);
-  if (card.needsToken && tokens.length === 0 && flags.generate) {
+  if (card.needsToken && tokens.length === 0 && generate) {
     throw new Error(
       `The ${card.id} card reads the GitHub API, so it needs a token. Pass --pat, or put PAT_1 in ${DEFAULT_ENV_FILE}.`,
     );
@@ -209,7 +270,13 @@ const main = async (): Promise<void> => {
   });
 
   // `--generate` renders what the file holds and stops: no menu, nothing to answer.
-  if (saved && flags.generate) {
+  if (saved && flags.check) {
+    if (!(await renderAndCompare(card, { ...saved.options, ...pasted }, config, flags.out))) {
+      process.exitCode = 1;
+    }
+    return;
+  }
+  if (saved && generate) {
     const outcome = await renderAndWrite(card, { ...saved.options, ...pasted }, config, flags.out);
     if ('failed' in outcome) {
       process.exitCode = 1;
