@@ -18,6 +18,9 @@ carries a server changeset.
 - **Every example `uses:` is `<owner>/<repo>@<sha> # vX.Y.Z`**, the shape Renovate's custom manager
   reads ([#114]).
 - **`public/favicon-self-hosted.svg` is `favicon.svg` with blue bars**: change both.
+- **`check-option-tables` holds each card page to the catalog**: every option it lists sits in an
+  `Option` table on the card's page or is named on `customization/common-options.md`, and every
+  `Option` table row is one the card takes.
 
 ## Building and checking
 
