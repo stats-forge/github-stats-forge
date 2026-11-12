@@ -21,25 +21,18 @@ rather than a total that only ever grows.
 
 ## Options
 
-| Option       | Values                                                    | What it does                                   |
-| ------------ | --------------------------------------------------------- | ---------------------------------------------- |
-| `repo`       | a repository's name                                       | Count only that repository of the organization |
-| `days`       | `1` to `365`                                              | Days the window covers (30 by default)         |
-| `from`       | a year, a month or a day                                  | The start of the window, instead of `days`     |
-| `to`         | a year, a month or a day                                  | The end of the window, instead of `days`       |
-| `show`       | `discussions_started` `commits`                           | Draw these stats as well                       |
-| `hide`       | `prs_opened` `prs_merged` `issues_opened` `issues_closed` | Leave these stats out                          |
-| `show_icons` | `true` `false`                                            | Show an icon beside each stat (on by default)  |
+| Option       | Values                                                    | What it does                                  |
+| ------------ | --------------------------------------------------------- | --------------------------------------------- |
+| `days`       | `1` to `365`                                              | Days the window covers (30 by default)        |
+| `from`       | a year, a month or a day                                  | The start of the window, instead of `days`    |
+| `to`         | a year, a month or a day                                  | The end of the window, instead of `days`      |
+| `show`       | `discussions_started` `commits`                           | Draw these stats as well                      |
+| `hide`       | `prs_opened` `prs_merged` `issues_opened` `issues_closed` | Leave these stats out                         |
+| `show_icons` | `true` `false`                                            | Show an icon beside each stat (on by default) |
 
 `show` and `hide` each take any stat the card draws; a stat named in both is left out.
 
 Plus the [common options](../../customization/common-options/).
-
-## One repository
-
-`repo` narrows every count, commits included, to one of the organization's repositories, named
-without its owner: `?org=vitest-dev&repo=vitest`. The title then names the repository. A name the
-organization does not have is an error card, rather than a card of zeros.
 
 ## The window
 

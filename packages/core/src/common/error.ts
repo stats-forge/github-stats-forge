@@ -163,11 +163,6 @@ const FAILURES = {
     message: 'Invalid organization provided.',
     param: 'org',
   }),
-  org_repo_invalid: (): Failure => ({
-    code: 'invalid_param',
-    message: 'Invalid repository provided.',
-    param: 'repo',
-  }),
   org_members_forbidden: (): Failure => ({
     code: 'forbidden',
     retryable: true,

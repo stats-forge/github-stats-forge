@@ -24,7 +24,6 @@ const answer = ({
   issuesClosed = 0,
   discussions = 0,
   name = 'Vitest',
-  repository,
   /** What the issue searches matched — `PullRequest` is how a token refused issues is answered. */
   issueNode = 'Issue',
 }: {
@@ -34,13 +33,10 @@ const answer = ({
   issuesClosed?: number;
   discussions?: number;
   name?: string | null;
-  /** The repository the query named, answered as GitHub spells it. */
-  repository?: string;
   issueNode?: 'Issue' | 'PullRequest';
 } = {}): { data: GetOrganizationActivityQuery } => ({
   data: {
     organization: { login: 'vitest-dev', name },
-    ...(repository === undefined ? {} : { repository: { name: repository } }),
     prsOpened: { issueCount: prsOpened },
     prsMerged: { issueCount: prsMerged },
     issuesOpened: {
@@ -91,7 +87,6 @@ describe(fetchOrgActivity, () => {
     expect(data).toStrictEqual({
       login: 'vitest-dev',
       name: 'Vitest',
-      repository: null,
       range: { from: new Date('2026-08-14T00:00:00Z'), to: new Date('2026-09-12T00:00:00Z') },
       days: 30,
       prsOpened: 267,
@@ -118,65 +113,6 @@ describe(fetchOrgActivity, () => {
       issuesClosed: 'org:vitest-dev is:issue closed:2026-08-14..2026-09-12',
       discussions: 'org:vitest-dev created:2026-08-14..2026-09-12',
     });
-  });
-
-  it('narrows each search to one repository, and asks GitHub whether it exists', async () => {
-    mock.onPost(GRAPHQL).reply(200, answer({ repository: 'Vitest' }));
-    mock.onGet(COMMIT_SEARCH).reply(200, { total_count: 12 } satisfies SearchBody);
-
-    const data = await fetchOrgActivity(
-      { org: 'vitest-dev', repo: 'vitest', include_commits: true },
-      config,
-    );
-
-    expect(data.repository).toBe('Vitest');
-    expect(sentSearches()).toMatchObject({
-      repo: 'vitest',
-      withRepo: true,
-      prsOpened: 'repo:vitest-dev/vitest is:pr created:2026-08-14..2026-09-12',
-      discussions: 'repo:vitest-dev/vitest created:2026-08-14..2026-09-12',
-    });
-    expect(mock.history.get[0]?.url).toContain('q=repo:vitest-dev/vitest+author-date:');
-  });
-
-  it('asks for no repository when the query named none', async () => {
-    mock.onPost(GRAPHQL).reply(200, answer());
-
-    await fetchOrgActivity({ org: 'vitest-dev' }, config);
-
-    expect(sentSearches()).toMatchObject({ repo: '', withRepo: false });
-  });
-
-  it('answers a repository the organization does not have as not found', async () => {
-    mock.onPost(GRAPHQL).reply(200, {
-      data: { ...answer().data, repository: null },
-      errors: [{ type: 'NOT_FOUND', path: ['repository'], message: 'Could not resolve' }],
-    } satisfies GraphQLBody<GetOrganizationActivityQuery>);
-
-    await expect(
-      fetchOrgActivity({ org: 'vitest-dev', repo: 'nothing' }, config),
-    ).rejects.toMatchObject({ reason: 'repo_not_found' });
-  });
-
-  it('names the organization, not the repository, when the organization is missing', async () => {
-    mock.onPost(GRAPHQL).reply(200, {
-      data: { organization: null },
-      errors: [
-        { type: 'NOT_FOUND', path: ['organization'], message: 'Could not resolve' },
-        { type: 'NOT_FOUND', path: ['repository'], message: 'Could not resolve' },
-      ],
-    } satisfies GraphQLBody<Partial<GetOrganizationActivityQuery>>);
-
-    await expect(fetchOrgActivity({ org: 'nobody', repo: 'vitest' }, config)).rejects.toMatchObject(
-      { reason: 'org_not_found' },
-    );
-  });
-
-  it('rejects a malformed repository before sending anything', async () => {
-    await expect(
-      fetchOrgActivity({ org: 'vitest-dev', repo: 'a/b' }, config),
-    ).rejects.toMatchObject({ reason: 'org_repo_invalid' });
-    expect(mock.history.post).toHaveLength(0);
   });
 
   it('counts today alone for a window of one day', async () => {
@@ -369,17 +305,6 @@ describe('the org activity endpoint', () => {
 
     expect(result.status).toBe('success');
     expect(mock.history.get).toHaveLength(searches);
-  });
-
-  it('titles a card scoped to a repository after the repository', async () => {
-    mock.onPost(GRAPHQL).reply(200, answer({ repository: 'vitest' }));
-
-    const result = await orgActivity({ org: 'vitest-dev', repo: 'vitest' }, config);
-
-    draw(result.content);
-    expect(document.querySelector('.header')).toHaveTextContent(
-      exactly("vitest's activity (last 30 days)"),
-    );
   });
 
   it('hands the card its own params', async () => {

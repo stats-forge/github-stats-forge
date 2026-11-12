@@ -255,12 +255,6 @@ const CARDS: ReadonlyArray<CardSpec> = [
         group: 'data',
         hint: 'The window ends today; 30 by default. Leave it out to count from and up to dates',
       },
-      {
-        name: 'repo',
-        label: 'Count only this repository',
-        group: 'data',
-        hint: "One of the organization's, named without its owner",
-      },
       ...rangeOptions('activity'),
       {
         name: 'show',
@@ -291,12 +285,6 @@ const CARDS: ReadonlyArray<CardSpec> = [
         label: 'What each week counts',
         group: 'data',
         hint: 'Pull requests merged by default; the issue counts need a token that reads issues',
-      },
-      {
-        name: 'repo',
-        label: 'Count only this repository',
-        group: 'data',
-        hint: "One of the organization's, named without its owner",
       },
       { name: 'weeks', label: 'Weeks to cover', group: 'data', hint: 'Up to 9, ending today' },
       { name: 'title', label: 'Card title', group: 'text' },

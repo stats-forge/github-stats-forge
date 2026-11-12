@@ -21,18 +21,11 @@ It counts merged pull requests unless told otherwise.
 
 | Option  | Values                                                    | What it does                        |
 | ------- | --------------------------------------------------------- | ----------------------------------- |
-| `repo`  | a repository's name                                       | Count only that repository          |
 | `count` | `prs_merged` `prs_opened` `issues_opened` `issues_closed` | What each week counts               |
 | `weeks` | `1` to `9`                                                | Weeks the row covers (9 by default) |
 
 Plus the [common options](../../customization/common-options/), `number_format` and
 `number_precision`.
-
-## One repository
-
-`repo` narrows every week to one of the organization's repositories, named without its owner:
-`?org=vitest-dev&repo=vitest`. The title then names the repository, and a name the organization
-does not have is an error card.
 
 ## The weeks
 

@@ -12,7 +12,6 @@ import { cssValue, exactly } from './_card.ts';
 const data: OrgActivityData = {
   login: 'vitest-dev',
   name: 'Vitest',
-  repository: null,
   range: { from: new Date('2026-08-14T00:00:00Z'), to: new Date('2026-09-12T00:00:00Z') },
   days: 30,
   prsOpened: 267,
