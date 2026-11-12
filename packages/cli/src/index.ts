@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { existsSync } from 'node:fs';
-import { readFile, writeFile } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, relative, resolve } from 'node:path';
 import { formatWithOptions, parseArgs } from 'node:util';
 
 import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
@@ -149,6 +149,7 @@ const renderAndWrite = async (
   }
 
   const file = outFile(card, query, out);
+  await mkdir(dirname(file), { recursive: true });
   await writeFile(file, rendered.content, 'utf8');
   const written = relative(process.cwd(), file);
   process.stdout.write(`Wrote ${written}\n`);
