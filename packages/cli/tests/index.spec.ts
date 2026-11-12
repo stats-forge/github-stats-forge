@@ -174,6 +174,7 @@ describe('the command line', () => {
 
   it.each([
     { args: ['--generate'], says: '--generate renders a saved card' },
+    { args: ['--check'], says: '--check renders a saved card' },
     { args: [], says: 'it needs a terminal' },
     { args: ['--card', 'nope', '--print-query'], says: 'No card called "nope"' },
     {
@@ -222,6 +223,48 @@ describe('the command line', () => {
     expect(result.err).toContain('This one may work on a retry.');
     expect(result.code).toBe(1);
     expect(existsSync(out)).toBe(false);
+  });
+
+  describe('--check', () => {
+    it('passes when the file holds exactly this render, and leaves it alone', async () => {
+      render.mockResolvedValue(DRAWN);
+      const out = join(dir, 'card.svg');
+      await writeFile(out, DRAWN.content);
+
+      const result = await run('--config', savedGist, '--check', '--pat', 'ghp_x', '--out', out);
+
+      expect(result.out).toContain('is up to date');
+      expect(result.code).toBeUndefined();
+      expect(prompts.navigateOptions).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      { what: 'differs', held: '<svg>an older card</svg>', says: 'is out of date' },
+      { what: 'is missing', held: undefined, says: 'does not exist' },
+    ])('fails when the file $what, and writes nothing', async ({ held, says }) => {
+      render.mockResolvedValue(DRAWN);
+      const out = join(dir, 'card.svg');
+      if (held !== undefined) {
+        await writeFile(out, held);
+      }
+
+      const result = await run('--config', savedGist, '--check', '--pat', 'ghp_x', '--out', out);
+
+      expect(result.err).toContain(says);
+      expect(result.code).toBe(1);
+      expect(existsSync(out) ? await readFile(out, 'utf8') : undefined).toBe(held);
+    });
+
+    it('fails when the card cannot be rendered', async () => {
+      render.mockResolvedValue(REFUSED);
+      const out = join(dir, 'card.svg');
+      await writeFile(out, DRAWN.content);
+
+      const result = await run('--config', savedGist, '--check', '--pat', 'ghp_x', '--out', out);
+
+      expect(result.err).toContain('Could not render the gist card.');
+      expect(result.code).toBe(1);
+    });
   });
 
   it('leaves with 130, and says nothing, when a prompt is cancelled', async () => {

@@ -25,6 +25,8 @@ builds and runs it against the root `.env`.
   on its way to a handler.
 - **`CARD_FILE_VERSION` refuses a higher number and reads an absent one as 1.** Bump it with any
   change of shape, and ship the migration.
+- **`--check` is `--generate` that compares** with `--out` and writes nothing, exiting 1 on a
+  difference, a missing file or a failed render; every guard on `generate` covers it.
 - **The menu stays open after a render, its cursor in place.**
 
 ## Prompts and the menu

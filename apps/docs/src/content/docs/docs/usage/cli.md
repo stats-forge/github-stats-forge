@@ -55,6 +55,7 @@ the prompt, which hides what you type.
 | `--config <file>`   | A saved card to load, and where "Save these options" writes                                                     |
 | `--options <query>` | Options as a query string, layered over `--config`                                                              |
 | `-g, --generate`    | Render what `--config` holds and exit, without opening the menu                                                 |
+| `--check`           | As `--generate`, but exit 1 when the file at `--out` differs, writing nothing                                   |
 | `--print-query`     | Print the options as a query string and exit, without rendering                                                 |
 | `--pat <token>`     | A GitHub token; repeat the flag for several                                                                     |
 | `--env-file <file>` | Which env file to read `PAT_1`, `PAT_2`, … from                                                                 |
@@ -84,6 +85,9 @@ Add `--generate` and it renders and exits, which is what a script or a scheduled
 ```sh
 npx @stats-forge/github-stats-forge-cli --config card.json --generate --out stats.svg
 ```
+
+`--check` in its place renders the same card and compares it with `stats.svg`, writing nothing: it
+exits 1 when the file is missing or out of date, so a job can tell whether a commit is due.
 
 ## The query string
 
