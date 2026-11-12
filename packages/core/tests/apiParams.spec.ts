@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as z from 'zod/mini';
 
 import type { ApiResult } from '../src/api/api-result.ts';
@@ -54,8 +54,6 @@ beforeAll(() => {
     errors: [{ type: 'INTERNAL', message: 'Upstream is down' }],
   } satisfies GraphQLErrorBody);
   mock.onGet().reply(502);
-  // the GraphQL answer is logged as GitHub's error, which is the point of answering it
-  vi.spyOn(console, 'error').mockReturnValue();
 });
 
 afterAll(() => {

@@ -6,7 +6,7 @@ import { fetchOrgActivity } from '../src/fetchers/org-activity/index.ts';
 import type { GetOrganizationActivityQuery } from '../src/graphql/generated/org-activity.ts';
 
 import { draw, exactly } from './_card.ts';
-import { testConfig } from './_config.ts';
+import { testConfig, testLogger } from './_config.ts';
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 import type { GraphQLBody, SearchBody } from './_fetch-mock.ts';
 
@@ -178,9 +178,6 @@ describe(fetchOrgActivity, () => {
   });
 
   it('drops the commit count rather than the card when that search is refused', async () => {
-    // silences the refusal the fetcher reports
-    vi.spyOn(console, 'error').mockReturnValue();
-
     mock.onPost(GRAPHQL).reply(200, answer({ prsOpened: 12 }));
     mock.onGet(COMMIT_SEARCH).reply(200, { message: 'Validation Failed' } satisfies SearchBody);
 
@@ -209,9 +206,6 @@ describe(fetchOrgActivity, () => {
   });
 
   it('drops both issue counts instead, for a caller that wants neither row', async () => {
-    // silences the refusal the fetcher reports, and is what asserts on it
-    const logged = vi.spyOn(console, 'error').mockReturnValue();
-
     mock.onPost(GRAPHQL).reply(
       200,
       answer({
@@ -230,7 +224,7 @@ describe(fetchOrgActivity, () => {
     // the pull request rows are answered honestly by the same token, so they stay
     expect(data.prsOpened).toBe(157);
     expect(data.prsMerged).toBe(115);
-    expect(logged).toHaveBeenCalledWith(expect.stringContaining('may not read issues'));
+    expect(testLogger.error).toHaveBeenCalledWith(expect.stringContaining('may not read issues'));
   });
 
   it('keeps an issue count of zero, which has no node to check', async () => {
@@ -268,8 +262,6 @@ describe(fetchOrgActivity, () => {
   });
 
   it('rejects any other refusal as upstream', async () => {
-    vi.spyOn(console, 'error').mockReturnValue();
-
     mock.onPost(GRAPHQL).reply(200, {
       data: { organization: null },
       errors: [{ type: 'FORBIDDEN', message: 'Resource not accessible by integration' }],
@@ -323,8 +315,6 @@ describe('the org activity endpoint', () => {
   ])(
     'answers $status from a token that may not read issues when hiding $hide',
     async ({ hide, status }) => {
-      // silences the refusal the fetcher reports when both rows are hidden
-      vi.spyOn(console, 'error').mockReturnValue();
       mock.onPost(GRAPHQL).reply(200, answer({ issuesOpened: 3, issueNode: 'PullRequest' }));
 
       const result = await orgActivity({ org: 'vitest-dev', hide }, config);

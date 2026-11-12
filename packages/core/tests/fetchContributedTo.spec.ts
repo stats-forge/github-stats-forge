@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { contributedTo } from '../src/api/contributed-to.ts';
 import { CardConfig } from '../src/common/config.ts';
@@ -8,13 +8,9 @@ import type { UserContributionYearsQuery } from '../src/graphql/generated/contri
 import type { ReposContributedToQuery } from '../src/graphql/reposContributedToDocument.ts';
 
 import { draw, exactly } from './_card.ts';
+import { testLogger } from './_config.ts';
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
-
-vi.mock(import('../src/common/log.ts'), async () => {
-  const { createLoggerMock } = await import('./utils.ts');
-  return createLoggerMock();
-});
 
 const years: GraphQLBody<UserContributionYearsQuery> = {
   data: {
@@ -57,6 +53,7 @@ const mock = new FetchMock();
 const config = new CardConfig({
   pats: [{ name: 'PAT_1', value: 'dummyPAT1' }],
   fetch: mock.fetch,
+  logger: testLogger,
 });
 
 /** Answers the years query first, then every range query. */

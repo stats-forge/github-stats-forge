@@ -7,6 +7,7 @@ import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
 import { CardCache, STALE_WHILE_REVALIDATE, parseInteger, successTtl } from './cache.ts';
 import type { ServerOptions } from './handler.ts';
 import { DEFAULT_HOST, DEFAULT_PORT } from './health.ts';
+import { coreLogger } from './log.ts';
 import { RateLimits } from './rate-limits.ts';
 import { createStaticHandler } from './static.ts';
 import { holdingUpstream } from './upstream.ts';
@@ -89,6 +90,7 @@ const readSettings = (env: Env): ServerSettings => {
         ),
         requestTimeoutMs: parseInteger(env['REQUEST_TIMEOUT_MS']) ?? DEFAULT_REQUEST_TIMEOUT_MS,
         hints: HINTS,
+        logger: coreLogger,
       }),
       strictHttpStatus: env['STRICT_HTTP_STATUS'] === 'true',
       // `0` is the one switch: it stores nothing as well as sending `no-store`

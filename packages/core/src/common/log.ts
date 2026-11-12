@@ -1,13 +1,15 @@
 /**
- * Where this package's diagnostics go.
- *
- * Dispatches to `console` at call time rather than import time,
- * so a host or a test that replaces `console.log` is obeyed.
+ * @file Where this package's diagnostics go: a host hands a `Logger` to `CardConfig`.
  */
-const logger: {
+
+/** Receives core's diagnostics, each as `console.log` or `console.error` would. */
+interface Logger {
   log: (...args: Array<unknown>) => void;
   error: (...args: Array<unknown>) => void;
-} = {
+}
+
+/** Dispatches to `console` at call time, so a host or test that replaces `console.log` is obeyed. */
+const consoleLogger: Logger = {
   log: (...args) => {
     console.log(...args);
   },
@@ -16,4 +18,5 @@ const logger: {
   },
 };
 
-export { logger };
+export { consoleLogger };
+export type { Logger };

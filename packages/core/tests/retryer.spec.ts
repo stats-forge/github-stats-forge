@@ -7,11 +7,6 @@ import type { FetcherResponse } from '../src/common/retryer.ts';
 
 import { testConfig } from './_config.ts';
 
-vi.mock(import('../src/common/log.ts'), async () => {
-  const { createLoggerMock } = await import('./utils.ts');
-  return createLoggerMock();
-});
-
 /** What a fake fetcher's answer carries: a value, the token that asked, or why there is neither. */
 interface Payload {
   value?: string;

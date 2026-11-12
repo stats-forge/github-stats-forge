@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { readSettings } from '../src/config.ts';
 import { DEFAULT_HOST, DEFAULT_PORT } from '../src/health.ts';
+import { coreLogger } from '../src/log.ts';
 
 const success: ApiResult = { status: 'success', content: '<svg />' };
 
@@ -67,6 +68,8 @@ describe(readSettings, () => {
       says: 'You can deploy own instance or wait until public will be no longer limited',
     },
   ])('keeps its own advice for an operator with $operator', async ({ env, reply, says }) => {
+    // silences the line core writes for each refused token
+    vi.spyOn(process.stdout, 'write').mockReturnValue(true);
     const config = readSettings(env).options.config.with({
       fetch: async () => Promise.resolve(Response.json(reply)),
     });
@@ -79,6 +82,10 @@ describe(readSettings, () => {
   it('gives each GitHub request 10 seconds unless REQUEST_TIMEOUT_MS says otherwise', () => {
     expect(readSettings({}).options.config.requestTimeoutMs).toBe(10_000);
     expect(readSettings({ REQUEST_TIMEOUT_MS: '2500' }).options.config.requestTimeoutMs).toBe(2500);
+  });
+
+  it("logs core's diagnostics as JSON lines", () => {
+    expect(readSettings({}).options.config.logger).toBe(coreLogger);
   });
 
   it('watches the rate limit of each token it was given', async () => {

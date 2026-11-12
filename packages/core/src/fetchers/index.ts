@@ -22,7 +22,7 @@ export type { WakaTimeData, WakaTimeLang } from './wakatime/types.ts';
 // every fetcher takes a config, so this entry carries it rather than sending a
 // consumer back to the package root for it.
 export { CardConfig } from '../common/config.ts';
-export type { CardConfigInit, PersonalAccessToken } from '../common/config.ts';
+export type { CardConfigInit, Logger, PersonalAccessToken } from '../common/config.ts';
 export type { FetchLike } from '../common/http.ts';
 export { retryer } from '../common/retryer.ts';
 export { CardError } from '../common/error.ts';
