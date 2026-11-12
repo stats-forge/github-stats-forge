@@ -1,8 +1,8 @@
 /**
  * @file Where the GitHub token comes from.
  *
- * Three sources, in the order a run should prefer them:
- * the flag, an env file, then the environment the shell already carries.
+ * In the order a run should prefer them: the flag, the `PAT_n` variables from the environment or
+ * an env file, then the `GH_TOKEN` or `GITHUB_TOKEN` that `gh` and GitHub Actions set.
  * Whatever is left over is asked for interactively, so a first run needs no setup.
  */
 
@@ -50,6 +50,9 @@ export const tokensFromEnv = (
       return value ? [{ name, value }] : [];
     });
 
+/** Where `gh` and GitHub Actions already keep a token. */
+const SHARED_TOKEN_NAMES = ['GH_TOKEN', 'GITHUB_TOKEN'] as const;
+
 /**
  * The tokens a run will use.
  *
@@ -64,5 +67,17 @@ export const resolveTokens = (
     .filter(Boolean)
     .map((value, index) => ({ name: `--pat #${index + 1}`, value }));
 
-  return fromFlags.length > 0 ? fromFlags : tokensFromEnv(env);
+  if (fromFlags.length > 0) {
+    return fromFlags;
+  }
+  const fromPATs = tokensFromEnv(env);
+  if (fromPATs.length > 0) {
+    return fromPATs;
+  }
+  // gh's own precedence: one token, GH_TOKEN before the GITHUB_TOKEN Actions sets
+  const name = SHARED_TOKEN_NAMES.find((candidate) => env[candidate]);
+  if (name === undefined) {
+    return [];
+  }
+  return [{ name, value: env[name] ?? '' }];
 };

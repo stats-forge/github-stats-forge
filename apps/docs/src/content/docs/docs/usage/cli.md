@@ -41,7 +41,11 @@ Every card but WakaTime needs a [GitHub token](../tokens/). The CLI looks for on
 1. `--pat <token>`, repeatable, when you want to pass it explicitly.
 2. `PAT_1`, `PAT_2`, … in the environment.
 3. `PAT_1` in a `.env` file next to you, or the one `--env-file` names.
-4. A prompt, if it still has none.
+4. `GH_TOKEN`, then `GITHUB_TOKEN`, as the GitHub CLI and GitHub Actions set them.
+5. A prompt, if it still has none.
+
+The `GITHUB_TOKEN` a workflow is given cannot read gists or an organization's members, so the gist
+and organization cards need a token of your own.
 
 A token spelled out on the command line lands in your shell history, so prefer `--pat "$token"`, or
 the prompt, which hides what you type.

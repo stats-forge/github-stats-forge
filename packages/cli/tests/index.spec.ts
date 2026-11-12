@@ -116,7 +116,9 @@ beforeEach(async () => {
 
   ({ argv } = process);
   // a token in the shell running the suite must not reach a test that expects none
-  for (const name of Object.keys(process.env).filter((key) => /^PAT_\d+$/u.test(key))) {
+  for (const name of Object.keys(process.env).filter((key) =>
+    /^(?:PAT_\d+|GH_TOKEN|GITHUB_TOKEN)$/u.test(key),
+  )) {
     vi.stubEnv(name, undefined);
   }
   stdout = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
