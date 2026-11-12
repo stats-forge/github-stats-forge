@@ -9,6 +9,7 @@ const success: ApiResult = { status: 'success', content: '<svg />' };
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe(readSettings, () => {
@@ -78,6 +79,21 @@ describe(readSettings, () => {
   it('gives each GitHub request 10 seconds unless REQUEST_TIMEOUT_MS says otherwise', () => {
     expect(readSettings({}).options.config.requestTimeoutMs).toBe(10_000);
     expect(readSettings({ REQUEST_TIMEOUT_MS: '2500' }).options.config.requestTimeoutMs).toBe(2500);
+  });
+
+  it('watches the rate limit of each token it was given', async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{}', { headers: { 'x-ratelimit-remaining': '42' } }));
+    const { options } = readSettings({ PAT_1: 'token', CACHE_UPSTREAM_MB: '0' });
+
+    await options.config.fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: { Authorization: 'bearer token' },
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(options.rateLimits.snapshot()).toMatchObject([{ name: 'PAT_1', remaining: 42 }]);
   });
 
   it('answers with real status codes only when asked to', () => {

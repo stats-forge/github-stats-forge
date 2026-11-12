@@ -11,6 +11,7 @@ import type { GistInfoQuery } from '../../../packages/core/src/graphql/generated
 import type { GraphQLBody, GraphQLErrorBody } from '../../../packages/core/tests/_fetch-mock.ts';
 import { CardCache, STALE_WHILE_REVALIDATE } from '../src/cache.ts';
 import type { ServerOptions } from '../src/handler.ts';
+import { RateLimits } from '../src/rate-limits.ts';
 
 /** The gist the success cases draw, trimmed to what the card reads. */
 const GIST_ID = '1f13e82cb48a9058ebcbf4945f5a1c20';
@@ -91,6 +92,7 @@ const optionsAnswering = (
       cacheSeconds: undefined,
       corsOrigin: undefined,
       cache: testCache(),
+      rateLimits: new RateLimits([]),
       site: undefined,
       ...overrides,
     },

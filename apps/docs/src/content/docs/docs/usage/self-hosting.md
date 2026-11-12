@@ -29,6 +29,7 @@ numbers should be live, or the token should stay on a machine you own.
 | `/api/gist`           | one gist                      |
 | `/api/wakatime`       | WakaTime coding time          |
 | `/healthz`            | `{"status":"ok"}`             |
+| `/statusz`            | how the instance is doing     |
 
 Every option on [Common options](../../customization/common-options/) and each card's page is a
 query param, spelled the same.
@@ -148,6 +149,12 @@ envFrom:
 
 Sync that Secret from your cloud's secret manager with the External Secrets Operator or the Secrets
 Store CSI Driver.
+
+## How it is doing
+
+`/statusz` answers JSON: how many cards are held, how many answers were a `hit`, a `miss` or
+`stale` since it started, and each token's rate limit as GitHub last reported it, by variable name
+alone. A token stays `null` until a card has used it.
 
 ## Which version you run
 
