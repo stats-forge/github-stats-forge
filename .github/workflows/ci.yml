@@ -28,10 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         node: [24, 26]
-        os:
-          - ubuntu-26.04
-          # off while hosted macOS jobs go unassigned: https://github.com/orgs/community/discussions/212075
-          # - macos-26
+        os: [ubuntu-26.04, macos-26]
         # coverage on one leg: what the tests reach does not vary by platform
         include:
           - node: 26
