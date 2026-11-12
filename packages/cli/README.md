@@ -31,7 +31,8 @@ generate, look at it, change one option, generate again.
 ```
 
 Every card but WakaTime reads the GitHub API, so it needs a personal access token — from
-`--pat "$token"`, from `PAT_1` in the environment or a `.env` file, or typed when asked.
+`--pat "$token"`, from `PAT_1` in the environment or a `.env` file, from `GH_TOKEN` or
+`GITHUB_TOKEN`, or typed when asked.
 
 > [!WARNING]
 > A token spelled out on the command line lands in your shell history.

@@ -56,7 +56,8 @@ Options
   -h, --help            Show this
   -v, --version         Show the version
 
-The token can also come from PAT_1 in the environment, or be typed when asked.
+The token can also come from PAT_1, GH_TOKEN or GITHUB_TOKEN in the environment, or be typed
+when asked.
 A card that could not be drawn exits 1, or 75 when a later run may draw it.
 `;
 
