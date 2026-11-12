@@ -168,6 +168,9 @@ for an hour. If a redraw fails, the last good card is served for up to a day lon
 `?cache_seconds=` asks for a life between four and twenty-four hours; `CACHE_SECONDS=0` turns
 caching off.
 
+Each card carries an `ETag`, so a browser or proxy revalidating one it holds gets a `304` and no
+body when nothing changed.
+
 GitHub's and WakaTime's answers are held for five minutes, so a card drawn again with only its look
 changed, such as another theme, or the anvil redrawing as you change an option, costs no request. A rate limit or
 an error is never held, and past `CACHE_UPSTREAM_MB` the answer used longest ago goes first.

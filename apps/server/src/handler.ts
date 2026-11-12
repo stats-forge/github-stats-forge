@@ -3,6 +3,8 @@
  * so an endpoint is testable without a socket.
  */
 
+import { createHash } from 'node:crypto';
+
 import type { ApiResult, CardConfig, ErrorCode } from '@stats-forge/github-stats-forge-core/api';
 import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 
@@ -76,6 +78,30 @@ const problem = (
     },
   });
 
+/**
+ * Weak, so a proxy that compresses the body may keep it.
+ *
+ * @returns The validator for a drawn body.
+ */
+const etagOf = (content: string): string =>
+  `W/"${createHash('sha1').update(content).digest('base64url')}"`;
+
+/** @returns The tag without its weakness marker, which weak comparison ignores. */
+const opaque = (tag: string): string => tag.trim().replace(/^W\//, '');
+
+/**
+ * Weak comparison, as RFC 9110 asks of `If-None-Match`.
+ *
+ * @returns Whether the caller already holds the body named by `etag`.
+ */
+const matches = (ifNoneMatch: string | null, etag: string): boolean => {
+  if (ifNoneMatch === null) {
+    return false;
+  }
+
+  return ifNoneMatch.split(',').some((tag) => tag.trim() === '*' || opaque(tag) === opaque(etag));
+};
+
 /** Where an answer came from: drawn now, held and fresh, or held past its TTL through a failure. */
 type Served = { from: 'miss' } | { from: 'hit' | 'stale'; age: number };
 
@@ -89,7 +115,10 @@ const cardResponse = (
   ttl: number,
   served: Served,
   strictHttpStatus: boolean,
+  /** The request's `If-None-Match`, answered with a `304` when it names this body. */
+  ifNoneMatch: string | null,
 ): Response => {
+  const etag = etagOf(result.content);
   const headers = new Headers({
     'content-type': 'image/svg+xml; charset=utf-8',
     'x-content-type-options': 'nosniff',
@@ -97,6 +126,7 @@ const cardResponse = (
     'cache-control': cacheControl(ttl),
     'card-status': result.status,
     'card-cache': served.from,
+    etag,
   });
 
   if (served.from !== 'miss') {
@@ -117,8 +147,16 @@ const cardResponse = (
     headers.set('retry-after', String(TTL.retryableError));
   }
 
+  if (failing) {
+    return new Response(result.content, { status: STRICT_STATUS[result.error.code], headers });
+  }
+
+  if (matches(ifNoneMatch, etag)) {
+    return new Response(null, { status: 304, headers });
+  }
+
   return new Response(result.content, {
-    status: failing ? STRICT_STATUS[result.error.code] : 200,
+    status: 200,
     headers,
   });
 };
@@ -236,6 +274,7 @@ const route = async (
     );
   }
 
+  const ifNoneMatch = request.headers.get('if-none-match');
   // the request's own, for the header; `0` refuses the held copy as well
   const wanted = parseInteger(url.searchParams.get('cache_seconds')) ?? options.cacheSeconds;
   const key = cacheKey(path, url.searchParams);
@@ -247,6 +286,7 @@ const route = async (
       ttlFor(hit.result, wanted),
       { from: 'hit', age: hit.age },
       options.strictHttpStatus,
+      ifNoneMatch,
     );
   }
 
@@ -260,10 +300,17 @@ const route = async (
       TTL.retryableError,
       { from: 'stale', age: stale.age },
       options.strictHttpStatus,
+      ifNoneMatch,
     );
   }
 
-  return cardResponse(result, ttlFor(result, wanted), { from: 'miss' }, options.strictHttpStatus);
+  return cardResponse(
+    result,
+    ttlFor(result, wanted),
+    { from: 'miss' },
+    options.strictHttpStatus,
+    ifNoneMatch,
+  );
 };
 
 /**

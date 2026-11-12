@@ -36,6 +36,8 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 
 ## Caching
 
+- **A card carries a weak `ETag` of its body, and a matching `If-None-Match` gets a `304`**: weak,
+  so a proxy that compresses the body may keep it. A failure sent with its real status never does.
 - **A held answer carries `Age`, never a restarted `max-age`**, which overrode the caller's
   `cache_seconds`.
 - **The copy is held for the deployment's default; `cache_seconds` shapes only the header.**
@@ -70,7 +72,7 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
   - **`pnpm server:hosted` is the Dockerfile's site build plus `server:standalone` with
     `SITE_DIR=../docs/build`**. A shell variable beats the `.env`, so one `.env` serves both scripts.
   - **`send` and a `HEAD`'s `Content-Length` go through `arrayBuffer`**: a string corrupts a PNG.
-  - **`toRequest` copies no header**, since no route reads one.
+  - **`toRequest` copies only `FORWARDED_HEADERS`**, the ones the handler reads.
 - **`SITE_SERVER=true` tells the anvil a server is under it**, told rather than probed, so the Pages
   build makes no `/healthz` request.
 
