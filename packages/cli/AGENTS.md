@@ -28,6 +28,8 @@ builds and runs it against the root `.env`.
 - **`--check` is `--generate` that compares** with `--out` and writes nothing, exiting 1 on a
   difference, a missing file or a failed render; every guard on `generate` covers it.
 - **The menu stays open after a render, its cursor in place.**
+- **A failed render exits `75` when core says it is `retryable`, else `1`**: `EX_TEMPFAIL`, so a
+  scheduled job can tell a rate limit from a broken config. `--check` keeps `1` for a stale file.
 
 ## Prompts and the menu
 
