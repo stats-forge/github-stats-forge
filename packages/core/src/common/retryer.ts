@@ -91,6 +91,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
       // a non-2xx comes back as a response, so only a transport failure throws
       response = await fetcher(variables, currentPAT.value, {
         fetch: config.fetch,
+        apiUrl: config.githubApiUrl,
         retries: attempt,
       });
     } catch (error) {

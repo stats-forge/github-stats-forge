@@ -286,6 +286,8 @@ const main = async (): Promise<void> => {
     pats: tokens,
     requestTimeoutMs: REQUEST_TIMEOUT_MS,
     logger: stderrLogger,
+    // set by an Enterprise Server's runner, as GH_TOKEN and GITHUB_TOKEN are
+    githubApiUrl: process.env['GITHUB_API_URL'] || undefined,
     hints: {
       rate_limited:
         "Every token has hit GitHub's rate limit; try again later, or pass another with --pat",

@@ -215,9 +215,9 @@ const headers = (token: string, accept: string): HeadersInit => ({
 const fetchTree = async (
   { nameWithOwner }: { nameWithOwner: string },
   token: string,
-  { fetch }: FetcherContext,
+  { fetch, apiUrl }: FetcherContext,
 ): Promise<FetcherResponse<GitTree>> =>
-  httpRequest(fetch, `https://api.github.com/repos/${nameWithOwner}/git/trees/HEAD?recursive=1`, {
+  httpRequest(fetch, `${apiUrl}/repos/${nameWithOwner}/git/trees/HEAD?recursive=1`, {
     headers: headers(token, 'application/vnd.github+json'),
   });
 
@@ -225,9 +225,9 @@ const fetchTree = async (
 const fetchBlob = async (
   { nameWithOwner, sha }: { nameWithOwner: string; sha: string },
   token: string,
-  { fetch }: FetcherContext,
+  { fetch, apiUrl }: FetcherContext,
 ): Promise<FetcherResponse> =>
-  httpRequest(fetch, `https://api.github.com/repos/${nameWithOwner}/git/blobs/${sha}`, {
+  httpRequest(fetch, `${apiUrl}/repos/${nameWithOwner}/git/blobs/${sha}`, {
     headers: headers(token, 'application/vnd.github.raw+json'),
   });
 

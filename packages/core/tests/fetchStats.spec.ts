@@ -264,28 +264,28 @@ const expectedStats = (
   ...overrides,
 });
 
+/** @returns The answer for whichever of the card's queries was sent. */
+const answerStatsQuery = (cfg: Parameters<typeof graphqlBody>[0]): [number, unknown] => {
+  const req = graphqlBody(cfg);
+
+  if (String(req.variables['startTime']).startsWith('2003')) {
+    return [200, data_year2003];
+  }
+  if (req.query.includes('userReposContributedTo')) {
+    return [200, data_repos_contributed_to];
+  }
+  if (req.query.includes('contributionCalendar')) {
+    return [200, data_contributions];
+  }
+  if (req.query.includes('totalCommitContributions')) {
+    return [200, req.variables['includeUserRepositories'] ? data_stats_with_own_repos : data_stats];
+  }
+  return [200, data_repo];
+};
+
 beforeEach(() => {
   config = baseConfig; // The default fetches only one page of stars.
-  mock.onPost(GRAPHQL).reply((cfg) => {
-    const req = graphqlBody(cfg);
-
-    if (String(req.variables['startTime']).startsWith('2003')) {
-      return [200, data_year2003];
-    }
-    if (req.query.includes('userReposContributedTo')) {
-      return [200, data_repos_contributed_to];
-    }
-    if (req.query.includes('contributionCalendar')) {
-      return [200, data_contributions];
-    }
-    if (req.query.includes('totalCommitContributions')) {
-      return [
-        200,
-        req.variables['includeUserRepositories'] ? data_stats_with_own_repos : data_stats,
-      ];
-    }
-    return [200, data_repo];
-  });
+  mock.onPost(GRAPHQL).reply(answerStatsQuery);
 });
 
 afterEach(() => {
@@ -328,6 +328,20 @@ describe('Test fetchStats', () => {
     expect(stats).toStrictEqual(
       expectedStats({ totalCommits: 1000 }, { all_commits: true, commits: 1000 }),
     );
+  });
+
+  it('asks a GitHub Enterprise Server for everything, its GraphQL API and its REST API alike', async () => {
+    config = baseConfig.with({ githubApiUrl: 'https://ghe.example.com/api/v3/' });
+    mock.onPost('https://ghe.example.com/api/graphql').reply(answerStatsQuery);
+    mock
+      .onGet('https://ghe.example.com/api/v3/search/commits?per_page=1&q=author:anuraghazra')
+      .reply(200, commits_1000);
+
+    const stats = await fetchStatsWith({ include_all_commits: true });
+
+    expect(stats.totalCommits).toBe(1000);
+    const hosts = [...mock.history.post, ...mock.history.get].map(({ url }) => new URL(url).host);
+    expect(new Set(hosts)).toStrictEqual(new Set(['ghe.example.com']));
   });
 
   it('should throw specific error when include_all_commits true and invalid username', async () => {

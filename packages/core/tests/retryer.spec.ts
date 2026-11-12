@@ -183,9 +183,10 @@ describe(retryer, () => {
     expect(tokens[2]).toBe(tokens[1]);
   });
 
-  it('uses the PATs the config carries', async () => {
+  it('uses the PATs and the API the config carries', async () => {
     const userConfig = testConfig.with({
       pats: [{ name: 'user PAT from database', value: 'user-pat-token' }],
+      githubApiUrl: 'https://ghe.example.com/api/v3',
     });
     const fetcher = vi.fn<Fetcher>(async (_variables, token) => Promise.resolve(answer({ token })));
 
@@ -194,6 +195,7 @@ describe(retryer, () => {
     );
     expect(fetcher).toHaveBeenCalledExactlyOnceWith({}, 'user-pat-token', {
       fetch: userConfig.fetch,
+      apiUrl: 'https://ghe.example.com/api/v3',
       retries: 0,
     });
   });
