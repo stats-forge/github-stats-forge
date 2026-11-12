@@ -166,7 +166,7 @@ its patches:
 docker run -p 9000:9000 --env-file cards.env ghcr.io/stats-forge/github-stats-forge-server:0.4
 ```
 
-What changed is on the [releases page](https://github.com/stats-forge/github-stats-forge/releases).
+What changed is on the [Changelog](../changelog/).
 
 ## Caching
 
