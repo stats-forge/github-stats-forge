@@ -46,13 +46,26 @@ vi.mock(import('../src/prompts.ts'), () => prompts);
 const DRAWN: ApiResult = { status: 'success', content: '<svg>the card</svg>' };
 const REFUSED: ApiResult = {
   status: 'error',
-  retryable: true,
+  retryable: false,
   error: {
     code: 'not_found',
     reason: 'gist_not_found',
     message: 'Gist not found',
     secondaryMessage: 'Check the id',
     text: 'Gist not found. Check the id.',
+    param: undefined,
+  },
+  content: '<svg>the error</svg>',
+};
+const RATE_LIMITED: ApiResult = {
+  status: 'error',
+  retryable: true,
+  error: {
+    code: 'rate_limited',
+    reason: 'rate_limited',
+    message: 'Every token has hit the rate limit',
+    secondaryMessage: undefined,
+    text: 'Every token has hit the rate limit.',
     param: undefined,
   },
   content: '<svg>the error</svg>',
@@ -223,8 +236,19 @@ describe('the command line', () => {
     expect(result.err).toContain('Could not render the gist card.');
     expect(result.err).toContain('\n  Gist not found. Check the id.\n');
     expect(result.err).toContain('code: not_found');
-    expect(result.err).toContain('This one may work on a retry.');
+    expect(result.err).not.toContain('retry');
     expect(result.code).toBe(1);
+    expect(existsSync(out)).toBe(false);
+  });
+
+  it('exits 75 when the failure may pass on a retry, as a rate limit may', async () => {
+    render.mockResolvedValue(RATE_LIMITED);
+    const out = join(dir, 'card.svg');
+
+    const result = await run('--config', savedGist, '--generate', '--pat', 'ghp_x', '--out', out);
+
+    expect(result.err).toContain('This one may work on a retry.');
+    expect(result.code).toBe(75);
     expect(existsSync(out)).toBe(false);
   });
 
@@ -267,6 +291,16 @@ describe('the command line', () => {
 
       expect(result.err).toContain('Could not render the gist card.');
       expect(result.code).toBe(1);
+    });
+
+    it('exits 75 when the render may pass on a retry', async () => {
+      render.mockResolvedValue(RATE_LIMITED);
+      const out = join(dir, 'card.svg');
+      await writeFile(out, DRAWN.content);
+
+      const result = await run('--config', savedGist, '--check', '--pat', 'ghp_x', '--out', out);
+
+      expect(result.code).toBe(75);
     });
   });
 
@@ -364,6 +398,15 @@ describe('the menu', () => {
 
     expect(statuses()[1]).toBe('not_found — fix it and generate again');
     expect(code).toBe(1);
+  });
+
+  it('leaves with 75 when the last render may pass on a retry', async () => {
+    render.mockResolvedValue(RATE_LIMITED);
+    choose('generate');
+
+    const { code } = await run('--card', 'gist', '--pat', 'ghp_x', '--out', join(dir, 'card.svg'));
+
+    expect(code).toBe(75);
   });
 
   it('leaves with 0 when a later render worked', async () => {

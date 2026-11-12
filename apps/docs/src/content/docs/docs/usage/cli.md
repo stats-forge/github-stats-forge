@@ -89,6 +89,13 @@ npx @stats-forge/github-stats-forge-cli --config card.json --generate --out stat
 `--check` in its place renders the same card and compares it with `stats.svg`, writing nothing: it
 exits 1 when the file is missing or out of date, so a job can tell whether a commit is due.
 
+A card that could not be drawn exits 1, or 75 when a later run may draw it, as after a rate limit
+or an outage. A scheduled job can keep the SVG it has and try again rather than fail:
+
+```sh
+npx @stats-forge/github-stats-forge-cli --config card.json --generate --out stats.svg || [ $? -eq 75 ]
+```
+
 ## The query string
 
 Every other way of drawing a card takes a query string: [the action](https://github.com/stats-forge/github-stats-forge-action)'s
