@@ -7,7 +7,7 @@ import { HEAT_PAINT } from '../src/common/color.ts';
 import type { StatsData } from '../src/fetchers/stats/types.ts';
 import { themes } from '../src/themes/index.ts';
 
-import { cssValue, draw, drawnIds, exactly, translateOf, heatStop } from './_card.ts';
+import { cssValue, draw, drawnIds, exactly, translateOf, heatStop, xOf } from './_card.ts';
 
 // No locale translates the percentile header yet, so one is added to see the ring read it from the table.
 vi.mock(import('../src/cards/stats/locales.ts'), async (importOriginal) => {
@@ -330,6 +330,66 @@ describe('Test renderStatsCard', () => {
       Number(document.querySelector('.rank-circle-rim')?.getAttribute('cy'));
 
     expect(ringMiddle).toBeCloseTo(rowsMiddle);
+  });
+
+  describe('two columns', () => {
+    const SHOWN = ['reviews', 'prs_merged', 'contributions', 'discussions_started'];
+
+    it('splits the rows evenly in drawn order, the first column taking the odd one', () => {
+      draw(renderStatsCard(stats, { layout: 'columns', show: SHOWN }));
+
+      const xs = [...document.querySelectorAll('.stagger > .stat.bold')].map((value) => xOf(value));
+
+      expect(xs).toHaveLength(9);
+      const [left] = xs;
+      expect(xs.map((x) => (x === left ? 'left' : 'right'))).toStrictEqual([
+        ...Array.from({ length: 5 }, () => 'left'),
+        ...Array.from({ length: 4 }, () => 'right'),
+      ]);
+    });
+
+    it('is as tall as its longer column, not as all its rows', () => {
+      const one = draw(renderStatsCard(stats, { show: SHOWN, hide_rank: true }));
+      const oneHeight = Number(one.getAttribute('height'));
+      const two = draw(renderStatsCard(stats, { layout: 'columns', show: SHOWN, hide_rank: true }));
+
+      expect(Number(two.getAttribute('height'))).toBe(oneHeight - 4 * 25);
+    });
+
+    it('takes the broad width step, and keeps the second column clear of the first', () => {
+      const card = draw(renderStatsCard(stats, { layout: 'columns', show: SHOWN }));
+
+      expect(Number(card.getAttribute('width'))).toBeGreaterThanOrEqual(CARD_STYLE.width.broad);
+      const firstValuesEnd = xOf(screen.getByTestId('stars'));
+      const secondLabelsStart = xOf(screen.getByTestId('reviews').previousElementSibling ?? card);
+      expect(secondLabelsStart).toBeGreaterThan(firstValuesEnd);
+    });
+
+    it('keeps the ring clear of the second column', () => {
+      draw(renderStatsCard(stats, { layout: 'columns', show: SHOWN }));
+
+      const rim = document.querySelector('.rank-circle-rim');
+      const ringLeft =
+        translateOf(screen.getByTestId('rank-circle')).x +
+        Number(rim?.getAttribute('cx')) -
+        Number(rim?.getAttribute('r'));
+      expect(ringLeft).toBeGreaterThan(xOf(screen.getByTestId('reviews')));
+    });
+
+    it('draws a lone row in one column', () => {
+      const one = draw(
+        renderStatsCard(stats, { hide: ['commits', 'prs', 'issues', 'contributed_to'] }),
+      );
+      const width = one.getAttribute('width');
+      const two = draw(
+        renderStatsCard(stats, {
+          layout: 'columns',
+          hide: ['commits', 'prs', 'issues', 'contributed_to'],
+        }),
+      );
+
+      expect(two).toHaveAttribute('width', width);
+    });
   });
 
   it('should render default rank icon with level A+', () => {

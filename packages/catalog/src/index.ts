@@ -146,6 +146,12 @@ const CARDS: ReadonlyArray<CardSpec> = [
       { name: 'show_icons', label: 'Show the stat icons', group: 'display' },
       { name: 'hide_rank', label: 'Hide the rank circle', group: 'display' },
       { name: 'rank_icon', label: 'Rank indicator', group: 'display' },
+      {
+        name: 'layout',
+        label: 'Layout',
+        group: 'display',
+        hint: 'Two columns suit a card showing many extra stats',
+      },
       { name: 'include_all_commits', label: 'Count commits of all time', group: 'data' },
       ...rangeOptions('commits'),
       { name: 'exclude_repo', label: 'Repositories to exclude', group: 'data' },

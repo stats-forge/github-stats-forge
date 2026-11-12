@@ -47,6 +47,17 @@ Anything else it can show is opt-in through [`show`](#showing-more-stats).
 
 Each extra stat costs another request, so ask only for what you draw.
 
+## Two columns
+
+A card showing many extra stats grows tall beside a short one. `layout=columns` lays the rows out
+side by side, the first column taking the odd row, and widens the card to fit them:
+
+![The stats card with its stats in two columns](/cards/stats-columns.svg)
+
+```text
+?username=octocat&show_icons=true&show=reviews,prs_merged,prs_opened,issues_opened,contributions,discussions_started&layout=columns
+```
+
 ## Hiding the default stats
 
 `hide` takes the same shape, and removes a line the card would otherwise draw:
@@ -63,6 +74,7 @@ Either list takes any stat the card draws. A stat named in both is left out, and
 | `show_icons`          | `true` `false`                                    | Draw an icon beside each stat                           |
 | `hide_rank`           | `true` `false`                                    | Leave out the rank circle                               |
 | `rank_icon`           | `default` `github` `percentile`                   | What the rank circle shows                              |
+| `layout`              | `normal` `columns`                                | One column of rows, or two side by side                 |
 | `include_all_commits` | `true` `false`                                    | Count commits of all time rather than the counted range |
 | `from` / `to`         | `2024`, `2024-03`, `2024-03-15`                   | The range commits and contributions are counted in      |
 | `exclude_repo`        | `owner/name` or `name`                            | Repositories to leave out of the totals                 |

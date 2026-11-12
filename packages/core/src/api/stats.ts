@@ -55,6 +55,7 @@ const statsQuery = z
     exclude_repo: safeListParam,
     affiliation: enumListParam(OWNER_AFFILIATIONS),
     rank_icon: enumParam(renderStatsCard.OPTIONS.rank_icon),
+    layout: enumParam(renderStatsCard.OPTIONS.layout),
     show: enumListParam(STATS, renderStatsCard.OPTIONS.show),
     include_own_repos: booleanParam,
   })

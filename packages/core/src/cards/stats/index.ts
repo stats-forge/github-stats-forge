@@ -36,12 +36,15 @@ const CARD_MIN_WIDTH = 287;
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
 const RANK_CARD_DEFAULT_WIDTH = CARD_STYLE.width.wide;
 const RANK_ONLY_CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
+const COLUMNS_CARD_DEFAULT_WIDTH = CARD_STYLE.width.broad;
 
 const STAT_FONT_SIZE = CARD_STYLE.fontSize.body;
 /** How far a stat row is translated into the card; see `createTextNode`. */
 const STAT_ROW_X = CARD_STYLE.padding.x;
 /** Room the rank ring needs at the right edge, so a value never runs into it. */
 const RANK_GUTTER = 120;
+/** Between one column's values and the next column's labels. */
+const COLUMN_GAP = 24;
 /** The ring's own `cx`, which its group's translation has to make up for. */
 const RANK_CIRCLE_CX_OFFSET = 10;
 /** Where each spark leaves the ring's foot, as `[dx, dy, delay in s]`; uneven, so they read as embers. */
@@ -61,6 +64,10 @@ const LABEL_VALUE_GAP = 16;
 const RANK_ICONS = ['default', 'github', 'percentile'] as const;
 type RankIcon = (typeof RANK_ICONS)[number];
 
+/** How the rows are laid out: one column, or two side by side for a card with many. */
+const STATS_LAYOUTS = ['normal', 'columns'] as const;
+type StatsLayout = (typeof STATS_LAYOUTS)[number];
+
 /** The space between stat rows, which the card's height is measured on. */
 const LINE_HEIGHT = 25;
 
@@ -77,6 +84,7 @@ interface StatCardOptions extends CommonCardOptions {
   number_format: NumberFormat;
   number_precision: number;
   rank_icon: RankIcon;
+  layout: StatsLayout;
   show: Array<string>;
   /** `owner/name` and `owner/*` entries the search-based stats were narrowed to, named in their labels. */
   scope: Array<string>;
@@ -103,6 +111,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     locale,
     disable_animations = false,
     rank_icon = 'default',
+    layout = 'normal',
     show = [],
   } = options;
 
@@ -123,6 +132,10 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
     throw CardError.because('stats_no_stats_or_rank');
   }
 
+  // a lone row has nothing to share a line with
+  const columns = layout === 'columns' && visibleStats.length > 1;
+  const rowsPerColumn = columns ? Math.ceil(visibleStats.length / 2) : visibleStats.length;
+
   const defaultTitle =
     visibleStats.length > 0 ? t.title({ name, apostrophe }) : t.rankTitle({ name, apostrophe });
   const cardTitle = title ?? defaultTitle;
@@ -130,7 +143,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   // The rank ring sets the floor: 150 beside the stats, 180 when it is the whole card.
   const height = Math.max(
     CARD_STYLE.padding.bodyOffsetY +
-      Math.max(visibleStats.length - 1, 0) * LINE_HEIGHT +
+      Math.max(rowsPerColumn - 1, 0) * LINE_HEIGHT +
       CARD_STYLE.statRowInk +
       CARD_STYLE.padding.bottom,
     hide_rank ? 0 : visibleStats.length > 0 ? 150 : 180,
@@ -140,40 +153,62 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
   const progress = 100 - rank.percentile;
 
   const iconWidth = show_icons && visibleStats.length > 0 ? 16 + /* padding */ 1 : 0;
+  const rankGutter = hide_rank ? 0 : RANK_GUTTER;
+  const widestLabel =
+    visibleStats.length > 0
+      ? Math.max(...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, STAT_FONT_SIZE)))
+      : 0;
+  const labelRoom = (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP;
+
+  // Two columns each hold their longest label and value, so the card grows rather than overlap.
+  const widestValue = columns
+    ? Math.max(
+        ...visibleStats.map(([, { value, unitSymbol }]) =>
+          measureText(
+            `${typeof value === 'number' ? formatCount(value) : value}${unitSymbol ? ` ${unitSymbol}` : ''}`,
+            STAT_FONT_SIZE,
+          ),
+        ),
+      )
+    : 0;
+  const columnNeeds = labelRoom + widestValue;
+
   // The icons ride inside the step's own slack, so a default card lands on the width grid;
   // only the minimum, which has no slack, still has to make room for them.
   let defaultCardWidth: number = RANK_ONLY_CARD_DEFAULT_WIDTH;
-  if (hide_rank) {
+  if (columns) {
+    defaultCardWidth = Math.max(
+      COLUMNS_CARD_DEFAULT_WIDTH,
+      Math.ceil(2 * CARD_STYLE.padding.x + 2 * columnNeeds + COLUMN_GAP + rankGutter),
+    );
+  } else if (hide_rank) {
     defaultCardWidth = CARD_DEFAULT_WIDTH;
   } else if (visibleStats.length > 0) {
     defaultCardWidth = RANK_CARD_DEFAULT_WIDTH;
   }
   // Only a card sized by its own title can outgrow its step: the ranked layouts are fixed,
   // so their step is also their floor.
-  const fittedWidth = hide_rank
-    ? Math.max(
-        defaultCardWidth,
-        clampValue(
-          2 * CARD_STYLE.padding.x + measureText(cardTitle) * 2,
-          CARD_MIN_WIDTH,
-          Infinity,
-        ) + iconWidth,
-      )
-    : defaultCardWidth;
+  const fittedWidth =
+    hide_rank && !columns
+      ? Math.max(
+          defaultCardWidth,
+          clampValue(
+            2 * CARD_STYLE.padding.x + measureText(cardTitle) * 2,
+            CARD_MIN_WIDTH,
+            Infinity,
+          ) + iconWidth,
+        )
+      : defaultCardWidth;
   const width = card_width ? (Number.isNaN(card_width) ? fittedWidth : card_width) : fittedWidth;
 
   // A value ends at the card's inner edge, clear of the rank ring — or right after
-  // the longest label, on a card too narrow for that.
-  const widestLabel =
-    visibleStats.length > 0
-      ? Math.max(...visibleStats.map(([, stat]) => measureText(`${stat.label}:`, STAT_FONT_SIZE)))
-      : 0;
+  // the longest label, on a card too narrow for that. Two columns split that room.
+  const rowsRoom = width - CARD_STYLE.padding.x - STAT_ROW_X - rankGutter;
   const valueAnchorX = Math.round(
-    Math.max(
-      width - CARD_STYLE.padding.x - STAT_ROW_X - (hide_rank ? 0 : RANK_GUTTER),
-      (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP,
-    ),
+    columns ? Math.max((rowsRoom - COLUMN_GAP) / 2, columnNeeds) : Math.max(rowsRoom, labelRoom),
   );
+  const secondColumnX = valueAnchorX + COLUMN_GAP;
+  const rowsEnd = columns ? secondColumnX + valueAnchorX : valueAnchorX;
 
   // pass index so that we can calculate the line spacing
   const statItems = visibleStats.map(([, stat], index) =>
@@ -236,7 +271,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
    * @returns Rank circle translation value.
    */
   const calculateRankXTranslation = (): number => {
-    const center = visibleStats.length > 0 ? (valueAnchorX + STAT_ROW_X + width) / 2 : width / 2;
+    const center = visibleStats.length > 0 ? (rowsEnd + STAT_ROW_X + width) / 2 : width / 2;
     return center + RANK_CIRCLE_CX_OFFSET;
   };
 
@@ -283,13 +318,13 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       ),
     );
 
+  const column = (items: typeof statItems, x: number): ReturnType<typeof el> =>
+    el('svg', { x, y: 0 }, flexLayout({ items, gap: LINE_HEIGHT, direction: 'column' }));
+
   return card.render([
     rankCircle,
-    el(
-      'svg',
-      { x: 0, y: 0 },
-      flexLayout({ items: statItems, gap: LINE_HEIGHT, direction: 'column' }),
-    ),
+    column(statItems.slice(0, rowsPerColumn), 0),
+    columns && column(statItems.slice(rowsPerColumn), secondColumnX),
   ]);
 };
 
@@ -301,6 +336,7 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
 const renderStatsCard = Object.assign(renderCard, {
   OPTIONS: {
     rank_icon: RANK_ICONS,
+    layout: STATS_LAYOUTS,
     show: SHOW_STATS,
     hide: HIDE_STATS,
     number_format: NUMBER_FORMATS,
