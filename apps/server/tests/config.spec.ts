@@ -96,6 +96,12 @@ describe(readSettings, () => {
     expect(options.rateLimits.snapshot()).toMatchObject([{ name: 'PAT_1', remaining: 42 }]);
   });
 
+  it('keeps the card cache in memory alone unless CACHE_DIR names a place', () => {
+    expect(readSettings({}).cacheDir).toBeUndefined();
+    expect(readSettings({ CACHE_DIR: '' }).cacheDir).toBeUndefined();
+    expect(readSettings({ CACHE_DIR: '/cache' }).cacheDir).toBe('/cache');
+  });
+
   it('answers with real status codes only when asked to', () => {
     expect(readSettings({}).options.strictHttpStatus).toBe(false);
     expect(readSettings({ STRICT_HTTP_STATUS: 'true' }).options.strictHttpStatus).toBe(true);

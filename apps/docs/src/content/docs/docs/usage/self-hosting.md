@@ -81,6 +81,7 @@ Everything but `PAT_1` is optional.
 | `CACHE_SECONDS`          | —                  | default lifetime of a drawn card; `0` turns caching off      |
 | `STALE_SECONDS`          | `86400`            | how long a held card covers a failing redraw; `0` for none   |
 | `CACHE_UPSTREAM_MB`      | `16`               | memory for GitHub's and WakaTime's answers; `0` holds none   |
+| `CACHE_DIR`              | —                  | where held cards are kept across a restart                   |
 | `CORS_ORIGIN`            | —                  | the one origin allowed to read a card from script            |
 
 See [GitHub tokens](../tokens/) for which token each card needs.
@@ -174,6 +175,16 @@ for an hour. If a redraw fails, the last good card is served for up to a day lon
 `STALE_SECONDS`.
 `?cache_seconds=` asks for a life between four and twenty-four hours; `CACHE_SECONDS=0` turns
 caching off.
+
+With `CACHE_DIR` set, the held cards are written there when the server stops and read back when it
+starts, so a restart or an upgrade does not redraw every card. In Docker, give it a volume the
+`node` user can write:
+
+```sh
+docker run -p 9000:9000 --env-file cards.env \
+  -v cards-cache:/home/node/cache -e CACHE_DIR=/home/node/cache \
+  ghcr.io/stats-forge/github-stats-forge-server
+```
 
 Each card carries an `ETag`, so a browser or proxy revalidating one it holds gets a `304` and no
 body when nothing changed.

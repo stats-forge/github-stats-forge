@@ -111,6 +111,14 @@ interface CacheEntry {
   staleUntil: number;
 }
 
+/** A held card as a file keeps it: only successes, an error's TTL being minutes. */
+interface HeldCard {
+  key: string;
+  content: string;
+  storedAt: number;
+  expiresAt: number;
+}
+
 /** A hit: the answer, and how long ago it was drawn. */
 interface CacheHit {
   result: ApiResult;
@@ -179,6 +187,47 @@ class CardCache {
     this.#entries.set(key, { result, storedAt, expiresAt, staleUntil });
   }
 
+  /** @returns Every success still worth keeping, oldest first, for a file to outlive the process. */
+  heldCards(): Array<HeldCard> {
+    const now = Date.now();
+    const held: Array<HeldCard> = [];
+    for (const [key, { result, storedAt, expiresAt, staleUntil }] of this.#entries) {
+      if (result.status === 'success' && staleUntil > now) {
+        held.push({ key, content: result.content, storedAt, expiresAt });
+      }
+    }
+    return held;
+  }
+
+  /**
+   * Takes back what an earlier process held, under this one's stale window and size.
+   *
+   * @returns How many cards were kept.
+   */
+  restore(cards: ReadonlyArray<HeldCard>): number {
+    const now = Date.now();
+    const restored = new Set<string>();
+    for (const { key, content, storedAt, expiresAt } of cards.toSorted(
+      (a, b) => a.storedAt - b.storedAt,
+    )) {
+      const staleUntil = expiresAt + this.#staleMs;
+      if (staleUntil <= now) {
+        continue;
+      }
+      this.#sweep();
+      this.#entries.delete(key);
+      this.#entries.set(key, {
+        result: { status: 'success', content },
+        storedAt,
+        expiresAt,
+        staleUntil,
+      });
+      restored.add(key);
+    }
+    // the size may have evicted the oldest of them again
+    return [...restored].filter((key) => this.#entries.has(key)).length;
+  }
+
   /** @returns The entry, unless it is past keeping, which it then forgets. */
   #kept(key: string): CacheEntry | undefined {
     const entry = this.#entries.get(key);
@@ -227,7 +276,7 @@ class CardCache {
   }
 }
 
-export type { CacheHit };
+export type { CacheHit, HeldCard };
 
 export {
   CardCache,

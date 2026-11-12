@@ -61,6 +61,11 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
     than the whole budget is never kept, so it cannot push the others out.
   - **Not a `WeakRef` cache**: V8 clears those at its next collection, which would hold nothing for
     long and nothing predictably.
+- **`CACHE_DIR` keeps the card cache across a restart**: `saveCache` writes it after
+  `closeGracefully` and `loadCache` reads it before `listen`, both in `index.ts`. Only successes are
+  written, an error's TTL being minutes; a restored card keeps its `storedAt`, so its `Age` is true,
+  and takes this process's stale window. A file of another `CACHE_FILE_VERSION` is ignored, and
+  neither function throws: an empty cache only costs redraws.
 - **A success is kept `STALE_SECONDS` past its TTL** (`STALE_WHILE_REVALIDATE` by default, `0` for
   none) to answer for a redraw that fails retryably. `get` sees the fresh entries and `getStale` the
   rest; a retryable error never overwrites the kept card, the stale answer is sent with
