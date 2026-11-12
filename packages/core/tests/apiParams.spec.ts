@@ -186,6 +186,25 @@ describe('api query schemas', () => {
     expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'weeks' } });
   });
 
+  it.each(['vitest', 'next.js', 'my_repo-2'])(
+    'org-calendar takes the repository name %j',
+    async (repo) => {
+      const result = await orgCalendarApi({ org: 'vitest-dev', repo }, config);
+
+      expect(result).toMatchObject({ status: 'error', error: { code: 'upstream' } });
+    },
+  );
+
+  it.each(['..', 'owner/name', 'with space', 'a'.repeat(101)])(
+    'org-calendar rejects the repository name %j before any request',
+    async (repo) => {
+      const result = await orgCalendarApi({ org: 'vitest-dev', repo }, config);
+
+      expect(result).toMatchObject({ error: { code: 'invalid_param', param: 'repo' } });
+      expect(result.content).toContain('Invalid repository name for parameter &#34;repo&#34;');
+    },
+  );
+
   it('org-calendar takes two months of weeks', async () => {
     const result = await orgCalendarApi({ org: 'vitest-dev', weeks: '9' }, config);
 

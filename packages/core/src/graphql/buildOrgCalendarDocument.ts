@@ -1,14 +1,20 @@
 import type {
   OrgCalendarOrganizationFragment,
+  OrgCalendarRepositoryFragment,
   OrgCalendarWeekFragment,
 } from './generated/org-calendar.ts';
 import type { GraphQLDocument } from './graphqlDocument.ts';
 import { graphqlDocument } from './graphqlDocument.ts';
 
-type OrgCalendarQueryVariables = { login: string } & Record<`week_${number}`, string>;
+type OrgCalendarQueryVariables = { login: string; repo: string; withRepo: boolean } & Record<
+  `week_${number}`,
+  string
+>;
 
 interface OrgCalendarQuery {
   organization: OrgCalendarOrganizationFragment | null;
+  /** Absent unless `withRepo`, and `null` for one that does not exist. */
+  repository?: OrgCalendarRepositoryFragment | null;
   [week: `week_${number}`]: OrgCalendarWeekFragment;
 }
 
@@ -32,9 +38,12 @@ const buildOrgCalendarDocument = (
 
   // fragments must match queries/org-calendar.graphql, which generates their types
   return graphqlDocument<OrgCalendarQuery, OrgCalendarQueryVariables>(`
-query orgCalendar($login: String!, ${variables}) {
+query orgCalendar($login: String!, $repo: String!, $withRepo: Boolean!, ${variables}) {
   organization(login: $login) {
     ...OrgCalendarOrganization
+  }
+  repository(owner: $login, name: $repo) @include(if: $withRepo) {
+    ...OrgCalendarRepository
   }
   ${searches}
 }
@@ -46,6 +55,9 @@ fragment OrgCalendarWeek on SearchResultItemConnection {
 }
 fragment OrgCalendarOrganization on Organization {
   login
+  name
+}
+fragment OrgCalendarRepository on Repository {
   name
 }`);
 };

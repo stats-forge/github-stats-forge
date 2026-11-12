@@ -12,6 +12,7 @@ import * as z from 'zod/mini';
 
 import type { ThemeParams } from '../common/color.ts';
 import {
+  GITHUB_REPO_NAME_PATTERN,
   GITHUB_USERNAME_PATTERN,
   HOSTNAME_PATTERN,
   WAKATIME_USERNAME_PATTERN,
@@ -72,6 +73,7 @@ type Rejection =
   | 'scope_unused'
   | 'unsafe'
   | 'username'
+  | 'repository'
   | 'hostname'
   | 'locale'
   | 'enum';
@@ -92,6 +94,7 @@ const REJECTION_MESSAGES: Record<Rejection, (param: string) => string> = {
   scope_unused: (param) => `Parameter "${param}" applies only to stats counted by search`,
   unsafe: (param) => `Parameter "${param}" contains unsafe characters`,
   username: (param) => `Invalid username input for parameter "${param}"`,
+  repository: (param) => `Invalid repository name for parameter "${param}"`,
   hostname: (param) => `Invalid hostname input for parameter "${param}"`,
   locale: () => 'Locale not found',
   enum: (param) => `Incorrect ${param} input`,
@@ -286,6 +289,9 @@ const safeParam = patternParam('unsafe', SAFE_PATTERN);
  * Rejected here so a malformed one is a permanent error rather than the NOT_FOUND GitHub answers.
  */
 const usernameParam = patternParam('username', GITHUB_USERNAME_PATTERN);
+
+/** One repository's name, its owner given by another param, as an organization card's `org`. */
+const repoNameParam = patternParam('repository', GITHUB_REPO_NAME_PATTERN);
 
 /** A WakaTime profile, which the fetcher puts in a URL path as one segment. */
 const wakatimeUsernameParam = patternParam('username', WAKATIME_USERNAME_PATTERN);
@@ -575,6 +581,7 @@ export {
   parseThemeParams,
   parseParams,
   readBoolean,
+  repoNameParam,
   resolveEmpty,
   safeListParam,
   safeParam,

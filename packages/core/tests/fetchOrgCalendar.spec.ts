@@ -17,9 +17,12 @@ const answer = (
   counts: Array<number>,
   /** What each search matched — `PullRequest` is how a token refused issues is answered. */
   matched: 'Issue' | 'PullRequest' = 'PullRequest',
+  /** The repository the query named, answered as GitHub spells it. */
+  repository?: string,
 ): GraphQLBody<OrgCalendarQuery> => ({
   data: {
     organization: { login: 'vitest-dev', name: 'Vitest' },
+    ...(repository === undefined ? {} : { repository: { name: repository } }),
     ...Object.fromEntries(
       counts.map((count, index) => [
         `week_${String(index)}`,
@@ -55,6 +58,7 @@ describe(fetchOrgCalendar, () => {
     expect(data).toStrictEqual({
       login: 'vitest-dev',
       name: 'Vitest',
+      repository: null,
       count: 'prs_merged',
       weeks: [
         { from: new Date('2026-08-23T00:00:00Z'), to: new Date('2026-08-29T00:00:00Z'), count: 4 },
@@ -126,6 +130,29 @@ describe(fetchOrgCalendar, () => {
     ).rejects.toMatchObject({ reason: 'org_calendar_issues_forbidden' });
   });
 
+  it('narrows each week to one repository', async () => {
+    mock.onPost(GRAPHQL).reply(200, answer([1], 'PullRequest', 'Vitest'));
+
+    const data = await fetchOrgCalendar({ org: 'vitest-dev', repo: 'vitest', weeks: 1 }, config);
+
+    expect(data.repository).toBe('Vitest');
+    expect(sentVariables()).toMatchObject({
+      repo: 'vitest',
+      withRepo: true,
+      week_0: 'repo:vitest-dev/vitest is:pr merged:2026-09-06..2026-09-12',
+    });
+  });
+
+  it('answers a repository the organization does not have as not found', async () => {
+    mock.onPost(GRAPHQL).reply(200, {
+      errors: [{ type: 'NOT_FOUND', path: ['repository'], message: 'Could not resolve' }],
+    } satisfies GraphQLErrorBody);
+
+    await expect(
+      fetchOrgCalendar({ org: 'vitest-dev', repo: 'nothing', weeks: 1 }, config),
+    ).rejects.toMatchObject({ reason: 'repo_not_found' });
+  });
+
   it('answers a login that is no organization as not found', async () => {
     mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'NOT_FOUND', message: 'Could not resolve to an Organization' }],
@@ -141,6 +168,9 @@ describe(fetchOrgCalendar, () => {
     await expect(fetchOrgCalendar({ org: 'not a login' }, config)).rejects.toMatchObject({
       reason: 'org_invalid',
     });
+    await expect(fetchOrgCalendar({ org: 'vitest-dev', repo: '..' }, config)).rejects.toMatchObject(
+      { reason: 'org_repo_invalid' },
+    );
     expect(mock.history.post).toHaveLength(0);
   });
 });

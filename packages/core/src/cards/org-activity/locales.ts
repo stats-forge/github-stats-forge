@@ -6,6 +6,9 @@ const orgActivityCardLocales = defineLocales({
     title: "{name}'{apostrophe} organization activity",
     // Drawn instead of the title above when naming the organization overruns the card.
     titleUnnamed: 'Organization activity',
+    // For a card counting one of the organization's repositories, named by `repo`.
+    titleRepository: "{name}'{apostrophe} activity",
+    titleRepositoryUnnamed: 'Repository activity',
     // Composed into the title in parentheses, the way the wakatime card composes its own window.
     lastDays: { one: 'last {count} day', other: 'last {count} days' },
     prsOpened: 'PRs opened',

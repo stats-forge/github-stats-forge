@@ -349,7 +349,7 @@ const renderCard = (
   // `role="img"` hides the inner text from assistive tech, so everything the card
   // shows has to be repeated in its description.
   const card = new Card({
-    title: title ?? defaultTitleFor(t, name, width),
+    title: title ?? defaultTitleFor(t, data.repository ?? name, width),
     titlePrefixIcon: CARD_ICON.orgCalendar,
     width,
     height,

@@ -97,7 +97,8 @@ const keepingUp = (opened: number, done: number): number => {
 };
 
 /**
- * The title, naming the organization unless that makes it too wide for the card.
+ * The title, naming the organization, or the one repository counted, unless that makes it too
+ * wide for the card.
  *
  * The window is composed onto it in parentheses rather than written into the wording,
  * so both halves keep whatever translations they have — see the wakatime card's own.
@@ -106,16 +107,25 @@ const keepingUp = (opened: number, done: number): number => {
  */
 const defaultTitleFor = (
   t: Localized<typeof orgActivityCardLocales>,
-  name: string,
-  { days, range }: Pick<OrgActivityData, 'days' | 'range'>,
+  {
+    name,
+    repository,
+    days,
+    range,
+  }: Pick<OrgActivityData, 'name' | 'repository' | 'days' | 'range'>,
   cardWidth: number,
 ): string => {
   const window =
     days === undefined ? ` (${formatRange(range)})` : ` (${t.lastDays({ count: days })})`;
-  const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
-  const named = `${t.title({ name, apostrophe })}${window}`;
+  const subject = repository ?? name;
+  const apostrophe = /s$/i.test(subject.trim()) ? '' : 's';
+  const titled = repository === null ? t.title : t.titleRepository;
+  const named = `${titled({ name: subject, apostrophe })}${window}`;
   if (titleFits(named, cardWidth)) {
     return named;
+  }
+  if (repository !== null) {
+    return `${t.titleRepositoryUnnamed()}${window}`;
   }
   return `${t.titleUnnamed()}${window}`;
 };
@@ -164,17 +174,7 @@ const renderCard = (
   data: OrgActivityData,
   options: CardOptions<OrgActivityCardOptions> = {},
 ): string => {
-  const {
-    name,
-    days,
-    range,
-    prsOpened,
-    prsMerged,
-    issuesOpened,
-    issuesClosed,
-    discussionsOpened,
-    commits,
-  } = data;
+  const { prsOpened, prsMerged, issuesOpened, issuesClosed, discussionsOpened, commits } = data;
   const {
     hide = [],
     show = [],
@@ -353,7 +353,7 @@ const renderCard = (
   // `role="img"` hides the inner text from assistive tech, so everything the card
   // shows has to be repeated in its description.
   const card = new Card({
-    title: title ?? defaultTitleFor(t, name, { days, range }, width),
+    title: title ?? defaultTitleFor(t, data, width),
     titlePrefixIcon: CARD_ICON.orgActivity,
     width,
     height,

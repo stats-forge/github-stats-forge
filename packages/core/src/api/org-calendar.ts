@@ -6,11 +6,19 @@ import { NUMBER_FORMATS } from '../common/render.ts';
 import { fetchOrgCalendar } from '../fetchers/org-calendar/index.ts';
 
 import { cardHandler } from './handler.ts';
-import { commonParams, enumParam, intParam, titleParams, usernameParam } from './params.ts';
+import {
+  commonParams,
+  enumParam,
+  intParam,
+  repoNameParam,
+  titleParams,
+  usernameParam,
+} from './params.ts';
 
 /** What the organization calendar endpoint accepts, on top of the shared color params. */
 const orgCalendarQuery = z.object({
   org: usernameParam,
+  repo: repoNameParam,
   ...commonParams,
   ...titleParams,
   count: enumParam(ORG_CALENDAR_COUNTS),
@@ -29,8 +37,8 @@ const renderOrgCalendar = cardHandler(
   orgCalendarQuery,
   { org: 'username' },
   async (params, theme, config) => {
-    const { org, count, weeks } = params;
-    const data = await fetchOrgCalendar({ org, count, weeks }, config);
+    const { org, repo, count, weeks } = params;
+    const data = await fetchOrgCalendar({ org, repo, count, weeks }, config);
     return renderOrgCalendarCard(data, { ...params, ...theme });
   },
 );
