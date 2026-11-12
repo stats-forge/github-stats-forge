@@ -212,7 +212,9 @@ their reasons in `oxlint.config.ts`.
 - **Card tests assert on the DOM, not snapshots**, bar `renderWakatimeCard.spec.ts.snap`. Snapshots
   are byte-exact, so diff them after any card edit, and hoist a `${cond ? a : b}` out of a
   renderer's template literal, which the formatter may reflow into the SVG.
-- **A test that provokes a diagnostic silences it with `vi.spyOn(console, …)`, saying why** ([#79]);
+- **Core's diagnostics go to `config.logger`, which `testConfig`'s `testLogger` takes and a spec
+  asserts on.** Any other diagnostic a test provokes it silences with `vi.spyOn(console, …)` or
+  `process.stdout`'s `write`, saying why ([#79]);
   `--disable-console-intercept` shows what the suite prints.
 - **A test needing an upstream failure answers one; it never drops the request**: an `errors` body
   for GitHub, a `502` for WakaTime. A rejected fetch, `networkError()` or a `FetchMock` with no

@@ -7,7 +7,7 @@ import type {
   OrgRepoInfoFragment,
 } from '../src/graphql/generated/organization.ts';
 
-import { testConfig } from './_config.ts';
+import { testConfig, testLogger } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 import type { GraphQLBody } from './_fetch-mock.ts';
 
@@ -240,23 +240,18 @@ describe(fetchOrganization, () => {
   });
 
   it('keeps the rest of the card when the token may not read the member count', async () => {
-    // silences the refusal the fetcher logs, and is what asserts on it
-    const logged = vi.spyOn(console, 'error').mockReturnValue();
-
     mock.onPost(GRAPHQL).reply(200, membersRefused([repo({ stars: 3 })]));
 
     await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
       publicMembers: null,
       totalStars: 3,
     });
-    expect(logged).toHaveBeenCalledWith(
+    expect(testLogger.error).toHaveBeenCalledWith(
       expect.stringContaining('may not read the members of vitest-dev'),
     );
   });
 
   it('rejects a refusal that is not just the member count', async () => {
-    vi.spyOn(console, 'error').mockReturnValue();
-
     mock.onPost(GRAPHQL).reply(200, {
       data: { organization: null, members: null },
       errors: [

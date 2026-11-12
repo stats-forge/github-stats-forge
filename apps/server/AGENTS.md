@@ -10,6 +10,8 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 
 - **Never log a query value or a token.** One JSON line per request on stdout, built from the
   response's headers; `PersonalAccessToken` carries the env var's `name` for this.
+  - **Core's diagnostics are JSON lines too, through `coreLogger`**, marked `"event": "core"`. Their
+    text is core's and can name a login, as GitHub's `NOT_FOUND` message does: a known gap.
 - **Never add a build step.** Node strips the types and `--conditions=@stats/source` points at
   core's source, so the image runs the repository. A rolldown bundle was removed: nobody could diff
   it, and its `resolve.conditionNames` fails quietly when misspelt `conditions`.

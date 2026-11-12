@@ -5,7 +5,6 @@ import { toSearchDate } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../../common/http.ts';
 import type { FetcherContext, HttpResponse } from '../../common/http.ts';
-import { logger } from '../../common/log.ts';
 import { clampValue } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
 import { GetOrganizationActivityDocument } from '../../graphql/generated/org-activity.ts';
@@ -165,7 +164,12 @@ const fetchOrgActivity = async (
     if (res.data.errors[0]?.type === 'NOT_FOUND') {
       throw CardError.because('org_not_found');
     }
-    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization activity');
+    throw CardError.fromGraphQL(
+      res.data.errors,
+      res.statusText,
+      'organization activity',
+      config.logger,
+    );
   }
 
   const { data } = res.data;
@@ -178,7 +182,7 @@ const fetchOrgActivity = async (
     if (require_issues) {
       throw CardError.because('org_activity_issues_forbidden');
     }
-    logger.error(
+    config.logger.error(
       `Issue counts dropped: this token may not read issues, so GitHub answered the issue searches for ${org} with pull requests. Grant the token read access to issues to draw those two rows.`,
     );
   }
@@ -191,7 +195,7 @@ const fetchOrgActivity = async (
       commits = total;
     } else {
       // the rest of the card is already fetched, so a refused commit search drops the row
-      logger.error(`GitHub error: ${JSON.stringify(commitRes.data)}`);
+      config.logger.error(`GitHub error: ${JSON.stringify(commitRes.data)}`);
     }
   }
 

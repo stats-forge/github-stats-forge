@@ -1,7 +1,3 @@
-import { vi } from 'vitest';
-
-import type * as loggerModule from '../src/common/log.ts';
-
 /**
  * Creates an asymmetric matcher for approximate numeric equality.
  *
@@ -35,33 +31,6 @@ export function approxNumber(
     },
     toAsymmetricMatcher() {
       return `≈ ${expected} (precision ${precision})`;
-    },
-  };
-}
-
-/**
- * Helper to create logger module mocks to use in unit tests.
- * If you need to perform assertions on logger use `vi.mocked`.
- *
- * @example
- * ```ts
- * import { logger } from "../src/common/log.ts";
- *
- * vi.mock(import("../src/common/log.ts"), async () => {
- *  const { createLoggerMock } = await import("./utils.ts");
- *  return createLoggerMock();
- * });
- *
- * const logSpy = vi.mocked(logger.log);
- * ```
- *
- * @returns mocked logger module
- */
-export function createLoggerMock(): typeof loggerModule {
-  return {
-    logger: {
-      log: vi.fn<(...args: Array<unknown>) => void>(),
-      error: vi.fn<(...args: Array<unknown>) => void>(),
     },
   };
 }

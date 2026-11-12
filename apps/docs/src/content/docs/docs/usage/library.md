@@ -81,19 +81,21 @@ const config = new CardConfig({
   fetch: myFetch,
   requestTimeoutMs: 10_000,
   hints: { tokens_missing: 'Set PAT_1 in the environment' },
+  logger: { log: myLog.info, error: myLog.error },
 });
 ```
 
-| Field                 | What it is                                                                 |
-| --------------------- | -------------------------------------------------------------------------- |
-| `pats`                | The tokens to spend, each with the name of the variable it came from       |
-| `usernameAllowlist`   | The GitHub logins this deployment draws, case-insensitively; omit for any  |
-| `gistAllowlist`       | The same, for gist ids                                                     |
-| `excludeRepositories` | Repositories left out of every card                                        |
-| `fetchMultiPageStars` | How many pages of starred repositories to read; `Infinity` for all         |
-| `fetch`               | The transport every request goes through — swap it to cache, mock or proxy |
-| `requestTimeoutMs`    | How long one request may wait before it fails as `upstream`; omit to wait  |
-| `hints`               | Your own second line for a failure, by `reason`, on the card and in `text` |
+| Field                 | What it is                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| `pats`                | The tokens to spend, each with the name of the variable it came from               |
+| `usernameAllowlist`   | The GitHub logins this deployment draws, case-insensitively; omit for any          |
+| `gistAllowlist`       | The same, for gist ids                                                             |
+| `excludeRepositories` | Repositories left out of every card                                                |
+| `fetchMultiPageStars` | How many pages of starred repositories to read; `Infinity` for all                 |
+| `fetch`               | The transport every request goes through — swap it to cache, mock or proxy         |
+| `requestTimeoutMs`    | How long one request may wait before it fails as `upstream`; omit to wait          |
+| `hints`               | Your own second line for a failure, by `reason`, on the card and in `text`         |
+| `logger`              | Where diagnostics go, such as a token hitting its rate limit; `console` by default |
 
 `CardConfig.fromEnv(process.env)` builds the same thing from `PAT_1`…, `ALLOWLIST`,
 `GIST_ALLOWLIST`, `EXCLUDE_REPO` and `FETCH_MULTI_PAGE_STARS`, for a host that would rather

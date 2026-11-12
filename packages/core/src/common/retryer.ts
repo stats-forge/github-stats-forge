@@ -1,7 +1,6 @@
 import type { CardConfig } from './config.ts';
 import { CardError } from './error.ts';
 import type { FetcherContext, HttpResponse } from './http.ts';
-import { logger } from './log.ts';
 
 /**
  * Error-detection fields the retryer inspects to detect rate-limiting and credential failures.
@@ -119,7 +118,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
       (!!errors && errorType === 'RATE_LIMITED') || /rate limit/i.test(errorMsg);
 
     if (isRateLimited) {
-      logger.log(`${currentPAT.name} Failed due to rate limiting`);
+      config.logger.log(`${currentPAT.name} Failed due to rate limiting`);
       continue;
     }
 
@@ -129,7 +128,7 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
     const isAccountSuspended = message === 'Sorry. Your account was suspended.';
 
     if (isBadCredential || isAccountSuspended) {
-      logger.log(`${currentPAT.name} Failed due to bad credentials`);
+      config.logger.log(`${currentPAT.name} Failed due to bad credentials`);
       rejectedPATs += 1;
       continue;
     }

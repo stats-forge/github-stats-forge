@@ -157,6 +157,9 @@ Store CSI Driver.
 `stale` since it started, and each token's rate limit as GitHub last reported it, by variable name
 alone. A token stays `null` until a card has used it.
 
+Its log is JSON on stdout, one line per request (`LOG_REQUESTS=false` turns those off) and one per
+diagnostic, such as a token that hit its rate limit, marked `"event": "core"`.
+
 ## Which version you run
 
 No tag is `latest`. Each release also publishes its exact version and a `major.minor` that follows

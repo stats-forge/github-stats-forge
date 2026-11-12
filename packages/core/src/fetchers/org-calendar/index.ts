@@ -95,7 +95,12 @@ const fetchOrgCalendar = async (
     if (res.data.errors[0]?.type === 'NOT_FOUND') {
       throw CardError.because('org_not_found');
     }
-    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization calendar');
+    throw CardError.fromGraphQL(
+      res.data.errors,
+      res.statusText,
+      'organization calendar',
+      config.logger,
+    );
   }
 
   const { data } = res.data;

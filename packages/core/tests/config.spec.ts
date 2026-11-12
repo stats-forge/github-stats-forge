@@ -3,10 +3,13 @@
  * being shared with whatever else runs beside it, and the deadline it puts on each request.
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CardConfig } from '../src/common/config.ts';
 import type { FetchLike } from '../src/common/http.ts';
+import type { Logger } from '../src/common/log.ts';
+
+import { testLogger } from './_config.ts';
 
 /** A server that accepted the connection and then went quiet. */
 const stalled: FetchLike = async (_input, init) =>
@@ -95,5 +98,27 @@ describe('CardConfig.hints', () => {
 
     expect(config.with({ pats: [] }).hints).toStrictEqual({ rate_limited: 'Wait' });
     expect(config.with({ hints: {} }).hints).toStrictEqual({});
+  });
+});
+
+describe('CardConfig.logger', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('writes to the console when the host gives none', () => {
+    const written = vi.spyOn(console, 'error').mockReturnValue();
+
+    new CardConfig().logger.error('refused');
+
+    expect(written).toHaveBeenCalledWith('refused');
+  });
+
+  it('survives `with`, unless the copy brings its own', () => {
+    const logger: Logger = { log: vi.fn<Logger['log']>(), error: vi.fn<Logger['error']>() };
+    const config = new CardConfig({ logger });
+
+    expect(config.with({ pats: [] }).logger).toBe(logger);
+    expect(config.with({ logger: testLogger }).logger).toBe(testLogger);
   });
 });

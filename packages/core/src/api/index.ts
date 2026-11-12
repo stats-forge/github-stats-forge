@@ -15,7 +15,7 @@ export type { ParamKind, ParamShape } from './params.ts';
 
 // every handler but `wakatime` needs the PAT pool, and that one still needs the transport.
 export { CardConfig } from '../common/config.ts';
-export type { CardConfigInit, PersonalAccessToken } from '../common/config.ts';
+export type { CardConfigInit, Logger, PersonalAccessToken } from '../common/config.ts';
 export type { FetchLike } from '../common/http.ts';
 export type { ErrorCode, FailureReason } from '../common/error.ts';
 
