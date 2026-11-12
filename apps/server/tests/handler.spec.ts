@@ -210,6 +210,34 @@ describe('revalidation', () => {
   });
 });
 
+describe('compression', () => {
+  it('compresses a card for a caller who accepts it, keeping the status headers', async () => {
+    const { options } = optionsAnswering(GIST_REPLY);
+    const plain = await get(GIST_URL, options);
+    const plainBody = await plain.arrayBuffer();
+
+    const response = await get(GIST_URL, options, 'GET', { 'accept-encoding': 'br' });
+    const encodedBody = await response.arrayBuffer();
+
+    expect(response.headers.get('content-encoding')).toBe('br');
+    expect(response.headers.get('card-status')).toBe('success');
+    expect(encodedBody.byteLength).toBeLessThan(plainBody.byteLength);
+  });
+
+  it('gives HEAD the length a GET would send', async () => {
+    const { options } = optionsAnswering(GIST_REPLY);
+    const handler = createHandler(options);
+    const asked = { 'accept-encoding': 'gzip' };
+    const full = await handler(new Request(GIST_URL, { headers: asked }));
+    const head = await handler(new Request(GIST_URL, { method: 'HEAD', headers: asked }));
+
+    const body = await full.arrayBuffer();
+
+    expect(head.headers.get('content-encoding')).toBe('gzip');
+    expect(Number(head.headers.get('content-length'))).toBe(body.byteLength);
+  });
+});
+
 describe('a failure', () => {
   it('names the missing param in a header rather than only in the image', async () => {
     const response = await get('http://localhost/api/gist', testOptions());

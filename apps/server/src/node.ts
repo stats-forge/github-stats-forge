@@ -11,7 +11,7 @@ import { logRequest } from './log.ts';
 type FetchHandler = (request: Request) => Promise<Response>;
 
 /** The request headers the handler reads; nothing else crosses. */
-const FORWARDED_HEADERS = ['if-none-match'] as const;
+const FORWARDED_HEADERS = ['accept-encoding', 'if-none-match'] as const;
 
 /**
  * Node's request as the handler takes it. Only `GET` and `HEAD` are served, so no body crosses.

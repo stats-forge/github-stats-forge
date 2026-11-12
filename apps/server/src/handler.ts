@@ -10,6 +10,7 @@ import { queryOf } from '@stats-forge/github-stats-forge-core/api';
 
 import { TTL, cacheControl, cacheKey, parseInteger, ttlFor } from './cache.ts';
 import type { CacheHit, CardCache } from './cache.ts';
+import { compress } from './compress.ts';
 import { HEALTH_PATH } from './health.ts';
 import type { RateLimits } from './rate-limits.ts';
 import { CARD_ROUTES, normalizePath } from './routes.ts';
@@ -169,7 +170,7 @@ const cardResponse = (
 
 /**
  * What every answer gets regardless of what produced it: the CORS headers when an origin is
- * configured, and no body for a `HEAD`.
+ * configured, compression when it is text, and no body for a `HEAD`.
  *
  * @returns The response as it goes out.
  */
@@ -186,13 +187,20 @@ const finish = async (
     headers.append('vary', 'Origin');
   }
 
+  // before the `HEAD` is emptied, so its `Content-Length` is the one a `GET` would send
+  const encoded = await compress(
+    request,
+    new Response(response.body, { status: response.status, headers }),
+  );
+
   if (request.method !== 'HEAD') {
-    return new Response(response.body, { status: response.status, headers });
+    return encoded;
   }
 
-  const body = await response.arrayBuffer();
-  headers.set('content-length', String(body.byteLength));
-  return new Response(null, { status: response.status, headers });
+  const body = await encoded.arrayBuffer();
+  const emptied = new Headers(encoded.headers);
+  emptied.set('content-length', String(body.byteLength));
+  return new Response(null, { status: response.status, headers: emptied });
 };
 
 /** A fresh draw, and the last good card it failed to replace, when it failed retryably. */
