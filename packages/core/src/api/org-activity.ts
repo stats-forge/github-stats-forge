@@ -12,7 +12,6 @@ import {
   intParam,
   ORDERED_RANGE,
   statRowParams,
-  repoNameParam,
   titleParams,
   toParam,
   usernameParam,
@@ -28,7 +27,6 @@ const STATS = [
 const orgActivityQuery = z
   .object({
     org: usernameParam,
-    repo: repoNameParam,
     ...commonParams,
     ...titleParams,
     ...statRowParams,
@@ -51,7 +49,7 @@ const renderOrgActivity = cardHandler(
   orgActivityQuery,
   { org: 'username' },
   async (params, theme, config) => {
-    const { org, repo, days, from, to, show, hide } = params;
+    const { org, days, from, to, show, hide } = params;
     // a stat shown and hidden is not drawn, and a stat not drawn is not fetched
     const drawn = new Set(show.filter((stat) => !hide.includes(stat)));
 
@@ -59,7 +57,6 @@ const renderOrgActivity = cardHandler(
     const data = await fetchOrgActivity(
       {
         org,
-        repo,
         days,
         from,
         to,

@@ -5,8 +5,6 @@ export interface OrgActivityData {
   login: string;
   /** The organization's display name, or its login when it has none. */
   name: string;
-  /** The one repository counted, in GitHub's casing; `null` when the whole organization is. */
-  repository: string | null;
   /** The window every count covers, both ends inclusive. */
   range: GitHubDateRange;
   /** Days that window spans when it was asked for as days; `undefined` for a `from`/`to` range. */

@@ -1,9 +1,5 @@
 import type { CardConfig } from '../../common/config.ts';
-import {
-  GITHUB_REPO_NAME_PATTERN,
-  GITHUB_USERNAME_PATTERN,
-  ORG_CALENDAR_MAX_WEEKS,
-} from '../../common/constants.ts';
+import { GITHUB_USERNAME_PATTERN, ORG_CALENDAR_MAX_WEEKS } from '../../common/constants.ts';
 import type { ORG_CALENDAR_COUNTS } from '../../common/constants.ts';
 import { toSearchDate } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
@@ -57,13 +53,10 @@ const lastWeeks = (weeks: number): Array<OrgCalendarWeek> => {
 const fetchOrgCalendar = async (
   {
     org,
-    repo,
     count = 'prs_merged',
     weeks,
   }: {
     org: string | undefined;
-    /** One of the organization's repositories, to count only its activity. */
-    repo?: string | undefined;
     count?: (typeof ORG_CALENDAR_COUNTS)[number] | undefined;
     /** Weeks to cover, ending today; clamped to 1–{@link ORG_CALENDAR_MAX_WEEKS}, which is also the default. */
     weeks?: number | undefined;
@@ -77,9 +70,6 @@ const fetchOrgCalendar = async (
   if (!GITHUB_USERNAME_PATTERN.test(org)) {
     throw CardError.because('org_invalid');
   }
-  if (repo !== undefined && !GITHUB_REPO_NAME_PATTERN.test(repo)) {
-    throw CardError.because('org_repo_invalid');
-  }
 
   let span = ORG_CALENDAR_MAX_WEEKS;
   if (weeks !== undefined && Number.isFinite(weeks)) {
@@ -87,15 +77,10 @@ const fetchOrgCalendar = async (
   }
   const calendar = lastWeeks(span);
 
-  const scope = repo === undefined ? `org:${org}` : `repo:${org}/${repo}`;
-  const variables: OrgCalendarQueryVariables = {
-    login: org,
-    repo: repo ?? '',
-    withRepo: repo !== undefined,
-  };
+  const variables: OrgCalendarQueryVariables = { login: org };
   for (const [index, week] of calendar.entries()) {
     variables[weekKey(index)] =
-      `${scope} ${QUALIFIERS[count]}:${toSearchDate(week.from)}..${toSearchDate(week.to)}`;
+      `org:${org} ${QUALIFIERS[count]}:${toSearchDate(week.from)}..${toSearchDate(week.to)}`;
   }
 
   const res = await retryer(
@@ -105,16 +90,9 @@ const fetchOrgCalendar = async (
   );
 
   if (res.data.errors) {
-    const missing = new Set(
-      res.data.errors.filter((error) => error.type === 'NOT_FOUND').map((error) => error.path?.[0]),
-    );
-    // An organization that does not exist has no repository either, so it is named first.
-    if (missing.has('repository') && !missing.has('organization')) {
-      throw CardError.because('repo_not_found');
-    }
     // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
     // words for a user query, so this endpoint's own wording is thrown instead.
-    if (missing.size > 0) {
+    if (res.data.errors[0]?.type === 'NOT_FOUND') {
       throw CardError.because('org_not_found');
     }
     throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization calendar');
@@ -139,7 +117,6 @@ const fetchOrgCalendar = async (
   return {
     login: data.organization.login,
     name: data.organization.name || data.organization.login,
-    repository: data.repository?.name ?? null,
     count,
     weeks: calendar.map((week, index) => ({ ...week, count: searches[index]?.issueCount ?? 0 })),
   };

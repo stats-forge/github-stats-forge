@@ -5,8 +5,6 @@ type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 import { graphqlDocument } from '../graphqlDocument.ts';
 export type GetOrganizationActivityQueryVariables = Exact<{
   login: string;
-  repo: string;
-  withRepo: boolean;
   prsOpened: string;
   prsMerged: string;
   issuesOpened: string;
@@ -16,7 +14,6 @@ export type GetOrganizationActivityQueryVariables = Exact<{
 
 export type GetOrganizationActivityQuery = {
   organization: { login: string; name: string | null } | null;
-  repository?: { name: string } | null;
   prsOpened: { issueCount: number };
   prsMerged: { issueCount: number };
   issuesOpened: {
@@ -54,12 +51,9 @@ export const GetOrganizationActivityDocument = graphqlDocument<
   GetOrganizationActivityQuery,
   GetOrganizationActivityQueryVariables
 >(`
-query getOrganizationActivity($login: String!, $repo: String!, $withRepo: Boolean!, $prsOpened: String!, $prsMerged: String!, $issuesOpened: String!, $issuesClosed: String!, $discussions: String!) {
+query getOrganizationActivity($login: String!, $prsOpened: String!, $prsMerged: String!, $issuesOpened: String!, $issuesClosed: String!, $discussions: String!) {
   organization(login: $login) {
     login
-    name
-  }
-  repository(owner: $login, name: $repo) @include(if: $withRepo) {
     name
   }
   prsOpened: search(query: $prsOpened, type: ISSUE) {

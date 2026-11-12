@@ -16,9 +16,6 @@ const GITHUB_USERNAME_PATTERN = /^[a-z\d-]{1,39}$/i;
 const HOSTNAME_PATTERN =
   /^[a-z\d](?:[a-z\d-]*[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]*[a-z\d])?)*(?::(?:6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}))?$/i;
 
-/** A repository's name, without its owner: never `.` or `..`, and 100 characters at most. */
-const GITHUB_REPO_NAME_PATTERN = /^(?!\.+$)[\w.-]{1,100}$/;
-
 /** A WakaTime or Wakapi username: one path segment, and never `.` or `..`. */
 const WAKATIME_USERNAME_PATTERN = /^(?!\.+$)[\w.-]+$/;
 
@@ -59,7 +56,6 @@ const affiliationsOrOwner = (
 export {
   affiliationsOrOwner,
   GITHUB_EPOCH_YEAR,
-  GITHUB_REPO_NAME_PATTERN,
   GITHUB_USERNAME_PATTERN,
   HOSTNAME_PATTERN,
   ORG_CALENDAR_COUNTS,

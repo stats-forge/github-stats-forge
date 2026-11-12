@@ -10,7 +10,3 @@ fragment OrgCalendarOrganization on Organization {
   login
   name
 }
-
-fragment OrgCalendarRepository on Repository {
-  name
-}

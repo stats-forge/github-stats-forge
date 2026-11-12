@@ -19,7 +19,6 @@ const weeksOf = (counts: Array<number>): OrgCalendarData['weeks'] =>
 const data: OrgCalendarData = {
   login: 'vitest-dev',
   name: 'Vitest',
-  repository: null,
   count: 'prs_merged',
   weeks: weeksOf([0, 2, 4, 6, 8]),
 };
