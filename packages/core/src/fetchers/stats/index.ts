@@ -149,11 +149,11 @@ interface SearchVariables {
 const fetchTotalItems = async (
   { type, filter, scope }: SearchVariables,
   token: string,
-  { fetch }: FetcherContext,
+  { fetch, apiUrl }: FetcherContext,
 ): Promise<FetcherResponse<{ total_count?: number }>> =>
   httpRequest(
     fetch,
-    `https://api.github.com/search/${type}?per_page=1&q=${buildSearchFilter(scope).replaceAll(
+    `${apiUrl}/search/${type}?per_page=1&q=${buildSearchFilter(scope).replaceAll(
       ' ',
       '+',
     )}${filter}`,

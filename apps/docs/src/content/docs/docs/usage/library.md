@@ -82,6 +82,7 @@ const config = new CardConfig({
   requestTimeoutMs: 10_000,
   hints: { tokens_missing: 'Set PAT_1 in the environment' },
   logger: { log: myLog.info, error: myLog.error },
+  githubApiUrl: 'https://github.example.com/api/v3',
 });
 ```
 
@@ -96,9 +97,10 @@ const config = new CardConfig({
 | `requestTimeoutMs`    | How long one request may wait before it fails as `upstream`; omit to wait          |
 | `hints`               | Your own second line for a failure, by `reason`, on the card and in `text`         |
 | `logger`              | Where diagnostics go, such as a token hitting its rate limit; `console` by default |
+| `githubApiUrl`        | A GitHub Enterprise Server's REST API; its GraphQL API is found beside it          |
 
 `CardConfig.fromEnv(process.env)` builds the same thing from `PAT_1`…, `ALLOWLIST`,
-`GIST_ALLOWLIST`, `EXCLUDE_REPO` and `FETCH_MULTI_PAGE_STARS`, for a host that would rather
+`GIST_ALLOWLIST`, `EXCLUDE_REPO`, `FETCH_MULTI_PAGE_STARS` and `GITHUB_API_URL`, for a host that would rather
 configure through the environment. A `PAT_` variable set to nothing is skipped.
 
 The library's own advice assumes nothing about where a token comes from. A host that knows, such

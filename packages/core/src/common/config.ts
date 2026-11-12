@@ -1,5 +1,5 @@
 import type { FailureReason } from './error.ts';
-import { defaultFetch, withTimeout } from './http.ts';
+import { GITHUB_API_URL, defaultFetch, withTimeout } from './http.ts';
 import type { FetchLike } from './http.ts';
 import { consoleLogger } from './log.ts';
 import type { Logger } from './log.ts';
@@ -27,6 +27,7 @@ interface CardConfigInit {
   requestTimeoutMs?: number | undefined;
   hints?: Partial<Record<FailureReason, string>>;
   logger?: Logger;
+  githubApiUrl?: string | undefined;
 }
 
 /**
@@ -84,6 +85,8 @@ export class CardConfig {
   readonly hints: Partial<Record<FailureReason, string>>;
   /** Where core's diagnostics go; defaults to `console`. */
   readonly logger: Logger;
+  /** The REST API's base, a GitHub Enterprise Server's `https://HOST/api/v3`; no trailing slash. */
+  readonly githubApiUrl: string;
   /** The transport as given, so `with` never wraps it twice. */
   private readonly transport: FetchLike;
 
@@ -98,6 +101,7 @@ export class CardConfig {
     this.fetch = withTimeout(this.transport, this.requestTimeoutMs);
     this.hints = init.hints ?? {};
     this.logger = init.logger ?? consoleLogger;
+    this.githubApiUrl = (init.githubApiUrl ?? GITHUB_API_URL).replace(/\/+$/, '');
   }
 
   /** @returns Config for this deployment. */
@@ -108,6 +112,8 @@ export class CardConfig {
       gistAllowlist: parseCsv(env['GIST_ALLOWLIST']),
       excludeRepositories: parseCsv(env['EXCLUDE_REPO']) ?? [],
       fetchMultiPageStars: parseFetchMultiPageStars(env['FETCH_MULTI_PAGE_STARS']),
+      // the name GitHub Actions sets, an Enterprise Server's runner included
+      githubApiUrl: env['GITHUB_API_URL'] || undefined,
     });
   }
 
@@ -134,6 +140,7 @@ export class CardConfig {
       requestTimeoutMs: this.requestTimeoutMs,
       hints: this.hints,
       logger: this.logger,
+      githubApiUrl: this.githubApiUrl,
       ...overrides,
     });
   }

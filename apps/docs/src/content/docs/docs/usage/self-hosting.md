@@ -83,6 +83,7 @@ Everything but `PAT_1` is optional.
 | `CACHE_UPSTREAM_MB`      | `16`               | memory for GitHub's and WakaTime's answers; `0` holds none   |
 | `CACHE_DIR`              | —                  | where held cards are kept across a restart                   |
 | `CORS_ORIGIN`            | —                  | the one origin allowed to read a card from script            |
+| `GITHUB_API_URL`         | GitHub.com's       | a GitHub Enterprise Server's API, `https://HOST/api/v3`      |
 
 See [GitHub tokens](../tokens/) for which token each card needs.
 

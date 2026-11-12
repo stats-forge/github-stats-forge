@@ -44,6 +44,9 @@ Every card but WakaTime needs a [GitHub token](../tokens/). The CLI looks for on
 4. `GH_TOKEN`, then `GITHUB_TOKEN`, as the GitHub CLI and GitHub Actions set them.
 5. A prompt, if it still has none.
 
+On a GitHub Enterprise Server, `GITHUB_API_URL` names its API, `https://HOST/api/v3`, as its
+runners already set it.
+
 The `GITHUB_TOKEN` a workflow is given cannot read gists or an organization's members, so the gist
 and organization cards need a token of your own.
 

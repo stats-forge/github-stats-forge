@@ -115,9 +115,9 @@ beforeEach(async () => {
   await writeSavedCard(savedGist, gist, { id: 'abc', theme: 'ember_dark' });
 
   ({ argv } = process);
-  // a token in the shell running the suite must not reach a test that expects none
+  // a token or API in the shell running the suite must not reach a test that expects none
   for (const name of Object.keys(process.env).filter((key) =>
-    /^(?:PAT_\d+|GH_TOKEN|GITHUB_TOKEN)$/u.test(key),
+    /^(?:PAT_\d+|GH_TOKEN|GITHUB_TOKEN|GITHUB_API_URL)$/u.test(key),
   )) {
     vi.stubEnv(name, undefined);
   }
@@ -227,6 +227,15 @@ describe('the command line', () => {
       `Pass --pat, or put PAT_1 in the environment or ${join(dir, 'empty.env')}`,
     );
     expect(prompts.navigateOptions).not.toHaveBeenCalled();
+  });
+
+  it('asks the API GITHUB_API_URL names, as an Enterprise Server runner sets it', async () => {
+    vi.stubEnv('GITHUB_API_URL', 'https://ghe.example.com/api/v3');
+    render.mockResolvedValue(DRAWN);
+
+    await run('--config', savedGist, '--generate', '--pat', 'ghp_x', '--out', join(dir, 'a.svg'));
+
+    expect(render.mock.calls[0]?.[1].githubApiUrl).toBe('https://ghe.example.com/api/v3');
   });
 
   it("creates --out's folders when they are not there yet", async () => {
