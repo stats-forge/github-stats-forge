@@ -187,6 +187,19 @@ describe('Test Render WakaTime Card', () => {
     expect(screen.queryByTestId(/TypeScript/i)).toBeInTheDocument();
   });
 
+  it.each([
+    ['last_7_days', 'WakaTime Stats (last 7 days)'],
+    ['last_30_days', 'WakaTime Stats (last 30 days)'],
+    ['last_6_months', 'WakaTime Stats (last 6 months)'],
+    ['last_year', 'WakaTime Stats (last year)'],
+    ['all_time', 'WakaTime Stats (all time)'],
+    ['', 'WakaTime Stats'],
+  ])('names the range %j in its title', (range, title) => {
+    draw(renderWakatimeCard({ ...wakaTimeData.data, range }));
+
+    expect(document.querySelector('.header')).toHaveTextContent(exactly(title));
+  });
+
   it('should render translations', () => {
     draw(renderWakatimeCard({}, { locale: 'zh-cn' }));
     expect(document.querySelector('.header')).toHaveTextContent(exactly('WakaTime 周统计'));

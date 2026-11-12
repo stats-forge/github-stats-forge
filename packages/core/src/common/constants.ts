@@ -22,6 +22,15 @@ const GITHUB_REPO_NAME_PATTERN = /^(?!\.+$)[\w.-]{1,100}$/;
 /** A WakaTime or Wakapi username: one path segment, and never `.` or `..`. */
 const WAKATIME_USERNAME_PATTERN = /^(?!\.+$)[\w.-]+$/;
 
+/** The windows WakaTime keeps stats for, each a path segment of its stats endpoint. */
+const WAKATIME_RANGES = [
+  'last_7_days',
+  'last_30_days',
+  'last_6_months',
+  'last_year',
+  'all_time',
+] as const;
+
 /** What an organization calendar's weeks can count, each a search over the week. */
 const ORG_CALENDAR_COUNTS = ['prs_merged', 'prs_opened', 'issues_opened', 'issues_closed'] as const;
 
@@ -56,5 +65,6 @@ export {
   ORG_CALENDAR_COUNTS,
   ORG_CALENDAR_MAX_WEEKS,
   OWNER_AFFILIATIONS,
+  WAKATIME_RANGES,
   WAKATIME_USERNAME_PATTERN,
 };
