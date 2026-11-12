@@ -51,6 +51,14 @@ describe(writeSavedCard, () => {
       show_icons: 'true',
     });
   });
+
+  it('creates the folders the path names', async () => {
+    const file = join(dir(), 'cards', 'card.json');
+
+    await writeSavedCard(file, card('stats'), { username: 'anuraghazra' });
+
+    await expect(readFile(file, 'utf8')).resolves.toContain('"username": "anuraghazra"');
+  });
 });
 
 describe(readSavedCard, () => {
