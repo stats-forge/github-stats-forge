@@ -1,11 +1,13 @@
+import { clampValue, httpRequest } from '@stats-forge/card-kit';
+import type { HttpResponse } from '@stats-forge/card-kit';
+
 import type { CardConfig } from '../../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
 import type { GitHubDateRange } from '../../common/date.ts';
 import { toSearchDate } from '../../common/date.ts';
-import { CardError } from '../../common/error.ts';
-import { createGraphQLFetcher, httpRequest } from '../../common/http.ts';
-import type { FetcherContext, HttpResponse } from '../../common/http.ts';
-import { clampValue } from '../../common/ops.ts';
+import { CardError, fromGraphQL } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
+import type { FetcherContext } from '../../common/http.ts';
 import { retryer } from '../../common/retryer.ts';
 import { GetOrganizationActivityDocument } from '../../graphql/generated/org-activity.ts';
 import type { GetOrganizationActivityQuery } from '../../graphql/generated/org-activity.ts';
@@ -159,17 +161,12 @@ const fetchOrgActivity = async (
   );
 
   if (res.data.errors) {
-    // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
+    // A login that is a user, or nothing at all, answers NOT_FOUND — which `fromGraphQL`
     // words for a user query, so this endpoint's own wording is thrown instead.
     if (res.data.errors[0]?.type === 'NOT_FOUND') {
       throw CardError.because('org_not_found');
     }
-    throw CardError.fromGraphQL(
-      res.data.errors,
-      res.statusText,
-      'organization activity',
-      config.logger,
-    );
+    throw fromGraphQL(res.data.errors, res.statusText, 'organization activity', config.logger);
   }
 
   const { data } = res.data;

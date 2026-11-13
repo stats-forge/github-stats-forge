@@ -1,21 +1,25 @@
-import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
-import { icons } from '../../common/icons.ts';
-import { getLanguageColor } from '../../common/languageColors.ts';
-import type { Locale } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
-import { parseEmojis } from '../../common/ops.ts';
 import {
+  CARD_STYLE,
+  Card,
   countFormatter,
   createLanguageNode,
+  el,
   flexLayout,
+  font,
+  getLightDarkColors,
   iconWithLabel,
-} from '../../common/render.ts';
-import { wrapTextMultiline, measureText } from '../../common/text.ts';
+  icons,
+  localize,
+  measureText,
+  rule,
+  wrapTextMultiline,
+} from '@stats-forge/card-kit';
+import type { CssChild, Locale } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
+import { getLanguageColor } from '../../common/languageColors.ts';
+import { parseEmojis } from '../../common/ops.ts';
 import type { GistData } from '../../fetchers/gist/types.ts';
-import type { CssChild } from '../../markup/index.ts';
-import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { gistCardLocales } from './locales.ts';

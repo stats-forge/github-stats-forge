@@ -1,12 +1,18 @@
+import {
+  NUMBER_FORMATS,
+  commonParams,
+  enumParam,
+  intParam,
+  titleParams,
+} from '@stats-forge/card-kit';
 import * as z from 'zod/mini';
 
 import { renderOrgCalendarCard } from '../cards/org-calendar/index.ts';
 import { ORG_CALENDAR_COUNTS, ORG_CALENDAR_MAX_WEEKS } from '../common/constants.ts';
-import { NUMBER_FORMATS } from '../common/render.ts';
 import { fetchOrgCalendar } from '../fetchers/org-calendar/index.ts';
 
 import { cardHandler } from './handler.ts';
-import { commonParams, enumParam, intParam, titleParams, usernameParam } from './params.ts';
+import { usernameParam } from './params.ts';
 
 /** What the organization calendar endpoint accepts, on top of the shared color params. */
 const orgCalendarQuery = z.object({

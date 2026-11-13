@@ -42,10 +42,10 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 
 ## Card branding
 
-- **`common/brand.ts` owns how a card looks** ([#51]): the font stack, type scale, weights, default
-  widths and icons. A card writing its own `font`, pixel size or weight is drifting.
-- **Every measure is a `CARD_STYLE` entry, read by dot** ([#123]); only `CARD_ICON`, `font` and
-  `firefoxFontSize` stand beside it. A new measure goes there, never into a card.
+- **The kit's `brand.ts` owns how a card looks** ([#51]): the font stack, type scale, weights,
+  default widths and icons. A card writing its own `font`, pixel size or weight is drifting.
+- **Every measure is a `CARD_STYLE` entry, read by dot** ([#123]); only `font` and `firefoxFontSize`
+  stand beside it, in the kit. A new measure goes there, never into a card.
 - **Every side offset reads `CARD_STYLE.padding.x`, never a literal**: when it moved from 25 to
   18, each hard-coded 25 left a row, a bar or a value off the new edge.
 - **A default width is a `CARD_STYLE.width` step**; a layout needing more takes the next step, so
@@ -70,7 +70,7 @@ After any card edit, redraw the previews (`pnpm docs:cards`) and diff the snapsh
 - **A `quiet` theme drops the corner glow and halves the band**, for the original palettes.
 - **The title icon is `.title-icon`, not `.icon`**, which the stats card hides; it takes
   `iconColor`, the heat's middle stop unless set. **Each card's icon is distinct, from the one
-  `CARD_ICON` table.**
+  `CARD_ICON` table**, in `common/brand.ts`.
 - **A card's height is its content plus `CARD_STYLE.padding.bottom`, never a spare row** ([#123]).
   Measure both ends across every card before trusting a layout constant.
 - **Two things moving with one width are derived from it the same way**, as the rank ring and the

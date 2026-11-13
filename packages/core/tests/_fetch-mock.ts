@@ -1,4 +1,6 @@
-import type { FetchLike, GraphQLResponse } from '../src/common/http.ts';
+import type { FetchLike } from '@stats-forge/card-kit';
+
+import type { GraphQLResponse } from '../src/common/http.ts';
 
 /** A request the mock was asked to send, as the assertions read it back. */
 interface MockRequest {

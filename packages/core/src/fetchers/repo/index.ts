@@ -1,5 +1,5 @@
 import type { CardConfig } from '../../common/config.ts';
-import { CardError } from '../../common/error.ts';
+import { CardError, fromGraphQL } from '../../common/error.ts';
 import { createGraphQLFetcher } from '../../common/http.ts';
 import { retryer } from '../../common/retryer.ts';
 import { GetRepoDocument } from '../../graphql/generated/repo.ts';
@@ -80,7 +80,7 @@ const fetchRepo = async (
   // the half naming no such login always fails NOT_FOUND
   const failures = res.data.errors?.filter(({ type }) => type !== 'NOT_FOUND') ?? [];
   if (failures.length > 0) {
-    throw CardError.fromGraphQL(failures, res.statusText, 'repository', config.logger);
+    throw fromGraphQL(failures, res.statusText, 'repository', config.logger);
   }
   const { data } = res.data;
   // a login is a user or an organization, never both

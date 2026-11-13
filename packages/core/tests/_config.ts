@@ -1,7 +1,7 @@
+import type { Logger } from '@stats-forge/card-kit';
 import { afterEach, vi } from 'vitest';
 
 import { CardConfig } from '../src/common/config.ts';
-import type { Logger } from '../src/common/log.ts';
 
 /** Takes core's diagnostics, so a spec can assert on them and the run prints none. */
 export const testLogger = {

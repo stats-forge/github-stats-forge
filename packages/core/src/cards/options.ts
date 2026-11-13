@@ -1,4 +1,4 @@
-import type { ThemeParams } from '../common/color.ts';
+import type { ThemeParams } from '@stats-forge/card-kit';
 
 /**
  * Options every card accepts.

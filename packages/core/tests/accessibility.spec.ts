@@ -1,8 +1,8 @@
+import { renderError } from '@stats-forge/card-kit';
 import { describe, expect, it } from 'vitest';
 
 import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
-import { renderError } from '../src/common/render.ts';
 
 import { draw, exactly } from './_card.ts';
 import { cards, repoData, statsData } from './_cards.ts';

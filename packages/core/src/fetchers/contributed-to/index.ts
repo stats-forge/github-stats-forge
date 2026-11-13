@@ -1,9 +1,11 @@
+import { clampValue } from '@stats-forge/card-kit';
+
 import type { CardConfig } from '../../common/config.ts';
 import type { GitHubDateRange } from '../../common/date.ts';
 import { toContributionRanges, toRange } from '../../common/date.ts';
-import { CardError } from '../../common/error.ts';
+import { CardError, fromGraphQL } from '../../common/error.ts';
 import { createGraphQLFetcher, UNREADABLE_REPLY } from '../../common/http.ts';
-import { clampValue, excludes } from '../../common/ops.ts';
+import { excludes } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
 import { UserContributionYearsDocument } from '../../graphql/generated/contributed-to.ts';
 import {
@@ -127,12 +129,7 @@ const fetchReposContributedTo = async (
         );
         continue;
       }
-      throw CardError.fromGraphQL(
-        res.data.errors,
-        res.statusText,
-        REPOS_CONTRIBUTED_TO,
-        config.logger,
-      );
+      throw fromGraphQL(res.data.errors, res.statusText, REPOS_CONTRIBUTED_TO, config.logger);
     }
     const { user } = res.data.data;
     if (!user) {
@@ -258,12 +255,7 @@ const fetchContributedTo = async (
 
   const res = await retryer(yearsFetcher, { login: username }, config);
   if (res.data.errors) {
-    throw CardError.fromGraphQL(
-      res.data.errors,
-      res.statusText,
-      'contribution years',
-      config.logger,
-    );
+    throw fromGraphQL(res.data.errors, res.statusText, 'contribution years', config.logger);
   }
 
   const { user } = res.data.data;

@@ -82,6 +82,7 @@
     "generate-emoji-map": "node scripts/generate-emoji-map.ts"
   },
   "dependencies": {
+    "@stats-forge/card-kit": "^0.1.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

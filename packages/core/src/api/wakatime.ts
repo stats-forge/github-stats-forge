@@ -1,3 +1,11 @@
+import {
+  booleanParam,
+  commonParams,
+  enumParam,
+  intParam,
+  listParam,
+  titleParams,
+} from '@stats-forge/card-kit';
 import * as z from 'zod/mini';
 
 import { renderWakatimeCard } from '../cards/wakatime/index.ts';
@@ -5,16 +13,7 @@ import { WAKATIME_RANGES } from '../common/constants.ts';
 import { fetchWakatimeStats } from '../fetchers/wakatime/index.ts';
 
 import { cardHandler } from './handler.ts';
-import {
-  booleanParam,
-  commonParams,
-  enumParam,
-  hostnameParam,
-  intParam,
-  listParam,
-  titleParams,
-  wakatimeUsernameParam,
-} from './params.ts';
+import { hostnameParam, wakatimeUsernameParam } from './params.ts';
 
 /** What the wakatime endpoint accepts, on top of the shared color params. */
 const wakatimeQuery = z.object({

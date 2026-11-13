@@ -1,10 +1,11 @@
+import { clampValue } from '@stats-forge/card-kit';
+
 import type { CardConfig } from '../../common/config.ts';
 import { GITHUB_USERNAME_PATTERN, ORG_CALENDAR_MAX_WEEKS } from '../../common/constants.ts';
 import type { ORG_CALENDAR_COUNTS } from '../../common/constants.ts';
 import { toSearchDate } from '../../common/date.ts';
-import { CardError } from '../../common/error.ts';
+import { CardError, fromGraphQL } from '../../common/error.ts';
 import { createGraphQLFetcher } from '../../common/http.ts';
-import { clampValue } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
 import { buildOrgCalendarDocument } from '../../graphql/buildOrgCalendarDocument.ts';
 import type { OrgCalendarQueryVariables } from '../../graphql/buildOrgCalendarDocument.ts';
@@ -90,17 +91,12 @@ const fetchOrgCalendar = async (
   );
 
   if (res.data.errors) {
-    // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
+    // A login that is a user, or nothing at all, answers NOT_FOUND — which `fromGraphQL`
     // words for a user query, so this endpoint's own wording is thrown instead.
     if (res.data.errors[0]?.type === 'NOT_FOUND') {
       throw CardError.because('org_not_found');
     }
-    throw CardError.fromGraphQL(
-      res.data.errors,
-      res.statusText,
-      'organization calendar',
-      config.logger,
-    );
+    throw fromGraphQL(res.data.errors, res.statusText, 'organization calendar', config.logger);
   }
 
   const { data } = res.data;

@@ -2,9 +2,8 @@
  * @file The stats card's stylesheet, the rank ring's animation included.
  */
 
-import { CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
-import type { CssChild } from '../../markup/index.ts';
-import { atRule, cssComment, rule } from '../../markup/index.ts';
+import { CARD_STYLE, atRule, cssComment, firefoxFontSize, font, rule } from '@stats-forge/card-kit';
+import type { CssChild } from '@stats-forge/card-kit';
 
 /** The rank ring, and the sparks that rise off it. */
 const RANK_RING = {
