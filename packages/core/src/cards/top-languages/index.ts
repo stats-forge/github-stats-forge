@@ -1,12 +1,20 @@
-import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
-import type { Locale } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
-import { clampValue, lowercaseTrim } from '../../common/ops.ts';
+import {
+  CARD_STYLE,
+  Card,
+  atRule,
+  clampValue,
+  el,
+  firefoxFontSize,
+  font,
+  getLightDarkColors,
+  localize,
+  rule,
+} from '@stats-forge/card-kit';
+import type { Child, CssChild, Locale } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
+import { lowercaseTrim } from '../../common/ops.ts';
 import type { Lang, TopLangData } from '../../fetchers/top-languages/types.ts';
-import type { Child, CssChild } from '../../markup/index.ts';
-import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import {

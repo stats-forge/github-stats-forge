@@ -1,7 +1,7 @@
+import { errorResult } from '@stats-forge/card-kit';
 import { screen } from '@testing-library/dom';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { errorResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
 import { orgActivity as orgActivityApi } from '../src/api/org-activity.ts';
 import { org as orgApi } from '../src/api/organization.ts';

@@ -1,6 +1,8 @@
 import { globSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { AVAILABLE_LOCALES } from '@stats-forge/card-kit';
+import type { LocaleTable } from '@stats-forge/card-kit';
 import { describe, expect, it } from 'vitest';
 
 import { contributedToCardLocales } from '../src/cards/contributed-to/locales.ts';
@@ -13,8 +15,6 @@ import { statCardLocales } from '../src/cards/stats/locales.ts';
 import { langCardLocales } from '../src/cards/top-languages/locales.ts';
 import { wakatimeCardLocales } from '../src/cards/wakatime/locales.ts';
 import { commonLocales } from '../src/common/locales.ts';
-import { AVAILABLE_LOCALES } from '../src/common/localize.ts';
-import type { LocaleTable } from '../src/common/localize.ts';
 
 import { draw } from './_card.ts';
 import { cards } from './_cards.ts';

@@ -1,13 +1,18 @@
-import { CARD_STYLE } from '../../common/brand.ts';
-import { isPrefixedHexColor } from '../../common/color.ts';
-import { formatBytes, formatDecimal } from '../../common/fmt.ts';
+import {
+  CARD_STYLE,
+  compactColumnWidth,
+  createProgressNode,
+  el,
+  flexLayout,
+  formatBytes,
+  formatDecimal,
+  isPrefixedHexColor,
+} from '@stats-forge/card-kit';
+import type { Child, Locale, MarkupElement } from '@stats-forge/card-kit';
+
 import { DEFAULT_LANG_COLOR } from '../../common/languageColors.ts';
-import type { Locale } from '../../common/localize.ts';
 import { chunkArray } from '../../common/ops.ts';
-import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
 import type { Lang } from '../../fetchers/top-languages/types.ts';
-import type { Child, MarkupElement } from '../../markup/index.ts';
-import { el } from '../../markup/index.ts';
 
 import { getCircleLength, polarToCartesian } from './geometry.ts';
 

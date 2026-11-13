@@ -1,4 +1,4 @@
-import { defineLocales } from '../../common/localize.ts';
+import { defineLocales } from '@stats-forge/card-kit';
 
 /** The organization card's labels in the locales they have been translated into. */
 const orgCardLocales = defineLocales({

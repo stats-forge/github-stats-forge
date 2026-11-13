@@ -1,6 +1,6 @@
 import type { CardConfig } from '../../common/config.ts';
 import { affiliationsOrOwner } from '../../common/constants.ts';
-import { CardError } from '../../common/error.ts';
+import { CardError, fromGraphQL } from '../../common/error.ts';
 import { createGraphQLFetcher } from '../../common/http.ts';
 import { excludes } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
@@ -57,7 +57,7 @@ const fetchTopLanguages = async (
   );
 
   if (res.data.errors) {
-    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'language data', config.logger);
+    throw fromGraphQL(res.data.errors, res.statusText, 'language data', config.logger);
   }
 
   const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);

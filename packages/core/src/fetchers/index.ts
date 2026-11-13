@@ -23,7 +23,7 @@ export type { WakaTimeData, WakaTimeLang } from './wakatime/types.ts';
 // consumer back to the package root for it.
 export { CardConfig } from '../common/config.ts';
 export type { CardConfigInit, Logger, PersonalAccessToken } from '../common/config.ts';
-export type { FetchLike } from '../common/http.ts';
 export { retryer } from '../common/retryer.ts';
 export { CardError } from '../common/error.ts';
 export type { ErrorCode, FailureReason } from '../common/error.ts';
+export type { FetchLike } from '@stats-forge/card-kit';
