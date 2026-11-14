@@ -81,10 +81,10 @@ const issuesRefused = (...searches: Array<GetOrganizationActivityQuery['issuesOp
 const fetchCommitCount = async (
   { org, range }: { org: string; range: GitHubDateRange },
   token: string,
-  { fetch }: FetcherContext,
+  { fetch, apiUrl }: FetcherContext,
 ): Promise<HttpResponse<{ total_count?: number }>> => {
   const query = `org:${org}+author-date:${toSearchDate(range.from)}..${toSearchDate(range.to)}`;
-  return httpRequest(fetch, `https://api.github.com/search/commits?per_page=1&q=${query}`, {
+  return httpRequest(fetch, `${apiUrl}/search/commits?per_page=1&q=${query}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

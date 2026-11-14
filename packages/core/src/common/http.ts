@@ -1,6 +1,15 @@
 import type { GraphQLDocument } from '../graphql/graphqlDocument.ts';
 
-const GITHUB_GRAPHQL_API = 'https://api.github.com/graphql';
+/** GitHub.com's REST API, which a GitHub Enterprise Server host replaces with its own `/api/v3`. */
+const GITHUB_API_URL = 'https://api.github.com';
+
+/**
+ * Where the GraphQL API sits beside a REST base, as Octokit derives it: GitHub.com keeps it beside
+ * the REST API, and an Enterprise Server moves it from `/api/v3` to `/api/graphql`.
+ *
+ * @returns The GraphQL endpoint.
+ */
+const graphqlUrl = (apiUrl: string): string => `${apiUrl.replace(/\/api\/v3$/, '/api')}/graphql`;
 
 /**
  * The slice of `fetch` this library calls.
@@ -41,6 +50,8 @@ interface HttpResponse<TData> {
 interface FetcherContext {
   /** Transport to send the request with. */
   fetch: FetchLike;
+  /** The REST API's base, with no trailing slash: `https://api.github.com` unless the host says. */
+  apiUrl: string;
   /** Attempt index, from 0. Tests read it to fake a rate limit on the first token. */
   retries: number;
 }
@@ -113,11 +124,11 @@ const createGraphQLFetcher =
   async (
     variables: TVariables,
     token: string,
-    { fetch }: FetcherContext,
+    { fetch, apiUrl }: FetcherContext,
   ): Promise<GraphQLResponse<TResult>> => {
     const response = await httpRequest<GraphQLResponse<TResult>['data']>(
       fetch,
-      GITHUB_GRAPHQL_API,
+      graphqlUrl(apiUrl),
       {
         method: 'POST',
         headers: {
@@ -130,5 +141,12 @@ const createGraphQLFetcher =
     return { ...response, data: asEnvelope(response.data) as GraphQLResponse<TResult>['data'] };
   };
 
-export { createGraphQLFetcher, defaultFetch, httpRequest, UNREADABLE_REPLY, withTimeout };
+export {
+  createGraphQLFetcher,
+  defaultFetch,
+  GITHUB_API_URL,
+  httpRequest,
+  UNREADABLE_REPLY,
+  withTimeout,
+};
 export type { FetcherContext, FetchLike, GraphQLResponse, HttpResponse };
