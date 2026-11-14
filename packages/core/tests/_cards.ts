@@ -161,4 +161,14 @@ const cards = {
   organization: (locale?: Locale): string => renderOrganizationCard(organizationData, { locale }),
 };
 
-export { cards, repoData, statsData };
+export {
+  cards,
+  contributedToData,
+  gistData,
+  orgActivityData,
+  orgCalendarData,
+  organizationData,
+  repoData,
+  statsData,
+  topLangs,
+};

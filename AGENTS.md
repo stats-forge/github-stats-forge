@@ -202,6 +202,9 @@ their reasons in `oxlint.config.ts`.
 - **Card specs read the card through `tests/_card.ts`, fetcher specs their requests through
   `tests/_fetch-mock.ts`** ([#288]); extend them rather than copy them.
 - **A param's validation is tested once, in `apiParams.spec.ts`.**
+- **`apiFuzz.spec.ts` feeds every handler generated queries** through fast-check, its fetchers
+  answering `_cards.ts`'s samples: a handler joins `HANDLERS`, and a free-text param with a format
+  of its own gets a `FORMATTED` entry, or the mixed property never reaches the renderer.
 - **`test:coverage` fails under a package's floor in `vitest.config.coverage.ts`**: raise a floor
   after adding tests, and lower one only with the owner. Every source file counts, so one no test
   imports reads as 0% rather than vanishing.
