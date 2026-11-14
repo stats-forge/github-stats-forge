@@ -1,23 +1,27 @@
-import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
-import { icons } from '../../common/icons.ts';
-import type { Locale } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
-import { buildSearchFilter, clampValue, parseEmojis } from '../../common/ops.ts';
 import {
+  CARD_STYLE,
+  Card,
+  NUMBER_FORMATS,
+  clampValue,
+  countFormatter,
   createLanguageNode,
   createTextNode,
+  el,
   flexLayout,
-  countFormatter,
+  font,
+  getLightDarkColors,
   iconWithLabel,
-  NUMBER_FORMATS,
-} from '../../common/render.ts';
-import type { NumberFormat } from '../../common/render.ts';
-import { measureText, wrapTextMultiline } from '../../common/text.ts';
+  icons,
+  localize,
+  measureText,
+  rule,
+  wrapTextMultiline,
+} from '@stats-forge/card-kit';
+import type { Child, CssChild, Locale, MarkupElement, NumberFormat } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
+import { buildSearchFilter, parseEmojis } from '../../common/ops.ts';
 import type { RepositoryData } from '../../fetchers/repo/types.ts';
-import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
-import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { repoCardLocales } from './locales.ts';

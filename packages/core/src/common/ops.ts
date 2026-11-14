@@ -1,17 +1,6 @@
 import { getEmoji } from './emojiMap.ts';
 
 /**
- * A comma-separated list, as a URL is typed by hand: `a, b,` is `a` and `b`.
- *
- * @returns The trimmed entries, without the empty ones.
- */
-const parseArray = (str: string | undefined): Array<string> =>
-  (str ?? '')
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter((entry) => entry !== '');
-
-/**
  * Whether a repository was excluded by the query or by the deployment.
  *
  * An entry matches either the full `owner/name` or the bare `name`, ignoring case as GitHub does,
@@ -25,19 +14,6 @@ const excludes = (entries: Array<string>): ((nameWithOwner: string) => boolean) 
     const lowered = nameWithOwner.toLowerCase();
     return excluded.has(lowered) || excluded.has(lowered.slice(lowered.indexOf('/') + 1));
   };
-};
-
-/**
- * Clamp the given number between the given range.
- *
- * @returns The clamped number; `min` for `NaN`.
- */
-const clampValue = (number: number, min: number, max: number): number => {
-  if (Number.isNaN(number)) {
-    return min;
-  }
-
-  return Math.max(min, Math.min(number, max));
 };
 
 /**
@@ -89,12 +65,4 @@ const buildSearchFilter = (scope: ReadonlyArray<string>): string =>
     .map((entry) => (entry.endsWith('/*') ? `owner:${entry.slice(0, -2)} ` : `repo:${entry} `))
     .join('');
 
-export {
-  parseArray,
-  excludes,
-  clampValue,
-  lowercaseTrim,
-  chunkArray,
-  parseEmojis,
-  buildSearchFilter,
-};
+export { buildSearchFilter, chunkArray, excludes, lowercaseTrim, parseEmojis };

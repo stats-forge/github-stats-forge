@@ -223,6 +223,9 @@ their reasons in `oxlint.config.ts`.
   for GitHub, a `502` for WakaTime. A rejected fetch, `networkError()` or a `FetchMock` with no
   handler is a transport failure, which the retryer waits out for 4.1s; when the transport failure
   is the subject, use fake timers, as `retryer.spec.ts` does.
+- **A spec that re-imports core inlines card-kit** (`server.deps.inline`, as `packages/cli` does):
+  vitest keeps a dependency loaded across `vi.resetModules()`, and core registering its failures a
+  second time throws.
 - **`packages/core` runs `pool: 'vmThreads'`; `isolate: false` breaks the `fetchTopLanguages` error
   tests** ([#122]), and `fsModuleCache` gained nothing. Re-measure before revisiting either.
 - **The type test is `fetchRepo.types.spec-d.ts`**, checked by `tsc`; vitest would need
@@ -288,7 +291,7 @@ pnpm is **12.x** ([#110]); `pnpm-workspace.yaml` gives each setting's reason, an
   `pnpm why <pkg>`, since nothing polices an override ([#80]).
 - **A stale lockfile can hold an orphan**: delete `node_modules` and `pnpm-lock.yaml`, then
   reinstall; deleting the lockfile alone reuses what is installed.
-- **`minimumReleaseAge` exempts the first-party configs alone, by name** ([#216]).
+- **`minimumReleaseAge` exempts the first-party configs and card-kit alone, by name** ([#216]).
 
 [#15]: https://github.com/stats-forge/github-stats-forge/pull/15
 [#30]: https://github.com/stats-forge/github-stats-forge/pull/30

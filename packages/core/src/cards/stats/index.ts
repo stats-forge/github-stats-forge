@@ -1,28 +1,28 @@
-import { CARD_ICON, CARD_STYLE } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
-import { CardError } from '../../common/error.ts';
-import { formatDecimal } from '../../common/fmt.ts';
-import { rankIcon } from '../../common/icons.ts';
-import { commonLocales } from '../../common/locales.ts';
-import type { Locale } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
-import { clampValue } from '../../common/ops.ts';
 import {
+  CARD_STYLE,
+  Card,
   NUMBER_FORMATS,
+  clampValue,
   countFormatter,
   createTextNode,
+  el,
   flexLayout,
+  formatDecimal,
+  getLightDarkColors,
   glowingCircle,
-} from '../../common/render.ts';
-import type { NumberFormat } from '../../common/render.ts';
-import { measureText } from '../../common/text.ts';
+  localize,
+  measureText,
+} from '@stats-forge/card-kit';
+import type { CssChild, Locale, NumberFormat } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
+import { CardError } from '../../common/error.ts';
+import { commonLocales } from '../../common/locales.ts';
 import type { StatsData } from '../../fetchers/stats/types.ts';
-import type { CssChild } from '../../markup/index.ts';
-import { el } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { statCardLocales } from './locales.ts';
+import { rankIcon } from './rankIcon.ts';
 import {
   getTotalCommitsRangeLabel,
   HIDE_STATS,

@@ -1,17 +1,25 @@
-import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
-import { getLightDarkColors } from '../../common/color.ts';
+import {
+  CARD_STYLE,
+  Card,
+  NUMBER_FORMATS,
+  countFormatter,
+  createTextNode,
+  el,
+  flexLayout,
+  font,
+  getLightDarkColors,
+  icons,
+  localize,
+  measureText,
+  rule,
+  wrapTextMultiline,
+} from '@stats-forge/card-kit';
+import type { Child, CssChild, Locale, NumberFormat } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
 import { CardError } from '../../common/error.ts';
-import { icons } from '../../common/icons.ts';
-import type { Locale } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
 import { parseEmojis } from '../../common/ops.ts';
-import { countFormatter, createTextNode, flexLayout, NUMBER_FORMATS } from '../../common/render.ts';
-import type { NumberFormat } from '../../common/render.ts';
-import { measureText, wrapTextMultiline } from '../../common/text.ts';
 import type { OrganizationData } from '../../fetchers/organization/types.ts';
-import type { Child, CssChild } from '../../markup/index.ts';
-import { el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { orgCardLocales } from './locales.ts';

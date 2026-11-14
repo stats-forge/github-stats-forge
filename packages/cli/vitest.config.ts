@@ -3,6 +3,8 @@ import { defineProject } from 'vitest/config';
 export default defineProject({
   test: {
     include: ['./tests/*.spec.ts'],
+    // loaded with core, so `vi.resetModules()` clears the failures core registers with it
+    server: { deps: { inline: ['@stats-forge/card-kit'] } },
   },
   /*
    * Read core's TypeScript rather than its build, so a stale `build/` cannot

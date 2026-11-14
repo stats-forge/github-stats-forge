@@ -1,8 +1,8 @@
+import { CARD_STYLE } from '@stats-forge/card-kit';
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderOrgActivityCard } from '../src/cards/org-activity/index.ts';
-import { CARD_STYLE } from '../src/common/brand.ts';
 import { CardError } from '../src/common/error.ts';
 import type { OrgActivityData } from '../src/fetchers/org-activity/types.ts';
 import { themes } from '../src/themes/index.ts';

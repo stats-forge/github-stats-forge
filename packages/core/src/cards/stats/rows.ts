@@ -2,16 +2,14 @@
  * @file Every stat row the stats card can draw, worked out from the data and the options.
  */
 
+import { clampPrecision, formatDecimal, icons } from '@stats-forge/card-kit';
+import type { Child, Locale, Localized } from '@stats-forge/card-kit';
+
 import type { GitHubDateRange } from '../../common/date.ts';
 import { formatRange } from '../../common/date.ts';
-import { formatDecimal } from '../../common/fmt.ts';
-import { icons } from '../../common/icons.ts';
 import type { commonLocales } from '../../common/locales.ts';
-import type { Locale, Localized } from '../../common/localize.ts';
 import { buildSearchFilter } from '../../common/ops.ts';
-import { clampPrecision } from '../../common/render.ts';
 import type { StatsData } from '../../fetchers/stats/types.ts';
-import type { Child } from '../../markup/index.ts';
 
 import type { statCardLocales } from './locales.ts';
 

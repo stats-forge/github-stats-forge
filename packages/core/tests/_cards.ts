@@ -2,6 +2,8 @@
  * @file Every card, drawn from data that exercises its labels, for the specs that check all of them.
  */
 
+import type { Locale } from '@stats-forge/card-kit';
+
 import { renderContributedToCard } from '../src/cards/contributed-to/index.ts';
 import { renderGistCard } from '../src/cards/gist/index.ts';
 import { renderOrgActivityCard } from '../src/cards/org-activity/index.ts';
@@ -11,7 +13,6 @@ import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { renderStatsCard } from '../src/cards/stats/index.ts';
 import { renderTopLanguages } from '../src/cards/top-languages/index.ts';
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
-import type { Locale } from '../src/common/localize.ts';
 import type { ContributedToData } from '../src/fetchers/contributed-to/types.ts';
 import type { GistData } from '../src/fetchers/gist/types.ts';
 import type { OrgActivityData } from '../src/fetchers/org-activity/types.ts';

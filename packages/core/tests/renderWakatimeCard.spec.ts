@@ -1,11 +1,9 @@
+import { CARD_STYLE, getCardColors, measureText } from '@stats-forge/card-kit';
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderWakatimeCard } from '../src/cards/wakatime/index.ts';
-import { CARD_STYLE } from '../src/common/brand.ts';
-import { getCardColors } from '../src/common/color.ts';
 import { getLanguageColor } from '../src/common/languageColors.ts';
-import { measureText } from '../src/common/text.ts';
 import type { WakaTimeData } from '../src/fetchers/wakatime/types.ts';
 
 import { cssValue, draw, exactly, xOf } from './_card.ts';

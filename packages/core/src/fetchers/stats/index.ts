@@ -1,3 +1,5 @@
+import { httpRequest } from '@stats-forge/card-kit';
+
 import { calculateRank } from '../../calculateRank.ts';
 import type { CardConfig } from '../../common/config.ts';
 import { affiliationsOrOwner, GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
@@ -9,8 +11,8 @@ import {
   toRange,
   toYearRanges,
 } from '../../common/date.ts';
-import { CardError } from '../../common/error.ts';
-import { createGraphQLFetcher, httpRequest } from '../../common/http.ts';
+import { CardError, fromGraphQL } from '../../common/error.ts';
+import { createGraphQLFetcher } from '../../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../../common/http.ts';
 import { buildSearchFilter, excludes } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
@@ -308,7 +310,7 @@ const sumOverRanges = async (
   const contribRes = await retryer(contributionsFetcher, { login: username }, config);
 
   if (contribRes.data.errors) {
-    throw CardError.fromGraphQL(
+    throw fromGraphQL(
       contribRes.data.errors,
       contribRes.statusText,
       'contributions data',
@@ -421,7 +423,7 @@ const fetchStats = async (
   );
 
   if (res.data.errors) {
-    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'stats data', config.logger);
+    throw fromGraphQL(res.data.errors, res.statusText, 'stats data', config.logger);
   }
 
   const { user } = res.data.data;

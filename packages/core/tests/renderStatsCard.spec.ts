@@ -1,9 +1,8 @@
+import { CARD_STYLE, HEAT_PAINT } from '@stats-forge/card-kit';
 import { screen } from '@testing-library/dom';
 import { describe, expect, it, vi } from 'vitest';
 
 import { renderStatsCard } from '../src/cards/stats/index.ts';
-import { CARD_STYLE } from '../src/common/brand.ts';
-import { HEAT_PAINT } from '../src/common/color.ts';
 import type { StatsData } from '../src/fetchers/stats/types.ts';
 import { themes } from '../src/themes/index.ts';
 

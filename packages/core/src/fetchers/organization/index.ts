@@ -1,6 +1,6 @@
 import type { CardConfig } from '../../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
-import { CardError } from '../../common/error.ts';
+import { CardError, fromGraphQL } from '../../common/error.ts';
 import { createGraphQLFetcher } from '../../common/http.ts';
 import type { GraphQLResponse } from '../../common/http.ts';
 import { retryer } from '../../common/retryer.ts';
@@ -116,18 +116,13 @@ const fetchOrganization = async (
       config,
     );
     if (res.data.errors) {
-      // A login that is a user, or nothing at all, answers NOT_FOUND — which `CardError.fromGraphQL`
+      // A login that is a user, or nothing at all, answers NOT_FOUND — which `fromGraphQL`
       // words for a user query, so this endpoint's own wording is thrown instead.
       if (res.data.errors[0]?.type === 'NOT_FOUND') {
         throw CardError.because('org_not_found');
       }
       if (!onlyMembersForbidden(res.data.errors)) {
-        throw CardError.fromGraphQL(
-          res.data.errors,
-          res.statusText,
-          'organization data',
-          config.logger,
-        );
+        throw fromGraphQL(res.data.errors, res.statusText, 'organization data', config.logger);
       }
       if (require_members) {
         throw CardError.because('org_members_forbidden');

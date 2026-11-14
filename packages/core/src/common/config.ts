@@ -1,9 +1,8 @@
+import { consoleLogger, defaultFetch, parseArray, withTimeout } from '@stats-forge/card-kit';
+import type { FetchLike, Logger } from '@stats-forge/card-kit';
+
 import type { FailureReason } from './error.ts';
-import { GITHUB_API_URL, defaultFetch, withTimeout } from './http.ts';
-import type { FetchLike } from './http.ts';
-import { consoleLogger } from './log.ts';
-import type { Logger } from './log.ts';
-import { parseArray } from './ops.ts';
+import { GITHUB_API_URL } from './http.ts';
 
 type Env = Record<string, string | undefined>;
 
@@ -147,4 +146,4 @@ export class CardConfig {
 }
 
 export type { AllowlistKind, PersonalAccessToken, CardConfigInit };
-export type { Logger } from './log.ts';
+export type { Logger } from '@stats-forge/card-kit';

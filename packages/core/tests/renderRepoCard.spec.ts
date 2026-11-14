@@ -1,12 +1,10 @@
+import { AVAILABLE_LOCALES, CARD_STYLE, measureText } from '@stats-forge/card-kit';
+import type { Locale, LocaleTable } from '@stats-forge/card-kit';
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
 import { renderRepoCard } from '../src/cards/repo/index.ts';
 import { repoCardLocales } from '../src/cards/repo/locales.ts';
-import { CARD_STYLE } from '../src/common/brand.ts';
-import { AVAILABLE_LOCALES } from '../src/common/localize.ts';
-import type { Locale, LocaleTable } from '../src/common/localize.ts';
-import { measureText } from '../src/common/text.ts';
 import type { RepositoryData } from '../src/fetchers/repo/types.ts';
 import { themes } from '../src/themes/index.ts';
 
