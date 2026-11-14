@@ -31,7 +31,7 @@
   "type": "module",
   "exports": {
     ".": {
-      "@stats/source": "./src/index.ts",
+      "@github-stats-forge/source": "./src/index.ts",
       "default": "./build/index.js"
     }
   },

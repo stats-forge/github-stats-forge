@@ -10,11 +10,11 @@ export default defineProject({
    * Keep the condition in sync with `tsconfig.base.json#customConditions`.
    */
   resolve: {
-    conditions: ['@stats/source'],
+    conditions: ['@github-stats-forge/source'],
   },
   ssr: {
     resolve: {
-      conditions: ['@stats/source'],
+      conditions: ['@github-stats-forge/source'],
     },
   },
 });

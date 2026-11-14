@@ -60,7 +60,7 @@ the CLI's `--config` reads. A rule with no link comes from [#58].
   the rest open folded.
 - **The theme is two pickers writing one `theme` param**: "Theme", and "Dark mode", which makes it a
   `light,dark` pair and is left unset to wear one theme in both.
-- **Core and the catalog bundle from source via `@stats/source`, under both `vite.resolve` and
+- **Core and the catalog bundle from source via `@github-stats-forge/source`, under both `vite.resolve` and
   `vite.ssr.resolve`.** The condition misses the client build, so `docs:build` builds the packages first.
 
 ## The preview

@@ -5,8 +5,8 @@
   "description": "HTTP server that draws the cards, and the container image it ships in",
   "type": "module",
   "scripts": {
-    "dev": "node --conditions=@stats/source --env-file-if-exists=../../.env --watch src/index.ts",
-    "start": "node --conditions=@stats/source src/index.ts",
+    "dev": "node --conditions=@github-stats-forge/source --env-file-if-exists=../../.env --watch src/index.ts",
+    "start": "node --conditions=@github-stats-forge/source src/index.ts",
     "test": "vitest",
     "typecheck": "tsc -p tsconfig.json"
   },

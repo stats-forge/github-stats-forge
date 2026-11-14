@@ -39,11 +39,11 @@ export default defineConfig({
   vite: {
     /*
      * The anvil bundles `packages/core` and the CLI's card catalog from their `src/`, through
-     * `@stats/source`, so the docs job runs with nothing built. `ssr` has to say it too — a
+     * `@github-stats-forge/source`, so the docs job runs with nothing built. `ssr` has to say it too — a
      * condition set only under `resolve` is not applied to the server build.
      */
-    resolve: { conditions: ['@stats/source'] },
-    ssr: { resolve: { conditions: ['@stats/source'] } },
+    resolve: { conditions: ['@github-stats-forge/source'] },
+    ssr: { resolve: { conditions: ['@github-stats-forge/source'] } },
   },
   markdown: {
     // Starlight appends its own plugins to whatever processor is configured here.
