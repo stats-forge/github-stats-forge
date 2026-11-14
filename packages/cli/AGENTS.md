@@ -3,7 +3,7 @@
 > Scoped to this tree; the repo-wide rules are in the root `AGENTS.md`.
 
 `@stats-forge/github-stats-forge-cli`, whose `bin` is `./bin.js`. `pnpm dev` runs
-`node --conditions=@stats/source src/index.ts` with no build: Node strips the types, and the
+`node --conditions=@github-stats-forge/source src/index.ts` with no build: Node strips the types, and the
 condition reaches core's source through a symlink outside `node_modules`. `pnpm cli` at the root
 builds and runs it against the root `.env`.
 

@@ -10,7 +10,7 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 
 - **Never log a query value or a token.** One JSON line per request on stdout, built from the
   response's headers; `PersonalAccessToken` carries the env var's `name` for this.
-- **Never add a build step.** Node strips the types and `--conditions=@stats/source` points at
+- **Never add a build step.** Node strips the types and `--conditions=@github-stats-forge/source` points at
   core's source, so the image runs the repository. A rolldown bundle was removed: nobody could diff
   it, and its `resolve.conditionNames` fails quietly when misspelt `conditions`.
 - **Never let a rejection escape the adapter**: Node 24 dies on one. A throwing handler answers

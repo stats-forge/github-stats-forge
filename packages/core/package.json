@@ -54,15 +54,15 @@
   "type": "module",
   "exports": {
     "./api": {
-      "@stats/source": "./src/api/index.ts",
+      "@github-stats-forge/source": "./src/api/index.ts",
       "default": "./build/api/index.js"
     },
     "./fetchers": {
-      "@stats/source": "./src/fetchers/index.ts",
+      "@github-stats-forge/source": "./src/fetchers/index.ts",
       "default": "./build/fetchers/index.js"
     },
     "./themes": {
-      "@stats/source": "./src/themes/index.ts",
+      "@github-stats-forge/source": "./src/themes/index.ts",
       "default": "./build/themes/index.js"
     }
   },

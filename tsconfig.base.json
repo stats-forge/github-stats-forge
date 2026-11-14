@@ -25,7 +25,7 @@
 
        * Keep in sync with the `conditions` in each package's `vitest.config.ts`.
        */
-      "@stats/source"
+      "@github-stats-forge/source"
     ],
 
     // A relative import names the file that exists, so `node src/index.ts` resolves it.

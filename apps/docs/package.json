@@ -9,11 +9,11 @@
     "preview": "astro preview",
     "generate-cards": "node scripts/generate-cards.ts",
     "check-cards": "node scripts/generate-cards.ts --check",
-    "test:live": "node --conditions=@stats/source --env-file-if-exists=../../.env scripts/test-live.ts",
-    "check-anvil": "node --conditions=@stats/source scripts/check-anvil.ts",
+    "test:live": "node --conditions=@github-stats-forge/source --env-file-if-exists=../../.env scripts/test-live.ts",
+    "check-anvil": "node --conditions=@github-stats-forge/source scripts/check-anvil.ts",
     "test:e2e": "playwright test",
-    "generate-themes-page": "node --conditions=@stats/source scripts/generate-themes-page.ts",
-    "check-themes-page": "node --conditions=@stats/source scripts/generate-themes-page.ts --check",
+    "generate-themes-page": "node --conditions=@github-stats-forge/source scripts/generate-themes-page.ts",
+    "check-themes-page": "node --conditions=@github-stats-forge/source scripts/generate-themes-page.ts --check",
     "typecheck": "astro sync && tsc -p tsconfig.json"
   },
   "dependencies": {

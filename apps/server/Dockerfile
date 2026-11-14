@@ -3,7 +3,7 @@
 # The build context is the repository root: the lockfile and every workspace manifest live above.
 #
 # There is no build step. Node strips the types and every relative import names the `.ts` that
-# exists, so the image runs the sources; `--conditions=@stats/source` points the core import at
+# exists, so the image runs the sources; `--conditions=@github-stats-forge/source` points the core import at
 # `packages/core/src`.
 
 # Pinned by digest, because `26-alpine` is a moving tag; Renovate maintains it.
@@ -83,4 +83,4 @@ EXPOSE 9000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD ["node", "src/healthcheck.ts"]
 
-CMD ["node", "--conditions=@stats/source", "src/index.ts"]
+CMD ["node", "--conditions=@github-stats-forge/source", "src/index.ts"]

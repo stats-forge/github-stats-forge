@@ -119,7 +119,9 @@ pnpm --filter ./packages/core/ run check-graphql-types      # what CI runs; fail
 - **Ordering is `pnpm -r`'s topological order**; `typecheck` builds first because each
   `tsconfig.typecheck.json` resolves core through its `.d.ts`. turbo cost more than it saved ([#41]);
   measure before reinstating one.
-- **vitest applies `@stats/source` only when it is also under `ssr.resolve.conditions`**; see
+- **The source condition is named for this repo, `@github-stats-forge/source`**: a name another
+  stats-forge workspace also sets would load this package's TypeScript from its `node_modules`.
+- **vitest applies it only when it is also under `ssr.resolve.conditions`**; see
   `packages/cli/vitest.config.ts`.
 
 ## Documentation and previews
