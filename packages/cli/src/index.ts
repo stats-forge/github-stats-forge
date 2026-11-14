@@ -19,6 +19,18 @@ import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.ts';
 /** Room for a slow connection, well short of undici's five minutes on a stalled one. */
 const REQUEST_TIMEOUT_MS = 30_000;
 
+/** `EX_TEMPFAIL` from `sysexits.h`: a failure a later run may not repeat, such as a rate limit. */
+const EXIT_RETRYABLE = 75;
+
+/** Why a card was not drawn. */
+interface Failed {
+  failed: string;
+  retryable: boolean;
+}
+
+/** @returns The exit code a failure leaves: `75` when a retry may work, else `1`. */
+const exitCodeFor = (failure: Failed): number => (failure.retryable ? EXIT_RETRYABLE : 1);
+
 /** Writes one of core's diagnostics to stderr, where everything but the result goes. */
 const toStderr = (...args: Array<unknown>): void => {
   process.stderr.write(`${formatWithOptions({}, ...args)}\n`);
@@ -45,6 +57,7 @@ Options
   -v, --version         Show the version
 
 The token can also come from PAT_1 in the environment, or be typed when asked.
+A card that could not be drawn exits 1, or 75 when a later run may draw it.
 `;
 
 /** What the command line can carry. */
@@ -92,7 +105,7 @@ const renderCard = async (
   card: CardKind,
   query: Record<string, string>,
   config: CardConfig,
-): Promise<{ content: string } | { failed: string }> => {
+): Promise<{ content: string } | Failed> => {
   const result = await withSpinner(`Rendering the ${card.id} card`, async () =>
     card.render(query, config),
   );
@@ -112,7 +125,7 @@ const renderCard = async (
       .filter(Boolean)
       .join('\n')}\n`,
   );
-  return { failed: code };
+  return { failed: code, retryable: result.retryable };
 };
 
 /** @returns Where a card is written, absolute, named after the card unless `out` says. */
@@ -129,7 +142,7 @@ const renderAndWrite = async (
   query: Record<string, string>,
   config: CardConfig,
   out: string | undefined,
-): Promise<{ written: string } | { failed: string }> => {
+): Promise<{ written: string } | Failed> => {
   const rendered = await renderCard(card, query, config);
   if ('failed' in rendered) {
     return rendered;
@@ -145,17 +158,17 @@ const renderAndWrite = async (
 /**
  * Renders a card and compares it with the file it would be written to, writing nothing.
  *
- * @returns Whether the file holds exactly this render.
+ * @returns Whether the file holds exactly this render, or why there was no render to compare.
  */
 const renderAndCompare = async (
   card: CardKind,
   query: Record<string, string>,
   config: CardConfig,
   out: string | undefined,
-): Promise<boolean> => {
+): Promise<boolean | Failed> => {
   const rendered = await renderCard(card, query, config);
   if ('failed' in rendered) {
-    return false;
+    return rendered;
   }
 
   const file = outFile(card, query, out);
@@ -280,15 +293,23 @@ const main = async (): Promise<void> => {
 
   // `--generate` renders what the file holds and stops: no menu, nothing to answer.
   if (saved && flags.check) {
-    if (!(await renderAndCompare(card, { ...saved.options, ...pasted }, config, flags.out))) {
+    const compared = await renderAndCompare(
+      card,
+      { ...saved.options, ...pasted },
+      config,
+      flags.out,
+    );
+    if (compared === false) {
       process.exitCode = 1;
+    } else if (compared !== true) {
+      process.exitCode = exitCodeFor(compared);
     }
     return;
   }
   if (saved && generate) {
     const outcome = await renderAndWrite(card, { ...saved.options, ...pasted }, config, flags.out);
     if ('failed' in outcome) {
-      process.exitCode = 1;
+      process.exitCode = exitCodeFor(outcome);
     }
     return;
   }
@@ -304,7 +325,7 @@ const main = async (): Promise<void> => {
    * list is to change one thing and look again.
    */
   let status: string | undefined;
-  let lastFailed = false;
+  let lastFailure: Failed | undefined;
 
   for (;;) {
     const action = await navigateOptions(card, menu, status);
@@ -335,17 +356,17 @@ const main = async (): Promise<void> => {
     if ('failed' in outcome) {
       // Left on the menu, since a rejected param is one edit away from working.
       status = `${outcome.failed} — fix it and generate again`;
-      lastFailed = true;
+      lastFailure = outcome;
       continue;
     }
 
     status = `wrote ${outcome.written} — edit an option and generate again`;
-    lastFailed = false;
+    lastFailure = undefined;
   }
 
   // Leaving straight after a failure still reports one.
-  if (lastFailed) {
-    process.exitCode = 1;
+  if (lastFailure) {
+    process.exitCode = exitCodeFor(lastFailure);
   }
 };
 
