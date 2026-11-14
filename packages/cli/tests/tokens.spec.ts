@@ -47,7 +47,19 @@ describe(resolveTokens, () => {
     ]);
   });
 
-  it('answers with nothing when neither has one', () => {
+  it('falls back to GH_TOKEN, then GITHUB_TOKEN, when no PAT_n is set', () => {
+    const shared = { GH_TOKEN: 'from-gh', GITHUB_TOKEN: 'from-actions' };
+
+    expect(resolveTokens([], { PAT_1: 'from-env', ...shared })).toStrictEqual([
+      { name: 'PAT_1', value: 'from-env' },
+    ]);
+    expect(resolveTokens([], shared)).toStrictEqual([{ name: 'GH_TOKEN', value: 'from-gh' }]);
+    expect(resolveTokens([], { GH_TOKEN: '', GITHUB_TOKEN: 'from-actions' })).toStrictEqual([
+      { name: 'GITHUB_TOKEN', value: 'from-actions' },
+    ]);
+  });
+
+  it('answers with nothing when none has one', () => {
     expect(resolveTokens([], {})).toStrictEqual([]);
   });
 });
