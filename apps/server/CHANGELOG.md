@@ -1,5 +1,31 @@
 # @stats-forge/github-stats-server
 
+## 0.9.0
+
+### Minor Changes
+
+- [#434](https://github.com/stats-forge/github-stats-forge/pull/434) [`5a7d3fb`](https://github.com/stats-forge/github-stats-forge/commit/5a7d3fba238b3ed467877cb9fadd6c673f91f3bd) - feat: `CACHE_DIR` keeps the drawn cards across a restart
+
+- [#435](https://github.com/stats-forge/github-stats-forge/pull/435) [`a2a52cb`](https://github.com/stats-forge/github-stats-forge/commit/a2a52cbdfa7d716184155bd86ecc1aafeef4e081) - feat: send cards and the site compressed, brotli or gzip, to a caller that accepts it
+
+- [#432](https://github.com/stats-forge/github-stats-forge/pull/432) [`ad4f437`](https://github.com/stats-forge/github-stats-forge/commit/ad4f4374037353f74f29a2e73c5104c1463a3125) - feat: answer a revalidation with `304 Not Modified` through a weak `ETag` on every card
+
+- [#433](https://github.com/stats-forge/github-stats-forge/pull/433) [`5acf7d1`](https://github.com/stats-forge/github-stats-forge/commit/5acf7d18bf7c9749e8b45c028239d10b8e420bb5) - feat: `/statusz` reports the card cache and each token's rate limit
+
+- [#440](https://github.com/stats-forge/github-stats-forge/pull/440) [`7a32f88`](https://github.com/stats-forge/github-stats-forge/commit/7a32f882298b0dfd5af68bf7d8ccfea48fb89d06) - feat: lay the stats card's rows out in two columns with `layout=columns`
+
+- [#441](https://github.com/stats-forge/github-stats-forge/pull/441) [`6317c5b`](https://github.com/stats-forge/github-stats-forge/commit/6317c5b342a470ceeceff9bd5b43561f097e5ba1) - feat: pick the WakaTime card's window with `range`, from the last 7 days to all time
+
+### Patch Changes
+
+- [#437](https://github.com/stats-forge/github-stats-forge/pull/437) [`94820df`](https://github.com/stats-forge/github-stats-forge/commit/94820dfcf5b6fe71819d8bec5873ae35aed6f88d) - docs: add a changelog page, built from each package's releases
+
+- [#445](https://github.com/stats-forge/github-stats-forge/pull/445) [`9e7919e`](https://github.com/stats-forge/github-stats-forge/commit/9e7919e61cdb19a9021ed5dbe3c3e8f9d21c934b) - docs: pin the stats-forge/github-stats-forge-action example to v0.13.3
+
+- [#430](https://github.com/stats-forge/github-stats-forge/pull/430) [`2d5b3f9`](https://github.com/stats-forge/github-stats-forge/commit/2d5b3f9b4271302a7939f0343d79c2f16eaace2d) - docs: explain how the stats card's rank is calculated
+- Updated dependencies [[`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a), [`7a32f88`](https://github.com/stats-forge/github-stats-forge/commit/7a32f882298b0dfd5af68bf7d8ccfea48fb89d06), [`6317c5b`](https://github.com/stats-forge/github-stats-forge/commit/6317c5b342a470ceeceff9bd5b43561f097e5ba1)]:
+  - @stats-forge/github-stats-forge-core@0.16.0
+
 ## 0.8.3
 
 ### Patch Changes

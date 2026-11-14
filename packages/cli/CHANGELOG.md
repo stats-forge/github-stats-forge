@@ -1,5 +1,18 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.8.0
+
+### Minor Changes
+
+- [#436](https://github.com/stats-forge/github-stats-forge/pull/436) [`722e68d`](https://github.com/stats-forge/github-stats-forge/commit/722e68df37ecbff996d1acaa131c4b8e5d493874) - feat: `--check` renders a saved card and fails when `--out` differs, writing nothing
+
+### Patch Changes
+
+- [#459](https://github.com/stats-forge/github-stats-forge/pull/459) [`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a) - fix: rename the source export condition to `@github-stats-forge/source`, so another workspace's `@stats/source` no longer loads TypeScript from `node_modules`
+- Updated dependencies [[`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a), [`7a32f88`](https://github.com/stats-forge/github-stats-forge/commit/7a32f882298b0dfd5af68bf7d8ccfea48fb89d06), [`6317c5b`](https://github.com/stats-forge/github-stats-forge/commit/6317c5b342a470ceeceff9bd5b43561f097e5ba1)]:
+  - @stats-forge/github-stats-forge-core@0.16.0
+  - @stats-forge/github-stats-forge-catalog@0.6.0
+
 ## 0.7.2
 
 ### Patch Changes
