@@ -130,6 +130,10 @@ jobs:
       - name: Lint (anvil)
         run: pnpm --filter ./apps/docs run check-anvil
 
+      # Each option the catalog lists is in its card page's tables, and each row is still one.
+      - name: Lint (option tables)
+        run: pnpm --filter ./apps/docs run check-option-tables
+
       # Once, for both the previews and the site; `code-checks` typechecks the site.
       - name: Build packages
         run: pnpm run build:packages

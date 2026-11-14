@@ -11,6 +11,7 @@
     "check-cards": "node scripts/generate-cards.ts --check",
     "test:live": "node --conditions=@stats/source --env-file-if-exists=../../.env scripts/test-live.ts",
     "check-anvil": "node --conditions=@stats/source scripts/check-anvil.ts",
+    "check-option-tables": "node --conditions=@stats/source scripts/check-option-tables.ts",
     "test:e2e": "playwright test",
     "generate-themes-page": "node --conditions=@stats/source scripts/generate-themes-page.ts",
     "check-themes-page": "node --conditions=@stats/source scripts/generate-themes-page.ts --check",
