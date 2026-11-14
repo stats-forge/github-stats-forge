@@ -337,6 +337,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@stats-forge/card-kit':
+        specifier: ^0.1.1
+        version: 0.1.1(zod@4.6.7)
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -2195,6 +2198,12 @@ packages:
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
+
+  '@stats-forge/card-kit@0.1.1':
+    resolution: {integrity: sha512-c5Bi93GGcFJa0J5xvUyGH7i0bv4Sf181mnlC5i5b0/H1pPX6v/NZwO+vPzQd29K5CoxeqOyU7dUmzPw1oUu0Qg==}
+    engines: {node: ^24 || >=26}
+    peerDependencies:
+      zod: ^4.6.7
 
   '@testing-library/dom@10.4.2':
     resolution: {integrity: sha512-yzr2S9HyAIdhz2/6qHgbs665Q7PKVcDF05vsOlHPxG1mo36gKVesdYVeDLnXgfjJ03CrKRk08knc6+E/9m8v2Q==}
@@ -5855,6 +5864,10 @@ snapshots:
   '@shoelace-style/localize@3.2.3': {}
 
   '@sindresorhus/is@4.6.0': {}
+
+  '@stats-forge/card-kit@0.1.1(zod@4.6.7)':
+    dependencies:
+      zod: 4.6.7
 
   '@testing-library/dom@10.4.2':
     dependencies:
