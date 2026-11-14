@@ -204,6 +204,9 @@ describe('the command line', () => {
     expect(query).toStrictEqual({ id: 'abc', theme: 'ember_dark' });
     expect(config?.pats).toStrictEqual([{ name: '--pat #1', value: 'ghp_x' }]);
     expect(config?.requestTimeoutMs).toBe(30_000);
+    // stdout carries the result alone, so core's diagnostics go to stderr
+    config?.logger.log('PAT_1 Failed due to rate limiting');
+    expect(stderr).toHaveBeenLastCalledWith('PAT_1 Failed due to rate limiting\n');
     // core's own advice assumes no host, so the CLI names where its token comes from
     expect(config?.hints.tokens_missing).toBe(
       `Pass --pat, or put PAT_1 in the environment or ${join(dir, 'empty.env')}`,

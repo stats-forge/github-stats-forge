@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest';
 
 import { createHandler } from '../src/handler.ts';
-import { logRequest } from '../src/log.ts';
+import { coreLogger, logRequest } from '../src/log.ts';
 
 import { GIST_ID, GIST_NOT_FOUND_REPLY, optionsAnswering, testOptions } from './_fake-github.ts';
 
@@ -56,4 +56,29 @@ test('leaves the card fields out for a path that draws no card', async () => {
   const { line } = await logLineFor('http://localhost/healthz');
 
   expect(line).toStrictEqual({ method: 'GET', path: '/healthz', status: 200, duration_ms: 250 });
+});
+
+test("writes core's diagnostics as JSON lines among the requests'", () => {
+  const write = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+
+  coreLogger.error('GitHub error:', { type: 'FORBIDDEN' });
+
+  expect(write).toHaveBeenCalledTimes(1);
+  expect(JSON.parse(String(write.mock.calls[0]?.[0]))).toStrictEqual({
+    event: 'core',
+    level: 'error',
+    message: "GitHub error: { type: 'FORBIDDEN' }",
+  });
+});
+
+test("puts an error's stack on the one line", () => {
+  const write = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+
+  coreLogger.log('Kept the count:', new Error('refused'));
+
+  const written = String(write.mock.calls[0]?.[0]);
+  expect(written.indexOf('\n')).toBe(written.length - 1);
+  const line: unknown = JSON.parse(written);
+  expect(line).toHaveProperty('level', 'info');
+  expect(line).toHaveProperty('message', expect.stringMatching(/^Kept the count: Error: refused/));
 });

@@ -3,7 +3,6 @@ import type { GitHubDateRange } from '../../common/date.ts';
 import { toContributionRanges, toRange } from '../../common/date.ts';
 import { CardError } from '../../common/error.ts';
 import { createGraphQLFetcher, UNREADABLE_REPLY } from '../../common/http.ts';
-import { logger } from '../../common/log.ts';
 import { clampValue, excludes } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
 import { UserContributionYearsDocument } from '../../graphql/generated/contributed-to.ts';
@@ -101,7 +100,7 @@ const fetchReposContributedTo = async (
         throw CardError.because('graphql_failed', { subject: REPOS_CONTRIBUTED_TO });
       }
       rangesPerRequest = Math.floor(chunk.length / 2);
-      logger.log(
+      config.logger.log(
         `Gateway timeout (${res.status}), retrying ${rangesPerRequest} range(s) at a time...`,
       );
       continue;
@@ -112,7 +111,7 @@ const fetchReposContributedTo = async (
         throw CardError.because('graphql_failed', { subject: REPOS_CONTRIBUTED_TO });
       }
       emptyResponses += 1;
-      logger.log(
+      config.logger.log(
         `Empty response from GitHub, retrying (${emptyResponses}/${MAX_EMPTY_RESPONSE_RETRIES})...`,
       );
       continue;
@@ -123,10 +122,17 @@ const fetchReposContributedTo = async (
       const isTooLarge = res.data.errors.some((error) => error.type === RESOURCE_LIMITS_EXCEEDED);
       if (isTooLarge && chunk.length > 1) {
         rangesPerRequest = Math.floor(chunk.length / 2);
-        logger.log(`Resource limits exceeded, retrying ${rangesPerRequest} range(s) at a time...`);
+        config.logger.log(
+          `Resource limits exceeded, retrying ${rangesPerRequest} range(s) at a time...`,
+        );
         continue;
       }
-      throw CardError.fromGraphQL(res.data.errors, res.statusText, REPOS_CONTRIBUTED_TO);
+      throw CardError.fromGraphQL(
+        res.data.errors,
+        res.statusText,
+        REPOS_CONTRIBUTED_TO,
+        config.logger,
+      );
     }
     const { user } = res.data.data;
     if (!user) {
@@ -166,7 +172,7 @@ const fetchReposContributedTo = async (
         continue;
       }
       if (isSaturated) {
-        logger.log(
+        config.logger.log(
           `Range ${range.from.toISOString()} - ${range.to.toISOString()} is saturated but cannot be split further.`,
         );
       }
@@ -197,7 +203,7 @@ const fetchReposContributedTo = async (
 
     // each saturated range pushes both of its halves
     if (halves.length > 0) {
-      logger.log(`found ${halves.length / 2} saturated ranges, splitting and retrying...`);
+      config.logger.log(`found ${halves.length / 2} saturated ranges, splitting and retrying...`);
     }
   }
 
@@ -252,7 +258,12 @@ const fetchContributedTo = async (
 
   const res = await retryer(yearsFetcher, { login: username }, config);
   if (res.data.errors) {
-    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'contribution years');
+    throw CardError.fromGraphQL(
+      res.data.errors,
+      res.statusText,
+      'contribution years',
+      config.logger,
+    );
   }
 
   const { user } = res.data.data;

@@ -10,7 +10,7 @@ import { httpRequest } from '../../common/http.ts';
 import type { FetcherContext } from '../../common/http.ts';
 import { linguistLanguage } from '../../common/languageAliases.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
-import { logger } from '../../common/log.ts';
+import type { Logger } from '../../common/log.ts';
 import { retryer } from '../../common/retryer.ts';
 import type { FetcherResponse } from '../../common/retryer.ts';
 import type { TopLanguageFragment } from '../../graphql/generated/top-languages.ts';
@@ -275,7 +275,7 @@ const isNameWithOwner = (nameWithOwner: string): boolean => {
  * @returns A `catch` handler resolving to `undefined`, for the repository to keep GitHub's count.
  */
 const keepGitHubsCount =
-  (nameWithOwner: string) =>
+  (nameWithOwner: string, logger: Logger) =>
   (error: unknown): undefined => {
     if (!(error instanceof CardError)) {
       throw error;
@@ -385,7 +385,9 @@ const withNotebooksRecounted = async (
     })
     .slice(0, MAX_TREES_PER_CARD);
   const listed = await inPool(candidates, async ({ nameWithOwner, jupyterBytes }) =>
-    listNotebooks(nameWithOwner, jupyterBytes, config).catch(keepGitHubsCount(nameWithOwner)),
+    listNotebooks(nameWithOwner, jupyterBytes, config).catch(
+      keepGitHubsCount(nameWithOwner, config.logger),
+    ),
   );
 
   // spent before downloading, so a repository that then fails still costs what it read
@@ -407,7 +409,7 @@ const withNotebooksRecounted = async (
         return;
       }
       const bytes = await readNotebook(nameWithOwner, sha, config).catch(
-        keepGitHubsCount(nameWithOwner),
+        keepGitHubsCount(nameWithOwner, config.logger),
       );
       if (bytes === undefined) {
         recount.bytes = undefined;

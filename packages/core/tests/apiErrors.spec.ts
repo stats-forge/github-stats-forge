@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { errorResult } from '../src/api/api-result.ts';
 import { gist as gistApi } from '../src/api/gist.ts';
@@ -18,11 +18,6 @@ import { exactly } from './_card.ts';
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
-
-vi.mock(import('../src/common/log.ts'), async () => {
-  const { createLoggerMock } = await import('./utils.ts');
-  return createLoggerMock();
-});
 
 const mock = new FetchMock();
 const config = testConfig.with({ fetch: mock.fetch });
@@ -53,8 +48,6 @@ describe('api errors', () => {
   });
 
   it('marks an upstream failure retryable', async () => {
-    // GitHub's error is logged as it arrives
-    vi.spyOn(console, 'error').mockReturnValue();
     // answered, not dropped: the retryer waits a dropped request out for seconds
     mock.onPost(GRAPHQL).reply(200, {
       errors: [{ type: 'INTERNAL', message: 'Something went wrong' }],

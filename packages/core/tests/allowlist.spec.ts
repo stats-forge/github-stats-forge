@@ -16,6 +16,7 @@ import { topLangs } from '../src/api/top-langs.ts';
 import { wakatime } from '../src/api/wakatime.ts';
 import { CardConfig } from '../src/common/config.ts';
 
+import { testLogger } from './_config.ts';
 import { FetchMock } from './_fetch-mock.ts';
 import type { GraphQLErrorBody } from './_fetch-mock.ts';
 
@@ -43,6 +44,7 @@ const pinned = new CardConfig({
   usernameAllowlist: [OWNER],
   gistAllowlist: [GIST_ID],
   fetch: noRequests.fetch,
+  logger: testLogger,
 });
 
 /** One card, the param that identifies whose card it is, and whatever else it needs to render. */
@@ -90,8 +92,6 @@ describe('a deployment pinned by ALLOWLIST', () => {
   });
 
   it('matches a login case-insensitively, GitHub logins being case-insensitive', async () => {
-    // the transport's failure is logged as GitHub's error
-    vi.spyOn(console, 'error').mockReturnValue();
     const result = await stats({ username: OWNER.toUpperCase() }, pinned);
 
     // allowed, so it gets as far as the transport and fails there instead
@@ -106,11 +106,10 @@ describe('a deployment pinned by ALLOWLIST', () => {
   });
 
   it('serves anyone when no list is configured', async () => {
-    // the transport's failure is logged as GitHub's error
-    vi.spyOn(console, 'error').mockReturnValue();
     const open = new CardConfig({
       pats: [{ name: 'PAT_1', value: 'token' }],
       fetch: noRequests.fetch,
+      logger: testLogger,
     });
 
     const result = await stats({ username: 'anuraghazra' }, open);

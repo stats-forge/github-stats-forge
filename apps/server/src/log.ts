@@ -1,9 +1,13 @@
 /**
- * @file One structured line per request, on stdout.
+ * @file One structured line per request, and per diagnostic of core's, on stdout.
  *
  * **Never a query value: they hold usernames.** A token cannot reach here either — core's
  * `PersonalAccessToken` carries the env var's name for exactly that reason.
  */
+
+import { formatWithOptions } from 'node:util';
+
+import type { Logger } from '@stats-forge/github-stats-forge-core/api';
 
 import { cardIdFor, normalizePath } from './routes.ts';
 
@@ -39,4 +43,15 @@ const logRequest = (request: Request, response: Response, startedAt: number): vo
   process.stdout.write(`${JSON.stringify(line)}\n`);
 };
 
-export { logRequest };
+/** @returns A writer putting each diagnostic on one JSON line, so it parses with the request lines. */
+const coreLine =
+  (level: 'info' | 'error') =>
+  (...args: Array<unknown>): void => {
+    const message = formatWithOptions({ breakLength: Infinity }, ...args);
+    process.stdout.write(`${JSON.stringify({ event: 'core', level, message })}\n`);
+  };
+
+/** Where core's diagnostics go, in place of its bare `console` lines. */
+const coreLogger: Logger = { log: coreLine('info'), error: coreLine('error') };
+
+export { coreLogger, logRequest };

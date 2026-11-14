@@ -62,6 +62,8 @@ every default to the renderer (a card's default width, which only the card knows
 
 ### Errors
 
+- **Core never writes to `console` itself**: a diagnostic goes to `config.logger`, which a host
+  points at its own log; the server writes JSON lines, the CLI stderr.
 - **Everything throws `CardError`** (`common/error.ts`): a `code`, the card's two lines and the param
   at fault. `CardError.from(err)` wraps anything else as a retryable `upstream`, so a permanent
   failure must throw a `CardError`.

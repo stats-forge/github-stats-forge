@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { linguistLanguage } from '../src/common/languageAliases.ts';
 import { getLanguageColor } from '../src/common/languageColors.ts';
@@ -17,11 +17,6 @@ import type {
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 import type { GraphQLBody, SearchBody } from './_fetch-mock.ts';
-
-vi.mock(import('../src/common/log.ts'), async () => {
-  const { createLoggerMock } = await import('./utils.ts');
-  return createLoggerMock();
-});
 
 /** The part of nbformat 4 the recount reads. */
 interface Notebook {
