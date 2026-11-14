@@ -227,6 +227,16 @@ describe('the command line', () => {
     expect(prompts.navigateOptions).not.toHaveBeenCalled();
   });
 
+  it("creates --out's folders when they are not there yet", async () => {
+    render.mockResolvedValue(DRAWN);
+    const out = join(dir, 'cards', 'dark', 'card.svg');
+
+    const result = await run('--config', savedGist, '--generate', '--pat', 'ghp_x', '--out', out);
+
+    await expect(readFile(out, 'utf8')).resolves.toBe('<svg>the card</svg>');
+    expect(result.code).toBeUndefined();
+  });
+
   it('reports a render that failed, writes nothing, and exits 1', async () => {
     render.mockResolvedValue(REFUSED);
     const out = join(dir, 'card.svg');

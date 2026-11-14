@@ -8,8 +8,8 @@
  */
 
 import { existsSync } from 'node:fs';
-import { readFile, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
 
 import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
 import {
@@ -105,6 +105,7 @@ export const writeSavedCard = async (
   options: Record<string, string>,
 ): Promise<string> => {
   const file = resolve(process.cwd(), path);
+  await mkdir(dirname(file), { recursive: true });
   await writeFile(file, savedCardText(card, options), 'utf8');
   return file;
 };
