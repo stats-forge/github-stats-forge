@@ -106,7 +106,7 @@ npx @stats-forge/github-stats-forge-cli --config card.json --print-query
 Paste that into the action and it draws the card you just tuned:
 
 ```yaml
-- uses: stats-forge/github-stats-forge-action@31f7d7da9436ded83d878725dfe6652bc15c037c # v0.13.3
+- uses: stats-forge/github-stats-forge-action@5fce3e74e665b0854cde1d72ae7d7ffef370b595 # v0.13.4
   with:
     card: stats
     options: '?username=octocat&show_icons=true&theme=cobalt_dark'
