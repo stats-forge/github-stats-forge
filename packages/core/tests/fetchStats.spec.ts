@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { stats as statsApi } from '../src/api/stats.ts';
 import { calculateRank } from '../src/calculateRank.ts';
@@ -18,11 +18,6 @@ import type { ReposContributedToQuery } from '../src/graphql/reposContributedToD
 import { testConfig } from './_config.ts';
 import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 import type { GraphQLBody, GraphQLErrorBody, SearchBody } from './_fetch-mock.ts';
-
-vi.mock(import('../src/common/log.ts'), async () => {
-  const { createLoggerMock } = await import('./utils.ts');
-  return createLoggerMock();
-});
 
 /** A query's `user`, when the lookup succeeded. */
 type QueryUser<TResult extends { user: unknown }> = NonNullable<TResult['user']>;

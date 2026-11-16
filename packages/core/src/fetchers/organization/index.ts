@@ -3,7 +3,6 @@ import { GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
 import { CardError } from '../../common/error.ts';
 import { createGraphQLFetcher } from '../../common/http.ts';
 import type { GraphQLResponse } from '../../common/http.ts';
-import { logger } from '../../common/log.ts';
 import { retryer } from '../../common/retryer.ts';
 import { GetOrganizationDocument } from '../../graphql/generated/organization.ts';
 import type {
@@ -123,14 +122,19 @@ const fetchOrganization = async (
         throw CardError.because('org_not_found');
       }
       if (!onlyMembersForbidden(res.data.errors)) {
-        throw CardError.fromGraphQL(res.data.errors, res.statusText, 'organization data');
+        throw CardError.fromGraphQL(
+          res.data.errors,
+          res.statusText,
+          'organization data',
+          config.logger,
+        );
       }
       if (require_members) {
         throw CardError.because('org_members_forbidden');
       }
       // the walk can page five times, and one refusal is worth saying once
       if (!membersForbidden) {
-        logger.error(
+        config.logger.error(
           `Member count dropped: this token may not read the members of ${org}. Grant it the organization \`Members\` permission to draw that row. GitHub said: ${res.data.errors[0]?.message ?? 'Forbidden'}`,
         );
       }

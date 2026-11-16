@@ -2,11 +2,12 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
-import { parseArgs } from 'node:util';
+import { formatWithOptions, parseArgs } from 'node:util';
 
 import type { CardKind } from '@stats-forge/github-stats-forge-catalog';
 import { cardFileStem, cards, findCard } from '@stats-forge/github-stats-forge-catalog';
 import { CardConfig } from '@stats-forge/github-stats-forge-core/api';
+import type { Logger } from '@stats-forge/github-stats-forge-core/api';
 
 import type { Menu } from './prompts.ts';
 import { askRequired, askSavePath, askToken, navigateOptions, pickCard } from './prompts.ts';
@@ -17,6 +18,13 @@ import { DEFAULT_ENV_FILE, loadEnvFile, resolveTokens } from './tokens.ts';
 
 /** Room for a slow connection, well short of undici's five minutes on a stalled one. */
 const REQUEST_TIMEOUT_MS = 30_000;
+
+/** Writes one of core's diagnostics to stderr, where everything but the result goes. */
+const toStderr = (...args: Array<unknown>): void => {
+  process.stderr.write(`${formatWithOptions({}, ...args)}\n`);
+};
+
+const stderrLogger: Logger = { log: toStderr, error: toStderr };
 
 const HELP = `github-stats-forge — render a GitHub stats card to a local SVG
 
@@ -262,6 +270,7 @@ const main = async (): Promise<void> => {
   const config = new CardConfig({
     pats: tokens,
     requestTimeoutMs: REQUEST_TIMEOUT_MS,
+    logger: stderrLogger,
     hints: {
       rate_limited:
         "Every token has hit GitHub's rate limit; try again later, or pass another with --pat",

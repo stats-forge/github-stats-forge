@@ -12,7 +12,6 @@ import {
 import { CardError } from '../../common/error.ts';
 import { createGraphQLFetcher, httpRequest } from '../../common/http.ts';
 import type { FetcherContext, GraphQLResponse } from '../../common/http.ts';
-import { logger } from '../../common/log.ts';
 import { buildSearchFilter, excludes } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
 import type { FetcherResponse } from '../../common/retryer.ts';
@@ -195,7 +194,7 @@ const totalItemsFetcher = async (
   config: CardConfig,
 ): Promise<number> => {
   if (!GITHUB_USERNAME_PATTERN.test(username)) {
-    logger.log('Invalid username provided.');
+    config.logger.log('Invalid username provided.');
     throw CardError.because('invalid_username');
   }
 
@@ -203,19 +202,19 @@ const totalItemsFetcher = async (
   try {
     res = await retryer(fetchTotalItems, search, config);
   } catch (error) {
-    logger.log(error);
+    config.logger.log(error);
     throw error;
   }
 
   // a user GraphQL resolved can still be one search refuses, and one count should not fail the card
   if (isUnsearchableUser(res)) {
-    logger.log(`GitHub search refused '${username}'; counting ${search.filter} as 0.`);
+    config.logger.log(`GitHub search refused '${username}'; counting ${search.filter} as 0.`);
     return 0;
   }
 
   const totalCount = res.data.total_count;
   if (typeof totalCount !== 'number' || Number.isNaN(totalCount)) {
-    logger.error(`GitHub error: ${JSON.stringify(res.data)}`);
+    config.logger.error(`GitHub error: ${JSON.stringify(res.data)}`);
     throw CardError.because('stats_search_count_unavailable');
   }
   return totalCount;
@@ -313,6 +312,7 @@ const sumOverRanges = async (
       contribRes.data.errors,
       contribRes.statusText,
       'contributions data',
+      config.logger,
     );
   }
 
@@ -421,7 +421,7 @@ const fetchStats = async (
   );
 
   if (res.data.errors) {
-    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'stats data');
+    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'stats data', config.logger);
   }
 
   const { user } = res.data.data;

@@ -1,6 +1,8 @@
 import type { FailureReason } from './error.ts';
 import { defaultFetch, withTimeout } from './http.ts';
 import type { FetchLike } from './http.ts';
+import { consoleLogger } from './log.ts';
+import type { Logger } from './log.ts';
 import { parseArray } from './ops.ts';
 
 type Env = Record<string, string | undefined>;
@@ -24,6 +26,7 @@ interface CardConfigInit {
   fetch?: FetchLike;
   requestTimeoutMs?: number | undefined;
   hints?: Partial<Record<FailureReason, string>>;
+  logger?: Logger;
 }
 
 /**
@@ -79,6 +82,8 @@ export class CardConfig {
   readonly fetch: FetchLike;
   /** A host's own second line for a failure, by reason: its advice in place of core's. */
   readonly hints: Partial<Record<FailureReason, string>>;
+  /** Where core's diagnostics go; defaults to `console`. */
+  readonly logger: Logger;
   /** The transport as given, so `with` never wraps it twice. */
   private readonly transport: FetchLike;
 
@@ -92,6 +97,7 @@ export class CardConfig {
     this.requestTimeoutMs = init.requestTimeoutMs;
     this.fetch = withTimeout(this.transport, this.requestTimeoutMs);
     this.hints = init.hints ?? {};
+    this.logger = init.logger ?? consoleLogger;
   }
 
   /** @returns Config for this deployment. */
@@ -127,9 +133,11 @@ export class CardConfig {
       fetch: this.transport,
       requestTimeoutMs: this.requestTimeoutMs,
       hints: this.hints,
+      logger: this.logger,
       ...overrides,
     });
   }
 }
 
 export type { AllowlistKind, PersonalAccessToken, CardConfigInit };
+export type { Logger } from './log.ts';

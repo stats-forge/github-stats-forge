@@ -1,27 +1,18 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
-import { logger } from '../src/common/log.ts';
 import { fetchTopLanguages } from '../src/fetchers/top-languages/index.ts';
 import type { TopLanguagesQuery } from '../src/graphql/generated/top-languages.ts';
 
-import { testConfig } from './_config.ts';
+import { testConfig, testLogger } from './_config.ts';
 import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
 import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
 import { approxNumber } from './utils.ts';
-
-vi.mock(import('../src/common/log.ts'), async () => {
-  const { createLoggerMock } = await import('./utils.ts');
-  return createLoggerMock();
-});
-
-const loggerErrorSpy = vi.mocked(logger.error);
 
 const mock = new FetchMock();
 const config = testConfig.with({ fetch: mock.fetch });
 
 afterEach(() => {
   mock.reset();
-  loggerErrorSpy.mockClear();
 });
 
 // The languages interleave, so a count taken from anything but the language's own entry is wrong.
@@ -177,7 +168,7 @@ describe('FetchTopLanguages', () => {
       "Could not resolve to a User with the login of 'noname'.",
     );
 
-    expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
+    expect(testLogger.error).toHaveBeenCalledTimes(1);
   });
 
   it('should throw other errors with their message', async () => {
@@ -189,7 +180,7 @@ describe('FetchTopLanguages', () => {
       'Some test GraphQL error',
     );
 
-    expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
+    expect(testLogger.error).toHaveBeenCalledTimes(1);
   });
 
   it('should throw error with specific message when error does not contain message property', async () => {
@@ -203,6 +194,6 @@ describe('FetchTopLanguages', () => {
         'Something went wrong while trying to retrieve the language data using the GraphQL API.',
     });
 
-    expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
+    expect(testLogger.error).toHaveBeenCalledTimes(1);
   });
 });

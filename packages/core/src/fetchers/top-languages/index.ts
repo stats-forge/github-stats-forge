@@ -57,7 +57,7 @@ const fetchTopLanguages = async (
   );
 
   if (res.data.errors) {
-    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'language data');
+    throw CardError.fromGraphQL(res.data.errors, res.statusText, 'language data', config.logger);
   }
 
   const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);

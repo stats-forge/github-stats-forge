@@ -10,7 +10,7 @@
  */
 
 import type { GraphQLResponse } from './http.ts';
-import { logger } from './log.ts';
+import type { Logger } from './log.ts';
 import { wrapTextMultiline } from './text.ts';
 
 /** Why a request failed. */
@@ -331,6 +331,8 @@ class CardError extends Error {
     statusText: string,
     /** What the query asked for, as "the ___ using the GraphQL API" reads. */
     subject: string,
+    /** Receives the whole list, of which the card shows only the first entry. */
+    logger: Logger,
   ): CardError {
     logger.error(errors);
     const [firstError] = errors;
