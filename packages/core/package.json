@@ -93,6 +93,7 @@
     "@testing-library/jest-dom": "7.0.1",
     "@types/node": "26.6.6",
     "@uppercod/css-to-object": "1.1.1",
+    "fast-check": "4.10.2",
     "graphql": "17.1.0",
     "js-yaml": "5.5.0",
     "jsdom": "catalog:default",
