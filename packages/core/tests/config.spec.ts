@@ -122,3 +122,17 @@ describe('CardConfig.logger', () => {
     expect(config.with({ logger: testLogger }).logger).toBe(testLogger);
   });
 });
+
+describe('CardConfig.githubApiUrl', () => {
+  it("is GitHub.com's unless the host names another", () => {
+    expect(new CardConfig().githubApiUrl).toBe('https://api.github.com');
+    expect(CardConfig.fromEnv({ GITHUB_API_URL: '' }).githubApiUrl).toBe('https://api.github.com');
+  });
+
+  it('reads the GITHUB_API_URL an Enterprise Server runner sets, without its trailing slash', () => {
+    const config = CardConfig.fromEnv({ GITHUB_API_URL: 'https://ghe.example.com/api/v3/' });
+
+    expect(config.githubApiUrl).toBe('https://ghe.example.com/api/v3');
+    expect(config.with({ pats: [] }).githubApiUrl).toBe('https://ghe.example.com/api/v3');
+  });
+});

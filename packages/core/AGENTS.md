@@ -118,6 +118,8 @@ every default to the renderer (a card's default width, which only the card knows
     both; the members row only when `show` names it. Log the refusal once, not per page.
 - **Commits are REST only, against a smaller allowance**: the activity card's commit row is behind
   `show`, and a refused search leaves it `null`.
+- **No fetcher writes GitHub's host**: a REST URL starts at the `apiUrl` the retryer hands it, and
+  `createGraphQLFetcher` derives GraphQL's from the same, so `githubApiUrl` reaches every request.
 - **The generator is dev-only**, typechecked by `packages/core/tsconfig.scripts.json`.
 - **`graphql` is 17, and GitHub's schema is built with `assumeValid: true`**: its SDL breaks a v17
   deprecation rule that `assumeValidSDL` alone doesn't skip. The queries are still validated.
