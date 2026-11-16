@@ -1,5 +1,19 @@
 # @stats-forge/github-stats-forge-catalog
 
+## 0.6.0
+
+### Minor Changes
+
+- [#440](https://github.com/stats-forge/github-stats-forge/pull/440) [`7a32f88`](https://github.com/stats-forge/github-stats-forge/commit/7a32f882298b0dfd5af68bf7d8ccfea48fb89d06) - feat: lay the stats card's rows out in two columns with `layout=columns`
+
+- [#441](https://github.com/stats-forge/github-stats-forge/pull/441) [`6317c5b`](https://github.com/stats-forge/github-stats-forge/commit/6317c5b342a470ceeceff9bd5b43561f097e5ba1) - feat: pick the WakaTime card's window with `range`, from the last 7 days to all time
+
+### Patch Changes
+
+- [#459](https://github.com/stats-forge/github-stats-forge/pull/459) [`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a) - fix: rename the source export condition to `@github-stats-forge/source`, so another workspace's `@stats/source` no longer loads TypeScript from `node_modules`
+- Updated dependencies [[`f1bc518`](https://github.com/stats-forge/github-stats-forge/commit/f1bc5185df571fe1c593c4f43be56d6ed1637878), [`e877a1a`](https://github.com/stats-forge/github-stats-forge/commit/e877a1aa2958bd84b3822f12daa53d509d752730), [`eb125eb`](https://github.com/stats-forge/github-stats-forge/commit/eb125ebf81f7d88d88aec17b638fd458f0f79da1), [`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a), [`7a32f88`](https://github.com/stats-forge/github-stats-forge/commit/7a32f882298b0dfd5af68bf7d8ccfea48fb89d06), [`6317c5b`](https://github.com/stats-forge/github-stats-forge/commit/6317c5b342a470ceeceff9bd5b43561f097e5ba1)]:
+  - @stats-forge/github-stats-forge-core@0.16.0
+
 ## 0.5.0
 
 ### Minor Changes

@@ -1,5 +1,25 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.16.0
+
+### Minor Changes
+
+- [#457](https://github.com/stats-forge/github-stats-forge/pull/457) [`f1bc518`](https://github.com/stats-forge/github-stats-forge/commit/f1bc5185df571fe1c593c4f43be56d6ed1637878) - refactor!: draw the cards with `@stats-forge/card-kit`, which now holds the frame, themes and query-string boundary
+
+  `CardError.fromGraphQL` is gone, and `CardError` and the themes are the kit's, re-exported unchanged.
+
+- [#450](https://github.com/stats-forge/github-stats-forge/pull/450) [`e877a1a`](https://github.com/stats-forge/github-stats-forge/commit/e877a1aa2958bd84b3822f12daa53d509d752730) - feat: add `CardConfig`'s `logger`, taking the diagnostics core wrote to `console`; the server logs them as JSON lines and the CLI on stderr
+
+- [#454](https://github.com/stats-forge/github-stats-forge/pull/454) [`eb125eb`](https://github.com/stats-forge/github-stats-forge/commit/eb125ebf81f7d88d88aec17b638fd458f0f79da1) - feat: add `CardConfig`'s `githubApiUrl`, read from `GITHUB_API_URL`, to draw the cards from a GitHub Enterprise Server
+
+- [#440](https://github.com/stats-forge/github-stats-forge/pull/440) [`7a32f88`](https://github.com/stats-forge/github-stats-forge/commit/7a32f882298b0dfd5af68bf7d8ccfea48fb89d06) - feat: lay the stats card's rows out in two columns with `layout=columns`
+
+- [#441](https://github.com/stats-forge/github-stats-forge/pull/441) [`6317c5b`](https://github.com/stats-forge/github-stats-forge/commit/6317c5b342a470ceeceff9bd5b43561f097e5ba1) - feat: pick the WakaTime card's window with `range`, from the last 7 days to all time
+
+### Patch Changes
+
+- [#459](https://github.com/stats-forge/github-stats-forge/pull/459) [`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a) - fix: rename the source export condition to `@github-stats-forge/source`, so another workspace's `@stats/source` no longer loads TypeScript from `node_modules`
+
 ## 0.15.0
 
 ### Minor Changes
