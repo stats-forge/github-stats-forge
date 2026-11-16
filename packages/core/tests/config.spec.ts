@@ -3,11 +3,10 @@
  * being shared with whatever else runs beside it, and the deadline it puts on each request.
  */
 
+import type { FetchLike, Logger } from '@stats-forge/card-kit';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CardConfig } from '../src/common/config.ts';
-import type { FetchLike } from '../src/common/http.ts';
-import type { Logger } from '../src/common/log.ts';
 
 import { testLogger } from './_config.ts';
 

@@ -3,14 +3,15 @@
  * in, since GitHub counts a whole `.ipynb`, saved outputs included, as Jupyter Notebook.
  */
 
+import { httpRequest } from '@stats-forge/card-kit';
+import type { Logger } from '@stats-forge/card-kit';
+
 import type { CardConfig } from '../../common/config.ts';
 import { GITHUB_USERNAME_PATTERN } from '../../common/constants.ts';
 import { CardError } from '../../common/error.ts';
-import { httpRequest } from '../../common/http.ts';
 import type { FetcherContext } from '../../common/http.ts';
 import { linguistLanguage } from '../../common/languageAliases.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
-import type { Logger } from '../../common/log.ts';
 import { retryer } from '../../common/retryer.ts';
 import type { FetcherResponse } from '../../common/retryer.ts';
 import type { TopLanguageFragment } from '../../graphql/generated/top-languages.ts';

@@ -1,3 +1,4 @@
+import { CARD_STYLE, measureText } from '@stats-forge/card-kit';
 import { screen } from '@testing-library/dom';
 import { describe, expect, it } from 'vitest';
 
@@ -21,8 +22,6 @@ import {
   calculateNormalLayoutHeight,
   calculatePieLayoutHeight,
 } from '../src/cards/top-languages/layouts.ts';
-import { CARD_STYLE } from '../src/common/brand.ts';
-import { measureText } from '../src/common/text.ts';
 import type { Lang, TopLangData } from '../src/fetchers/top-languages/types.ts';
 import { themes } from '../src/themes/index.ts';
 

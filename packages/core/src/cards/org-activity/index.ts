@@ -1,23 +1,28 @@
-import { CARD_ICON, CARD_STYLE, font } from '../../common/brand.ts';
-import { Card, titleFits } from '../../common/Card.ts';
-import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
-import { formatRange } from '../../common/date.ts';
-import { CardError } from '../../common/error.ts';
-import { icons } from '../../common/icons.ts';
-import type { Locale, Localized } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
 import {
+  CARD_STYLE,
+  Card,
+  HEAT_PAINT,
   NUMBER_FORMATS,
+  atRule,
+  countFormatter,
   createProgressNode,
   createTextNode,
+  el,
   flexLayout,
-  countFormatter,
-} from '../../common/render.ts';
-import type { NumberFormat } from '../../common/render.ts';
-import { measureText } from '../../common/text.ts';
+  font,
+  getLightDarkColors,
+  icons,
+  localize,
+  measureText,
+  rule,
+  titleFits,
+} from '@stats-forge/card-kit';
+import type { Child, CssChild, Locale, Localized, NumberFormat } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
+import { formatRange } from '../../common/date.ts';
+import { CardError } from '../../common/error.ts';
 import type { OrgActivityData } from '../../fetchers/org-activity/types.ts';
-import type { Child, CssChild } from '../../markup/index.ts';
-import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { orgActivityCardLocales } from './locales.ts';

@@ -28,6 +28,7 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@marcalexiei/oxfmt-config'
   - '@marcalexiei/oxlint-config'
+  - '@stats-forge/card-kit'
 
 # Reject a version with weaker publish trust evidence than an earlier one.
 trustPolicy: no-downgrade

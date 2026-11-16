@@ -5,10 +5,10 @@
  * a render-time throw surfaces as `upstream`, which no query string may cause.
  */
 
+import type { ApiResult, ParamShape } from '@stats-forge/card-kit';
 import * as fc from 'fast-check';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ApiResult } from '../src/api/api-result.ts';
 import {
   contributedTo,
   gist,
@@ -20,7 +20,6 @@ import {
   topLangs,
   wakatime,
 } from '../src/api/index.ts';
-import type { ParamShape } from '../src/api/params.ts';
 import type { CardConfig } from '../src/common/config.ts';
 import { ORG_CALENDAR_MAX_WEEKS } from '../src/common/constants.ts';
 

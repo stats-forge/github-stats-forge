@@ -1,3 +1,6 @@
+import { httpRequest } from '@stats-forge/card-kit';
+import type { FetchLike, HttpResponse } from '@stats-forge/card-kit';
+
 import type { GraphQLDocument } from '../graphql/graphqlDocument.ts';
 
 /** GitHub.com's REST API, which a GitHub Enterprise Server host replaces with its own `/api/v3`. */
@@ -11,41 +14,6 @@ const GITHUB_API_URL = 'https://api.github.com';
  */
 const graphqlUrl = (apiUrl: string): string => `${apiUrl.replace(/\/api\/v3$/, '/api')}/graphql`;
 
-/**
- * The slice of `fetch` this library calls.
- * A host substitutes it through `CardConfig` to mock, cache or proxy every request core makes.
- */
-type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
-
-/**
- * Resolves the global `fetch` at call time rather than capturing it on import,
- * so a host that patches the global afterwards is still picked up.
- */
-const defaultFetch: FetchLike = async (input, init) => fetch(input, init);
-
-/**
- * @returns `fetchImpl`, giving up on each request after `timeoutMs`; `fetchImpl` itself without one.
- */
-const withTimeout = (fetchImpl: FetchLike, timeoutMs: number | undefined): FetchLike => {
-  if (timeoutMs === undefined) {
-    return fetchImpl;
-  }
-  return async (input, init) =>
-    fetchImpl(input, { ...init, signal: AbortSignal.timeout(timeoutMs) });
-};
-
-/**
- * A response, parsed.
- * A non-2xx is a value here rather than a throw:
- * the retryer reads the body of a rejected request to tell a spent token from a rate limit.
- */
-interface HttpResponse<TData> {
-  status: number;
-  /** Reason phrase, which HTTP/2 omits — only ever used to annotate an error. */
-  statusText: string;
-  data: TData;
-}
-
 /** What the retryer hands a fetcher on each attempt. */
 interface FetcherContext {
   /** Transport to send the request with. */
@@ -55,32 +23,6 @@ interface FetcherContext {
   /** Attempt index, from 0. Tests read it to fake a rate limit on the first token. */
   retries: number;
 }
-
-/**
- * @returns The response; a JSON body parsed, anything else left as text.
- */
-const httpRequest = async <TData>(
-  fetchImpl: FetchLike,
-  url: string,
-  init?: RequestInit,
-): Promise<HttpResponse<TData>> => {
-  const response = await fetchImpl(url, init);
-  const body = await response.text();
-
-  let data: unknown;
-  try {
-    data = JSON.parse(body);
-  } catch {
-    // an empty or non-JSON body reads as text, so callers still get a defined `data`
-    data = body;
-  }
-
-  return {
-    status: response.status,
-    statusText: response.statusText,
-    data: data as TData,
-  };
-};
 
 /** Response of a GraphQL call: the envelope the GitHub API wraps results in. */
 type GraphQLResponse<TResult> = HttpResponse<{
@@ -141,12 +83,5 @@ const createGraphQLFetcher =
     return { ...response, data: asEnvelope(response.data) as GraphQLResponse<TResult>['data'] };
   };
 
-export {
-  createGraphQLFetcher,
-  defaultFetch,
-  GITHUB_API_URL,
-  httpRequest,
-  UNREADABLE_REPLY,
-  withTimeout,
-};
-export type { FetcherContext, FetchLike, GraphQLResponse, HttpResponse };
+export { createGraphQLFetcher, GITHUB_API_URL, UNREADABLE_REPLY };
+export type { FetcherContext, GraphQLResponse };

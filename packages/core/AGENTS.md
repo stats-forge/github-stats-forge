@@ -4,6 +4,13 @@
 
 The cards have rules of their own, in `src/cards/AGENTS.md`.
 
+**What a card draws with lives in [`@stats-forge/card-kit`](https://github.com/stats-forge/card-kit)**:
+the frame, themes, markup, text, locales, `CardError`, the generic param helpers and the handler.
+This package holds what is GitHub's or WakaTime's: fetchers, cards, their failures and params. A
+change to how every card looks is made there, then checked here by linking the checkout
+(`'@stats-forge/card-kit': link:../card-kit` under `overrides` in `pnpm-workspace.yaml`, never
+committed) and running `pnpm check-all`.
+
 ## The api layer is the trust boundary
 
 `api/*` turns a query string into typed card options: **parse and validate there once**, and leave
@@ -35,14 +42,14 @@ every default to the renderer (a card's default width, which only the card knows
 
 ### How an endpoint is built
 
-- **A `zod/mini` schema built from `api/params.ts`, passed to `cardHandler(schema, identities, render)`**
-  ([#48]), which parses the theme, then the query, checks the allowlists and renders. Its two
-  `catch`es are the only callers of `errorResult`.
+- **A `zod/mini` schema built from the kit's param helpers and `api/params.ts`'s, passed to
+  `cardHandler(schema, identities, render)`** ([#48]), the kit's handler bound to `CardConfig`, which
+  parses the theme, then the query, checks the allowlists and renders.
 - **The theme parses first**: a rejected theme cannot draw its own error card.
 - **A param several cards take goes in a shared fragment** ([#234]) (`commonParams`, `titleParams`,
   `statRowParams`), spread after the identity param.
-- **Every param helper records its kind with `kinded()`, and the handler carries them as `PARAMS`**
-  ([#235]), throwing at import on one without. The catalog's test reads them.
+- **Every param helper records its kind with the kit's `kinded()`, and the handler carries them as
+  `PARAMS`** ([#235]), throwing at import on one without. The catalog's test reads them.
 - **The query type comes from the schema**, so a consumer is checked at its call site.
 - **A card's accepted values ride on its renderer as `OPTIONS`, keyed by option name** ([#46]). The
   handler spreads them, adds only the fetcher's own (`affiliation`), and reads them back, as in
@@ -51,35 +58,38 @@ every default to the renderer (a card's default width, which only the card knows
 - **A closed-set list is an `enumListParam` in `OPTIONS`** ([#230]). `show` and `hide` accept every
   stat the card draws, and the handler fetches only what is drawn; the second argument is what a
   form offers. Each card checks `show` through a `shows()` typed to its own list.
-- **`NUMBER_FORMATS` lives in `common/render.ts`**, beside its one reader.
 - **`theme` is one theme name or a `light,dark` pair, each matched as an `enumParam` matches**;
   one name never switches, and no theme is `DEFAULT_THEME`, a pair. `getCardColors` still maps an
   unknown name to `ember_light`; `isThemeName` is `Object.hasOwn`, so `?theme=toString` misses
   ([#231]).
-- **Each kind of rejection has one wording, in `REJECTION_MESSAGES`**, declared through
-  `rejects(kind, passes)`; the param name comes from the issue's path. Only the first is reported.
+- **Each kind of rejection has one wording**: the kit's own params' in its table, this package's in
+  `api/params.ts`'s `REJECTION_MESSAGES`, passed to the kit's `rejects(wording, passes)`; the param
+  name comes from the issue's path. Only the first is reported.
 - **Write plain properties, not conditional spreads**: `CardOptions<T>` takes an explicit `undefined`.
 
 ### Errors
 
 - **Core never writes to `console` itself**: a diagnostic goes to `config.logger`, which a host
   points at its own log; the server writes JSON lines, the CLI stderr.
-- **Everything throws `CardError`** (`common/error.ts`): a `code`, the card's two lines and the param
-  at fault. `CardError.from(err)` wraps anything else as a retryable `upstream`, so a permanent
-  failure must throw a `CardError`.
+- **Everything throws the kit's `CardError`, imported from `common/error.ts`**, which registers this
+  package's failures on import: a `code`, the card's two lines and the param at fault.
+  `CardError.from(err)` wraps anything else as a retryable `upstream`, so a permanent failure must
+  throw a `CardError`.
 - **A failure is not `retryable` unless it declares it**, as one whose repeat could answer
   differently does: upstream's outage, a spent or missing token, a `forbidden` the next token may
   pass. Each entry says so itself, not a table by code.
-- **Every failure lives in the module-level `FAILURES`, unexported.** Not a `static #` field: the
-  types derive from it, a `#` field's type cannot be queried, and a TS-`private` one emits untyped.
+- **Every failure of this package lives in `common/error.ts`'s `FAILURES`, unexported**, whose type
+  augments the kit's `Failures` and which `registerFailures` words once; the boundary's own
+  (`invalid_param`, `missing_param`, `not_allowed`) are the kit's.
   - **An entry is a function from its data to a `Failure`**; its parameter is what the reason needs,
     and `because` takes exactly that, so a missing value fails `tsc`. Pass in only what the table
     cannot word itself.
-  - **`FailureReason` derives from `CardError.because`**, never written out.
+  - **`FailureReason` derives from `Failures`**, never written out.
   - **A reason one card family throws carries its prefix** (`gist_`, `org_`, `org_activity_`,
     `repo_`, `stats_`, `wakatime_`); a shared one keeps a plain name.
 - **Throw by reason, `CardError.because(reason, …data)`, and test on `reason`, not text.** The
-  constructor is `private`; `from` and `fromGraphQL` are the only other builders.
+  constructor is `private`; `from` is the only other builder, and `fromGraphQL` words a GraphQL
+  reply's errors through `because`.
 - **A failure is `reportable` unless it declares otherwise**, which decides the error card's report
   line: off for a spent rate limit, upstream's outage, a missing param (whose card links the docs)
   and whatever `from` wraps. A `not_found` is never reportable, whatever it declares: the

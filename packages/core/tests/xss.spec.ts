@@ -1,6 +1,6 @@
+import type { ApiResult } from '@stats-forge/card-kit';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ApiResult } from '../src/api/api-result.ts';
 import { gist } from '../src/api/gist.ts';
 import { pin } from '../src/api/pin.ts';
 import { stats } from '../src/api/stats.ts';

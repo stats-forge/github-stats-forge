@@ -1,17 +1,29 @@
-import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
-import { Card } from '../../common/Card.ts';
-import { HEAT_PAINT, getLightDarkColors, isPrefixedHexColor } from '../../common/color.ts';
-import { formatDecimal } from '../../common/fmt.ts';
+import {
+  CARD_STYLE,
+  Card,
+  HEAT_PAINT,
+  atRule,
+  clampValue,
+  compactColumnWidth,
+  createProgressNode,
+  el,
+  firefoxFontSize,
+  flexLayout,
+  font,
+  formatDecimal,
+  getLightDarkColors,
+  isPrefixedHexColor,
+  localize,
+  measureText,
+  rule,
+} from '@stats-forge/card-kit';
+import type { Child, CssChild, Locale, MarkupElement } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
 import { getLanguageColor } from '../../common/languageColors.ts';
 import { commonLocales } from '../../common/locales.ts';
-import type { Locale } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
-import { clampValue, lowercaseTrim } from '../../common/ops.ts';
-import { compactColumnWidth, createProgressNode, flexLayout } from '../../common/render.ts';
-import { measureText } from '../../common/text.ts';
+import { lowercaseTrim } from '../../common/ops.ts';
 import type { WakaTimeData, WakaTimeLang } from '../../fetchers/wakatime/types.ts';
-import type { Child, CssChild, MarkupElement } from '../../markup/index.ts';
-import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { wakatimeCardLocales } from './locales.ts';

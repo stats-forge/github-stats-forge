@@ -3,9 +3,9 @@
  * any request reaches GitHub, and every card has to declare which of its params is the identity.
  */
 
+import type { ApiResult } from '@stats-forge/card-kit';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import type { ApiResult } from '../src/api/api-result.ts';
 import { contributedTo } from '../src/api/contributed-to.ts';
 import { gist } from '../src/api/gist.ts';
 import * as api from '../src/api/index.ts';

@@ -1,4 +1,4 @@
-import { defineLocales } from './localize.ts';
+import { defineLocales } from '@stats-forge/card-kit';
 
 /**
  * The wordings more than one card draws, in the locales they have been translated into.

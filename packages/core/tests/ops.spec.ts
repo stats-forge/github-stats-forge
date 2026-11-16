@@ -1,13 +1,7 @@
+import { clampValue, parseArray } from '@stats-forge/card-kit';
 import { describe, expect, it } from 'vitest';
 
-import {
-  chunkArray,
-  clampValue,
-  excludes,
-  lowercaseTrim,
-  parseArray,
-  parseEmojis,
-} from '../src/common/ops.ts';
+import { chunkArray, excludes, lowercaseTrim, parseEmojis } from '../src/common/ops.ts';
 
 describe('common/ops', () => {
   it('should match an excluded repository by owner/name or by name, ignoring case', () => {

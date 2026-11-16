@@ -1,15 +1,25 @@
-import { CARD_ICON, CARD_STYLE, firefoxFontSize, font } from '../../common/brand.ts';
-import { Card, titleFits } from '../../common/Card.ts';
-import { HEAT_PAINT, getLightDarkColors } from '../../common/color.ts';
+import {
+  CARD_STYLE,
+  Card,
+  HEAT_PAINT,
+  atRule,
+  clampValue,
+  countFormatter,
+  createProgressNode,
+  el,
+  firefoxFontSize,
+  font,
+  getLightDarkColors,
+  localize,
+  measureText,
+  rule,
+  titleFits,
+} from '@stats-forge/card-kit';
+import type { Child, CssChild, Locale, Localized } from '@stats-forge/card-kit';
+
+import { CARD_ICON } from '../../common/brand.ts';
 import { formatYears } from '../../common/date.ts';
-import type { Locale, Localized } from '../../common/localize.ts';
-import { localize } from '../../common/localize.ts';
-import { clampValue } from '../../common/ops.ts';
-import { countFormatter, createProgressNode } from '../../common/render.ts';
-import { measureText } from '../../common/text.ts';
 import type { ContributedRepo, ContributedToData } from '../../fetchers/contributed-to/types.ts';
-import type { Child, CssChild } from '../../markup/index.ts';
-import { atRule, el, rule } from '../../markup/index.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { contributedToCardLocales } from './locales.ts';

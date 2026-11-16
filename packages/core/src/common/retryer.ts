@@ -1,6 +1,8 @@
+import type { HttpResponse } from '@stats-forge/card-kit';
+
 import type { CardConfig } from './config.ts';
 import { CardError } from './error.ts';
-import type { FetcherContext, HttpResponse } from './http.ts';
+import type { FetcherContext } from './http.ts';
 
 /**
  * Error-detection fields the retryer inspects to detect rate-limiting and credential failures.
