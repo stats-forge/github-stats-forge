@@ -51,7 +51,7 @@ the prompt, which hides what you type.
 | Flag                | What it does                                                                                                    |
 | ------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `-c, --card <id>`   | Skip the first prompt: `stats`, `top-langs`, `pin`, `org`, `org-activity`, `contributed-to`, `gist`, `wakatime` |
-| `-o, --out <file>`  | Where to write the SVG; the default is named after the card and its subject                                     |
+| `-o, --out <file>`  | Where to write the SVG, creating its folders; the default is named after the card and its subject               |
 | `--config <file>`   | A saved card to load, and where "Save these options" writes                                                     |
 | `--options <query>` | Options as a query string, layered over `--config`                                                              |
 | `-g, --generate`    | Render what `--config` holds and exit, without opening the menu                                                 |
