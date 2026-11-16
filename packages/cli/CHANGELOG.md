@@ -1,5 +1,28 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.8.0
+
+### Minor Changes
+
+- [#436](https://github.com/stats-forge/github-stats-forge/pull/436) [`722e68d`](https://github.com/stats-forge/github-stats-forge/commit/722e68df37ecbff996d1acaa131c4b8e5d493874) - feat: `--check` renders a saved card and fails when `--out` differs, writing nothing
+
+- [#453](https://github.com/stats-forge/github-stats-forge/pull/453) [`92d581d`](https://github.com/stats-forge/github-stats-forge/commit/92d581dd5e6c176051ca1b992817f1525249ec43) - feat: fall back to `GH_TOKEN`, then `GITHUB_TOKEN`, when no `PAT_n` variable holds a token
+
+- [#451](https://github.com/stats-forge/github-stats-forge/pull/451) [`a524f08`](https://github.com/stats-forge/github-stats-forge/commit/a524f083e329e95a62df3d7d025d25a23e1a0820) - feat: exit 75 rather than 1 when a card failed in a way a later run may not repeat, such as a rate limit
+
+- [#454](https://github.com/stats-forge/github-stats-forge/pull/454) [`eb125eb`](https://github.com/stats-forge/github-stats-forge/commit/eb125ebf81f7d88d88aec17b638fd458f0f79da1) - feat: add `CardConfig`'s `githubApiUrl`, read from `GITHUB_API_URL`, to draw the cards from a GitHub Enterprise Server
+
+### Patch Changes
+
+- [#452](https://github.com/stats-forge/github-stats-forge/pull/452) [`ec8dfaa`](https://github.com/stats-forge/github-stats-forge/commit/ec8dfaa6730e388bb9e999d13c258c060417df70) - fix: create the folders `--out` and a saved card's path name, rather than failing on a folder that is not there yet
+
+- [#450](https://github.com/stats-forge/github-stats-forge/pull/450) [`e877a1a`](https://github.com/stats-forge/github-stats-forge/commit/e877a1aa2958bd84b3822f12daa53d509d752730) - feat: add `CardConfig`'s `logger`, taking the diagnostics core wrote to `console`; the server logs them as JSON lines and the CLI on stderr
+
+- [#459](https://github.com/stats-forge/github-stats-forge/pull/459) [`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a) - fix: rename the source export condition to `@github-stats-forge/source`, so another workspace's `@stats/source` no longer loads TypeScript from `node_modules`
+- Updated dependencies [[`f1bc518`](https://github.com/stats-forge/github-stats-forge/commit/f1bc5185df571fe1c593c4f43be56d6ed1637878), [`e877a1a`](https://github.com/stats-forge/github-stats-forge/commit/e877a1aa2958bd84b3822f12daa53d509d752730), [`eb125eb`](https://github.com/stats-forge/github-stats-forge/commit/eb125ebf81f7d88d88aec17b638fd458f0f79da1), [`9d3dce9`](https://github.com/stats-forge/github-stats-forge/commit/9d3dce962ce277f6a6b4d9102c36d26a55f0745a), [`7a32f88`](https://github.com/stats-forge/github-stats-forge/commit/7a32f882298b0dfd5af68bf7d8ccfea48fb89d06), [`6317c5b`](https://github.com/stats-forge/github-stats-forge/commit/6317c5b342a470ceeceff9bd5b43561f097e5ba1)]:
+  - @stats-forge/github-stats-forge-core@0.16.0
+  - @stats-forge/github-stats-forge-catalog@0.6.0
+
 ## 0.7.2
 
 ### Patch Changes
