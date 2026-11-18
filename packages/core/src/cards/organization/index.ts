@@ -196,7 +196,8 @@ const renderCard = (
     },
   };
 
-  if (shows('releases')) {
+  // `null` is a total the fetch was not asked for, which the api always asks for when drawn.
+  if (shows('releases') && totalReleases !== null) {
     STATS['releases'] = {
       icon: icons.tag,
       label: t.releases(),
@@ -204,7 +205,7 @@ const renderCard = (
       id: 'releases',
     };
   }
-  if (shows('commits')) {
+  if (shows('commits') && totalCommits !== null) {
     STATS['commits'] = {
       icon: icons.commits,
       label: t.commits(),

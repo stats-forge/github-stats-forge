@@ -17,12 +17,14 @@ export interface OrganizationData {
   totalWatchers: number;
   openIssues: number;
   openPRs: number;
-  totalReleases: number;
+  /** `null` unless the fetch was asked to count them. */
+  totalReleases: number | null;
   /**
    * Commits on the default branch of every repository counted: every author, merges included,
    * and whatever history a repository was imported with.
+   * `null` unless the fetch was asked to count them.
    */
-  totalCommits: number;
+  totalCommits: number | null;
   /**
    * Members GitHub shows publicly.
    * Membership is private by default, so this counts fewer people than the organization has.

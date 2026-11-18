@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { org as orgApi } from '../src/api/organization.ts';
 import { CardError } from '../src/common/error.ts';
 import { fetchOrganization } from '../src/fetchers/organization/index.ts';
 import type {
@@ -103,6 +104,14 @@ const repo = ({
 });
 
 const mock = new FetchMock();
+
+/**
+ * @returns The variables the walk sent with its request at `index`.
+ */
+const sentVariables = (index: number): unknown => {
+  const body = mock.history.post[index]?.data;
+  return typeof body === 'string' ? (JSON.parse(body) as { variables: unknown }).variables : null;
+};
 const config = testConfig.with({ fetch: mock.fetch });
 
 afterEach(() => {
@@ -141,7 +150,12 @@ describe(fetchOrganization, () => {
       }),
     );
 
-    await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toStrictEqual({
+    await expect(
+      fetchOrganization(
+        { org: 'vitest-dev', include_releases: true, include_commits: true },
+        config,
+      ),
+    ).resolves.toStrictEqual({
       login: 'vitest-dev',
       name: 'Vitest',
       description: 'A blazing fast unit test framework',
@@ -165,9 +179,28 @@ describe(fetchOrganization, () => {
       .onPost(GRAPHQL)
       .reply(200, page({ repos: [repo({ commits: null }), repo({ commits: 12 })] }));
 
-    await expect(fetchOrganization({ org: 'vitest-dev' }, config)).resolves.toMatchObject({
-      totalCommits: 12,
-    });
+    await expect(
+      fetchOrganization({ org: 'vitest-dev', include_commits: true }, config),
+    ).resolves.toMatchObject({ totalCommits: 12 });
+  });
+
+  it('asks for neither releases nor commits unless told to count them', async () => {
+    mock.onPost(GRAPHQL).reply(200, page({ repos: [repo({ stars: 3 })] }));
+
+    const data = await fetchOrganization({ org: 'vitest-dev' }, config);
+
+    expect(data.totalReleases).toBeNull();
+    expect(data.totalCommits).toBeNull();
+    expect(sentVariables(0)).toMatchObject({ first: 50, withReleases: false, withCommits: false });
+  });
+
+  it('asks for smaller pages when it counts releases or commits', async () => {
+    mock.onPost(GRAPHQL).reply(200, page({ repos: [repo({ releases: 2 })] }));
+
+    await expect(
+      fetchOrganization({ org: 'vitest-dev', include_releases: true }, config),
+    ).resolves.toMatchObject({ totalReleases: 2, totalCommits: null });
+    expect(sentVariables(0)).toMatchObject({ first: 10, withReleases: true, withCommits: false });
   });
 
   it('follows the cursor while there are more repositories', async () => {
@@ -197,23 +230,29 @@ describe(fetchOrganization, () => {
     expect(mock.history.post[1]?.data).toContain('cursor-1');
   });
 
-  it('reports totals as truncated when the walk hits its page cap', async () => {
-    mock.onPost(GRAPHQL).reply(
-      200,
-      page({
-        repos: [repo({ stars: 10, forks: 1 })],
-        hasNextPage: true,
-        endCursor: 'cursor-n',
-        totalCount: 900,
-      }),
-    );
+  it.each([
+    ['500 repositories', {}, 50, 10],
+    ['50 repositories when it counts commits', { include_commits: true }, 10, 5],
+  ])(
+    'reports totals as truncated when the walk stops at %s',
+    async (_cap, flags, pageSize, requests) => {
+      mock.onPost(GRAPHQL).reply(
+        200,
+        page({
+          repos: Array.from({ length: pageSize }, () => repo({ stars: 10 })),
+          hasNextPage: true,
+          endCursor: 'cursor-n',
+          totalCount: 900,
+        }),
+      );
 
-    const data = await fetchOrganization({ org: 'vitest-dev' }, config);
+      const data = await fetchOrganization({ org: 'vitest-dev', ...flags }, config);
 
-    expect(data.truncated).toBe(true);
-    expect(data.totalStars).toBe(50);
-    expect(mock.history.post).toHaveLength(5);
-  });
+      expect(data.truncated).toBe(true);
+      expect(data.totalStars).toBe(10 * pageSize * requests);
+      expect(mock.history.post).toHaveLength(requests);
+    },
+  );
 
   it('has no top language when no repository names one', async () => {
     mock.onPost(GRAPHQL).reply(200, page({ repos: [repo({ stars: 1, language: null })] }));
@@ -296,4 +335,23 @@ describe(fetchOrganization, () => {
       param: 'org',
     });
   });
+});
+
+describe('the organization endpoint', () => {
+  it.each([
+    { show: undefined, hide: undefined, withReleases: false, withCommits: false },
+    { show: 'releases', hide: undefined, withReleases: true, withCommits: false },
+    { show: 'commits', hide: undefined, withReleases: false, withCommits: true },
+    { show: 'releases,commits', hide: 'releases', withReleases: false, withCommits: true },
+  ])(
+    'counts releases and commits only when it draws them (show $show, hide $hide)',
+    async ({ show, hide, withReleases, withCommits }) => {
+      mock.onPost(GRAPHQL).reply(200, page({ repos: [repo()] }));
+
+      const result = await orgApi({ org: 'vitest-dev', show, hide }, config);
+
+      expect(result.status).toBe('success');
+      expect(sentVariables(0)).toMatchObject({ withReleases, withCommits });
+    },
+  );
 });

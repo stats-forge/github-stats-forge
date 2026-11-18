@@ -17,12 +17,16 @@ const fetcher = createGraphQLFetcher(GetOrganizationDocument);
 const urlExample = '/api/org?org=ORG_NAME';
 
 /**
- * Pages of repositories the walk asks for, 100 each.
- * Named in the doc comments below as the number it is, so the constant stays internal.
- * The totals are sums over what it saw and the repositories arrive most-starred first,
- * so the cap costs an organization past it the tail of its list rather than its headline figures.
+ * How many repositories a page asks for, and how many the walk reads at most.
+ * GitHub gives up on a request after about ten seconds, and releases and commits cost it roughly
+ * a third of a second per large repository, so a walk counting them reads fewer, in smaller pages.
+ * The repositories arrive most-starred first, so a cap costs the tail of the list
+ * rather than the headline figures.
  */
-const MAX_REPO_PAGES = 5;
+const WALK = {
+  light: { pageSize: 50, maxRepos: 500 },
+  heavy: { pageSize: 10, maxRepos: 50 },
+} as const;
 
 /** The organization as the query returns it, once it has resolved. */
 type Organization = NonNullable<GetOrganizationQuery['organization']>;
@@ -73,8 +77,8 @@ const onlyMembersForbidden = (
 /**
  * Fetch an organization and the totals of its public repositories.
  *
- * Only public, non-fork repositories are counted, most-starred first,
- * and at most five pages of 100 — `truncated` says when the walk stopped early.
+ * Only public, non-fork repositories are counted, most-starred first: at most 500,
+ * or 50 when releases or commits are counted — `truncated` says when the walk stopped early.
  *
  * @returns The organization data.
  */
@@ -82,6 +86,8 @@ const fetchOrganization = async (
   {
     org,
     require_members = false,
+    include_releases = false,
+    include_commits = false,
   }: {
     org: string | undefined;
     /**
@@ -90,6 +96,10 @@ const fetchOrganization = async (
      * to be told; without it a refusal is the operator's business and not the caller's.
      */
     require_members?: boolean | undefined;
+    /** Whether to count releases, which costs GitHub enough to shrink the walk. */
+    include_releases?: boolean | undefined;
+    /** Whether to count default-branch commits, which costs GitHub enough to shrink the walk. */
+    include_commits?: boolean | undefined;
   },
   config: CardConfig,
 ): Promise<OrganizationData> => {
@@ -105,14 +115,20 @@ const fetchOrganization = async (
   let organization: Organization | undefined;
   let publicMembers: number | null;
   let after: string | null = null;
-  let pages = 0;
   let membersForbidden = false;
+  const { pageSize, maxRepos } = include_releases || include_commits ? WALK.heavy : WALK.light;
 
   do {
     // Annotated because the walk feeds its own cursor back in, which TypeScript reads as circular.
     const res: GraphQLResponse<GetOrganizationQuery> = await retryer(
       fetcher,
-      { login: org, after },
+      {
+        login: org,
+        after,
+        first: pageSize,
+        withReleases: include_releases,
+        withCommits: include_commits,
+      },
       config,
     );
     if (res.data.errors) {
@@ -145,8 +161,7 @@ const fetchOrganization = async (
     repos.push(...(organization.repositories.nodes ?? []).filter((node) => node !== null));
     const { hasNextPage, endCursor } = organization.repositories.pageInfo;
     after = hasNextPage ? endCursor : null;
-    pages += 1;
-  } while (after !== null && pages < MAX_REPO_PAGES);
+  } while (after !== null && repos.length < maxRepos);
 
   const sum = (count: (repo: OrgRepoInfoFragment) => number): number =>
     repos.reduce((total, repo) => total + count(repo), 0);
@@ -162,14 +177,16 @@ const fetchOrganization = async (
     totalWatchers: sum((repo) => repo.watchers.totalCount),
     openIssues: sum((repo) => repo.issues.totalCount),
     openPRs: sum((repo) => repo.pullRequests.totalCount),
-    totalReleases: sum((repo) => repo.releases.totalCount),
+    totalReleases: include_releases ? sum((repo) => repo.releases?.totalCount ?? 0) : null,
     // An empty repository has no default branch, and a branch pointing at a tag has no history.
-    totalCommits: sum((repo) => {
-      const target = repo.defaultBranchRef?.target;
-      return target !== null && target !== undefined && 'history' in target
-        ? target.history.totalCount
-        : 0;
-    }),
+    totalCommits: include_commits
+      ? sum((repo) => {
+          const target = repo.defaultBranchRef?.target;
+          return target !== null && target !== undefined && 'history' in target
+            ? target.history.totalCount
+            : 0;
+        })
+      : null,
     publicMembers,
     topLanguage: topLanguage(repos),
     truncated: after !== null,

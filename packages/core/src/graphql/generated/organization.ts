@@ -10,8 +10,8 @@ export type OrgRepoInfoFragment = {
   watchers: { totalCount: number };
   issues: { totalCount: number };
   pullRequests: { totalCount: number };
-  releases: { totalCount: number };
-  defaultBranchRef: {
+  releases?: { totalCount: number };
+  defaultBranchRef?: {
     target: { history: { totalCount: number } } | Record<PropertyKey, never> | null;
   } | null;
 };
@@ -19,6 +19,9 @@ export type OrgRepoInfoFragment = {
 export type GetOrganizationQueryVariables = Exact<{
   login: string;
   after?: string | null | undefined;
+  first: number;
+  withReleases: boolean;
+  withCommits: boolean;
 }>;
 
 export type GetOrganizationQuery = {
@@ -37,8 +40,8 @@ export type GetOrganizationQuery = {
         watchers: { totalCount: number };
         issues: { totalCount: number };
         pullRequests: { totalCount: number };
-        releases: { totalCount: number };
-        defaultBranchRef: {
+        releases?: { totalCount: number };
+        defaultBranchRef?: {
           target: { history: { totalCount: number } } | Record<PropertyKey, never> | null;
         } | null;
       } | null> | null;
@@ -51,14 +54,14 @@ export const GetOrganizationDocument = graphqlDocument<
   GetOrganizationQuery,
   GetOrganizationQueryVariables
 >(`
-query getOrganization($login: String!, $after: String) {
+query getOrganization($login: String!, $after: String, $first: Int!, $withReleases: Boolean!, $withCommits: Boolean!) {
   organization(login: $login) {
     login
     name
     description
     createdAt
     repositories(
-      first: 100
+      first: $first
       after: $after
       privacy: PUBLIC
       isFork: false
@@ -96,10 +99,10 @@ fragment OrgRepoInfo on Repository {
   pullRequests(states: OPEN) {
     totalCount
   }
-  releases {
+  releases @include(if: $withReleases) {
     totalCount
   }
-  defaultBranchRef {
+  defaultBranchRef @include(if: $withCommits) {
     target {
       ... on Commit {
         history {
