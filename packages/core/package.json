@@ -87,8 +87,8 @@
   },
   "devDependencies": {
     "@graphql-codegen/core": "7.0.0",
-    "@graphql-codegen/typescript": "7.0.0",
-    "@graphql-codegen/typescript-operations": "7.0.0",
+    "@graphql-codegen/typescript": "7.0.1",
+    "@graphql-codegen/typescript-operations": "7.0.1",
     "@octokit/graphql-schema": "15.26.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
