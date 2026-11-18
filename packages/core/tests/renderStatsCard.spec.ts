@@ -9,12 +9,12 @@ import { themes } from '../src/themes/index.ts';
 import { cssValue, draw, drawnIds, exactly, translateOf, heatStop, xOf } from './_card.ts';
 
 // No locale translates the percentile header yet, so one is added to see the ring read it from the table.
-vi.mock(import('../src/cards/stats/locales.ts'), async (importOriginal) => {
-  const { statCardLocales } = await importOriginal();
+vi.mock(import('../src/common/locales.ts'), async (importOriginal) => {
+  const { commonLocales } = await importOriginal();
   return {
-    statCardLocales: {
-      ...statCardLocales,
-      fr: { ...statCardLocales.fr, percentileHeader: 'Haut' },
+    commonLocales: {
+      ...commonLocales,
+      fr: { ...commonLocales.fr, percentileHeader: 'Haut' },
     },
   };
 });

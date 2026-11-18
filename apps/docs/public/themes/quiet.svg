@@ -37,18 +37,6 @@
     .stagger {
       animation: fadeInAnimation 0.3s ease-in-out backwards;
     }
-    .rank-text {
-      font: 700 22px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-      fill: #2f80ed;
-      transform: translate(-5px, 5px);
-      animation: scaleInAnimation 0.3s ease-in-out backwards;
-    }
-    .rank-percentile-header {
-      font-size: 14px;
-    }
-    .rank-percentile-text {
-      font-size: 16px;
-    }
     /* Labels recede so that the values read first. */
     .not_bold {
       font-weight: 400;
@@ -61,6 +49,18 @@
       fill: #2f80ed;
       opacity: 0.75;
       display: block;
+    }
+    .rank-text {
+      font: 700 22px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
+      fill: #2f80ed;
+      transform: translate(-5px, 5px);
+      animation: scaleInAnimation 0.3s ease-in-out backwards;
+    }
+    .rank-percentile-header {
+      font-size: 14px;
+    }
+    .rank-percentile-text {
+      font-size: 16px;
     }
     .rank-circle-rim {
       stroke: #434d58;
@@ -150,10 +150,10 @@
       .stat {
         fill: #d8dee9;
       }
-      .rank-text {
+      .icon {
         fill: #81a1c1;
       }
-      .icon {
+      .rank-text {
         fill: #81a1c1;
       }
       .rank-circle-rim {

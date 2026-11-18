@@ -225,7 +225,7 @@ const CARDS: ReadonlyArray<CardSpec> = [
   },
   {
     id: 'org',
-    label: 'Organization — an organization and the totals of its public repositories',
+    label: 'Organization — an organization, the totals of its public repositories and a rank',
     needsToken: true,
     required: [{ name: 'org', label: 'GitHub organization' }],
     options: [
@@ -233,6 +233,8 @@ const CARDS: ReadonlyArray<CardSpec> = [
       { name: 'hide', label: 'Stats to hide', group: 'display' },
       { name: 'show_icons', label: 'Show the stat icons', group: 'display' },
       { name: 'hide_description', label: "Hide the organization's description", group: 'display' },
+      { name: 'hide_rank', label: 'Hide the rank circle', group: 'display' },
+      { name: 'rank_icon', label: 'Rank indicator', group: 'display' },
       { name: 'title', label: 'Card title', group: 'text' },
       { name: 'hide_title', label: 'Hide the title', group: 'text' },
       { name: 'card_width', label: 'Card width', group: 'text' },
