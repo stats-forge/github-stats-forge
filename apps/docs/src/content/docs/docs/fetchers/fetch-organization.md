@@ -15,11 +15,14 @@ organization — is a `not_found`.
 
 ## What it walks
 
-One request reads the organization and 100 of its public, non-fork repositories, most-starred
-first; the walk follows the cursor for up to five of those pages. Every total but `publicRepos` is
-a sum over the repositories it saw — stars, forks, watchers, open issues, open pull requests,
-releases and default-branch commits — and `truncated` says whether it saw them all.
-`publicRepos` is GitHub's own count either way.
+One request reads the organization and 50 of its public, non-fork repositories, most-starred
+first; the walk follows the cursor up to 500 repositories. Every total but `publicRepos` is a sum
+over the repositories it saw — stars, forks, watchers, open issues and open pull requests — and
+`truncated` says whether it saw them all. `publicRepos` is GitHub's own count either way.
 
-A page costs one point of the GraphQL rate limit whichever of those figures a card ends up
-drawing: the counts ride on the repositories the walk was already reading.
+Releases and default-branch commits are counted only under `include_releases` and
+`include_commits`, and are `null` otherwise. GitHub spends about a third of a second counting them
+on a large repository and gives up on a request after about ten, so a walk counting either reads 10
+repositories a page and stops at 50.
+
+Each page costs one point of the GraphQL rate limit.

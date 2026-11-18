@@ -46,9 +46,10 @@ Every total but the repository count is summed over the organization's **public,
 repositories**, and the repository count is those same repositories —
 a private repository is invisible to the card whether or not the token can see it.
 
-Only the first 500 of them are read, most-starred first.
+Only the first 500 of them are read, most-starred first — or the first 50 when the card shows
+releases or commits, which GitHub takes long enough to count that more would time out.
 An organization with more gets its summed totals written as `18.7k+`:
-a lower bound, since the repositories past the 500th are the least-starred ones.
+a lower bound, since the repositories past the cap are the least-starred ones.
 The repository count is GitHub's own, so it is never short.
 
 Three of them need spelling out:

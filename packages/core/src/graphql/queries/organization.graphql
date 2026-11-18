@@ -14,10 +14,10 @@ fragment OrgRepoInfo on Repository {
   pullRequests(states: OPEN) {
     totalCount
   }
-  releases {
+  releases @include(if: $withReleases) {
     totalCount
   }
-  defaultBranchRef {
+  defaultBranchRef @include(if: $withCommits) {
     target {
       ... on Commit {
         history {
@@ -28,14 +28,20 @@ fragment OrgRepoInfo on Repository {
   }
 }
 
-query getOrganization($login: String!, $after: String) {
+query getOrganization(
+  $login: String!
+  $after: String
+  $first: Int!
+  $withReleases: Boolean!
+  $withCommits: Boolean!
+) {
   organization(login: $login) {
     login
     name
     description
     createdAt
     repositories(
-      first: 100
+      first: $first
       after: $after
       privacy: PUBLIC
       isFork: false

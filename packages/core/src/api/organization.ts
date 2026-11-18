@@ -45,7 +45,12 @@ const renderOrg = cardHandler(orgQuery, { org: 'username' }, async (params, them
   // the member count is the one stat a token can be refused, so only a query asking for
   // it is told: `show=members` is what turns that refusal into an error card
   const organizationData = await fetchOrganization(
-    { org, require_members: drawn.has('members') },
+    {
+      org,
+      require_members: drawn.has('members'),
+      include_releases: drawn.has('releases'),
+      include_commits: drawn.has('commits'),
+    },
     config,
   );
   return renderOrganizationCard(organizationData, { ...params, ...theme });
