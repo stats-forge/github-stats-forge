@@ -17,6 +17,9 @@ const orgCardLocales = defineLocales({
     topLanguage: 'Top language',
     created: 'Created',
     unspecifiedLanguage: 'Unspecified',
+    // The title an assistive reader gets in place of the card's own, whose inner text
+    // `role="img"` hides.
+    accessibilityTitle: '{title}, Rank: {level}',
   },
 });
 

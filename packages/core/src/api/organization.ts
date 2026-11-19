@@ -2,6 +2,7 @@ import {
   booleanParam,
   commonParams,
   enumListParam,
+  enumParam,
   intParam,
   statRowParams,
   titleParams,
@@ -30,6 +31,8 @@ const orgQuery = z.object({
   show: enumListParam(STATS, renderOrganizationCard.OPTIONS.show),
   hide_description: booleanParam,
   card_width: intParam({ px: true }),
+  hide_rank: booleanParam,
+  rank_icon: enumParam(renderOrganizationCard.OPTIONS.rank_icon),
 });
 
 /**

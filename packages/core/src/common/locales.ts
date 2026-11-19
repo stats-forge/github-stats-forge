@@ -9,6 +9,8 @@ import { defineLocales } from '@stats-forge/card-kit';
 const commonLocales = defineLocales({
   en: {
     lastYear: 'last year',
+    // Drawn above the percentile on the rank ring, as in "Top 12.5%".
+    percentileHeader: 'Top',
   },
   ar: {
     lastYear: 'العام الماضي',

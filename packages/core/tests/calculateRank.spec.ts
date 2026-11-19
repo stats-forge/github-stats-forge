@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { calculateRank } from '../src/calculateRank.ts';
+import { calculateOrgRank, calculateRank } from '../src/calculateRank.ts';
 
 import { approxNumber } from './utils.ts';
 
@@ -74,4 +74,36 @@ describe(calculateRank, () => {
       });
     },
   );
+});
+
+describe(calculateOrgRank, () => {
+  const EMPTY: Parameters<typeof calculateOrgRank>[0] = { stars: 0, forks: 0, repos: 0 };
+
+  it.each([
+    ['an empty organization', {}, 'C', 100],
+    ['the median organization', { stars: 1000, forks: 200, repos: 20 }, 'B+', 50],
+    [
+      'a large organization',
+      { stars: 100_000, forks: 20_000, repos: 50 },
+      'A+',
+      3.3740376555813745,
+    ],
+  ] satisfies Array<[string, Partial<Parameters<typeof calculateOrgRank>[0]>, string, number]>)(
+    'ranks %s',
+    (_what, totals, level, percentile) => {
+      expect(calculateOrgRank({ ...EMPTY, ...totals })).toStrictEqual({
+        level,
+        percentile: approxNumber(percentile),
+      });
+    },
+  );
+
+  it('ranks higher with every total that grows', () => {
+    const median = { stars: 1000, forks: 200, repos: 20 };
+    const base = calculateOrgRank(median).percentile;
+
+    for (const key of Object.keys(median) as Array<keyof typeof median>) {
+      expect(calculateOrgRank({ ...median, [key]: median[key] * 2 }).percentile).toBeLessThan(base);
+    }
+  });
 });

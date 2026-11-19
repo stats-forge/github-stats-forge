@@ -18,6 +18,23 @@ function log_normal_cdf(x: number): number {
 }
 
 /**
+ * Maps a rank, where 0 is the best and 1 the worst, onto a level.
+ *
+ * @returns The level and the rank as a percentile.
+ */
+function toLevel(rank: number): { level: string; percentile: number } {
+  const THRESHOLDS = [1, 12.5, 25, 37.5, 50, 62.5, 75, 87.5, 100];
+  const LEVELS = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'];
+
+  const level = LEVELS[THRESHOLDS.findIndex((t) => rank * 100 <= t)];
+  if (level === undefined) {
+    throw new Error('Unable to determine rank level');
+  }
+
+  return { level, percentile: rank * 100 };
+}
+
+/**
  * Calculates the users rank.
  *
  * @returns The users rank.
@@ -56,9 +73,6 @@ function calculateRank({
   const TOTAL_WEIGHT =
     COMMITS_WEIGHT + PRS_WEIGHT + ISSUES_WEIGHT + REVIEWS_WEIGHT + STARS_WEIGHT + FOLLOWERS_WEIGHT;
 
-  const THRESHOLDS = [1, 12.5, 25, 37.5, 50, 62.5, 75, 87.5, 100];
-  const LEVELS = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'];
-
   const rank =
     1 -
     (COMMITS_WEIGHT * exponential_cdf(commits / COMMITS_MEDIAN) +
@@ -69,12 +83,41 @@ function calculateRank({
       FOLLOWERS_WEIGHT * log_normal_cdf(followers / FOLLOWERS_MEDIAN)) /
       TOTAL_WEIGHT;
 
-  const level = LEVELS[THRESHOLDS.findIndex((t) => rank * 100 <= t)];
-  if (level === undefined) {
-    throw new Error('Unable to determine rank level');
-  }
-
-  return { level, percentile: rank * 100 };
+  return toLevel(rank);
 }
 
-export { calculateRank };
+/**
+ * Calculates an organization's rank from the totals of its public repositories.
+ * Releases and commits are left out: GitHub counts them too slowly for a card drawn by default.
+ *
+ * @returns The organization's rank.
+ */
+function calculateOrgRank({
+  stars,
+  forks,
+  repos,
+}: {
+  stars: number;
+  forks: number;
+  repos: number;
+}): { level: string; percentile: number } {
+  const STARS_MEDIAN = 1000;
+  const STARS_WEIGHT = 4;
+  const FORKS_MEDIAN = 200;
+  const FORKS_WEIGHT = 2;
+  const REPOS_MEDIAN = 20;
+  const REPOS_WEIGHT = 1;
+
+  const TOTAL_WEIGHT = STARS_WEIGHT + FORKS_WEIGHT + REPOS_WEIGHT;
+
+  const rank =
+    1 -
+    (STARS_WEIGHT * log_normal_cdf(stars / STARS_MEDIAN) +
+      FORKS_WEIGHT * log_normal_cdf(forks / FORKS_MEDIAN) +
+      REPOS_WEIGHT * exponential_cdf(repos / REPOS_MEDIAN)) /
+      TOTAL_WEIGHT;
+
+  return toLevel(rank);
+}
+
+export { calculateOrgRank, calculateRank };

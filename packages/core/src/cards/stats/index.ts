@@ -9,7 +9,6 @@ import {
   flexLayout,
   formatDecimal,
   getLightDarkColors,
-  glowingCircle,
   localize,
   measureText,
 } from '@stats-forge/card-kit';
@@ -18,11 +17,12 @@ import type { CssChild, Locale, NumberFormat } from '@stats-forge/card-kit';
 import { CARD_ICON } from '../../common/brand.ts';
 import { CardError } from '../../common/error.ts';
 import { commonLocales } from '../../common/locales.ts';
+import { RANK_GUTTER, RANK_ICONS, rankRing } from '../../common/rankRing.ts';
+import type { RankIcon } from '../../common/rankRing.ts';
 import type { StatsData } from '../../fetchers/stats/types.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { statCardLocales } from './locales.ts';
-import { rankIcon } from './rankIcon.ts';
 import {
   getTotalCommitsRangeLabel,
   HIDE_STATS,
@@ -30,7 +30,7 @@ import {
   SHOW_STATS,
   statRows,
 } from './rows.ts';
-import { RANK_RING, getStyles } from './styles.ts';
+import { getStyles } from './styles.ts';
 
 const CARD_MIN_WIDTH = 287;
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.compact;
@@ -41,28 +41,12 @@ const COLUMNS_CARD_DEFAULT_WIDTH = CARD_STYLE.width.broad;
 const STAT_FONT_SIZE = CARD_STYLE.fontSize.body;
 /** How far a stat row is translated into the card; see `createTextNode`. */
 const STAT_ROW_X = CARD_STYLE.padding.x;
-/** Room the rank ring needs at the right edge, so a value never runs into it. */
-const RANK_GUTTER = 120;
 /** Between one column's values and the next column's labels. */
 const COLUMN_GAP = 24;
-/** The ring's own `cx`, which its group's translation has to make up for. */
-const RANK_CIRCLE_CX_OFFSET = 10;
-/** Where each spark leaves the ring's foot, as `[dx, dy, delay in s]`; uneven, so they read as embers. */
-const SPARKS: ReadonlyArray<readonly [number, number, number]> = [
-  [-26, -6, 0],
-  [-10, 0, 1.1],
-  [4, -4, 2.2],
-  [18, 2, 0.6],
-  [30, -8, 1.7],
-];
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
 const LABEL_X_OFFSET = 25;
 /** Smallest gap kept between the longest label and its value. */
 const LABEL_VALUE_GAP = 16;
-
-/** Rank indicators the card can draw; the api validates `rank_icon` against this. */
-const RANK_ICONS = ['default', 'github', 'percentile'] as const;
-type RankIcon = (typeof RANK_ICONS)[number];
 
 /** How the rows are laid out: one column, or two side by side for a card with many. */
 const STATS_LAYOUTS = ['normal', 'columns'] as const;
@@ -264,59 +248,24 @@ const renderCard = (stats: StatsData, options: CardOptions<StatCardOptions> = {}
       }),
   });
 
-  /**
-   * The ring sits halfway between where the values stop and the card's own edge, which is
-   * the space actually visible around it; a rank-only card has no values, so it centres.
-   *
-   * @returns Rank circle translation value.
-   */
-  const calculateRankXTranslation = (): number => {
-    const center = visibleStats.length > 0 ? (rowsEnd + STAT_ROW_X + width) / 2 : width / 2;
-    return center + RANK_CIRCLE_CX_OFFSET;
-  };
+  // The ring sits halfway between where the values stop and the card's edge; alone, it centres.
+  const ringX = visibleStats.length > 0 ? (rowsEnd + STAT_ROW_X + width) / 2 : width / 2;
 
   // The middle of the room the rows fill, so the ring centres on them rather than on the title too.
   const bodyMiddle = (height - CARD_STYLE.padding.bodyOffsetY - CARD_STYLE.padding.bottom) / 2;
 
-  // Conditionally rendered elements
   const rankCircle =
     !hide_rank &&
-    el(
-      'g',
-      {
-        'data-testid': 'rank-circle',
-        transform: `translate(${calculateRankXTranslation()}, ${bodyMiddle - 8})`,
+    rankRing({
+      x: ringX,
+      y: bodyMiddle,
+      icon: rank_icon,
+      level: rank.level,
+      percentile: {
+        header: commonT.percentileHeader(),
+        value: formatDecimal(rank.percentile, locale, 1),
       },
-      el('circle', {
-        class: 'rank-circle-rim',
-        cx: -RANK_CIRCLE_CX_OFFSET,
-        cy: 8,
-        r: RANK_RING.radius,
-      }),
-      glowingCircle('rank-ring', {
-        class: 'rank-circle',
-        cx: -RANK_CIRCLE_CX_OFFSET,
-        cy: 8,
-        r: RANK_RING.radius,
-      }),
-      el(
-        'g',
-        { class: 'rank-text' },
-        rankIcon(rank_icon, rank.level, {
-          header: t.percentileHeader(),
-          value: formatDecimal(rank.percentile, locale, 1),
-        }),
-      ),
-      SPARKS.map(([dx, dy, delay]) =>
-        el('circle', {
-          class: 'spark',
-          cx: -RANK_CIRCLE_CX_OFFSET + dx,
-          cy: 8 + RANK_RING.radius + dy,
-          r: 1.7,
-          style: `animation-delay: ${String(delay)}s`,
-        }),
-      ),
-    );
+    });
 
   const column = (items: typeof statItems, x: number): ReturnType<typeof el> =>
     el('svg', { x, y: 0 }, flexLayout({ items, gap: LINE_HEIGHT, direction: 'column' }));

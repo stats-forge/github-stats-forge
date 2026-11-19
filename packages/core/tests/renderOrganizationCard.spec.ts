@@ -152,18 +152,64 @@ describe(renderOrganizationCard, () => {
   });
 
   it('grows the card and the value column with card_width', () => {
-    document.body.innerHTML = renderOrganizationCard(data, { card_width: 500 });
+    document.body.innerHTML = renderOrganizationCard(data, { card_width: 600, hide_rank: true });
 
-    expect(document.querySelector('svg')).toHaveAttribute('width', '500');
-    expect(screen.getByTestId('stars')).toHaveAttribute('x', '464');
+    expect(document.querySelector('svg')).toHaveAttribute('width', '600');
+    expect(screen.getByTestId('stars')).toHaveAttribute('x', '564');
   });
 
   it('describes itself for assistive technology', () => {
     document.body.innerHTML = renderOrganizationCard(data);
 
     expect(document.querySelector('title')).toHaveTextContent(
-      exactly("Vitest's GitHub Organization"),
+      exactly("Vitest's GitHub Organization, Rank: A"),
     );
     expect(document.querySelector('desc')).toHaveTextContent('Total stars: 18016');
+  });
+
+  describe('rank', () => {
+    it('draws its rank beside the stats, on a wider card', () => {
+      document.body.innerHTML = renderOrganizationCard(data);
+
+      expect(document.querySelector('svg')).toHaveAttribute('width', '500');
+      expect(screen.getByTestId('rank-circle')).toBeInTheDocument();
+      expect(screen.getByTestId('level-rank-icon')).toHaveTextContent(exactly('A'));
+      // the values stop clear of the ring
+      expect(screen.getByTestId('stars')).toHaveAttribute('x', '344');
+    });
+
+    it('leaves the ring out, and the card at its old width, under hide_rank', () => {
+      document.body.innerHTML = renderOrganizationCard(data, { hide_rank: true });
+
+      expect(document.querySelector('svg')).toHaveAttribute('width', '400');
+      expect(screen.queryByTestId('rank-circle')).not.toBeInTheDocument();
+      expect(document.querySelector('title')).toHaveTextContent(
+        exactly("Vitest's GitHub Organization"),
+      );
+    });
+
+    it('draws the percentile under rank_icon=percentile', () => {
+      document.body.innerHTML = renderOrganizationCard(data, { rank_icon: 'percentile' });
+
+      expect(screen.getByTestId('percentile-top-header')).toHaveTextContent(exactly('Top'));
+      expect(screen.getByTestId('percentile-rank-value')).toHaveTextContent(exactly('16.0%'));
+    });
+
+    it('draws the GitHub mark under rank_icon=github', () => {
+      document.body.innerHTML = renderOrganizationCard(data, { rank_icon: 'github' });
+
+      expect(screen.getByTestId('github-rank-icon')).toBeInTheDocument();
+      expect(screen.queryByTestId('level-rank-icon')).not.toBeInTheDocument();
+    });
+
+    it('keeps room for the ring on a card with one row', () => {
+      document.body.innerHTML = renderOrganizationCard(data, {
+        hide: ['repos', 'forks', 'watchers', 'open_issues', 'open_prs'],
+        hide_description: true,
+      });
+
+      // body offset, the ring's room and the bottom padding
+      expect(document.querySelector('svg')).toHaveAttribute('height', String(50 + 88 + 12));
+    });
   });
 });
