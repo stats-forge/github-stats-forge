@@ -1,5 +1,13 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [[`b953d72`](https://github.com/stats-forge/github-stats-forge/commit/b953d72bea939831bf412d5162d0ce37edeedfb8), [`fe259a4`](https://github.com/stats-forge/github-stats-forge/commit/fe259a4cbc8b7d066d2b4530238f98ee29bd24d3), [`340eafb`](https://github.com/stats-forge/github-stats-forge/commit/340eafb9575b7a8eb6a7b7d95b420844c36c2733), [`d5a00b8`](https://github.com/stats-forge/github-stats-forge/commit/d5a00b8c4fb5ceebb1d15d948c688f8feea40ff9), [`c87e2b8`](https://github.com/stats-forge/github-stats-forge/commit/c87e2b85e7781fa631f1fafa536f7bc15528078a), [`997b5ac`](https://github.com/stats-forge/github-stats-forge/commit/997b5ac5c27488e62c464f31209180afbcbfecc6)]:
+  - @stats-forge/github-stats-forge-core@0.17.0
+  - @stats-forge/github-stats-forge-catalog@0.6.1
+
 ## 0.8.0
 
 ### Minor Changes

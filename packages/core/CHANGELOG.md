@@ -1,5 +1,27 @@
 # @stats-forge/github-stats-forge-core
 
+## 0.17.0
+
+### Minor Changes
+
+- [#474](https://github.com/stats-forge/github-stats-forge/pull/474) [`b953d72`](https://github.com/stats-forge/github-stats-forge/commit/b953d72bea939831bf412d5162d0ce37edeedfb8) - fix!: draw the organization card for large organizations, which GitHub timed out on
+
+  `fetchOrganization` counts releases and commits only under `include_releases` and `include_commits`, and returns `null` for them otherwise.
+
+- [#485](https://github.com/stats-forge/github-stats-forge/pull/485) [`d5a00b8`](https://github.com/stats-forge/github-stats-forge/commit/d5a00b8c4fb5ceebb1d15d948c688f8feea40ff9) - feat: count up to 1000 repositories on the top languages card, paging through 100 at a time
+
+- [#487](https://github.com/stats-forge/github-stats-forge/pull/487) [`997b5ac`](https://github.com/stats-forge/github-stats-forge/commit/997b5ac5c27488e62c464f31209180afbcbfecc6) - fix!: show a language's bytes on the top languages card with `value_format=bytes`, not its weighted size
+
+  A `Lang` carries its raw `bytes` beside the weighted `size`.
+
+### Patch Changes
+
+- [#488](https://github.com/stats-forge/github-stats-forge/pull/488) [`fe259a4`](https://github.com/stats-forge/github-stats-forge/commit/fe259a4cbc8b7d066d2b4530238f98ee29bd24d3) - fix: draw the donut's ring when one language rounds to 100% of the top languages card
+
+- [#489](https://github.com/stats-forge/github-stats-forge/pull/489) [`340eafb`](https://github.com/stats-forge/github-stats-forge/commit/340eafb9575b7a8eb6a7b7d95b420844c36c2733) - fix: treat `card_width=300` on the top languages card as asked for, like any other width
+
+- [#484](https://github.com/stats-forge/github-stats-forge/pull/484) [`c87e2b8`](https://github.com/stats-forge/github-stats-forge/commit/c87e2b85e7781fa631f1fafa536f7bc15528078a) - fix: count the most recently pushed repositories on the top languages card, not the oldest hundred
+
 ## 0.16.0
 
 ### Minor Changes
