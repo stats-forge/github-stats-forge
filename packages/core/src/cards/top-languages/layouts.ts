@@ -393,9 +393,36 @@ const renderCompactLayout = (
 };
 
 /**
+ * Sets a chart above its two-column legend.
+ *
+ * @returns The pie or vertical donut layout's body.
+ */
+const chartWithLegend = (
+  chart: MarkupElement,
+  langs: Array<Lang>,
+  totalSize: number,
+  formatValue: LangValueFormatter,
+  hideValues: boolean | undefined,
+): MarkupElement =>
+  el(
+    'svg',
+    { 'data-testid': 'lang-items' },
+    chart,
+    el(
+      'g',
+      { transform: 'translate(0, 220)' },
+      el(
+        'svg',
+        { 'data-testid': 'lang-names', x: CARD_STYLE.padding.x },
+        createLanguageTextNode({ langs, totalSize, hideProgress: false, formatValue, hideValues }),
+      ),
+    ),
+  );
+
+/**
  * Renders donut vertical layout to display user's most frequently used programming languages.
  *
- * @returns Compact layout card SVG object.
+ * @returns Donut vertical layout card SVG object.
  */
 const renderDonutVerticalLayout = (
   langs: Array<Lang>,
@@ -404,78 +431,46 @@ const renderDonutVerticalLayout = (
   formatValue: LangValueFormatter,
   hideValues?: boolean,
 ): MarkupElement => {
-  // Donut vertical chart radius and total length
   const radius = 80;
   const totalCircleLength = getCircleLength(radius);
 
-  // SVG circles
-  const circles = [];
-
-  // Start indent for donut vertical chart parts
+  // each ring is drawn whole, shifted back by the rings before it, and the next covers its tail
   let indent = 0;
-
-  // Start delay coefficient for donut vertical chart parts
-  let startDelayCoefficient = 1;
-
-  // Generate each donut vertical chart part
-  for (const lang of langs) {
-    const langColor = resolveLangColor(lang);
-
+  const circles = langs.map((lang, index) => {
     const percentage = (lang.size / totalLanguageSize) * 100;
-    const circleLength = totalCircleLength * (percentage / 100);
-    const delay = startDelayCoefficient * 100;
-
-    circles.push(
-      el(
-        'g',
-        { class: 'stagger', style: `animation-delay: ${delay}ms` },
-        el('circle', {
-          cx: width / 2,
-          cy: 100,
-          r: radius,
-          fill: 'transparent',
-          stroke: langColor,
-          'stroke-width': 25,
-          'stroke-dasharray': totalCircleLength,
-          'stroke-dashoffset': indent,
-          'data-size': percentage,
-          'data-testid': 'lang-donut',
-        }),
-      ),
-    );
-
-    // Update the indent for the next part
-    indent += circleLength;
-    // Update the start delay coefficient for the next part
-    startDelayCoefficient += 1;
-  }
-
-  return el(
-    'svg',
-    { 'data-testid': 'lang-items' },
-    el('svg', { 'data-testid': 'donut' }, circles),
-    el(
+    const circle = el(
       'g',
-      { transform: 'translate(0, 220)' },
-      el(
-        'svg',
-        { 'data-testid': 'lang-names', x: CARD_STYLE.padding.x },
-        createLanguageTextNode({
-          langs,
-          totalSize: totalLanguageSize,
-          hideProgress: false,
-          formatValue,
-          hideValues,
-        }),
-      ),
-    ),
+      { class: 'stagger', style: `animation-delay: ${(index + 1) * 100}ms` },
+      el('circle', {
+        cx: width / 2,
+        cy: 100,
+        r: radius,
+        fill: 'transparent',
+        stroke: resolveLangColor(lang),
+        'stroke-width': 25,
+        'stroke-dasharray': totalCircleLength,
+        'stroke-dashoffset': indent,
+        'data-size': percentage,
+        'data-testid': 'lang-donut',
+      }),
+    );
+    indent += totalCircleLength * (percentage / 100);
+    return circle;
+  });
+
+  return chartWithLegend(
+    el('svg', { 'data-testid': 'donut' }, circles),
+    langs,
+    totalLanguageSize,
+    formatValue,
+    hideValues,
   );
 };
 
 /**
  * Renders pie layout to display user's most frequently used programming languages.
  *
- * @returns Compact layout card SVG object.
+ * @returns Pie layout card SVG object.
  */
 const renderPieLayout = (
   langs: Array<Lang>,
@@ -484,96 +479,56 @@ const renderPieLayout = (
   formatValue: LangValueFormatter,
   hideValues?: boolean,
 ): MarkupElement => {
-  // Pie chart radius and center coordinates
   const radius = 90;
   const centerX = width / 2;
   const centerY = 100;
 
-  // Start angle for the pie chart parts
-  let startAngle = 0;
-
-  // Start delay coefficient for the pie chart parts
-  let startDelayCoefficient = 1;
-
-  // SVG paths
-  const paths = [];
-
-  // Generate each pie chart part
-  for (const lang of langs) {
-    const langColor = resolveLangColor(lang);
-
-    if (langs.length === 1) {
-      paths.push(
+  /** @returns The pie: one slice per language, or one disc when a single language fills it. */
+  const pie = (): Array<MarkupElement> => {
+    const [only] = langs;
+    if (only !== undefined && langs.length === 1) {
+      return [
         el('circle', {
           cx: centerX,
           cy: centerY,
           r: radius,
           stroke: 'none',
-          fill: langColor,
+          fill: resolveLangColor(only),
           'data-testid': 'lang-pie',
           'data-size': 100,
         }),
-      );
-      break;
+      ];
     }
 
-    const langSizePart = lang.size / totalLanguageSize;
-    const percentage = langSizePart * 100;
-    // Calculate the angle for the current part
-    const angle = langSizePart * 360;
+    let startAngle = 0;
+    return langs.map((lang, index) => {
+      const langSizePart = lang.size / totalLanguageSize;
+      const angle = langSizePart * 360;
+      const endAngle = startAngle + angle;
+      const startPoint = polarToCartesian(centerX, centerY, radius, startAngle);
+      const endPoint = polarToCartesian(centerX, centerY, radius, endAngle);
+      const largeArcFlag = angle > 180 ? 1 : 0;
+      startAngle = endAngle;
 
-    // Calculate the end angle
-    const endAngle = startAngle + angle;
-
-    // Calculate the coordinates of the start and end points of the arc
-    const startPoint = polarToCartesian(centerX, centerY, radius, startAngle);
-    const endPoint = polarToCartesian(centerX, centerY, radius, endAngle);
-
-    // Determine the large arc flag based on the angle
-    const largeArcFlag = angle > 180 ? 1 : 0;
-
-    // Calculate delay
-    const delay = startDelayCoefficient * 100;
-
-    // SVG arc markup
-    paths.push(
-      el(
+      return el(
         'g',
-        { class: 'stagger', style: `animation-delay: ${delay}ms` },
+        { class: 'stagger', style: `animation-delay: ${(index + 1) * 100}ms` },
         el('path', {
           'data-testid': 'lang-pie',
-          'data-size': percentage,
+          'data-size': langSizePart * 100,
           d: `M ${centerX} ${centerY} L ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y} Z`,
-          fill: langColor,
+          fill: resolveLangColor(lang),
         }),
-      ),
-    );
+      );
+    });
+  };
 
-    // Update the start angle for the next part
-    startAngle = endAngle;
-    // Update the start delay coefficient for the next part
-    startDelayCoefficient += 1;
-  }
-
-  return el(
-    'svg',
-    { 'data-testid': 'lang-items' },
-    el('svg', { 'data-testid': 'pie' }, paths),
-    el(
-      'g',
-      { transform: 'translate(0, 220)' },
-      el(
-        'svg',
-        { 'data-testid': 'lang-names', x: CARD_STYLE.padding.x },
-        createLanguageTextNode({
-          langs,
-          totalSize: totalLanguageSize,
-          hideProgress: false,
-          formatValue,
-          hideValues,
-        }),
-      ),
-    ),
+  return chartWithLegend(
+    el('svg', { 'data-testid': 'pie' }, pie()),
+    langs,
+    totalLanguageSize,
+    formatValue,
+    hideValues,
   );
 };
 
