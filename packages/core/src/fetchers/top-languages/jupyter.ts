@@ -433,4 +433,4 @@ const withNotebooksRecounted = async (
 };
 
 export { NOTEBOOK_COUNTS, MAX_NOTEBOOKS_PER_CARD, MAX_TREES_PER_CARD, withNotebooksRecounted };
-export type { GitTree };
+export type { GitTree, RepositoryLanguages };
