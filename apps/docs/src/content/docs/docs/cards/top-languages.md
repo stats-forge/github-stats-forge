@@ -4,7 +4,7 @@ description: The languages you write most, by bytes of code or by repository cou
 ---
 
 The card reads the languages of the repositories you own or contribute to and ranks them. It reads
-your 100 most recently pushed repositories, forks left out.
+your 1000 most recently pushed repositories, forks left out.
 By default it weighs them by size — the bytes GitHub attributes to each language — which is what
 the progress bars show.
 

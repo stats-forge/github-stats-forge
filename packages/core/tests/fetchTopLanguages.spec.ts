@@ -20,6 +20,7 @@ const data_langs: GraphQLBody<TopLanguagesQuery> = {
   data: {
     user: {
       repositories: {
+        pageInfo: { hasNextPage: false, endCursor: null },
         nodes: [
           {
             name: 'test-repo-1',
@@ -65,7 +66,45 @@ const error: GraphQLErrorBody = {
   ],
 };
 
+/** One page of one repository written in `lang`, the last when `endCursor` is `null`. */
+const repoPage = (lang: string, endCursor: string | null): GraphQLBody<TopLanguagesQuery> => ({
+  data: {
+    user: {
+      repositories: {
+        pageInfo: { hasNextPage: endCursor !== null, endCursor },
+        nodes: [
+          {
+            name: lang,
+            nameWithOwner: `anuraghazra/${lang}`,
+            languages: { edges: [{ size: 100, node: { color: '#000', name: lang } }] },
+          },
+        ],
+      },
+    },
+  },
+});
+
 describe('FetchTopLanguages', () => {
+  it('follows the cursor to count every page of repositories', async () => {
+    mock.onPost(GRAPHQL).replyOnce(200, repoPage('Rust', 'c1'));
+    mock.onPost(GRAPHQL).replyOnce(200, repoPage('Go', null));
+
+    const langs = await fetchTopLanguages({ username: 'anuraghazra' }, config);
+
+    expect(Object.keys(langs).toSorted()).toStrictEqual(['Go', 'Rust']);
+    expect(
+      mock.history.post.map((request) => graphqlBody(request).variables['after']),
+    ).toStrictEqual([null, 'c1']);
+  });
+
+  it('stops after ten pages, the 1000 most recently pushed', async () => {
+    mock.onPost(GRAPHQL).reply(200, repoPage('Rust', 'more'));
+
+    await fetchTopLanguages({ username: 'anuraghazra' }, config);
+
+    expect(mock.history.post).toHaveLength(10);
+  });
+
   it('asks for the most recently pushed repositories, not the oldest', async () => {
     mock.onPost(GRAPHQL).reply(200, data_langs);
 

@@ -373,6 +373,7 @@ const topLanguages = (): Body<TopLanguagesQuery> => ({
   data: {
     user: {
       repositories: {
+        pageInfo: { hasNextPage: false, endCursor: null },
         nodes: USER_REPOS.map(({ name, languages }) => ({
           name,
           nameWithOwner: `${SAMPLE.username}/${name}`,
