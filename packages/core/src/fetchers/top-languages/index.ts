@@ -2,12 +2,14 @@ import type { CardConfig } from '../../common/config.ts';
 import { affiliationsOrOwner } from '../../common/constants.ts';
 import { CardError, fromGraphQL } from '../../common/error.ts';
 import { createGraphQLFetcher } from '../../common/http.ts';
+import type { GraphQLResponse } from '../../common/http.ts';
 import { excludes } from '../../common/ops.ts';
 import { retryer } from '../../common/retryer.ts';
 import type { RepositoryAffiliation } from '../../graphql/generated/common.ts';
 import { TopLanguagesDocument } from '../../graphql/generated/top-languages.ts';
 import type {
   TopLanguageFragment,
+  TopLanguagesQuery,
   TopLanguagesRepositoryFragment,
 } from '../../graphql/generated/top-languages.ts';
 
@@ -16,6 +18,9 @@ import type { NOTEBOOK_COUNTS } from './jupyter.ts';
 import type { Lang, TopLangData } from './types.ts';
 
 const fetcher = createGraphQLFetcher(TopLanguagesDocument);
+
+/** Pages of 100, GitHub's most per request: the card counts the 1000 most recently pushed. */
+const MAX_PAGES = 10;
 
 /**
  * Fetch top languages for a given username.
@@ -47,24 +52,30 @@ const fetchTopLanguages = async (
   }
   const affiliations = affiliationsOrOwner(ownerAffiliations);
 
-  const res = await retryer(
-    fetcher,
-    {
-      login: username,
-      ownerAffiliations: affiliations,
-    },
-    config,
-  );
+  const nodes: Array<TopLanguagesRepositoryFragment> = [];
+  let after: string | null = null;
+  let pages = 0;
+  do {
+    // Annotated because the walk feeds its own cursor back in, which TypeScript reads as circular.
+    const res: GraphQLResponse<TopLanguagesQuery> = await retryer(
+      fetcher,
+      { login: username, ownerAffiliations: affiliations, after },
+      config,
+    );
 
-  if (res.data.errors) {
-    throw fromGraphQL(res.data.errors, res.statusText, 'language data', config.logger);
-  }
+    if (res.data.errors) {
+      throw fromGraphQL(res.data.errors, res.statusText, 'language data', config.logger);
+    }
+
+    const repositories = res.data.data.user?.repositories;
+    nodes.push(...(repositories?.nodes ?? []).filter((node) => node !== null));
+    after = repositories?.pageInfo.hasNextPage ? repositories.pageInfo.endCursor : null;
+    pages += 1;
+  } while (after !== null && pages < MAX_PAGES);
 
   const isExcluded = excludes([...exclude_repo, ...config.excludeRepositories]);
-  const repoEdges = (res.data.data.user?.repositories.nodes ?? [])
-    .filter(
-      (node): node is TopLanguagesRepositoryFragment => !!node && !isExcluded(node.nameWithOwner),
-    )
+  const repoEdges = nodes
+    .filter((node) => !isExcluded(node.nameWithOwner))
     .map(({ nameWithOwner, languages }) => ({
       nameWithOwner,
       edges: (languages?.edges ?? []).filter((edge): edge is TopLanguageFragment => !!edge),

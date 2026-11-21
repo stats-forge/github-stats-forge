@@ -62,7 +62,7 @@ const BLOB = /\/git\/blobs\//;
 const langsWith = (
   nodes: Array<TopLanguagesRepositoryFragment>,
 ): GraphQLBody<TopLanguagesQuery> => ({
-  data: { user: { repositories: { nodes } } },
+  data: { user: { repositories: { pageInfo: { hasNextPage: false, endCursor: null }, nodes } } },
 });
 
 /** A repository GitHub says holds `jupyterBytes` of notebooks, plus any `others`. */
