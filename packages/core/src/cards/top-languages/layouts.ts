@@ -638,22 +638,12 @@ const renderDonutLayout = (
   );
 
   const langPaths = createDonutPaths(centerX, centerY, DONUT_RADIUS, langsPercents);
+  // an arc round the whole ring ends where it starts, which SVG draws as nothing
+  const whole = langPaths.findIndex((section) => section.percent === 100);
 
   const donutPaths: Array<Child> =
-    langs.length === 1
-      ? [
-          el('circle', {
-            cx: centerX,
-            cy: centerY,
-            r: DONUT_RADIUS,
-            stroke: colors[0] ?? DEFAULT_LANG_COLOR,
-            fill: 'none',
-            'stroke-width': DONUT_STROKE_WIDTH,
-            'data-testid': 'lang-donut',
-            'data-size': 100,
-          }),
-        ]
-      : langPaths.map((section, index) =>
+    whole === -1
+      ? langPaths.map((section, index) =>
           el(
             'g',
             { class: 'stagger', style: `animation-delay: ${(index + 3) * 100 + 300}ms` },
@@ -666,7 +656,19 @@ const renderDonutLayout = (
               'stroke-width': DONUT_STROKE_WIDTH,
             }),
           ),
-        );
+        )
+      : [
+          el('circle', {
+            cx: centerX,
+            cy: centerY,
+            r: DONUT_RADIUS,
+            stroke: colors[whole] ?? DEFAULT_LANG_COLOR,
+            fill: 'none',
+            'stroke-width': DONUT_STROKE_WIDTH,
+            'data-testid': 'lang-donut',
+            'data-size': 100,
+          }),
+        ];
 
   return [
     el(

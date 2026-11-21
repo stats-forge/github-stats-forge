@@ -330,6 +330,24 @@ describe('Test renderTopLanguages', () => {
     expect(slices[0]?.tagName).toBe('circle');
   });
 
+  it('should render a full donut when one language rounds to 100% beside others', () => {
+    draw(
+      renderTopLanguages(
+        {
+          HTML: { ...langs.HTML, size: 999_999, bytes: 999_999 },
+          css: { ...langs.css, size: 1, bytes: 1 },
+        },
+        { layout: 'donut' },
+      ),
+    );
+
+    expectLabels(['HTML 100.00%', 'css 0.00%']);
+    const slices = screen.queryAllByTestId('lang-donut');
+    expect(slices).toHaveLength(1);
+    expect(slices[0]?.tagName).toBe('circle');
+    expect(slices[0]).toHaveAttribute('stroke', langs.HTML.color);
+  });
+
   it.each([
     { count: 1, card_width: undefined },
     { count: 4, card_width: undefined },
