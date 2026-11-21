@@ -18,8 +18,13 @@ fragment TopLanguagesRepository on Repository {
 
 query topLanguages($login: String!, $ownerAffiliations: [RepositoryAffiliation]) {
   user(login: $login) {
-    # do not fetch forks
-    repositories(ownerAffiliations: $ownerAffiliations, isFork: false, first: 100) {
+    # no forks; the most recently pushed first, so the card counts current work
+    repositories(
+      ownerAffiliations: $ownerAffiliations
+      isFork: false
+      first: 100
+      orderBy: { field: PUSHED_AT, direction: DESC }
+    ) {
       nodes {
         ...TopLanguagesRepository
       }

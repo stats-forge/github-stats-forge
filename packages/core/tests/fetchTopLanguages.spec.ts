@@ -4,7 +4,7 @@ import { fetchTopLanguages } from '../src/fetchers/top-languages/index.ts';
 import type { TopLanguagesQuery } from '../src/graphql/generated/top-languages.ts';
 
 import { testConfig, testLogger } from './_config.ts';
-import { FetchMock, GRAPHQL } from './_fetch-mock.ts';
+import { FetchMock, GRAPHQL, graphqlBody } from './_fetch-mock.ts';
 import type { GraphQLBody, GraphQLErrorBody } from './_fetch-mock.ts';
 import { approxNumber } from './utils.ts';
 
@@ -66,6 +66,16 @@ const error: GraphQLErrorBody = {
 };
 
 describe('FetchTopLanguages', () => {
+  it('asks for the most recently pushed repositories, not the oldest', async () => {
+    mock.onPost(GRAPHQL).reply(200, data_langs);
+
+    await fetchTopLanguages({ username: 'anuraghazra' }, config);
+
+    expect(graphqlBody(mock.history.post[0]).query).toMatch(
+      /repositories\([^)]*orderBy: \{ field: PUSHED_AT, direction: DESC \}/,
+    );
+  });
+
   it('should fetch correct language data while using the new calculation', async () => {
     mock.onPost(GRAPHQL).reply(200, data_langs);
 
