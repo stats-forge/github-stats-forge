@@ -29,15 +29,15 @@ import { cssValue, draw, exactly, translateOf, xOf, heatStop } from './_card.ts'
 import { approxNumber } from './utils.ts';
 
 const langs = {
-  HTML: { color: '#0f0', name: 'HTML', size: 200, count: 1 },
-  javascript: { color: '#0ff', name: 'javascript', size: 200, count: 1 },
-  css: { color: '#ff0', name: 'css', size: 100, count: 1 },
+  HTML: { color: '#0f0', name: 'HTML', size: 200, bytes: 200, count: 1 },
+  javascript: { color: '#0ff', name: 'javascript', size: 200, bytes: 200, count: 1 },
+  css: { color: '#ff0', name: 'css', size: 100, bytes: 100, count: 1 },
 } satisfies TopLangData;
 
 /** `langs` plus a fourth language, whose name is long enough to need room of its own. */
 const withJupyter = {
   ...langs,
-  jupyter: { color: '#f80', name: 'Jupyter Notebook', size: 50, count: 1 },
+  jupyter: { color: '#f80', name: 'Jupyter Notebook', size: 50, bytes: 50, count: 1 },
 } satisfies TopLangData;
 
 /** What `langs` draws, in order: each label and the share of the chart it takes. */
@@ -172,7 +172,11 @@ describe('Test renderTopLanguages helper functions', () => {
       langs,
       2,
       undefined,
-      [langs.HTML, langs.javascript, { name: 'Other', color: null, size: 100, count: 1 }],
+      [
+        langs.HTML,
+        langs.javascript,
+        { name: 'Other', color: null, size: 100, bytes: 100, count: 1 },
+      ],
       500,
     ],
     [
@@ -180,7 +184,7 @@ describe('Test renderTopLanguages helper functions', () => {
       langs,
       1,
       ['javascript'],
-      [langs.HTML, { name: 'Other', color: null, size: 100, count: 1 }],
+      [langs.HTML, { name: 'Other', color: null, size: 100, bytes: 100, count: 1 }],
       300,
     ],
   ] satisfies Array<[string, TopLangData, number, Array<string> | undefined, Array<Lang>, number]>)(
@@ -230,7 +234,7 @@ describe('Test renderTopLanguages', () => {
   it('should resize the height correctly depending on langs', () => {
     expect(draw(renderTopLanguages(langs))).toHaveAttribute('height', '176');
 
-    const python: Lang = { color: '#ff0', name: 'python', size: 100, count: 1 };
+    const python: Lang = { color: '#ff0', name: 'python', size: 100, bytes: 100, count: 1 };
     expect(draw(renderTopLanguages({ ...langs, python }))).toHaveAttribute('height', '216');
   });
 
@@ -339,7 +343,13 @@ describe('Test renderTopLanguages', () => {
       const data: TopLangData = Object.fromEntries(
         Array.from({ length: count }, (_, index) => [
           `lang${index}`,
-          { color: '#0f0', name: `lang${index}`, size: count - index, count: 1 },
+          {
+            color: '#0f0',
+            name: `lang${index}`,
+            size: count - index,
+            bytes: count - index,
+            count: 1,
+          },
         ]),
       );
       const card = draw(
@@ -495,6 +505,25 @@ describe('Test renderTopLanguages', () => {
     expectLabels([...labels]);
   });
 
+  describe('when ranked by repository count', () => {
+    // Go's two repositories outrank Rust's one, for a quarter of its bytes
+    const weighted = {
+      Go: { color: '#0f0', name: 'Go', size: 2, bytes: 1024, count: 2 },
+      Rust: { color: '#0ff', name: 'Rust', size: 1, bytes: 4096, count: 1 },
+    } satisfies TopLangData;
+
+    it('should show bytes, not the weighted size, on the compact layout', () => {
+      draw(renderTopLanguages(weighted, { layout: 'compact', value_format: 'bytes' }));
+      expectLabels(['Go 1.0 KB', 'Rust 4.0 KB']);
+    });
+
+    it('should show bytes, not the weighted size, on the normal layout', () => {
+      draw(renderTopLanguages(weighted, { layout: 'normal', value_format: 'bytes' }));
+      expect(screen.getByText(exactly('1.0 KB'))).toBeInTheDocument();
+      expect(screen.getByText(exactly('4.0 KB'))).toBeInTheDocument();
+    });
+  });
+
   it.each([
     { hide_progress: false, width: '400' },
     { hide_progress: true, width: '300' },
@@ -503,7 +532,7 @@ describe('Test renderTopLanguages', () => {
     ({ hide_progress, width }) => {
       const data = {
         ...langs,
-        commonLisp: { color: '#3fb68b', name: 'Common Lisp', size: 50, count: 1 },
+        commonLisp: { color: '#3fb68b', name: 'Common Lisp', size: 50, bytes: 50, count: 1 },
       } satisfies TopLangData;
 
       const card = draw(renderTopLanguages(data, { layout: 'compact', hide_progress }));
@@ -532,8 +561,8 @@ describe('test renderTopLanguages with languages missing a color', () => {
   // card with `color: null`. It must fall back to the default color instead of
   // throwing.
   const langsWithNullColor = {
-    HTML: { color: '#0f0', name: 'HTML', size: 200, count: 1 },
-    Text: { color: null, name: 'Text', size: 100, count: 1 },
+    HTML: { color: '#0f0', name: 'HTML', size: 200, bytes: 200, count: 1 },
+    Text: { color: null, name: 'Text', size: 100, bytes: 100, count: 1 },
   } satisfies TopLangData;
 
   it.each(renderTopLanguages.OPTIONS.layout)(

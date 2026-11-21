@@ -82,24 +82,24 @@ const fetchTopLanguages = async (
 
   const languageEdges = repositories.toReversed().flatMap(({ edges }) => edges);
 
-  // accumulate size and repo count per language, each read back off the language's own entry
-  const languageMap: Record<string, Lang> = {};
+  // accumulate bytes and repo count per language, each read back off the language's own entry
+  const languageMap: Record<string, Omit<Lang, 'size'>> = {};
   for (const edge of languageEdges) {
     const existing = languageMap[edge.node.name];
     languageMap[edge.node.name] = {
       name: edge.node.name,
       color: edge.node.color,
-      size: edge.size + (existing?.size ?? 0),
+      bytes: edge.size + (existing?.bytes ?? 0),
       count: (existing?.count ?? 0) + 1,
     };
   }
 
-  for (const lang of Object.values(languageMap)) {
-    lang.size = lang.size ** size_weight * lang.count ** count_weight;
-  }
-
+  const langs = Object.values(languageMap).map((lang) => ({
+    ...lang,
+    size: lang.bytes ** size_weight * lang.count ** count_weight,
+  }));
   return Object.fromEntries(
-    Object.entries(languageMap).toSorted(([, a], [, b]) => b.size - a.size),
+    langs.toSorted((a, b) => b.size - a.size).map((lang) => [lang.name, lang]),
   );
 };
 

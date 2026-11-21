@@ -169,9 +169,15 @@ describe('fetchTopLanguages with notebooks', () => {
     const langs = await fetchWithJupyter();
 
     expect(langs).toStrictEqual({
-      Python: { name: 'Python', color: '#3572A5', size: 100 + 20, count: 1 },
-      Shell: { name: 'Shell', color: getLanguageColor('Shell'), size: 13, count: 1 },
-      JavaScript: { name: 'JavaScript', color: getLanguageColor('JavaScript'), size: 14, count: 1 },
+      Python: { name: 'Python', color: '#3572A5', size: 100 + 20, bytes: 100 + 20, count: 1 },
+      Shell: { name: 'Shell', color: getLanguageColor('Shell'), size: 13, bytes: 13, count: 1 },
+      JavaScript: {
+        name: 'JavaScript',
+        color: getLanguageColor('JavaScript'),
+        size: 14,
+        bytes: 14,
+        count: 1,
+      },
     });
     expect(mock.history.get.map(({ url }) => url)).toStrictEqual([TREE, blobUrl(NOTEBOOK_SHA)]);
   });
@@ -273,6 +279,7 @@ describe('fetchTopLanguages with notebooks', () => {
       name: 'Jupyter Notebook',
       color: JUPYTER_COLOR,
       size: 4,
+      bytes: 4,
       count: 1,
     });
   });

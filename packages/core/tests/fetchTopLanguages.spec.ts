@@ -125,12 +125,14 @@ describe('FetchTopLanguages', () => {
     expect(repo).toStrictEqual({
       HTML: {
         color: '#0f0',
+        bytes: 200,
         count: 2,
         name: 'HTML',
         size: approxNumber(20),
       },
       javascript: {
         color: '#0ff',
+        bytes: 200,
         count: 2,
         name: 'javascript',
         size: approxNumber(20),
@@ -150,12 +152,14 @@ describe('FetchTopLanguages', () => {
       expect(repo).toStrictEqual({
         HTML: {
           color: '#0f0',
+          bytes: 100,
           count: 1,
           name: 'HTML',
           size: 100,
         },
         javascript: {
           color: '#0ff',
+          bytes: 200,
           count: 2,
           name: 'javascript',
           size: 200,
@@ -174,12 +178,14 @@ describe('FetchTopLanguages', () => {
     expect(repo).toStrictEqual({
       HTML: {
         color: '#0f0',
+        bytes: 200,
         count: 2,
         name: 'HTML',
         size: 200,
       },
       javascript: {
         color: '#0ff',
+        bytes: 200,
         count: 2,
         name: 'javascript',
         size: 200,
@@ -197,12 +203,14 @@ describe('FetchTopLanguages', () => {
     expect(repo).toStrictEqual({
       HTML: {
         color: '#0f0',
+        bytes: 200,
         count: 2,
         name: 'HTML',
         size: 2,
       },
       javascript: {
         color: '#0ff',
+        bytes: 200,
         count: 2,
         name: 'javascript',
         size: 2,

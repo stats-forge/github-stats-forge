@@ -95,6 +95,7 @@ const trimTopLanguages = (
     name: othersName,
     color: null,
     size: others.reduce((acc, curr) => acc + curr.size, 0),
+    bytes: others.reduce((acc, curr) => acc + curr.bytes, 0),
     count: others.reduce((acc, curr) => acc + curr.count, 0),
   };
   return { langs: [...shown, folded], totalLanguageSize };
@@ -249,7 +250,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     colors: { light: lightColors, dark: darkColors },
     description: langs
       .map(
-        (lang) => `${lang.name} ${formatShare(lang.size, (lang.size / totalLanguageSize) * 100)}`,
+        (lang) => `${lang.name} ${formatShare(lang.bytes, (lang.size / totalLanguageSize) * 100)}`,
       )
       .join(', '),
     hideBorder: hide_border,
