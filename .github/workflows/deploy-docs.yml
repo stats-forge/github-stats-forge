@@ -24,8 +24,8 @@ defaults:
 jobs:
   # Apart from the deploy, whose lookup can miss an artifact uploaded in its own job and whose
   # re-run would then find two: https://github.com/actions/deploy-pages/issues/451
-  build:
-    name: Build the site
+  docs-build:
+    name: Docs build
 
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -55,9 +55,9 @@ jobs:
         with:
           path: apps/docs/build
 
-  deploy:
-    name: Deploy to Pages
-    needs: build
+  docs-deploy:
+    name: Docs deploy
+    needs: docs-build
 
     runs-on: ubuntu-26.04
     timeout-minutes: 10
