@@ -22,20 +22,16 @@ defaults:
     shell: bash
 
 jobs:
-  deploy:
-    name: Build and deploy to Pages
+  # Apart from the deploy, whose lookup can miss an artifact uploaded in its own job and whose
+  # re-run would then find two: https://github.com/actions/deploy-pages/issues/451
+  build:
+    name: Build the site
 
     runs-on: ubuntu-26.04
     timeout-minutes: 10
 
-    environment:
-      name: docs
-      url: ${{ steps.deploy.outputs.page_url }}
-
     permissions:
       contents: read # to check out repo (actions/checkout)
-      pages: write # to publish to GitHub Pages (actions/deploy-pages)
-      id-token: write # to verify the deployment originates from this workflow
 
     steps:
       - name: Checkout code
@@ -59,6 +55,22 @@ jobs:
         with:
           path: apps/docs/build
 
+  deploy:
+    name: Deploy to Pages
+    needs: build
+
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+
+    environment:
+      name: docs
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    permissions:
+      pages: write # to publish to GitHub Pages (actions/deploy-pages)
+      id-token: write # to verify the deployment originates from this workflow
+
+    steps:
       - name: Deploy to Pages
         id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
