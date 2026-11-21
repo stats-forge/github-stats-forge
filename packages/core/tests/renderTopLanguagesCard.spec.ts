@@ -243,6 +243,17 @@ describe('Test renderTopLanguages', () => {
     expect(draw(renderTopLanguages(langs, { card_width: 400 }))).toHaveAttribute('width', '400');
   });
 
+  it.each([
+    { card_width: undefined, width: '400' },
+    { card_width: 300, width: '350' },
+    { card_width: 301, width: '351' },
+  ])('should give a donut at card_width $card_width its extra room', ({ card_width, width }) => {
+    expect(draw(renderTopLanguages(langs, { layout: 'donut', card_width }))).toHaveAttribute(
+      'width',
+      width,
+    );
+  });
+
   it.each([190, 100])('should raise card_width %i to the minimum', (card_width) => {
     expect(draw(renderTopLanguages(langs, { card_width }))).toHaveAttribute(
       'width',
@@ -283,6 +294,7 @@ describe('Test renderTopLanguages', () => {
     { layout: 'compact', hide_values: false, card_width: undefined, width: 400 },
     { layout: 'compact', hide_values: true, card_width: undefined, width: 300 },
     { layout: 'compact', hide_values: false, card_width: 320, width: 321 },
+    { layout: 'compact', hide_values: false, card_width: 300, width: 321 },
     { layout: 'compact', hide_values: false, card_width: 450, width: 450 },
     { layout: 'pie', hide_values: false, card_width: undefined, width: 400 },
     { layout: 'pie', hide_values: false, card_width: 320, width: 321 },

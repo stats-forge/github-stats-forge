@@ -134,9 +134,9 @@ const getDefaultLanguagesCountByLayout = ({
  *
  * @returns The card's width.
  */
-const fitWidth = (width: number, needed: number): number => {
-  if (width !== DEFAULT_CARD_WIDTH) {
-    return Math.max(width, Math.ceil(needed));
+const fitWidth = (asked: number | undefined, needed: number): number => {
+  if (asked !== undefined) {
+    return Math.max(asked, Math.ceil(needed));
   }
   return Object.values(CARD_STYLE.width).find((step) => step >= needed) ?? Math.ceil(needed);
 };
@@ -175,10 +175,9 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     t.others(),
   );
 
-  let width: number = DEFAULT_CARD_WIDTH;
-  if (card_width && !Number.isNaN(card_width)) {
-    width = Math.max(card_width, MIN_CARD_WIDTH);
-  }
+  // judged by `card_width`, not the width: one asked for at the default is still asked for
+  const askedWidth = card_width ? Math.max(card_width, MIN_CARD_WIDTH) : undefined;
+  let width = askedWidth ?? DEFAULT_CARD_WIDTH;
   let height = calculateNormalLayoutHeight(langs.length);
 
   const { lightColors, darkColors } = getLightDarkColors(options);
@@ -204,11 +203,11 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     });
   } else if (layout === 'pie') {
     height = calculatePieLayoutHeight(langs.length);
-    width = fitWidth(width, compactListWidth(false));
+    width = fitWidth(askedWidth, compactListWidth(false));
     finalLayout = renderPieLayout(langs, width, totalLanguageSize, formatValue, hide_values);
   } else if (layout === 'donut-vertical') {
     height = calculateDonutVerticalLayoutHeight(langs.length);
-    width = fitWidth(width, compactListWidth(false));
+    width = fitWidth(askedWidth, compactListWidth(false));
     finalLayout = renderDonutVerticalLayout(
       langs,
       width,
@@ -218,7 +217,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     );
   } else if (layout === 'compact' || hide_progress === true) {
     height = calculateCompactLayoutHeight(langs.length) + (hide_progress ? -25 : 0);
-    width = fitWidth(width, compactListWidth(hide_progress));
+    width = fitWidth(askedWidth, compactListWidth(hide_progress));
 
     finalLayout = renderCompactLayout(
       langs,
@@ -232,7 +231,7 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
     height = calculateDonutLayoutHeight(langs.length);
     // A donut defaults a step wider so the chart has its room; a width asked for
     // explicitly keeps the extra it has always been given instead of being snapped.
-    width = width === DEFAULT_CARD_WIDTH ? CARD_STYLE.width.standard : width + DONUT_EXTRA_WIDTH;
+    width = askedWidth === undefined ? CARD_STYLE.width.standard : askedWidth + DONUT_EXTRA_WIDTH;
     finalLayout = renderDonutLayout(langs, width, totalLanguageSize, formatValue, hide_values);
   } else {
     burns = true;
