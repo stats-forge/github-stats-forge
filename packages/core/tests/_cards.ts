@@ -69,8 +69,8 @@ const statsData: StatsData = {
 };
 
 const topLangs = {
-  TypeScript: { name: 'TypeScript', color: '#0f0', size: 200, count: 2 },
-  Python: { name: 'Python', color: '#0ff', size: 100, count: 1 },
+  TypeScript: { name: 'TypeScript', color: '#0f0', size: 200, bytes: 200, count: 2 },
+  Python: { name: 'Python', color: '#0ff', size: 100, bytes: 100, count: 1 },
 } satisfies TopLangData;
 
 const wakatimeData: Partial<WakaTimeData> = {

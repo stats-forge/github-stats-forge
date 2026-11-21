@@ -102,8 +102,8 @@ const calculateDonutVerticalLayoutHeight = (totalLangs: number): number =>
 const calculatePieLayoutHeight = (totalLangs: number): number =>
   CARD_STYLE.padding.bodyOffsetY + CHART_LAYOUT_BODY_HEIGHT + Math.round(totalLangs / 2) * 25;
 
-/** Writes a language's value from its size in bytes and its share in percent. */
-type LangValueFormatter = (size: number, percentages: number) => string;
+/** Writes a language's value from its bytes and its share in percent. */
+type LangValueFormatter = (bytes: number, percentages: number) => string;
 
 /**
  * Builds the card's value writer once, from its `value_format` and locale.
@@ -115,10 +115,10 @@ const langValueFormatter = (
   locale: Locale | undefined,
 ): LangValueFormatter => {
   if (format === 'bytes') {
-    return (size) => formatBytes(size, locale);
+    return (bytes) => formatBytes(bytes, locale);
   }
 
-  return (_size, percentages) => `${formatDecimal(percentages, locale, 2)}%`;
+  return (_bytes, percentages) => `${formatDecimal(percentages, locale, 2)}%`;
 };
 
 /**
@@ -142,18 +142,14 @@ const resolveLangColor = (lang: Lang): string => {
  */
 const createProgressTextNode = ({
   width,
-  color,
-  name,
-  size,
+  lang,
   totalSize,
   formatValue,
   hideValues,
   index,
 }: {
   width: number;
-  color: string;
-  name: string;
-  size: number;
+  lang: Lang;
   totalSize: number;
   formatValue: LangValueFormatter;
   hideValues?: boolean | undefined;
@@ -165,18 +161,18 @@ const createProgressTextNode = ({
   const progressTextX = width - paddingRight + 10;
   const progressWidth = width - paddingRight;
 
-  const progress = (size / totalSize) * 100;
-  const displayValue = formatValue(size, progress);
+  const progress = (lang.size / totalSize) * 100;
+  const displayValue = formatValue(lang.bytes, progress);
 
   return el(
     'g',
     { class: 'stagger', style: `animation-delay: ${staggerDelay}ms` },
-    el('text', { 'data-testid': 'lang-name', x: 2, y: 15, class: 'lang-name' }, name),
+    el('text', { 'data-testid': 'lang-name', x: 2, y: 15, class: 'lang-name' }, lang.name),
     !hideValues && el('text', { x: progressTextX, y: 34, class: 'lang-name' }, displayValue),
     createProgressNode({
       x: 0,
       y: 25,
-      color,
+      color: lang.color || DEFAULT_LANG_COLOR,
       width: progressWidth,
       progress,
       delay: staggerDelay + 300,
@@ -205,7 +201,7 @@ const compactLabel = (
     return lang.name;
   }
   const percentages = (lang.size / totalSize) * 100;
-  return `${lang.name} ${formatValue(lang.size, percentages)}`;
+  return `${lang.name} ${formatValue(lang.bytes, percentages)}`;
 };
 
 /**
@@ -319,9 +315,7 @@ const renderNormalLayout = (
     items: langs.map((lang, index) =>
       createProgressTextNode({
         width,
-        name: lang.name,
-        color: lang.color || DEFAULT_LANG_COLOR,
-        size: lang.size,
+        lang,
         totalSize: totalLanguageSize,
         formatValue,
         hideValues,

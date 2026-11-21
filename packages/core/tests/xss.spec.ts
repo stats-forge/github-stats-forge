@@ -69,9 +69,9 @@ vi.mock(import('../src/fetchers/stats/index.ts'), () => ({
 
 vi.mock(import('../src/fetchers/top-languages/index.ts'), () => ({
   fetchTopLanguages: vi.fn().mockResolvedValue({
-    HTML: { color: '#0f0', name: SCRIPT, size: 200, count: 1 },
-    javascript: { color: '#0ff', name: SCRIPT, size: 200, count: 1 },
-    css: { color: '#ff0', name: 'css', size: 100, count: 1 },
+    HTML: { color: '#0f0', name: SCRIPT, size: 200, bytes: 200, count: 1 },
+    javascript: { color: '#0ff', name: SCRIPT, size: 200, bytes: 200, count: 1 },
+    css: { color: '#ff0', name: 'css', size: 100, bytes: 100, count: 1 },
   } satisfies TopLangData),
 }));
 
