@@ -1,5 +1,21 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.8.2
+
+### Patch Changes
+
+- [#470](https://github.com/stats-forge/github-stats-forge/pull/470) [`fd233f2`](https://github.com/stats-forge/github-stats-forge/commit/fd233f2756884d978ecc45633810226f691902c0) - build: update @inquirer/checkbox to ^5.2.8
+
+- [#470](https://github.com/stats-forge/github-stats-forge/pull/470) [`fd233f2`](https://github.com/stats-forge/github-stats-forge/commit/fd233f2756884d978ecc45633810226f691902c0) - build: update @inquirer/confirm to ^6.3.5
+
+- [#470](https://github.com/stats-forge/github-stats-forge/pull/470) [`fd233f2`](https://github.com/stats-forge/github-stats-forge/commit/fd233f2756884d978ecc45633810226f691902c0) - build: update @inquirer/input to ^5.1.9
+
+- [#470](https://github.com/stats-forge/github-stats-forge/pull/470) [`fd233f2`](https://github.com/stats-forge/github-stats-forge/commit/fd233f2756884d978ecc45633810226f691902c0) - build: update @inquirer/number to ^4.2.6
+
+- [#470](https://github.com/stats-forge/github-stats-forge/pull/470) [`fd233f2`](https://github.com/stats-forge/github-stats-forge/commit/fd233f2756884d978ecc45633810226f691902c0) - build: update @inquirer/password to ^5.2.5
+
+- [#470](https://github.com/stats-forge/github-stats-forge/pull/470) [`fd233f2`](https://github.com/stats-forge/github-stats-forge/commit/fd233f2756884d978ecc45633810226f691902c0) - build: update @inquirer/select to ^5.2.8
+
 ## 0.8.1
 
 ### Patch Changes
