@@ -31,8 +31,7 @@ jobs:
     timeout-minutes: 10
 
     permissions:
-      contents: write # required to push release commits and tags
-      pull-requests: write # required to create and update release PRs
+      contents: read # the app token, not GITHUB_TOKEN, pushes the release and opens the PR
       id-token: write # required for npm OIDC trusted publishing
 
     outputs:
@@ -43,12 +42,14 @@ jobs:
     steps:
       # A GitHub App token, not GITHUB_TOKEN: events from the default token do not
       # start other workflows, so CI would never run on the release PR.
-      - name: Setup release helper
+      - name: Create release helper token
         id: release-helper
-        uses: marcalexiei/github-actions/setup-github-app-user-bot@0dca7a8dfeb729b5b00eaed578440239df457db7 # v2.6.5
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
         with:
-          app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
+          client-id: ${{ vars.RELEASE_HELPER_APP_ID }}
           private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
+          permission-contents: write # pushes the release branch, tags and releases
+          permission-pull-requests: write # opens and updates the release PR
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -167,12 +168,15 @@ jobs:
     steps:
       # The app's token, not the default one: it carries issues:write, and the comments
       # then come from the same bot that opened the release PR.
-      - name: Setup release helper
+      - name: Create release helper token
         id: release-helper
-        uses: marcalexiei/github-actions/setup-github-app-user-bot@0dca7a8dfeb729b5b00eaed578440239df457db7 # v2.6.5
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
         with:
-          app-id: ${{ vars.RELEASE_HELPER_APP_ID }}
+          client-id: ${{ vars.RELEASE_HELPER_APP_ID }}
           private-key: ${{ secrets.RELEASE_HELPER_PRIVATE_KEY }}
+          permission-contents: read # finds the PRs a commit shipped in
+          permission-pull-requests: write # comments on shipped PRs
+          permission-issues: write # comments on the issues those PRs close
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
