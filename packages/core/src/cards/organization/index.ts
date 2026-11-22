@@ -6,6 +6,7 @@ import {
   createTextNode,
   el,
   flexLayout,
+  formatDecimal,
   font,
   getLightDarkColors,
   icons,
@@ -16,15 +17,22 @@ import {
 } from '@stats-forge/card-kit';
 import type { Child, CssChild, Locale, NumberFormat } from '@stats-forge/card-kit';
 
+import { calculateOrgRank } from '../../calculateRank.ts';
 import { CARD_ICON } from '../../common/brand.ts';
 import { CardError } from '../../common/error.ts';
+import { commonLocales } from '../../common/locales.ts';
 import { parseEmojis } from '../../common/ops.ts';
+import { RANK_GUTTER, RANK_ICONS, rankRing, rankRingStyles } from '../../common/rankRing.ts';
+import type { RankIcon } from '../../common/rankRing.ts';
 import type { OrganizationData } from '../../fetchers/organization/types.ts';
 import type { CardOptions, CommonCardOptions } from '../options.ts';
 
 import { orgCardLocales } from './locales.ts';
 
 const CARD_DEFAULT_WIDTH = CARD_STYLE.width.standard;
+const RANK_CARD_DEFAULT_WIDTH = CARD_STYLE.width.wide;
+/** The body height the ring needs, so a card with few rows still holds it. */
+const RANK_RING_ROOM = 88;
 /** How far a stat row is translated into the card; see `createTextNode`. */
 const STAT_ROW_X = CARD_STYLE.padding.x;
 /** `createTextNode`'s own label offset, which it applies only when icons are shown. */
@@ -62,6 +70,8 @@ interface OrgCardOptions extends CommonCardOptions {
   disable_animations: boolean;
   number_format: NumberFormat;
   number_precision: number;
+  hide_rank: boolean;
+  rank_icon: RankIcon;
 }
 
 /** Meta data for a stat, used to build its text node and accessibility label. */
@@ -77,12 +87,21 @@ interface StatItem {
  */
 const getStyles = ({
   textColor,
+  titleColor,
   iconColor,
+  ringColor,
+  sparkColor,
   show_icons,
+  progress,
 }: {
   textColor: string;
+  titleColor: string;
   iconColor: string;
+  ringColor: string;
+  sparkColor: string;
   show_icons: boolean;
+  /** How much of the ring is drawn, out of 100; `null` when the card draws none. */
+  progress: number | null;
 }): Array<CssChild> => [
   rule('.stat', {
     font: font('regular', 'body'),
@@ -94,6 +113,9 @@ const getStyles = ({
   rule('.not_bold', { 'font-weight': CARD_STYLE.fontWeight.regular, opacity: 0.75 }),
   rule('.bold', { 'font-weight': CARD_STYLE.fontWeight.semibold }),
   rule('.icon', { fill: iconColor, opacity: 0.75, display: show_icons ? 'block' : 'none' }),
+  ...(progress === null
+    ? []
+    : rankRingStyles({ textColor, titleColor, ringColor, sparkColor, progress })),
 ];
 
 /**
@@ -124,7 +146,7 @@ const renderCard = (
   const {
     hide = [],
     show = [],
-    show_icons = true,
+    show_icons = false,
     hide_title = false,
     hide_border = false,
     hide_description = false,
@@ -133,6 +155,8 @@ const renderCard = (
     border_radius,
     locale,
     disable_animations = false,
+    hide_rank = false,
+    rank_icon = 'default',
   } = options;
 
   const { lightColors, darkColors } = getLightDarkColors(options);
@@ -142,6 +166,7 @@ const renderCard = (
 
   const apostrophe = /s$/i.test(name.trim()) ? '' : 's';
   const t = localize(orgCardLocales, locale);
+  const commonT = localize(commonLocales, locale);
   const formatCount = countFormatter(options);
 
   /**
@@ -247,7 +272,9 @@ const renderCard = (
     throw CardError.because('org_no_stats', { card: 'organization' });
   }
 
-  const width = card_width && !Number.isNaN(card_width) ? card_width : CARD_DEFAULT_WIDTH;
+  const defaultWidth = hide_rank ? CARD_DEFAULT_WIDTH : RANK_CARD_DEFAULT_WIDTH;
+  const width = card_width && !Number.isNaN(card_width) ? card_width : defaultWidth;
+  const rankGutter = hide_rank ? 0 : RANK_GUTTER;
 
   const desc = hide_description ? '' : parseEmojis(description || t.noDescription());
   const descriptionLines = desc
@@ -263,12 +290,9 @@ const renderCard = (
       ? descriptionLines.length * DESCRIPTION_LINE_HEIGHT_PX + DESCRIPTION_GAP
       : 0;
 
-  const height =
-    CARD_STYLE.padding.bodyOffsetY +
-    statsTop +
-    Math.max(visibleStats.length - 1, 0) * LINE_HEIGHT +
-    CARD_STYLE.statRowInk +
-    CARD_STYLE.padding.bottom;
+  const rowsHeight = Math.max(visibleStats.length - 1, 0) * LINE_HEIGHT + CARD_STYLE.statRowInk;
+  const bodyHeight = hide_rank ? rowsHeight : Math.max(rowsHeight, RANK_RING_ROOM);
+  const height = CARD_STYLE.padding.bodyOffsetY + statsTop + bodyHeight + CARD_STYLE.padding.bottom;
 
   // A value ends at the card's inner edge — or right after the longest label,
   // on a card too narrow for that.
@@ -277,7 +301,7 @@ const renderCard = (
   );
   const valueAnchorX = Math.round(
     Math.max(
-      width - CARD_STYLE.padding.x - STAT_ROW_X,
+      width - CARD_STYLE.padding.x - STAT_ROW_X - rankGutter,
       (show_icons ? LABEL_X_OFFSET : 0) + widestLabel + LABEL_VALUE_GAP,
     ),
   );
@@ -297,15 +321,22 @@ const renderCard = (
     }),
   );
 
+  const rank = calculateOrgRank({ stars: totalStars, forks: totalForks, repos: publicRepos });
+
+  const cardTitle = title ?? t.title({ name, apostrophe });
+
   // `role="img"` hides the inner text from assistive tech, so everything the card
   // shows has to be repeated in its description.
   const card = new Card({
-    title: title ?? t.title({ name, apostrophe }),
+    title: cardTitle,
     titlePrefixIcon: CARD_ICON.organization,
     width,
     height,
     border_radius,
     colors: { light: lightColors, dark: darkColors },
+    accessibleTitle: hide_rank
+      ? cardTitle
+      : t.accessibilityTitle({ title: cardTitle, level: rank.level }),
     description: [
       desc && `${desc}.`,
       visibleStats.map(([, stat]) => `${stat.label}: ${String(stat.value)}`).join(', '),
@@ -315,8 +346,18 @@ const renderCard = (
     hideBorder: hide_border,
     hideTitle: hide_title,
     animations: !disable_animations,
-    css: ({ textColor, iconColor }): Array<CssChild> =>
-      getStyles({ textColor, iconColor, show_icons }),
+    burns: !hide_rank,
+    css: ({ textColor, titleColor, iconColor, ringColor, heat }): Array<CssChild> =>
+      getStyles({
+        textColor,
+        titleColor,
+        iconColor,
+        ringColor,
+        sparkColor: heat[0],
+        show_icons,
+        // the lower the percentile the better
+        progress: hide_rank ? null : 100 - rank.percentile,
+      }),
   });
 
   const descriptionSvg =
@@ -327,8 +368,23 @@ const renderCard = (
       descriptionLines.map((line) => el('tspan', { dy: '1.2em', x: CARD_STYLE.padding.x }, line)),
     );
 
+  // Halfway between where the values stop and the card's edge, level with the middle of the rows.
+  const rankCircle =
+    !hide_rank &&
+    rankRing({
+      x: (valueAnchorX + STAT_ROW_X + width) / 2,
+      y: statsTop + bodyHeight / 2,
+      icon: rank_icon,
+      level: rank.level,
+      percentile: {
+        header: commonT.percentileHeader(),
+        value: formatDecimal(rank.percentile, locale, 1),
+      },
+    });
+
   return card.render([
     descriptionSvg,
+    rankCircle,
     el(
       'g',
       { transform: `translate(0, ${statsTop})` },
@@ -347,6 +403,7 @@ const renderOrganizationCard = Object.assign(renderCard, {
     show: SHOW_STATS,
     hide: HIDE_STATS,
     number_format: NUMBER_FORMATS,
+    rank_icon: RANK_ICONS,
   },
 });
 

@@ -1,11 +1,11 @@
 ---
 title: Organization
-description: An organization, and the totals of its public repositories.
+description: An organization, the totals of its public repositories, and a rank.
 ---
 
 An organization's own description, and what its public repositories add up to:
 how many there are, the stars, forks and watchers they hold between them,
-and how much is open across them.
+and how much is open across them — graded into a [rank](#how-the-rank-is-calculated).
 Releases, commits, public members, the most common language and the founding year are there for
 the asking.
 
@@ -23,12 +23,14 @@ the asking.
 
 ## Options
 
-| Option             | Values                                                      | What it does                                  |
-| ------------------ | ----------------------------------------------------------- | --------------------------------------------- |
-| `show`             | `releases` `commits` `members` `top_language` `created`     | Draw these stats as well                      |
-| `hide`             | `repos` `stars` `forks` `watchers` `open_issues` `open_prs` | Leave these stats out                         |
-| `show_icons`       | `true` `false`                                              | Show an icon beside each stat (on by default) |
-| `hide_description` | `true` `false`                                              | Leave the organization's description out      |
+| Option             | Values                                                      | What it does                             |
+| ------------------ | ----------------------------------------------------------- | ---------------------------------------- |
+| `show`             | `releases` `commits` `members` `top_language` `created`     | Draw these stats as well                 |
+| `hide`             | `repos` `stars` `forks` `watchers` `open_issues` `open_prs` | Leave these stats out                    |
+| `show_icons`       | `true` `false`                                              | Show an icon beside each stat            |
+| `hide_description` | `true` `false`                                              | Leave the organization's description out |
+| `hide_rank`        | `true` `false`                                              | Leave out the rank circle                |
+| `rank_icon`        | `default` `github` `percentile`                             | What the rank circle shows               |
 
 `show` and `hide` each take any stat the card draws; a stat named in both is left out.
 
@@ -61,3 +63,19 @@ Three of them need spelling out:
 - **Members** counts the people whose membership the organization shows publicly.
   Membership is private by default, so it is usually fewer people than the organization has —
   and `0` for an organization whose members are all private.
+
+## How the rank is calculated
+
+The rank weighs these totals, whatever the card shows:
+
+| Number       | Median | Weight |
+| ------------ | ------ | ------ |
+| Stars        | 1000   | 4      |
+| Forks        | 200    | 2      |
+| Repositories | 20     | 1      |
+
+It scores them as [the stats card's rank](../stats/#how-the-rank-is-calculated) does, on the same
+levels. Releases and commits are left out, since GitHub counts them too slowly for every card to
+ask; so are public members, which a token may not read, and open issues and PRs, which say nothing
+either way. An organization past 500 repositories is ranked on the totals read, so its rank is a
+floor.

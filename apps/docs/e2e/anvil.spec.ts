@@ -347,8 +347,8 @@ test('a boolean can be turned on, turned off, or left to the card', async ({ pag
   expect(chosen(on)).toEqual({ show_icons: 'true' });
   await expect(drawnCard(page).locator('.icon').first()).toBeAttached();
 
-  // Off has to be writable, not absent: `show_icons` defaults to on for the org card.
-  await setCard(page, 'org');
+  // Off has to be writable, not absent: `show_icons` defaults to on for the org activity card.
+  await setCard(page, 'org-activity');
   await setBoolean(page, 'show_icons', 'false');
   const off = await savedCard(page);
   expect(chosen(off)).toEqual({ show_icons: 'false' });
