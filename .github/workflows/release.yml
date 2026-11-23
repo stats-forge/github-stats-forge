@@ -185,7 +185,7 @@ jobs:
           fetch-depth: 0 # the commenter reads the history before the release commit
 
       - name: Comment on shipped PRs and issues
-        uses: marcalexiei/changesets-release-commenter@97096fbe9cde74fcae784df963274998e0090a7c # v0.3.1
+        uses: marcalexiei/changesets-release-commenter@05af9622283286a660465ac50f552b7f4151377e # v0.4.0
         with:
           github-token: ${{ steps.release-helper.outputs.token }}
           published-packages: ${{ needs.release.outputs.publishedPackages }}
