@@ -36,6 +36,16 @@
     { matchManagers: ['npm'], schedule: ['* * * * 3,6'] },
     { matchManagers: ['dockerfile'], schedule: ['* * * * 1'] },
 
+    // Our own packages, as pnpm's `minimumReleaseAgeExclude`: waiting on them guards against nothing.
+    {
+      matchPackageNames: [
+        '@marcalexiei/oxfmt-config',
+        '@marcalexiei/oxlint-config',
+        '@stats-forge/card-kit',
+      ],
+      minimumReleaseAge: null,
+    },
+
     // Groups.
     { matchPackageNames: ['vitest', '@vitest/*'], groupName: 'vitest' },
     { matchPackageNames: ['typescript', '@types/*'], groupName: 'typescript' },
@@ -86,6 +96,10 @@
       matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
       automerge: true,
     },
+
+    // Our own runtime dependency, behind `CI OK` like the rest: `docs:cards:check` catches a card that
+    // drew differently, and the rule below still writes its changeset.
+    { matchPackageNames: ['@stats-forge/card-kit'], automerge: true },
 
     // A runtime dependency is installed alongside the package, so its bump is that package's
     // release; `updateInternalDependencies: patch` carries it to the dependents. Dev dependencies
