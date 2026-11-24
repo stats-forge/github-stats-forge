@@ -71,12 +71,32 @@ describe(retryer, () => {
         errors: [{ type: 'ASDF', message: 'API rate limit already exceeded for user ID 11111111' }],
       }),
     ],
-  ])('retries once after %s, and answers', async (_what, first) => {
-    const fetcher = failingOnce(first);
+    [
+      "REST's primary rate limit",
+      {
+        status: 403,
+        statusText: 'Forbidden',
+        data: { message: 'API rate limit exceeded for user ID 11111111.' },
+      },
+    ],
+    [
+      "REST's secondary rate limit",
+      {
+        status: 403,
+        statusText: 'Forbidden',
+        data: { message: 'You have exceeded a secondary rate limit. Please wait a few minutes.' },
+      },
+    ],
+    ['a 429', { status: 429, statusText: 'Too Many Requests', data: {} }],
+  ] satisfies Array<[string, FetcherResponse<Payload>]>)(
+    'retries once after %s, and answers',
+    async (_what, first) => {
+      const fetcher = failingOnce(first);
 
-    await expect(retryer(fetcher, {}, testConfig)).resolves.toStrictEqual(OK);
-    expect(fetcher).toHaveBeenCalledTimes(2);
-  });
+      await expect(retryer(fetcher, {}, testConfig)).resolves.toStrictEqual(OK);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+    },
+  );
 
   it('reports a rate limit once every token has been tried', async () => {
     const fetcher = vi.fn<Fetcher>().mockResolvedValue(RATE_LIMITED);

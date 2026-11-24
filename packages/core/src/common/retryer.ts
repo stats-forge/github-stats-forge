@@ -114,11 +114,16 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
 
     // react on both type and message-based rate-limit signals.
     // https://github.com/anuraghazra/github-readme-stats/issues/4425
-    const { errors } = response.data;
+    const { errors, message } = response.data;
     const errorType = errors?.[0]?.type;
     const errorMsg = errors?.[0]?.message ?? '';
+    // REST names a rate limit in a 403's or 429's `message`, never in `errors`
+    const isRestRateLimited =
+      response.status === 429 || (response.status === 403 && /rate limit/i.test(message ?? ''));
     const isRateLimited =
-      (!!errors && errorType === 'RATE_LIMITED') || /rate limit/i.test(errorMsg);
+      (!!errors && errorType === 'RATE_LIMITED') ||
+      /rate limit/i.test(errorMsg) ||
+      isRestRateLimited;
 
     if (isRateLimited) {
       config.logger.log(`${currentPAT.name} Failed due to rate limiting`);
@@ -126,7 +131,6 @@ const retryer = async <TData = unknown, TVariables = Record<string, unknown>>(
     }
 
     // also checking for bad credentials if any tokens gets invalidated
-    const { message } = response.data;
     const isBadCredential = message === 'Bad credentials';
     const isAccountSuspended = message === 'Sorry. Your account was suspended.';
 
