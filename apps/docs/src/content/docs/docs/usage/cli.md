@@ -47,6 +47,11 @@ Every card but WakaTime needs a [GitHub token](../tokens/). The CLI looks for on
 On a GitHub Enterprise Server, `GITHUB_API_URL` names its API, `https://HOST/api/v3`, as its
 runners already set it.
 
+The WakaTime card reads `wakatime.com` alone unless `WAKATIME_HOSTS` lists the hosts its
+`wakatime_host` may name, in the environment or the env file, as on a
+[self-hosted instance](../self-hosting/#pinning-it-to-yourself):
+`WAKATIME_HOSTS=wakatime.com,localhost:3000`.
+
 The `GITHUB_TOKEN` a workflow is given cannot read gists or an organization's members, so the gist
 and organization cards need a token of your own.
 
@@ -65,7 +70,7 @@ the prompt, which hides what you type.
 | `--check`           | As `--generate`, but exit 1 when the file at `--out` differs, writing nothing                                   |
 | `--print-query`     | Print the options as a query string and exit, without rendering                                                 |
 | `--pat <token>`     | A GitHub token; repeat the flag for several                                                                     |
-| `--env-file <file>` | Which env file to read `PAT_1`, `PAT_2`, … from                                                                 |
+| `--env-file <file>` | Which env file to read `PAT_1`, `PAT_2`, … and `WAKATIME_HOSTS` from                                            |
 | `-h, --help`        | The same list, from the tool                                                                                    |
 
 ## Saving a card
