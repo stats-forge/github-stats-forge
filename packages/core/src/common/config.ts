@@ -16,11 +16,8 @@ interface PersonalAccessToken {
   value: string;
 }
 
-/** The WakaTime hosts a deployment fetches from, `host` or `host:port`, or `'any'`. */
-type WakatimeHosts = ReadonlyArray<string> | 'any';
-
 /** Only WakaTime's own service: a host that fetched any other could be made to reach a private one. */
-const DEFAULT_WAKATIME_HOSTS: WakatimeHosts = [DEFAULT_WAKATIME_HOST];
+const DEFAULT_WAKATIME_HOSTS: ReadonlyArray<string> = [DEFAULT_WAKATIME_HOST];
 
 /** Overrides for a {@link CardConfig}; the constructor defaults anything omitted. */
 interface CardConfigInit {
@@ -34,7 +31,7 @@ interface CardConfigInit {
   hints?: Partial<Record<FailureReason, string>>;
   logger?: Logger;
   githubApiUrl?: string | undefined;
-  wakatimeHosts?: WakatimeHosts | undefined;
+  wakatimeHosts?: ReadonlyArray<string> | undefined;
 }
 
 /**
@@ -95,7 +92,7 @@ export class CardConfig {
   /** The REST API's base, a GitHub Enterprise Server's `https://HOST/api/v3`; no trailing slash. */
   readonly githubApiUrl: string;
   /** WakaTime hosts `wakatime_host` may name, matched case-insensitively; `wakatime.com` alone unless set. */
-  readonly wakatimeHosts: WakatimeHosts;
+  readonly wakatimeHosts: ReadonlyArray<string>;
   /** The transport as given, so `with` never wraps it twice. */
   private readonly transport: FetchLike;
 
@@ -141,9 +138,6 @@ export class CardConfig {
 
   /** @returns Whether this deployment fetches WakaTime stats from the host. */
   allowsWakatimeHost(host: string): boolean {
-    if (this.wakatimeHosts === 'any') {
-      return true;
-    }
     const wanted = host.toLowerCase();
     return this.wakatimeHosts.some((allowed) => allowed.toLowerCase() === wanted);
   }
@@ -167,5 +161,5 @@ export class CardConfig {
   }
 }
 
-export type { AllowlistKind, PersonalAccessToken, CardConfigInit, WakatimeHosts };
+export type { AllowlistKind, PersonalAccessToken, CardConfigInit };
 export type { Logger } from '@stats-forge/card-kit';

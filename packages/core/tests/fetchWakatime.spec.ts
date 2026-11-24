@@ -123,19 +123,6 @@ describe('WakaTime fetcher', () => {
     ).rejects.toMatchObject({ reason: 'wakatime_unavailable' });
   });
 
-  it("fetches from any host under 'any'", async () => {
-    mock
-      .onGet('https://localhost:3000/api/v1/users/user/stats?is_including_today=true')
-      .reply(200, wakaTimeData);
-
-    await expect(
-      fetchWakatimeStats(
-        { username: 'user', wakatime_host: 'localhost:3000' },
-        config.with({ wakatimeHosts: 'any' }),
-      ),
-    ).resolves.toStrictEqual(wakaTimeData.data);
-  });
-
   it.each(['evil.com/x?', 'user@evil.com'])('refuses the api domain %j', async (wakatime_host) => {
     await expect(
       fetchWakatimeStats({ username: 'user', wakatime_host }, config),

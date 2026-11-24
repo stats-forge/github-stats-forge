@@ -117,7 +117,7 @@ beforeEach(async () => {
   ({ argv } = process);
   // a token or API in the shell running the suite must not reach a test that expects none
   for (const name of Object.keys(process.env).filter((key) =>
-    /^(?:PAT_\d+|GH_TOKEN|GITHUB_TOKEN|GITHUB_API_URL)$/u.test(key),
+    /^(?:PAT_\d+|GH_TOKEN|GITHUB_TOKEN|GITHUB_API_URL|WAKATIME_HOSTS)$/u.test(key),
   )) {
     vi.stubEnv(name, undefined);
   }
@@ -236,6 +236,18 @@ describe('the command line', () => {
     await run('--config', savedGist, '--generate', '--pat', 'ghp_x', '--out', join(dir, 'a.svg'));
 
     expect(render.mock.calls[0]?.[1].githubApiUrl).toBe('https://ghe.example.com/api/v3');
+  });
+
+  it.each([
+    [undefined, ['wakatime.com']],
+    ['wakatime.com, wakapi.lan:3000', ['wakatime.com', 'wakapi.lan:3000']],
+  ])('fetches WakaTime stats from the hosts WAKATIME_HOSTS=%j names', async (value, hosts) => {
+    vi.stubEnv('WAKATIME_HOSTS', value);
+    render.mockResolvedValue(DRAWN);
+
+    await run('--config', savedGist, '--generate', '--pat', 'ghp_x', '--out', join(dir, 'a.svg'));
+
+    expect(render.mock.calls[0]?.[1].wakatimeHosts).toStrictEqual(hosts);
   });
 
   it("creates --out's folders when they are not there yet", async () => {

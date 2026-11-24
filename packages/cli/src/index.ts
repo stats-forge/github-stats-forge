@@ -52,7 +52,7 @@ Options
       --check           As --generate, but fail when --out differs instead of writing it
       --print-query     Print the options as a query string and exit, without rendering
       --pat <token>     GitHub token; repeat for several
-      --env-file <file> Env file to read PAT_1, PAT_2, … from (default: ${DEFAULT_ENV_FILE})
+      --env-file <file> Env file to read PAT_1, PAT_2, … and WAKATIME_HOSTS from (default: ${DEFAULT_ENV_FILE})
   -h, --help            Show this
   -v, --version         Show the version
 
@@ -288,8 +288,8 @@ const main = async (): Promise<void> => {
     logger: stderrLogger,
     // set by an Enterprise Server's runner, as GH_TOKEN and GITHUB_TOKEN are
     githubApiUrl: process.env['GITHUB_API_URL'] || undefined,
-    // it fetches for the person running it, so a Wakapi on their own network is theirs to name
-    wakatimeHosts: 'any',
+    // read as the server reads it, so a Wakapi of your own is named beside PAT_1
+    wakatimeHosts: CardConfig.fromEnv(process.env).wakatimeHosts,
     hints: {
       rate_limited:
         "Every token has hit GitHub's rate limit; try again later, or pass another with --pat",

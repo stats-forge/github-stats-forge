@@ -98,7 +98,7 @@ const config = new CardConfig({
 | `hints`               | Your own second line for a failure, by `reason`, on the card and in `text`         |
 | `logger`              | Where diagnostics go, such as a token hitting its rate limit; `console` by default |
 | `githubApiUrl`        | A GitHub Enterprise Server's REST API; its GraphQL API is found beside it          |
-| `wakatimeHosts`       | The WakaTime hosts `wakatime_host` may name; `wakatime.com` alone, or `'any'`      |
+| `wakatimeHosts`       | The WakaTime hosts `wakatime_host` may name; `wakatime.com` alone unless set       |
 
 `CardConfig.fromEnv(process.env)` builds the same thing from `PAT_1`…, `ALLOWLIST`,
 `GIST_ALLOWLIST`, `EXCLUDE_REPO`, `FETCH_MULTI_PAGE_STARS`, `GITHUB_API_URL` and `WAKATIME_HOSTS`, for a host that would rather
