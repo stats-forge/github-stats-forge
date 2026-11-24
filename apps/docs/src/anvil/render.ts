@@ -34,6 +34,8 @@ const orNotFound =
 const sampleConfig = new CardConfig({
   pats: [{ name: 'ANVIL', value: 'sample' }],
   fetch: orNotFound(fixtureFetch),
+  // the fixtures answer every host, so none is fetched from for real
+  wakatimeHosts: 'any',
 });
 
 /**

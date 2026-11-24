@@ -55,6 +55,22 @@ describe('CardConfig.fromEnv', () => {
   });
 });
 
+describe('CardConfig.wakatimeHosts', () => {
+  it.each([{}, { WAKATIME_HOSTS: '' }])('allows WakaTime alone when %j sets none', (env) => {
+    expect(CardConfig.fromEnv(env).wakatimeHosts).toStrictEqual(['wakatime.com']);
+    expect(new CardConfig().wakatimeHosts).toStrictEqual(['wakatime.com']);
+  });
+
+  it('reads WAKATIME_HOSTS as a list, and keeps it through `with`', () => {
+    const config = CardConfig.fromEnv({ WAKATIME_HOSTS: ' wakatime.com, wakapi.lan:3000,' });
+
+    expect(config.with({ pats: [] }).wakatimeHosts).toStrictEqual([
+      'wakatime.com',
+      'wakapi.lan:3000',
+    ]);
+  });
+});
+
 describe('CardConfig.requestTimeoutMs', () => {
   it('gives up on a request that never answers', async () => {
     const config = new CardConfig({ fetch: stalled, requestTimeoutMs: 20 });

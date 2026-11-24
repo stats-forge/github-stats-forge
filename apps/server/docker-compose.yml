@@ -32,6 +32,7 @@ services:
     #   STRICT_HTTP_STATUS=true     answer with the status a failure deserves, rather than 200
     #   CACHE_SECONDS=0             turn caching off, headers and all, to debug the instance
     #   CORS_ORIGIN                 the one origin allowed to read a card from script
+    #   WAKATIME_HOSTS              the WakaTime hosts it fetches from; unset is wakatime.com alone
     #
     # The whole table is on the self-hosting page, `docs/usage/self-hosting` in the documentation
     # this instance serves at http://localhost:9000/docs/usage/self-hosting/

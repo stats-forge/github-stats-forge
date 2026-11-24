@@ -16,6 +16,9 @@ const GITHUB_USERNAME_PATTERN = /^[a-z\d-]{1,39}$/i;
 const HOSTNAME_PATTERN =
   /^[a-z\d](?:[a-z\d-]*[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]*[a-z\d])?)*(?::(?:6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}))?$/i;
 
+/** WakaTime's own service, fetched when no `wakatime_host` is given. */
+const DEFAULT_WAKATIME_HOST = 'wakatime.com';
+
 /** A WakaTime or Wakapi username: one path segment, and never `.` or `..`. */
 const WAKATIME_USERNAME_PATTERN = /^(?!\.+$)[\w.-]+$/;
 
@@ -54,6 +57,7 @@ const affiliationsOrOwner = (
 };
 
 export {
+  DEFAULT_WAKATIME_HOST,
   affiliationsOrOwner,
   GITHUB_EPOCH_YEAR,
   GITHUB_USERNAME_PATTERN,
