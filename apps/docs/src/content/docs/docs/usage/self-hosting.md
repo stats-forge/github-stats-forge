@@ -66,8 +66,8 @@ A gist is named by its id, so only `GIST_ALLOWLIST` guards the gist card. Neithe
 WakaTime card, and neither is authentication: they limit whose cards are drawn, not who asks.
 
 The WakaTime card fetches from `wakatime.com` alone unless `WAKATIME_HOSTS` lists the hosts its
-`wakatime_host` may name. Anything else is refused, so nobody can point your instance at an
-address on its own network. To serve a Wakapi beside WakaTime, list both:
+`wakatime_host` may name. Anything else is refused, and so is a redirect from a listed host, so
+nobody can point your instance at an address on its own network. To serve a Wakapi beside WakaTime, list both:
 
 ```sh
 WAKATIME_HOSTS=wakatime.com,wakapi.example.com

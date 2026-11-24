@@ -55,6 +55,8 @@ const fetchWakatimeStats = async (
   const res = await httpRequest<{ data: WakaTimeData }>(
     config.fetch,
     `https://${domain}/api/v1/users/${username}/stats${range === undefined ? '' : `/${range}`}?is_including_today=true`,
+    // a listed host could redirect to a private address the allowlist never saw
+    { redirect: 'manual' },
   );
 
   // Only a 404 says the profile does not exist.
