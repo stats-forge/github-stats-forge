@@ -228,6 +228,20 @@ describe('Test renderRepoCard', () => {
     });
   });
 
+  it('links a search stat to the search that counted it, its type intact', () => {
+    draw(
+      renderRepoCard(
+        { ...repo, totalPRsAuthored: 3 },
+        { show: ['prs_opened'], username: 'anuraghazra' },
+      ),
+    );
+
+    expect(screen.getByTestId('prs_opened').closest('a')).toHaveAttribute(
+      'href',
+      'https://github.com/search?q=repo%3Aanuraghazra%2Fconvoychat%20author%3Aanuraghazra&type=pullrequests',
+    );
+  });
+
   describe('every `show` stat at once', () => {
     const showStats = renderRepoCard.OPTIONS.show.filter((id) => id !== 'topics');
     const table: LocaleTable = repoCardLocales;

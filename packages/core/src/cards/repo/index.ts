@@ -206,7 +206,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       label: t.prsOpened(),
       value: totalPRsAuthored,
       id: 'prs_opened',
-      link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=pullrequests`,
+      link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&type=pullrequests`,
     };
   }
   if (shows('prs_commented')) {
@@ -215,7 +215,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       label: t.prsCommented(),
       value: totalPRsCommented,
       id: 'prs_commented',
-      link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
+      link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&type=pullrequests`,
     };
   }
   if (shows('prs_reviewed')) {
@@ -224,7 +224,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       label: t.prsReviewed(),
       value: totalPRsReviewed,
       id: 'prs_reviewed',
-      link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=pullrequests`,
+      link: `https://github.com/search?q=${repoFilter}reviewed-by%3A${encodedUsername}+-author%3A${encodedUsername}&type=pullrequests`,
     };
   }
   if (shows('issues_opened')) {
@@ -233,7 +233,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       label: t.issuesOpened(),
       value: totalIssuesAuthored,
       id: 'issues_opened',
-      link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&amp;type=issues`,
+      link: `https://github.com/search?q=${repoFilter}author%3A${encodedUsername}&type=issues`,
     };
   }
   if (shows('issues_commented')) {
@@ -242,7 +242,7 @@ const renderCard = (repo: RepositoryData, options: CardOptions<RepoCardOptions> 
       label: t.issuesCommented(),
       value: totalIssuesCommented,
       id: 'issues_commented',
-      link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&amp;type=issues`,
+      link: `https://github.com/search?q=${repoFilter}commenter%3A${encodedUsername}+-author%3A${encodedUsername}&type=issues`,
     };
   }
 

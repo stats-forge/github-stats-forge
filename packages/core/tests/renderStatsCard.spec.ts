@@ -148,6 +148,15 @@ describe('Test renderStatsCard', () => {
     expect(draw(renderStatsCard(stats, { show: ['prs_opened'], scope }))).toHaveTextContent(label);
   });
 
+  it.each([
+    ['prs_opened', 'https://github.com/search?q=author%3Aanuraghazra&type=pullrequests'],
+    ['issues_opened', 'https://github.com/search?q=author%3Aanuraghazra&type=issues'],
+  ] as const)('links %s to the search that counted it, its type intact', (stat, href) => {
+    draw(renderStatsCard(stats, { show: [stat] }));
+
+    expect(screen.getByTestId(stat).closest('a')).toHaveAttribute('href', href);
+  });
+
   it('names the scope on the commits line only when commits are counted by search', () => {
     draw(renderStatsCard(stats, { scope: ['vitest-dev/*'] }));
     expect(screen.getByTestId('commits').closest('g')).not.toHaveTextContent('vitest-dev');
