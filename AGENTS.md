@@ -277,8 +277,8 @@ oxlint (type-aware, via `oxlint-tsgolint`) and oxfmt replaced eslint and prettie
   `packages/*`, the only bump that reaches a consumer.
 - **The workflow's cron fires; the config's `schedule` gates**, so per-manager windows are day-wide.
 - **Dev dependency and Actions minors, patches, pins and digests automerge on a green `CI OK`**
-  ([#137]); majors and `dependencies` stay manual. A later `packageRules` entry wins, so the
-  held-back rules sit last.
+  ([#137]); majors and `dependencies` stay manual, bar card-kit, which automerges at any version.
+  A later `packageRules` entry wins, so the held-back rules sit last.
   - **`CI OK` gates through `marcalexiei/github-actions/check-needs`, never `needs.*.result`**
     ([#328]): a matrix leg no runner picked up is cancelled, yet leaves its matrix at `success`.
     It judges only the jobs in its `needs`, so a new job goes there too.
@@ -293,7 +293,8 @@ pnpm is **12.x** ([#110]); `pnpm-workspace.yaml` gives each setting's reason, an
   `pnpm why <pkg>`, since nothing polices an override ([#80]).
 - **A stale lockfile can hold an orphan**: delete `node_modules` and `pnpm-lock.yaml`, then
   reinstall; deleting the lockfile alone reuses what is installed.
-- **`minimumReleaseAge` exempts the first-party configs and card-kit alone, by name** ([#216]).
+- **`minimumReleaseAge` exempts the first-party configs and card-kit alone, by name** ([#216]),
+  in pnpm's `minimumReleaseAgeExclude` and Renovate's `packageRules` alike.
 
 [#15]: https://github.com/stats-forge/github-stats-forge/pull/15
 [#30]: https://github.com/stats-forge/github-stats-forge/pull/30
