@@ -258,6 +258,10 @@ const createTextNode = ({
  */
 const recalculatePercentages = <Lang extends WakaTimeLang>(languages: Array<Lang>): Array<Lang> => {
   const totalSum = languages.reduce((sum, language) => sum + language.percent, 0);
+  // shares rounding to nothing have no total to rescale to, and would divide by zero
+  if (totalSum <= 0) {
+    return [...languages];
+  }
   const weight = Number((100 / totalSum).toFixed(2));
   return languages.map((language) => ({
     ...language,

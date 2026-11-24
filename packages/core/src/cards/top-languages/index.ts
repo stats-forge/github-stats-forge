@@ -168,12 +168,10 @@ const renderCard = (topLangs: TopLangData, options: CardOptions<TopLangOptions> 
   // the description gives each share whatever `value_format` draws
   const formatShare = langValueFormatter('percent', locale);
 
-  const { langs, totalLanguageSize } = trimTopLanguages(
-    topLangs,
-    langs_count,
-    hide_langs,
-    t.others(),
-  );
+  const trimmed = trimTopLanguages(topLangs, langs_count, hide_langs, t.others());
+  const { totalLanguageSize } = trimmed;
+  // languages adding up to no bytes have no share to draw, so the card says it has no data
+  const langs = totalLanguageSize > 0 ? trimmed.langs : [];
 
   // judged by `card_width`, not the width: one asked for at the default is still asked for
   const askedWidth = card_width ? Math.max(card_width, MIN_CARD_WIDTH) : undefined;

@@ -249,6 +249,27 @@ describe('Test Render WakaTime Card', () => {
     );
   });
 
+  it('should draw empty bars, not NaN, when every share rounds to 0%', () => {
+    const data: WakaTimeData = {
+      ...wakaTimeData.data,
+      languages: [
+        {
+          digital: '0:03',
+          hours: 0,
+          minutes: 3,
+          name: 'Go',
+          percent: 0,
+          text: '3 mins',
+          total_seconds: 180,
+        },
+      ],
+    };
+    draw(renderWakatimeCard(data, { layout: 'compact', value_format: 'percent' }));
+
+    expect(screen.getByTestId('lang-name')).toHaveTextContent(exactly('Go - 0.00 %'));
+    expect(screen.getByTestId('lang-progress')).toHaveAttribute('width', '0');
+  });
+
   it('should render correctly with percent display format', () => {
     const card = renderWakatimeCard(wakaTimeData.data, {
       value_format: 'percent',

@@ -527,6 +527,18 @@ describe('Test renderTopLanguages', () => {
     expect(document.querySelector('.stat')).toHaveTextContent(exactly('No languages data.'));
   });
 
+  it.each(['normal', 'compact', 'donut', 'donut-vertical', 'pie'] as const)(
+    'should show "No languages data." in the %s layout when the languages add up to no bytes',
+    (layout) => {
+      const empty = {
+        Python: { color: '#3572A5', name: 'Python', size: 0, bytes: 0, count: 1 },
+      } satisfies TopLangData;
+      draw(renderTopLanguages(empty, { layout }));
+
+      expect(document.querySelector('.stat')).toHaveTextContent(exactly('No languages data.'));
+    },
+  );
+
   it.each([
     ['percent', ['HTML 40.00%', 'javascript 40.00%', 'css 20.00%']],
     ['bytes', ['HTML 200.0 B', 'javascript 200.0 B', 'css 100.0 B']],
