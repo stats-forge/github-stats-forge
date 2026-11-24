@@ -65,25 +65,34 @@ GIST_ALLOWLIST=0123456789abcdef0123456789abcdef
 A gist is named by its id, so only `GIST_ALLOWLIST` guards the gist card. Neither covers the
 WakaTime card, and neither is authentication: they limit whose cards are drawn, not who asks.
 
+The WakaTime card fetches from `wakatime.com` alone unless `WAKATIME_HOSTS` lists the hosts its
+`wakatime_host` may name. Anything else is refused, and so is a redirect from a listed host, so
+nobody can point your instance at an address on its own network. To serve a Wakapi beside WakaTime, list both:
+
+```sh
+WAKATIME_HOSTS=wakatime.com,wakapi.example.com
+```
+
 ## Configuration
 
 Everything but `PAT_1` is optional.
 
-| Variable                 | Default            | What it does                                                 |
-| ------------------------ | ------------------ | ------------------------------------------------------------ |
-| `PAT_1`, `PAT_2`, …      | —                  | GitHub tokens, used in turn; a second doubles the rate limit |
-| `PORT` / `HOST`          | `9000` / `0.0.0.0` | where it listens                                             |
-| `ALLOWLIST`              | —                  | GitHub logins this instance will draw                        |
-| `GIST_ALLOWLIST`         | —                  | gist ids it will draw                                        |
-| `EXCLUDE_REPO`           | —                  | repositories to leave out of the language and star counts    |
-| `FETCH_MULTI_PAGE_STARS` | `1`                | pages of starred repositories to count, or `true` for all    |
-| `STRICT_HTTP_STATUS`     | `false`            | answer with the status code a failure deserves               |
-| `CACHE_SECONDS`          | —                  | default lifetime of a drawn card; `0` turns caching off      |
-| `STALE_SECONDS`          | `86400`            | how long a held card covers a failing redraw; `0` for none   |
-| `CACHE_UPSTREAM_MB`      | `16`               | memory for GitHub's and WakaTime's answers; `0` holds none   |
-| `CACHE_DIR`              | —                  | where held cards are kept across a restart                   |
-| `CORS_ORIGIN`            | —                  | the one origin allowed to read a card from script            |
-| `GITHUB_API_URL`         | GitHub.com's       | a GitHub Enterprise Server's API, `https://HOST/api/v3`      |
+| Variable                 | Default            | What it does                                                  |
+| ------------------------ | ------------------ | ------------------------------------------------------------- |
+| `PAT_1`, `PAT_2`, …      | —                  | GitHub tokens, used in turn; a second doubles the rate limit  |
+| `PORT` / `HOST`          | `9000` / `0.0.0.0` | where it listens                                              |
+| `ALLOWLIST`              | —                  | GitHub logins this instance will draw                         |
+| `GIST_ALLOWLIST`         | —                  | gist ids it will draw                                         |
+| `EXCLUDE_REPO`           | —                  | repositories to leave out of the language and star counts     |
+| `FETCH_MULTI_PAGE_STARS` | `1`                | pages of starred repositories to count, or `true` for all     |
+| `STRICT_HTTP_STATUS`     | `false`            | answer with the status code a failure deserves                |
+| `CACHE_SECONDS`          | —                  | default lifetime of a drawn card; `0` turns caching off       |
+| `STALE_SECONDS`          | `86400`            | how long a held card covers a failing redraw; `0` for none    |
+| `CACHE_UPSTREAM_MB`      | `16`               | memory for GitHub's and WakaTime's answers; `0` holds none    |
+| `CACHE_DIR`              | —                  | where held cards are kept across a restart                    |
+| `CORS_ORIGIN`            | —                  | the one origin allowed to read a card from script             |
+| `GITHUB_API_URL`         | GitHub.com's       | a GitHub Enterprise Server's API, `https://HOST/api/v3`       |
+| `WAKATIME_HOSTS`         | `wakatime.com`     | WakaTime hosts the card may fetch from, `host` or `host:port` |
 
 See [GitHub tokens](../tokens/) for which token each card needs.
 

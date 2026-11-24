@@ -33,7 +33,7 @@ const wakatimeQuery = z.object({
 /**
  * Render the WakaTime card for a set of query params.
  *
- * WakaTime needs no GitHub token, so the config is read only for the transport it carries.
+ * WakaTime needs no GitHub token, so the config is read only for its transport and WakaTime hosts.
  *
  * @returns The rendered card, or a rendered error.
  */

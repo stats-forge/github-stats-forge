@@ -1,5 +1,5 @@
 import type { ApiResult } from '@stats-forge/card-kit';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { contributedTo } from '../src/api/contributed-to.ts';
 import { gist } from '../src/api/gist.ts';
@@ -89,6 +89,24 @@ describe('API input validation', () => {
       'Invalid hostname input for parameter &#34;wakatime_host&#34;',
     );
   });
+
+  it.each(['localhost:3000', '127.0.0.1', '169.254.169.254', '10.0.0.1:8080'])(
+    'wakatime: refuses wakatime_host %j, which the deployment does not list, before fetching',
+    async (wakatime_host) => {
+      const transport = vi.fn<typeof fetch>();
+      const result = await wakatime(
+        { username: 'user', wakatime_host },
+        config.with({ fetch: transport }),
+      );
+
+      expect(result).toMatchObject({
+        status: 'error',
+        retryable: false,
+        error: { code: 'invalid_param', reason: 'wakatime_invalid_host', param: 'wakatime_host' },
+      });
+      expect(transport).not.toHaveBeenCalled();
+    },
+  );
 
   describe.each(githubUsernameEndpoints)('%s: username', (_endpoint, send) => {
     it.each([...unsafeValues, ...malformedUsernames])('rejects username %j', async (value) => {

@@ -2,6 +2,7 @@ import { httpRequest } from '@stats-forge/card-kit';
 
 import type { CardConfig } from '../../common/config.ts';
 import {
+  DEFAULT_WAKATIME_HOST,
   HOSTNAME_PATTERN,
   WAKATIME_RANGES,
   WAKATIME_USERNAME_PATTERN,
@@ -13,7 +14,7 @@ import type { WakaTimeData } from './types.ts';
 /**
  * WakaTime data fetcher.
  *
- * WakaTime needs no GitHub token; the config is here for the transport it carries.
+ * WakaTime needs no GitHub token; the config is here for the transport and the hosts it allows.
  *
  * @returns WakaTime data response.
  */
@@ -46,10 +47,16 @@ const fetchWakatimeStats = async (
     throw CardError.because('wakatime_invalid_range');
   }
 
-  const domain = wakatime_host || 'wakatime.com';
+  const domain = wakatime_host || DEFAULT_WAKATIME_HOST;
+  // a host the deployment did not list could be a private one it would otherwise fetch from
+  if (!config.allowsWakatimeHost(domain)) {
+    throw CardError.because('wakatime_invalid_host');
+  }
   const res = await httpRequest<{ data: WakaTimeData }>(
     config.fetch,
     `https://${domain}/api/v1/users/${username}/stats${range === undefined ? '' : `/${range}`}?is_including_today=true`,
+    // a listed host could redirect to a private address the allowlist never saw
+    { redirect: 'manual' },
   );
 
   // Only a 404 says the profile does not exist.

@@ -1,4 +1,4 @@
-import { gist } from '@stats-forge/github-stats-forge-core/api';
+import { gist, wakatime } from '@stats-forge/github-stats-forge-core/api';
 import type { ApiResult } from '@stats-forge/github-stats-forge-core/api';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -77,6 +77,19 @@ describe(readSettings, () => {
     await expect(gist({ id: 'abc' }, config)).resolves.toMatchObject({
       error: { secondaryMessage: says },
     });
+  });
+
+  it.each([
+    { env: {}, host: 'wakapi.example.com', fetched: false },
+    { env: { WAKATIME_HOSTS: 'wakapi.example.com' }, host: 'wakapi.example.com', fetched: true },
+    { env: { WAKATIME_HOSTS: 'wakapi.example.com' }, host: '169.254.169.254', fetched: false },
+  ])('fetches WakaTime stats from $host under $env: $fetched', async ({ env, host, fetched }) => {
+    const transport = vi.fn<typeof fetch>(async () => Promise.resolve(Response.json({})));
+    const config = readSettings(env).options.config.with({ fetch: transport });
+
+    await wakatime({ username: 'user', wakatime_host: host }, config);
+
+    expect(transport).toHaveBeenCalledTimes(fetched ? 1 : 0);
   });
 
   it('gives each GitHub request 10 seconds unless REQUEST_TIMEOUT_MS says otherwise', () => {

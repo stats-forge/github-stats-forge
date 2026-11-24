@@ -25,15 +25,15 @@ It leads with the range's total and its daily average, then splits that time by 
 
 ## Options
 
-| Option          | Values                                                              | What it does                                    |
-| --------------- | ------------------------------------------------------------------- | ----------------------------------------------- |
-| `layout`        | `normal` `compact`                                                  | The shape of the card                           |
-| `value_format`  | `time` `percent`                                                    | Whether a language reads as hours or as a share |
-| `range`         | `last_7_days` `last_30_days` `last_6_months` `last_year` `all_time` | The window counted, named in the title          |
-| `langs_count`   | a number                                                            | How many languages to show                      |
-| `hide_langs`    | language names                                                      | Languages to leave out                          |
-| `hide_progress` | `true` `false`                                                      | Drop the bars and keep the names                |
-| `wakatime_host` | a hostname                                                          | A self-hosted WakaTime, e.g. Wakapi or Hakatime |
+| Option          | Values                                                              | What it does                                                                                                                 |
+| --------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `layout`        | `normal` `compact`                                                  | The shape of the card                                                                                                        |
+| `value_format`  | `time` `percent`                                                    | Whether a language reads as hours or as a share                                                                              |
+| `range`         | `last_7_days` `last_30_days` `last_6_months` `last_year` `all_time` | The window counted, named in the title                                                                                       |
+| `langs_count`   | a number                                                            | How many languages to show                                                                                                   |
+| `hide_langs`    | language names                                                      | Languages to leave out                                                                                                       |
+| `hide_progress` | `true` `false`                                                      | Drop the bars and keep the names                                                                                             |
+| `wakatime_host` | a hostname                                                          | A self-hosted WakaTime, e.g. Wakapi or Hakatime, that the instance [lists](../../usage/self-hosting/#pinning-it-to-yourself) |
 
 Plus the [common options](../../customization/common-options/).
 
