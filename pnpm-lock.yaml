@@ -248,8 +248,8 @@ importers:
         specifier: 7.3.10
         version: 7.3.10(supports-color@10.2.2)
       '@awesome.me/webawesome':
-        specifier: 3.14.0
-        version: 3.14.0(@floating-ui/utils@0.2.12)(@types/node@26.6.6)(@types/react@19.3.0)
+        specifier: 3.15.0
+        version: 3.15.0(@floating-ui/utils@0.2.12)(@types/node@26.6.6)(@types/react@19.3.0)
       '@marcalexiei/oxfmt-config':
         specifier: 2.0.1
         version: 2.0.1(oxfmt@0.78.0(@astrojs/compiler-rs@0.5.3))
@@ -525,8 +525,8 @@ packages:
     peerDependencies:
       vite: ^8.3.3
 
-  '@awesome.me/webawesome@3.14.0':
-    resolution: {integrity: sha512-m5rTGLK/iOvaVFOkYxRjiBOp8lwrBap5tv+zz1gsqLgAxlfwdvElB7BVGjs+Lf9gDps7bWRPTkG0FwZk40mk2A==}
+  '@awesome.me/webawesome@3.15.0':
+    resolution: {integrity: sha512-r2RWOu/QAaTShbTy3QfpOw+j2Mc7z+iY/PA1rBbsmrWOm2DMv7K2wNYe4IXt6TgTswkrKuQM19RCGC5FJh7GFg==}
     engines: {node: '>=14.17.0'}
 
   '@babel/code-frame@7.29.7':
@@ -3396,6 +3396,10 @@ packages:
   mdn-data@2.27.1:
     resolution: {integrity: sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ==}
 
+  microlighter@2.2.0:
+    resolution: {integrity: sha512-XFUHmKclX4taKWVpYkqJ/GlfUS27FzQTCph1u3v9OwkmQJGXry3Pk1e7SivLz6xGOCxRVyi3DSrztF3e460jrg==}
+    engines: {node: '>=18'}
+
   micromark-core-commonmark@2.0.4:
     resolution: {integrity: sha512-wxEeE8v8XVvOrxn1TZj74qYhAtTQsSqufHVS3uNVyT1MupXxhyaHk8/9xDNPh9BmL77QNDgWTkZ3RsYHB2ry7w==}
 
@@ -4583,7 +4587,7 @@ snapshots:
       vite: 8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       zod: 4.6.7
 
-  '@awesome.me/webawesome@3.14.0(@floating-ui/utils@0.2.12)(@types/node@26.6.6)(@types/react@19.3.0)':
+  '@awesome.me/webawesome@3.15.0(@floating-ui/utils@0.2.12)(@types/node@26.6.6)(@types/react@19.3.0)':
     dependencies:
       '@ctrl/tinycolor': 4.1.0
       '@floating-ui/dom': 1.8.0
@@ -4597,6 +4601,7 @@ snapshots:
       composed-offset-position: 0.0.6(@floating-ui/utils@0.2.12)
       lit: 3.3.3
       marked: 11.2.0
+      microlighter: 2.2.0
       nanoid: 5.1.16
     transitivePeerDependencies:
       - '@floating-ui/utils'
@@ -7271,6 +7276,8 @@ snapshots:
   mdn-data@2.0.28: {}
 
   mdn-data@2.27.1: {}
+
+  microlighter@2.2.0: {}
 
   micromark-core-commonmark@2.0.4:
     dependencies:
