@@ -8,6 +8,7 @@ import type { HTMLAttributes } from 'astro/types';
 type Props = HTMLAttributes<'a'>;
 ---
 
-<a {...Astro.props} target="_blank" rel="noopener"
-  ><slot /><span class="sr-only"> (opens in a new tab)</span></a
->
+<a {...Astro.props} target="_blank" rel="noopener">
+  <slot />
+  <span class="sr-only"> (opens in a new tab)</span>
+</a>

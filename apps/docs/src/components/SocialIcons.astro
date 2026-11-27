@@ -12,14 +12,12 @@ import config from 'virtual:starlight/user-config';
 const links = config.social ?? [];
 ---
 
-{
-  links.map(({ label, href, icon }) => (
-    <a {href} target="_blank" rel="me noopener" class="sl-flex">
-      <span class="sr-only">{label} (opens in a new tab)</span>
-      <Icon name={icon} />
-    </a>
-  ))
-}
+{links.map(({ label, href, icon }) => (
+  <a {href} target="_blank" rel="me noopener" class="sl-flex">
+    <span class="sr-only">{label} (opens in a new tab)</span>
+    <Icon name={icon} />
+  </a>
+))}
 
 <style>
   /* Starlight's own, which the override replaces along with the markup. */

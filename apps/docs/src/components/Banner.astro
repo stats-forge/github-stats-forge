@@ -18,4 +18,6 @@ if (SERVED_BY_INSTANCE && Astro.url.pathname.replace(/\/$/, '') === BASE) {
 }
 ---
 
-<Default {...Astro.props}><slot /></Default>
+<Default {...Astro.props}>
+  <slot />
+</Default>
