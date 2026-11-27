@@ -1,5 +1,15 @@
 # @stats-forge/github-stats-server
 
+## 0.10.1
+
+### Patch Changes
+
+- [#516](https://github.com/stats-forge/github-stats-forge/pull/516) [`dd4860a`](https://github.com/stats-forge/github-stats-forge/commit/dd4860ab2f6187515924e41f74d0b519605933ab) - fix: drop the stray whitespace inside the anvil's Customization link
+
+- [#514](https://github.com/stats-forge/github-stats-forge/pull/514) [`bb220d9`](https://github.com/stats-forge/github-stats-forge/commit/bb220d98c91cca800cd8eab999c4819011f37bba) - build: update the node:26-alpine base image
+
+- [#514](https://github.com/stats-forge/github-stats-forge/pull/514) [`bb220d9`](https://github.com/stats-forge/github-stats-forge/commit/bb220d98c91cca800cd8eab999c4819011f37bba) - docs: pin the stats-forge/github-stats-forge-action example to v0.18.0
+
 ## 0.10.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @stats-forge/github-stats-forge-cli
 
+## 0.9.1
+
+### Patch Changes
+
+- [#514](https://github.com/stats-forge/github-stats-forge/pull/514) [`bb220d9`](https://github.com/stats-forge/github-stats-forge/commit/bb220d98c91cca800cd8eab999c4819011f37bba) - build: update the @inquirer prompts to their latest minors
+
 ## 0.9.0
 
 ### Minor Changes
