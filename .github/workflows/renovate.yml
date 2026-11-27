@@ -71,7 +71,7 @@ jobs:
 
       # No checkout: Renovate clones the repository itself, and reads the configuration from it.
       - name: Renovate
-        uses: renovatebot/github-action@acdd6bda8b035c99ce59d5675816af2aa65a1774 # v46.3.14
+        uses: renovatebot/github-action@1376d90bcd3a4d4e7393ae762eea56ac684aee38 # v48.0.0
         with:
           token: ${{ steps.release-helper.outputs.token }}
         env:

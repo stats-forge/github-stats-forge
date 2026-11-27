@@ -22,14 +22,14 @@ export function approxNumber(
   toAsymmetricMatcher: () => string;
 } {
   return {
-    asymmetricMatch(actual) {
+    asymmetricMatch(actual): boolean {
       if (typeof actual !== 'number' || typeof expected !== 'number') {
         return false;
       }
       const epsilon = 10 ** -precision;
       return Math.abs(actual - expected) < epsilon;
     },
-    toAsymmetricMatcher() {
+    toAsymmetricMatcher(): string {
       return `≈ ${expected} (precision ${precision})`;
     },
   };

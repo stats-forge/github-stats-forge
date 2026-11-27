@@ -33,17 +33,17 @@
     "@changesets/changelog-github": "1.0.1",
     "@changesets/cli": "3.0.3",
     "@marcalexiei/oxfmt-config": "2.0.1",
-    "@marcalexiei/oxlint-config": "1.9.0",
+    "@marcalexiei/oxlint-config": "1.10.0",
     "@types/node": "26.6.6",
     "@vitest/coverage-v8": "catalog:default",
-    "knip": "6.45.1",
+    "knip": "6.48.0",
     "lefthook": "2.2.1",
     "oxfmt": "catalog:default",
-    "oxlint": "1.92.0",
-    "oxlint-tsgolint": "7.0.2006",
+    "oxlint": "1.95.0",
+    "oxlint-tsgolint": "7.0.2008",
     "publint": "0.3.25",
     "typescript": "7.0.2",
     "vitest": "catalog:default"
   },
-  "packageManager": "pnpm@12.18.0+sha512.9d7882d5dc82147ecfc4e062aa34834e0ad0296710a1837a1115ae012127d36b7109e321ac1598a1dd0a65597681b1e99917e12ed0d749eae91187943363beb3"
+  "packageManager": "pnpm@12.23.0+sha512.02da94ffaf133f46074322afe552f90d40b5f71ae259aefbccdacc5085b1d617e98d65e0131f5748b9b67445978ee5055d7d59a473f1eef0d504854fefcd5975"
 }

@@ -1,10 +1,10 @@
 // Generated file — see .github/CONTRIBUTING.md
 
-/** Internal type. DO NOT USE DIRECTLY. */
-type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 import { graphqlDocument } from '../graphqlDocument.ts';
 
 import type * as Types from './common.ts';
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type TopLanguageFragment = { size: number; node: { color: string | null; name: string } };
 
 export type TopLanguagesRepositoryFragment = {

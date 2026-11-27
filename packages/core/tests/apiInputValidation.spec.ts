@@ -22,26 +22,38 @@ const config = new CardConfig({ pats: [{ name: 'PAT_1', value: 'token' }] });
  * so the rejection cannot be blamed on another param.
  */
 const endpoints: Array<[string, string, (value: string) => Promise<ApiResult>]> = [
-  ['gist', 'id', async (id) => gist({ id }, config)],
-  ['pin', 'repo', async (repo) => pin({ repo }, config)],
+  ['gist', 'id', async (id): Promise<ApiResult> => gist({ id }, config)],
+  ['pin', 'repo', async (repo): Promise<ApiResult> => pin({ repo }, config)],
 ];
 
 /** Every endpoint whose `username` is a GitHub login. */
 const githubUsernameEndpoints: Array<[string, (username: string) => Promise<ApiResult>]> = [
-  ['top-langs', async (username) => topLangs({ username }, config)],
-  ['contributed-to', async (username) => contributedTo({ username }, config)],
-  ['stats', async (username) => stats({ username }, config)],
-  ['pin', async (username) => pin({ username }, config)],
+  ['top-langs', async (username): Promise<ApiResult> => topLangs({ username }, config)],
+  ['contributed-to', async (username): Promise<ApiResult> => contributedTo({ username }, config)],
+  ['stats', async (username): Promise<ApiResult> => stats({ username }, config)],
+  ['pin', async (username): Promise<ApiResult> => pin({ username }, config)],
 ];
 
 /** Both ends of the range, on each card that counts within one. */
 const rangeParams: Array<[string, string, (value: string) => Promise<ApiResult>]> = [
-  ['contributed-to', 'from', async (from) => contributedTo({ username: 'user', from }, config)],
-  ['contributed-to', 'to', async (to) => contributedTo({ username: 'user', to }, config)],
-  ['stats', 'from', async (from) => stats({ username: 'user', from }, config)],
-  ['stats', 'to', async (to) => stats({ username: 'user', to }, config)],
-  ['org-activity', 'from', async (from) => orgActivity({ org: 'org', from }, config)],
-  ['org-activity', 'to', async (to) => orgActivity({ org: 'org', to }, config)],
+  [
+    'contributed-to',
+    'from',
+    async (from): Promise<ApiResult> => contributedTo({ username: 'user', from }, config),
+  ],
+  [
+    'contributed-to',
+    'to',
+    async (to): Promise<ApiResult> => contributedTo({ username: 'user', to }, config),
+  ],
+  ['stats', 'from', async (from): Promise<ApiResult> => stats({ username: 'user', from }, config)],
+  ['stats', 'to', async (to): Promise<ApiResult> => stats({ username: 'user', to }, config)],
+  [
+    'org-activity',
+    'from',
+    async (from): Promise<ApiResult> => orgActivity({ org: 'org', from }, config),
+  ],
+  ['org-activity', 'to', async (to): Promise<ApiResult> => orgActivity({ org: 'org', to }, config)],
 ];
 
 // Within the safe set, but not logins GitHub can issue.
@@ -122,8 +134,8 @@ describe('API input validation', () => {
   });
 
   const rangeEndpoints: Array<[string, (query: Record<string, string>) => Promise<ApiResult>]> = [
-    ['stats', async (query) => stats(query, config)],
-    ['contributed-to', async (query) => contributedTo(query, config)],
+    ['stats', async (query): Promise<ApiResult> => stats(query, config)],
+    ['contributed-to', async (query): Promise<ApiResult> => contributedTo(query, config)],
   ];
 
   it.each(rangeEndpoints)('%s: rejects a from after its to', async (_endpoint, send) => {
