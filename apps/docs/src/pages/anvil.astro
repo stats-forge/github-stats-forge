@@ -54,8 +54,7 @@ if (first === undefined) {
     description: DESCRIPTION,
     template: 'splash',
     tableOfContents: false,
-  }}
->
+  }}>
   <p class="anvil-intro">{DESCRIPTION}</p>
 
   <!-- `ui.ts` runs in a browser and has no environment, so the source is written onto the page. -->
@@ -69,10 +68,10 @@ if (first === undefined) {
 
       <div data-anvil="extra"></div>
       <p class="anvil-note">
-        {'A query string, for the options this form has no control for yet. Every option is listed under '}
-        <NewTabLink href={`${BASE}/docs/customization/common-options/`}>
-          Customization
-        </NewTabLink> 
+        {
+          'A query string, for the options this form has no control for yet. Every option is listed under '
+        }
+        <NewTabLink href={`${BASE}/docs/customization/common-options/`}>Customization</NewTabLink>
         {' and on the '}
         <NewTabLink href={`${BASE}/docs/cards/${first.docs}/`} data-anvil="card-docs">
           selected card's page
@@ -92,10 +91,18 @@ if (first === undefined) {
       <p class="anvil-note">
         <span class="anvil-badge" id="anvil-backdrop-note" tabindex="0">
           <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
-            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
-            ></circle>
-            <path d="M8 7.25v4.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            ></path>
+            <circle
+              cx="8"
+              cy="8"
+              r="7"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"></circle>
+            <path
+              d="M8 7.25v4.25"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"></path>
             <circle cx="8" cy="4.6" r="0.9" fill="currentColor"></circle>
           </svg>
           Follows the card's theme
@@ -134,10 +141,18 @@ if (first === undefined) {
       <p class="anvil-note">
         <span class="anvil-badge" id="anvil-source" tabindex="0">
           <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
-            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
-            ></circle>
-            <path d="M8 7.25v4.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            ></path>
+            <circle
+              cx="8"
+              cy="8"
+              r="7"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"></circle>
+            <path
+              d="M8 7.25v4.25"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"></path>
             <circle cx="8" cy="4.6" r="0.9" fill="currentColor"></circle>
           </svg>
           <span data-anvil="source-badge"></span>
@@ -151,15 +166,19 @@ if (first === undefined) {
         <div class="anvil-output-head">
           <span>Card URL</span>
           <span class="anvil-actions">
-            <button type="button" data-anvil="copy-url">Copy URL</button>
-            <button type="button" data-anvil="copy-markdown">Copy Markdown</button>
+            <button type="button" data-anvil="copy-url">
+              Copy URL
+            </button>
+            <button type="button" data-anvil="copy-markdown">
+              Copy Markdown
+            </button>
           </span>
         </div>
         <pre data-anvil="url"></pre>
         <pre data-anvil="markdown"></pre>
         <p class="anvil-note">
-          This instance draws that card at that address, and the second line is what a README
-          wants. Open the first to see the card on its own.
+          This instance draws that card at that address, and the second line is what a README wants.
+          Open the first to see the card on its own.
         </p>
       </div>
 
@@ -168,21 +187,21 @@ if (first === undefined) {
           {/* Written by `ui.ts`, with the `--config` line below it: the name follows the card. */}
           <span data-anvil="filename"></span>
           <span class="anvil-actions">
-            <button type="button" data-anvil="copy">Copy</button>
+            <button type="button" data-anvil="copy">
+              Copy
+            </button>
             <a data-anvil="download">Download</a>
           </span>
         </div>
         <pre data-anvil="output"></pre>
         <p class="anvil-note">
-          Render it with <code data-anvil="command"></code>, or pass the same options to
-          {' '}
-          {
-            isExcludedWhenSelfHosted('docs/usage/library') ? (
-              'the library'
-            ) : (
-              <NewTabLink href={`${BASE}/docs/usage/library/`}>the library</NewTabLink>
-            )
-          }.
+          Render it with <code data-anvil="command"></code>, or pass the same options to{' '}
+          {isExcludedWhenSelfHosted('docs/usage/library') ? (
+            'the library'
+          ) : (
+            <NewTabLink href={`${BASE}/docs/usage/library/`}>the library</NewTabLink>
+          )}
+          .
         </p>
       </div>
     </div>
@@ -192,12 +211,12 @@ if (first === undefined) {
 </StarlightPage>
 
 <script>
+  import { mount } from '../anvil/ui.ts';
+
   // The Web Awesome elements in this page's own markup; the rest are built by `controls.ts`.
   import '@awesome.me/webawesome/dist/components/spinner/spinner.js';
   import '@awesome.me/webawesome/dist/components/toast/toast.js';
   import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
-
-  import { mount } from '../anvil/ui.ts';
 
   const root = document.querySelector<HTMLElement>('[data-anvil="root"]');
   if (root !== null) {

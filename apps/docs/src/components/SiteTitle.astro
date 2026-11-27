@@ -20,7 +20,9 @@ const sections: Array<{ label: string; href: string }> = [
 const path = Astro.url.pathname;
 ---
 
-<Default {...Astro.props}><slot /></Default>
+<Default {...Astro.props}>
+  <slot />
+</Default>
 
 {
   /*
@@ -36,13 +38,11 @@ const path = Astro.url.pathname;
 }
 
 <nav class="site-nav" aria-label="Sections">
-  {
-    sections.map(({ label, href }) => (
-      <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>
-        {label}
-      </a>
-    ))
-  }
+  {sections.map(({ label, href }) => (
+    <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>
+      {label}
+    </a>
+  ))}
 </nav>
 
 <style>
