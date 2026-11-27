@@ -238,19 +238,19 @@ const SEARCHED: Record<
   RepoUserSearch,
   [stat: keyof RepoUserStats, filter: (username: string) => string]
 > = {
-  prs_opened: ['totalPRsAuthored', (username) => `author:${username}+type:pr`],
+  prs_opened: ['totalPRsAuthored', (username): string => `author:${username}+type:pr`],
   prs_commented: [
     'totalPRsCommented',
-    (username) => `commenter:${username}+-author:${username}+type:pr`,
+    (username): string => `commenter:${username}+-author:${username}+type:pr`,
   ],
   prs_reviewed: [
     'totalPRsReviewed',
-    (username) => `reviewed-by:${username}+-author:${username}+type:pr`,
+    (username): string => `reviewed-by:${username}+-author:${username}+type:pr`,
   ],
-  issues_opened: ['totalIssuesAuthored', (username) => `author:${username}+type:issue`],
+  issues_opened: ['totalIssuesAuthored', (username): string => `author:${username}+type:issue`],
   issues_commented: [
     'totalIssuesCommented',
-    (username) => `commenter:${username}+-author:${username}+type:issue`,
+    (username): string => `commenter:${username}+-author:${username}+type:issue`,
   ],
 };
 

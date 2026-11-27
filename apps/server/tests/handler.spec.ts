@@ -532,7 +532,7 @@ const outage = (): { options: ServerOptions; goDown: () => void } => {
 
   return {
     options: { ...options, config },
-    goDown: () => {
+    goDown: (): void => {
       down = true;
     },
   };

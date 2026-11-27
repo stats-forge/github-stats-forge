@@ -83,10 +83,10 @@ const heldBack = (): HeldBack => {
   const { promise, resolve } = Promise.withResolvers<undefined>();
   return {
     calls,
-    release: () => {
+    release: (): void => {
       resolve(undefined);
     },
-    fetch: async (url) => {
+    fetch: async (url): Promise<Response> => {
       calls.push(url);
       await promise;
       return Response.json(GIST_REPLY);

@@ -1,8 +1,8 @@
 // Generated file — see .github/CONTRIBUTING.md
 
+import { graphqlDocument } from '../graphqlDocument.ts';
 /** Internal type. DO NOT USE DIRECTLY. */
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-import { graphqlDocument } from '../graphqlDocument.ts';
 export type OrgRepoInfoFragment = {
   stargazerCount: number;
   forkCount: number;

@@ -18,7 +18,7 @@ allowBuilds:
 catalog:
   '@vitest/coverage-v8': 5.1.1
   jsdom: 31.0.1
-  oxfmt: 0.79.0
+  oxfmt: 0.80.0
   vitest: 5.1.1
 
 # Deliberately stricter than pnpm's 1440 default (3 days vs 1)

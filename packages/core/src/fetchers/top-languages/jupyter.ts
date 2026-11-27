@@ -282,7 +282,6 @@ const keepGitHubsCount =
       throw error;
     }
     logger.log(`Kept GitHub's count for ${nameWithOwner}'s notebooks:`, error);
-    return undefined;
   };
 
 /** @returns The repository's notebooks to read, or `undefined` when it keeps GitHub's count. */

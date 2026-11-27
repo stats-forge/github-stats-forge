@@ -94,7 +94,7 @@ from [#79]. **It owns routing, HTTP status and headers, caching and the process,
 
 - **The image build is the one CI check outside `check-all`**, needing docker and minutes. CI's
   `image` job builds it, starts it and asks for a card.
-- **`node:24-alpine`, pinned by digest** in both `FROM` lines, which Renovate bumps together.
+- **`node:26-alpine`, pinned by digest** in both `FROM` lines, which Renovate bumps together.
   Distroless costs the shell, and `bookworm` differs only in libc. Revisit for a glibc dependency or
   flaky cluster DNS (musl's resolver).
 - **The base stage deletes the root `prepare` script**, which neither stage can run (no lefthook
